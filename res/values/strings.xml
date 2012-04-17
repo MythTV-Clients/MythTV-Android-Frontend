@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="hello">Hello World!</string>
+    <string name="app_name">MythTV</string>
+
+    <string name="base_url">http://192.168.10.200:6544/</string>
+    
+</resources>
