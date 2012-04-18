@@ -77,7 +77,15 @@ public class CaptureTemplate extends AbstractCaptureOperations implements Captur
 	 */
 	@Override
 	public CaptureCard getCaptureCard( int cardId ) {
-		return restTemplate.getForObject( buildUri( "GetCaptureCard", "CardId", new String( "" + cardId ) ), CaptureCard.class );
+		HttpHeaders requestHeaders = new HttpHeaders();
+		requestHeaders.setAccept( Collections.singletonList( MediaType.APPLICATION_JSON ) );
+
+		HttpEntity<?> requestEntity = new HttpEntity<Object>( requestHeaders );
+
+		ResponseEntity<CaptureCard> responseEntity = restTemplate.exchange( buildUri( "GetCaptureCard", "CardId", new String( "" + cardId ) ), HttpMethod.GET, requestEntity, CaptureCard.class );
+		CaptureCard captureCard = responseEntity.getBody();
+
+		return captureCard;
 	}
 
 	/* (non-Javadoc)
@@ -85,7 +93,7 @@ public class CaptureTemplate extends AbstractCaptureOperations implements Captur
 	 */
 	@Override
 	public int addCaptureCard( CaptureCard captureCard ) {
-		return 0;
+		return restTemplate.postForObject( buildUri( "AddCaptureCard" ), convertCaptureCardToParameters( captureCard ), Integer.class );
 	}
 
 	/* (non-Javadoc)
@@ -97,7 +105,7 @@ public class CaptureTemplate extends AbstractCaptureOperations implements Captur
 		parameters.add( "CardId", new String( "" + cardId ) );
 		parameters.add( setting, value );
 		
-		return restTemplate.getForObject( buildUri( "UpdateCaptureCard", parameters ), Boolean.class );
+		return restTemplate.postForObject( buildUri( "UpdateCaptureCard" ), parameters, Boolean.class );
 	}
 
 	/* (non-Javadoc)
@@ -105,7 +113,44 @@ public class CaptureTemplate extends AbstractCaptureOperations implements Captur
 	 */
 	@Override
 	public boolean removeCaptureCard( int cardId ) {
-		return restTemplate.getForObject( buildUri( "RemoveCaptureCard", "CardId", new String( "" + cardId ) ), Boolean.class );
+		LinkedMultiValueMap<String, String> parameters = new LinkedMultiValueMap<String, String>();
+		parameters.add( "CardId", new String( "" + cardId ) );
+
+		return restTemplate.postForObject( buildUri( "RemoveCaptureCard" ), parameters, Boolean.class );
 	}
 
+	// internal helpers
+	
+	private LinkedMultiValueMap<String, String> convertCaptureCardToParameters( CaptureCard captureCard ) {
+		LinkedMultiValueMap<String, String> parameters = new LinkedMultiValueMap<String, String>();
+		
+		parameters.add( "VideoDevice", captureCard.getVbiDevice() );
+		parameters.add( "CardType", captureCard.getCardType() );
+		parameters.add( "DefaultInput", "" );
+		parameters.add( "HostName", captureCard.getHostName() );
+		parameters.add( "AudioDevice", captureCard.getAudioDevice() );
+		parameters.add( "VBIDevice", captureCard.getVbiDevice() );
+		parameters.add( "AudioRateLimit", captureCard.getAudioRateLimit().toString() );
+		parameters.add( "SkipBTAudio", captureCard.getSkipBtAudio().toString() );
+		parameters.add( "DVBSWFilter", captureCard.getDvbSwFilter().toString() );
+		parameters.add( "DVBSatType", captureCard.getDvbSatType().toString() );
+		parameters.add( "DVBWaitForSeqStart", captureCard.getDvbWaitForSeqStart().toString() );
+		parameters.add( "DVBOnDemand", captureCard.getDvbOnDemand().toString() );
+		parameters.add( "DVBDiSEqCType", captureCard.getDvbDiSEqCType().toString() );
+		parameters.add( "FirewireModel", captureCard.getFirewireModel() );
+		parameters.add( "FirewireSpeed", captureCard.getFirewireSpeed().toString() );
+		parameters.add( "FirewireConnection", captureCard.getFirewireConnection().toString() );
+		parameters.add( "SignalTimeout", captureCard.getSignalTimeout().toString() );
+		parameters.add( "ChannelTimeout", captureCard.getChannelTimeout().toString() );
+		parameters.add( "DVBTuningDelay", captureCard.getDvbTuningDelay().toString() );
+		parameters.add( "Contrast", captureCard.getContrast().toString() );
+		parameters.add( "Brightness", captureCard.getBrightness().toString() );
+		parameters.add( "Colour", captureCard.getColour().toString() );
+		parameters.add( "Hue", captureCard.getHue().toString() );
+		parameters.add( "DiSEqCId", captureCard.getDiSEqCId().toString() );
+		parameters.add( "DVBEITScan", captureCard.getDvbEitScan().toString() );
+
+		return parameters;
+	}
+	
 }
