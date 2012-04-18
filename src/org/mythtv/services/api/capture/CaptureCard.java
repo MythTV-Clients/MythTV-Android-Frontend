@@ -3,36 +3,87 @@
  */
 package org.mythtv.services.api.capture;
 
+import org.codehaus.jackson.annotate.JsonProperty;
+
 /**
  * @author Daniel Frey
  * 
  */
 public class CaptureCard {
 
-	private int id;
+	@JsonProperty( "CardId" )
+	private int cardId;
+	
+	@JsonProperty( "VideoDevice" )
 	private String videoDevice;
+	
+	@JsonProperty( "AudioDevice" )
 	private String audioDevice;
+	
+	@JsonProperty( "VBIDevice" )
 	private String vbiDevice;
-	private String cartType;
+	
+	@JsonProperty( "CardType" )
+	private String cardType;
+	
+	@JsonProperty( "AudioRateLimit" )
 	private int audioRateLimit;
+	
+	@JsonProperty( "HostName" )
 	private String hostName;
+	
+	@JsonProperty( "DVBSWFilter" )
 	private int dvbSwFilter;
+	
+	@JsonProperty( "DVBSatType" )
 	private int dvbSatType;
+	
+	@JsonProperty( "DVBWaitForSeqStart" )
 	private boolean dvbWaitForSeqStart;
+	
+	@JsonProperty( "SkipBTAudio" )
 	private boolean skipBtAudio;
+	
+	@JsonProperty( "DVBOnDemand" )
 	private boolean dvbOnDemand;
+	
+	@JsonProperty( "DVBDiSEqCType" )
 	private int dvbDiSEqCType;
+	
+	@JsonProperty( "FirewireSpeed" )
 	private int firewireSpeed;
+	
+	@JsonProperty( "FirewireModel" )
 	private String firewireModel;
+	
+	@JsonProperty( "FirewireConnection" )
 	private int firewireConnection;
+	
+	@JsonProperty( "SignalTimeout" )
 	private int signalTimeout;
+	
+	@JsonProperty( "ChannelTimeout" )
 	private int channelTimeout;
+	
+	@JsonProperty( "DVBTuningDelay" )
 	private int dvbTuningDelay;
+	
+	@JsonProperty( "Contrast" )
 	private int contrast;
+	
+	@JsonProperty( "Brightness" )
 	private int brightness;
+	
+	@JsonProperty( "Colour" )
 	private int colour;
+	
+	@JsonProperty( "Hue" )
 	private int hue;
+	
+	@JsonProperty( "DiSEqCId" )
 	private int diSEqCId;
+	
+	@JsonProperty( "DVBEITScan" )
 	private boolean dvbEitScan;
 
 	/**
@@ -42,11 +93,11 @@ public class CaptureCard {
 	}
 
 	/**
-	 * @param id
+	 * @param cardId
 	 * @param videoDevice
 	 * @param audioDevice
 	 * @param vbiDevice
-	 * @param cartType
+	 * @param cardType
 	 * @param audioRateLimit
 	 * @param hostName
 	 * @param dvbSwFilter
@@ -68,17 +119,17 @@ public class CaptureCard {
 	 * @param diSEqCId
 	 * @param dvbEitScan
 	 */
-	public CaptureCard( Integer id, String videoDevice, String audioDevice, String vbiDevice, String cartType,
+	public CaptureCard( int cardId, String videoDevice, String audioDevice, String vbiDevice, String cardType,
 			Integer audioRateLimit, String hostName, Integer dvbSwFilter, Integer dvbSatType,
 			Boolean dvbWaitForSeqStart, Boolean skipBtAudio, Boolean dvbOnDemand, Integer dvbDiSEqCType,
 			Integer firewireSpeed, String firewireModel, Integer firewireConnection, Integer signalTimeout,
 			Integer channelTimeout, Integer dvbTuningDelay, Integer contrast, Integer brightness, Integer colour,
 			Integer hue, Integer diSEqCId, Boolean dvbEitScan ) {
-		this.id = id;
+		this.cardId = cardId;
 		this.videoDevice = videoDevice;
 		this.audioDevice = audioDevice;
 		this.vbiDevice = vbiDevice;
-		this.cartType = cartType;
+		this.cardType = cardType;
 		this.audioRateLimit = audioRateLimit;
 		this.hostName = hostName;
 		this.dvbSwFilter = dvbSwFilter;
@@ -102,18 +153,18 @@ public class CaptureCard {
 	}
 
 	/**
-	 * @return the id
+	 * @return the cardId
 	 */
-	public Integer getId() {
-		return id;
+	public int getCardId() {
+		return cardId;
 	}
 
 	/**
-	 * @param id
-	 *            the id to set
+	 * @param cardId
+	 *            the cardId to set
 	 */
-	public void setId( Integer id ) {
-		this.id = id;
+	public void setCardId( int cardId ) {
+		this.cardId = cardId;
 	}
 
 	/**
@@ -162,18 +213,18 @@ public class CaptureCard {
 	}
 
 	/**
-	 * @return the cartType
+	 * @return the cardType
 	 */
-	public String getCartType() {
-		return cartType;
+	public String getCardType() {
+		return cardType;
 	}
 
 	/**
-	 * @param cartType
-	 *            the cartType to set
+	 * @param cardType
+	 *            the cardType to set
 	 */
-	public void setCartType( String cartType ) {
-		this.cartType = cartType;
+	public void setCardType( String cardType ) {
+		this.cardType = cardType;
 	}
 
 	/**
@@ -487,7 +538,7 @@ public class CaptureCard {
 
 		builder.append( "CaptureCard [" );
 
-		builder.append( "id=" ).append( id ).append( ", " );
+		builder.append( "cardId=" ).append( cardId ).append( ", " );
 
 		if( videoDevice != null ) {
 			builder.append( "videoDevice=" );
@@ -507,9 +558,9 @@ public class CaptureCard {
 			builder.append( ", " );
 		}
 
-		if( cartType != null ) {
-			builder.append( "cartType=" );
-			builder.append( cartType );
+		if( cardType != null ) {
+			builder.append( "cardType=" );
+			builder.append( cardType );
 			builder.append( ", " );
 		}
 

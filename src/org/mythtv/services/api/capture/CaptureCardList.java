@@ -3,6 +3,8 @@
  */
 package org.mythtv.services.api.capture;
 
+import org.codehaus.jackson.annotate.JsonProperty;
+
 
 /**
  * @author Daniel Frey
@@ -10,6 +12,7 @@ package org.mythtv.services.api.capture;
  */
 public class CaptureCardList {
 
+	@JsonProperty( "CaptureCardList" )
 	private CaptureCards captureCards;
 	
 	public CaptureCardList() { }

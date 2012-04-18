@@ -5,12 +5,15 @@ package org.mythtv.services.api.capture;
 
 import java.util.List;
 
+import org.codehaus.jackson.annotate.JsonProperty;
+
 /**
  * @author Daniel Frey
  *
  */
 public class CaptureCards {
 
+	@JsonProperty( "CaptureCards" )
 	private List<CaptureCard> captureCards;
 	
 	public CaptureCards() { }

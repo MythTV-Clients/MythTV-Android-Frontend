@@ -10,28 +10,20 @@ import java.util.List;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.mythtv.services.api.capture.CaptureOperations;
-import org.mythtv.services.api.capture.impl.CaptureModule;
 import org.mythtv.services.api.capture.impl.CaptureTemplate;
 import org.mythtv.services.api.channel.ChannelOperations;
-import org.mythtv.services.api.channel.impl.ChannelModule;
 import org.mythtv.services.api.channel.impl.ChannelTemplate;
 import org.mythtv.services.api.content.ContentOperations;
-import org.mythtv.services.api.content.impl.ContentModule;
 import org.mythtv.services.api.content.impl.ContentTemplate;
 import org.mythtv.services.api.dvr.DvrOperations;
-import org.mythtv.services.api.dvr.impl.DvrModule;
 import org.mythtv.services.api.dvr.impl.DvrTemplate;
 import org.mythtv.services.api.frontend.FrontendOperations;
-import org.mythtv.services.api.frontend.impl.FrontendModule;
 import org.mythtv.services.api.frontend.impl.FrontendTemplate;
 import org.mythtv.services.api.guide.GuideOperations;
-import org.mythtv.services.api.guide.impl.GuideModule;
 import org.mythtv.services.api.guide.impl.GuideTemplate;
 import org.mythtv.services.api.myth.MythOperations;
-import org.mythtv.services.api.myth.impl.MythModule;
 import org.mythtv.services.api.myth.impl.MythTemplate;
 import org.mythtv.services.api.video.VideoOperations;
-import org.mythtv.services.api.video.impl.VideoModule;
 import org.mythtv.services.api.video.impl.VideoTemplate;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.ByteArrayHttpMessageConverter;
@@ -66,7 +58,6 @@ public class MythServicesTemplate implements MythServices {
 		restTemplate = new RestTemplate( ClientHttpRequestFactorySelector.getRequestFactory() );
 		restTemplate.setMessageConverters( getMessageConverters() );
 
-		registerMythServicesJsonModule();
 		getRestTemplate().setErrorHandler( new MythServicesErrorHandler() );
 		initSubApis();
 	}
@@ -168,113 +159,6 @@ public class MythServicesTemplate implements MythServices {
 	}
 
 	// private helper
-
-	private void registerMythServicesJsonModule() {
-		registerCaptureJsonModule();
-		registerChannelJsonModule();
-		registerContentJsonModule();
-		registerDvrJsonModule();
-		registerFrontendJsonModule();
-		registerGuideJsonModule();
-		registerMythJsonModule();
-		registerVideoJsonModule();
-	}
-
-	private void registerCaptureJsonModule() {
-		List<HttpMessageConverter<?>> converters = getRestTemplate().getMessageConverters();
-		for( HttpMessageConverter<?> converter : converters ) {
-			if( converter instanceof MappingJacksonHttpMessageConverter ) {
-				MappingJacksonHttpMessageConverter jsonConverter = (MappingJacksonHttpMessageConverter) converter;
-				ObjectMapper objectMapper = new ObjectMapper();
-				objectMapper.registerModule( new CaptureModule() );
-				jsonConverter.setObjectMapper( objectMapper );
-			}
-		}
-	}
-
-	private void registerChannelJsonModule() {
-		List<HttpMessageConverter<?>> converters = getRestTemplate().getMessageConverters();
-		for( HttpMessageConverter<?> converter : converters ) {
-			if( converter instanceof MappingJacksonHttpMessageConverter ) {
-				MappingJacksonHttpMessageConverter jsonConverter = (MappingJacksonHttpMessageConverter) converter;
-				ObjectMapper objectMapper = new ObjectMapper();
-				objectMapper.registerModule( new ChannelModule() );
-				jsonConverter.setObjectMapper( objectMapper );
-			}
-		}
-	}
-
-	private void registerDvrJsonModule() {
-		List<HttpMessageConverter<?>> converters = getRestTemplate().getMessageConverters();
-		for( HttpMessageConverter<?> converter : converters ) {
-			if( converter instanceof MappingJacksonHttpMessageConverter ) {
-				MappingJacksonHttpMessageConverter jsonConverter = (MappingJacksonHttpMessageConverter) converter;
-				ObjectMapper objectMapper = new ObjectMapper();
-				objectMapper.registerModule( new DvrModule() );
-				jsonConverter.setObjectMapper( objectMapper );
-			}
-		}
-	}
-
-	private void registerFrontendJsonModule() {
-		List<HttpMessageConverter<?>> converters = getRestTemplate().getMessageConverters();
-		for( HttpMessageConverter<?> converter : converters ) {
-			if( converter instanceof MappingJacksonHttpMessageConverter ) {
-				MappingJacksonHttpMessageConverter jsonConverter = (MappingJacksonHttpMessageConverter) converter;
-				ObjectMapper objectMapper = new ObjectMapper();
-				objectMapper.registerModule( new FrontendModule() );
-				jsonConverter.setObjectMapper( objectMapper );
-			}
-		}
-	}
-
-	private void registerContentJsonModule() {
-		List<HttpMessageConverter<?>> converters = getRestTemplate().getMessageConverters();
-		for( HttpMessageConverter<?> converter : converters ) {
-			if( converter instanceof MappingJacksonHttpMessageConverter ) {
-				MappingJacksonHttpMessageConverter jsonConverter = (MappingJacksonHttpMessageConverter) converter;
-				ObjectMapper objectMapper = new ObjectMapper();
-				objectMapper.registerModule( new ContentModule() );
-				jsonConverter.setObjectMapper( objectMapper );
-			}
-		}
-	}
-
-	private void registerGuideJsonModule() {
-		List<HttpMessageConverter<?>> converters = getRestTemplate().getMessageConverters();
-		for( HttpMessageConverter<?> converter : converters ) {
-			if( converter instanceof MappingJacksonHttpMessageConverter ) {
-				MappingJacksonHttpMessageConverter jsonConverter = (MappingJacksonHttpMessageConverter) converter;
-				ObjectMapper objectMapper = new ObjectMapper();
-				objectMapper.registerModule( new GuideModule() );
-				jsonConverter.setObjectMapper( objectMapper );
-			}
-		}
-	}
-
-	private void registerMythJsonModule() {
-		List<HttpMessageConverter<?>> converters = getRestTemplate().getMessageConverters();
-		for( HttpMessageConverter<?> converter : converters ) {
-			if( converter instanceof MappingJacksonHttpMessageConverter ) {
-				MappingJacksonHttpMessageConverter jsonConverter = (MappingJacksonHttpMessageConverter) converter;
-				ObjectMapper objectMapper = new ObjectMapper();
-				objectMapper.registerModule( new MythModule() );
-				jsonConverter.setObjectMapper( objectMapper );
-			}
-		}
-	}
-
-	private void registerVideoJsonModule() {
-		List<HttpMessageConverter<?>> converters = getRestTemplate().getMessageConverters();
-		for( HttpMessageConverter<?> converter : converters ) {
-			if( converter instanceof MappingJacksonHttpMessageConverter ) {
-				MappingJacksonHttpMessageConverter jsonConverter = (MappingJacksonHttpMessageConverter) converter;
-				ObjectMapper objectMapper = new ObjectMapper();
-				objectMapper.registerModule( new VideoModule() );
-				jsonConverter.setObjectMapper( objectMapper );
-			}
-		}
-	}
 
 	private String getApiUrlBase() {
 		return apiUrlBase;

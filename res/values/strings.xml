@@ -2,7 +2,7 @@
 <resources>
 
     <string name="hello">Hello World!</string>
-    <string name="app_name">MythTV</string>
+    <string name="app_name">MythTV for Android</string>
 
     <string name="base_url">http://192.168.10.200:6544/</string>
     

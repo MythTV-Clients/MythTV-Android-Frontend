@@ -5,7 +5,7 @@ package org.mythtv.client.ui.capture;
 
 import java.util.List;
 
-import org.mythtv.client.ui.AbstractMythActivity;
+import org.mythtv.client.ui.AbstractMythListActivity;
 import org.mythtv.services.api.capture.CaptureCard;
 
 import android.os.AsyncTask;
@@ -16,7 +16,7 @@ import android.util.Log;
  * @author Daniel Frey
  * 
  */
-public class CaptureCardsActivity extends AbstractMythActivity {
+public class CaptureCardsActivity extends AbstractMythListActivity {
 
 	private static final String TAG = CaptureCardsActivity.class.getSimpleName();
 
@@ -64,7 +64,7 @@ public class CaptureCardsActivity extends AbstractMythActivity {
 			Log.i( TAG, captureCard.toString() );
 		}
 		
-		//setListAdapter(new EventsListAdapter(this, upcomingEvents));
+		setListAdapter( new CaptureCardsListAdapter( this, this.captureCards ) );
 	}
 		
 	private void downloadCaptureCards() {
