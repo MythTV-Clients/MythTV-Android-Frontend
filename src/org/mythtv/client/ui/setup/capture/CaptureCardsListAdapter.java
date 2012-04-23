@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.mythtv.client.ui.capture;
+package org.mythtv.client.ui.setup.capture;
 
 import java.util.List;
 

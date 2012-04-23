@@ -1,0 +1,23 @@
+<org.mythtv.client.ui.widget.DashboardLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+
+    <Button android:id="@+id/dvr_btn_recordings"
+        style="@style/DashboardButton"
+        android:text="@string/btn_recordings"
+        android:drawableTop="@null" />
+    <Button android:id="@+id/dvr_btn_upcoming"
+        style="@style/DashboardButton"
+        android:text="@string/btn_upcoming"
+        android:drawableTop="@null" />
+    <Button android:id="@+id/dvr_btn_live"
+        style="@style/DashboardButton"
+        android:text="@string/btn_live"
+        android:drawableTop="@null" />
+    <Button android:id="@+id/dvr_btn_guide"
+        style="@style/DashboardButton"
+        android:text="@string/btn_guide"
+        android:drawableTop="@null" />
+
+</org.mythtv.client.ui.widget.DashboardLayout>

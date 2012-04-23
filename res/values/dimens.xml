@@ -1,0 +1,9 @@
+<resources>
+    
+     <!-- UI elements -->
+    <dimen name="actionbar_compat_height">45dp</dimen>
+    
+    <!-- body content -->
+    <dimen name="text_size_small">14sp</dimen>
+    
+</resources>

@@ -9,15 +9,17 @@
         android:targetSdkVersion="15" />
 
     <uses-permission android:name="android.permission.INTERNET" />
-    
+  	<uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
+
     <application
-       	android:name="org.mythtv.client.MainApplication"
+       	android:name=".client.MainApplication"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@android:style/Theme.Holo.Light">
+        android:theme="@android:style/Theme.Holo.Light" android:debuggable="true">
 
 		<activity 
-			android:name="org.mythtv.client.ui.MainActivity">
+			android:name=".client.ui.HomeActivity">
 			
 			<intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -26,8 +28,11 @@
             
 		</activity>
     
+		<!-- MythTV Setup Activities -->
 		<activity 
-		    android:name="org.mythtv.client.ui.capture.CaptureCardsActivity" />
+		    android:name=".client.ui.setup.SetupActivity" />
+		<activity 
+		    android:name=".client.ui.setup.capture.CaptureCardsActivity" />
 		
 	</application>
 

@@ -6,4 +6,27 @@
 
     <string name="base_url">http://192.168.10.200:6544/</string>
     
+    <string name="item_network_title">Searching network for MythTV&#8230;</string>
+	<string name="item_network_caption">Make sure you are on the same network as your MythTV Master Backend</string>
+    
+    <!-- Tabs -->
+    <string name="tab_frontends">Frontends</string>
+    <string name="tab_dvr">DVR</string>
+    <string name="tab_multimedia">Multimedia</string>
+	
+    <!-- DVR Dashboard Buttons -->
+    <string name="btn_recordings">Recordings</string>
+    <string name="btn_upcoming">Upcoming</string>
+    <string name="btn_live">Live TV</string>
+    <string name="btn_guide">Guide</string>
+    
+    <!-- Media Dashboard Buttons -->
+    <string name="btn_videos">Videos</string>
+    <string name="btn_music">Music</string>
+    <string name="btn_pictures">Pictures</string>
+    
+    <!-- Setup Dashboard Buttons -->
+	<string name="menu_setup">Setup</string>
+    <string name="btn_capture">Tuners</string>
+
 </resources>

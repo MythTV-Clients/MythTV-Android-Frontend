@@ -37,6 +37,13 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <!-- Support library (aka compatibility library) from the central repository as well
+            note that this uses default scope (NOT provided) since the library will need to be added to your apk -->
+            <groupId>com.google.android</groupId>
+            <artifactId>support-v4</artifactId>
+            <version>r6</version>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.android</groupId>
             <artifactId>spring-android-rest-template</artifactId>
             <version>${spring-android-version}</version>
@@ -109,17 +116,27 @@
                 </exclusion>
             </exclusions>
         </dependency>
-         <dependency>
+        <dependency>
   			<groupId>com.google.code.android-rome-feed-reader</groupId>
   			<artifactId>android-rome-feed-reader</artifactId>
   			<version>1.0.0-r2</version>
 		</dependency>
-         <dependency>
-         	<groupId>joda-time</groupId>
-         	<artifactId>joda-time</artifactId>
-         	<version>2.1</version>
-         </dependency>
-    </dependencies>
+        <dependency>
+        	<groupId>joda-time</groupId>
+        	<artifactId>joda-time</artifactId>
+        	<version>2.1</version>
+        </dependency>
+    	<!-- dependency>
+        	<groupId>org.teleal.cling</groupId>
+        	<artifactId>cling-core</artifactId>
+        	<version>1.0.5</version>
+    	</dependency -->
+    	<dependency>
+        	<groupId>javax.jmdns</groupId>
+        	<artifactId>jmdns</artifactId>
+        	<version>3.4.1</version>
+    	</dependency>
+    	</dependencies>
 
     <build>
         <finalName>${project.artifactId}</finalName>
@@ -226,6 +243,14 @@
       		<url>http://mavenrepo.google-api-java-client.googlecode.com/hg</url>
     	</repository>
 
-    </repositories>
+    	<repository>
+        	<id>teleal-repo</id>
+        	<url>http://teleal.org/m2</url>
+        	<snapshots>
+            	<enabled>false</enabled>
+        	</snapshots>
+    	</repository>
+	    
+	</repositories>
 
 </project>

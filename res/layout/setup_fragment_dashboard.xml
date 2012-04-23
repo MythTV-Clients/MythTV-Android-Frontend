@@ -1,0 +1,11 @@
+<org.mythtv.client.ui.widget.DashboardLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+
+    <Button android:id="@+id/setup_btn_capture"
+        style="@style/DashboardButton"
+        android:text="@string/btn_capture"
+        android:drawableTop="@null" />
+
+</org.mythtv.client.ui.widget.DashboardLayout>
