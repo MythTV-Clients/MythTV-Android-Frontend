@@ -1,0 +1,6 @@
+<resources>
+
+	<style name="Theme.Mythtv" parent="android:style/Theme.DeviceDefault.Light">
+    </style>
+    
+</resources>

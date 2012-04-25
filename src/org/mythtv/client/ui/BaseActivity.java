@@ -30,11 +30,11 @@ public abstract class BaseActivity extends FragmentActivity implements MythActiv
 		return (MainApplication) super.getApplicationContext();
 	}
 
-	@Override
-	protected void onPostCreate( Bundle savedInstanceState ) {
-		super.onPostCreate( savedInstanceState );
-		mActivityHelper.onPostCreate(savedInstanceState);
-	}
+//	@Override
+//	protected void onPostCreate( Bundle savedInstanceState ) {
+//		super.onPostCreate( savedInstanceState );
+//		mActivityHelper.onPostCreate(savedInstanceState);
+//	}
 
 	@Override
 	public boolean onKeyLongPress( int keyCode, KeyEvent event ) {
@@ -50,19 +50,19 @@ public abstract class BaseActivity extends FragmentActivity implements MythActiv
 				super.onKeyDown( keyCode, event );
 	}
 
-	@Override
-	public boolean onCreateOptionsMenu( Menu menu ) {
-		return
-				mActivityHelper.onCreateOptionsMenu(menu) ||
-				super.onCreateOptionsMenu( menu );
-	}
+//	@Override
+//	public boolean onCreateOptionsMenu( Menu menu ) {
+//		return
+//				mActivityHelper.onCreateOptionsMenu(menu) ||
+//				super.onCreateOptionsMenu( menu );
+//	}
 
-	@Override
-	public boolean onOptionsItemSelected( MenuItem item ) {
-		return
-				mActivityHelper.onOptionsItemSelected(item) ||
-				super.onOptionsItemSelected( item );
-	}
+//	@Override
+//	public boolean onOptionsItemSelected( MenuItem item ) {
+//		return
+//				mActivityHelper.onOptionsItemSelected(item) ||
+//				super.onOptionsItemSelected( item );
+//	}
 
 	/**
 	 * Returns the {@link ActivityHelper} object associated with this activity.

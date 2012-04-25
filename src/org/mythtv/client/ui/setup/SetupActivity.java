@@ -4,12 +4,12 @@
 package org.mythtv.client.ui.setup;
 
 import org.mythtv.R;
-import org.mythtv.client.ui.BaseActivity;
 import org.mythtv.client.ui.HomeActivity;
 
 import android.app.ActionBar;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -18,7 +18,7 @@ import android.view.MenuItem;
  * @author Daniel Frey
  * 
  */
-public class SetupActivity extends BaseActivity {
+public class SetupActivity extends FragmentActivity {
 
 	private final static String TAG = SetupActivity.class.getSimpleName();
 
@@ -29,11 +29,11 @@ public class SetupActivity extends BaseActivity {
 		super.onCreate( savedInstanceState );
 
 		setContentView( R.layout.activity_setup );
-		getActivityHelper().setupActionBar( null, 0 );
+		//getActivityHelper().setupActionBar( null, 0 );
 
-		final ActionBar actionBar = getActionBar();
+		//final ActionBar actionBar = getActionBar();
 		
-		actionBar.setDisplayHomeAsUpEnabled( true );
+		//actionBar.setDisplayHomeAsUpEnabled( true );
 		
 		Log.d( TAG, "onCreate : exit" );
 	}
@@ -64,15 +64,11 @@ public class SetupActivity extends BaseActivity {
             Intent intent = new Intent( this, HomeActivity.class );
             intent.addFlags( Intent.FLAG_ACTIVITY_CLEAR_TOP );
             startActivity( intent );
-            break;
-		default:
-			Log.d( TAG, "onOptionsItemSelected : nothing selected" );
-
-			break;
+            return true;
 		}
 
 		Log.d( TAG, "onOptionsItemSelected : exit" );
-		return true;
+		return super.onOptionsItemSelected( item );
 	}
 
 }

@@ -9,6 +9,10 @@
     <string name="item_network_title">Searching network for MythTV&#8230;</string>
 	<string name="item_network_caption">Make sure you are on the same network as your MythTV Master Backend</string>
     
+	<!-- Menu -->
+	<string name="menu_clear">Clear</string>
+	<string name="menu_setup">Setup</string>
+		
     <!-- Tabs -->
     <string name="tab_frontends">Frontends</string>
     <string name="tab_dvr">DVR</string>
@@ -26,7 +30,6 @@
     <string name="btn_pictures">Pictures</string>
     
     <!-- Setup Dashboard Buttons -->
-	<string name="menu_setup">Setup</string>
     <string name="btn_capture">Tuners</string>
 
 </resources>

@@ -37,11 +37,11 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <!-- Support library (aka compatibility library) from the central repository as well
-            note that this uses default scope (NOT provided) since the library will need to be added to your apk -->
+            Support library (aka compatibility library) from the central repository as well
+            note that this uses default scope (NOT provided) since the library will need to be added to your apk
             <groupId>com.google.android</groupId>
             <artifactId>support-v4</artifactId>
-            <version>r6</version>
+            <version>r7</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.android</groupId>

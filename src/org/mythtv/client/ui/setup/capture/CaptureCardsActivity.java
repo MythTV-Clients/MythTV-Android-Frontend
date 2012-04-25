@@ -42,9 +42,9 @@ public class CaptureCardsActivity extends AbstractMythListActivity {
 		
 		super.onCreate( savedInstanceState );
 
-		final ActionBar actionBar = getActionBar();
+		//final ActionBar actionBar = getActionBar();
 		
-		actionBar.setDisplayHomeAsUpEnabled( true );
+		//actionBar.setDisplayHomeAsUpEnabled( true );
 
 		Log.v( TAG, "onCreate : exit" );
 	}
@@ -92,15 +92,11 @@ public class CaptureCardsActivity extends AbstractMythListActivity {
 			// app icon in action bar clicked; go home
             Intent intent = new Intent( this, SetupActivity.class );
             startActivity( intent );
-            break;
-		default:
-			Log.d( TAG, "onOptionsItemSelected : nothing selected" );
-
-			break;
+            return true;
 		}
 
 		Log.d( TAG, "onOptionsItemSelected : exit" );
-		return true;
+		return super.onOptionsItemSelected( item );
 	}
 
 	//***************************************

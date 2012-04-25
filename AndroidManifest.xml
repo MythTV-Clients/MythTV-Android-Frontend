@@ -4,22 +4,29 @@
     android:versionCode="1"
     android:versionName="1.0" >
 
-    <uses-sdk
-        android:minSdkVersion="7"
-        android:targetSdkVersion="15" />
-
     <uses-permission android:name="android.permission.INTERNET" />
   	<uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
 
+    <!-- supports-screens 
+        android:anyDensity="true"
+		android:largeScreens="true"
+		android:normalScreens="true"
+		android:smallScreens="true" / -->
+    
+    <uses-sdk
+        android:minSdkVersion="7"
+        android:targetSdkVersion="11" />
+
     <application
-       	android:name=".client.MainApplication"
+        android:hardwareAccelerated="true"
+        android:name=".client.MainApplication"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@android:style/Theme.Holo.Light" android:debuggable="true">
+        android:theme="@style/Theme.Mythtv" android:debuggable="true">
 
 		<activity 
-			android:name=".client.ui.HomeActivity">
+			android:name=".client.ui.MythtvMasterBackendActivity">
 			
 			<intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -28,6 +35,10 @@
             
 		</activity>
     
+		<!-- DVR Activities -->
+		<activity 
+			android:name=".client.ui.HomeActivity" />
+		
 		<!-- MythTV Setup Activities -->
 		<activity 
 		    android:name=".client.ui.setup.SetupActivity" />

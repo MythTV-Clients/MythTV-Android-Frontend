@@ -62,6 +62,8 @@ public class ActivityHelper {
 	}
 
 	public void onPostCreate( Bundle savedInstanceState ) {
+		Log.v( TAG, "onPostCreate : exit" );
+
 		// Create the action bar
 		SimpleMenu menu = new SimpleMenu( mActivity );
 		mActivity.onCreatePanelMenu( Window.FEATURE_OPTIONS_PANEL, menu );
@@ -70,11 +72,17 @@ public class ActivityHelper {
 			MenuItem item = menu.getItem( i );
 			addActionButtonCompatFromMenuItem( item );
 		}
+
+		Log.v( TAG, "onPostCreate : exit" );
 	}
 
 	public boolean onCreateOptionsMenu( Menu menu ) {
-//		mActivity.getMenuInflater().inflate( R.menu.default_menu_items, menu );
-		return false;
+		Log.v( TAG, "onCreateOptionsMenu : enter" );
+
+		//mActivity.getMenuInflater().inflate( R.menu.main_menu, menu );
+
+		Log.v( TAG, "onCreateOptionsMenu : exit" );
+		return true;
 	}
 
 	public boolean onOptionsItemSelected( MenuItem item ) {
@@ -213,8 +221,12 @@ public class ActivityHelper {
 	 * Sets the action bar title to the given string.
 	 */
 	public void setActionBarTitle( CharSequence title ) {
+		Log.v( TAG, "setActionBarTitle : enter" );
+		
 		ViewGroup actionBar = getActionBarCompat();
 		if( actionBar == null ) {
+			Log.v( TAG, "setActionBarTitle : exit, no actionBar" );
+
 			return;
 		}
 
@@ -222,6 +234,8 @@ public class ActivityHelper {
 		if( titleText != null ) {
 			titleText.setText( title );
 		}
+
+		Log.v( TAG, "setActionBarTitle : exit" );
 	}
 
 	/**
@@ -238,8 +252,12 @@ public class ActivityHelper {
 	 * Adds an action bar button to the compatibility action bar (on phones).
 	 */
 	private View addActionButtonCompat( int iconResId, int textResId, View.OnClickListener clickListener, boolean separatorAfter ) {
+		Log.v( TAG, "addActionButtonCompat : enter" );
+
 		final ViewGroup actionBar = getActionBarCompat();
 		if( actionBar == null ) {
+			Log.v( TAG, "addActionButtonCompat : exit, no actionBar" );
+
 			return null;
 		}
 
@@ -267,6 +285,7 @@ public class ActivityHelper {
 			actionBar.addView( separator );
 		}
 
+		Log.v( TAG, "addActionButtonCompat : exit" );
 		return actionButton;
 	}
 
@@ -278,8 +297,12 @@ public class ActivityHelper {
 	 * {@link ActivityHelper#setRefreshActionButtonCompatState(boolean)}.
 	 */
 	private View addActionButtonCompatFromMenuItem( final MenuItem item ) {
+		Log.v( TAG, "addActionButtonCompatFromMenuItem : enter" );
+
 		final ViewGroup actionBar = getActionBarCompat();
 		if( actionBar == null ) {
+			Log.v( TAG, "addActionButtonCompatFromMenuItem : exit, no actionBar" );
+
 			return null;
 		}
 
@@ -318,6 +341,7 @@ public class ActivityHelper {
 //			actionBar.addView( indicator );
 //		}
 
+		Log.v( TAG, "addActionButtonCompatFromMenuItem : exit" );
 		return actionButton;
 	}
 

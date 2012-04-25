@@ -1,5 +1,11 @@
 <resources>
 
+    <!-- Base application theme is the default theme. -->
+    <style name="Theme" parent="android:style/Theme" />
+    
+    <style name="Theme.Mythtv" parent="android:style/Theme.Light">
+    </style>
+    
     <style name="DashboardButton">
         <item name="android:layout_gravity">center_vertical</item>
         <item name="android:layout_width">wrap_content</item>
