@@ -20,17 +20,11 @@
  * This software can be found at <https://github.com/dmfrey/mythtv-for-android/>
 -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/home_root"
-    android:orientation="vertical"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent">
-    <!-- include layout="@layout/actionbar" / -->
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <fragment android:name="org.mythtv.client.ui.dvr.DvrDashboardFragment"
-        android:id="@+id/dvr_fragment_dashboard"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:layout_weight="1" />
-
-</LinearLayout>
+	<item 
+	    android:id="@+id/menu_refresh" 
+	    android:showAsAction="ifRoom" 
+	    android:title="@string/menu_refresh" />
+		
+</menu>

@@ -38,7 +38,7 @@ public class MediaDashboardFragment extends Fragment {
 	public View onCreateView( LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState ) {
 		Log.v( TAG, "onCreateView : enter" );
 
-		View root = inflater.inflate( R.layout.media_fragment_dashboard, container );
+		View root = inflater.inflate( R.layout.fragment_media_dashboard, container );
 
 		// Attach event handlers
 		root.findViewById( R.id.media_btn_videos ).setOnClickListener( new View.OnClickListener() {

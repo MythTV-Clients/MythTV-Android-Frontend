@@ -31,6 +31,7 @@
 	<string name="item_network_caption">Make sure you are on the same network as your MythTV Master Backend</string>
     
 	<!-- Menu -->
+	<string name="menu_refresh">Refresh</string>
 	<string name="menu_clear">Clear</string>
 	<string name="menu_setup">Setup</string>
 		

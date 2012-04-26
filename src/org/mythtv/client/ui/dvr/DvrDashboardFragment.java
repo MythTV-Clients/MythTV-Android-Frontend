@@ -39,14 +39,14 @@ public class DvrDashboardFragment extends Fragment {
 	public View onCreateView( LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState ) {
 		Log.v( TAG, "onCreateView : enter" );
 		
-		View root = inflater.inflate( R.layout.dvr_fragment_dashboard, container );
+		View root = inflater.inflate( R.layout.fragment_dvr_dashboard, container );
 
 		// Attach event handlers
 		root.findViewById( R.id.dvr_btn_recordings ).setOnClickListener( new View.OnClickListener() {
 			public void onClick( View view ) {
 				Log.v( TAG, "recordings.onClick : enter" );
 				
-				startActivity( new Intent( getActivity(), RecordingsActivity.class ) );
+				startActivity( new Intent( getActivity(), ProgramGroupsActivity.class ) );
 //				if( UIUtils.isHoneycombTablet( getActivity() ) ) {
 //					startActivity( new Intent( getActivity(), ScheduleMultiPaneActivity.class ) );
 //				} else {

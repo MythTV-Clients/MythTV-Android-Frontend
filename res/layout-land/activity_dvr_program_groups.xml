@@ -21,30 +21,20 @@
 -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="fill_parent"
-	android:layout_height="wrap_content"
-	android:orientation="vertical"
-	android:padding="5dp">
+    android:orientation="horizontal"
+    android:layout_width="match_parent" android:layout_height="match_parent">
 
-	<TextView 
-	    android:id="@+id/capture_card_list_item_video_device"
-	    android:layout_width="fill_parent"
-	    android:layout_height="wrap_content"
-	    android:textColor="@android:color/black"
-	    android:textSize="16dp" />
-         
-	<TextView 
-	    android:id="@+id/capture_card_list_item_card_type"
-	    android:layout_width="fill_parent"
-	    android:layout_height="wrap_content"
-	    android:textColor="@android:color/holo_blue_light"
-	    android:textSize="12dp" />
-         
-	<TextView 
-	    android:id="@+id/capture_card_list_item_hostname"
-	    android:layout_width="fill_parent"
-	    android:layout_height="wrap_content"
-	    android:textColor="@android:color/holo_blue_light"
-	    android:textSize="12dp" />
-         
+    <fragment android:name="org.mythtv.client.ui.dvr.ProgramGroupsListFragment"
+        android:id="@+id/dvr_fragment_program_groups"
+        android:layout_weight="1"
+        android:layout_width="0px"
+        android:layout_height="match_parent" />
+
+    <FrameLayout 
+        android:id="@+id/dvr_frame_program_group" 
+        android:layout_weight="1"
+        android:layout_width="0px" 
+        android:layout_height="match_parent"
+        android:background="?android:attr/detailsElementBackground" />
+
 </LinearLayout>

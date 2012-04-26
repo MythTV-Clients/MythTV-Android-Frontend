@@ -21,14 +21,11 @@
  */
 package org.mythtv.client.ui.setup.capture;
 
-import java.util.List;
-
+import org.mythtv.R;
 import org.mythtv.client.ui.AbstractMythListActivity;
 import org.mythtv.client.ui.setup.SetupActivity;
-import org.mythtv.services.api.capture.CaptureCard;
 
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -41,8 +38,6 @@ import android.view.MenuItem;
 public class CaptureCardsActivity extends AbstractMythListActivity {
 
 	private static final String TAG = CaptureCardsActivity.class.getSimpleName();
-
-	private List<CaptureCard> captureCards;
 
 	// ***************************************
 	// Activity methods
@@ -59,29 +54,9 @@ public class CaptureCardsActivity extends AbstractMythListActivity {
 		
 		super.onCreate( savedInstanceState );
 
-		//final ActionBar actionBar = getActionBar();
-		
-		//actionBar.setDisplayHomeAsUpEnabled( true );
+		setContentView( R.layout.activity_setup_capture_cards );
 
 		Log.v( TAG, "onCreate : exit" );
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see android.app.Activity#onStart()
-	 */
-	@Override
-	protected void onStart() {
-		Log.v( TAG, "onStart : enter" );
-
-		super.onStart();
-
-		if( null == captureCards ) {
-			downloadCaptureCards();
-		}
-
-		Log.v( TAG, "onStart : exit" );
 	}
 
 	/* (non-Javadoc)
@@ -114,66 +89,6 @@ public class CaptureCardsActivity extends AbstractMythListActivity {
 
 		Log.d( TAG, "onOptionsItemSelected : exit" );
 		return super.onOptionsItemSelected( item );
-	}
-
-	//***************************************
-    // Private methods
-    //***************************************
-	private void refreshCaptureCards( List<CaptureCard> captureCards ) {	
-		Log.v( TAG, "refreshCaptureCards : enter" );
-
-		this.captureCards = captureCards;
-
-		if( null == captureCards ) {
-			Log.v( TAG, "refreshCaptureCards : exit, captureCards is empty" );
-			return;
-		}
-		
-		for( CaptureCard captureCard : captureCards ) {
-			Log.i( TAG, captureCard.toString() );
-		}
-		
-		setListAdapter( new CaptureCardsListAdapter( this, this.captureCards ) );
-
-		Log.v( TAG, "refreshCaptureCards : exit" );
-	}
-		
-	private void downloadCaptureCards() {
-		Log.v( TAG, "downloadCaptureCards : enter" );
-
-		new DownloadEventsTask().execute();
-
-		Log.v( TAG, "downloadCaptureCards : exit" );
-	}
-
-	// ***************************************
-	// Private classes
-	// ***************************************
-	private class DownloadEventsTask extends AsyncTask<Void, Void, List<CaptureCard>> {
-
-		@Override
-		protected List<CaptureCard> doInBackground( Void... params ) {
-			Log.v( TAG, "DownloadEventsTask.doInBackground : enter" );
-
-			try {
-				Log.v( TAG, "DownloadEventsTask.doInBackground : exit" );
-				return getApplicationContext().getMythServicesApi().captureOperations().getCaptureCardList();
-			} catch( Exception e ) {
-				Log.e( TAG, "DownloadEventsTask.doInBackground : error", e );
-			}
-
-			Log.v( TAG, "DownloadEventsTask.doInBackground : exit, failed" );
-			return null;
-		}
-
-		@Override
-		protected void onPostExecute( List<CaptureCard> result ) {
-			Log.v( TAG, "DownloadEventsTask.onPostExecute : enter" );
-
-			refreshCaptureCards( result );
-
-			Log.v( TAG, "DownloadEventsTask.onPostExecute : exit" );
-		}
 	}
 
 }

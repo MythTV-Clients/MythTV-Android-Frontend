@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- 
+/**
  *  This file is part of MythTV for Android
  * 
  *  MythTV for Android is free software: you can redistribute it and/or modify
@@ -18,16 +17,42 @@
  * @author Daniel Frey <dmfrey at gmail dot com>
  * 
  * This software can be found at <https://github.com/dmfrey/mythtv-for-android/>
--->
+ *
+ */
+package org.mythtv.client.ui.dvr;
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:orientation="vertical" >
+import org.mythtv.R;
 
-    <TextView
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/hello" />
+import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 
-</LinearLayout>
+/**
+ * @author Daniel Frey
+ * 
+ */
+public class ProgramGroupsActivity extends FragmentActivity {
+
+	private static final String TAG = ProgramGroupsActivity.class.getSimpleName();
+
+	// ***************************************
+	// Activity methods
+	// ***************************************
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.app.Activity#onCreate(android.os.Bundle)
+	 */
+	@Override
+	public void onCreate( Bundle savedInstanceState ) {
+		Log.v( TAG, "onCreate : enter" );
+		
+		super.onCreate( savedInstanceState );
+
+		setContentView( R.layout.activity_dvr_program_groups );
+
+		Log.v( TAG, "onCreate : exit" );
+	}
+
+}

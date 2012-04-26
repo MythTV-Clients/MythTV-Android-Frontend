@@ -21,7 +21,12 @@
  */
 package org.mythtv.client;
 
+import java.util.List;
+import java.util.Map;
+
 import org.mythtv.services.api.MythServices;
+import org.mythtv.services.api.capture.CaptureCard;
+import org.mythtv.services.api.dvr.Program;
 import org.mythtv.services.connect.MythServicesServiceProvider;
 
 import android.app.Application;
@@ -43,7 +48,13 @@ public class MainApplication extends Application {
 	private MythServicesServiceProvider provider;
 	
 	private String masterBackend;
+
+	private List<String> programGroups;
+	private Map<String,List<Program>> currentPrograms;
+	private List<Program> currentProgramsInGroup;
 	
+	private List<String> captureCards;
+	private Map<String,List<CaptureCard>> currentCaptureCards;
 	
 	//***************************************
     // Application methods
@@ -129,6 +140,85 @@ public class MainApplication extends Application {
 		masterBackend = null;
 		
 		Log.v( TAG, "clearMasterBackend : enter" );
+	}
+
+	/**
+	 * @return the programGroups
+	 */
+	public List<String> getProgramGroups() {
+		return programGroups;
+	}
+
+
+	/**
+	 * @param programGroups the programGroups to set
+	 */
+	public void setProgramGroups( List<String> programGroups ) {
+		this.programGroups = programGroups;
+	}
+
+
+	/**
+	 * @return the currentPrograms
+	 */
+	public Map<String, List<Program>> getCurrentPrograms() {
+		return currentPrograms;
+	}
+
+
+	/**
+	 * @param currentPrograms the currentPrograms to set
+	 */
+	public void setCurrentPrograms( Map<String, List<Program>> currentPrograms ) {
+		this.currentPrograms = currentPrograms;
+	}
+
+
+	/**
+	 * @return the currentProgramsInGroup
+	 */
+	public List<Program> getCurrentProgramsInGroup() {
+		return currentProgramsInGroup;
+	}
+
+
+	/**
+	 * @param currentProgramsInGroup the currentProgramsInGroup to set
+	 */
+	public void setCurrentProgramsInGroup( List<Program> currentProgramsInGroup ) {
+		this.currentProgramsInGroup = currentProgramsInGroup;
+	}
+
+
+	/**
+	 * @return the captureCards
+	 */
+	public List<String> getCaptureCards() {
+		return captureCards;
+	}
+
+
+	/**
+	 * @param captureCards the captureCards to set
+	 */
+	public void setCaptureCards( List<String> captureCards ) {
+		this.captureCards = captureCards;
+	}
+
+
+	/**
+	 * @return the currentCaptureCards
+	 */
+	public Map<String, List<CaptureCard>> getCurrentCaptureCards() {
+		return currentCaptureCards;
+	}
+
+
+	/**
+	 * @param currentCaptureCards the currentCaptureCards to set
+	 */
+	public void setCurrentCaptureCards( Map<String, List<CaptureCard>> currentCaptureCards ) {
+		this.currentCaptureCards = currentCaptureCards;
 	}
 
 }

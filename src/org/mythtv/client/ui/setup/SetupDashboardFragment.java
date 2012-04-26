@@ -40,7 +40,7 @@ public class SetupDashboardFragment extends Fragment {
 	public View onCreateView( LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState ) {
 		Log.v( TAG, "onCreateView : enter" );
 
-		View root = inflater.inflate( R.layout.setup_fragment_dashboard, container );
+		View root = inflater.inflate( R.layout.fragment_setup_dashboard, container );
 
 		// Attach event handlers
 		root.findViewById( R.id.setup_btn_capture ).setOnClickListener( new View.OnClickListener() {

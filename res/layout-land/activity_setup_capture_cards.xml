@@ -20,27 +20,21 @@
  * This software can be found at <https://github.com/dmfrey/mythtv-for-android/>
 -->
 
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent">
 
-<RelativeLayout
-	xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="fill_parent"
-	android:layout_height="fill_parent"
-	android:orientation="vertical"
-	>
-	
-	<ListView
-		android:id="@android:id/list"
-		android:layout_width="fill_parent"
-		android:layout_height="fill_parent"
-		/>
-            
-	<TextView
-		android:id="@android:id/empty"
-		android:layout_width="fill_parent"
-		android:layout_height="fill_parent"
-		android:gravity="center"
-		android:textAppearance="?android:attr/textAppearanceMedium"
-		android:text=""
-		/>
+    <fragment 
+        android:name="org.mythtv.client.ui.setup.capture.CaptureCardsListFragment"
+        android:id="@+id/setup_fragment_capture_cards"
+        android:layout_weight="1"
+        android:layout_width="0px"
+        android:layout_height="match_parent" />
 
-</RelativeLayout>
+    <FrameLayout 
+        android:id="@+id/setup_frame_capture_card" 
+        android:layout_weight="1"
+        android:layout_width="0px" 
+        android:layout_height="match_parent"
+        android:background="?android:attr/detailsElementBackground" />
+
+</FrameLayout>
