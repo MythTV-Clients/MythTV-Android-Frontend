@@ -25,6 +25,7 @@ import java.util.Date;
 
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.mythtv.services.api.channel.Channel;
+import org.mythtv.services.api.content.ArtworkInfos;
 
 /**
  * @author Daniel Frey

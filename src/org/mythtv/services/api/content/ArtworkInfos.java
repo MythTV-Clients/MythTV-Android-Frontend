@@ -19,7 +19,7 @@
  * This software can be found at <https://github.com/dmfrey/mythtv-for-android/>
  *
  */
-package org.mythtv.services.api.dvr;
+package org.mythtv.services.api.content;
 
 import java.util.List;
 
