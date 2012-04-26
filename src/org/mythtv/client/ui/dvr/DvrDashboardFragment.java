@@ -23,6 +23,7 @@ package org.mythtv.client.ui.dvr;
 
 import org.mythtv.R;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -45,6 +46,7 @@ public class DvrDashboardFragment extends Fragment {
 			public void onClick( View view ) {
 				Log.v( TAG, "recordings.onClick : enter" );
 				
+				startActivity( new Intent( getActivity(), RecordingsActivity.class ) );
 //				if( UIUtils.isHoneycombTablet( getActivity() ) ) {
 //					startActivity( new Intent( getActivity(), ScheduleMultiPaneActivity.class ) );
 //				} else {

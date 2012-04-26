@@ -21,7 +21,18 @@
  */
 package org.mythtv.services.api.dvr.impl;
 
+import java.util.Collections;
+import java.util.List;
+
 import org.mythtv.services.api.dvr.DvrOperations;
+import org.mythtv.services.api.dvr.Program;
+import org.mythtv.services.api.dvr.ProgramList;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 /**
@@ -35,6 +46,46 @@ public class DvrTemplate extends AbstractDvrOperations implements DvrOperations 
 	public DvrTemplate( RestTemplate restTemplate, String apiUrlBase ) {
 		super( apiUrlBase );
 		this.restTemplate = restTemplate;
+	}
+
+	@Override
+	public List<Program> getRecordedList() {
+		HttpHeaders requestHeaders = new HttpHeaders();
+		requestHeaders.setAccept( Collections.singletonList( MediaType.APPLICATION_JSON ) );
+
+		HttpEntity<?> requestEntity = new HttpEntity<Object>( requestHeaders );
+
+		ResponseEntity<ProgramList> responseEntity = restTemplate.exchange( buildUri( "GetRecordedList" ), HttpMethod.GET, requestEntity, ProgramList.class );
+		ProgramList programList = responseEntity.getBody();
+		
+		return programList.getPrograms().getPrograms();
+	}
+
+	@Override
+	public List<Program> getRecordedList( int startIndex, int count, boolean descending ) {
+		LinkedMultiValueMap<String, String> parameters = new LinkedMultiValueMap<String, String>();
+		
+		if( startIndex > 0 ) {
+			parameters.add( "StartIndex", "" + startIndex );
+		}
+		
+		if( count > 0 ) {
+			parameters.add( "Count", "" + count );
+		}
+
+		if( descending ) {
+			parameters.add( "Descending", "true" );
+		}
+
+		HttpHeaders requestHeaders = new HttpHeaders();
+		requestHeaders.setAccept( Collections.singletonList( MediaType.APPLICATION_JSON ) );
+
+		HttpEntity<?> requestEntity = new HttpEntity<Object>( requestHeaders );
+
+		ResponseEntity<ProgramList> responseEntity = restTemplate.exchange( buildUri( "GetRecordedList", parameters ), HttpMethod.GET, requestEntity, ProgramList.class );
+		ProgramList programList = responseEntity.getBody();
+		
+		return programList.getPrograms().getPrograms();
 	}
 	
 }

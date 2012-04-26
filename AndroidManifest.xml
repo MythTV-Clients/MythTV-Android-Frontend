@@ -35,9 +35,13 @@
             
 		</activity>
     
-		<!-- DVR Activities -->
+		<!-- Main Dashboard -->
 		<activity 
 			android:name=".client.ui.HomeActivity" />
+		
+		<!-- DVR Activities -->
+		<activity 
+			android:name=".client.ui.dvr.RecordingsActivity" />
 		
 		<!-- MythTV Setup Activities -->
 		<activity 

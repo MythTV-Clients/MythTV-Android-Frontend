@@ -21,16 +21,53 @@
  */
 package org.mythtv.services.api.dvr;
 
-import java.util.List;
+import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
  * @author Daniel Frey
  *
  */
-public interface DvrOperations {
+public class ProgramList {
 
-	List<Program> getRecordedList();
+	@JsonProperty( "ProgramList" )
+	private Programs programs;
+	
+	/**
+	 * 
+	 */
+	public ProgramList() { }
 
-	List<Program> getRecordedList( int startIndex, int count, boolean descending );
+	/**
+	 * @return the programs
+	 */
+	public Programs getPrograms() {
+		return programs;
+	}
+
+	/**
+	 * @param programs the programs to set
+	 */
+	public void setPrograms( Programs programs ) {
+		this.programs = programs;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		
+		builder.append( "ProgramList [" );
+		
+		if( programs != null ) {
+			builder.append( "programs=" );
+			builder.append( programs );
+		}
+		
+		builder.append( "]" );
+
+		return builder.toString();
+	}
 
 }
