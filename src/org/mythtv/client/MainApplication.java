@@ -52,6 +52,7 @@ public class MainApplication extends Application {
 	private List<String> programGroups;
 	private Map<String,List<Program>> currentPrograms;
 	private List<Program> currentProgramsInGroup;
+	private List<Program> currentRecordings;
 	
 	private List<String> captureCards;
 	private Map<String,List<CaptureCard>> currentCaptureCards;
@@ -149,14 +150,12 @@ public class MainApplication extends Application {
 		return programGroups;
 	}
 
-
 	/**
 	 * @param programGroups the programGroups to set
 	 */
 	public void setProgramGroups( List<String> programGroups ) {
 		this.programGroups = programGroups;
 	}
-
 
 	/**
 	 * @return the currentPrograms
@@ -165,14 +164,12 @@ public class MainApplication extends Application {
 		return currentPrograms;
 	}
 
-
 	/**
 	 * @param currentPrograms the currentPrograms to set
 	 */
 	public void setCurrentPrograms( Map<String, List<Program>> currentPrograms ) {
 		this.currentPrograms = currentPrograms;
 	}
-
 
 	/**
 	 * @return the currentProgramsInGroup
@@ -181,6 +178,19 @@ public class MainApplication extends Application {
 		return currentProgramsInGroup;
 	}
 
+	/**
+	 * @return the currentRecordings
+	 */
+	public List<Program> getCurrentRecordings() {
+		return currentRecordings;
+	}
+
+	/**
+	 * @param currentRecordings the currentRecordings to set
+	 */
+	public void setCurrentRecordings( List<Program> currentRecordings ) {
+		this.currentRecordings = currentRecordings;
+	}
 
 	/**
 	 * @param currentProgramsInGroup the currentProgramsInGroup to set
@@ -189,14 +199,12 @@ public class MainApplication extends Application {
 		this.currentProgramsInGroup = currentProgramsInGroup;
 	}
 
-
 	/**
 	 * @return the captureCards
 	 */
 	public List<String> getCaptureCards() {
 		return captureCards;
 	}
-
 
 	/**
 	 * @param captureCards the captureCards to set
@@ -205,14 +213,12 @@ public class MainApplication extends Application {
 		this.captureCards = captureCards;
 	}
 
-
 	/**
 	 * @return the currentCaptureCards
 	 */
 	public Map<String, List<CaptureCard>> getCurrentCaptureCards() {
 		return currentCaptureCards;
 	}
-
 
 	/**
 	 * @param currentCaptureCards the currentCaptureCards to set

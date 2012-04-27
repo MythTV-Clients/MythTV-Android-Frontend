@@ -34,7 +34,6 @@
         android:id="@+id/dvr_frame_program_group" 
         android:layout_weight="1"
         android:layout_width="0px" 
-        android:layout_height="match_parent"
-        android:background="?android:attr/detailsElementBackground" />
+        android:layout_height="match_parent" />
 
 </LinearLayout>

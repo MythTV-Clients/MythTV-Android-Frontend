@@ -46,7 +46,7 @@ public class DvrDashboardFragment extends Fragment {
 			public void onClick( View view ) {
 				Log.v( TAG, "recordings.onClick : enter" );
 				
-				startActivity( new Intent( getActivity(), ProgramGroupsActivity.class ) );
+				startActivity( new Intent( getActivity(), RecordingsActivity.class ) );
 //				if( UIUtils.isHoneycombTablet( getActivity() ) ) {
 //					startActivity( new Intent( getActivity(), ScheduleMultiPaneActivity.class ) );
 //				} else {

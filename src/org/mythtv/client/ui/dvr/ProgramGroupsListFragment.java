@@ -200,7 +200,7 @@ public class ProgramGroupsListFragment extends ListFragment {
 		}
 
 		// Populate List
-		setListAdapter( new ArrayAdapter<String>( getActivity(), android.R.layout.simple_list_item_activated_1,	mainApplication.getProgramGroups() ) );
+		setListAdapter( new ArrayAdapter<String>( getActivity(), android.R.layout.simple_list_item_1, mainApplication.getProgramGroups() ) );
 
 		if( mDualPane ) {
 			// In dual-pane mode, the list view highlights the selected item.
@@ -216,8 +216,16 @@ public class ProgramGroupsListFragment extends ListFragment {
 	private void downloadPrograms() {
 		Log.v( TAG, "downloadPrograms : enter" );
 
-		new DownloadProgramsTask().execute();
+		if( null == mainApplication.getProgramGroups() || mainApplication.getProgramGroups().isEmpty() ) {
+			Log.v( TAG, "downloadPrograms : downloading programs" );
 
+			new DownloadProgramsTask().execute();
+		} else {
+			Log.v( TAG, "downloadPrograms : refreshing from cache" );
+
+			refreshProgramGroups();
+		}
+		
 		Log.v( TAG, "downloadPrograms : exit" );
 	}
 
@@ -250,25 +258,39 @@ public class ProgramGroupsListFragment extends ListFragment {
 			Map<String, List<Program>> sortedResult = new TreeMap<String, List<Program>>();
 			for( Program program : result ) {
 				String title = program.getTitle();
+				Log.v( TAG, "DownloadProgramsTask.onPostExecute : title=" + title );
 
 				if( !"livetv".equalsIgnoreCase( program.getRecording().getRecordingGroup() ) ) {
-					if( sortedResult.containsKey( title ) ) {
+					Log.v( TAG, "DownloadProgramsTask.onPostExecute : not a live broadcast" );
+
+					if( !sortedResult.containsKey( title ) ) {
+						Log.v( TAG, "DownloadProgramsTask.onPostExecute : program group not added to map" );
+
 						List<Program> groupPrograms = new ArrayList<Program>();
 						groupPrograms.add( program );
 						sortedResult.put( title, groupPrograms );
 					} else {
+						Log.v( TAG, "DownloadProgramsTask.onPostExecute : program group already added to map" );
+
 						sortedResult.get( title ).add( program );
 					}
 
 					if( !sortedProgramGroups.contains( title ) ) {
+						Log.v( TAG, "DownloadProgramsTask.onPostExecute : adding program group to list" );
+
 						sortedProgramGroups.add( title );
 					}
 				}
 			}
 
 			if( !sortedProgramGroups.isEmpty() ) {
+				Log.v( TAG, "DownloadProgramsTask.onPostExecute : sorting program groups" );
+
 				Collections.sort( sortedProgramGroups, String.CASE_INSENSITIVE_ORDER );
 			}
+
+			Log.v( TAG, "DownloadProgramsTask.onPostExecute : sortedResults size=" + sortedResult.size() );
+			Log.v( TAG, "DownloadProgramsTask.onPostExecute : sortedProgramGroups size=" + sortedProgramGroups.size() );
 
 			mainApplication.setCurrentPrograms( sortedResult );
 			mainApplication.setProgramGroups( sortedProgramGroups );

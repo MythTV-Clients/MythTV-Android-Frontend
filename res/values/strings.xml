@@ -25,11 +25,12 @@
     <string name="hello">Hello World!</string>
     <string name="app_name">MythTV for Android</string>
 
-    <string name="base_url">http://192.168.10.200:6544/</string>
-    
     <string name="item_network_title">Searching network for MythTV&#8230;</string>
 	<string name="item_network_caption">Make sure you are on the same network as your MythTV Master Backend</string>
     
+    <string name="exception">Exception</string>
+	<string name="close">Close</string>
+	
 	<!-- Menu -->
 	<string name="menu_refresh">Refresh</string>
 	<string name="menu_clear">Clear</string>

@@ -21,13 +21,18 @@
  */
 package org.mythtv.client.ui.dvr;
 
+import org.mythtv.R;
 import org.mythtv.client.MainApplication;
 import org.mythtv.services.api.dvr.Program;
 
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.TextView;
 
 /**
  * @author Daniel Frey
@@ -45,7 +50,7 @@ public class ProgramGroupListFragment extends ListFragment {
 	 */
 	public static ProgramGroupListFragment newInstance( int index ) {
 		Log.v( TAG, "newInstance : enter" );
-		
+
 		ProgramGroupListFragment f = new ProgramGroupListFragment();
 
 		// Supply index input as an argument.
@@ -63,7 +68,9 @@ public class ProgramGroupListFragment extends ListFragment {
 		return getArguments().getInt( "index", 0 );
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
 	 */
 	@Override
@@ -75,9 +82,80 @@ public class ProgramGroupListFragment extends ListFragment {
 		mainApplication = (MainApplication) getActivity().getApplicationContext();
 
 		// Populate List
-		setListAdapter( new ArrayAdapter<Program>( getActivity(), android.R.layout.simple_list_item_activated_1, mainApplication.getCurrentProgramsInGroup() ) );
+		setListAdapter( new ProgramAdapter() );
 
+//		if( null == savedInstanceState ) {
+//			int position = savedInstanceState.getInt( STATE_CHECKED, -1 );
+//		
+//			if( position > -1 ) {
+//				getListView().setItemChecked( position, true );
+//			}
+//		}
+		
 		Log.v( TAG, "onActivityCreated : exit" );
+	}
+
+	private class ProgramAdapter extends ArrayAdapter<Program> {
+
+		ProgramAdapter() {
+			super( getActivity(), R.layout.program_row, R.id.program_title, mainApplication.getCurrentProgramsInGroup() );
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see android.widget.ArrayAdapter#getView(int, android.view.View,
+		 * android.view.ViewGroup)
+		 */
+		@Override
+		public View getView( int position, View convertView, ViewGroup parent ) {
+			Log.v( TAG, "getView : enter" );
+
+			ProgramWrapper wrapper = null;
+			
+			if( null == convertView ) {
+				Log.v( TAG, "getView : convertView is null" );
+
+				convertView = LayoutInflater.from( getActivity() ).inflate( R.layout.program_row, null );
+				wrapper = new ProgramWrapper( convertView );
+				convertView.setTag( wrapper );
+			} else {
+				Log.v( TAG, "getView : convertView is not null" );
+
+				wrapper = (ProgramWrapper) convertView.getTag();
+			}
+			
+			wrapper.populateFrom( getItem( position ) );
+			
+			Log.v( TAG, "getView : exit" );
+			return convertView;
+		}
+
+	}
+
+	static class ProgramWrapper {
+
+		private TextView title = null;
+		private TextView description = null;
+
+		ProgramWrapper( View row ) {
+			title = (TextView) row.findViewById( R.id.program_title );
+			description = (TextView) row.findViewById( R.id.program_description );
+		}
+
+		TextView getTitle() {
+			return title;
+		}
+		
+		TextView getDescription() {
+			return description;
+		}
+		
+		void populateFrom( Program program) {
+			getTitle().setText( !"".equals( program.getSubTitle() ) ? program.getSubTitle() : program.getTitle() );
+			getDescription().setText( program.getDescription() );
+		}
+
 	}
 
 }
