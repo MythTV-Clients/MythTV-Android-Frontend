@@ -22,7 +22,12 @@
 package org.mythtv.services.api;
 
 import java.net.URI;
+import java.util.Collections;
 
+import org.springframework.http.ContentCodingType;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.social.support.URIBuilder;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -39,16 +44,37 @@ public abstract class AbstractOperations {
 	
 	private final String apiUrlBase;
 
+	private HttpEntity<?> requestEntity;
+	
+	/**
+	 * @param apiUrlBase
+	 */
 	public AbstractOperations( String apiUrlBase ) {
 		this.apiUrlBase = apiUrlBase;
+		
+		HttpHeaders requestHeaders = new HttpHeaders();
+		requestHeaders.setAccept( Collections.singletonList( MediaType.APPLICATION_JSON ) );
+		requestHeaders.setAcceptEncoding( Collections.singletonList( ContentCodingType.GZIP ) );
+		
+		requestEntity = new HttpEntity<Object>( requestHeaders );
 	}
 
+	/**
+	 * @param path
+	 * @return
+	 */
 	protected URI buildUri( String path ) {
 		Log.i( TAG, buildUri( path, EMPTY_PARAMETERS ).toString() );
 		
 		return buildUri( path, EMPTY_PARAMETERS );
 	}
 
+	/**
+	 * @param path
+	 * @param parameterName
+	 * @param parameterValue
+	 * @return
+	 */
 	protected URI buildUri( String path, String parameterName, String parameterValue ) {
 		MultiValueMap<String, String> parameters = new LinkedMultiValueMap<String, String>();
 		parameters.set( parameterName, parameterValue );
@@ -56,12 +82,27 @@ public abstract class AbstractOperations {
 		return buildUri( path, parameters );
 	}
 
+	/**
+	 * @param path
+	 * @param parameters
+	 * @return
+	 */
 	protected URI buildUri( String path, MultiValueMap<String, String> parameters ) {
 		return URIBuilder.fromUri( getApiUrlBase() + path ).queryParams( parameters ).build();
 	}
 
+	/**
+	 * @return
+	 */
 	protected String getApiUrlBase() {
 		return apiUrlBase;
+	}
+
+	/**
+	 * @return the requestEntity
+	 */
+	protected HttpEntity<?> getRequestEntity() {
+		return requestEntity;
 	}
 
 	private static final LinkedMultiValueMap<String, String> EMPTY_PARAMETERS = new LinkedMultiValueMap<String, String>();

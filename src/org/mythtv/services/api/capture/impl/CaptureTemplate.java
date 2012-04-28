@@ -21,16 +21,12 @@
  */
 package org.mythtv.services.api.capture.impl;
 
-import java.util.Collections;
 import java.util.List;
 
 import org.mythtv.services.api.capture.CaptureCard;
 import org.mythtv.services.api.capture.CaptureCardList;
 import org.mythtv.services.api.capture.CaptureOperations;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.client.RestTemplate;
@@ -53,12 +49,7 @@ public class CaptureTemplate extends AbstractCaptureOperations implements Captur
 	 */
 	@Override
 	public List<CaptureCard> getCaptureCardList() {
-		HttpHeaders requestHeaders = new HttpHeaders();
-		requestHeaders.setAccept( Collections.singletonList( MediaType.APPLICATION_JSON ) );
-
-		HttpEntity<?> requestEntity = new HttpEntity<Object>( requestHeaders );
-
-		ResponseEntity<CaptureCardList> responseEntity = restTemplate.exchange( buildUri( "GetCaptureCardList" ), HttpMethod.GET, requestEntity, CaptureCardList.class );
+		ResponseEntity<CaptureCardList> responseEntity = restTemplate.exchange( buildUri( "GetCaptureCardList" ), HttpMethod.GET, getRequestEntity(), CaptureCardList.class );
 		CaptureCardList captureCardList = responseEntity.getBody();
 		
 		return captureCardList.getCaptureCards().getCaptureCards();
@@ -79,12 +70,7 @@ public class CaptureTemplate extends AbstractCaptureOperations implements Captur
 			parameters.add( "CardType", cardType );
 		}
 		
-		HttpHeaders requestHeaders = new HttpHeaders();
-		requestHeaders.setAccept( Collections.singletonList( MediaType.APPLICATION_JSON ) );
-
-		HttpEntity<?> requestEntity = new HttpEntity<Object>( requestHeaders );
-
-		ResponseEntity<CaptureCardList> responseEntity = restTemplate.exchange( buildUri( "GetCaptureCardList", parameters ), HttpMethod.GET, requestEntity, CaptureCardList.class );
+		ResponseEntity<CaptureCardList> responseEntity = restTemplate.exchange( buildUri( "GetCaptureCardList", parameters ), HttpMethod.GET, getRequestEntity(), CaptureCardList.class );
 		CaptureCardList captureCardList = responseEntity.getBody();
 		
 		return captureCardList.getCaptureCards().getCaptureCards();
@@ -95,12 +81,7 @@ public class CaptureTemplate extends AbstractCaptureOperations implements Captur
 	 */
 	@Override
 	public CaptureCard getCaptureCard( int cardId ) {
-		HttpHeaders requestHeaders = new HttpHeaders();
-		requestHeaders.setAccept( Collections.singletonList( MediaType.APPLICATION_JSON ) );
-
-		HttpEntity<?> requestEntity = new HttpEntity<Object>( requestHeaders );
-
-		ResponseEntity<CaptureCard> responseEntity = restTemplate.exchange( buildUri( "GetCaptureCard", "CardId", new String( "" + cardId ) ), HttpMethod.GET, requestEntity, CaptureCard.class );
+		ResponseEntity<CaptureCard> responseEntity = restTemplate.exchange( buildUri( "GetCaptureCard", "CardId", new String( "" + cardId ) ), HttpMethod.GET, getRequestEntity(), CaptureCard.class );
 		CaptureCard captureCard = responseEntity.getBody();
 
 		return captureCard;
