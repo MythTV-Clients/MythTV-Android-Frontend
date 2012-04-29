@@ -24,7 +24,7 @@ package org.mythtv.services.api.dvr;
 import java.util.Date;
 
 import org.codehaus.jackson.annotate.JsonProperty;
-import org.mythtv.services.api.channel.Channel;
+import org.mythtv.services.api.channel.ChannelInfo;
 import org.mythtv.services.api.content.ArtworkInfos;
 
 /**
@@ -103,7 +103,7 @@ public class Program {
 	private String episode;
 	
 	@JsonProperty( "Channel" )
-	private Channel channel;
+	private ChannelInfo channelInfo;
 	
 	@JsonProperty( "Recording" )
 	private Recording recording;
@@ -422,17 +422,17 @@ public class Program {
 	}
 
 	/**
-	 * @return the channel
+	 * @return the channelInfo
 	 */
-	public Channel getChannel() {
-		return channel;
+	public ChannelInfo getChannelInfo() {
+		return channelInfo;
 	}
 
 	/**
-	 * @param channel the channel to set
+	 * @param channelInfo the channelInfo to set
 	 */
-	public void setChannel( Channel channel ) {
-		this.channel = channel;
+	public void setChannelInfo( ChannelInfo channelInfo ) {
+		this.channelInfo = channelInfo;
 	}
 
 	/**
@@ -614,9 +614,9 @@ public class Program {
 			builder.append( ", " );
 		}
 		
-		if( channel != null ) {
-			builder.append( "channel=" );
-			builder.append( channel );
+		if( channelInfo != null ) {
+			builder.append( "channelInfo=" );
+			builder.append( channelInfo );
 			builder.append( ", " );
 		}
 		
