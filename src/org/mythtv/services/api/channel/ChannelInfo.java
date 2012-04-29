@@ -30,7 +30,7 @@ import org.mythtv.services.api.dvr.Program;
  * @author Daniel Frey
  *
  */
-public class Channel {
+public class ChannelInfo {
 
 	@JsonProperty( "ChanId" )
 	private String channelId;
@@ -113,7 +113,7 @@ public class Channel {
 	@JsonProperty( "Programs" )
 	private List<Program> programs;
 	
-	public Channel() { }
+	public ChannelInfo() { }
 
 	/**
 	 * @return the channelId
