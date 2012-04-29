@@ -7,13 +7,13 @@
 >            
   <fragment
     class="org.mythtv.client.ui.dvr.RecordingsFragment"
-    android:id="@+id/program_groups"
+    android:id="@+id/fragment_dvr_program_groups"
     android:layout_width="0dip"
     android:layout_height="match_parent"
     android:layout_weight="30"
   />
   <FrameLayout
-    android:id="@+id/program_group"
+    android:id="@+id/fragment_dvr_program_group"
     android:layout_width="0dip"
     android:layout_height="match_parent"
     android:layout_weight="70"

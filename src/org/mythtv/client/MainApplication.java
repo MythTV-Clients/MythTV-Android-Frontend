@@ -49,10 +49,7 @@ public class MainApplication extends Application {
 	
 	private String masterBackend;
 
-	private List<String> programGroups;
-	private Map<String,List<Program>> currentPrograms;
-	private List<Program> currentProgramsInGroup;
-	private List<Program> currentRecordings;
+	private List<Program> currentRecordingsInProgramGroup;
 	
 	private List<String> captureCards;
 	private Map<String,List<CaptureCard>> currentCaptureCards;
@@ -144,59 +141,17 @@ public class MainApplication extends Application {
 	}
 
 	/**
-	 * @return the programGroups
+	 * @return the currentRecordingsInProgramGroup
 	 */
-	public List<String> getProgramGroups() {
-		return programGroups;
+	public List<Program> getCurrentRecordingsInProgramGroup() {
+		return currentRecordingsInProgramGroup;
 	}
 
 	/**
-	 * @param programGroups the programGroups to set
+	 * @param currentRecordingsInProgramGroup the currentRecordingsInProgramGroup to set
 	 */
-	public void setProgramGroups( List<String> programGroups ) {
-		this.programGroups = programGroups;
-	}
-
-	/**
-	 * @return the currentPrograms
-	 */
-	public Map<String, List<Program>> getCurrentPrograms() {
-		return currentPrograms;
-	}
-
-	/**
-	 * @param currentPrograms the currentPrograms to set
-	 */
-	public void setCurrentPrograms( Map<String, List<Program>> currentPrograms ) {
-		this.currentPrograms = currentPrograms;
-	}
-
-	/**
-	 * @return the currentProgramsInGroup
-	 */
-	public List<Program> getCurrentProgramsInGroup() {
-		return currentProgramsInGroup;
-	}
-
-	/**
-	 * @return the currentRecordings
-	 */
-	public List<Program> getCurrentRecordings() {
-		return currentRecordings;
-	}
-
-	/**
-	 * @param currentRecordings the currentRecordings to set
-	 */
-	public void setCurrentRecordings( List<Program> currentRecordings ) {
-		this.currentRecordings = currentRecordings;
-	}
-
-	/**
-	 * @param currentProgramsInGroup the currentProgramsInGroup to set
-	 */
-	public void setCurrentProgramsInGroup( List<Program> currentProgramsInGroup ) {
-		this.currentProgramsInGroup = currentProgramsInGroup;
+	public void setCurrentRecordingsInProgramGroup( List<Program> currentRecordingsInProgramGroup ) {
+		this.currentRecordingsInProgramGroup = currentRecordingsInProgramGroup;
 	}
 
 	/**

@@ -41,11 +41,9 @@
 		
 		<!-- DVR Activities -->
 		<activity 
-			android:name=".client.ui.dvr.ProgramGroupsActivity" />
-		<activity 
 			android:name=".client.ui.dvr.ProgramGroupActivity" />
 		<activity 
-			android:name=".client.ui.dvr.RecordingssActivity" />
+			android:name=".client.ui.dvr.RecordingsActivity" />
 						
 		<!-- MythTV Setup Activities -->
 		<activity 

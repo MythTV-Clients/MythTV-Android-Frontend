@@ -24,8 +24,11 @@ package org.mythtv.client.ui.dvr;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import org.mythtv.R;
+import org.mythtv.client.MainApplication;
 import org.mythtv.client.ui.util.PersistentListFragment;
 import org.mythtv.services.api.dvr.Program;
 
@@ -52,6 +55,10 @@ public class RecordingsFragment extends PersistentListFragment {
 	private ProgramGroupAdapter adapter = null;
 	private boolean persistentSelection = false;
 
+	private List<Program> programs;
+	private List<String> programGroups;
+	private Map<String, List<Program>> recordingsInProgramGroups;
+	
 	public RecordingsFragment() {
 		this( false );
 	}
@@ -62,13 +69,34 @@ public class RecordingsFragment extends PersistentListFragment {
 
 	@Override
 	public void onCreate( Bundle savedInstanceState ) {
+		Log.v( TAG, "onCreate : enter" );
+
 		super.onCreate( savedInstanceState );
 
 		setRetainInstance( true );
+
+		Log.v( TAG, "onCreate : exit" );
 	}
 
 	@Override
+	public void onResume() {
+		Log.v( TAG, "onResume : enter" );
+
+		super.onResume();
+	    
+		if( null == programs || programs.isEmpty() ) {
+			Log.v( TAG, "onResume : load recordings" );
+
+			loadRecordings();
+		}
+
+		Log.v( TAG, "onResume : exit" );
+	}
+	
+	@Override
 	public void onActivityCreated( Bundle state ) {
+		Log.v( TAG, "onActivityCreated : enter" );
+
 		super.onActivityCreated( state );
 
 		restoreState( state );
@@ -76,35 +104,117 @@ public class RecordingsFragment extends PersistentListFragment {
 		if( persistentSelection ) {
 			enablePersistentSelection();
 		}
+
+		Log.v( TAG, "onActivityCreated : exit" );
 	}
 
 	@Override
 	public void onListItemClick( ListView l, View v, int position, long id ) {
+		Log.v( TAG, "onListItemClick : enter" );
+
 		super.onListItemClick( l, v, position, id );
 	    
 		if( null != listener ) {
-			listener.onProgramGroupSelected( adapter.getItem( position ) );
+			if( "all".equalsIgnoreCase( adapter.getItem( position ) ) ) {
+				listener.onProgramGroupSelected( programs );
+			} else {
+				listener.onProgramGroupSelected( recordingsInProgramGroups.get( adapter.getItem( position ) ) );
+			}
+			
 		}
+
+		Log.v( TAG, "onListItemClick : exit" );
 	}
 	  
-	public void loadRecordings( String url ) {
-		new DownloadProgramsTask().execute();
+	public void loadRecordings() {
+		Log.v( TAG, "loadRecordings : enter" );
+
+		new DownloadRecordedTask().execute();
+
+		Log.v( TAG, "loadRecordings : exit" );
 	}
 
 	public void setOnProgramGroupListener( OnProgramGroupListener listener ) {
+		Log.v( TAG, "setOnProgramGroupListener : enter" );
+
 		this.listener = listener;
+
+		Log.v( TAG, "setOnProgramGroupListener : exit" );
 	}
 
 	public interface OnProgramGroupListener {
-		void onProgramGroupSelected( String programGroup );
+		void onProgramGroupSelected( List<Program> programs );
 	}
 
 	private void setPrograms( List<Program> programs ) {
-		getApplicationContext().setCurrentRecordings( programs );
+		Log.v( TAG, "setPrograms : enter" );
+
+		this.programs = programs;
 		adapter = new ProgramGroupAdapter( programs );
 		setListAdapter( adapter );
+		
+		//listener.onProgramGroupSelected( programs );
+		
+		Log.v( TAG, "setPrograms : exit" );
 	}
 
+	private void setProgramGroups( List<Program> programs ) {
+		Log.v( TAG, "setProgramGroups : enter" );
+		
+		programGroups = new ArrayList<String>();
+		
+		String title;
+		for( Program program : programs ) {
+			Log.v( TAG, "setProgramGroups : program iteration" );
+
+			title = program.getTitle();
+
+			if( !programGroups.contains( title ) ) {
+				Log.v( TAG, "setProgramGroups : adding program group" );
+
+				programGroups.add( title );
+			}
+		}
+
+		if( !programGroups.isEmpty() ) {
+			Log.v( TAG, "setProgramGroups : sorting program groups" );
+
+			Collections.sort( programGroups, String.CASE_INSENSITIVE_ORDER );
+		}
+
+		Log.v( TAG, "setProgramGroups : adding 'All' program group to start" );
+		programGroups.add( 0, "All" );
+				
+		Log.v( TAG, "setProgramGroups : exit" );
+	}
+	
+	private void setRecordingsInProgramGroups( List<Program> programs ) {
+		Log.v( TAG, "setProgramGroups : enter" );
+		
+		recordingsInProgramGroups = new TreeMap<String, List<Program>>();
+		
+		String title;
+		for( Program program : programs ) {
+			Log.v( TAG, "setProgramGroups : program iteration" );
+			
+			title = program.getTitle();
+			
+			if( !recordingsInProgramGroups.containsKey( title ) ) {
+				List<Program> recordingsInThisProgram = new ArrayList<Program>();
+				recordingsInThisProgram.add( program );
+				
+				Log.v( TAG, "setProgramGroups : adding new program group" );
+				recordingsInProgramGroups.put( title, recordingsInThisProgram );
+			} else {
+				Log.v( TAG, "setProgramGroups : updating program group" );
+
+				recordingsInProgramGroups.get( title ).add( program );
+			}
+		}
+		
+		Log.v( TAG, "setProgramGroups : exit" );
+	}
+	
 	private void exceptionDialolg( Throwable t ) {
 		AlertDialog.Builder builder = new AlertDialog.Builder( getActivity() );
 
@@ -115,31 +225,44 @@ public class RecordingsFragment extends PersistentListFragment {
 				.show();
 	}
 
-	private class DownloadProgramsTask extends AsyncTask<Void, Void, List<Program>> {
+	private class DownloadRecordedTask extends AsyncTask<Void, Void, List<Program>> {
 
 		private Exception e = null;
 
 		@Override
 		protected List<Program> doInBackground( Void... params ) {
-			List<Program> programs = null;
+			Log.v( TAG, "doInBackground : enter" );
+
+			List<Program> lookup = null;
 
 			try {
-				programs = getApplicationContext().getMythServicesApi().dvrOperations().getRecordedList( 0, 0, true );
+				Log.v( TAG, "doInBackground : lookup" );
+
+				lookup = ( (MainApplication) getActivity().getApplicationContext() ).getMythServicesApi().dvrOperations().getRecordedList( 0, 0, true );
 			} catch( Exception e ) {
+				Log.v( TAG, "doInBackground : error" );
+
 				this.e = e;
 			}
 
-			return programs;
+			Log.v( TAG, "doInBackground : exit" );
+			return lookup;
 		}
 
 		@Override
 		protected void onPostExecute( List<Program> result ) {
+			Log.v( TAG, "onPostExecute : enter" );
+
 			if( null == e ) {
+				setProgramGroups( result );
+				setRecordingsInProgramGroups( result );
 				setPrograms( result );
 			} else {
 				Log.e( TAG, "error getting programs", e );
 				exceptionDialolg( e );
 			}
+
+			Log.v( TAG, "onPostExecute : exit" );
 		}
 	}
 
@@ -154,8 +277,6 @@ public class RecordingsFragment extends PersistentListFragment {
 				String title = program.getTitle();
 
 				if( !sortedProgramGroups.contains( title ) ) {
-					Log.v( TAG, "DownloadProgramsTask.onPostExecute : adding program group to list" );
-
 					sortedProgramGroups.add( title );
 				}
 			}

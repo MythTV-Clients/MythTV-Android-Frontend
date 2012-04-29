@@ -3,11 +3,10 @@
  */
 package org.mythtv.client.ui.dvr;
 
-import org.mythtv.R;
+import org.mythtv.client.MainApplication;
 
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 
 /**
  * @author Daniel Frey
@@ -15,17 +14,30 @@ import android.support.v4.app.FragmentTransaction;
  */
 public abstract class AbstractRecordingsActivity extends FragmentActivity implements RecordingsFragment.OnProgramGroupListener {
 
-	public void onItemSelected( String item ) {
-		FragmentManager fragMgr = getSupportFragmentManager();
-		ProgramGroupFragment programGroup = (ProgramGroupFragment) fragMgr.findFragmentById( R.id.program_group );
-		FragmentTransaction xaction = fragMgr.beginTransaction();
-
-		if( programGroup == null || programGroup.isRemoving() ) {
-			programGroup = new ProgramGroupFragment( item );
-
-			xaction.add( R.id.program_group, programGroup ).setTransition( FragmentTransaction.TRANSIT_FRAGMENT_OPEN ).addToBackStack( null ).commit();
-		} else {
-			programGroup.loadPrograms( item );
-		}
+	private static final String TAG = AbstractRecordingsActivity.class.getSimpleName();
+	
+	public MainApplication getApplicationContext() {
+		Log.v( TAG, "getApplicationContext : enter" );
+		Log.v( TAG, "getApplicationContext : exit" );
+		return (MainApplication) super.getApplicationContext();
 	}
+
+//	public void onRecordingSelected( String item ) {
+//		Log.v( TAG, "onRecordingSelected : enter" );
+//
+//		FragmentManager fragMgr = getSupportFragmentManager();
+//		ProgramGroupFragment programGroup = (ProgramGroupFragment) fragMgr.findFragmentById( R.id.fragment_dvr_program_group );
+//		FragmentTransaction xaction = fragMgr.beginTransaction();
+//
+//		if( programGroup == null || programGroup.isRemoving() ) {
+//			programGroup = new ProgramGroupFragment( item );
+//
+//			xaction.add( R.id.fragment_dvr_program_group, programGroup ).setTransition( FragmentTransaction.TRANSIT_FRAGMENT_OPEN ).addToBackStack( null ).commit();
+//		} else {
+//			programGroup.loadPrograms( item );
+//		}
+//
+//		Log.v( TAG, "onRecordingSelected : exit" );
+//	}
+
 }

@@ -31,12 +31,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+import android.util.Log;
+
 /**
  * @author Daniel Frey
  *
  */
 public class DvrTemplate extends AbstractDvrOperations implements DvrOperations {
 
+	private static final String TAG = DvrTemplate.class.getSimpleName();
+	
 	private final RestTemplate restTemplate;
 	
 	/**
@@ -45,7 +49,11 @@ public class DvrTemplate extends AbstractDvrOperations implements DvrOperations 
 	 */
 	public DvrTemplate( RestTemplate restTemplate, String apiUrlBase ) {
 		super( apiUrlBase );
+		Log.v( TAG, "initialize : enter" );
+		
 		this.restTemplate = restTemplate;
+
+		Log.v( TAG, "initialize : exit" );
 	}
 
 	/* (non-Javadoc)
@@ -53,10 +61,12 @@ public class DvrTemplate extends AbstractDvrOperations implements DvrOperations 
 	 */
 	@Override
 	public List<Program> getRecordedList() {
-		
+		Log.v( TAG, "getRecordedList : enter" );
+
 		ResponseEntity<ProgramList> responseEntity = restTemplate.exchange( buildUri( "GetRecordedList" ), HttpMethod.GET, getRequestEntity(), ProgramList.class );
 		ProgramList programList = responseEntity.getBody();
 		
+		Log.v( TAG, "getRecordedList : exit" );
 		return programList.getPrograms().getPrograms();
 	}
 
@@ -65,6 +75,8 @@ public class DvrTemplate extends AbstractDvrOperations implements DvrOperations 
 	 */
 	@Override
 	public List<Program> getRecordedList( int startIndex, int count, boolean descending ) {
+		Log.v( TAG, "getRecordedList( int, int, boolean ) : enter" );
+
 		LinkedMultiValueMap<String, String> parameters = new LinkedMultiValueMap<String, String>();
 		
 		if( startIndex > 0 ) {
@@ -82,6 +94,7 @@ public class DvrTemplate extends AbstractDvrOperations implements DvrOperations 
 		ResponseEntity<ProgramList> responseEntity = restTemplate.exchange( buildUri( "GetRecordedList", parameters ), HttpMethod.GET, getRequestEntity(), ProgramList.class );
 		ProgramList programList = responseEntity.getBody();
 		
+		Log.v( TAG, "getRecordedList( int, int, boolean ) : exit" );
 		return programList.getPrograms().getPrograms();
 	}
 	

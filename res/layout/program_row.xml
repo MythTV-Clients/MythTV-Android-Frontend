@@ -10,10 +10,9 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content" />
 
-    <TextView android:id="@+id/program_description"
+    <TextView android:id="@+id/program_sub_title"
         android:layout_gravity="left|center_vertical"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:scrollHorizontally="true" />
+        android:layout_height="wrap_content" />
 
 </LinearLayout>

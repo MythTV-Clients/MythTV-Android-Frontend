@@ -21,24 +21,33 @@
  */
 package org.mythtv.client.ui.dvr;
 
-import android.content.res.Configuration;
+import java.util.List;
+
+import org.mythtv.R;
+import org.mythtv.services.api.dvr.Program;
+
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 
 /**
  * @author Daniel Frey
  * 
  */
-public class ProgramGroupActivity extends FragmentActivity {
+public class ProgramGroupActivity extends AbstractRecordingsActivity {
 
 	private static final String TAG = ProgramGroupActivity.class.getSimpleName();
+
+	public static final String EXTRA_PROGRAM_GROUP_KEY = "org.mythtv.client.ui.dvr.programGroup.EXTRA_PROGRAM_GROUP_KEY";
+
+	private ProgramGroupFragment programGroup = null;
 
 	// ***************************************
 	// Activity methods
 	// ***************************************
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see android.support.v4.app.FragmentActivity#onCreate(android.os.Bundle)
 	 */
 	@Override
@@ -47,21 +56,70 @@ public class ProgramGroupActivity extends FragmentActivity {
 
 		super.onCreate( savedInstanceState );
 
-		if( getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE ) {
-			// If the screen is now in landscape mode, we can show the
-			// dialog in-line with the list so we don't need this activity.
-			finish();
-			return;
-		}
+		setContentView( R.layout.fragment_dvr_program_group );
 
-		if( savedInstanceState == null ) {
-			// During initial setup, plug in the details fragment.
-			ProgramGroupListFragment programGroup = new ProgramGroupListFragment();
-			programGroup.setArguments( getIntent().getExtras() );
-			getSupportFragmentManager().beginTransaction().add( android.R.id.content, programGroup ).commit();
-		}
+		programGroup = (ProgramGroupFragment) getSupportFragmentManager().findFragmentById( R.id.fragment_dvr_program_group );
+
+		List<Program> programs = getApplicationContext().getCurrentRecordingsInProgramGroup();
+		programGroup.loadPrograms( programs );
+		
+		//String key = getIntent().getStringExtra( EXTRA_PROGRAM_GROUP_KEY );
+
+		//if( key != null ) {
+		//	Log.v( TAG, "onCreate : loading program group fragment for '" + key + "'" );
+
+		//	setTitle( key );
+		//	programGroup.loadPrograms( key );
+		//}
+
+		// if( getResources().getConfiguration().orientation ==
+		// Configuration.ORIENTATION_LANDSCAPE ) {
+		// // If the screen is now in landscape mode, we can show the
+		// // dialog in-line with the list so we don't need this activity.
+		// finish();
+		// return;
+		// }
+		//
+		// if( savedInstanceState == null ) {
+		// Log.v( TAG, "onCreate : setting up fragment" );
+		//
+		// // During initial setup, plug in the details fragment.
+		// ProgramGroupListFragment programGroup = new
+		// ProgramGroupListFragment();
+		// programGroup.setArguments( getIntent().getExtras() );
+		// getSupportFragmentManager().beginTransaction().add(
+		// android.R.id.content, programGroup ).commit();
+		// }
 
 		Log.v( TAG, "onCreate : exit" );
 	}
+
+	@Override
+	public void onResume() {
+		Log.v( TAG, "onResume : enter" );
+
+		super.onResume();
+
+//		items.setOnItemListener( this );
+
+		Log.v( TAG, "onResume : exit" );
+	}
+
+	@Override
+	public void onProgramGroupSelected( List<Program> programs ) {
+		Log.v( TAG, "onProgramGroupSelected : enter" );
+		
+		//programGroup.loadPrograms( programs );
+
+		Log.v( TAG, "onProgramGroupSelected : exit" );
+	}
+
+//	public void onItemSelected( RSSItem item ) {
+//		Log.v( TAG, "onItemSelected : enter" );
+//	
+//		startActivity( new Intent( Intent.ACTION_VIEW, item.getLink() ) );
+//
+//	Log.v( TAG, "onItemSelected : exit" );
+//	}
 
 }

@@ -3,15 +3,14 @@
  */
 package org.mythtv.client.ui.dvr;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.mythtv.R;
-import org.mythtv.client.MainApplication;
 import org.mythtv.client.ui.util.PersistentListFragment;
 import org.mythtv.services.api.dvr.Program;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,52 +23,45 @@ import android.widget.TextView;
  */
 public class ProgramGroupFragment extends PersistentListFragment {
 
-	private String programGroupToLoad = null;
+	private static final String TAG = ProgramGroupFragment.class.getSimpleName();
+	
+	private List<Program> recordingsInGroup = null;
 
 	public ProgramGroupFragment() {
 		this( null );
 	}
 
-	public ProgramGroupFragment( String programGroup ) {
+	public ProgramGroupFragment( List<Program> recordingsInGroup ) {
 		super();
+		Log.i( TAG, "initialize : enter" );
 
-		this.programGroupToLoad = programGroup;
+		this.recordingsInGroup = recordingsInGroup;
 		setRetainInstance( true );
+
+		Log.i( TAG, "initialize : exit" );
 	}
 
 	@Override
 	public void onActivityCreated( Bundle savedInstanceState ) {
-	    super.onActivityCreated( savedInstanceState );
+		Log.i( TAG, "onActivityCreated : enter" );
+
+		super.onActivityCreated( savedInstanceState );
 	    
 	    if( null != savedInstanceState ) {
 	      
-	    } else if( null != programGroupToLoad ) {
-    		loadPrograms( programGroupToLoad );
+	    } else if( null != recordingsInGroup ) {
+    		loadPrograms( recordingsInGroup );
 	    }
+
+	    Log.i( TAG, "onActivityCreated : exit" );
 	}
 
-	public void loadPrograms( String programGroup ) {
-		if( "all".equalsIgnoreCase( programGroup ) ) {
-			loadAllPrograms();
-		} else {
-			List<Program> programsInProgramGroup = new ArrayList<Program>();
-			List<Program> allPrograms = ( (MainApplication) getActivity().getApplicationContext() ).getCurrentRecordings();
+	public void loadPrograms( List<Program> recordingsInGroup ) {
+		Log.i( TAG, "loadPrograms : enter" );
 
-			for( Program program : allPrograms ) {
-				String title = program.getTitle();
+		setListAdapter( new ProgramAdapter( recordingsInGroup ) );
 
-				if( title.equals( programGroup ) ) {
-					programsInProgramGroup.add( program );
-				}
-			}
-
-			setListAdapter( new ProgramAdapter( programsInProgramGroup ) );
-		}
-	}
-	
-	public void loadAllPrograms() {
-		List<Program> allPrograms = ( (MainApplication) getActivity().getApplicationContext() ).getCurrentRecordings();
-		setListAdapter( new ProgramAdapter( allPrograms ) );
+		Log.i( TAG, "loadPrograms : exit" );
 	}
 	
 	private class ProgramAdapter extends BaseAdapter {
@@ -109,7 +101,7 @@ public class ProgramGroupFragment extends PersistentListFragment {
 			Program program = getItem( position );
 
 			TextView title = (TextView) row.findViewById( R.id.program_title );
-			title.setText( !"".equals( program.getSubTitle() ) ? program.getSubTitle() : program.getTitle() );
+			title.setText( ( null != program.getSubTitle() && !"".equals( program.getSubTitle() ) )? program.getSubTitle() : program.getTitle() );
 
 			TextView description = (TextView) row.findViewById( R.id.program_title );
 			description.setText( program.getDescription() );

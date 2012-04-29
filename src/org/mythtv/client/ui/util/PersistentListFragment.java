@@ -22,8 +22,6 @@
 
 package org.mythtv.client.ui.util;
 
-import org.mythtv.client.MainApplication;
-
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.view.View;
@@ -55,10 +53,6 @@ public class PersistentListFragment extends ListFragment {
 
 	public void enablePersistentSelection() {
 		getListView().setChoiceMode( ListView.CHOICE_MODE_SINGLE );
-	}
-
-	public MainApplication getApplicationContext() {
-		return (MainApplication) getApplicationContext();
 	}
 
 }
