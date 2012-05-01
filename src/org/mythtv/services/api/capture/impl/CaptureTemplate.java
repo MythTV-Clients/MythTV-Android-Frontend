@@ -26,6 +26,7 @@ import java.util.List;
 import org.mythtv.services.api.capture.CaptureCard;
 import org.mythtv.services.api.capture.CaptureCardList;
 import org.mythtv.services.api.capture.CaptureOperations;
+import org.mythtv.services.api.capture.CardInput;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
@@ -44,6 +45,33 @@ public class CaptureTemplate extends AbstractCaptureOperations implements Captur
 		this.restTemplate = restTemplate;
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.mythtv.services.api.capture.CaptureOperations#addCaptureCard(org.mythtv.services.api.capture.CaptureCard)
+	 */
+	@Override
+	public int addCaptureCard( CaptureCard captureCard ) {
+		return restTemplate.postForObject( buildUri( "AddCaptureCard" ), convertCaptureCardToParameters( captureCard ), Integer.class );
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mythtv.services.api.capture.CaptureOperations#addCardInput(org.mythtv.services.api.capture.CardInput)
+	 */
+	@Override
+	public int addCardInput( CardInput cardInput ) {
+		return restTemplate.postForObject( buildUri( "AddCardInput" ), convertCardInputToParameters( cardInput ), Integer.class );
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mythtv.services.api.capture.CaptureOperations#getCaptureCard(int)
+	 */
+	@Override
+	public CaptureCard getCaptureCard( int cardId ) {
+		ResponseEntity<CaptureCard> responseEntity = restTemplate.exchange( buildUri( "GetCaptureCard", "CardId", new String( "" + cardId ) ), HttpMethod.GET, getRequestEntity(), CaptureCard.class );
+		CaptureCard captureCard = responseEntity.getBody();
+
+		return captureCard;
+	}
+
 	/* (non-Javadoc)
 	 * @see org.mythtv.services.api.capture.CaptureOperations#getCaptureCardList()
 	 */
@@ -77,22 +105,25 @@ public class CaptureTemplate extends AbstractCaptureOperations implements Captur
 	}
 
 	/* (non-Javadoc)
-	 * @see org.mythtv.services.api.capture.CaptureOperations#getCaptureCard(int)
+	 * @see org.mythtv.services.api.capture.CaptureOperations#removeCaptureCard(int)
 	 */
 	@Override
-	public CaptureCard getCaptureCard( int cardId ) {
-		ResponseEntity<CaptureCard> responseEntity = restTemplate.exchange( buildUri( "GetCaptureCard", "CardId", new String( "" + cardId ) ), HttpMethod.GET, getRequestEntity(), CaptureCard.class );
-		CaptureCard captureCard = responseEntity.getBody();
+	public boolean removeCaptureCard( int cardId ) {
+		LinkedMultiValueMap<String, String> parameters = new LinkedMultiValueMap<String, String>();
+		parameters.add( "CardId", new String( "" + cardId ) );
 
-		return captureCard;
+		return restTemplate.postForObject( buildUri( "RemoveCaptureCard" ), parameters, Boolean.class );
 	}
 
 	/* (non-Javadoc)
-	 * @see org.mythtv.services.api.capture.CaptureOperations#addCaptureCard(org.mythtv.services.api.capture.CaptureCard)
+	 * @see org.mythtv.services.api.capture.CaptureOperations#removeCardInput(int)
 	 */
 	@Override
-	public int addCaptureCard( CaptureCard captureCard ) {
-		return restTemplate.postForObject( buildUri( "AddCaptureCard" ), convertCaptureCardToParameters( captureCard ), Integer.class );
+	public boolean removeCardInput( int cardInputId ) {
+		LinkedMultiValueMap<String, String> parameters = new LinkedMultiValueMap<String, String>();
+		parameters.add( "CardInputId", new String( "" + cardInputId ) );
+
+		return restTemplate.postForObject( buildUri( "RemoveCardInput" ), parameters, Boolean.class );
 	}
 
 	/* (non-Javadoc)
@@ -108,14 +139,15 @@ public class CaptureTemplate extends AbstractCaptureOperations implements Captur
 	}
 
 	/* (non-Javadoc)
-	 * @see org.mythtv.services.api.capture.CaptureOperations#removeCaptureCard(int)
+	 * @see org.mythtv.services.api.capture.CaptureOperations#updateCardInput(int, java.lang.String, java.lang.String)
 	 */
 	@Override
-	public boolean removeCaptureCard( int cardId ) {
+	public boolean updateCardInput( int cardInputId, String setting, String value ) {
 		LinkedMultiValueMap<String, String> parameters = new LinkedMultiValueMap<String, String>();
-		parameters.add( "CardId", new String( "" + cardId ) );
-
-		return restTemplate.postForObject( buildUri( "RemoveCaptureCard" ), parameters, Boolean.class );
+		parameters.add( "CardInputId", new String( "" + cardInputId ) );
+		parameters.add( setting, value );
+		
+		return restTemplate.postForObject( buildUri( "UpdateCardInput" ), parameters, Boolean.class );
 	}
 
 	// internal helpers
@@ -148,6 +180,28 @@ public class CaptureTemplate extends AbstractCaptureOperations implements Captur
 		parameters.add( "Hue", captureCard.getHue().toString() );
 		parameters.add( "DiSEqCId", captureCard.getDiSEqCId().toString() );
 		parameters.add( "DVBEITScan", captureCard.getDvbEitScan().toString() );
+
+		return parameters;
+	}
+	
+	private LinkedMultiValueMap<String, String> convertCardInputToParameters( CardInput cardInput ) {
+		LinkedMultiValueMap<String, String> parameters = new LinkedMultiValueMap<String, String>();
+		
+		parameters.add( "CardId", "" + cardInput.getCardId() );
+		parameters.add( "SourceId", "" + cardInput.getSourceId() );
+		parameters.add( "InputName", cardInput.getInputName() );
+		parameters.add( "ExternalCommand", cardInput.getExternalCommand() );
+		parameters.add( "ChangerDevice", cardInput.getChangerDevice() );
+		parameters.add( "ChangerModel", cardInput.getChangerModel() );
+		parameters.add( "HostName", cardInput.getHosthame() );
+		parameters.add( "TuneChan", cardInput.getTuneChannel() );
+		parameters.add( "StartChan", cardInput.getStartChannel() );
+		parameters.add( "DisplayName", cardInput.getDisplayName() );
+		parameters.add( "DishnetEIT", "" + cardInput.isDishnetEIT() );
+		parameters.add( "RecPriority", "" + cardInput.getRecordingPriority() );
+		parameters.add( "Quicktune", "" + cardInput.getQuicktune() );
+		parameters.add( "SchedOrder", "" + cardInput.getSchedOrder() );
+		parameters.add( "LiveTVOrder", "" + cardInput.getLiveTVOrder() );
 
 		return parameters;
 	}

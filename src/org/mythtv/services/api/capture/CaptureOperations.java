@@ -29,16 +29,62 @@ import java.util.List;
  */
 public interface CaptureOperations {
 
-	List<CaptureCard> getCaptureCardList();
-	
-	List<CaptureCard> getCaptureCardList( String hostName, String cardType );
-
-	CaptureCard getCaptureCard( int cardId );
-	
+	/**
+	 * @param captureCard
+	 * @return
+	 */
 	int addCaptureCard( CaptureCard captureCard );
 	
+	/**
+	 * @param cardInput
+	 * @return
+	 */
+	int addCardInput( CardInput cardInput );
+
+	/**
+	 * @param cardId
+	 * @return
+	 */
+	CaptureCard getCaptureCard( int cardId );
+	
+	/**
+	 * @return
+	 */
+	List<CaptureCard> getCaptureCardList();
+	
+	/**
+	 * @param hostName
+	 * @param cardType
+	 * @return
+	 */
+	List<CaptureCard> getCaptureCardList( String hostName, String cardType );
+
+	/**
+	 * @param cardId
+	 * @return
+	 */
+	boolean removeCaptureCard( int cardId );
+	
+	/**
+	 * @param cardInputId
+	 * @return
+	 */
+	boolean removeCardInput( int cardInputId );
+
+	/**
+	 * @param cardId
+	 * @param setting
+	 * @param value
+	 * @return
+	 */
 	boolean updateCaptureCard( int cardId, String setting, String value );
 	
-	boolean removeCaptureCard( int cardId );
-		
+	/**
+	 * @param cardInputId
+	 * @param setting
+	 * @param value
+	 * @return
+	 */
+	boolean updateCardInput( int cardInputId, String setting, String value );
+
 }
