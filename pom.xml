@@ -38,7 +38,7 @@
     <properties> 
         <android-platform>11</android-platform>
         <android-emulator>11</android-emulator>
-        <maven-android-plugin-version>3.1.0</maven-android-plugin-version>
+        <maven-android-plugin-version>3.2.0</maven-android-plugin-version>
         <maven-compiler-plugin-version>2.3.2</maven-compiler-plugin-version>
         <maven-eclipse-plugin-version>2.8</maven-eclipse-plugin-version>
         <android-version>4.0.3</android-version>
@@ -109,39 +109,6 @@
             <version>${jackson-version}</version>
         </dependency>
         <dependency>
-            <!-- Using Gson for JSON marshaling -->
-            <groupId>com.google.code.gson</groupId>
-            <artifactId>gson</artifactId>
-            <version>${gson-version}</version>
-        </dependency>
-        <dependency>
-            <!-- Using Simple for XML marshaling -->
-            <groupId>org.simpleframework</groupId>
-            <artifactId>simple-xml</artifactId>
-            <version>${simple-version}</version>
-            <exclusions>
-                <!-- StAX is not available on Android -->
-                <exclusion>
-                    <artifactId>stax</artifactId>
-                    <groupId>stax</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>stax-api</artifactId>
-                    <groupId>stax</groupId>
-                </exclusion>
-                <!-- Provided by Android -->
-                <exclusion>
-                    <artifactId>xpp3</artifactId>
-                    <groupId>xpp3</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-  			<groupId>com.google.code.android-rome-feed-reader</groupId>
-  			<artifactId>android-rome-feed-reader</artifactId>
-  			<version>1.0.0-r2</version>
-		</dependency>
-        <dependency>
         	<groupId>joda-time</groupId>
         	<artifactId>joda-time</artifactId>
         	<version>2.1</version>
@@ -151,15 +118,6 @@
         	<artifactId>jmdns</artifactId>
         	<version>3.4.1</version>
     	</dependency>
-
-		<!-- Test -->
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.10</version>
-			<scope>test</scope>
-		</dependency>
-
 	</dependencies>
 
     <build>
@@ -167,18 +125,6 @@
         <finalName>${project.artifactId}</finalName>
 
         <sourceDirectory>src</sourceDirectory>
-        
-		<resources>
-			<resource>
-				<directory>src/main/java</directory>
-			</resource>
-		</resources>
-
-		<testResources>
-			<testResource>
-				<directory>src/test/java</directory>
-			</testResource>
-		</testResources>	
         
         <plugins>
             <plugin>
@@ -215,41 +161,6 @@
                 </configuration>
             </plugin>
         </plugins>
-        <pluginManagement>
-        	<plugins>
-        		<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
-        		<plugin>
-        			<groupId>org.eclipse.m2e</groupId>
-        			<artifactId>lifecycle-mapping</artifactId>
-        			<version>1.0.0</version>
-        			<configuration>
-        				<lifecycleMappingMetadata>
-        					<pluginExecutions>
-        						<pluginExecution>
-        							<pluginExecutionFilter>
-        								<groupId>
-        									com.jayway.maven.plugins.android.generation2
-        								</groupId>
-        								<artifactId>
-        									android-maven-plugin
-        								</artifactId>
-        								<versionRange>
-        									[3.1.0,)
-        								</versionRange>
-        								<goals>
-        									<goal>proguard</goal>
-        								</goals>
-        							</pluginExecutionFilter>
-        							<action>
-        								<ignore></ignore>
-        							</action>
-        						</pluginExecution>
-        					</pluginExecutions>
-        				</lifecycleMappingMetadata>
-        			</configuration>
-        		</plugin>
-        	</plugins>
-        </pluginManagement>
     </build>
 
     <repositories>
@@ -272,24 +183,15 @@
         </repository>
         
         <repository>
-    		<id>android-rome-feed-reader-repository</id>
-    		<name>Android ROME Feed Reader Repository</name>
-    		<url>https://android-rome-feed-reader.googlecode.com/svn/maven2/releases</url>
+    		<id>oss.sonatype.org-jayway-staging</id>
+    		<url>http://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
 		</repository>
 
 	    <repository>
-      		<id>google-api-services</id>
-      		<url>http://mavenrepo.google-api-java-client.googlecode.com/hg</url>
+      		<id>oss.sonatype.org-jayway-snapshots</id>
+      		<url>http://oss.sonatype.org/content/repositories/jayway-snapshots/</url>
     	</repository>
 
-    	<repository>
-        	<id>teleal-repo</id>
-        	<url>http://teleal.org/m2</url>
-        	<snapshots>
-            	<enabled>false</enabled>
-        	</snapshots>
-    	</repository>
-	    
 	</repositories>
 
 </project>
