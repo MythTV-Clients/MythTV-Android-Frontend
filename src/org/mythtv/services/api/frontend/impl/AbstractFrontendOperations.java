@@ -28,13 +28,13 @@ import org.mythtv.services.api.AbstractOperations;
  * 
  */
 class AbstractFrontendOperations extends AbstractOperations {
-	
+		
 	public AbstractFrontendOperations( String apiUrlBase ) {
 		super( apiUrlBase );
 	}
 	
-	protected String getApiUrlBase() {
-		return super.getApiUrlBase() + "Frontend/";
+	protected String getApiUrlBase( String frontedApiUrlBase) {
+		return frontedApiUrlBase + "Frontend/";
 	}
 
 }

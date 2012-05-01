@@ -25,14 +25,8 @@ package org.mythtv.services.api.frontend;
  * @author Daniel Frey
  *
  */
-public interface FrontendOperations {
+public class FrontendActionList {
 
-	FrontendStatus getStatus( String frontedApiUrlBase );
-	
-	boolean sendMessage( String frontedApiUrlBase, String message );
-	
-	boolean sendAction( String frontedApiUrlBase, String action, String file, int width, int height );
-	
-	FrontendActionList getActionList( String frontedApiUrlBase );
+	public FrontendActionList() { }
 	
 }

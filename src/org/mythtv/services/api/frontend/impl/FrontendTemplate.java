@@ -21,7 +21,9 @@
  */
 package org.mythtv.services.api.frontend.impl;
 
+import org.mythtv.services.api.frontend.FrontendActionList;
 import org.mythtv.services.api.frontend.FrontendOperations;
+import org.mythtv.services.api.frontend.FrontendStatus;
 import org.springframework.web.client.RestTemplate;
 
 /**
@@ -35,6 +37,42 @@ public class FrontendTemplate extends AbstractFrontendOperations implements Fron
 	public FrontendTemplate( RestTemplate restTemplate, String apiUrlBase ) {
 		super( apiUrlBase );
 		this.restTemplate = restTemplate;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mythtv.services.api.frontend.FrontendOperations#getStatus(java.lang.String)
+	 */
+	@Override
+	public FrontendStatus getStatus( String frontedApiUrlBase ) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mythtv.services.api.frontend.FrontendOperations#sendMessage(java.lang.String, java.lang.String)
+	 */
+	@Override
+	public boolean sendMessage( String frontedApiUrlBase, String message ) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mythtv.services.api.frontend.FrontendOperations#sendAction(java.lang.String, java.lang.String, java.lang.String, int, int)
+	 */
+	@Override
+	public boolean sendAction( String frontedApiUrlBase, String action, String file, int width, int height ) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mythtv.services.api.frontend.FrontendOperations#getActionList(java.lang.String)
+	 */
+	@Override
+	public FrontendActionList getActionList( String frontedApiUrlBase ) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 }
