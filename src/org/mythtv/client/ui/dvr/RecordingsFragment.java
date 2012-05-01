@@ -28,7 +28,6 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.mythtv.R;
-import org.mythtv.client.MainApplication;
 import org.mythtv.client.ui.util.PersistentListFragment;
 import org.mythtv.services.api.dvr.Program;
 
@@ -238,7 +237,7 @@ public class RecordingsFragment extends PersistentListFragment {
 			try {
 				Log.v( TAG, "doInBackground : lookup" );
 
-				lookup = ( (MainApplication) getActivity().getApplicationContext() ).getMythServicesApi().dvrOperations().getRecordedList( 0, 0, true );
+				lookup = getApplicationContext().getMythServicesApi().dvrOperations().getRecordedList( 0, 0, true );
 			} catch( Exception e ) {
 				Log.v( TAG, "doInBackground : error" );
 
