@@ -26,6 +26,14 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent">
 
+    <TextView
+        android:id="@+id/media_dashboard_label"
+        android:layout_width="fill_parent"
+        android:layout_height="36sp"
+        android:layout_weight="1"
+        android:gravity="center_horizontal"
+        android:text="@string/tab_multimedia" />
+
     <fragment android:name="org.mythtv.client.ui.media.MediaDashboardFragment"
         android:id="@+id/media_fragment_dashboard"
         android:layout_width="fill_parent"
