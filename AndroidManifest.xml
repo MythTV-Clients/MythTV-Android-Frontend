@@ -23,7 +23,7 @@
         android:name=".client.MainApplication"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/Theme.Mythtv" android:debuggable="true">
+        android:theme="@style/Theme.Mythtv">
 
 		<activity 
 			android:name=".client.ui.MythtvMasterBackendActivity">

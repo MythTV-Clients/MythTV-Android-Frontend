@@ -24,7 +24,6 @@ package org.mythtv.client.ui.setup;
 import org.mythtv.R;
 import org.mythtv.client.ui.HomeActivity;
 
-import android.app.ActionBar;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
