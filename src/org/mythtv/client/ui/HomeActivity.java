@@ -25,13 +25,19 @@ import org.mythtv.R;
 import org.mythtv.client.MainApplication;
 import org.mythtv.client.ui.setup.SetupActivity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 
 /**
  * @author Daniel Frey
@@ -41,9 +47,6 @@ public class HomeActivity extends FragmentActivity {
 
 	private final static String TAG = HomeActivity.class.getSimpleName();
 
-//	private ViewPager mViewPager;
-//	private TabsAdapter mTabsAdapter;
-
 	@Override
 	protected void onCreate( Bundle savedInstanceState ) {
 		Log.d( TAG, "onCreate : enter" );
@@ -51,36 +54,14 @@ public class HomeActivity extends FragmentActivity {
 		super.onCreate( savedInstanceState );
 
 		setContentView( R.layout.activity_home );
-		
-//		mViewPager = new ViewPager( this );
-//		mViewPager.setId( R.id.dashboard_pager );
-//		setContentView( mViewPager );
-//		// getActivityHelper().setupActionBar( null, 0 );
-//
-//		final ActionBar bar = getActionBar();
-//		bar.setNavigationMode( ActionBar.NAVIGATION_MODE_TABS );
-//		bar.setDisplayOptions( 0, ActionBar.DISPLAY_SHOW_TITLE );
-//
-//		mTabsAdapter = new TabsAdapter( this, mViewPager );
-//		mTabsAdapter.addTab( bar.newTab().setText( "Dvr" ), DvrDashboardFragment.class, null );
-//		mTabsAdapter.addTab( bar.newTab().setText( "Multimeida" ), MediaDashboardFragment.class, null );
-//
-//		if( savedInstanceState != null ) {
-//			bar.setSelectedNavigationItem( savedInstanceState.getInt( "tab", 0 ) );
-//		}
+
+		MythtvHomePagerAdapter mAdapter = new MythtvHomePagerAdapter();
+		ViewPager mPager = (ViewPager) findViewById( R.id.home_pager );
+		mPager.setAdapter( mAdapter );
+		mPager.setCurrentItem( 1 );
 
 		Log.d( TAG, "onCreate : exit" );
 	}
-
-//	@Override
-//	protected void onSaveInstanceState( Bundle outState ) {
-//		Log.d( TAG, "onSaveInstanceState : enter" );
-//
-//		super.onSaveInstanceState( outState );
-//		outState.putInt( "tab", getActionBar().getSelectedNavigationIndex() );
-//
-//		Log.d( TAG, "onSaveInstanceState : exit" );
-//	}
 
 	/*
 	 * (non-Javadoc)
@@ -109,9 +90,9 @@ public class HomeActivity extends FragmentActivity {
 	@Override
 	public boolean onOptionsItemSelected( MenuItem item ) {
 		Log.d( TAG, "onOptionsItemSelected : enter" );
-		
+
 		Intent intent = null;
-		
+
 		switch( item.getItemId() ) {
 		case R.id.menu_setup:
 			Log.d( TAG, "onOptionsItemSelected : setup selected" );
@@ -123,7 +104,7 @@ public class HomeActivity extends FragmentActivity {
 			Log.d( TAG, "onOptionsItemSelected : clear selected" );
 
 			( (MainApplication) getApplicationContext() ).clearMasterBackend();
-			
+
 			intent = new Intent( this, MythtvMasterBackendActivity.class );
 			startActivity( intent );
 			return true;
@@ -133,92 +114,122 @@ public class HomeActivity extends FragmentActivity {
 		return false;
 	}
 
-	/**
-	 * This is a helper class that implements the management of tabs and all
-	 * details of connecting a ViewPager with associated TabHost. It relies on a
-	 * trick. Normally a tab host has a simple API for supplying a View or
-	 * Intent that each tab will show. This is not sufficient for switching
-	 * between pages. So instead we make the content part of the tab host 0dp
-	 * high (it is not shown) and the TabsAdapter supplies its own dummy view to
-	 * show as the tab content. It listens to changes in tabs, and takes care of
-	 * switch to the correct paged in the ViewPager whenever the selected tab
-	 * changes.
-	 */
-//	public static class TabsAdapter extends FragmentPagerAdapter implements ActionBar.TabListener, ViewPager.OnPageChangeListener {
-//		private final Context mContext;
-//		private final ActionBar mActionBar;
-//		private final ViewPager mViewPager;
-//		private final ArrayList<TabInfo> mTabs = new ArrayList<TabInfo>();
-//
-//		static final class TabInfo {
-//			private final Class<?> clss;
-//			private final Bundle args;
-//
-//			TabInfo( Class<?> _class, Bundle _args ) {
-//				clss = _class;
-//				args = _args;
-//			}
-//		}
-//
-//		public TabsAdapter( FragmentActivity activity, ViewPager pager ) {
-//			super( activity.getSupportFragmentManager() );
-//			mContext = activity;
-//			mActionBar = activity.getActionBar();
-//			mViewPager = pager;
-//			mViewPager.setAdapter( this );
-//			mViewPager.setOnPageChangeListener( this );
-//		}
-//
-//		public void addTab( ActionBar.Tab tab, Class<?> clss, Bundle args ) {
-//			TabInfo info = new TabInfo( clss, args );
-//			tab.setTag( info );
-//			tab.setTabListener( this );
-//			mTabs.add( info );
-//			mActionBar.addTab( tab );
-//			notifyDataSetChanged();
-//		}
-//
-//		@Override
-//		public int getCount() {
-//			return mTabs.size();
-//		}
-//
-//		@Override
-//		public Fragment getItem( int position ) {
-//			TabInfo info = mTabs.get( position );
-//			return Fragment.instantiate( mContext, info.clss.getName(), info.args );
-//		}
-//
-//		@Override
-//		public void onPageScrolled( int position, float positionOffset, int positionOffsetPixels ) {
-//		}
-//
-//		@Override
-//		public void onPageSelected( int position ) {
-//			mActionBar.setSelectedNavigationItem( position );
-//		}
-//
-//		@Override
-//		public void onPageScrollStateChanged( int state ) {
-//		}
-//
-//		@Override
-//		public void onTabSelected( Tab tab, FragmentTransaction ft ) {
-//			Object tag = tab.getTag();
-//			for( int i = 0; i < mTabs.size(); i++ ) {
-//				if( mTabs.get( i ) == tag ) {
-//					mViewPager.setCurrentItem( i );
-//				}
-//			}
-//		}
-//
-//		@Override
-//		public void onTabUnselected( Tab tab, FragmentTransaction ft ) {
-//		}
-//
-//		@Override
-//		public void onTabReselected( Tab tab, FragmentTransaction ft ) {
-//		}
-//	}
+	private class MythtvHomePagerAdapter extends PagerAdapter {
 
+		private final String TAG = MythtvHomePagerAdapter.class.getSimpleName();
+		
+		public int getCount() {
+			Log.v( TAG, "getCount : enter" );
+			Log.v( TAG, "getCount : exit" );
+			return 3;
+		}
+
+		/* (non-Javadoc)
+		 * @see android.support.v4.view.PagerAdapter#instantiateItem(android.view.View, int)
+		 */
+		public Object instantiateItem( View collection, int position ) {
+			Log.v( TAG, "instantiateItem : enter" );
+
+			LayoutInflater inflater = (LayoutInflater) collection.getContext().getSystemService( Context.LAYOUT_INFLATER_SERVICE );
+
+			int resId = 0;
+			switch( position ) {
+			case 0:
+				Log.v( TAG, "instantiateItem : frontend page" );
+
+				resId = R.layout.activity_frontend_dashboard;
+				break;
+			case 1:
+				Log.v( TAG, "instantiateItem : dvr page" );
+
+				resId = R.layout.activity_dvr_dashboard;
+				break;
+			case 2:
+				Log.v( TAG, "instantiateItem : media page" );
+
+				resId = R.layout.activity_media_dashboard;
+				break;
+			}
+
+			View view = inflater.inflate( resId, null );
+
+			( (ViewPager) collection ).addView( view, 0 );
+
+			Log.v( TAG, "instantiateItem : exit" );
+			return view;
+		}
+
+		/* (non-Javadoc)
+		 * @see android.support.v4.view.PagerAdapter#destroyItem(android.view.View, int, java.lang.Object)
+		 */
+		@Override
+		public void destroyItem( View view, int position, Object next ) {
+			Log.v( TAG, "destroyItem : enter" );
+
+			( (ViewPager) view ).removeView( (View) next );
+
+			Log.v( TAG, "destroyItem : exit" );
+		}
+
+		/* (non-Javadoc)
+		 * @see android.support.v4.view.PagerAdapter#finishUpdate(android.view.View)
+		 */
+		@Override
+		public void finishUpdate( View view ) {
+			Log.v( TAG, "finishUpdate : enter" );
+
+			// TODO Auto-generated method stub
+
+			Log.v( TAG, "finishUpdate : exit" );
+		}
+
+		/* (non-Javadoc)
+		 * @see android.support.v4.view.PagerAdapter#isViewFromObject(android.view.View, java.lang.Object)
+		 */
+		@Override
+		public boolean isViewFromObject( View view, Object next ) {
+			Log.v( TAG, "isViewFromObject : enter" );
+			Log.v( TAG, "isViewFromObject : exit" );
+			return view == ( (View) next );
+
+		}
+
+		/* (non-Javadoc)
+		 * @see android.support.v4.view.PagerAdapter#restoreState(android.os.Parcelable, java.lang.ClassLoader)
+		 */
+		@Override
+		public void restoreState( Parcelable parcel, ClassLoader cl ) {
+			Log.v( TAG, "restoreState : enter" );
+
+			// TODO Auto-generated method stub
+
+			Log.v( TAG, "restoreState : exit" );
+		}
+
+		/* (non-Javadoc)
+		 * @see android.support.v4.view.PagerAdapter#saveState()
+		 */
+		@Override
+		public Parcelable saveState() {
+			Log.v( TAG, "saveState : enter" );
+
+			// TODO Auto-generated method stub
+			
+			Log.v( TAG, "saveState : exit" );
+			return null;
+		}
+
+		/* (non-Javadoc)
+		 * @see android.support.v4.view.PagerAdapter#startUpdate(android.view.View)
+		 */
+		@Override
+		public void startUpdate( View view ) {
+			Log.v( TAG, "startUpdate : enter" );
+
+			// TODO Auto-generated method stub
+
+			Log.v( TAG, "startUpdate : exit" );
+		}
+
+	}
 }
