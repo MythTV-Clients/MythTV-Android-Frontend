@@ -73,10 +73,14 @@ public class LocationDashboardFragment extends AbstractMythFragment {
 				Log.v( TAG, "away.onClick : enter" );
 
 				if( null != getApplicationContext().getSelectedAwayLocationProfile() ) {
+					Log.v( TAG, "away.onClick : showing away dashboard" );
+
 					getApplicationContext().connectSelectedAwayLocationProfile();
 					
-					//startActivity( new Intent( getActivity(), AwayActivity.class ) );
+					startActivity( new Intent( getActivity(), AwayActivity.class ) );
 				} else {
+					Log.v( TAG, "away.onClick : no away profile selected" );
+
 					AlertDialog.Builder builder = new AlertDialog.Builder( getActivity() );
 					builder.setTitle( R.string.location_alert_error_title );
 					builder.setNeutralButton( R.string.btn_ok, new DialogInterface.OnClickListener() {

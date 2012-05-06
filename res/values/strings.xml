@@ -35,6 +35,7 @@
 	<string name="preferences_unset">No value selected</string>
 	<string name="preferences_profiles">Profiles</string>
 	<string name="preference_home_profiles">Home Profiles</string>
+	<string name="preference_home_profiles_select">Select Home Profile</string>
 	<string name="preference_home_profiles_default">Selected Home Profile</string>
 	<string name="preference_home_profiles_modify">Modify Home Profiles</string>
 	<string name="preference_home_profiles_modify_summary">Edit Master Backend settings when watching on your home network.</string>
@@ -50,6 +51,7 @@
 	<string name="preference_home_playback_profiles_modify_summary">Edit audio and video home playback profiles</string>
 			
 	<string name="preference_away_profiles">Away Profiles</string>
+	<string name="preference_away_profiles_select">Select Away Profile</string>
 	<string name="preference_away_profiles_default">Selected Away Profile</string>
 	<string name="preference_away_profiles_modify">Modify Away Profiles</string>
 	<string name="preference_away_profiles_modify_summary">Edit Master Backend settings when watching away from your home network, including 3G/4G connections.</string>

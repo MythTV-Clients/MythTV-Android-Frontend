@@ -46,11 +46,9 @@
 						
 		<!-- Main Dashboard -->
 		<activity 
-			android:name=".client.ui.MythtvMasterBackendActivity" />
-		<activity 
 			android:name=".client.ui.HomeActivity" />
 		<activity 
-			android:name=".client.ui.HomeActivity" />
+			android:name=".client.ui.AwayActivity" />
 		
 		<!-- DVR Activities -->
 		<activity 

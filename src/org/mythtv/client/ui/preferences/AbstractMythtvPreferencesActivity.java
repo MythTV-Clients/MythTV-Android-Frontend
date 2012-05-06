@@ -248,7 +248,7 @@ public abstract class AbstractMythtvPreferencesActivity extends PreferenceActivi
 		homeProfilesPreferenceCategory.addPreference( scanHomeLocationProfilePreference );
 		homeProfilesPreferenceCategory.addPreference( addHomeLocationProfilePreference );
 
-		List<LocationProfile> homeLocationProfiles = db.fetchHomeLocationProfiles();
+		final List<LocationProfile> homeLocationProfiles = db.fetchHomeLocationProfiles();
 		if( null != homeLocationProfiles && !homeLocationProfiles.isEmpty() ) {
 			Log.v( TAG, "setupPreferences : setting Home Location Profiles" );
 			
@@ -263,7 +263,7 @@ public abstract class AbstractMythtvPreferencesActivity extends PreferenceActivi
 		awayProfilesPreferenceCategory.removeAll();
 		awayProfilesPreferenceCategory.addPreference( addAwayLocationProfilePreference );
 
-		List<LocationProfile> awayLocationProfiles = db.fetchAwayLocationProfiles();
+		final List<LocationProfile> awayLocationProfiles = db.fetchAwayLocationProfiles();
 		if( null != awayLocationProfiles && !awayLocationProfiles.isEmpty() ) {
 			Log.v( TAG, "setupPreferences : setting Away Location Profiles" );
 			
@@ -281,6 +281,33 @@ public abstract class AbstractMythtvPreferencesActivity extends PreferenceActivi
 			Preference preference = findPreference( "preference_home_profiles_default_id" );
 			preference.setDefaultValue( selectedHomeLocationProfile.getId() );
 			preference.setSummary( selectedHomeLocationProfile.getName() );
+			preference.setOnPreferenceClickListener( new OnPreferenceClickListener() {
+
+				public boolean onPreferenceClick( Preference preference ) {
+
+					// Displays the list of configured location profiles.
+					// Fires the locationChanged event when the user selects a
+					// location even if the user selects the same location already 
+					// selected.
+					selectLocationProfile( context, homeLocationProfiles, LocationType.HOME, new LocationProfileChangedEventListener() {
+
+						@Override
+						public void homeLocationProfileChanged() {
+							// reset preference list with updated selection
+							setupPreferences( context );
+						}
+
+						@Override
+						public void awayLocationProfileChanged() {
+							// NO-OP
+						}
+
+					} );
+					
+					return true;
+				}
+			});
+
 		}
 		
 		LocationProfile selectedAwayLocationProfile = db.fetchSelectedHomeLocationProfile();
@@ -290,6 +317,33 @@ public abstract class AbstractMythtvPreferencesActivity extends PreferenceActivi
 			Preference preference = findPreference( "preference_away_profiles_default_id" );
 			preference.setDefaultValue( selectedAwayLocationProfile.getId() );
 			preference.setSummary( selectedAwayLocationProfile.getName() );
+			preference.setOnPreferenceClickListener( new OnPreferenceClickListener() {
+
+				public boolean onPreferenceClick( Preference preference ) {
+
+					// Displays the list of configured location profiles.
+					// Fires the locationChanged event when the user selects a
+					// location even if the user selects the same location already 
+					// selected.
+					selectLocationProfile( context, awayLocationProfiles, LocationType.AWAY, new LocationProfileChangedEventListener() {
+
+						@Override
+						public void homeLocationProfileChanged() {
+							// NO-OP
+						}
+
+						@Override
+						public void awayLocationProfileChanged() {
+							// reset preference list with updated selection
+							setupPreferences( context );
+						}
+
+					} );
+					
+					return true;
+				}
+			});
+
 		}
 		
 		Log.v( TAG, "setupPreferences : exit" );
@@ -399,4 +453,78 @@ public abstract class AbstractMythtvPreferencesActivity extends PreferenceActivi
 		Log.v( TAG, "showLocationProfileEditDialog : exit" );
 	}
 
+	/**
+	 * @param context
+	 * @param profiles
+	 * @param listener
+	 */
+	public static void selectLocationProfile( final Activity context, final List<LocationProfile> profiles, final LocationType type, final LocationProfileChangedEventListener listener ) {
+		Log.v( TAG, "selectLocationProfile : enter" );
+
+		final String[] names = new String[ profiles.size() ];
+		final int[] ids = new int[ profiles.size() ];
+		
+		for( int i = 0; i < profiles.size(); i++) {
+			LocationProfile profile = profiles.get( i );
+
+			names[ i ] = profile.getName();
+			ids[ i ] = profile.getId();
+		}
+
+		// show list of locations as a single selected list
+		AlertDialog.Builder builder = new AlertDialog.Builder(context);
+		
+		switch( type ) {
+			case HOME :
+				builder.setTitle( R.string.preference_home_profiles_select );
+				break;
+			case AWAY :
+				builder.setTitle( R.string.preference_away_profiles_select );
+				break;
+		} 
+
+		builder.setItems( names, new DialogInterface.OnClickListener() {
+
+			public void onClick( DialogInterface dialog, int which ) {
+
+				// save selected location
+				saveSelectedLocationProfile( context, ids[ which ], type );
+
+				// notify that we selected a location
+				switch( type ) {
+					case HOME :
+						listener.homeLocationProfileChanged();
+						break;
+					case AWAY :
+						listener.awayLocationProfileChanged();
+						break;
+					} 
+				}
+			});
+			
+		builder.show();
+
+		Log.v( TAG, "selectLocationProfile : exit" );
+	}
+
+	private static void saveSelectedLocationProfile( final Activity context, final int id, final LocationType type ) {
+		Log.v( TAG, "saveSelectedLocationProfile : enter" );
+
+		MythtvDatabaseManager db = new MythtvDatabaseManager( context );
+		switch( type ) {
+		case HOME :
+			Log.v( TAG, "saveSelectedLocationProfile : setting home selected location profile" );
+
+			db.setSelectedHomeLocationProfile( id );
+			break;
+		case AWAY :
+			Log.v( TAG, "saveSelectedLocationProfile : setting away selected location profile" );
+
+			db.setSelectedAwayLocationProfile( id );
+			break;
+		} 
+		
+		Log.v( TAG, "saveSelectedLocationProfile : exit" );
+	}
+	
 }

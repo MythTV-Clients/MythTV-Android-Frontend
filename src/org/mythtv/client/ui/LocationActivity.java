@@ -80,23 +80,11 @@ public class LocationActivity extends AbstractMythActivity {
 		
 		ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService( Context.CONNECTIVITY_SERVICE );
 
-		//mobile
-		State mobile = connectivityManager.getNetworkInfo( 0 ).getState();
-		if( mobile == State.CONNECTED || mobile == State.CONNECTING ) {
-			Log.d( TAG, "onResume : enabling away" );
+		LocationProfile selectedAwayLocationProfile = db.fetchSelectedAwayLocationProfile();
+		if( null != selectedAwayLocationProfile ) {
+			Log.v( TAG, "onResume : setting selected Away Location Profile" );
 			
-			away.setEnabled( true );
-
-			LocationProfile selectedAwayLocationProfile = db.fetchSelectedAwayLocationProfile();
-			if( null != selectedAwayLocationProfile ) {
-				Log.v( TAG, "onResume : setting selected Away Location Profile" );
-				
-				getApplicationContext().setSelectedHomeLocationProfile( selectedAwayLocationProfile );
-			}
-		} else {
-			Log.d( TAG, "onResume : disabling away" );
-
-			away.setEnabled( true );
+			getApplicationContext().setSelectedAwayLocationProfile( selectedAwayLocationProfile );
 		}
 
 		//wifi
