@@ -310,7 +310,7 @@ public abstract class AbstractMythtvPreferencesActivity extends PreferenceActivi
 
 		}
 		
-		LocationProfile selectedAwayLocationProfile = db.fetchSelectedHomeLocationProfile();
+		LocationProfile selectedAwayLocationProfile = db.fetchSelectedAwayLocationProfile();
 		if( null != selectedAwayLocationProfile ) {
 			Log.v( TAG, "setupPreferences : setting selected Away Location Profile" );
 
