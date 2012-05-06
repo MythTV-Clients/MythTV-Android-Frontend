@@ -19,25 +19,18 @@
  * This software can be found at <https://github.com/dmfrey/mythtv-for-android/>
  *
  */
-package org.mythtv.client.ui;
+   
+package org.mythtv.client.ui.preferences;
 
-import org.mythtv.client.MainApplication;
+import java.util.List;
 
-import android.support.v4.app.FragmentActivity;
+import org.mythtv.R;
 
-/**
- * @author Daniel Frey
- *
- */
-public abstract class AbstractMythActivity extends FragmentActivity implements MythActivity {
-
-	protected static final String TAG = AbstractMythActivity.class.getSimpleName();
-	
-	//***************************************
-    // MythActivity methods
-    //***************************************
-	public MainApplication getApplicationContext() {
-		return (MainApplication) super.getApplicationContext();
+public class MythtvPreferencesHC extends AbstractMythtvPreferencesActivity {
+  
+	@Override
+	public void onBuildHeaders( List<Header> target ) {
+		loadHeadersFromResource( R.xml.preference_headers, target );
 	}
 	
 }

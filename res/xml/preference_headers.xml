@@ -1,4 +1,5 @@
-/**
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 
  *  This file is part of MythTV for Android
  * 
  *  MythTV for Android is free software: you can redistribute it and/or modify
@@ -17,27 +18,22 @@
  * @author Daniel Frey <dmfrey at gmail dot com>
  * 
  * This software can be found at <https://github.com/dmfrey/mythtv-for-android/>
- *
- */
-package org.mythtv.client.ui;
+-->
 
-import org.mythtv.client.MainApplication;
-
-import android.support.v4.app.FragmentActivity;
-
-/**
- * @author Daniel Frey
- *
- */
-public abstract class AbstractMythActivity extends FragmentActivity implements MythActivity {
-
-	protected static final String TAG = AbstractMythActivity.class.getSimpleName();
-	
-	//***************************************
-    // MythActivity methods
-    //***************************************
-	public MainApplication getApplicationContext() {
-		return (MainApplication) super.getApplicationContext();
-	}
-	
-}
+<preference-headers xmlns:android="http://schemas.android.com/apk/res/android">
+    
+    <header android:fragment="org.mythtv.client.ui.preferences.StockPreferenceFragment"
+            android:title="@string/preference_home_profiles">
+    
+        <extra android:name="resource" android:value="home_preferences" />
+    
+    </header>
+    
+    <header android:fragment="org.mythtv.client.ui.preferences.StockPreferenceFragment"
+            android:title="@string/preference_away_profiles">
+      	
+      	<extra android:name="resource" android:value="away_preferences" />
+    
+    </header>
+    
+</preference-headers>

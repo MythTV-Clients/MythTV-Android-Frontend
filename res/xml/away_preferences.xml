@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 
+ *  This file is part of MythTV for Android
+ * 
+ *  MythTV for Android is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  MythTV for Android is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with MythTV for Android.  If not, see <http://www.gnu.org/licenses/>.
+ *   
+ * @author Daniel Frey <dmfrey at gmail dot com>
+ * 
+ * This software can be found at <https://github.com/dmfrey/mythtv-for-android/>
+-->
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory
+        android:title="@string/preference_away_profiles">
+        
+        <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+            android:title="@string/preference_away_profiles_modify"
+            android:summary="@string/preference_away_profiles_modify_summary">
+
+       		<Preference 
+	            android:key="preference_away_profiles_default_id"
+           		android:title="@string/preference_away_profiles_default"
+           		android:defaultValue="@string/preferences_unset" />
+        
+    		<PreferenceCategory
+    		    android:key="preference_away_profiles"
+        		android:title="@string/preference_away_profiles">
+        
+	       		<!-- Preference 
+		            android:key="preference_away_profiles_add"
+        	   		android:title="@string/preference_away_profiles_add"
+           			android:defaultValue="@string/preference_away_profiles_add_summary" / -->
+    		    
+    		</PreferenceCategory>
+    		
+        </PreferenceScreen>
+        
+        <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+            android:title="@string/preference_away_playback_profiles_modify"
+            android:summary="@string/preference_away_playback_profiles_modify_summary">
+        
+       		<Preference 
+	            android:key="preference_away_playback_profiles_default_id"
+           		android:title="@string/preference_away_playback_profiles_default"
+           		android:defaultValue="@string/preferences_unset" />
+        
+    		<PreferenceCategory
+        		android:title="@string/preference_away_playback_profiles">
+        
+     		    <ListPreference 
+    		        android:key="preference_away_profiles" />
+    		
+     		</PreferenceCategory>
+    		
+        </PreferenceScreen>
+
+    </PreferenceCategory>
+    
+</PreferenceScreen>

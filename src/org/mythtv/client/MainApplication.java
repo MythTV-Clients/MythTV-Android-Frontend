@@ -24,6 +24,7 @@ package org.mythtv.client;
 import java.util.List;
 import java.util.Map;
 
+import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.services.api.MythServices;
 import org.mythtv.services.api.capture.CaptureCard;
 import org.mythtv.services.api.dvr.Program;
@@ -46,6 +47,9 @@ public class MainApplication extends Application {
 	private SharedPreferences mythtvPreferences;
 
 	private MythServicesServiceProvider provider;
+	
+	private LocationProfile selectedHomeLocationProfile;
+	private LocationProfile selectedAwayLocationProfile;
 	
 	private String masterBackend;
 
@@ -92,6 +96,34 @@ public class MainApplication extends Application {
 		
 		Log.v( TAG, "getMythServicesApi : exit" );
 		return provider.getApi();
+	}
+
+	/**
+	 * @return the selectedHomeLocationProfile
+	 */
+	public LocationProfile getSelectedHomeLocationProfile() {
+		return selectedHomeLocationProfile;
+	}
+
+	/**
+	 * @param selectedHomeLocationProfile the selectedHomeLocationProfile to set
+	 */
+	public void setSelectedHomeLocationProfile( LocationProfile selectedHomeLocationProfile ) {
+		this.selectedHomeLocationProfile = selectedHomeLocationProfile;
+	}
+
+	/**
+	 * @return the selectedAwayLocationProfile
+	 */
+	public LocationProfile getSelectedAwayLocationProfile() {
+		return selectedAwayLocationProfile;
+	}
+
+	/**
+	 * @param selectedAwayLocationProfile the selectedAwayLocationProfile to set
+	 */
+	public void setSelectedAwayLocationProfile( LocationProfile selectedAwayLocationProfile ) {
+		this.selectedAwayLocationProfile = selectedAwayLocationProfile;
 	}
 
 	/**

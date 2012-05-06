@@ -5,6 +5,7 @@
     android:versionName="1.0" >
 
     <uses-permission android:name="android.permission.INTERNET" />
+	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
   	<uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
 
@@ -26,7 +27,7 @@
         android:theme="@style/Theme.Mythtv">
 
 		<activity 
-			android:name=".client.ui.MythtvMasterBackendActivity">
+			android:name=".client.ui.LocationActivity">
 			
 			<intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -35,7 +36,19 @@
             
 		</activity>
     
+		<!-- Preferences UI -->
+		<activity 
+			android:name=".client.ui.preferences.MythtvPreferences" />
+		<activity 
+			android:name=".client.ui.preferences.MythtvPreferencesHC" />
+		<activity 
+			android:name=".client.ui.preferences.LocationProfileEditor" />
+						
 		<!-- Main Dashboard -->
+		<activity 
+			android:name=".client.ui.MythtvMasterBackendActivity" />
+		<activity 
+			android:name=".client.ui.HomeActivity" />
 		<activity 
 			android:name=".client.ui.HomeActivity" />
 		

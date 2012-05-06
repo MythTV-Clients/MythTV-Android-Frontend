@@ -22,14 +22,12 @@
 package org.mythtv.client.ui;
 
 import org.mythtv.R;
-import org.mythtv.client.MainApplication;
 import org.mythtv.client.ui.setup.SetupActivity;
 
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
@@ -43,7 +41,7 @@ import android.view.View;
  * @author Daniel Frey
  * 
  */
-public class HomeActivity extends FragmentActivity {
+public class HomeActivity extends AbstractMythActivity {
 
 	private final static String TAG = HomeActivity.class.getSimpleName();
 
@@ -103,7 +101,7 @@ public class HomeActivity extends FragmentActivity {
 		case R.id.menu_clear:
 			Log.d( TAG, "onOptionsItemSelected : clear selected" );
 
-			( (MainApplication) getApplicationContext() ).clearMasterBackend();
+			getApplicationContext().clearMasterBackend();
 
 			intent = new Intent( this, MythtvMasterBackendActivity.class );
 			startActivity( intent );
