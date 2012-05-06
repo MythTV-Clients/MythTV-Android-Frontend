@@ -96,7 +96,7 @@ public class LocationActivity extends AbstractMythActivity {
 		} else {
 			Log.d( TAG, "onResume : disabling away" );
 
-			away.setEnabled( false );
+			away.setEnabled( true );
 		}
 
 		//wifi

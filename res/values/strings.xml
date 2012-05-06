@@ -35,7 +35,7 @@
 	<string name="preferences_unset">No value selected</string>
 	<string name="preferences_profiles">Profiles</string>
 	<string name="preference_home_profiles">Home Profiles</string>
-	<string name="preference_home_profiles_default">Default Home Profile</string>
+	<string name="preference_home_profiles_default">Selected Home Profile</string>
 	<string name="preference_home_profiles_modify">Modify Home Profiles</string>
 	<string name="preference_home_profiles_modify_summary">Edit Master Backend settings when watching on your home network.</string>
 	<string name="preference_home_profiles_add">Add New Home Profile</string>
@@ -45,18 +45,18 @@
 	<string name="preference_home_profiles_scan_error_title">MythTV Not Found</string>
 	<string name="preference_home_profiles_scan_error_message">MythTV could not be found on your network.  Please make sure you are connected to Wifi on your Home Network.</string>
 	<string name="preference_home_playback_profiles">Home Playback Profiles</string>
-	<string name="preference_home_playback_profiles_default">Default Home Playback Profile</string>
+	<string name="preference_home_playback_profiles_default">Selected Home Playback Profile</string>
 	<string name="preference_home_playback_profiles_modify">Modify Home Playback Profiles</string>
 	<string name="preference_home_playback_profiles_modify_summary">Edit audio and video home playback profiles</string>
 			
 	<string name="preference_away_profiles">Away Profiles</string>
-	<string name="preference_away_profiles_default">Default Away Profile</string>
+	<string name="preference_away_profiles_default">Selected Away Profile</string>
 	<string name="preference_away_profiles_modify">Modify Away Profiles</string>
 	<string name="preference_away_profiles_modify_summary">Edit Master Backend settings when watching away from your home network, including 3G/4G connections.</string>
 	<string name="preference_away_profiles_add">Add New Away Profile</string>
 	<string name="preference_away_profiles_add_summary">Add a new Master Backend Profile not on your home network.</string>
 	<string name="preference_away_playback_profiles">Away Playback Profiles</string>
-	<string name="preference_away_playback_profiles_default">Default Away Playback Profile</string>
+	<string name="preference_away_playback_profiles_default">Selected Away Playback Profile</string>
 	<string name="preference_away_playback_profiles_modify">Modify Away Playback Profiles</string>
 	<string name="preference_away_playback_profiles_modify_summary">Edit audio and video away playback profiles</string>
 	
@@ -82,7 +82,9 @@
 	<!-- Location dashboard -->
 	<string name="btn_home">Home</string>
 	<string name="btn_away">Away</string>
-	
+	<string name="location_alert_error_title">MythTV Master Backend not found!</string>
+	<string name="location_alert_error_message">A connection to the MythTV Master Backend could not be established.  Make your you setup your Home or Away profiles on the Preferences screen.</string>
+		
     <!-- Tabs -->
     <string name="tab_frontends">Frontends</string>
     <string name="tab_dvr">DVR</string>

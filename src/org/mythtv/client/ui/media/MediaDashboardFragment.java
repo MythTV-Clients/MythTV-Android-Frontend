@@ -22,15 +22,15 @@
 package org.mythtv.client.ui.media;
 
 import org.mythtv.R;
+import org.mythtv.client.ui.AbstractMythFragment;
 
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-public class MediaDashboardFragment extends Fragment {
+public class MediaDashboardFragment extends AbstractMythFragment {
 
 	private final static String TAG = MediaDashboardFragment.class.getSimpleName();
 

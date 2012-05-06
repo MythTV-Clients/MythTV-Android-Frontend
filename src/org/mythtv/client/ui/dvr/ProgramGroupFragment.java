@@ -101,7 +101,7 @@ public class ProgramGroupFragment extends PersistentListFragment {
 			Program program = getItem( position );
 
 			TextView title = (TextView) row.findViewById( R.id.program_title );
-			title.setText( ( null != program.getSubTitle() && !"".equals( program.getSubTitle() ) )? program.getSubTitle() : program.getTitle() );
+			title.setText( !"".equals( program.getSubTitle().trim() ) ? program.getSubTitle() : program.getTitle() );
 
 			TextView description = (TextView) row.findViewById( R.id.program_title );
 			description.setText( program.getDescription() );

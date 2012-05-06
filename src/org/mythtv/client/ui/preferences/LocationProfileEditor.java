@@ -177,11 +177,9 @@ public class LocationProfileEditor extends AbstractMythActivity {
 		builder.setTitle( R.string.preference_edit_error_dialog_title );
 		builder.setNeutralButton( R.string.btn_ok, new DialogInterface.OnClickListener() {
 
-			public void onClick( DialogInterface dialog, int which ) {
-				// TODO Auto-generated method stub
-
-			}
-		} );
+			public void onClick( DialogInterface dialog, int which ) { }
+			
+		});
 		
 		if( "".equals( profile.getName().trim() ) ) {
 			Log.v( TAG, "save : name contains errors" );

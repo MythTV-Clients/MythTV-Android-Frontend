@@ -22,10 +22,13 @@
 package org.mythtv.client.ui;
 
 import org.mythtv.R;
+import org.mythtv.client.ui.preferences.MythtvPreferences;
+import org.mythtv.client.ui.preferences.MythtvPreferencesHC;
 import org.mythtv.client.ui.setup.SetupActivity;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v4.view.PagerAdapter;
@@ -89,22 +92,25 @@ public class HomeActivity extends AbstractMythActivity {
 	public boolean onOptionsItemSelected( MenuItem item ) {
 		Log.d( TAG, "onOptionsItemSelected : enter" );
 
-		Intent intent = null;
-
 		switch( item.getItemId() ) {
+		case R.id.menu_prefs:
+			Log.d( TAG, "onOptionsItemSelected : preferences selected" );
+
+	        if( Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB ) {
+				Log.d( TAG, "onOptionsItemSelected : pre-honeycomb prefs selected" );
+
+				startActivity( new Intent( this, MythtvPreferences.class ) );
+	        } else {
+				Log.d( TAG, "onOptionsItemSelected : honeycomb+ prefs selected" );
+
+				startActivity( new Intent( this, MythtvPreferencesHC.class ) );
+	        }
+
+	        return true;
 		case R.id.menu_setup:
 			Log.d( TAG, "onOptionsItemSelected : setup selected" );
 
-			intent = new Intent( this, SetupActivity.class );
-			startActivity( intent );
-			return true;
-		case R.id.menu_clear:
-			Log.d( TAG, "onOptionsItemSelected : clear selected" );
-
-			getApplicationContext().clearMasterBackend();
-
-			intent = new Intent( this, MythtvMasterBackendActivity.class );
-			startActivity( intent );
+			startActivity( new Intent( this, SetupActivity.class ) );
 			return true;
 		}
 

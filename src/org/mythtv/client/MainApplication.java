@@ -113,6 +113,13 @@ public class MainApplication extends Application {
 	}
 
 	/**
+	 * 
+	 */
+	public void connectSelectedHomeLocationProfile() {
+		setMasterBackend( getSelectedHomeLocationProfile().getUrl() );
+	}
+	
+	/**
 	 * @return the selectedAwayLocationProfile
 	 */
 	public LocationProfile getSelectedAwayLocationProfile() {
@@ -126,6 +133,13 @@ public class MainApplication extends Application {
 		this.selectedAwayLocationProfile = selectedAwayLocationProfile;
 	}
 
+	/**
+	 * 
+	 */
+	public void connectSelectedAwayLocationProfile() {
+		setMasterBackend( getSelectedAwayLocationProfile().getUrl() );
+	}
+	
 	/**
 	 * @return the masterBackend
 	 */

@@ -19,14 +19,25 @@
  * This software can be found at <https://github.com/dmfrey/mythtv-for-android/>
  *
  */
-package org.mythtv.client.ui.dvr;
+package org.mythtv.client.ui;
 
-import org.mythtv.client.ui.AbstractMythActivity;
+import org.mythtv.client.MainApplication;
+
+import android.support.v4.app.Fragment;
 
 /**
  * @author Daniel Frey
- * 
+ *
  */
-public abstract class AbstractRecordingsActivity extends AbstractMythActivity implements RecordingsFragment.OnProgramGroupListener {
+public abstract class AbstractMythFragment extends Fragment implements MythActivity {
 
+	protected static final String TAG = AbstractMythActivity.class.getSimpleName();
+	
+	//***************************************
+    // MythActivity methods
+    //***************************************
+	public MainApplication getApplicationContext() {
+		return (MainApplication) getActivity().getApplicationContext();
+	}
+	
 }

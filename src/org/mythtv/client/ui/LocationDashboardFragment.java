@@ -23,15 +23,16 @@ package org.mythtv.client.ui;
 
 import org.mythtv.R;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-public class LocationDashboardFragment extends Fragment {
+public class LocationDashboardFragment extends AbstractMythFragment {
 
 	private final static String TAG = LocationDashboardFragment.class.getSimpleName();
 
@@ -46,7 +47,21 @@ public class LocationDashboardFragment extends Fragment {
 			public void onClick( View view ) {
 				Log.v( TAG, "home.onClick : enter" );
 				
-				startActivity( new Intent( getActivity(), HomeActivity.class ) );
+				if( null != getApplicationContext().getSelectedHomeLocationProfile() ) {
+					getApplicationContext().connectSelectedHomeLocationProfile();
+					
+					startActivity( new Intent( getActivity(), HomeActivity.class ) );
+				} else {
+					AlertDialog.Builder builder = new AlertDialog.Builder( getActivity() );
+					builder.setTitle( R.string.location_alert_error_title );
+					builder.setNeutralButton( R.string.btn_ok, new DialogInterface.OnClickListener() {
+
+						public void onClick( DialogInterface dialog, int which ) { }
+						
+					});
+					builder.setMessage( R.string.location_alert_error_message );
+					builder.show();
+				}
 
 				Log.v( TAG, "home.onClick : exit" );
 			}
@@ -56,6 +71,22 @@ public class LocationDashboardFragment extends Fragment {
 		root.findViewById( R.id.btn_away ).setOnClickListener( new View.OnClickListener() {
 			public void onClick( View view ) {
 				Log.v( TAG, "away.onClick : enter" );
+
+				if( null != getApplicationContext().getSelectedAwayLocationProfile() ) {
+					getApplicationContext().connectSelectedAwayLocationProfile();
+					
+					//startActivity( new Intent( getActivity(), AwayActivity.class ) );
+				} else {
+					AlertDialog.Builder builder = new AlertDialog.Builder( getActivity() );
+					builder.setTitle( R.string.location_alert_error_title );
+					builder.setNeutralButton( R.string.btn_ok, new DialogInterface.OnClickListener() {
+
+						public void onClick( DialogInterface dialog, int which ) { }
+						
+					});
+					builder.setMessage( R.string.location_alert_error_message );
+					builder.show();
+				}
 
 				Log.v( TAG, "away.onClick : exit" );
 			}
