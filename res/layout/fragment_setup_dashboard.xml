@@ -28,6 +28,6 @@
     <Button android:id="@+id/setup_btn_capture"
         style="@style/DashboardButton"
         android:text="@string/btn_capture"
-        android:drawableTop="@null" />
+        android:drawableTop="@drawable/setup_btn_capture" />
 
 </org.mythtv.client.ui.widget.DashboardLayout>

@@ -28,10 +28,10 @@
     <Button android:id="@+id/btn_home"
         style="@style/DashboardButton"
         android:text="@string/btn_home"
-        android:drawableTop="@null" />
+        android:drawableTop="@drawable/location_btn_home" />
     <Button android:id="@+id/btn_away"
         style="@style/DashboardButton"
         android:text="@string/btn_away"
-        android:drawableTop="@null" />
+        android:drawableTop="@drawable/location_btn_away" />
 
 </org.mythtv.client.ui.widget.DashboardLayout>

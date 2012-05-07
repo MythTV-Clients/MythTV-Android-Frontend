@@ -20,22 +20,15 @@
  * This software can be found at <https://github.com/dmfrey/mythtv-for-android/>
 -->
 
-<org.mythtv.client.ui.widget.DashboardLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent">
-
-    <Button android:id="@+id/media_btn_videos"
-        style="@style/DashboardButton"
-        android:text="@string/btn_videos"
-        android:drawableTop="@drawable/media_btn_videos" />
-    <Button android:id="@+id/media_btn_music"
-        style="@style/DashboardButton"
-        android:text="@string/btn_music"
-        android:drawableTop="@drawable/media_btn_music" />
-    <Button android:id="@+id/media_btn_pictures"
-        style="@style/DashboardButton"
-        android:text="@string/btn_pictures"
-        android:drawableTop="@drawable/media_btn_pictures" />
-
-</org.mythtv.client.ui.widget.DashboardLayout>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- item android:drawable="@drawable/home_btn_schedule_pressed"
+        android:state_focused="true"
+        android:state_pressed="true" />
+    <item android:drawable="@drawable/home_btn_schedule_pressed"
+        android:state_focused="false"
+        android:state_pressed="true" />
+    <item android:drawable="@drawable/home_btn_schedule_selected" android:state_focused="true" / -->
+    <item android:drawable="@drawable/blank"
+        android:state_focused="false"
+        android:state_pressed="false" />
+</selector>

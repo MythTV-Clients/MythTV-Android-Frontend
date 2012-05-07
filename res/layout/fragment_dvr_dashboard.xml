@@ -28,18 +28,18 @@
     <Button android:id="@+id/dvr_btn_recordings"
         style="@style/DashboardButton"
         android:text="@string/btn_recordings"
-        android:drawableTop="@null" />
+        android:drawableTop="@drawable/dvr_btn_recordings" />
     <Button android:id="@+id/dvr_btn_upcoming"
         style="@style/DashboardButton"
         android:text="@string/btn_upcoming"
-        android:drawableTop="@null" />
+        android:drawableTop="@drawable/dvr_btn_upcoming" />
     <Button android:id="@+id/dvr_btn_live"
         style="@style/DashboardButton"
         android:text="@string/btn_live"
-        android:drawableTop="@null" />
+        android:drawableTop="@drawable/dvr_btn_live" />
     <Button android:id="@+id/dvr_btn_guide"
         style="@style/DashboardButton"
         android:text="@string/btn_guide"
-        android:drawableTop="@null" />
+        android:drawableTop="@drawable/dvr_btn_guide" />
 
 </org.mythtv.client.ui.widget.DashboardLayout>
