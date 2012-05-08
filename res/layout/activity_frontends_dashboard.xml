@@ -21,17 +21,15 @@
 -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/frontend_dashboard"
+    android:id="@+id/frontends_dashboard"
     android:orientation="vertical"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent">
 
-    <TextView
-        android:id="@+id/frontend_dashboard_label"
+    <fragment android:name="org.mythtv.client.ui.frontends.FrontendsDashboardFragment" xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/frontends_fragment_dashboard"
         android:layout_width="fill_parent"
-        android:layout_height="36sp"
-        android:layout_weight="1"
-        android:gravity="center_horizontal"
-        android:text="@string/tab_frontends" />
+        android:layout_height="0dip"
+        android:layout_weight="1" />
 
 </LinearLayout>

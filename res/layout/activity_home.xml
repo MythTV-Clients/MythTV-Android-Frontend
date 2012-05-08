@@ -20,15 +20,18 @@
  * This software can be found at <https://github.com/dmfrey/mythtv-for-android/>
 -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/home_root"
-    android:orientation="vertical"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent">
-
-	<android.support.v4.view.ViewPager
-    	android:layout_width="match_parent" 
-    	android:layout_height="match_parent" 
-    	android:id="@+id/home_pager" />
-
-</LinearLayout>
+<android.support.v4.view.ViewPager xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" 
+    android:layout_height="match_parent" 
+    android:id="@+id/home_pager">
+    	
+	<android.support.v4.view.PagerTitleStrip android:id="@+id/pager_title_strip"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top"
+        android:background="#33b5e5"
+        android:textColor="#fff"
+        android:paddingTop="4dp"
+        android:paddingBottom="4dp" />
+	    
+</android.support.v4.view.ViewPager>

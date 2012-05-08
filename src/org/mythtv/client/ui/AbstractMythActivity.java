@@ -23,7 +23,10 @@ package org.mythtv.client.ui;
 
 import org.mythtv.client.MainApplication;
 
+import android.content.res.Resources;
+import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 
 /**
  * @author Daniel Frey
@@ -32,12 +35,31 @@ import android.support.v4.app.FragmentActivity;
 public abstract class AbstractMythActivity extends FragmentActivity implements MythActivity {
 
 	protected static final String TAG = AbstractMythActivity.class.getSimpleName();
-	
+
+	protected Resources resources;
+
 	//***************************************
     // MythActivity methods
     //***************************************
 	public MainApplication getApplicationContext() {
+		Log.v( TAG, "getApplicationContext : enter" );
+		Log.v( TAG, "getApplicationContext : exit" );
 		return (MainApplication) super.getApplicationContext();
 	}
+
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.FragmentActivity#onCreate(android.os.Bundle)
+	 */
+	@Override
+	protected void onCreate( Bundle savedInstanceState ) {
+		Log.v( TAG, "onCreate : enter" );
+
+		super.onCreate( savedInstanceState );
+
+		resources = getResources();
+		
+		Log.v( TAG, "onCreate : exit" );
+	}
+	
 	
 }

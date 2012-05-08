@@ -59,7 +59,7 @@ public class HomeActivity extends AbstractMythActivity {
 		MythtvHomePagerAdapter mAdapter = new MythtvHomePagerAdapter();
 		ViewPager mPager = (ViewPager) findViewById( R.id.home_pager );
 		mPager.setAdapter( mAdapter );
-		mPager.setCurrentItem( 1 );
+		mPager.setCurrentItem( 0 );
 
 		Log.d( TAG, "onCreate : exit" );
 	}
@@ -123,9 +123,9 @@ public class HomeActivity extends AbstractMythActivity {
 		private final String TAG = MythtvHomePagerAdapter.class.getSimpleName();
 		
 		public int getCount() {
-			Log.v( TAG, "getCount : enter" );
-			Log.v( TAG, "getCount : exit" );
-			return 3;
+//			Log.v( TAG, "getCount : enter" );
+//			Log.v( TAG, "getCount : exit" );
+			return 2;
 		}
 
 		/* (non-Javadoc)
@@ -134,25 +134,27 @@ public class HomeActivity extends AbstractMythActivity {
 		public Object instantiateItem( View collection, int position ) {
 			Log.v( TAG, "instantiateItem : enter" );
 
+			Log.d( TAG, "instantiateItem : position=" + position );
+
 			LayoutInflater inflater = (LayoutInflater) collection.getContext().getSystemService( Context.LAYOUT_INFLATER_SERVICE );
 
 			int resId = 0;
 			switch( position ) {
 			case 0:
-				Log.v( TAG, "instantiateItem : frontend page" );
-
-				resId = R.layout.activity_frontend_dashboard;
-				break;
-			case 1:
 				Log.v( TAG, "instantiateItem : dvr page" );
 
 				resId = R.layout.activity_dvr_dashboard;
 				break;
-			case 2:
+			case 1:
 				Log.v( TAG, "instantiateItem : media page" );
 
 				resId = R.layout.activity_media_dashboard;
 				break;
+//			case 2:
+//				Log.v( TAG, "instantiateItem : frontend page" );
+//
+//				resId = R.layout.activity_frontends_dashboard;
+//				break;
 			}
 
 			View view = inflater.inflate( resId, null );
@@ -164,12 +166,39 @@ public class HomeActivity extends AbstractMythActivity {
 		}
 
 		/* (non-Javadoc)
+		 * @see android.support.v4.view.PagerAdapter#getPageTitle(int)
+		 */
+		@Override
+		public CharSequence getPageTitle( int position ) {
+			Log.v( TAG, "getPageTitle : enter" );
+
+			switch( position ) {
+			case 0:
+				Log.v( TAG, "getPageTitle : dvr page" );
+
+				return resources.getString( R.string.tab_dvr );
+			case 1:
+				Log.v( TAG, "getPageTitle : media page" );
+
+				return resources.getString( R.string.tab_multimedia );
+//			case 2:
+//				Log.v( TAG, "getPageTitle : frontend page" );
+//
+//				return resources.getString( R.string.tab_frontends );
+			}
+
+			Log.v( TAG, "getPageTitle : exit" );
+			return super.getPageTitle( position );
+		}
+
+		/* (non-Javadoc)
 		 * @see android.support.v4.view.PagerAdapter#destroyItem(android.view.View, int, java.lang.Object)
 		 */
 		@Override
 		public void destroyItem( View view, int position, Object next ) {
 			Log.v( TAG, "destroyItem : enter" );
 
+			Log.d( TAG, "destroyItem : position=" + position );
 			( (ViewPager) view ).removeView( (View) next );
 
 			Log.v( TAG, "destroyItem : exit" );
@@ -180,11 +209,9 @@ public class HomeActivity extends AbstractMythActivity {
 		 */
 		@Override
 		public void finishUpdate( View view ) {
-			Log.v( TAG, "finishUpdate : enter" );
-
-			// TODO Auto-generated method stub
-
-			Log.v( TAG, "finishUpdate : exit" );
+//			Log.v( TAG, "finishUpdate : enter" );
+//
+//			Log.v( TAG, "finishUpdate : exit" );
 		}
 
 		/* (non-Javadoc)
@@ -192,8 +219,8 @@ public class HomeActivity extends AbstractMythActivity {
 		 */
 		@Override
 		public boolean isViewFromObject( View view, Object next ) {
-			Log.v( TAG, "isViewFromObject : enter" );
-			Log.v( TAG, "isViewFromObject : exit" );
+//			Log.v( TAG, "isViewFromObject : enter" );
+//			Log.v( TAG, "isViewFromObject : exit" );
 			return view == ( (View) next );
 
 		}
@@ -203,11 +230,9 @@ public class HomeActivity extends AbstractMythActivity {
 		 */
 		@Override
 		public void restoreState( Parcelable parcel, ClassLoader cl ) {
-			Log.v( TAG, "restoreState : enter" );
-
-			// TODO Auto-generated method stub
-
-			Log.v( TAG, "restoreState : exit" );
+//			Log.v( TAG, "restoreState : enter" );
+//
+//			Log.v( TAG, "restoreState : exit" );
 		}
 
 		/* (non-Javadoc)
@@ -215,11 +240,9 @@ public class HomeActivity extends AbstractMythActivity {
 		 */
 		@Override
 		public Parcelable saveState() {
-			Log.v( TAG, "saveState : enter" );
-
-			// TODO Auto-generated method stub
-			
-			Log.v( TAG, "saveState : exit" );
+//			Log.v( TAG, "saveState : enter" );
+//
+//			Log.v( TAG, "saveState : exit" );
 			return null;
 		}
 
@@ -228,12 +251,11 @@ public class HomeActivity extends AbstractMythActivity {
 		 */
 		@Override
 		public void startUpdate( View view ) {
-			Log.v( TAG, "startUpdate : enter" );
-
-			// TODO Auto-generated method stub
-
-			Log.v( TAG, "startUpdate : exit" );
+//			Log.v( TAG, "startUpdate : enter" );
+//
+//			Log.v( TAG, "startUpdate : exit" );
 		}
 
 	}
+
 }

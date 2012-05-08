@@ -47,7 +47,7 @@ import android.view.View;
 public class AwayActivity extends AbstractMythActivity {
 
 	private final static String TAG = AwayActivity.class.getSimpleName();
-
+	
 	@Override
 	protected void onCreate( Bundle savedInstanceState ) {
 		Log.d( TAG, "onCreate : enter" );
@@ -56,7 +56,7 @@ public class AwayActivity extends AbstractMythActivity {
 
 		setContentView( R.layout.activity_away );
 
-		MythtvHomePagerAdapter mAdapter = new MythtvHomePagerAdapter();
+		MythtvAwayPagerAdapter mAdapter = new MythtvAwayPagerAdapter();
 		ViewPager mPager = (ViewPager) findViewById( R.id.away_pager );
 		mPager.setAdapter( mAdapter );
 		mPager.setCurrentItem( 0 );
@@ -118,13 +118,13 @@ public class AwayActivity extends AbstractMythActivity {
 		return false;
 	}
 
-	private class MythtvHomePagerAdapter extends PagerAdapter {
+	private class MythtvAwayPagerAdapter extends PagerAdapter {
 
-		private final String TAG = MythtvHomePagerAdapter.class.getSimpleName();
+		private final String TAG = MythtvAwayPagerAdapter.class.getSimpleName();
 		
 		public int getCount() {
-			Log.v( TAG, "getCount : enter" );
-			Log.v( TAG, "getCount : exit" );
+//			Log.v( TAG, "getCount : enter" );
+//			Log.v( TAG, "getCount : exit" );
 			return 2;
 		}
 
@@ -159,6 +159,28 @@ public class AwayActivity extends AbstractMythActivity {
 		}
 
 		/* (non-Javadoc)
+		 * @see android.support.v4.view.PagerAdapter#getPageTitle(int)
+		 */
+		@Override
+		public CharSequence getPageTitle( int position ) {
+			Log.v( TAG, "getPageTitle : enter" );
+
+			switch( position ) {
+			case 0:
+				Log.v( TAG, "getPageTitle : dvr page" );
+
+				return resources.getString( R.string.tab_dvr );
+			case 1:
+				Log.v( TAG, "getPageTitle : media page" );
+
+				return resources.getString( R.string.tab_multimedia );
+			}
+
+			Log.v( TAG, "getPageTitle : exit" );
+			return super.getPageTitle( position );
+		}
+
+		/* (non-Javadoc)
 		 * @see android.support.v4.view.PagerAdapter#destroyItem(android.view.View, int, java.lang.Object)
 		 */
 		@Override
@@ -175,11 +197,9 @@ public class AwayActivity extends AbstractMythActivity {
 		 */
 		@Override
 		public void finishUpdate( View view ) {
-			Log.v( TAG, "finishUpdate : enter" );
-
-			// TODO Auto-generated method stub
-
-			Log.v( TAG, "finishUpdate : exit" );
+//			Log.v( TAG, "finishUpdate : enter" );
+//
+//			Log.v( TAG, "finishUpdate : exit" );
 		}
 
 		/* (non-Javadoc)
@@ -198,11 +218,9 @@ public class AwayActivity extends AbstractMythActivity {
 		 */
 		@Override
 		public void restoreState( Parcelable parcel, ClassLoader cl ) {
-			Log.v( TAG, "restoreState : enter" );
-
-			// TODO Auto-generated method stub
-
-			Log.v( TAG, "restoreState : exit" );
+//			Log.v( TAG, "restoreState : enter" );
+//
+//			Log.v( TAG, "restoreState : exit" );
 		}
 
 		/* (non-Javadoc)
@@ -210,11 +228,9 @@ public class AwayActivity extends AbstractMythActivity {
 		 */
 		@Override
 		public Parcelable saveState() {
-			Log.v( TAG, "saveState : enter" );
-
-			// TODO Auto-generated method stub
-			
-			Log.v( TAG, "saveState : exit" );
+//			Log.v( TAG, "saveState : enter" );
+//
+//			Log.v( TAG, "saveState : exit" );
 			return null;
 		}
 
@@ -223,12 +239,11 @@ public class AwayActivity extends AbstractMythActivity {
 		 */
 		@Override
 		public void startUpdate( View view ) {
-			Log.v( TAG, "startUpdate : enter" );
-
-			// TODO Auto-generated method stub
-
-			Log.v( TAG, "startUpdate : exit" );
+//			Log.v( TAG, "startUpdate : enter" );
+//
+//			Log.v( TAG, "startUpdate : exit" );
 		}
 
 	}
+
 }

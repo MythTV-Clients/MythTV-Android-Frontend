@@ -20,11 +20,7 @@
  * This software can be found at <https://github.com/dmfrey/mythtv-for-android/>
 -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content" >
-
-    <ScrollView
+    <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/ScrollView01"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" >
@@ -33,7 +29,7 @@
             xmlns:android="http://schemas.android.com/apk/res/android"
             android:id="@+id/TableLayoutLocationEditor"
             android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
+            android:layout_height="wrap_content"
             android:stretchColumns="0,1" >
 
             <TextView
@@ -87,5 +83,3 @@
             </TableRow>
         </TableLayout>
     </ScrollView>
-
-</LinearLayout>

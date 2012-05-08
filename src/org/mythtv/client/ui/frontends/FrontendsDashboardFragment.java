@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- 
+/**
  *  This file is part of MythTV for Android
  * 
  *  MythTV for Android is free software: you can redistribute it and/or modify
@@ -18,18 +17,31 @@
  * @author Daniel Frey <dmfrey at gmail dot com>
  * 
  * This software can be found at <https://github.com/dmfrey/mythtv-for-android/>
--->
+ *
+ */
+package org.mythtv.client.ui.frontends;
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/home_root"
-    android:orientation="vertical"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent">
+import org.mythtv.R;
+import org.mythtv.client.ui.AbstractMythFragment;
 
-    <fragment android:name="org.mythtv.client.ui.setup.SetupDashboardFragment"
-        android:id="@+id/setup_fragment_dashboard"
-        android:layout_width="fill_parent"
-        android:layout_height="0dip"
-        android:layout_weight="1" />
+import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
-</LinearLayout>
+public class FrontendsDashboardFragment extends AbstractMythFragment {
+
+	private final static String TAG = FrontendsDashboardFragment.class.getSimpleName();
+
+	@Override
+	public View onCreateView( LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState ) {
+		Log.v( TAG, "onCreateView : enter" );
+		
+		View root = inflater.inflate( R.layout.fragment_frontends_dashboard, container );
+
+		Log.v( TAG, "onCreateView : exit" );
+		return root;
+	}
+
+}
