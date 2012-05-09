@@ -39,7 +39,13 @@ public class DvrDashboardFragment extends AbstractMythFragment {
 	public View onCreateView( LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState ) {
 		Log.v( TAG, "onCreateView : enter" );
 		
-		View root = inflater.inflate( R.layout.fragment_dvr_dashboard, container );
+		if( null == container ) {
+			Log.v( TAG, "onCreateView : exit, container is null" );
+
+			return null;
+		}
+		
+		View root = inflater.inflate( R.layout.fragment_dvr_dashboard, container, false );
 
 		// Attach event handlers
 		root.findViewById( R.id.dvr_btn_recordings ).setOnClickListener( new View.OnClickListener() {

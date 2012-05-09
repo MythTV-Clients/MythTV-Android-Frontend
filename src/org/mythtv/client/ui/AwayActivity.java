@@ -21,24 +21,27 @@
  */
 package org.mythtv.client.ui;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.mythtv.R;
+import org.mythtv.client.ui.dvr.DvrDashboardFragment;
+import org.mythtv.client.ui.media.MediaDashboardFragment;
 import org.mythtv.client.ui.preferences.MythtvPreferences;
 import org.mythtv.client.ui.preferences.MythtvPreferencesHC;
 import org.mythtv.client.ui.setup.SetupActivity;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Parcelable;
-import android.support.v4.view.PagerAdapter;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 
 /**
  * @author Daniel Frey
@@ -56,7 +59,11 @@ public class AwayActivity extends AbstractMythActivity {
 
 		setContentView( R.layout.activity_away );
 
-		MythtvAwayPagerAdapter mAdapter = new MythtvAwayPagerAdapter();
+		List<Fragment> fragments = new ArrayList<Fragment>();
+		fragments.add( Fragment.instantiate( this, DvrDashboardFragment.class.getName() ) );
+		fragments.add( Fragment.instantiate( this, MediaDashboardFragment.class.getName() ) );
+
+		MythtvAwayPagerAdapter mAdapter = new MythtvAwayPagerAdapter( getSupportFragmentManager(), fragments );
 		ViewPager mPager = (ViewPager) findViewById( R.id.away_pager );
 		mPager.setAdapter( mAdapter );
 		mPager.setCurrentItem( 0 );
@@ -118,44 +125,32 @@ public class AwayActivity extends AbstractMythActivity {
 		return false;
 	}
 
-	private class MythtvAwayPagerAdapter extends PagerAdapter {
+	private class MythtvAwayPagerAdapter extends FragmentStatePagerAdapter {
 
 		private final String TAG = MythtvAwayPagerAdapter.class.getSimpleName();
 		
-		public int getCount() {
-//			Log.v( TAG, "getCount : enter" );
-//			Log.v( TAG, "getCount : exit" );
-			return 2;
+		private List<Fragment> fragments;
+		
+		public MythtvAwayPagerAdapter( FragmentManager fm, List<Fragment> fragments ) {
+			super( fm );
+			Log.v( TAG, "MythtvAwayPagerAdapter : enter" );
+			
+			this.fragments = fragments;
+			
+			Log.v( TAG, "MythtvAwayPagerAdapter : exit" );
 		}
 
-		/* (non-Javadoc)
-		 * @see android.support.v4.view.PagerAdapter#instantiateItem(android.view.View, int)
-		 */
-		public Object instantiateItem( View collection, int position ) {
-			Log.v( TAG, "instantiateItem : enter" );
+		@Override
+		public Fragment getItem( int position ) {
+			Log.v( TAG, "getItem : enter" );
+			Log.v( TAG, "getItem : exit" );
+			return fragments.get( position );
+		}
 
-			LayoutInflater inflater = (LayoutInflater) collection.getContext().getSystemService( Context.LAYOUT_INFLATER_SERVICE );
-
-			int resId = 0;
-			switch( position ) {
-			case 0:
-				Log.v( TAG, "instantiateItem : dvr page" );
-
-				resId = R.layout.activity_dvr_dashboard;
-				break;
-			case 1:
-				Log.v( TAG, "instantiateItem : media page" );
-
-				resId = R.layout.activity_media_dashboard;
-				break;
-			}
-
-			View view = inflater.inflate( resId, null );
-
-			( (ViewPager) collection ).addView( view, 0 );
-
-			Log.v( TAG, "instantiateItem : exit" );
-			return view;
+		public int getCount() {
+			Log.v( TAG, "getCount : enter" );
+			Log.v( TAG, "getCount : exit" );
+			return fragments.size();
 		}
 
 		/* (non-Javadoc)
@@ -178,70 +173,6 @@ public class AwayActivity extends AbstractMythActivity {
 
 			Log.v( TAG, "getPageTitle : exit" );
 			return super.getPageTitle( position );
-		}
-
-		/* (non-Javadoc)
-		 * @see android.support.v4.view.PagerAdapter#destroyItem(android.view.View, int, java.lang.Object)
-		 */
-		@Override
-		public void destroyItem( View view, int position, Object next ) {
-			Log.v( TAG, "destroyItem : enter" );
-
-			( (ViewPager) view ).removeView( (View) next );
-
-			Log.v( TAG, "destroyItem : exit" );
-		}
-
-		/* (non-Javadoc)
-		 * @see android.support.v4.view.PagerAdapter#finishUpdate(android.view.View)
-		 */
-		@Override
-		public void finishUpdate( View view ) {
-//			Log.v( TAG, "finishUpdate : enter" );
-//
-//			Log.v( TAG, "finishUpdate : exit" );
-		}
-
-		/* (non-Javadoc)
-		 * @see android.support.v4.view.PagerAdapter#isViewFromObject(android.view.View, java.lang.Object)
-		 */
-		@Override
-		public boolean isViewFromObject( View view, Object next ) {
-			Log.v( TAG, "isViewFromObject : enter" );
-			Log.v( TAG, "isViewFromObject : exit" );
-			return view == ( (View) next );
-
-		}
-
-		/* (non-Javadoc)
-		 * @see android.support.v4.view.PagerAdapter#restoreState(android.os.Parcelable, java.lang.ClassLoader)
-		 */
-		@Override
-		public void restoreState( Parcelable parcel, ClassLoader cl ) {
-//			Log.v( TAG, "restoreState : enter" );
-//
-//			Log.v( TAG, "restoreState : exit" );
-		}
-
-		/* (non-Javadoc)
-		 * @see android.support.v4.view.PagerAdapter#saveState()
-		 */
-		@Override
-		public Parcelable saveState() {
-//			Log.v( TAG, "saveState : enter" );
-//
-//			Log.v( TAG, "saveState : exit" );
-			return null;
-		}
-
-		/* (non-Javadoc)
-		 * @see android.support.v4.view.PagerAdapter#startUpdate(android.view.View)
-		 */
-		@Override
-		public void startUpdate( View view ) {
-//			Log.v( TAG, "startUpdate : enter" );
-//
-//			Log.v( TAG, "startUpdate : exit" );
 		}
 
 	}
