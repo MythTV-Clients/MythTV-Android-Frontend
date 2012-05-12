@@ -24,6 +24,7 @@ package org.mythtv.client.ui;
 import org.mythtv.R;
 import org.mythtv.client.db.MythtvDatabaseManager;
 import org.mythtv.client.ui.preferences.LocationProfile;
+import org.mythtv.client.ui.preferences.MythtvPreferenceActivity;
 import org.mythtv.client.ui.preferences.MythtvPreferences;
 import org.mythtv.client.ui.preferences.MythtvPreferencesHC;
 
@@ -153,7 +154,8 @@ public class LocationActivity extends AbstractMythActivity {
 	        } else {
 				Log.d( TAG, "onOptionsItemSelected : honeycomb+ prefs selected" );
 
-				startActivity( new Intent( this, MythtvPreferencesHC.class ) );
+				startActivity( new Intent( this, MythtvPreferenceActivity.class ) );
+//				startActivity( new Intent( this, MythtvPreferencesHC.class ) );
 	        }
 			
 	        return true;

@@ -401,7 +401,7 @@ public abstract class AbstractMythtvPreferencesActivity extends PreferenceActivi
 	 * @param profile
 	 * @return
 	 */
-	private static Preference createLocationProfilePreference( final Activity context, LocationProfile profile ) {
+	private static Preference createLocationProfilePreference( final Context context, LocationProfile profile ) {
 		Log.v( TAG, "createLocationProfilePreference : enter" );
 		
 		Preference preference = new Preference( context );

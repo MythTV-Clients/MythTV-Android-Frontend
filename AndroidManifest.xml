@@ -38,6 +38,8 @@
     
 		<!-- Preferences UI -->
 		<activity 
+			android:name=".client.ui.preferences.MythtvPreferenceActivity" />
+		<activity 
 			android:name=".client.ui.preferences.MythtvPreferences" />
 		<activity 
 			android:name=".client.ui.preferences.MythtvPreferencesHC" />

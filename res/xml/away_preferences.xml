@@ -38,11 +38,6 @@
     		    android:key="preference_away_profiles"
         		android:title="@string/preference_away_profiles">
         
-	       		<!-- Preference 
-		            android:key="preference_away_profiles_add"
-        	   		android:title="@string/preference_away_profiles_add"
-           			android:defaultValue="@string/preference_away_profiles_add_summary" / -->
-    		    
     		</PreferenceCategory>
     		
         </PreferenceScreen>
