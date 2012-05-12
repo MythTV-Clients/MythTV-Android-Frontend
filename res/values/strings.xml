@@ -34,6 +34,7 @@
 	<!-- Preferences -->
 	<string name="preferences_unset">No value selected</string>
 	<string name="preferences_profiles">Profiles</string>
+	<string name="preferences_profile_delete">Delete Profile</string>
 	<string name="preference_home_profiles">Home Profiles</string>
 	<string name="preference_home_profiles_summary">Modify your home profile settings</string>
 	<string name="preference_home_profiles_select">Select Home Profile</string>
@@ -43,6 +44,8 @@
 	<string name="preference_home_profiles_saved">Saved Home Profiles</string>
 	<string name="preference_home_profiles_add">Add New Home Profile</string>
 	<string name="preference_home_profiles_add_summary">Add a new Master Backend Profile on your home network.</string>
+	<string name="preference_home_profiles_delete">Delete Home Profile</string>
+	<string name="preference_home_profiles_delete_summary">Delete an existing Master Backend Profile.</string>
 	<string name="preference_home_profiles_scan">Scan Network</string>
 	<string name="preference_home_profiles_scan_summary">Scan network for MythTV Master Backend</string>
 	<string name="preference_home_profiles_scan_error_title">MythTV Not Found</string>
@@ -62,6 +65,8 @@
 	<string name="preference_away_profiles_saved">Saved Away Profiles</string>
 	<string name="preference_away_profiles_add">Add New Away Profile</string>
 	<string name="preference_away_profiles_add_summary">Add a new Master Backend Profile not on your home network.</string>
+	<string name="preference_away_profiles_delete">Delete Away Profile</string>
+	<string name="preference_away_profiles_delete_summary">Delete an existing Master Backend Profile.</string>
 	<string name="preference_away_playback_profiles">Away Playback Profiles</string>
 	<string name="preference_away_playback_profiles_default">Selected Away Playback Profile</string>
 	<string name="preference_away_playback_profiles_modify">Modify Away Playback Profiles</string>

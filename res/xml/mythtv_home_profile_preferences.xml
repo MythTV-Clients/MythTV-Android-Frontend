@@ -40,17 +40,18 @@
     	<Preference
     		android:key="preference_home_profiles_add"
     		android:title="@string/preference_home_profiles_add"
-    		android:summary="@string/preference_home_profiles_add_summary">
-        
-		</Preference>
+    		android:summary="@string/preference_home_profiles_add_summary" />
     	    
     	<Preference
     		android:key="preference_home_profiles_scan"
     		android:title="@string/preference_home_profiles_scan"
-    		android:summary="@string/preference_home_profiles_scan_summary">
-        
-		</Preference>
+    		android:summary="@string/preference_home_profiles_scan_summary" />
 
+    	<Preference
+    		android:key="preference_home_profiles_delete"
+    		android:title="@string/preference_home_profiles_delete"
+    		android:summary="@string/preference_home_profiles_delete_summary" />
+    	
     </PreferenceCategory>
 
     <PreferenceCategory

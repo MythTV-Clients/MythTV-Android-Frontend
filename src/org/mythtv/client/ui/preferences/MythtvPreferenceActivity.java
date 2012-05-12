@@ -167,6 +167,11 @@ public class MythtvPreferenceActivity extends PreferenceActivity {
 			Log.v( TAG, "selectLocationProfile : exit" );
 		}
 
+		/**
+		 * @param context
+		 * @param id
+		 * @param type
+		 */
 		protected static void saveSelectedLocationProfile( final Context context, final int id, final LocationType type ) {
 			Log.v( TAG, "saveSelectedLocationProfile : enter" );
 
@@ -187,6 +192,39 @@ public class MythtvPreferenceActivity extends PreferenceActivity {
 			Log.v( TAG, "saveSelectedLocationProfile : exit" );
 		}
 
+		protected static void deleteLocationProfile( final Context context, final List<LocationProfile> profiles, final LocationProfileChangedEventListener listener ) {
+			Log.v( TAG, "deleteLocationProfile : enter" );
+
+			final String[] names = new String[ profiles.size() ];
+			final int[] ids = new int[ profiles.size() ];
+			
+			for( int i = 0; i < profiles.size(); i++) {
+				LocationProfile profile = profiles.get( i );
+
+				names[ i ] = profile.getName();
+				ids[ i ] = profile.getId();
+			}
+
+			// show list of locations as a single selected list
+			AlertDialog.Builder builder = new AlertDialog.Builder(context);
+			builder.setTitle( R.string.preferences_profile_delete );
+			builder.setItems( names, new DialogInterface.OnClickListener() {
+
+				public void onClick( DialogInterface dialog, int which ) {
+
+					// delete  location
+					MythtvDatabaseManager db = new MythtvDatabaseManager( context );
+					db.deleteLocationProfile( ids[ which ] );
+					
+					listener.defaultLocationProfileChanged();
+				}
+			});
+				
+			builder.show();
+
+			Log.v( TAG, "deleteLocationProfile : exit" );
+		}
+
 	}
 	
 	public static class HomeProfilesPreferenceFragment extends BasePreferenceFragment implements ServiceListener {
@@ -196,6 +234,7 @@ public class MythtvPreferenceActivity extends PreferenceActivity {
 		private static final String PREFERENCE_HOME_SELECTED_ID = "preference_home_profiles_default_id";
 		private static final String PREFERENCE_HOME_ADD_KEY = "preference_home_profiles_add";
 		private static final String PREFERENCE_HOME_SCAN_KEY = "preference_home_profiles_scan";
+		private static final String PREFERENCE_HOME_DELETE_KEY = "preference_home_profiles_delete";
 		private static final String PREFERENCE_CATEGORY_HOME_SAVED_KEY = "preference_home_profiles_saved";
 		
 		private static final String MYTHTV_MASTER_BACKEND_TYPE = "_mythbackend-master._tcp.local.";
@@ -409,6 +448,27 @@ public class MythtvPreferenceActivity extends PreferenceActivity {
     		}
     		
     		LocationProfile selectedHomeLocationProfile = db.fetchSelectedHomeLocationProfile();
+
+    		Preference deleteHomeLocationProfilePreference = findPreference( PREFERENCE_HOME_DELETE_KEY );
+    		deleteHomeLocationProfilePreference.setOnPreferenceClickListener( new OnPreferenceClickListener() {
+
+    			public boolean onPreferenceClick( Preference preference ) {
+    				
+    				deleteLocationProfile( context, homeLocationProfiles, new LocationProfileChangedEventListener() {
+
+						@Override
+						public void defaultLocationProfileChanged() {
+							// reset preference list with updated selection
+							setupPreferences( context );
+						}
+
+					});
+    				
+    				return false;
+    			}
+
+    		});
+
     		if( null != selectedHomeLocationProfile ) {
     			Log.v( TAG, "setupPreferences : setting selected Home Location Profile" );
     			
@@ -431,7 +491,7 @@ public class MythtvPreferenceActivity extends PreferenceActivity {
     							setupPreferences( context );
     						}
 
-    					} );
+    					});
     					
     					return true;
     				}
@@ -450,6 +510,7 @@ public class MythtvPreferenceActivity extends PreferenceActivity {
 		
 		private static final String PREFERENCE_AWAY_SELECTED_ID = "preference_away_profiles_default_id";
 		private static final String PREFERENCE_AWAY_ADD_KEY = "preference_away_profiles_add";
+		private static final String PREFERENCE_AWAY_DELETE_KEY = "preference_away_profiles_delete";
 		private static final String PREFERENCE_CATEGORY_AWAY_SAVED_KEY = "preference_away_profiles_saved";
 
 		/* (non-Javadoc)
@@ -520,6 +581,27 @@ public class MythtvPreferenceActivity extends PreferenceActivity {
     		}
     		
     		LocationProfile selectedAwayLocationProfile = db.fetchSelectedAwayLocationProfile();
+
+    		Preference deleteHomeLocationProfilePreference = findPreference( PREFERENCE_AWAY_DELETE_KEY );
+    		deleteHomeLocationProfilePreference.setOnPreferenceClickListener( new OnPreferenceClickListener() {
+
+    			public boolean onPreferenceClick( Preference preference ) {
+    				
+    				deleteLocationProfile( context, awayLocationProfiles, new LocationProfileChangedEventListener() {
+
+						@Override
+						public void defaultLocationProfileChanged() {
+							// reset preference list with updated selection
+							setupPreferences( context );
+						}
+
+					});
+    				
+    				return false;
+    			}
+
+    		});
+
     		if( null != selectedAwayLocationProfile ) {
     			Log.v( TAG, "setupPreferences : setting selected Away Location Profile" );
     			

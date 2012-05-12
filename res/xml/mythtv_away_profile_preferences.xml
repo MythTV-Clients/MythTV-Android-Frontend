@@ -40,9 +40,12 @@
     	<Preference
     		android:key="preference_away_profiles_add"
     		android:title="@string/preference_away_profiles_add"
-    		android:summary="@string/preference_away_profiles_add_summary">
+    		android:summary="@string/preference_away_profiles_add_summary" />
         
-		</Preference>
+    	<Preference
+    		android:key="preference_away_profiles_delete"
+    		android:title="@string/preference_away_profiles_delete"
+    		android:summary="@string/preference_away_profiles_delete_summary" />
     	    
     </PreferenceCategory>
 
