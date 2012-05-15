@@ -1,4 +1,5 @@
-/**
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 
  *  This file is part of MythTV for Android
  * 
  *  MythTV for Android is free software: you can redistribute it and/or modify
@@ -17,49 +18,16 @@
  * @author Daniel Frey <dmfrey at gmail dot com>
  * 
  * This software can be found at <https://github.com/dmfrey/mythtv-for-android/>
- *
- */
-package org.mythtv.services.api.guide;
+-->
 
-import java.util.Date;
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-import org.mythtv.services.api.dvr.Program;
-
-/**
- * @author Daniel Frey
- *
- */
-public interface GuideOperations {
-
-	/**
-	 * - GET
-	 * 
-	 * @param channelId
-	 * @param width
-	 * @param height
-	 * @return
-	 */
-	String getChannelIcon( int channelId, int width, int height );
-	
-	/**
-	 * - GET
-	 * 
-	 * @param channelId
-	 * @param startTime
-	 * @return
-	 */
-	Program getProgramDetails( int channelId, Date startTime );
-	
-	/**
-	 * - GET
-	 * 
-	 * @param start
-	 * @param end
-	 * @param startChannelId
-	 * @param numberOfChannels
-	 * @param details
-	 * @return
-	 */
-	ProgramGuide getProgramGuide( Date start, Date end, int startChannelId, int numberOfChannels, boolean details );
-	
-}
+	<item 
+	    android:id="@+id/menu_frontends" 
+	    android:showAsAction="ifRoom" 
+	    android:title="@string/frontends_title" />
+    <item 
+	    android:id="@+id/menu_setup" 
+	    android:title="@string/menu_setup" />
+		
+</menu>

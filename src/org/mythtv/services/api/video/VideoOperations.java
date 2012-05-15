@@ -21,10 +21,77 @@
  */
 package org.mythtv.services.api.video;
 
+import java.util.List;
+
 /**
  * @author Daniel Frey
  *
  */
 public interface VideoOperations {
 
+	/**
+	 * - POST
+	 * 
+	 * @param filename
+	 * @param hostname
+	 * @return
+	 */
+	boolean addVideo( String filename, String hostname );
+	
+	/**
+	 * - GET
+	 * 
+	 * @param path
+	 * @return
+	 */
+	BlurayInfo getBluray( String path );
+	
+	/**
+	 * - GET
+	 * 
+	 * @param id
+	 * @return
+	 */
+	VideoMetadataInfo getVideo( int id );
+	
+	/**
+	 * - GET
+	 * 
+	 * @param filename
+	 * @return
+	 */
+	VideoMetadataInfo getVideByFilename( String filename );
+	
+	/**
+	 * - GET
+	 * 
+	 * @param descending
+	 * @param startIndex
+	 * @param count
+	 * @return
+	 */
+	List<VideoMetadataInfo> getVideoList( boolean descending, int startIndex, int count );
+	
+	/**
+	 * - GET
+	 * 
+	 * @param title
+	 * @param subtitle
+	 * @param inetRef
+	 * @param season
+	 * @param episode
+	 * @param grabberType
+	 * @param allowGeneric
+	 * @return
+	 */
+	List<VideoLookup> lookupVideo( String title, String subtitle, String inetRef, int season, int episode, String grabberType, boolean allowGeneric );
+	
+	/**
+	 * - POST
+	 * 
+	 * @param id
+	 * @return
+	 */
+	boolean removeVideoFromDatabase( int id );
+	
 }

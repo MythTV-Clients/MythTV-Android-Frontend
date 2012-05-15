@@ -27,12 +27,41 @@ package org.mythtv.services.api.frontend;
  */
 public interface FrontendOperations {
 
+	/**
+	 * - GET
+	 * 
+	 * @param frontedApiUrlBase
+	 * @return
+	 */
 	FrontendStatus getStatus( String frontedApiUrlBase );
 	
+	/**
+	 * - GET
+	 * 
+	 * @param frontedApiUrlBase
+	 * @param message
+	 * @return
+	 */
 	boolean sendMessage( String frontedApiUrlBase, String message );
 	
+	/**
+	 * - GET
+	 * 
+	 * @param frontedApiUrlBase
+	 * @param action
+	 * @param file
+	 * @param width
+	 * @param height
+	 * @return
+	 */
 	boolean sendAction( String frontedApiUrlBase, String action, String file, int width, int height );
 	
+	/**
+	 * - GET
+	 * 
+	 * @param frontedApiUrlBase
+	 * @return
+	 */
 	FrontendActionList getActionList( String frontedApiUrlBase );
 	
 }

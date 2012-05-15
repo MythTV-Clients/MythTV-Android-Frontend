@@ -24,6 +24,9 @@ package org.mythtv.services.api.frontend.impl;
 import org.mythtv.services.api.frontend.FrontendActionList;
 import org.mythtv.services.api.frontend.FrontendOperations;
 import org.mythtv.services.api.frontend.FrontendStatus;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 /**
@@ -44,8 +47,11 @@ public class FrontendTemplate extends AbstractFrontendOperations implements Fron
 	 */
 	@Override
 	public FrontendStatus getStatus( String frontedApiUrlBase ) {
-		// TODO Auto-generated method stub
-		return null;
+		
+		ResponseEntity<FrontendStatus> responseEntity = restTemplate.exchange( frontedApiUrlBase + "/Frontend/GetStatus", HttpMethod.GET, getRequestEntity(), FrontendStatus.class );
+		FrontendStatus frontendStatus = responseEntity.getBody();
+
+		return frontendStatus;
 	}
 
 	/* (non-Javadoc)
@@ -53,8 +59,11 @@ public class FrontendTemplate extends AbstractFrontendOperations implements Fron
 	 */
 	@Override
 	public boolean sendMessage( String frontedApiUrlBase, String message ) {
-		// TODO Auto-generated method stub
-		return false;
+
+		ResponseEntity<Boolean> responseEntity = restTemplate.exchange( frontedApiUrlBase + "/Frontend/SendMessage", HttpMethod.GET, getRequestEntity(), Boolean.class );
+		Boolean sent = responseEntity.getBody();
+
+		return sent;
 	}
 
 	/* (non-Javadoc)
@@ -62,8 +71,17 @@ public class FrontendTemplate extends AbstractFrontendOperations implements Fron
 	 */
 	@Override
 	public boolean sendAction( String frontedApiUrlBase, String action, String file, int width, int height ) {
-		// TODO Auto-generated method stub
-		return false;
+
+		LinkedMultiValueMap<String, String> parameters = new LinkedMultiValueMap<String, String>();
+		parameters.add( "Action", action );
+		parameters.add( "File", file );
+		parameters.add( "Width", "" + width );
+		parameters.add( "Height", "" + height );
+
+		ResponseEntity<Boolean> responseEntity = restTemplate.exchange( buildUri( frontedApiUrlBase + "/Frontend/SendAction", parameters ), HttpMethod.GET, getRequestEntity(), Boolean.class );
+		Boolean sent = responseEntity.getBody();
+
+		return sent;
 	}
 
 	/* (non-Javadoc)
@@ -71,8 +89,11 @@ public class FrontendTemplate extends AbstractFrontendOperations implements Fron
 	 */
 	@Override
 	public FrontendActionList getActionList( String frontedApiUrlBase ) {
-		// TODO Auto-generated method stub
-		return null;
+	
+		ResponseEntity<FrontendActionList> responseEntity = restTemplate.exchange( buildUri( frontedApiUrlBase + "/Frontend/GetActionList" ), HttpMethod.GET, getRequestEntity(), FrontendActionList.class );
+		FrontendActionList frontendActionList = responseEntity.getBody();
+		
+		return frontendActionList;
 	}
 	
 }

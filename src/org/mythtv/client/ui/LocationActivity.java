@@ -26,7 +26,6 @@ import org.mythtv.client.db.MythtvDatabaseManager;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.preferences.MythtvPreferenceActivity;
 import org.mythtv.client.ui.preferences.MythtvPreferences;
-import org.mythtv.client.ui.preferences.MythtvPreferencesHC;
 
 import android.content.Context;
 import android.content.Intent;
@@ -46,7 +45,7 @@ import android.widget.Button;
  * @author Daniel Frey
  *
  */
-public class LocationActivity extends AbstractMythActivity {
+public class LocationActivity extends AbstractMythtvFragmentActivity {
 
 	private static final String TAG = LocationActivity.class.getSimpleName();
 	private static final int EDIT_ID = Menu.FIRST + 2;

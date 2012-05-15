@@ -58,6 +58,10 @@
 		<activity 
 			android:name=".client.ui.dvr.RecordingsActivity" />
 						
+		<!-- Frontends Activities -->
+		<activity 
+			android:name=".client.ui.frontends.FrontendsActivity" />
+		
 		<!-- MythTV Setup Activities -->
 		<activity 
 		    android:name=".client.ui.setup.SetupActivity" />

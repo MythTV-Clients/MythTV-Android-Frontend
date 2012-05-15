@@ -21,6 +21,227 @@
  */
 package org.mythtv.services.api.content;
 
+import java.util.Date;
+import java.util.List;
+
 public interface ContentOperations {
 
+	/**
+	 * - GET
+	 * 
+	 * @param storageGroup
+	 * @param filename
+	 * @param hostname
+	 * @param maxSegments
+	 * @param width
+	 * @param height
+	 * @param bitrate
+	 * @param audioBitrate
+	 * @param sampleRate
+	 * @return
+	 */
+	LiveStreamInfo addLiveStream( String storageGroup, String filename, String hostname, int maxSegments, int width, int height, int bitrate, int audioBitrate, int sampleRate );
+	
+	/**
+	 * - GET
+	 * 
+	 * @param channelId
+	 * @param startTime
+	 * @param maxSegments
+	 * @param width
+	 * @param height
+	 * @param bitrate
+	 * @param audioBitrate
+	 * @param sampleRate
+	 * @return
+	 */
+	LiveStreamInfo addRecordingLiveStream( int channelId, Date startTime, int maxSegments, int width, int height, int bitrate, int audioBitrate, int sampleRate );
+	
+	/**
+	 * - GET
+	 * 
+	 * @param id
+	 * @param maxSegments
+	 * @param width
+	 * @param height
+	 * @param bitrate
+	 * @param audioBitrate
+	 * @param sampleRate
+	 * @return
+	 */
+	LiveStreamInfo addVideoLiveStream( int id, int maxSegments, int width, int height, int bitrate, int audioBitrate, int sampleRate );
+	
+	/**
+	 * - POST
+	 * 
+	 * @param url
+	 * @param storageGroup
+	 * @return
+	 */
+	boolean downloadFile( String url, String storageGroup );
+	
+	/**
+	 * - GET
+	 * 
+	 * @param id
+	 * @param width
+	 * @param height
+	 * @return
+	 */
+	String getAlbumArt( int id, int width, int height );
+	
+	/**
+	 * - GET
+	 * 
+	 * @param storageGroup
+	 * @param filename
+	 * @return
+	 */
+	String getFile( String storageGroup, String filename );
+	
+	/**
+	 * - GET
+	 * 
+	 * @param storageGroup
+	 * @return
+	 */
+	List<String> getFileList( String storageGroup );
+	
+	/**
+	 * - GET
+	 * 
+	 * @param filename
+	 * @return
+	 */
+	List<LiveStreamInfo> getFilteredLiveStreamList( String filename );
+	
+	/**
+	 * - GET
+	 * 
+	 * @param storageGroup
+	 * @param filename
+	 * @return
+	 */
+	String getHash( String storageGroup, String filename );
+	
+	/**
+	 * - GET
+	 * 
+	 * @param storageGroup
+	 * @param filename
+	 * @param width
+	 * @param height
+	 * @return
+	 */
+	String getImageFile( String storageGroup, String filename, int width, int height );
+	
+	/**
+	 * - GET
+	 * 
+	 * @param id
+	 * @return
+	 */
+	LiveStreamInfo getLiveStream( int id );
+	
+	/**
+	 * - GET
+	 * 
+	 * @return
+	 */
+	List<LiveStreamInfo> getLiveStreamList();
+
+	/**
+	 * - GET
+	 * 
+	 * @param id
+	 * @return
+	 */
+	String getMusic( int id );
+	
+	/**
+	 * - GET
+	 * 
+	 * @param channelId
+	 * @param startTime
+	 * @param width
+	 * @param height
+	 * @param secondsIn
+	 * @return
+	 */
+	String getPreviewImage( int channelId, Date startTime, int width, int height, int secondsIn );
+	
+	/**
+	 * - GET
+	 * 
+	 * @param inetRef
+	 * @param season
+	 * @return
+	 */
+	List<ArtworkInfo> getProgramArtworkList( String inetRef, int season );
+	
+	/**
+	 * - GET
+	 * 
+	 * @param channelId
+	 * @param startTime
+	 * @return
+	 */
+	String getRecording( int channelId, Date startTime );
+	
+	/**
+	 * - GET
+	 * 
+	 * @param type
+	 * @param inetRef
+	 * @param season
+	 * @param width
+	 * @param height
+	 * @return
+	 */
+	String getRecordingArtwork( String type, String inetRef, int season, int width, int height );
+	
+	/**
+	 * - GET
+	 * 
+	 * @param channelId
+	 * @param startTime
+	 * @return
+	 */
+	List<ArtworkInfo> getRecordingArtworkList( int channelId, Date startTime );
+	
+	/**
+	 * - GET
+	 * 
+	 * @param id
+	 * @return
+	 */
+	String getVideo( int id );
+	
+	/**
+	 * - GET
+	 * 
+	 * @param type
+	 * @param id
+	 * @param width
+	 * @param height
+	 * @return
+	 */
+	String getVideoArtwork( String type, int id, int width, int height );
+	
+	/**
+	 * - GET
+	 * 
+	 * @param id
+	 * @return
+	 */
+	boolean removeLiveStream( int id );
+	
+	/**
+	 * - GET
+	 * 
+	 * @param id
+	 * @return
+	 */
+	LiveStreamInfo stopLiveStream( int id );
+	
 }

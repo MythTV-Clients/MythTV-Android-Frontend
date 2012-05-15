@@ -29,7 +29,7 @@ import android.app.ListActivity;
  * @author Daniel Frey
  *
  */
-public abstract class AbstractMythListActivity extends ListActivity implements MythActivity {
+public abstract class AbstractMythListActivity extends ListActivity implements MythtvApplicationContext {
 
 	protected static final String TAG = AbstractMythListActivity.class.getSimpleName();
 	

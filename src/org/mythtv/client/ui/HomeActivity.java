@@ -26,14 +26,11 @@ import java.util.List;
 
 import org.mythtv.R;
 import org.mythtv.client.ui.dvr.DvrDashboardFragment;
-import org.mythtv.client.ui.frontends.FrontendsDashboardFragment;
+import org.mythtv.client.ui.frontends.FrontendsActivity;
 import org.mythtv.client.ui.media.MediaDashboardFragment;
-import org.mythtv.client.ui.preferences.MythtvPreferences;
-import org.mythtv.client.ui.preferences.MythtvPreferencesHC;
 import org.mythtv.client.ui.setup.SetupActivity;
 
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -48,7 +45,7 @@ import android.view.MenuItem;
  * @author Daniel Frey
  * 
  */
-public class HomeActivity extends AbstractMythActivity {
+public class HomeActivity extends AbstractLocationAwareFragmentActivity {
 
 	private final static String TAG = HomeActivity.class.getSimpleName();
 
@@ -61,14 +58,13 @@ public class HomeActivity extends AbstractMythActivity {
 		setContentView( R.layout.activity_home );
 
 		List<Fragment> fragments = new ArrayList<Fragment>();
-		fragments.add( Fragment.instantiate( this, FrontendsDashboardFragment.class.getName() ) );
 		fragments.add( Fragment.instantiate( this, DvrDashboardFragment.class.getName() ) );
 		fragments.add( Fragment.instantiate( this, MediaDashboardFragment.class.getName() ) );
 
 		MythtvHomePagerAdapter mAdapter = new MythtvHomePagerAdapter( getSupportFragmentManager(), fragments );
 		ViewPager mPager = (ViewPager) findViewById( R.id.home_pager );
 		mPager.setAdapter( mAdapter );
-		mPager.setCurrentItem( 1 );
+		mPager.setCurrentItem( 0 );
 
 		Log.d( TAG, "onCreate : exit" );
 	}
@@ -84,7 +80,7 @@ public class HomeActivity extends AbstractMythActivity {
 		Log.d( TAG, "onCreateOptionsMenu : enter" );
 
 		MenuInflater inflater = getMenuInflater();
-		inflater.inflate( R.menu.main_menu, menu );
+		inflater.inflate( R.menu.home_main_menu, menu );
 
 		Log.d( TAG, "onCreateOptionsMenu : exit" );
 		return true;
@@ -102,20 +98,11 @@ public class HomeActivity extends AbstractMythActivity {
 		Log.d( TAG, "onOptionsItemSelected : enter" );
 
 		switch( item.getItemId() ) {
-		case R.id.menu_prefs:
-			Log.d( TAG, "onOptionsItemSelected : preferences selected" );
+		case R.id.menu_frontends:
+			Log.d( TAG, "onOptionsItemSelected : setup selected" );
 
-	        if( Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB ) {
-				Log.d( TAG, "onOptionsItemSelected : pre-honeycomb prefs selected" );
-
-				startActivity( new Intent( this, MythtvPreferences.class ) );
-	        } else {
-				Log.d( TAG, "onOptionsItemSelected : honeycomb+ prefs selected" );
-
-				startActivity( new Intent( this, MythtvPreferencesHC.class ) );
-	        }
-
-	        return true;
+			startActivity( new Intent( this, FrontendsActivity.class ) );
+			return true;
 		case R.id.menu_setup:
 			Log.d( TAG, "onOptionsItemSelected : setup selected" );
 
@@ -124,34 +111,29 @@ public class HomeActivity extends AbstractMythActivity {
 		}
 
 		Log.d( TAG, "onOptionsItemSelected : exit" );
-		return false;
+		return super.onOptionsItemSelected( item );
 	}
 
+
+	// internal helpers
+	
 	private class MythtvHomePagerAdapter extends FragmentStatePagerAdapter {
 
-		private final String TAG = MythtvHomePagerAdapter.class.getSimpleName();
-		
 		private List<Fragment> fragments;
 		
 		public MythtvHomePagerAdapter( FragmentManager fm, List<Fragment> fragments ) {
 			super( fm );
-			Log.v( TAG, "MythtvAwayPagerAdapter : enter" );
 			
 			this.fragments = fragments;
 			
-			Log.v( TAG, "MythtvAwayPagerAdapter : exit" );
 		}
 
 		@Override
 		public Fragment getItem( int position ) {
-			Log.v( TAG, "getItem : enter" );
-			Log.v( TAG, "getItem : exit" );
 			return fragments.get( position );
 		}
 
 		public int getCount() {
-			Log.v( TAG, "getCount : enter" );
-			Log.v( TAG, "getCount : exit" );
 			return fragments.size();
 		}
 
@@ -160,24 +142,14 @@ public class HomeActivity extends AbstractMythActivity {
 		 */
 		@Override
 		public CharSequence getPageTitle( int position ) {
-			Log.v( TAG, "getPageTitle : enter" );
 
 			switch( position ) {
 			case 0:
-				Log.v( TAG, "getPageTitle : frontend page" );
-
-				return resources.getString( R.string.tab_frontends );
-			case 1:
-				Log.v( TAG, "getPageTitle : dvr page" );
-
 				return resources.getString( R.string.tab_dvr );
-			case 2:
-				Log.v( TAG, "getPageTitle : media page" );
-
+			case 1:
 				return resources.getString( R.string.tab_multimedia );
 			}
 
-			Log.v( TAG, "getPageTitle : exit" );
 			return super.getPageTitle( position );
 		}
 		

@@ -21,11 +21,13 @@
  */
 package org.mythtv.services.api.dvr.impl;
 
+import java.util.Date;
 import java.util.List;
 
 import org.mythtv.services.api.dvr.DvrOperations;
 import org.mythtv.services.api.dvr.Program;
 import org.mythtv.services.api.dvr.ProgramList;
+import org.mythtv.services.api.dvr.RecRule;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
@@ -54,6 +56,87 @@ public class DvrTemplate extends AbstractDvrOperations implements DvrOperations 
 		this.restTemplate = restTemplate;
 
 		Log.v( TAG, "initialize : exit" );
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mythtv.services.api.dvr.DvrOperations#addRecordingSchedule(int, java.util.Date, int, boolean, int, int, java.lang.String, int, java.lang.String, java.lang.String, int, int, int, int, java.lang.String, java.lang.String, int, java.lang.String, java.lang.String, java.lang.String, java.lang.String, boolean, int, boolean, boolean, boolean, boolean, boolean, boolean, boolean, boolean, int)
+	 */
+	@Override
+	public int addRecordingSchedule( int channelId, Date startTime, int parentId, boolean interactive, int season, int episode, String inetRef, int findId, String type, String searchType, int recordingPriority, int perferredInput, int startOffset, int endOffset, String duplicateMethod, String duplicateIn, int filter, String recordingProfile, String recordingGroup, String storageGroup, String playGroup, boolean autoExpire, int maxEpisodes, boolean maxNewest, boolean autoCommercialFlag, boolean autoTranscode, boolean autoMetadataLookup, boolean autoUserJob1, boolean autoUserJob2, boolean autoUserJob3, boolean autoUserJob4, int transcoder ) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mythtv.services.api.dvr.DvrOperations#disableRecordingSchedule(int)
+	 */
+	@Override
+	public boolean disableRecordingSchedule( int recordingId ) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mythtv.services.api.dvr.DvrOperations#enableRecordingSchedule(int)
+	 */
+	@Override
+	public boolean enableRecordingSchedule( int recordingId ) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mythtv.services.api.dvr.DvrOperations#getConflictList(int, int)
+	 */
+	@Override
+	public List<Program> getConflictList( int startIndex, int count ) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mythtv.services.api.dvr.DvrOperations#getExpiringList(int, int)
+	 */
+	@Override
+	public List<Program> getExpiringList( int startIndex, int count ) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mythtv.services.api.dvr.DvrOperations#getFiltererRecordedList(boolean, int, int, java.lang.String, java.lang.String, java.lang.String)
+	 */
+	@Override
+	public List<Program> getFiltererRecordedList( boolean descending, int startIndex, int count, String titleRegEx, String recordingGroup, String storageGroup ) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mythtv.services.api.dvr.DvrOperations#getRecordSchedule(int)
+	 */
+	@Override
+	public RecRule getRecordSchedule( int recordId ) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mythtv.services.api.dvr.DvrOperations#getRecordScheduleList(int, int)
+	 */
+	@Override
+	public List<RecRule> getRecordScheduleList( int startIndex, int count ) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mythtv.services.api.dvr.DvrOperations#getRecorded(int, java.util.Date)
+	 */
+	@Override
+	public Program getRecorded( int channelId, Date startTime ) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	/* (non-Javadoc)
@@ -96,6 +179,33 @@ public class DvrTemplate extends AbstractDvrOperations implements DvrOperations 
 		
 		Log.v( TAG, "getRecordedList( int, int, boolean ) : exit" );
 		return programList.getPrograms().getPrograms();
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mythtv.services.api.dvr.DvrOperations#getUpcomingList(int, int, boolean)
+	 */
+	@Override
+	public List<Program> getUpcomingList( int startIndex, int count, boolean showAll ) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mythtv.services.api.dvr.DvrOperations#removeRecordingSchedule(int)
+	 */
+	@Override
+	public boolean removeRecordingSchedule( int recordingId ) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mythtv.services.api.dvr.DvrOperations#removeRecorded(int, java.util.Date)
+	 */
+	@Override
+	public boolean removeRecorded( int channelId, Date startTime ) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 	
 }

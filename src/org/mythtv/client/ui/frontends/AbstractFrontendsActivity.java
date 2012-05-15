@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- 
+/**
  *  This file is part of MythTV for Android
  * 
  *  MythTV for Android is free software: you can redistribute it and/or modify
@@ -18,16 +17,16 @@
  * @author Daniel Frey <dmfrey at gmail dot com>
  * 
  * This software can be found at <https://github.com/dmfrey/mythtv-for-android/>
--->
+ *
+ */
+package org.mythtv.client.ui.frontends;
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+import org.mythtv.client.ui.AbstractMythtvFragmentActivity;
 
-	<item 
-	    android:id="@+id/menu_prefs" 
-	    android:title="@string/menu_prefs" />
-    <item 
-	    android:id="@+id/menu_setup" 
-	    android:showAsAction="ifRoom" 
-	    android:title="@string/menu_setup" />
-		
-</menu>
+/**
+ * @author Daniel Frey
+ * 
+ */
+public abstract class AbstractFrontendsActivity extends AbstractMythtvFragmentActivity implements FrontendsFragment.OnFrontendListener {
+
+}

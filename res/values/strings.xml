@@ -23,7 +23,7 @@
 <resources>
 
     <string name="hello">Hello World!</string>
-    <string name="app_name">MythTV for Android</string>
+    <string name="app_name">MythTV</string>
 
     <string name="item_network_title">Searching network for MythTV&#8230;</string>
 	<string name="item_network_caption">Make sure you are on the same network as your MythTV Master Backend</string>
@@ -32,6 +32,7 @@
 	<string name="close">Close</string>
 	
 	<!-- Preferences -->
+	<string name="preferences_title">Preferences</string>
 	<string name="preferences_unset">No value selected</string>
 	<string name="preferences_profiles">Profiles</string>
 	<string name="preferences_profile_delete">Delete Profile</string>
@@ -96,11 +97,11 @@
 	<string name="btn_away">Away</string>
 	<string name="location_alert_error_title">MythTV Master Backend not found!</string>
 	<string name="location_alert_error_message">A connection to the MythTV Master Backend could not be established.  Make your you setup your Home or Away profiles on the Preferences screen.</string>
-		
-    <!-- Frontends Dashboard -->
-    <string name="tab_frontends">Frontends</string>
-    <string name="frontends_scan_error_title">No MythTV Frontends Found!</string>
-    <string name="frontends_scan_error_message">No MythTV Frontends could be found on your network.  Please make sure you are connected to Wifi on your Home Network.</string>
+	
+	<string-array name="action_list">
+        <item>DVR</item>
+        <item>MythMote</item>
+    </string-array>
 	
     <!-- DVR Dashboard Buttons -->
     <string name="tab_dvr">DVR</string>
@@ -115,7 +116,14 @@
     <string name="btn_music">Music</string>
     <string name="btn_pictures">Pictures</string>
     
+    <!-- Frontends Dashboard -->
+ 	<string name="frontends_title">Mythmote</string>
+    <string name="tab_frontends">Frontends</string>
+    <string name="frontends_scan_error_title">No MythTV Frontends Found!</string>
+    <string name="frontends_scan_error_message">No MythTV Frontends could be found on your network.  Please make sure you are connected to Wifi on your Home Network.</string>
+	
     <!-- Setup Dashboard Buttons -->
+	<string name="setup_title">Setup</string>
     <string name="btn_capture">Tuners</string>
 
 </resources>

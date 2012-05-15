@@ -8,6 +8,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="src" output="bin/classes" path="src"/>
-	<classpathentry kind="lib" path="libs/android-support-v4.jar"/>
+	<classpathentry kind="lib" path="libs/android-support-v4.jar" sourcepath="/home/dmfrey/Development/Android/Tools/android-sdk-linux/extras/android/support/v4/src"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

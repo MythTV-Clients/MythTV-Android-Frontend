@@ -22,7 +22,7 @@
 package org.mythtv.client.ui.setup;
 
 import org.mythtv.R;
-import org.mythtv.client.ui.AbstractMythActivity;
+import org.mythtv.client.ui.AbstractMythtvFragmentActivity;
 import org.mythtv.client.ui.HomeActivity;
 
 import android.content.Intent;
@@ -35,7 +35,7 @@ import android.view.MenuItem;
  * @author Daniel Frey
  * 
  */
-public class SetupActivity extends AbstractMythActivity {
+public class SetupActivity extends AbstractMythtvFragmentActivity {
 
 	private final static String TAG = SetupActivity.class.getSimpleName();
 

@@ -20,7 +20,7 @@
  * This software can be found at <https://github.com/dmfrey/mythtv-for-android/>
 -->
 
-<fragment android:name="org.mythtv.client.ui.frontends.FrontendsDashboardFragment" xmlns:android="http://schemas.android.com/apk/res/android"
+<fragment android:name="org.mythtv.client.ui.frontends.FrontendsFragment" xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/frontends_fragment_dashboard"
     android:layout_width="fill_parent"
     android:layout_height="0dip"

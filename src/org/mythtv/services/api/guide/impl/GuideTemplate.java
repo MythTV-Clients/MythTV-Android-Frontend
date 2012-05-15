@@ -21,7 +21,11 @@
  */
 package org.mythtv.services.api.guide.impl;
 
+import java.util.Date;
+
+import org.mythtv.services.api.dvr.Program;
 import org.mythtv.services.api.guide.GuideOperations;
+import org.mythtv.services.api.guide.ProgramGuide;
 import org.springframework.web.client.RestTemplate;
 
 /**
@@ -35,6 +39,33 @@ public class GuideTemplate extends AbstractGuideOperations implements GuideOpera
 	public GuideTemplate( RestTemplate restTemplate, String apiUrlBase ) {
 		super( apiUrlBase );
 		this.restTemplate = restTemplate;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mythtv.services.api.guide.GuideOperations#getChannelIcon(int, int, int)
+	 */
+	@Override
+	public String getChannelIcon( int channelId, int width, int height ) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mythtv.services.api.guide.GuideOperations#getProgramDetails(int, java.util.Date)
+	 */
+	@Override
+	public Program getProgramDetails( int channelId, Date startTime ) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mythtv.services.api.guide.GuideOperations#getProgramGuide(java.util.Date, java.util.Date, int, int, boolean)
+	 */
+	@Override
+	public ProgramGuide getProgramGuide( Date start, Date end, int startChannelId, int numberOfChannels, boolean details ) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 }

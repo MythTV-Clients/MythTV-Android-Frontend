@@ -29,9 +29,9 @@ import android.support.v4.app.Fragment;
  * @author Daniel Frey
  *
  */
-public abstract class AbstractMythFragment extends Fragment implements MythActivity {
+public abstract class AbstractMythFragment extends Fragment implements MythtvApplicationContext {
 
-	protected static final String TAG = AbstractMythActivity.class.getSimpleName();
+	protected static final String TAG = AbstractMythtvFragmentActivity.class.getSimpleName();
 	
 	//***************************************
     // MythActivity methods

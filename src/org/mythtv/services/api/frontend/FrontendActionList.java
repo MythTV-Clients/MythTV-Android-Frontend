@@ -21,12 +21,52 @@
  */
 package org.mythtv.services.api.frontend;
 
+import java.util.List;
+
+import org.codehaus.jackson.annotate.JsonProperty;
+
 /**
  * @author Daniel Frey
  *
  */
 public class FrontendActionList {
 
+	@JsonProperty( "ActionList" )
+	private List<Action> actions;
+	
 	public FrontendActionList() { }
+
+	/**
+	 * @return the actions
+	 */
+	public List<Action> getActions() {
+		return actions;
+	}
+
+	/**
+	 * @param actions the actions to set
+	 */
+	public void setActions( List<Action> actions ) {
+		this.actions = actions;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		
+		builder.append( "FrontendActionList [" );
+		
+		if( actions != null ) {
+			builder.append( "actions=" );
+			builder.append( actions );
+		}
+		
+		builder.append( "]" );
+	
+		return builder.toString();
+	}
 	
 }

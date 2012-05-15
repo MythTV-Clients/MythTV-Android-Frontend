@@ -15,8 +15,10 @@ import javax.jmdns.ServiceListener;
 import org.mythtv.R;
 import org.mythtv.client.db.DatabaseHelper;
 import org.mythtv.client.db.MythtvDatabaseManager;
+import org.mythtv.client.ui.LocationActivity;
 import org.mythtv.client.ui.preferences.LocationProfile.LocationType;
 
+import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -32,6 +34,7 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.util.Log;
+import android.view.MenuItem;
 
 /**
  * @author Daniel Frey
@@ -51,6 +54,42 @@ public class MythtvPreferenceActivity extends PreferenceActivity {
 		loadHeadersFromResource( R.xml.mythtv_preference_headers, target );
 
 		Log.v( TAG, "onBuildHeaders : exit" );
+	}
+
+	/* (non-Javadoc)
+	 * @see android.preference.PreferenceActivity#onCreate(android.os.Bundle)
+	 */
+	@Override
+	protected void onCreate( Bundle savedInstanceState ) {
+		Log.v( TAG, "onCreate : enter" );
+
+		super.onCreate( savedInstanceState );
+
+		ActionBar actionBar = getActionBar();
+		actionBar.setDisplayHomeAsUpEnabled( true );
+		actionBar.setTitle( R.string.preferences_title );
+		
+		Log.v( TAG, "onCreate : exit" );
+	}
+
+	/* (non-Javadoc)
+	 * @see android.app.Activity#onOptionsItemSelected(android.view.MenuItem)
+	 */
+	@Override
+	public boolean onOptionsItemSelected( MenuItem item ) {
+		Log.v( TAG, "onOptionsItemSelected : enter" );
+
+		switch( item.getItemId() ) {
+			case android.R.id.home:
+				// app icon in action bar clicked; go home
+				Intent intent = new Intent( this, LocationActivity.class );
+				intent.addFlags( Intent.FLAG_ACTIVITY_CLEAR_TOP );
+				startActivity( intent );
+				return true;
+		}
+
+		Log.v( TAG, "onOptionsItemSelected : exit" );
+		return super.onOptionsItemSelected( item );
 	}
 
 	private abstract static class BasePreferenceFragment extends PreferenceFragment {

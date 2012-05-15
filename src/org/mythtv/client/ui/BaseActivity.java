@@ -36,7 +36,7 @@ import android.view.KeyEvent;
  * activities should inherit from {@link BaseSinglePaneActivity} or
  * {@link BaseMultiPaneActivity}.
  */
-public abstract class BaseActivity extends FragmentActivity implements MythActivity {
+public abstract class BaseActivity extends FragmentActivity implements MythtvApplicationContext {
 	
 	private final static String TAG = BaseActivity.class.getSimpleName();
 

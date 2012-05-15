@@ -21,7 +21,11 @@
  */
 package org.mythtv.services.api.frontend.impl;
 
+import java.net.URI;
+
 import org.mythtv.services.api.AbstractOperations;
+import org.springframework.social.support.URIBuilder;
+import org.springframework.util.MultiValueMap;
 
 /**
  * @author Daniel Frey
@@ -32,9 +36,9 @@ class AbstractFrontendOperations extends AbstractOperations {
 	public AbstractFrontendOperations( String apiUrlBase ) {
 		super( apiUrlBase );
 	}
-	
-	protected String getApiUrlBase( String frontedApiUrlBase) {
-		return frontedApiUrlBase + "Frontend/";
+
+	protected URI buildUri( String path, MultiValueMap<String, String> parameters ) {
+		return URIBuilder.fromUri( path ).queryParams( parameters ).build();
 	}
 
 }

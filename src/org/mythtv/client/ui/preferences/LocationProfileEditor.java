@@ -24,7 +24,7 @@ package org.mythtv.client.ui.preferences;
 import org.mythtv.R;
 import org.mythtv.client.db.DatabaseHelper;
 import org.mythtv.client.db.MythtvDatabaseManager;
-import org.mythtv.client.ui.AbstractMythActivity;
+import org.mythtv.client.ui.AbstractMythtvFragmentActivity;
 import org.mythtv.client.ui.preferences.LocationProfile.LocationType;
 
 import android.app.AlertDialog;
@@ -40,7 +40,7 @@ import android.widget.EditText;
  * @author Daniel Frey
  * 
  */
-public class LocationProfileEditor extends AbstractMythActivity {
+public class LocationProfileEditor extends AbstractMythtvFragmentActivity {
 
 	private static final String TAG = LocationProfileEditor.class.getSimpleName();
 

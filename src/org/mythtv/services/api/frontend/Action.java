@@ -19,47 +19,70 @@
  * This software can be found at <https://github.com/dmfrey/mythtv-for-android/>
  *
  */
-package org.mythtv.services.api.guide;
-
-import java.util.Date;
-
-import org.mythtv.services.api.dvr.Program;
+package org.mythtv.services.api.frontend;
 
 /**
  * @author Daniel Frey
  *
  */
-public interface GuideOperations {
+public class Action {
+
+	private String key;
+	private String value;
+	
+	public Action() { }
 
 	/**
-	 * - GET
-	 * 
-	 * @param channelId
-	 * @param width
-	 * @param height
-	 * @return
+	 * @return the key
 	 */
-	String getChannelIcon( int channelId, int width, int height );
-	
+	public String getKey() {
+		return key;
+	}
+
 	/**
-	 * - GET
-	 * 
-	 * @param channelId
-	 * @param startTime
-	 * @return
+	 * @param key the key to set
 	 */
-	Program getProgramDetails( int channelId, Date startTime );
-	
+	public void setKey( String key ) {
+		this.key = key;
+	}
+
 	/**
-	 * - GET
-	 * 
-	 * @param start
-	 * @param end
-	 * @param startChannelId
-	 * @param numberOfChannels
-	 * @param details
-	 * @return
+	 * @return the value
 	 */
-	ProgramGuide getProgramGuide( Date start, Date end, int startChannelId, int numberOfChannels, boolean details );
+	public String getValue() {
+		return value;
+	}
+
+	/**
+	 * @param value the value to set
+	 */
+	public void setValue( String value ) {
+		this.value = value;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		
+		builder.append( "Action [" );
+		
+		if( key != null ) {
+			builder.append( "key=" );
+			builder.append( key );
+			builder.append( ", " );
+		}
+		
+		if( value != null ) {
+			builder.append( "value=" );
+			builder.append( value );
+		}
+		
+		builder.append( "]" );
+		
+		return builder.toString();
+	}
 	
 }

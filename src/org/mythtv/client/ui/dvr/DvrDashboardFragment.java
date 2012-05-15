@@ -72,14 +72,6 @@ public class DvrDashboardFragment extends AbstractMythFragment {
 			}
 		} );
 
-		root.findViewById( R.id.dvr_btn_live ).setOnClickListener( new View.OnClickListener() {
-			public void onClick( View view ) {
-				Log.v( TAG, "live.onClick : enter" );
-
-				Log.v( TAG, "live.onClick : exit" );
-			}
-		} );
-
 		root.findViewById( R.id.dvr_btn_guide ).setOnClickListener( new View.OnClickListener() {
 			public void onClick( View view ) {
 				Log.v( TAG, "guide.onClick : enter" );

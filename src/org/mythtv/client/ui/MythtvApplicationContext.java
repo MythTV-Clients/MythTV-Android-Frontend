@@ -27,7 +27,7 @@ import org.mythtv.client.MainApplication;
  * @author Daniel Frey
  *
  */
-public interface MythActivity {
+public interface MythtvApplicationContext {
 
 	MainApplication getApplicationContext(); 
 	

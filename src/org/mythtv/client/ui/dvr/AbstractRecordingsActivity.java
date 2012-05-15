@@ -21,12 +21,32 @@
  */
 package org.mythtv.client.ui.dvr;
 
-import org.mythtv.client.ui.AbstractMythActivity;
+import org.mythtv.client.ui.AbstractMythtvFragmentActivity;
+
+import android.app.ActionBar;
+import android.os.Build;
+import android.util.Log;
 
 /**
  * @author Daniel Frey
  * 
  */
-public abstract class AbstractRecordingsActivity extends AbstractMythActivity implements RecordingsFragment.OnProgramGroupListener {
+public abstract class AbstractRecordingsActivity extends AbstractMythtvFragmentActivity implements RecordingsFragment.OnProgramGroupListener {
+
+	protected static final String TAG = AbstractRecordingsActivity.class.getSimpleName();
+
+	protected void setupActionBar() {
+		Log.v( TAG, "setupActionBar : enter" );
+
+		if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
+			Log.v( TAG, "setupActionBar : actionbar available" );
+			
+			ActionBar actionBar = getActionBar();
+			
+			actionBar.setDisplayHomeAsUpEnabled( true );
+		}
+		
+		Log.v( TAG, "setupActionBar : exit" );
+	}
 
 }

@@ -32,12 +32,13 @@ import android.util.Log;
  * @author Daniel Frey
  *
  */
-public abstract class AbstractMythActivity extends FragmentActivity implements MythActivity {
+public abstract class AbstractMythtvFragmentActivity extends FragmentActivity implements MythtvApplicationContext {
 
-	protected static final String TAG = AbstractMythActivity.class.getSimpleName();
+	protected static final String TAG = AbstractMythtvFragmentActivity.class.getSimpleName();
 
 	protected Resources resources;
 
+	
 	//***************************************
     // MythActivity methods
     //***************************************
@@ -47,6 +48,10 @@ public abstract class AbstractMythActivity extends FragmentActivity implements M
 		return (MainApplication) super.getApplicationContext();
 	}
 
+	
+	//***************************************
+    // FragmentActivity methods
+    //***************************************
 	/* (non-Javadoc)
 	 * @see android.support.v4.app.FragmentActivity#onCreate(android.os.Bundle)
 	 */
@@ -60,6 +65,5 @@ public abstract class AbstractMythActivity extends FragmentActivity implements M
 		
 		Log.v( TAG, "onCreate : exit" );
 	}
-	
 	
 }

@@ -21,12 +21,49 @@
  */
 package org.mythtv.services.api.frontend;
 
+import java.util.List;
+
 /**
  * @author Daniel Frey
  *
  */
 public class FrontendStatus {
 
+	private List<State> states;
+	
 	public FrontendStatus() { }
+
+	/**
+	 * @return the states
+	 */
+	public List<State> getStates() {
+		return states;
+	}
+
+	/**
+	 * @param states the states to set
+	 */
+	public void setStates( List<State> states ) {
+		this.states = states;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		
+		builder.append( "FrontendStatus [" );
+		
+		if( states != null ) {
+			builder.append( "states=" );
+			builder.append( states );
+		}
+		
+		builder.append( "]" );
+	
+		return builder.toString();
+	}
 	
 }

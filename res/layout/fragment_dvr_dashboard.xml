@@ -33,10 +33,6 @@
         style="@style/DashboardButton"
         android:text="@string/btn_upcoming"
         android:drawableTop="@drawable/dvr_btn_upcoming" />
-    <Button android:id="@+id/dvr_btn_live"
-        style="@style/DashboardButton"
-        android:text="@string/btn_live"
-        android:drawableTop="@drawable/dvr_btn_live" />
     <Button android:id="@+id/dvr_btn_guide"
         style="@style/DashboardButton"
         android:text="@string/btn_guide"
