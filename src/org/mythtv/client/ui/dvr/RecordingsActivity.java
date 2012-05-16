@@ -29,7 +29,7 @@ public class RecordingsActivity extends AbstractRecordingsActivity implements Re
 		Log.i( TAG, "onCreate : enter" );
 		
 		super.onCreate( savedInstanceState );
-		setContentView( R.layout.fragment_dvr_recordings );
+		setContentView( R.layout.activity_dvr_recordings );
 
 		RecordingsFragment recordings = (RecordingsFragment) getSupportFragmentManager().findFragmentById( R.id.fragment_dvr_program_groups );
 

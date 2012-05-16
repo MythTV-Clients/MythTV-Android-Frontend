@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<fragment xmlns:android="http://schemas.android.com/apk/res/android"
-  	class="org.mythtv.client.ui.dvr.RecordingsFragment"
-  	android:id="@+id/fragment_dvr_program_groups"
-  	android:layout_width="match_parent"
-  	android:layout_height="match_parent"
-/>
