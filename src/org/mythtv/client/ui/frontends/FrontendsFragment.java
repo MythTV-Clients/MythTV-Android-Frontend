@@ -62,6 +62,7 @@ public class FrontendsFragment extends ListFragment implements ServiceListener {
 	// private boolean persistentSelection = false;
 
 	private List<Frontend> frontends = new ArrayList<Frontend>();
+	private SubMenu frontendMenuItem;
 
 	private static JmDNS zeroConf = null;
 	private static MulticastLock mLock = null;
@@ -132,13 +133,8 @@ public class FrontendsFragment extends ListFragment implements ServiceListener {
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 
 		// create and add a menu item to list frontends under
-		final SubMenu frontendMenuItem = menu.addSubMenu(SubMenu.NONE,
-				SubMenu.NONE, SubMenu.FIRST, R.string.frontends_title);
-
-		// add each frontend
-		for (int i = 0; i < frontends.size(); i++) {
-			frontendMenuItem.add(frontends.get(i).getName());
-		}
+		frontendMenuItem = menu.addSubMenu(SubMenu.NONE,
+				SubMenu.NONE, SubMenu.FIRST, R.string.menu_frontends);
 	}
 
 	@Override
@@ -195,6 +191,9 @@ public class FrontendsFragment extends ListFragment implements ServiceListener {
 
 		frontends.add(new Frontend(event.getName(), "http://" + hostname + ":"
 				+ port + "/"));
+		
+		//populate frontend menu. ?? Does not get called when placed after adapter.add()
+		this.populateFrontendMenu();
 
 		adapter.add(new Frontend(event.getName(), "http://" + hostname + ":"
 				+ port + "/"));
@@ -237,6 +236,23 @@ public class FrontendsFragment extends ListFragment implements ServiceListener {
 		new ScanFrontendsTask().execute();
 
 		Log.v(TAG, "scanForFrontends : exit");
+	}
+	
+	/*
+	 * Clears the frontend menuitem and re-populates it with the frontends list.
+	 */
+	private void populateFrontendMenu(){
+		
+		//leave on null menu item
+		if(null == frontendMenuItem) return;
+		
+		//clear existing menu items
+		frontendMenuItem.clear();
+		
+		//add each frontend
+		for (int i = 0; i < frontends.size(); i++) {
+			frontendMenuItem.add(frontends.get(i).getName());
+		}
 	}
 
 	private class ScanFrontendsTask extends AsyncTask<Void, Void, Void> {
