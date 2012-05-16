@@ -27,6 +27,6 @@ import org.mythtv.client.ui.AbstractMythtvFragmentActivity;
  * @author Daniel Frey
  * 
  */
-public abstract class AbstractFrontendsActivity extends AbstractMythtvFragmentActivity implements FrontendsFragment.OnFrontendListener {
+public abstract class AbstractFrontendsActivity extends AbstractMythtvFragmentActivity /* implements FrontendsFragment.OnFrontendListener */ {
 
 }
