@@ -43,6 +43,10 @@ import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.SubMenu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -53,9 +57,9 @@ public class FrontendsFragment extends ListFragment implements ServiceListener {
 
 	private final static String TAG = FrontendsFragment.class.getSimpleName();
 
-//	private OnFrontendListener listener = null;
+	// private OnFrontendListener listener = null;
 	private FrontendAdapter adapter = null;
-//	private boolean persistentSelection = false;
+	// private boolean persistentSelection = false;
 
 	private List<Frontend> frontends = new ArrayList<Frontend>();
 
@@ -65,83 +69,102 @@ public class FrontendsFragment extends ListFragment implements ServiceListener {
 	private static final String MYTHTV_FRONTEND_TYPE = "_mythfrontend._tcp.local.";
 	private static final String HOSTNAME = "mythandroid";
 
-//	public FrontendsFragment() {
-//		this( false );
-//	}
-//
-//	public FrontendsFragment( boolean persistentSelection ) {
-//		this.persistentSelection = persistentSelection;
-//	}
+	// public FrontendsFragment() {
+	// this( false );
+	// }
+	//
+	// public FrontendsFragment( boolean persistentSelection ) {
+	// this.persistentSelection = persistentSelection;
+	// }
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see android.support.v4.app.Fragment#onCreate(android.os.Bundle)
 	 */
 	@Override
-	public void onCreate( Bundle savedInstanceState ) {
-		Log.v( TAG, "onCreate : enter" );
-		
-		super.onCreate( savedInstanceState );
+	public void onCreate(Bundle savedInstanceState) {
+		Log.v(TAG, "onCreate : enter");
 
-//		setRetainInstance( true );
+		super.onCreate(savedInstanceState);
 
-		adapter = new FrontendAdapter( getActivity(), R.layout.frontend_row, frontends );
-		setListAdapter( adapter );
-		
-		Log.v( TAG, "onCreate : exit" );
+		// setRetainInstance( true );
+
+		// enable onCreateOptionsMenu()
+		this.setHasOptionsMenu(true);
+
+		adapter = new FrontendAdapter(getActivity(), R.layout.frontend_row,
+				frontends);
+		setListAdapter(adapter);
+
+		Log.v(TAG, "onCreate : exit");
 	}
 
 	@Override
 	public void onResume() {
-		Log.v( TAG, "onResume : enter" );
+		Log.v(TAG, "onResume : enter");
 
 		super.onResume();
-	    
-		if( frontends.isEmpty() ) {
+
+		if (frontends.isEmpty()) {
 			scanForFrontends();
 		}
 
-		Log.v( TAG, "onResume : exit" );
+		Log.v(TAG, "onResume : exit");
 	}
 
-//	@Override
-//	public void onActivityCreated( Bundle state ) {
-//		Log.v( TAG, "onActivityCreated : enter" );
-//
-//		super.onActivityCreated( state );
-//
-//		restoreState( state );
-//
-//		if( persistentSelection ) {
-//			enablePersistentSelection();
-//		}
-//
-//		Log.v( TAG, "onActivityCreated : exit" );
-//	}
+	// @Override
+	// public void onActivityCreated( Bundle state ) {
+	// Log.v( TAG, "onActivityCreated : enter" );
+	//
+	// super.onActivityCreated( state );
+	//
+	// restoreState( state );
+	//
+	// if( persistentSelection ) {
+	// enablePersistentSelection();
+	// }
+	//
+	// Log.v( TAG, "onActivityCreated : exit" );
+	// }
 
 	@Override
-	public void onListItemClick( ListView l, View v, int position, long id ) {
-		Log.v( TAG, "onListItemClick : enter" );
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 
-		super.onListItemClick( l, v, position, id );
-	    
-//		if( null != listener ) {
-//			listener.onFrontendSelected( frontends );
-//		}
+		// create and add a menu item to list frontends under
+		final SubMenu frontendMenuItem = menu.addSubMenu(SubMenu.NONE,
+				SubMenu.NONE, SubMenu.FIRST, R.string.frontends_title);
 
-		Log.v( TAG, "onListItemClick : exit" );
+		// add each frontend
+		for (int i = 0; i < frontends.size(); i++) {
+			frontendMenuItem.add(frontends.get(i).getName());
+		}
 	}
 
-//	public void setOnFrontendListener( OnFrontendListener listener ) {
-//		Log.v( TAG, "setOnFrontendListener : enter" );
-//
-//		this.listener = listener;
-//
-//		Log.v( TAG, "setOnFrontendListener : exit" );
-//	}
+	@Override
+	public void onListItemClick(ListView l, View v, int position, long id) {
+		Log.v(TAG, "onListItemClick : enter");
 
-//	public interface OnFrontendListener {
-//		void onFrontendSelected( List<Frontend> frontend );
-//	}
+		super.onListItemClick(l, v, position, id);
+
+		// if( null != listener ) {
+		// listener.onFrontendSelected( frontends );
+		// }
+
+		Log.v(TAG, "onListItemClick : exit");
+	}
+
+	// public void setOnFrontendListener( OnFrontendListener listener ) {
+	// Log.v( TAG, "setOnFrontendListener : enter" );
+	//
+	// this.listener = listener;
+	//
+	// Log.v( TAG, "setOnFrontendListener : exit" );
+	// }
+
+	// public interface OnFrontendListener {
+	// void onFrontendSelected( List<Frontend> frontend );
+	// }
 
 	// ***************************************
 	// JMDNS ServiceListener methods
@@ -152,21 +175,31 @@ public class FrontendsFragment extends ListFragment implements ServiceListener {
 	 * 
 	 * @see javax.jmdns.ServiceListener#serviceAdded(javax.jmdns.ServiceEvent)
 	 */
-	@SuppressWarnings( "deprecation" )
-	public void serviceAdded( ServiceEvent event ) {
-		Log.v( TAG, "serviceAdded : enter" );
+	@SuppressWarnings("deprecation")
+	public void serviceAdded(ServiceEvent event) {
+		Log.v(TAG, "serviceAdded : enter");
 
-		Log.v( TAG, "serviceAdded : " + event.getDNS().getServiceInfo( event.getType(), event.getName() ).toString() );
-		
-		final String hostname = event.getDNS().getServiceInfo( event.getType(), event.getName() ).getInet4Address().getHostAddress();
-		final int port = event.getDNS().getServiceInfo( event.getType(), event.getName() ).getPort();
-		Log.v( TAG, "serviceAdded : masterbackend=" + ( "http://" + hostname + ":" + port + "/" ) );
+		Log.v(TAG,
+				"serviceAdded : "
+						+ event.getDNS()
+								.getServiceInfo(event.getType(),
+										event.getName()).toString());
 
-		frontends.add( new Frontend( event.getName(), "http://" + hostname + ":" + port + "/" ) );
+		final String hostname = event.getDNS()
+				.getServiceInfo(event.getType(), event.getName())
+				.getInet4Address().getHostAddress();
+		final int port = event.getDNS()
+				.getServiceInfo(event.getType(), event.getName()).getPort();
+		Log.v(TAG, "serviceAdded : masterbackend="
+				+ ("http://" + hostname + ":" + port + "/"));
 
-		adapter.add( new Frontend( event.getName(), "http://" + hostname + ":" + port + "/" ) );
-		
-		Log.v( TAG, "serviceAdded : exit" );
+		frontends.add(new Frontend(event.getName(), "http://" + hostname + ":"
+				+ port + "/"));
+
+		adapter.add(new Frontend(event.getName(), "http://" + hostname + ":"
+				+ port + "/"));
+
+		Log.v(TAG, "serviceAdded : exit");
 	}
 
 	/*
@@ -174,12 +207,12 @@ public class FrontendsFragment extends ListFragment implements ServiceListener {
 	 * 
 	 * @see javax.jmdns.ServiceListener#serviceRemoved(javax.jmdns.ServiceEvent)
 	 */
-	public void serviceRemoved( ServiceEvent event ) {
-//		Log.v( TAG, "serviceRemoved : enter" );
-//
-//		Log.v( TAG, "serviceRemoved : event=" + event.toString() );
-//
-//		Log.v( TAG, "serviceRemoved : exit" );
+	public void serviceRemoved(ServiceEvent event) {
+		// Log.v( TAG, "serviceRemoved : enter" );
+		//
+		// Log.v( TAG, "serviceRemoved : event=" + event.toString() );
+		//
+		// Log.v( TAG, "serviceRemoved : exit" );
 	}
 
 	/*
@@ -188,23 +221,22 @@ public class FrontendsFragment extends ListFragment implements ServiceListener {
 	 * @see
 	 * javax.jmdns.ServiceListener#serviceResolved(javax.jmdns.ServiceEvent)
 	 */
-	public void serviceResolved( ServiceEvent event ) {
-//		Log.v( TAG, "serviceResolved : enter" );
-//
-//		Log.v( TAG, "serviceResolved : event=" + event.toString() );
-//
-//		Log.v( TAG, "serviceResolved : exit" );
+	public void serviceResolved(ServiceEvent event) {
+		// Log.v( TAG, "serviceResolved : enter" );
+		//
+		// Log.v( TAG, "serviceResolved : event=" + event.toString() );
+		//
+		// Log.v( TAG, "serviceResolved : exit" );
 	}
 
-
 	// internal helpers
-	
+
 	public void scanForFrontends() {
-		Log.v( TAG, "scanForFrontends : enter" );
+		Log.v(TAG, "scanForFrontends : enter");
 
 		new ScanFrontendsTask().execute();
 
-		Log.v( TAG, "scanForFrontends : exit" );
+		Log.v(TAG, "scanForFrontends : exit");
 	}
 
 	private class ScanFrontendsTask extends AsyncTask<Void, Void, Void> {
@@ -212,151 +244,162 @@ public class FrontendsFragment extends ListFragment implements ServiceListener {
 		private Exception e = null;
 
 		@Override
-		protected Void doInBackground( Void... params ) {
-			Log.v( TAG, "doInBackground : enter" );
+		protected Void doInBackground(Void... params) {
+			Log.v(TAG, "doInBackground : enter");
 
 			try {
-				Log.v( TAG, "doInBackground : startProbe" );
+				Log.v(TAG, "doInBackground : startProbe");
 
 				startProbe();
-			} catch( Exception e ) {
-				Log.v( TAG, "doInBackground : error" );
+			} catch (Exception e) {
+				Log.v(TAG, "doInBackground : error");
 
 				this.e = e;
 			}
 
-			Log.v( TAG, "doInBackground : exit" );
+			Log.v(TAG, "doInBackground : exit");
 			return null;
 		}
 
 		@Override
-		protected void onPostExecute( Void result ) {
-			Log.v( TAG, "onPostExecute : enter" );
+		protected void onPostExecute(Void result) {
+			Log.v(TAG, "onPostExecute : enter");
 
-			if( null != e ) {
-				Log.e( TAG, "error getting programs", e );
-				AlertDialog.Builder builder = new AlertDialog.Builder( getActivity() );
-				builder.setTitle( getActivity().getString( R.string.frontends_scan_error_title ) );
-				builder.setNeutralButton( R.string.btn_ok, new DialogInterface.OnClickListener() {
+			if (null != e) {
+				Log.e(TAG, "error getting programs", e);
+				AlertDialog.Builder builder = new AlertDialog.Builder(
+						getActivity());
+				builder.setTitle(getActivity().getString(
+						R.string.frontends_scan_error_title));
+				builder.setNeutralButton(R.string.btn_ok,
+						new DialogInterface.OnClickListener() {
 
-					public void onClick( DialogInterface dialog, int which ) { }
-					
-				});
-				builder.setMessage( getActivity().getString( R.string.frontends_scan_error_message ) );
+							public void onClick(DialogInterface dialog,
+									int which) {
+							}
+
+						});
+				builder.setMessage(getActivity().getString(
+						R.string.frontends_scan_error_message));
 				builder.show();
 			}
 
-			Log.v( TAG, "onPostExecute : exit" );
+			Log.v(TAG, "onPostExecute : exit");
 		}
 	}
+
 	/**
 	 * @throws IOException
 	 */
 	private void startProbe() throws IOException {
-		Log.v( TAG, "startProbe : enter" );
+		Log.v(TAG, "startProbe : enter");
 
-		if( zeroConf != null ) {
+		if (zeroConf != null) {
 			stopProbe();
 		}
 
 		// figure out our wifi address, otherwise bail
-		WifiManager wifi = (WifiManager) getActivity().getSystemService( Context.WIFI_SERVICE );
+		WifiManager wifi = (WifiManager) getActivity().getSystemService(
+				Context.WIFI_SERVICE);
 
 		WifiInfo wifiinfo = wifi.getConnectionInfo();
 		int intaddr = wifiinfo.getIpAddress();
 
-		byte[] byteaddr = new byte[] { (byte) ( intaddr & 0xff ), (byte) ( intaddr >> 8 & 0xff ), (byte) ( intaddr >> 16 & 0xff ), (byte) ( intaddr >> 24 & 0xff ) };
-		InetAddress addr = InetAddress.getByAddress( byteaddr );
-		Log.d( TAG, "startProbe : wifi address=" + addr.toString() );
-		
+		byte[] byteaddr = new byte[] { (byte) (intaddr & 0xff),
+				(byte) (intaddr >> 8 & 0xff), (byte) (intaddr >> 16 & 0xff),
+				(byte) (intaddr >> 24 & 0xff) };
+		InetAddress addr = InetAddress.getByAddress(byteaddr);
+		Log.d(TAG, "startProbe : wifi address=" + addr.toString());
+
 		// start multicast lock
-		mLock = wifi.createMulticastLock( "mythtv_lock" );
-		mLock.setReferenceCounted( true );
+		mLock = wifi.createMulticastLock("mythtv_lock");
+		mLock.setReferenceCounted(true);
 		mLock.acquire();
 
-		zeroConf = JmDNS.create( addr, HOSTNAME );
-		zeroConf.addServiceListener( MYTHTV_FRONTEND_TYPE, this );
+		zeroConf = JmDNS.create(addr, HOSTNAME);
+		zeroConf.addServiceListener(MYTHTV_FRONTEND_TYPE, this);
 
-		Log.v( TAG, "startProbe : exit" );
+		Log.v(TAG, "startProbe : exit");
 	}
 
 	/**
 	 * @throws IOException
 	 */
 	private void stopProbe() throws IOException {
-		Log.v( TAG, "stopProbe : enter" );
+		Log.v(TAG, "stopProbe : enter");
 
-		zeroConf.removeServiceListener( MYTHTV_FRONTEND_TYPE, this );
+		zeroConf.removeServiceListener(MYTHTV_FRONTEND_TYPE, this);
 		zeroConf.close();
 		zeroConf = null;
 
 		mLock.release();
 		mLock = null;
 
-		Log.v( TAG, "stopProbe : exit" );
+		Log.v(TAG, "stopProbe : exit");
 	}
 
 	private class FrontendAdapter extends ArrayAdapter<Frontend> {
-		
+
 		private final String TAG = FrontendAdapter.class.getSimpleName();
-		
+
 		private int layoutResourceId;
 		private List<Frontend> frontends = null;
 
-		FrontendAdapter( Context context, int layoutResourceId, List<Frontend> frontends ) {
-			super( context, layoutResourceId, frontends );
-			Log.v( TAG, "initialize : enter" );
+		FrontendAdapter(Context context, int layoutResourceId,
+				List<Frontend> frontends) {
+			super(context, layoutResourceId, frontends);
+			Log.v(TAG, "initialize : enter");
 
 			this.layoutResourceId = layoutResourceId;
 			this.frontends = frontends;
 
-			Log.v( TAG, "initialize : exit" );
+			Log.v(TAG, "initialize : exit");
 		}
 
-//		@Override
-//		public int getCount() {
-//			return frontends.size();
-//		}
-//
-//		@Override
-//		public Frontend getItem( int position ) {
-//			return frontends.get( position );
-//		}
-//
-//		@Override
-//		public long getItemId( int position ) {
-//			return position;
-//		}
-//
+		// @Override
+		// public int getCount() {
+		// return frontends.size();
+		// }
+		//
+		// @Override
+		// public Frontend getItem( int position ) {
+		// return frontends.get( position );
+		// }
+		//
+		// @Override
+		// public long getItemId( int position ) {
+		// return position;
+		// }
+		//
 		@Override
-		public View getView( int position, View convertView, ViewGroup parent ) {
-			Log.v( TAG, "getView : enter" );
+		public View getView(int position, View convertView, ViewGroup parent) {
+			Log.v(TAG, "getView : enter");
 
 			View row = convertView;
 			FrontendHolder holder = null;
-			
-			if( row == null ) {
-				Log.v( TAG, "getView : row is null" );
+
+			if (row == null) {
+				Log.v(TAG, "getView : row is null");
 
 				LayoutInflater inflater = getActivity().getLayoutInflater();
 
-				row = inflater.inflate( layoutResourceId, parent, false );
-				
+				row = inflater.inflate(layoutResourceId, parent, false);
+
 				holder = new FrontendHolder();
-				holder.name = (TextView) row.findViewById( R.id.frontend_name );
-				holder.url = (TextView) row.findViewById( R.id.frontend_url );
-				
-				row.setTag( holder );
+				holder.name = (TextView) row.findViewById(R.id.frontend_name);
+				holder.url = (TextView) row.findViewById(R.id.frontend_url);
+
+				row.setTag(holder);
 			} else {
 				holder = (FrontendHolder) row.getTag();
 			}
 
-			Frontend frontend = frontends.get( position );
+			Frontend frontend = frontends.get(position);
 
-			holder.name.setText( frontend.getName() );
-			holder.url.setText( frontend.getUrl() );
-			
-			Log.v( TAG, "getView : exit" );
+			holder.name.setText(frontend.getName());
+			holder.url.setText(frontend.getUrl());
+
+			Log.v(TAG, "getView : exit");
 			return row;
 		}
 
@@ -364,7 +407,7 @@ public class FrontendsFragment extends ListFragment implements ServiceListener {
 			TextView name;
 			TextView url;
 		}
-	
+
 	}
 
 }
