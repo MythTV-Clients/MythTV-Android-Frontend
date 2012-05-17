@@ -54,7 +54,7 @@ public abstract class AbstractOperations {
 		
 		HttpHeaders requestHeaders = new HttpHeaders();
 		requestHeaders.setAccept( Collections.singletonList( MediaType.APPLICATION_JSON ) );
-		requestHeaders.setAcceptEncoding( Collections.singletonList( ContentCodingType.GZIP ) );
+		//requestHeaders.setAcceptEncoding( Collections.singletonList( ContentCodingType.GZIP ) );
 		
 		requestEntity = new HttpEntity<Object>( requestHeaders );
 	}
