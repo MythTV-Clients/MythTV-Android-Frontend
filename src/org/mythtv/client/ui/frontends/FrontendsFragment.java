@@ -40,29 +40,26 @@ import android.net.wifi.WifiManager;
 import android.net.wifi.WifiManager.MulticastLock;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.ListFragment;
+import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.SubMenu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.TextView;
 
-public class FrontendsFragment extends ListFragment implements ServiceListener {
+public class FrontendsFragment extends Fragment implements ServiceListener {
 
 	private final static String TAG = FrontendsFragment.class.getSimpleName();
+
 
 	// private OnFrontendListener listener = null;
 	private FrontendAdapter adapter = null;
 	// private boolean persistentSelection = false;
+	
 
 	private List<Frontend> frontends = new ArrayList<Frontend>();
-	private SubMenu frontendMenuItem;
 
 	private static JmDNS zeroConf = null;
 	private static MulticastLock mLock = null;
@@ -91,14 +88,22 @@ public class FrontendsFragment extends ListFragment implements ServiceListener {
 
 		// setRetainInstance( true );
 
-		// enable onCreateOptionsMenu()
-		this.setHasOptionsMenu(true);
-
-		adapter = new FrontendAdapter(getActivity(), R.layout.frontend_row,
-				frontends);
-		setListAdapter(adapter);
-
 		Log.v(TAG, "onCreate : exit");
+	}
+	
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+			Bundle savedInstanceState) {
+		
+		View view =  inflater.inflate(R.layout.fragment_frontends, container, false);
+		
+		Spinner spinner = (Spinner)view.findViewById(R.id.spinner_frontends);
+
+		adapter = new FrontendAdapter(getActivity(), R.layout.frontend_row, frontends);
+		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		spinner.setAdapter(adapter);
+		
+		return view;
 	}
 
 	@Override
@@ -129,26 +134,6 @@ public class FrontendsFragment extends ListFragment implements ServiceListener {
 	// Log.v( TAG, "onActivityCreated : exit" );
 	// }
 
-	@Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-
-		// create and add a menu item to list frontends under
-		frontendMenuItem = menu.addSubMenu(SubMenu.NONE,
-				SubMenu.NONE, SubMenu.FIRST, R.string.menu_frontends);
-	}
-
-	@Override
-	public void onListItemClick(ListView l, View v, int position, long id) {
-		Log.v(TAG, "onListItemClick : enter");
-
-		super.onListItemClick(l, v, position, id);
-
-		// if( null != listener ) {
-		// listener.onFrontendSelected( frontends );
-		// }
-
-		Log.v(TAG, "onListItemClick : exit");
-	}
 
 	// public void setOnFrontendListener( OnFrontendListener listener ) {
 	// Log.v( TAG, "setOnFrontendListener : enter" );
@@ -191,9 +176,6 @@ public class FrontendsFragment extends ListFragment implements ServiceListener {
 
 		frontends.add(new Frontend(event.getName(), "http://" + hostname + ":"
 				+ port + "/"));
-		
-		//populate frontend menu. ?? Does not get called when placed after adapter.add()
-		this.populateFrontendMenu();
 
 		adapter.add(new Frontend(event.getName(), "http://" + hostname + ":"
 				+ port + "/"));
@@ -236,23 +218,6 @@ public class FrontendsFragment extends ListFragment implements ServiceListener {
 		new ScanFrontendsTask().execute();
 
 		Log.v(TAG, "scanForFrontends : exit");
-	}
-	
-	/*
-	 * Clears the frontend menuitem and re-populates it with the frontends list.
-	 */
-	private void populateFrontendMenu(){
-		
-		//leave on null menu item
-		if(null == frontendMenuItem) return;
-		
-		//clear existing menu items
-		frontendMenuItem.clear();
-		
-		//add each frontend
-		for (int i = 0; i < frontends.size(); i++) {
-			frontendMenuItem.add(frontends.get(i).getName());
-		}
 	}
 
 	private class ScanFrontendsTask extends AsyncTask<Void, Void, Void> {
@@ -372,30 +337,40 @@ public class FrontendsFragment extends ListFragment implements ServiceListener {
 			Log.v(TAG, "initialize : exit");
 		}
 
-		// @Override
-		// public int getCount() {
-		// return frontends.size();
-		// }
-		//
-		// @Override
-		// public Frontend getItem( int position ) {
-		// return frontends.get( position );
-		// }
-		//
-		// @Override
-		// public long getItemId( int position ) {
-		// return position;
-		// }
-		//
+//		 @Override
+//		 public int getCount() {
+//		 return frontends.size();
+//		 }
+//		
+//		 @Override
+//		 public Frontend getItem( int position ) {
+//		 return frontends.get( position );
+//		 }
+//		
+//		 @Override
+//		 public long getItemId( int position ) {
+//		 return position;
+//		 }
+		
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
-			Log.v(TAG, "getView : enter");
+			return getFrontendView(position, convertView, parent);
+		}
 
+		@Override
+		public View getDropDownView(int position, View convertView, ViewGroup parent) {
+			return getFrontendView(position, convertView, parent);
+		}
+		
+		
+		
+		private View getFrontendView(int position, View convertView, ViewGroup parent){
+			Log.v(TAG, "getFrontendView : enter");
 			View row = convertView;
 			FrontendHolder holder = null;
 
 			if (row == null) {
-				Log.v(TAG, "getView : row is null");
+				Log.v(TAG, "getFrontendView : row is null");
 
 				LayoutInflater inflater = getActivity().getLayoutInflater();
 
@@ -415,9 +390,11 @@ public class FrontendsFragment extends ListFragment implements ServiceListener {
 			holder.name.setText(frontend.getName());
 			holder.url.setText(frontend.getUrl());
 
-			Log.v(TAG, "getView : exit");
+			Log.v(TAG, "getFrontendView : exit");
 			return row;
 		}
+		
+		
 
 		class FrontendHolder {
 			TextView name;

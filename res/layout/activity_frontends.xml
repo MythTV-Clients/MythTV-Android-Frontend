@@ -30,7 +30,6 @@
 	<fragment android:name="org.mythtv.client.ui.frontends.FrontendsFragment"
     	android:id="@+id/frontends_fragment"
     	android:layout_width="fill_parent"
-    	android:layout_height="0dip"
-    	android:layout_weight="1" />
+    	android:layout_height="wrap_content" />
 
 </LinearLayout>
