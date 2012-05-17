@@ -39,7 +39,7 @@ import org.springframework.web.client.RestTemplate;
  */
 public class ContentTemplate extends AbstractContentOperations implements ContentOperations {
 
-	private static final SimpleDateFormat sdf = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss" );
+	private static final SimpleDateFormat sdf = new SimpleDateFormat( "yyyy-MM-ddTHH:mm:ss" );
 	
 	private final RestTemplate restTemplate;
 	
