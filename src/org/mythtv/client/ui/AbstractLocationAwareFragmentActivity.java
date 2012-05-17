@@ -5,7 +5,6 @@ package org.mythtv.client.ui;
 
 import android.app.ActionBar;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
@@ -66,13 +65,8 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 	protected void setupActionBar() {
 		Log.v( TAG, "setupActionBar : enter" );
 
-		if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-			Log.v( TAG, "setupActionBar : actionbar available" );
-
-			ActionBar actionBar = getActionBar();
-
-			actionBar.setDisplayHomeAsUpEnabled( true );
-		}
+		ActionBar actionBar = getActionBar();
+		actionBar.setDisplayHomeAsUpEnabled( true );
 
 		Log.v( TAG, "setupActionBar : exit" );
 	}
