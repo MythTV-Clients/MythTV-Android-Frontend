@@ -37,5 +37,9 @@
         style="@style/DashboardButton"
         android:text="@string/btn_pictures"
         android:drawableTop="@drawable/media_btn_pictures" />
-
+    <Button 
+        style="@style/DashboardButton"
+        android:text=""
+        android:drawableTop="@drawable/blank_white" />
+    
 </org.mythtv.client.ui.widget.DashboardLayout>

@@ -54,7 +54,7 @@ public abstract class AbstractOperations {
 		
 		HttpHeaders requestHeaders = new HttpHeaders();
 		requestHeaders.setAccept( Collections.singletonList( MediaType.APPLICATION_JSON ) );
-		requestHeaders.setAcceptEncoding( Collections.singletonList( ContentCodingType.GZIP ) );
+		//requestHeaders.setAcceptEncoding( Collections.singletonList( ContentCodingType.GZIP ) );
 		
 		requestEntity = new HttpEntity<Object>( requestHeaders );
 	}
@@ -88,6 +88,8 @@ public abstract class AbstractOperations {
 	 * @return
 	 */
 	protected URI buildUri( String path, MultiValueMap<String, String> parameters ) {
+		Log.v( TAG, "URI : " + URIBuilder.fromUri( getApiUrlBase() + path ).queryParams( parameters ).build() );
+		
 		return URIBuilder.fromUri( getApiUrlBase() + path ).queryParams( parameters ).build();
 	}
 

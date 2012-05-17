@@ -1,18 +1,29 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+  android:id="@+id/program_sub_title"
+  android:layout_width="match_parent"
+  android:layout_height="wrap_content"
+  android:textAppearance="?android:attr/textAppearanceLarge"
+  android:gravity="center_vertical"
+  android:layout_marginLeft="4dip"
+  android:minHeight="?android:attr/listPreferredItemHeight"
+/>
+
+<!-- <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:orientation="vertical" 
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:focusable="true"
     android:clickable="true">
 
-    <TextView android:id="@+id/program_title"
-        android:layout_gravity="left|center_vertical"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content" />
-
     <TextView android:id="@+id/program_sub_title"
         android:layout_gravity="left|center_vertical"
         android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:textStyle="bold|italic" />
+
+    <TextView android:id="@+id/program_description"
+        android:layout_gravity="left|center_vertical"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content" />
 
-</LinearLayout>
+</LinearLayout> -->

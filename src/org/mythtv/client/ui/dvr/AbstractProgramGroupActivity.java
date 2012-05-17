@@ -19,18 +19,29 @@
  * This software can be found at <https://github.com/dmfrey/mythtv-for-android/>
  *
  */
-   
-package org.mythtv.client.ui.preferences;
+package org.mythtv.client.ui.dvr;
 
-import java.util.List;
+import org.mythtv.client.ui.AbstractMythtvFragmentActivity;
 
-import org.mythtv.R;
+import android.app.ActionBar;
+import android.util.Log;
 
-public class MythtvPreferencesHC extends AbstractMythtvPreferencesActivity {
-  
-	@Override
-	public void onBuildHeaders( List<Header> target ) {
-		loadHeadersFromResource( R.xml.preference_headers, target );
+/**
+ * @author John Baab
+ * 
+ * 
+ */
+public abstract class AbstractProgramGroupActivity extends AbstractMythtvFragmentActivity implements ProgramGroupFragment.OnProgramListener {
+
+	protected static final String TAG = AbstractProgramGroupActivity.class.getSimpleName();
+
+	protected void setupActionBar() {
+		Log.v( TAG, "setupActionBar : enter" );
+
+		ActionBar actionBar = getActionBar();
+		actionBar.setDisplayHomeAsUpEnabled( true );
+		
+		Log.v( TAG, "setupActionBar : exit" );
 	}
-	
+
 }

@@ -31,7 +31,7 @@ import org.codehaus.jackson.annotate.JsonProperty;
  */
 public class LiveStreamInfo {
 
-	@JsonProperty( "id" )
+	@JsonProperty( "Id" )
 	private int id;
 	
 	@JsonProperty( "Width" )

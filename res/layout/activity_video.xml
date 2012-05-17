@@ -1,4 +1,5 @@
-/**
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 
  *  This file is part of MythTV for Android
  * 
  *  MythTV for Android is free software: you can redistribute it and/or modify
@@ -14,29 +15,18 @@
  *  You should have received a copy of the GNU General Public License
  *  along with MythTV for Android.  If not, see <http://www.gnu.org/licenses/>.
  *   
- * @author Daniel Frey <dmfrey at gmail dot com>
+ * @author John Baab <rhpot1991@ubuntu.com>
  * 
  * This software can be found at <https://github.com/dmfrey/mythtv-for-android/>
- *
- */
-   
-package org.mythtv.client.ui.preferences;
+-->
 
-import org.mythtv.R;
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
 
-import android.os.Bundle;
+    <VideoView
+        android:id="@+id/videoView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
 
-public class MythtvPreferences extends AbstractMythtvPreferencesActivity {
-
-	@SuppressWarnings( "deprecation" )
-	@Override
-	public void onCreate( Bundle savedInstanceState ) {
-		super.onCreate( savedInstanceState );
-    
-		addPreferencesFromResource( R.xml.home_preferences );
-		addPreferencesFromResource( R.xml.away_preferences );
-//		addPreferencesFromResource( R.xml.mythtv_home_profile_preferences );
-//		addPreferencesFromResource( R.xml.mythtv_away_profile_preferences );
-  	}
-
-}
+</LinearLayout>

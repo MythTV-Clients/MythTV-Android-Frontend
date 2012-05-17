@@ -37,6 +37,7 @@ import android.util.Log;
 
 /**
  * @author Daniel Frey
+ * @author John Baab
  *
  */
 public class MainApplication extends Application {
@@ -52,7 +53,8 @@ public class MainApplication extends Application {
 	private LocationProfile selectedAwayLocationProfile;
 	
 	private String masterBackend;
-
+	
+	private Program currentProgram;
 	private List<Program> currentRecordingsInProgramGroup;
 	
 	private List<String> captureCards;
@@ -218,6 +220,20 @@ public class MainApplication extends Application {
 	 */
 	public void setCurrentRecordingsInProgramGroup( List<Program> currentRecordingsInProgramGroup ) {
 		this.currentRecordingsInProgramGroup = currentRecordingsInProgramGroup;
+	}
+	
+	/**
+	 * @return the currentProgram
+	 */
+	public Program getCurrentProgram() {
+		return currentProgram;
+	}
+
+	/**
+	 * @param currentProgram the currentProgram to set
+	 */
+	public void setCurrentProgram( Program currentProgram) {
+		this.currentProgram = currentProgram;
 	}
 
 	/**

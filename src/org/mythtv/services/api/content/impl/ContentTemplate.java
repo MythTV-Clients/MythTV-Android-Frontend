@@ -28,6 +28,7 @@ import java.util.List;
 import org.mythtv.services.api.content.ArtworkInfo;
 import org.mythtv.services.api.content.ContentOperations;
 import org.mythtv.services.api.content.LiveStreamInfo;
+import org.mythtv.services.api.content.LiveStreamInfoWrapper;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
@@ -35,11 +36,12 @@ import org.springframework.web.client.RestTemplate;
 
 /**
  * @author Daniel Frey
+ * @author John Baab
  *
  */
 public class ContentTemplate extends AbstractContentOperations implements ContentOperations {
 
-	private static final SimpleDateFormat sdf = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss" );
+	private static final SimpleDateFormat sdf = new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ss" );
 	
 	private final RestTemplate restTemplate;
 	
@@ -54,7 +56,48 @@ public class ContentTemplate extends AbstractContentOperations implements Conten
 	@Override
 	public LiveStreamInfo addLiveStream( String storageGroup, String filename, String hostname, int maxSegments, int width, int height, int bitrate, int audioBitrate, int sampleRate ) {
 		// TODO Auto-generated method stub
-		return null;
+		//return null;
+		
+		LinkedMultiValueMap<String, String> parameters = new LinkedMultiValueMap<String, String>();
+		parameters.add( "FileName", "" + filename );
+		
+		
+		if( storageGroup != null ) {
+			parameters.add( "StorageGroup", "" + storageGroup );
+		}
+		
+		if( hostname != null ) {
+			parameters.add( "HostName", "" + hostname );
+		}
+		
+		if( maxSegments > 0 ) {
+			parameters.add( "MaxSegments", "" + maxSegments );
+		}
+		
+		if( width > 0 ) {
+			parameters.add( "Width", "" + width );
+		}
+
+		if( height > 0 ) {
+			parameters.add( "Height", "" + height );
+		}
+
+		if( bitrate > 0 ) {
+			parameters.add( "Bitrate", "" + bitrate );
+		}
+
+		if( audioBitrate > 0 ) {
+			parameters.add( "AudioBitrate", "" + audioBitrate );
+		}
+
+		if( sampleRate > 0 ) {
+			parameters.add( "SampleRate", "" + sampleRate );
+		}
+
+		ResponseEntity<LiveStreamInfoWrapper> responseEntity = restTemplate.exchange( buildUri( "AddLiveStream", parameters ), HttpMethod.GET, getRequestEntity(), LiveStreamInfoWrapper.class );
+		LiveStreamInfoWrapper wrapper = responseEntity.getBody();
+
+		return wrapper.getLiveStreamInfo();
 	}
 
 	/* (non-Javadoc)

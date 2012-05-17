@@ -9,15 +9,15 @@
   	<uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
 
-    <!-- supports-screens 
+    <supports-screens 
         android:anyDensity="true"
 		android:largeScreens="true"
 		android:normalScreens="true"
-		android:smallScreens="true" / -->
+		android:smallScreens="true" />
     
     <uses-sdk
-        android:minSdkVersion="7"
-        android:targetSdkVersion="11" />
+        android:minSdkVersion="11"
+        android:targetSdkVersion="15" />
 
     <application
         android:hardwareAccelerated="true"
@@ -40,10 +40,6 @@
 		<activity 
 			android:name=".client.ui.preferences.MythtvPreferenceActivity" />
 		<activity 
-			android:name=".client.ui.preferences.MythtvPreferences" />
-		<activity 
-			android:name=".client.ui.preferences.MythtvPreferencesHC" />
-		<activity 
 			android:name=".client.ui.preferences.LocationProfileEditor" />
 						
 		<!-- Main Dashboard -->
@@ -57,6 +53,10 @@
 			android:name=".client.ui.dvr.ProgramGroupActivity" />
 		<activity 
 			android:name=".client.ui.dvr.RecordingsActivity" />
+		<activity 
+			android:name=".client.ui.dvr.VideoActivity"
+			android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen"
+			android:screenOrientation="landscape" />
 						
 		<!-- Frontends Activities -->
 		<activity 

@@ -19,28 +19,52 @@
  * This software can be found at <https://github.com/dmfrey/mythtv-for-android/>
  *
  */
-package org.mythtv.client.ui.dvr;
+package org.mythtv.services.api.content;
 
-import org.mythtv.client.ui.AbstractMythtvFragmentActivity;
-
-import android.app.ActionBar;
-import android.util.Log;
+import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
  * @author Daniel Frey
- * 
+ *
  */
-public abstract class AbstractRecordingsActivity extends AbstractMythtvFragmentActivity implements RecordingsFragment.OnProgramGroupListener {
+public class LiveStreamInfoWrapper {
 
-	protected static final String TAG = AbstractRecordingsActivity.class.getSimpleName();
+	@JsonProperty( "LiveStreamInfo" )
+	private LiveStreamInfo liveStreamInfo;
+	
+	public LiveStreamInfoWrapper() { }
 
-	protected void setupActionBar() {
-		Log.v( TAG, "setupActionBar : enter" );
-
-		ActionBar actionBar = getActionBar();
-		actionBar.setDisplayHomeAsUpEnabled( true );
-		
-		Log.v( TAG, "setupActionBar : exit" );
+	/**
+	 * @return the liveStreamInfo
+	 */
+	public LiveStreamInfo getLiveStreamInfo() {
+		return liveStreamInfo;
 	}
 
+	/**
+	 * @param liveStreamInfo the liveStreamInfo to set
+	 */
+	public void setLiveStreamInfo( LiveStreamInfo liveStreamInfo ) {
+		this.liveStreamInfo = liveStreamInfo;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		
+		builder.append( "LiveStreamInfoWrapper [" );
+				
+		if( liveStreamInfo != null ) {
+			builder.append( "liveStreamInfo=" );
+			builder.append( liveStreamInfo );
+		}
+		
+		builder.append( "]" );
+	
+		return builder.toString();
+	}
+	
 }

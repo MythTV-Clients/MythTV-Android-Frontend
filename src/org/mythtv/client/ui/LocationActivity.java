@@ -25,14 +25,12 @@ import org.mythtv.R;
 import org.mythtv.client.db.MythtvDatabaseManager;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.preferences.MythtvPreferenceActivity;
-import org.mythtv.client.ui.preferences.MythtvPreferences;
 
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo.State;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -122,10 +120,7 @@ public class LocationActivity extends AbstractMythtvFragmentActivity {
 		Log.d( TAG, "onCreateOptionsMenu : enter" );
 
 	    MenuItem prefs = menu.add( Menu.NONE, EDIT_ID, Menu.NONE, "Prefs" );
-	    
-	    if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-	    	prefs.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
-	    }
+    	prefs.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
 	    
 		Log.d( TAG, "onCreateOptionsMenu : exit" );
 		return super.onCreateOptionsMenu( menu );
@@ -146,16 +141,7 @@ public class LocationActivity extends AbstractMythtvFragmentActivity {
 		case EDIT_ID:
 			Log.d( TAG, "onOptionsItemSelected : prefs selected" );
 
-	        if( Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB ) {
-				Log.d( TAG, "onOptionsItemSelected : pre-honeycomb prefs selected" );
-
-				startActivity( new Intent( this, MythtvPreferences.class ) );
-	        } else {
-				Log.d( TAG, "onOptionsItemSelected : honeycomb+ prefs selected" );
-
-				startActivity( new Intent( this, MythtvPreferenceActivity.class ) );
-//				startActivity( new Intent( this, MythtvPreferencesHC.class ) );
-	        }
+			startActivity( new Intent( this, MythtvPreferenceActivity.class ) );
 			
 	        return true;
 		}
