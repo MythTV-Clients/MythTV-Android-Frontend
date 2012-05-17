@@ -15,18 +15,22 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 
 /**
  * @author Daniel Frey
+ * @author John Baab
  * 
  */
 public class ProgramGroupFragment extends PersistentListFragment {
 
+	private OnProgramListener listener = null;
+	private ProgramAdapter adapter = null;
 	private static final String TAG = ProgramGroupFragment.class.getSimpleName();
 	
 	private List<Program> recordingsInGroup = null;
-
+	
 	public ProgramGroupFragment() {
 		this( null );
 	}
@@ -59,9 +63,39 @@ public class ProgramGroupFragment extends PersistentListFragment {
 	public void loadPrograms( List<Program> recordingsInGroup ) {
 		Log.i( TAG, "loadPrograms : enter" );
 
-		setListAdapter( new ProgramAdapter( recordingsInGroup ) );
+		adapter = new ProgramAdapter( recordingsInGroup );
+		setListAdapter( adapter );
 
 		Log.i( TAG, "loadPrograms : exit" );
+	}
+	
+	public void setOnProgramListener( OnProgramListener listener ) {
+		Log.v( TAG, "setOnProgramListener : enter" );
+
+		this.listener = listener;
+
+		Log.v( TAG, "setOnProgramListener : exit" );
+	}
+	
+	public interface OnProgramListener {
+		void onProgramSelected( Program program );
+	}
+	
+	@Override
+	public void onListItemClick( ListView l, View v, int position, long id ) {
+		Log.v( TAG, "onListItemClick : enter" );
+
+		super.onListItemClick( l, v, position, id );
+		
+		Log.v (TAG, "position : " + position);
+	    
+		if( null != listener ) {
+			listener.onProgramSelected( adapter.getItem( position ) );
+			//Program program = null;
+			//listener.onProgramSelected(program);
+		}
+
+		Log.v( TAG, "onListItemClick : exit" );
 	}
 	
 	private class ProgramAdapter extends BaseAdapter {
@@ -100,11 +134,11 @@ public class ProgramGroupFragment extends PersistentListFragment {
 
 			Program program = getItem( position );
 
-			TextView title = (TextView) row.findViewById( R.id.program_title );
+			TextView title = (TextView) row.findViewById( R.id.program_sub_title );
 			title.setText( !"".equals( program.getSubTitle().trim() ) ? program.getSubTitle() : program.getTitle() );
 
-			TextView description = (TextView) row.findViewById( R.id.program_title );
-			description.setText( program.getDescription() );
+			//TextView description = (TextView) row.findViewById( R.id.program_description );
+			//description.setText( program.getDescription() );
 
 			return row;
 		}

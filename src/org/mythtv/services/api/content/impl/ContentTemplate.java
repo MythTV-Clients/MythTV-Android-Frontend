@@ -35,6 +35,7 @@ import org.springframework.web.client.RestTemplate;
 
 /**
  * @author Daniel Frey
+ * @author John Baab
  *
  */
 public class ContentTemplate extends AbstractContentOperations implements ContentOperations {
@@ -54,7 +55,48 @@ public class ContentTemplate extends AbstractContentOperations implements Conten
 	@Override
 	public LiveStreamInfo addLiveStream( String storageGroup, String filename, String hostname, int maxSegments, int width, int height, int bitrate, int audioBitrate, int sampleRate ) {
 		// TODO Auto-generated method stub
-		return null;
+		//return null;
+		
+		LinkedMultiValueMap<String, String> parameters = new LinkedMultiValueMap<String, String>();
+		parameters.add( "FileName", "" + filename );
+		
+		
+		if( storageGroup != null ) {
+			parameters.add( "StorageGroup", "" + storageGroup );
+		}
+		
+		if( hostname != null ) {
+			parameters.add( "HostName", "" + hostname );
+		}
+		
+		if( maxSegments > 0 ) {
+			parameters.add( "MaxSegments", "" + maxSegments );
+		}
+		
+		if( width > 0 ) {
+			parameters.add( "Width", "" + width );
+		}
+
+		if( height > 0 ) {
+			parameters.add( "Height", "" + height );
+		}
+
+		if( bitrate > 0 ) {
+			parameters.add( "Bitrate", "" + bitrate );
+		}
+
+		if( audioBitrate > 0 ) {
+			parameters.add( "AudioBitrate", "" + audioBitrate );
+		}
+
+		if( sampleRate > 0 ) {
+			parameters.add( "SampleRate", "" + sampleRate );
+		}
+
+		ResponseEntity<LiveStreamInfo> responseEntity = restTemplate.exchange( buildUri( "AddLiveStream", parameters ), HttpMethod.GET, getRequestEntity(), LiveStreamInfo.class );
+		LiveStreamInfo liveStreamInfo = responseEntity.getBody();
+
+		return liveStreamInfo;
 	}
 
 	/* (non-Javadoc)

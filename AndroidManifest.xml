@@ -57,6 +57,10 @@
 			android:name=".client.ui.dvr.ProgramGroupActivity" />
 		<activity 
 			android:name=".client.ui.dvr.RecordingsActivity" />
+		<activity 
+			android:name=".client.ui.dvr.VideoActivity"
+			android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen"
+			android:screenOrientation="landscape" />
 						
 		<!-- Frontends Activities -->
 		<activity 
