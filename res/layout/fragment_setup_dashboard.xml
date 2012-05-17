@@ -29,5 +29,17 @@
         style="@style/DashboardButton"
         android:text="@string/btn_capture"
         android:drawableTop="@drawable/setup_btn_capture" />
-
+    <Button 
+        style="@style/DashboardButton"
+        android:text=""
+        android:drawableTop="@drawable/blank_white" />
+    <Button 
+        style="@style/DashboardButton"
+        android:text=""
+        android:drawableTop="@drawable/blank_white" />
+    <Button 
+        style="@style/DashboardButton"
+        android:text=""
+        android:drawableTop="@drawable/blank_white" />
+    
 </org.mythtv.client.ui.widget.DashboardLayout>

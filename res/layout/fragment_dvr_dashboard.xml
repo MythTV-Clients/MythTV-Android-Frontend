@@ -37,5 +37,9 @@
         style="@style/DashboardButton"
         android:text="@string/btn_guide"
         android:drawableTop="@drawable/dvr_btn_guide" />
-
+    <Button 
+        style="@style/DashboardButton"
+        android:text=""
+        android:drawableTop="@drawable/blank_white" />
+    
 </org.mythtv.client.ui.widget.DashboardLayout>

@@ -33,5 +33,13 @@
         style="@style/DashboardButton"
         android:text="@string/btn_away"
         android:drawableTop="@drawable/location_btn_away" />
-
+    <Button 
+        style="@style/DashboardButton"
+        android:text=""
+        android:drawableTop="@drawable/blank_white" />
+    <Button 
+        style="@style/DashboardButton"
+        android:text=""
+        android:drawableTop="@drawable/blank_white" />
+    
 </org.mythtv.client.ui.widget.DashboardLayout>
