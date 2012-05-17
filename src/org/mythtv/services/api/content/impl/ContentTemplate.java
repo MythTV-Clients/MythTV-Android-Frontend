@@ -28,6 +28,7 @@ import java.util.List;
 import org.mythtv.services.api.content.ArtworkInfo;
 import org.mythtv.services.api.content.ContentOperations;
 import org.mythtv.services.api.content.LiveStreamInfo;
+import org.mythtv.services.api.content.LiveStreamInfoWrapper;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
@@ -93,10 +94,10 @@ public class ContentTemplate extends AbstractContentOperations implements Conten
 			parameters.add( "SampleRate", "" + sampleRate );
 		}
 
-		ResponseEntity<LiveStreamInfo> responseEntity = restTemplate.exchange( buildUri( "AddLiveStream", parameters ), HttpMethod.GET, getRequestEntity(), LiveStreamInfo.class );
-		LiveStreamInfo liveStreamInfo = responseEntity.getBody();
+		ResponseEntity<LiveStreamInfoWrapper> responseEntity = restTemplate.exchange( buildUri( "AddLiveStream", parameters ), HttpMethod.GET, getRequestEntity(), LiveStreamInfoWrapper.class );
+		LiveStreamInfoWrapper wrapper = responseEntity.getBody();
 
-		return liveStreamInfo;
+		return wrapper.getLiveStreamInfo();
 	}
 
 	/* (non-Javadoc)
