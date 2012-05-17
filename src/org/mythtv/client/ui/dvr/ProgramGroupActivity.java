@@ -26,14 +26,16 @@ import java.util.List;
 import org.mythtv.R;
 import org.mythtv.services.api.dvr.Program;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
 /**
  * @author Daniel Frey
+ * @author John Baab
  * 
  */
-public class ProgramGroupActivity extends AbstractRecordingsActivity {
+public class ProgramGroupActivity extends AbstractProgramGroupActivity implements ProgramGroupFragment.OnProgramListener{
 
 	private static final String TAG = ProgramGroupActivity.class.getSimpleName();
 
@@ -61,6 +63,7 @@ public class ProgramGroupActivity extends AbstractRecordingsActivity {
 		programGroup = (ProgramGroupFragment) getSupportFragmentManager().findFragmentById( R.id.fragment_dvr_program_group );
 
 		List<Program> programs = getApplicationContext().getCurrentRecordingsInProgramGroup();
+		programGroup.setOnProgramListener( this );
 		programGroup.loadPrograms( programs );
 		
 		//String key = getIntent().getStringExtra( EXTRA_PROGRAM_GROUP_KEY );
@@ -104,14 +107,18 @@ public class ProgramGroupActivity extends AbstractRecordingsActivity {
 
 		Log.v( TAG, "onResume : exit" );
 	}
+	
+	public void onProgramSelected( Program program ) {
+		Log.d( TAG, "onProgramGroupSelected : enter" );
 
-	@Override
-	public void onProgramGroupSelected( List<Program> programs ) {
-		Log.v( TAG, "onProgramGroupSelected : enter" );
+		Log.v( TAG, "onProgramGroupSelected : starting program group activity" );
+
+		getApplicationContext().setCurrentProgram( program );
 		
-		//programGroup.loadPrograms( programs );
+		Intent i = new Intent( this, VideoActivity.class );
+		startActivity( i );
 
-		Log.v( TAG, "onProgramGroupSelected : exit" );
+		Log.d( TAG, "onProgramGroupSelected : exit" );
 	}
 
 //	public void onItemSelected( RSSItem item ) {

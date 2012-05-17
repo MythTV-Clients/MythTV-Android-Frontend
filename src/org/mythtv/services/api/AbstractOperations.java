@@ -88,6 +88,8 @@ public abstract class AbstractOperations {
 	 * @return
 	 */
 	protected URI buildUri( String path, MultiValueMap<String, String> parameters ) {
+		Log.v( TAG, "URI : " + URIBuilder.fromUri( getApiUrlBase() + path ).queryParams( parameters ).build() );
+		
 		return URIBuilder.fromUri( getApiUrlBase() + path ).queryParams( parameters ).build();
 	}
 
