@@ -55,8 +55,6 @@ public class ContentTemplate extends AbstractContentOperations implements Conten
 	 */
 	@Override
 	public LiveStreamInfo addLiveStream( String storageGroup, String filename, String hostname, int maxSegments, int width, int height, int bitrate, int audioBitrate, int sampleRate ) {
-		// TODO Auto-generated method stub
-		//return null;
 		
 		LinkedMultiValueMap<String, String> parameters = new LinkedMultiValueMap<String, String>();
 		parameters.add( "FileName", "" + filename );
@@ -134,10 +132,10 @@ public class ContentTemplate extends AbstractContentOperations implements Conten
 			parameters.add( "SampleRate", "" + sampleRate );
 		}
 
-		ResponseEntity<LiveStreamInfo> responseEntity = restTemplate.exchange( buildUri( "AddRecordingLiveStream", parameters ), HttpMethod.GET, getRequestEntity(), LiveStreamInfo.class );
-		LiveStreamInfo liveStreamInfo = responseEntity.getBody();
+		ResponseEntity<LiveStreamInfoWrapper> responseEntity = restTemplate.exchange( buildUri( "AddRecordingLiveStream", parameters ), HttpMethod.GET, getRequestEntity(), LiveStreamInfoWrapper.class );
+		LiveStreamInfoWrapper wrapper = responseEntity.getBody();
 
-		return liveStreamInfo;
+		return wrapper.getLiveStreamInfo();
 	}
 
 	/* (non-Javadoc)
@@ -227,8 +225,15 @@ public class ContentTemplate extends AbstractContentOperations implements Conten
 	 */
 	@Override
 	public LiveStreamInfo getLiveStream( int id ) {
-		// TODO Auto-generated method stub
-		return null;
+	
+		LinkedMultiValueMap<String, String> parameters = new LinkedMultiValueMap<String, String>();
+		parameters.add( "Id", "" + id );
+
+
+		ResponseEntity<LiveStreamInfoWrapper> responseEntity = restTemplate.exchange( buildUri( "GetLiveStream", parameters ), HttpMethod.GET, getRequestEntity(), LiveStreamInfoWrapper.class );
+		LiveStreamInfoWrapper wrapper = responseEntity.getBody();
+
+		return wrapper.getLiveStreamInfo();
 	}
 
 	/* (non-Javadoc)
