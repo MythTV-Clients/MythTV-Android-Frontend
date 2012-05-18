@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.mythtv.client.ui.preferences.LocationProfile;
+import org.mythtv.client.ui.preferences.PlaybackProfile;
 import org.mythtv.services.api.MythServices;
 import org.mythtv.services.api.capture.CaptureCard;
 import org.mythtv.services.api.dvr.Program;
@@ -51,6 +52,9 @@ public class MainApplication extends Application {
 	
 	private LocationProfile selectedHomeLocationProfile;
 	private LocationProfile selectedAwayLocationProfile;
+	
+	private PlaybackProfile selectedHomePlaybackProfile;
+	private PlaybackProfile selectedAwayPlaybackProfile;
 	
 	private String masterBackend;
 	
@@ -162,6 +166,38 @@ public class MainApplication extends Application {
 		Log.v( TAG, "connectSelectedAwayLocation : exit" );
 	}
 	
+	/**
+	 * @return the selectedHomePlaybackProfile
+	 */
+	public PlaybackProfile getSelectedHomePlaybackProfile() {
+		return selectedHomePlaybackProfile;
+	}
+
+
+	/**
+	 * @param selectedHomePlaybackProfile the selectedHomePlaybackProfile to set
+	 */
+	public void setSelectedHomePlaybackProfile( PlaybackProfile selectedHomePlaybackProfile ) {
+		this.selectedHomePlaybackProfile = selectedHomePlaybackProfile;
+	}
+
+
+	/**
+	 * @return the selectedAwayPlaybackProfile
+	 */
+	public PlaybackProfile getSelectedAwayPlaybackProfile() {
+		return selectedAwayPlaybackProfile;
+	}
+
+
+	/**
+	 * @param selectedAwayPlaybackProfile the selectedAwayPlaybackProfile to set
+	 */
+	public void setSelectedAwayPlaybackProfile( PlaybackProfile selectedAwayPlaybackProfile ) {
+		this.selectedAwayPlaybackProfile = selectedAwayPlaybackProfile;
+	}
+
+
 	/**
 	 * @return the masterBackend
 	 */

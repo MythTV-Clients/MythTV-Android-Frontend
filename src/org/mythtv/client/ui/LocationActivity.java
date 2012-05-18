@@ -25,6 +25,7 @@ import org.mythtv.R;
 import org.mythtv.client.db.MythtvDatabaseManager;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.preferences.MythtvPreferenceActivity;
+import org.mythtv.client.ui.preferences.PlaybackProfile;
 
 import android.content.Context;
 import android.content.Intent;
@@ -85,6 +86,13 @@ public class LocationActivity extends AbstractMythtvFragmentActivity {
 			getApplicationContext().setSelectedAwayLocationProfile( selectedAwayLocationProfile );
 		}
 
+		PlaybackProfile selectedAwayPlaybackProfile = db.fetchSelectedAwayPlaybackProfile();
+		if( null != selectedAwayPlaybackProfile ) {
+			Log.v( TAG, "onResume : setting selected Away Playback Profile" );
+			
+			getApplicationContext().setSelectedAwayPlaybackProfile( selectedAwayPlaybackProfile );
+		}
+
 		//wifi
 		State wifi = connectivityManager.getNetworkInfo( 1 ).getState();
 		if( wifi == State.CONNECTED || wifi == State.CONNECTING ) {
@@ -98,6 +106,13 @@ public class LocationActivity extends AbstractMythtvFragmentActivity {
 				Log.v( TAG, "onResume : setting selected Home Location Profile" );
 				
 				getApplicationContext().setSelectedHomeLocationProfile( selectedHomeLocationProfile );
+			}
+
+			PlaybackProfile selectedHomePlaybackProfile = db.fetchSelectedHomePlaybackProfile();
+			if( null != selectedHomePlaybackProfile ) {
+				Log.v( TAG, "onResume : setting selected Home Playback Profile" );
+				
+				getApplicationContext().setSelectedHomePlaybackProfile( selectedHomePlaybackProfile );
 			}
 		} else {
 			Log.d( TAG, "onResume : disabling home" );

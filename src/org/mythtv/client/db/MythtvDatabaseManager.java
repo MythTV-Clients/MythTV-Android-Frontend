@@ -29,12 +29,24 @@ import static org.mythtv.client.db.DatabaseHelper.TABLE_LOCATION_PROFILE_SELECTE
 import static org.mythtv.client.db.DatabaseHelper.TABLE_LOCATION_PROFILE_TYPE;
 import static org.mythtv.client.db.DatabaseHelper.TABLE_LOCATION_PROFILE_URL;
 
+import static org.mythtv.client.db.DatabaseHelper.TABLE_PLAYBACK_PROFILE;
+import static org.mythtv.client.db.DatabaseHelper.TABLE_PLAYBACK_PROFILE_ID;
+import static org.mythtv.client.db.DatabaseHelper.TABLE_PLAYBACK_PROFILE_NAME;
+import static org.mythtv.client.db.DatabaseHelper.TABLE_PLAYBACK_PROFILE_SELECTED;
+import static org.mythtv.client.db.DatabaseHelper.TABLE_PLAYBACK_PROFILE_TYPE;
+import static org.mythtv.client.db.DatabaseHelper.TABLE_PLAYBACK_PROFILE_WIDTH;
+import static org.mythtv.client.db.DatabaseHelper.TABLE_PLAYBACK_PROFILE_HEIGHT;
+import static org.mythtv.client.db.DatabaseHelper.TABLE_PLAYBACK_PROFILE_BITRATE;
+import static org.mythtv.client.db.DatabaseHelper.TABLE_PLAYBACK_PROFILE_AUDIO_BITRATE;
+import static org.mythtv.client.db.DatabaseHelper.TABLE_PLAYBACK_PROFILE_SAMPLE_RATE;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import org.mythtv.R;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.preferences.LocationProfile.LocationType;
+import org.mythtv.client.ui.preferences.PlaybackProfile;
 
 import android.app.AlertDialog;
 import android.content.ContentValues;
@@ -277,6 +289,129 @@ public class MythtvDatabaseManager {
 		return fetchSelectedLocationProfileByType( LocationType.AWAY );
 	}
 
+	/**
+	 * @return
+	 */
+	public List<PlaybackProfile> fetchHomePlaybackProfiles() {
+		Log.v( TAG, "fetchHomePlaybackProfiles : enter" );
+		Log.v( TAG, "fetchHomePlaybackProfiles : exit" );
+		return fetchPlaybackProfilesByType( LocationType.HOME );
+	}
+
+	/**
+	 * @return
+	 */
+	public List<PlaybackProfile> fetchAwayPlaybackProfiles() {
+		Log.v( TAG, "fetchAwayPlaybackProfiles : enter" );
+		Log.v( TAG, "fetchAwayPlaybackProfiles : exit" );
+		return fetchPlaybackProfilesByType( LocationType.AWAY );
+	}
+
+	public PlaybackProfile fetchPlaybackProfile( long id ) {
+		Log.v( TAG, "fetchPlaybackProfile : enter" );
+		
+		open();
+		
+		PlaybackProfile profile = null;
+		
+		try {
+			Cursor cursor = db.query( 
+						TABLE_PLAYBACK_PROFILE, 
+						new String[] { TABLE_PLAYBACK_PROFILE_ID, TABLE_PLAYBACK_PROFILE_TYPE, TABLE_PLAYBACK_PROFILE_NAME, TABLE_PLAYBACK_PROFILE_WIDTH, TABLE_PLAYBACK_PROFILE_HEIGHT, TABLE_PLAYBACK_PROFILE_BITRATE, TABLE_PLAYBACK_PROFILE_AUDIO_BITRATE, TABLE_PLAYBACK_PROFILE_SAMPLE_RATE, TABLE_PLAYBACK_PROFILE_SELECTED }, 
+						TABLE_PLAYBACK_PROFILE_ID + "=" + id, 
+						null, null, null, null 
+					  );
+			
+			if( cursor.getCount() == 1 && cursor.moveToFirst() ) {
+				Log.v( TAG, "fetchPlaybackProfile : playback profile found" );
+
+				profile = convertCursorToPlaybackProfile( cursor );
+			}
+			
+		} catch( SQLException e ) {
+			Log.e( TAG, "fetchPlaybackProfile : error", e );
+			
+			AlertDialog.Builder builder = new AlertDialog.Builder( context );
+			builder.setTitle( "DataBase Error" );
+			builder.setMessage( "An error occurred locating profile" );
+			builder.setNeutralButton( R.string.close, new OnClickListener() {
+
+				public void onClick( DialogInterface dialog, int which ) { }
+			
+			});
+		}
+		
+		close();
+		
+		Log.v( TAG, "fetchPlaybackProfile : exit" );
+		return profile;
+	}
+
+	/**
+	 * @param profile
+	 * @return
+	 */
+	public boolean updatePlaybackProfile( PlaybackProfile profile ) {
+		Log.v( TAG, "updatePlaybackProfile : enter" );
+
+		open();
+
+		ContentValues args = new ContentValues();
+		args.put( TABLE_PLAYBACK_PROFILE_TYPE, profile.getType().name() );
+		args.put( TABLE_PLAYBACK_PROFILE_NAME, profile.getName() );
+		args.put( TABLE_PLAYBACK_PROFILE_WIDTH, profile.getWidth() );
+		args.put( TABLE_PLAYBACK_PROFILE_HEIGHT, profile.getHeight() );
+		args.put( TABLE_PLAYBACK_PROFILE_BITRATE, profile.getVideoBitrate() );
+		args.put( TABLE_PLAYBACK_PROFILE_AUDIO_BITRATE, profile.getAudioBitrate() );
+		args.put( TABLE_PLAYBACK_PROFILE_SAMPLE_RATE, profile.getAudioSampleRate() );
+		args.put( TABLE_PLAYBACK_PROFILE_SELECTED, profile.isSelected() ? 1 : 0 );
+
+		int rows = db.update( TABLE_PLAYBACK_PROFILE, args, TABLE_PLAYBACK_PROFILE_ID + "=" + profile.getId(), null );
+	
+		close();
+
+		Log.v( TAG, "updatePlaybackProfile : exit" );
+		return rows > 0;
+	}
+
+	/**
+	 * @param id
+	 * @return
+	 */
+	public boolean setSelectedHomePlaybackProfile( long id ) {
+		Log.v( TAG, "setSelectedHomePlaybackProfile : enter" );
+		Log.v( TAG, "setSelectedHomePlaybackProfile : exit" );
+		return setSelectedPlaybackProfile( id, LocationType.HOME );
+	}
+
+	/**
+	 * @param id
+	 * @return
+	 */
+	public boolean setSelectedAwayPlaybackProfile( long id ) {
+		Log.v( TAG, "setSelectedAwayPlaybackProfile : enter" );
+		Log.v( TAG, "setSelectedAwayPlaybackProfile : exit" );
+		return setSelectedPlaybackProfile( id, LocationType.AWAY );
+	}
+
+	/**
+	 * @return
+	 */
+	public PlaybackProfile fetchSelectedHomePlaybackProfile() {
+		Log.v( TAG, "fetchSelectedHomePlaybackProfile : enter" );
+		Log.v( TAG, "fetchSelectedHomePlaybackProfile : exit" );
+		return fetchSelectedPlaybackProfileByType( LocationType.HOME );
+	}
+
+	/**
+	 * @return
+	 */
+	public PlaybackProfile fetchSelectedAwayPlaybackProfile() {
+		Log.v( TAG, "fetchSelectedAwayPlaybackProfile : enter" );
+		Log.v( TAG, "fetchSelectedAwayPlaybackProfile : exit" );
+		return fetchSelectedPlaybackProfileByType( LocationType.AWAY );
+	}
+
 	// internal helpers
 
 	/**
@@ -297,6 +432,28 @@ public class MythtvDatabaseManager {
 		return profile;
 	}
 	
+	/**
+	 * @param cursor
+	 * @return
+	 */
+	private PlaybackProfile convertCursorToPlaybackProfile( Cursor cursor ) {
+		Log.v( TAG, "convertCursorToPlaybackProfile : enter" );
+		
+		PlaybackProfile profile = new PlaybackProfile();
+		profile.setId( cursor.getInt( 0 ) );
+		profile.setType( LocationType.valueOf( cursor.getString( 1 ) ) );
+		profile.setName( cursor.getString( 2 ) );
+		profile.setWidth( cursor.getInt( 3 ) );
+		profile.setHeight( cursor.getInt( 4 ) );
+		profile.setVideoBitrate( cursor.getInt( 5 ) );
+		profile.setAudioBitrate( cursor.getInt( 6 ) );
+		profile.setAudioSampleRate( cursor.getInt( 7 ) );
+		profile.setSelected( cursor.getInt( 8 ) != 0 );
+		
+		Log.v( TAG, "convertCursorToPlaybackProfile : exit" );
+		return profile;
+	}
+
 	/**
 	 * @param type
 	 * @return
@@ -325,6 +482,37 @@ public class MythtvDatabaseManager {
 		close();
 		
 		Log.v( TAG, "fetchLocationProfilesByType : exit" );
+		return profiles;
+	}
+
+	/**
+	 * @param type
+	 * @return
+	 */
+	private List<PlaybackProfile> fetchPlaybackProfilesByType( LocationType type ) {
+		Log.v( TAG, "fetchPlaybackProfilesByType : enter" );
+		
+		open();
+		
+		List<PlaybackProfile> profiles = new ArrayList<PlaybackProfile>();
+
+		Cursor cursor = db.query( TABLE_PLAYBACK_PROFILE, new String[] { TABLE_PLAYBACK_PROFILE_ID, TABLE_PLAYBACK_PROFILE_TYPE, TABLE_PLAYBACK_PROFILE_NAME, TABLE_PLAYBACK_PROFILE_WIDTH, TABLE_PLAYBACK_PROFILE_HEIGHT, TABLE_PLAYBACK_PROFILE_BITRATE, TABLE_PLAYBACK_PROFILE_AUDIO_BITRATE, TABLE_PLAYBACK_PROFILE_SAMPLE_RATE, TABLE_PLAYBACK_PROFILE_SELECTED }, "type=?",	new String[] { type.name() }, null, null, null );
+		
+		int count = cursor.getCount();
+		if( count > 0 && cursor.moveToFirst() ) {
+			Log.v( TAG, "fetchPlaybackProfilesByType : playback profiles found" );
+		
+			for( int i = 0; i < count; i++ ) {
+				Log.v( TAG, "fetchPlaybackProfilesByType : playback profile cursor iteration" );
+				
+				profiles.add( convertCursorToPlaybackProfile( cursor ) );
+				cursor.moveToNext();
+			}
+		}
+		
+		close();
+		
+		Log.v( TAG, "fetchPlaybackProfilesByType : exit" );
 		return profiles;
 	}
 
@@ -373,6 +561,27 @@ public class MythtvDatabaseManager {
 		return rows > 0;
 	}
 
+	private boolean setSelectedPlaybackProfile( long id, LocationType type ) {
+		Log.v( TAG, "setSelectedPlaybackProfile : enter" );
+
+		open();
+		
+		ContentValues args = new ContentValues();
+		args.put( TABLE_PLAYBACK_PROFILE_SELECTED, 0 );
+
+		db.update( TABLE_PLAYBACK_PROFILE, args, TABLE_PLAYBACK_PROFILE_TYPE + "=?", new String[] { type.name() } );
+
+		args = new ContentValues();
+		args.put( TABLE_PLAYBACK_PROFILE_SELECTED, 1 );
+
+		int rows = db.update( TABLE_PLAYBACK_PROFILE, args, TABLE_PLAYBACK_PROFILE_ID + "=?", new String[] { "" + id } );
+	
+		close();
+
+		Log.v( TAG, "setSelectedPlaybackProfile : exit" );
+		return rows > 0;
+	}
+
 	private LocationProfile fetchSelectedLocationProfileByType( LocationType type ) {
 		Log.v( TAG, "fetchSelectedLocationProfileByType : enter" );
 		
@@ -411,6 +620,47 @@ public class MythtvDatabaseManager {
 		close();
 		
 		Log.v( TAG, "fetchSelectedLocationProfileByType : exit" );
+		return profile;
+	}
+
+	private PlaybackProfile fetchSelectedPlaybackProfileByType( LocationType type ) {
+		Log.v( TAG, "fetchSelectedPlaybackProfileByType : enter" );
+		
+		open();
+		
+		PlaybackProfile profile = null;
+
+		try {
+			Cursor cursor = db.query( 
+						TABLE_PLAYBACK_PROFILE, 
+						new String[] { TABLE_PLAYBACK_PROFILE_ID, TABLE_PLAYBACK_PROFILE_TYPE, TABLE_PLAYBACK_PROFILE_NAME, TABLE_PLAYBACK_PROFILE_WIDTH, TABLE_PLAYBACK_PROFILE_HEIGHT, TABLE_PLAYBACK_PROFILE_BITRATE, TABLE_PLAYBACK_PROFILE_AUDIO_BITRATE, TABLE_PLAYBACK_PROFILE_SAMPLE_RATE, TABLE_PLAYBACK_PROFILE_SELECTED }, 
+						TABLE_PLAYBACK_PROFILE_TYPE + "=? and " + TABLE_PLAYBACK_PROFILE_SELECTED + "=?", 
+						new String[] { type.name(), "1" }, 
+						null, null, null 
+					  );
+			
+			if( cursor.getCount() == 1 && cursor.moveToFirst() ) {
+				Log.v( TAG, "fetchSelectedPlaybackProfileByType : playback profile found" );
+
+				profile = convertCursorToPlaybackProfile( cursor );
+			}
+			
+		} catch( SQLException e ) {
+			Log.e( TAG, "fetchSelectedPlaybackProfileByType : error", e );
+			
+			AlertDialog.Builder builder = new AlertDialog.Builder( context );
+			builder.setTitle( "DataBase Error" );
+			builder.setMessage( "An error occurred locating profile" );
+			builder.setNeutralButton( R.string.close, new OnClickListener() {
+
+				public void onClick( DialogInterface dialog, int which ) { }
+			
+			});
+		}
+		
+		close();
+		
+		Log.v( TAG, "fetchSelectedPlaybackProfileByType : exit" );
 		return profile;
 	}
 
