@@ -28,6 +28,7 @@ import org.mythtv.services.api.content.LiveStreamInfo;
 import org.mythtv.services.api.dvr.Program;
 
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -45,6 +46,7 @@ public class VideoActivity extends BaseActivity {
 
 	public static final String EXTRA_PROGRAM_GROUP_KEY = "org.mythtv.client.ui.dvr.programGroup.EXTRA_PROGRAM_GROUP_KEY";
 	private LiveStreamInfo info = null;
+	private ProgressDialog progressDialog;
 
 	// ***************************************
 	// Activity methods
@@ -64,17 +66,40 @@ public class VideoActivity extends BaseActivity {
 
 	    setContentView(R.layout.activity_video);
 	    
+	    progressDialog = ProgressDialog.show(this,
+        		"Please wait...", "Retrieving video...", true, true);
+	    
 	    new CreateStreamTask().execute();
 	    
-	    // replace me with the real url once the return is working
-	    String url = "http://devimages.apple.com/iphone/samples/bipbop/gear1/prog_index.m3u8";
+		Log.v( TAG, "onCreate : exit" );
+	}
+	
+	private void startVideo(){
+		
+		Log.v( TAG, "Starting Video" );
+	    
+		// replace me with the real url once the return is working
+	    //String url = "http://devimages.apple.com/iphone/samples/bipbop/gear1/prog_index.m3u8";
+		String url = getApplicationContext().getMasterBackend() + info.getRelativeUrl();
+	    Log.v( TAG, "URL: " + url );
+	    Log.v( TAG, "Height: " + info.getHeight() );
 	    VideoView videoView = (VideoView)findViewById(R.id.videoView);
+	    
+	    // This didn't help with the choppy video playback
+	    //videoView.isHardwareAccelerated();
 	    videoView.setVideoURI(Uri.parse(url));
 	    videoView.setMediaController(new MediaController(this));
+	    
+	    if (progressDialog!=null) {
+			progressDialog.dismiss();
+			progressDialog = null;
+		}
+	    
 	    videoView.requestFocus();
 	    videoView.start();
-		
-		Log.v( TAG, "onCreate : exit" );
+	    
+	    Log.v( TAG, "Done Starting Video" );
+	
 	}
 	
 	private void exceptionDialolg( Throwable t ) {
@@ -91,8 +116,23 @@ public class VideoActivity extends BaseActivity {
 		Log.v( TAG, "setLiveStreamInfo : enter" );
 
 		this.info = info;
+		
+		checkLiveStreamInfo(info);
 
 		Log.v( TAG, "setLiveStreamInfo : exit" );
+	}
+	
+	public void checkLiveStreamInfo( LiveStreamInfo info ){
+		Log.v( TAG, "checkLiveStreamInfo : enter" );
+
+		if(info.getStatusInt() < 2 || info.getPercentComplete() < 1){
+			new UpdateStreamInfoTask().execute();
+		}
+		else{
+			startVideo();
+		}
+
+		Log.v( TAG, "checkLiveStreamInfo : exit" );
 	}
 	
 	
@@ -116,6 +156,49 @@ public class VideoActivity extends BaseActivity {
 				
 				lookup = getApplicationContext().getMythServicesApi().contentOperations().
 						addLiveStream(null, program.getFilename(), null, -1, -1, -1, -1, -1, -1);
+			} catch( Exception e ) {
+				Log.v( TAG, "doInBackground : error" );
+
+				this.e = e;
+			}
+
+			Log.v( TAG, "doInBackground : exit" );
+			return lookup;
+		}
+
+		@Override
+		protected void onPostExecute( LiveStreamInfo result ) {
+			Log.v( TAG, "onPostExecute : enter" );
+
+			if( null == e ) {
+				setLiveStreamInfo( result );
+			} else {
+				Log.e( TAG, "error creating live stream", e );
+				exceptionDialolg( e );
+			}
+
+			Log.v( TAG, "onPostExecute : exit" );
+		}
+	}
+	
+	private class UpdateStreamInfoTask extends AsyncTask<Void, Void, LiveStreamInfo> {
+
+		private Exception e = null;
+
+		@Override
+		protected LiveStreamInfo doInBackground( Void... params ) {
+			Log.v( TAG, "doInBackground : enter" );
+
+			LiveStreamInfo lookup = null;
+
+			try {
+				Log.v( TAG, "doInBackground : lookup" );
+				lookup = info;
+				
+				while (lookup.getStatusInt() < 2 || lookup.getPercentComplete() < 1){
+					Thread.sleep(5000);
+					lookup = getApplicationContext().getMythServicesApi().contentOperations().getLiveStream(info.getId());
+				}
 			} catch( Exception e ) {
 				Log.v( TAG, "doInBackground : error" );
 
