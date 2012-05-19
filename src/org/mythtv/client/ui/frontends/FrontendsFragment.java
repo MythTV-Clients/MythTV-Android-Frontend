@@ -100,7 +100,7 @@ public class FrontendsFragment extends Fragment implements ServiceListener {
 		Spinner spinner = (Spinner)view.findViewById(R.id.spinner_frontends);
 
 		adapter = new FrontendAdapter(getActivity(), R.layout.frontend_row, frontends);
-		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		//adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		spinner.setAdapter(adapter);
 		
 		return view;
@@ -174,11 +174,12 @@ public class FrontendsFragment extends Fragment implements ServiceListener {
 		Log.v(TAG, "serviceAdded : masterbackend="
 				+ ("http://" + hostname + ":" + port + "/"));
 
+// Dont' do both adds
 		frontends.add(new Frontend(event.getName(), "http://" + hostname + ":"
 				+ port + "/"));
 
-		adapter.add(new Frontend(event.getName(), "http://" + hostname + ":"
-				+ port + "/"));
+//		adapter.add(new Frontend(event.getName(), "http://" + hostname + ":"
+//				+ port + "/"));
 
 		Log.v(TAG, "serviceAdded : exit");
 	}
@@ -366,6 +367,7 @@ public class FrontendsFragment extends Fragment implements ServiceListener {
 		
 		private View getFrontendView(int position, View convertView, ViewGroup parent){
 			Log.v(TAG, "getFrontendView : enter");
+			
 			View row = convertView;
 			FrontendHolder holder = null;
 
