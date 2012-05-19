@@ -102,6 +102,12 @@ public class MythtvPreferenceActivity extends PreferenceActivity {
 			
 		}
 
+		protected interface PlaybackProfileChangedEventListener extends EventListener {
+
+			public void defaultPlaybackProfileChanged();
+			
+		}
+
 		/**
 		 * @param context
 		 * @param profile
@@ -114,7 +120,7 @@ public class MythtvPreferenceActivity extends PreferenceActivity {
 			preference.setKey( "" + profile.getId() );
 			preference.setTitle( profile.getName() );
 			preference.setDefaultValue( profile.getUrl() );
-			preference.setEnabled(true);
+			preference.setEnabled( true );
 			preference.setSummary( profile.getUrl() );
 			preference.setOnPreferenceClickListener( new OnPreferenceClickListener() {
 
@@ -132,6 +138,39 @@ public class MythtvPreferenceActivity extends PreferenceActivity {
 			});
 			
 			Log.v( TAG, "createLocationProfilePreference : exit" );
+			return preference;
+		}
+
+		/**
+		 * @param context
+		 * @param profile
+		 * @return
+		 */
+		protected static Preference createPlaybackProfilePreference( final Context context, PlaybackProfile profile ) {
+			Log.v( TAG, "createPlaybackProfilePreference : enter" );
+			
+			Preference preference = new Preference( context );
+			preference.setKey( "" + profile.getId() );
+			preference.setTitle( profile.getName() );
+			preference.setDefaultValue( profile.getWidth() + "x" + profile.getHeight() );
+			preference.setEnabled( true );
+			preference.setSummary( profile.getWidth() + "x" + profile.getHeight() );
+			preference.setOnPreferenceClickListener( new OnPreferenceClickListener() {
+
+				public boolean onPreferenceClick( Preference preference ) {
+					
+					MythtvDatabaseManager db = new MythtvDatabaseManager( context );
+					PlaybackProfile profile = db.fetchPlaybackProfile( Integer.parseInt( preference.getKey() ) );
+					
+					// show playback profile editor
+					showPlaybackProfileEditDialog( context, profile );
+						
+					return false;
+				}
+
+			});
+			
+			Log.v( TAG, "createPlaybackProfilePreference : exit" );
 			return preference;
 		}
 
@@ -157,6 +196,34 @@ public class MythtvPreferenceActivity extends PreferenceActivity {
 			context.startActivity( intent );
 			
 			Log.v( TAG, "showLocationProfileEditDialog : exit" );
+		}
+
+		/**
+		 * @param context
+		 * @param profile
+		 */
+		protected static void showPlaybackProfileEditDialog( final Context context, PlaybackProfile profile ) {
+			Log.v( TAG, "showPlaybackProfileEditDialog : enter" );
+
+			Intent intent = new Intent( context, PlaybackProfileEditor.class);
+
+			// put extra information is needed
+			if( null != profile ) {
+				intent.putExtra( DatabaseHelper.TABLE_PLAYBACK_PROFILE_ID, profile.getId() );
+				intent.putExtra( DatabaseHelper.TABLE_PLAYBACK_PROFILE_TYPE, profile.getType().name() );
+				intent.putExtra( DatabaseHelper.TABLE_PLAYBACK_PROFILE_NAME, profile.getName() );
+				intent.putExtra( DatabaseHelper.TABLE_PLAYBACK_PROFILE_WIDTH, profile.getWidth() );
+				intent.putExtra( DatabaseHelper.TABLE_PLAYBACK_PROFILE_HEIGHT, profile.getHeight() );
+				intent.putExtra( DatabaseHelper.TABLE_PLAYBACK_PROFILE_BITRATE, profile.getVideoBitrate() );
+				intent.putExtra( DatabaseHelper.TABLE_PLAYBACK_PROFILE_AUDIO_BITRATE, profile.getAudioBitrate() );
+				intent.putExtra( DatabaseHelper.TABLE_PLAYBACK_PROFILE_SAMPLE_RATE, profile.getAudioSampleRate() );
+				intent.putExtra( DatabaseHelper.TABLE_PLAYBACK_PROFILE_SELECTED, ( profile.isSelected() ? 1 : 0 ) );
+			}
+
+			// start activity
+			context.startActivity( intent );
+			
+			Log.v( TAG, "showPlaybackProfileEditDialog : exit" );
 		}
 
 		/**
@@ -208,6 +275,53 @@ public class MythtvPreferenceActivity extends PreferenceActivity {
 
 		/**
 		 * @param context
+		 * @param profiles
+		 * @param listener
+		 */
+		protected static void selectPlaybackProfile( final Context context, final List<PlaybackProfile> profiles, final LocationType type, final PlaybackProfileChangedEventListener listener ) {
+			Log.v( TAG, "selectLocationProfile : enter" );
+
+			final String[] names = new String[ profiles.size() ];
+			final int[] ids = new int[ profiles.size() ];
+			
+			for( int i = 0; i < profiles.size(); i++) {
+				PlaybackProfile profile = profiles.get( i );
+
+				names[ i ] = profile.getName();
+				ids[ i ] = profile.getId();
+			}
+
+			// show list of locations as a single selected list
+			AlertDialog.Builder builder = new AlertDialog.Builder(context);
+			
+			switch( type ) {
+				case HOME :
+					builder.setTitle( R.string.preference_home_playback_profiles_select );
+					break;
+				case AWAY :
+					builder.setTitle( R.string.preference_away_playback_profiles_select );
+					break;
+			} 
+
+			builder.setItems( names, new DialogInterface.OnClickListener() {
+
+				public void onClick( DialogInterface dialog, int which ) {
+
+					// save selected location
+					saveSelectedPlaybackProfile( context, ids[ which ], type );
+
+					listener.defaultPlaybackProfileChanged();
+
+				}
+			});
+				
+			builder.show();
+
+			Log.v( TAG, "selectPlaybackProfile : exit" );
+		}
+
+		/**
+		 * @param context
 		 * @param id
 		 * @param type
 		 */
@@ -229,6 +343,31 @@ public class MythtvPreferenceActivity extends PreferenceActivity {
 			} 
 			
 			Log.v( TAG, "saveSelectedLocationProfile : exit" );
+		}
+
+		/**
+		 * @param context
+		 * @param id
+		 * @param type
+		 */
+		protected static void saveSelectedPlaybackProfile( final Context context, final int id, final LocationType type ) {
+			Log.v( TAG, "saveSelectedPlaybackProfile : enter" );
+
+			MythtvDatabaseManager db = new MythtvDatabaseManager( context );
+			switch( type ) {
+			case HOME :
+				Log.v( TAG, "saveSelectedPlaybackProfile : setting home selected playback profile" );
+
+				db.setSelectedHomePlaybackProfile( id );
+				break;
+			case AWAY :
+				Log.v( TAG, "saveSelectedPlaybackProfile : setting away selected playback profile" );
+
+				db.setSelectedAwayPlaybackProfile( id );
+				break;
+			} 
+			
+			Log.v( TAG, "saveSelectedPlaybackProfile : exit" );
 		}
 
 		protected static void deleteLocationProfile( final Context context, final List<LocationProfile> profiles, final LocationProfileChangedEventListener listener ) {
@@ -543,6 +682,101 @@ public class MythtvPreferenceActivity extends PreferenceActivity {
 
 	}
 	
+	public static class HomePlaybackProfilesPreferenceFragment extends BasePreferenceFragment {
+	
+		private static final String TAG = HomePlaybackProfilesPreferenceFragment.class.getSimpleName();
+
+		private static final String PREFERENCE_HOME_PLAYBACK_SELECTED_ID = "preference_home_playback_profiles_default_id";
+		private static final String PREFERENCE_CATEGORY_HOME_PLAYBACK_SAVED_KEY = "preference_home_playback_profiles_saved";
+
+		/* (non-Javadoc)
+		 * @see android.preference.PreferenceFragment#onCreate(android.os.Bundle)
+		 */
+		@Override
+		public void onCreate( Bundle savedInstanceState ) {
+			Log.v( TAG, "onCreate : enter" );
+			
+			super.onCreate( savedInstanceState );
+
+            // Load the preferences from an XML resource
+            addPreferencesFromResource( R.xml.mythtv_home_playback_profile_preferences );
+
+			Log.v( TAG, "onCreate : exit" );
+		}
+
+		/* (non-Javadoc)
+		 * @see android.app.Fragment#onResume()
+		 */
+		@Override
+		public void onResume() {
+			Log.v( TAG, "onResume : enter" );
+
+			super.onResume();
+
+			setupPreferences( getActivity() );
+			
+			Log.v( TAG, "onResume : exit" );
+		}
+
+		
+		// internal helpers
+		
+		private void setupPreferences( final Context context ) {
+			Log.v( TAG, "setupPreferences : enter" );
+
+			MythtvDatabaseManager db = new MythtvDatabaseManager( context );
+		
+    		PreferenceCategory homePlaybackProfilesPreferenceCategory = (PreferenceCategory) findPreference( PREFERENCE_CATEGORY_HOME_PLAYBACK_SAVED_KEY );
+    		homePlaybackProfilesPreferenceCategory.removeAll();
+
+    		final List<PlaybackProfile> homePlaybackProfiles = db.fetchAwayPlaybackProfiles();
+    		if( null != homePlaybackProfiles && !homePlaybackProfiles.isEmpty() ) {
+    			Log.v( TAG, "setupPreferences : setting Home Playback Profiles" );
+    			
+    	        for( int i = 0; i < homePlaybackProfiles.size(); i++ ) {
+    	        	PlaybackProfile profile = homePlaybackProfiles.get( i );
+    	        	homePlaybackProfilesPreferenceCategory.addPreference( createPlaybackProfilePreference( context, profile ) );
+    	        }
+    	        
+    		}
+    		
+    		PlaybackProfile selectedHomePlaybackProfile = db.fetchSelectedHomePlaybackProfile();
+
+    		if( null != selectedHomePlaybackProfile ) {
+    			Log.v( TAG, "setupPreferences : setting selected Home Playback Profile" );
+    			
+    			Preference preference = findPreference( PREFERENCE_HOME_PLAYBACK_SELECTED_ID );
+    			preference.setDefaultValue( selectedHomePlaybackProfile.getId() );
+    			preference.setSummary( selectedHomePlaybackProfile.getName() );
+    			preference.setOnPreferenceClickListener( new OnPreferenceClickListener() {
+
+    				public boolean onPreferenceClick( Preference preference ) {
+
+    					// Displays the list of configured location profiles.
+    					// Fires the locationChanged event when the user selects a
+    					// location even if the user selects the same location already 
+    					// selected.
+    					selectPlaybackProfile( context, homePlaybackProfiles, LocationType.AWAY, new PlaybackProfileChangedEventListener() {
+
+    						@Override
+    						public void defaultPlaybackProfileChanged() {
+    							// reset preference list with updated selection
+    							setupPreferences( context );
+    						}
+
+    					} );
+    					
+    					return true;
+    				}
+    			});
+
+    		}
+
+    		Log.v( TAG, "setupPreferences : exit" );
+		}
+
+	}
+	
 	public static class AwayProfilesPreferenceFragment extends BasePreferenceFragment {
 
 		private static final String TAG = AwayProfilesPreferenceFragment.class.getSimpleName();
@@ -673,8 +907,102 @@ public class MythtvPreferenceActivity extends PreferenceActivity {
 
 			Log.v( TAG, "setupPreferences : exit" );
 		}
+		
+	}
+	
+	public static class AwayPlaybackProfilesPreferenceFragment extends BasePreferenceFragment {
+		
+		private static final String TAG = AwayPlaybackProfilesPreferenceFragment.class.getSimpleName();
+
+		private static final String PREFERENCE_AWAY_PLAYBACK_SELECTED_ID = "preference_away_playback_profiles_default_id";
+		private static final String PREFERENCE_CATEGORY_AWAY_PLAYBACK_SAVED_KEY = "preference_away_playback_profiles_saved";
+
+		/* (non-Javadoc)
+		 * @see android.preference.PreferenceFragment#onCreate(android.os.Bundle)
+		 */
+		@Override
+		public void onCreate( Bundle savedInstanceState ) {
+			Log.v( TAG, "onCreate : enter" );
+			
+			super.onCreate( savedInstanceState );
+
+            // Load the preferences from an XML resource
+            addPreferencesFromResource( R.xml.mythtv_away_playback_profile_preferences );
+
+			Log.v( TAG, "onCreate : exit" );
+		}
+
+		/* (non-Javadoc)
+		 * @see android.app.Fragment#onResume()
+		 */
+		@Override
+		public void onResume() {
+			Log.v( TAG, "onResume : enter" );
+
+			super.onResume();
+
+			setupPreferences( getActivity() );
+			
+			Log.v( TAG, "onResume : exit" );
+		}
 
 		
+		// internal helpers
+		
+		private void setupPreferences( final Context context ) {
+			Log.v( TAG, "setupPreferences : enter" );
+
+			MythtvDatabaseManager db = new MythtvDatabaseManager( context );
+		
+    		PreferenceCategory awayPlaybackProfilesPreferenceCategory = (PreferenceCategory) findPreference( PREFERENCE_CATEGORY_AWAY_PLAYBACK_SAVED_KEY );
+    		awayPlaybackProfilesPreferenceCategory.removeAll();
+
+    		final List<PlaybackProfile> awayPlaybackProfiles = db.fetchAwayPlaybackProfiles();
+    		if( null != awayPlaybackProfiles && !awayPlaybackProfiles.isEmpty() ) {
+    			Log.v( TAG, "setupPreferences : setting Away Playback Profiles" );
+    			
+    	        for( int i = 0; i < awayPlaybackProfiles.size(); i++ ) {
+    	        	PlaybackProfile profile = awayPlaybackProfiles.get( i );
+    	        	awayPlaybackProfilesPreferenceCategory.addPreference( createPlaybackProfilePreference( context, profile ) );
+    	        }
+    	        
+    		}
+    		
+    		PlaybackProfile selectedAwayPlaybackProfile = db.fetchSelectedAwayPlaybackProfile();
+
+    		if( null != selectedAwayPlaybackProfile ) {
+    			Log.v( TAG, "setupPreferences : setting selected Away Playback Profile" );
+    			
+    			Preference preference = findPreference( PREFERENCE_AWAY_PLAYBACK_SELECTED_ID );
+    			preference.setDefaultValue( selectedAwayPlaybackProfile.getId() );
+    			preference.setSummary( selectedAwayPlaybackProfile.getName() );
+    			preference.setOnPreferenceClickListener( new OnPreferenceClickListener() {
+
+    				public boolean onPreferenceClick( Preference preference ) {
+
+    					// Displays the list of configured location profiles.
+    					// Fires the locationChanged event when the user selects a
+    					// location even if the user selects the same location already 
+    					// selected.
+    					selectPlaybackProfile( context, awayPlaybackProfiles, LocationType.AWAY, new PlaybackProfileChangedEventListener() {
+
+    						@Override
+    						public void defaultPlaybackProfileChanged() {
+    							// reset preference list with updated selection
+    							setupPreferences( context );
+    						}
+
+    					} );
+    					
+    					return true;
+    				}
+    			});
+
+    		}
+    		
+			Log.v( TAG, "setupPreferences : exit" );
+		}
+
 	}
 	
 }

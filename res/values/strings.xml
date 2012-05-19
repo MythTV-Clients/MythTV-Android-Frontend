@@ -53,10 +53,13 @@
 	<string name="preference_home_profiles_scan_error_message">MythTV could not be found on your network.  Please make sure you are connected to Wifi on your Home Network.</string>
 			
 	<string name="preference_home_playback_profiles">Home Playback Profiles</string>
+	<string name="preference_home_playback_profiles_summary">Modify your home playback profile settings</string>
+	<string name="preference_home_playback_profiles_select">Select Home Playback Profile</string>
 	<string name="preference_home_playback_profiles_default">Selected Home Playback Profile</string>
 	<string name="preference_home_playback_profiles_modify">Modify Home Playback Profiles</string>
 	<string name="preference_home_playback_profiles_modify_summary">Edit audio and video home playback profiles</string>
-			
+	<string name="preference_home_playback_profiles_saved">Configured Home Playback Profiles</string>
+					
 	<string name="preference_away_profiles">Away Profiles</string>
 	<string name="preference_away_profiles_summary">Modify your home profile settings</string>
 	<string name="preference_away_profiles_select">Select Away Profile</string>
@@ -68,17 +71,40 @@
 	<string name="preference_away_profiles_add_summary">Add a new Master Backend Profile not on your home network.</string>
 	<string name="preference_away_profiles_delete">Delete Away Profile</string>
 	<string name="preference_away_profiles_delete_summary">Delete an existing Master Backend Profile.</string>
+
 	<string name="preference_away_playback_profiles">Away Playback Profiles</string>
+	<string name="preference_away_playback_profiles_summary">Modify your away playback profile settings</string>
+	<string name="preference_away_playback_profiles_select">Select Away Playback Profile</string>
 	<string name="preference_away_playback_profiles_default">Selected Away Playback Profile</string>
 	<string name="preference_away_playback_profiles_modify">Modify Away Playback Profiles</string>
 	<string name="preference_away_playback_profiles_modify_summary">Edit audio and video away playback profiles</string>
-	
+	<string name="preference_away_playback_profiles_saved">Configured Away Playback Profiles</string>
+			
 	<string name="preference_location_profile_text_view_name">Name:</string>
 	<string name="preference_location_profile_edit_text_name_hint">Home or 3G, etc.</string>
 	<string name="preference_location_profile_text_view_name_error_invalid">Invalid Name</string>
 	<string name="preference_location_profile_text_view_url">MythTV Master Backend Address:</string>
 	<string name="preference_location_profile_edit_text_url_hint">http://192.168.10.200:6544/</string>
 	<string name="preference_location_profile_text_view_url_error_invalid">Invalid MythTV Master Backend Address</string>
+		
+	<string name="preference_playback_profile_text_view_name">Name:</string>
+	<string name="preference_playback_profile_edit_text_name_hint">High Quality</string>
+	<string name="preference_playback_profile_text_view_name_error_invalid">Invalid Name</string>
+	<string name="preference_playback_profile_text_view_width">Width:</string>
+	<string name="preference_playback_profile_edit_text_width_hint">Width in pixels</string>
+	<string name="preference_playback_profile_text_view_width_error_invalid">Invalid Width</string>
+	<string name="preference_playback_profile_text_view_height">Height:</string>
+	<string name="preference_playback_profile_edit_text_height_hint">Height in pixels</string>
+	<string name="preference_playback_profile_text_view_height_error_invalid">Invalid Height</string>
+	<string name="preference_playback_profile_text_view_video_bitrate">Video Bitrate:</string>
+	<string name="preference_playback_profile_edit_text_video_bitrate_hint">Video Bitrate</string>
+	<string name="preference_playback_profile_text_view_video_bitrate_error_invalid">Invalid Video Bitrate</string>
+	<string name="preference_playback_profile_text_view_audio_bitrate">Audio Bitrate:</string>
+	<string name="preference_playback_profile_edit_text_audio_bitrate_hint">Audio Bitrate</string>
+	<string name="preference_playback_profile_text_view_audio_bitrate_error_invalid">Invalid Audio Bitrate</string>
+	<string name="preference_playback_profile_text_view_sample_rate">Audio Sample Rate:</string>
+	<string name="preference_playback_profile_edit_text_sample_rate_hint">Audio Sample Rate</string>
+	<string name="preference_playback_profile_text_view_sample_rate_error_invalid">Invalid Sample Rate</string>
 		
 	<string name="preference_edit_error_dialog_title">Error</string>
 	
