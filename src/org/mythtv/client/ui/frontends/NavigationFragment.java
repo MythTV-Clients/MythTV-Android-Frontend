@@ -74,7 +74,7 @@ public class NavigationFragment extends Fragment implements OnClickListener  {
 			break;
 			
 		case R.id.imageButton_nav_cancel:
-			new SendActionTask().execute(fe.getUrl(), "CANCEL");
+			new SendActionTask().execute(fe.getUrl(), "ESCAPE");
 			break;
 			
 		case R.id.imageButton_nav_down:
