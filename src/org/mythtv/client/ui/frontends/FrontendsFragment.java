@@ -90,6 +90,9 @@ public class FrontendsFragment extends Fragment implements ServiceListener, OnIt
 		super.onCreate(savedInstanceState);
 
 		// setRetainInstance( true );
+		
+		adapter = new FrontendAdapter(getActivity(), R.layout.frontend_row, frontends);
+		//adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
 		Log.v(TAG, "onCreate : exit");
 	}
@@ -101,9 +104,6 @@ public class FrontendsFragment extends Fragment implements ServiceListener, OnIt
 		View view =  inflater.inflate(R.layout.fragment_frontends, container, false);
 		
 		Spinner spinner = (Spinner)view.findViewById(R.id.spinner_frontends);
-
-		adapter = new FrontendAdapter(getActivity(), R.layout.frontend_row, frontends);
-		//adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		spinner.setAdapter(adapter);
 		spinner.setOnItemSelectedListener(this);
 		
@@ -203,14 +203,21 @@ public class FrontendsFragment extends Fragment implements ServiceListener, OnIt
 				+ ("http://" + hostname + ":" + port + "/"));
 
 		// Dont' do both adds
-		Frontend fe = new Frontend(event.getName(), "http://" + hostname + ":"
+		final Frontend fe = new Frontend(event.getName(), "http://" + hostname + ":"
 				+ port + "/");
 		
-		frontends.add(fe);
-		//adapter.add(fe);
+		
+		this.getActivity().runOnUiThread(new Runnable(){
 
+			@Override
+			public void run() {
+				//frontends.add(fe);
+				adapter.add(fe);
+			}});
+		
 		Log.v(TAG, "serviceAdded : exit");
 	}
+
 
 	/*
 	 * (non-Javadoc)
