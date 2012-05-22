@@ -45,11 +45,13 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-public class FrontendsFragment extends Fragment implements ServiceListener {
+public class FrontendsFragment extends Fragment implements ServiceListener, OnItemSelectedListener {
 
 	private final static String TAG = FrontendsFragment.class.getSimpleName();
 
@@ -60,6 +62,7 @@ public class FrontendsFragment extends Fragment implements ServiceListener {
 	
 
 	private List<Frontend> frontends = new ArrayList<Frontend>();
+	private Frontend selectedFrontend;
 
 	private static JmDNS zeroConf = null;
 	private static MulticastLock mLock = null;
@@ -102,6 +105,7 @@ public class FrontendsFragment extends Fragment implements ServiceListener {
 		adapter = new FrontendAdapter(getActivity(), R.layout.frontend_row, frontends);
 		//adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		spinner.setAdapter(adapter);
+		spinner.setOnItemSelectedListener(this);
 		
 		return view;
 	}
@@ -146,6 +150,30 @@ public class FrontendsFragment extends Fragment implements ServiceListener {
 	// public interface OnFrontendListener {
 	// void onFrontendSelected( List<Frontend> frontend );
 	// }
+	
+	
+	@Override
+	public void onItemSelected(AdapterView<?> arg0, View arg1,
+			int arg2, long arg3) {
+		Log.d(TAG, "Frontend Spinner Item Selected");
+		
+		//leave if we don't have frontends, should never happen
+		if(frontends.size() <= 0){
+			Log.e(TAG, "Frontend selected but no frontends in ArrayList");
+			return;
+		}
+		
+		//set selected frontend
+		if(arg2 > 0 && arg2 < frontends.size()){
+			selectedFrontend = frontends.get(arg2);
+		}
+	}
+
+	@Override
+	public void onNothingSelected(AdapterView<?> arg0) {
+		Log.d(TAG, "Frontend Spinner Item Nothing Selected");
+	}
+	
 
 	// ***************************************
 	// JMDNS ServiceListener methods
@@ -174,12 +202,12 @@ public class FrontendsFragment extends Fragment implements ServiceListener {
 		Log.v(TAG, "serviceAdded : masterbackend="
 				+ ("http://" + hostname + ":" + port + "/"));
 
-// Dont' do both adds
-		frontends.add(new Frontend(event.getName(), "http://" + hostname + ":"
-				+ port + "/"));
+		// Dont' do both adds
+		//frontends.add(new Frontend(event.getName(), "http://" + hostname + ":"
+		//		+ port + "/"));
 
-//		adapter.add(new Frontend(event.getName(), "http://" + hostname + ":"
-//				+ port + "/"));
+		 adapter.add(new Frontend(event.getName(), "http://" + hostname + ":"
+		 + port + "/"));
 
 		Log.v(TAG, "serviceAdded : exit");
 	}
@@ -213,12 +241,23 @@ public class FrontendsFragment extends Fragment implements ServiceListener {
 
 	// internal helpers
 
+	/**
+	 * 
+	 */
 	public void scanForFrontends() {
 		Log.v(TAG, "scanForFrontends : enter");
 
 		new ScanFrontendsTask().execute();
 
 		Log.v(TAG, "scanForFrontends : exit");
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public Frontend getSelectedFrontend(){
+		return selectedFrontend;
 	}
 
 	private class ScanFrontendsTask extends AsyncTask<Void, Void, Void> {
@@ -340,17 +379,17 @@ public class FrontendsFragment extends Fragment implements ServiceListener {
 
 //		 @Override
 //		 public int getCount() {
-//		 return frontends.size();
+//			 return frontends.size();
 //		 }
 //		
 //		 @Override
 //		 public Frontend getItem( int position ) {
-//		 return frontends.get( position );
+//			 return frontends.get( position );
 //		 }
 //		
 //		 @Override
 //		 public long getItemId( int position ) {
-//		 return position;
+//			 return position;
 //		 }
 		
 		@Override
@@ -381,7 +420,7 @@ public class FrontendsFragment extends Fragment implements ServiceListener {
 				holder = new FrontendHolder();
 				holder.name = (TextView) row.findViewById(R.id.frontend_name);
 				holder.url = (TextView) row.findViewById(R.id.frontend_url);
-
+				
 				row.setTag(holder);
 			} else {
 				holder = (FrontendHolder) row.getTag();
