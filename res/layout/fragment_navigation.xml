@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:weightSum="100">
+    
+    
+    <TableRow android:layout_weight="33"
+        android:weightSum="100">
+    
+	     <ImageButton
+	        android:id="@+id/imageButton_nav_info"
+	        android:layout_width="match_parent"
+	        android:layout_height="match_parent"
+	        android:src="@android:drawable/btn_star"
+	        android:layout_weight="33" />
+	
+	    <ImageButton
+	        android:id="@+id/imageButton_nav_up"
+	        android:layout_width="match_parent"
+	        android:layout_height="match_parent"
+	        android:src="@android:drawable/btn_star"
+	        android:layout_weight="33" />
+	    
+	    <ImageButton
+	        android:id="@+id/imageButton_nav_tvguide"
+	        android:layout_width="match_parent"
+	        android:layout_height="match_parent"
+	        android:src="@android:drawable/btn_star"
+	        android:layout_weight="33" />
+    
+    </TableRow>
+    
+    
+    <TableRow android:layout_weight="33"
+        android:weightSum="100">
+    
+	     <ImageButton
+	        android:id="@+id/imageButton_nav_left"
+	        android:layout_width="match_parent"
+	        android:layout_height="match_parent"
+	        android:src="@android:drawable/btn_star"
+	        android:layout_weight="33" />
+	
+	    <ImageButton
+	        android:id="@+id/imageButton_nav_select"
+	        android:layout_width="match_parent"
+	        android:layout_height="match_parent"
+	        android:src="@android:drawable/btn_star"
+	        android:layout_weight="33" />
+	    
+	    <ImageButton
+	        android:id="@+id/imageButton_nav_right"
+	        android:layout_width="match_parent"
+	        android:layout_height="match_parent"
+	        android:src="@android:drawable/btn_star"
+	        android:layout_weight="33" />
+    
+    </TableRow>
+    
+    <TableRow android:layout_weight="33"
+        android:weightSum="100">
+    
+	     <ImageButton
+	        android:id="@+id/imageButton_nav_cancel"
+	        android:layout_width="match_parent"
+	        android:layout_height="match_parent"
+	        android:src="@android:drawable/btn_star"
+	        android:layout_weight="33" />
+	
+	    <ImageButton
+	        android:id="@+id/imageButton_nav_down"
+	        android:layout_width="match_parent"
+	        android:layout_height="match_parent"
+	        android:src="@android:drawable/btn_star"
+	        android:layout_weight="33" />
+	    
+	    <ImageButton
+	        android:id="@+id/imageButton_nav_menu"
+	        android:layout_width="match_parent"
+	        android:layout_height="match_parent"
+	        android:src="@android:drawable/btn_star"
+	        android:layout_weight="33" />
+    
+    </TableRow>
+    
+    
+    
+</TableLayout>

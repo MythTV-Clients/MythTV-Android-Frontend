@@ -31,5 +31,9 @@
     	android:id="@+id/frontends_fragment"
     	android:layout_width="fill_parent"
     	android:layout_height="wrap_content" />
-
+	
+	<fragment android:name="org.mythtv.client.ui.frontends.NavigationFragment"
+    	android:id="@+id/navigation_fragment"
+    	android:layout_width="fill_parent"
+    	android:layout_height="fill_parent" />
 </LinearLayout>

@@ -74,9 +74,11 @@ public class FrontendTemplate extends AbstractFrontendOperations implements Fron
 
 		LinkedMultiValueMap<String, String> parameters = new LinkedMultiValueMap<String, String>();
 		parameters.add( "Action", action );
-		parameters.add( "File", file );
-		parameters.add( "Width", "" + width );
-		parameters.add( "Height", "" + height );
+		if(null != file) parameters.add( "File", file );
+		if(width > 0 && height > 0){
+			parameters.add( "Width", "" + width );
+			parameters.add( "Height", "" + height );
+		}
 
 		ResponseEntity<Boolean> responseEntity = restTemplate.exchange( buildUri( frontedApiUrlBase + "/Frontend/SendAction", parameters ), HttpMethod.GET, getRequestEntity(), Boolean.class );
 		Boolean sent = responseEntity.getBody();
