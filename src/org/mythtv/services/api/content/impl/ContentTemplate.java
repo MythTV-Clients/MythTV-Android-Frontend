@@ -21,7 +21,6 @@
  */
 package org.mythtv.services.api.content.impl;
 
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -44,8 +43,6 @@ import org.springframework.web.client.RestTemplate;
  */
 public class ContentTemplate extends AbstractContentOperations implements ContentOperations {
 
-	private static final SimpleDateFormat sdf = new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ss" );
-	
 	private final RestTemplate restTemplate;
 	
 	public ContentTemplate( RestTemplate restTemplate, String apiUrlBase ) {
@@ -61,7 +58,6 @@ public class ContentTemplate extends AbstractContentOperations implements Conten
 		
 		LinkedMultiValueMap<String, String> parameters = new LinkedMultiValueMap<String, String>();
 		parameters.add( "FileName", "" + filename );
-		
 		
 		if( storageGroup != null ) {
 			parameters.add( "StorageGroup", "" + storageGroup );
