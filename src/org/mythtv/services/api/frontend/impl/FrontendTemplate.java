@@ -21,6 +21,7 @@
  */
 package org.mythtv.services.api.frontend.impl;
 
+import org.mythtv.services.api.frontend.Bool;
 import org.mythtv.services.api.frontend.FrontendActionList;
 import org.mythtv.services.api.frontend.FrontendOperations;
 import org.mythtv.services.api.frontend.FrontendStatus;
@@ -60,10 +61,10 @@ public class FrontendTemplate extends AbstractFrontendOperations implements Fron
 	@Override
 	public boolean sendMessage( String frontedApiUrlBase, String message ) {
 
-		ResponseEntity<Boolean> responseEntity = restTemplate.exchange( frontedApiUrlBase + "/Frontend/SendMessage", HttpMethod.GET, getRequestEntity(), Boolean.class );
-		Boolean sent = responseEntity.getBody();
+		ResponseEntity<Bool> responseEntity = restTemplate.exchange( frontedApiUrlBase + "/Frontend/SendMessage", HttpMethod.GET, getRequestEntity(), Bool.class );
+		Bool sent = responseEntity.getBody();
 
-		return sent;
+		return sent.getBool();
 	}
 
 	/* (non-Javadoc)
@@ -80,10 +81,10 @@ public class FrontendTemplate extends AbstractFrontendOperations implements Fron
 			parameters.add( "Height", "" + height );
 		}
 
-		ResponseEntity<Boolean> responseEntity = restTemplate.exchange( buildUri( frontedApiUrlBase + "/Frontend/SendAction", parameters ), HttpMethod.GET, getRequestEntity(), Boolean.class );
-		Boolean sent = responseEntity.getBody();
+		ResponseEntity<Bool> responseEntity = restTemplate.exchange( buildUri( frontedApiUrlBase + "/Frontend/SendAction", parameters ), HttpMethod.GET, getRequestEntity(), Bool.class );
+		Bool sent = responseEntity.getBody();
 
-		return sent;
+		return sent.getBool();		
 	}
 
 	/* (non-Javadoc)

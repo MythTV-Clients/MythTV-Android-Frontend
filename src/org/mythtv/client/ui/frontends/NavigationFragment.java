@@ -1,10 +1,14 @@
 package org.mythtv.client.ui.frontends;
 
+import java.util.List;
+
 import org.mythtv.R;
 import org.mythtv.client.MainApplication;
+import org.mythtv.services.api.dvr.Program;
 import org.mythtv.services.api.frontend.FrontendOperations;
 
 import android.support.v4.app.Fragment;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -44,35 +48,41 @@ public class NavigationFragment extends Fragment implements OnClickListener  {
 		//exit if we don't have a frontend
 		if(null == fe) return;
 		
-		final FrontendOperations fOps = getApplicationContext().getMythServicesApi().frontendOperations();
-		
 		switch(v.getId()){
 		case R.id.imageButton_nav_info:
-			fOps.sendAction(fe.getUrl(), "INFO", null, 0, 0);
+			new SendActionTask().execute(fe.getUrl(), "INFO");
 			break;
 			
 		case R.id.imageButton_nav_up:
+			new SendActionTask().execute(fe.getUrl(), "UP");
 			break;
 			
 		case R.id.imageButton_nav_tvguide:
+			new SendActionTask().execute(fe.getUrl(), "GUIDE");
 			break;
 			
 		case R.id.imageButton_nav_left:
+			new SendActionTask().execute(fe.getUrl(), "LEFT");
 			break;
 			
 		case R.id.imageButton_nav_select:
+			new SendActionTask().execute(fe.getUrl(), "SELECT");
 			break;
 			
 		case R.id.imageButton_nav_right:
+			new SendActionTask().execute(fe.getUrl(), "RIGHT");
 			break;
 			
 		case R.id.imageButton_nav_cancel:
+			new SendActionTask().execute(fe.getUrl(), "CANCEL");
 			break;
 			
 		case R.id.imageButton_nav_down:
+			new SendActionTask().execute(fe.getUrl(), "DOWN");
 			break;
 			
 		case R.id.imageButton_nav_menu:
+			new SendActionTask().execute(fe.getUrl(), "MENU");
 			break;
 		};
 		
@@ -80,6 +90,23 @@ public class NavigationFragment extends Fragment implements OnClickListener  {
 	
 	public MainApplication getApplicationContext() {
 		return (MainApplication) getActivity().getApplicationContext();
+	}
+	
+	/**
+	 * When calling execute there must be 2 paramters.
+	 * Frontend URL
+	 * Command
+	 * @author pot8oe
+	 *
+	 */
+	private class SendActionTask extends AsyncTask<String, Void, Void> {
+
+		@Override
+		protected Void doInBackground(String... params) {
+			getApplicationContext().getMythServicesApi().frontendOperations().sendAction(params[0], params[1], null, 0, 0);
+			return null;
+		}
+		
 	}
 	
 }

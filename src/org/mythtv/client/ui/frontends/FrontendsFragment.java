@@ -61,8 +61,8 @@ public class FrontendsFragment extends Fragment implements ServiceListener, OnIt
 	// private boolean persistentSelection = false;
 	
 
-	private List<Frontend> frontends = new ArrayList<Frontend>();
-	private Frontend selectedFrontend;
+	private static List<Frontend> frontends = new ArrayList<Frontend>();
+	private static Frontend selectedFrontend;
 
 	private static JmDNS zeroConf = null;
 	private static MulticastLock mLock = null;
@@ -164,7 +164,7 @@ public class FrontendsFragment extends Fragment implements ServiceListener, OnIt
 		}
 		
 		//set selected frontend
-		if(arg2 > 0 && arg2 < frontends.size()){
+		if(arg2 >= 0 && arg2 < frontends.size()){
 			selectedFrontend = frontends.get(arg2);
 		}
 	}
@@ -203,11 +203,11 @@ public class FrontendsFragment extends Fragment implements ServiceListener, OnIt
 				+ ("http://" + hostname + ":" + port + "/"));
 
 		// Dont' do both adds
-		//frontends.add(new Frontend(event.getName(), "http://" + hostname + ":"
-		//		+ port + "/"));
-
-		 adapter.add(new Frontend(event.getName(), "http://" + hostname + ":"
-		 + port + "/"));
+		Frontend fe = new Frontend(event.getName(), "http://" + hostname + ":"
+				+ port + "/");
+		
+		frontends.add(fe);
+		//adapter.add(fe);
 
 		Log.v(TAG, "serviceAdded : exit");
 	}
