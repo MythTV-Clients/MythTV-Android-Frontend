@@ -50,7 +50,10 @@ public class CaptureTemplate extends AbstractCaptureOperations implements Captur
 	 */
 	@Override
 	public int addCaptureCard( CaptureCard captureCard ) {
-		return restTemplate.postForObject( buildUri( "AddCaptureCard" ), convertCaptureCardToParameters( captureCard ), Integer.class );
+		ResponseEntity<Int> responseEntity = restTemplate.exchange( buildUri( "AddCaptureCard", convertCaptureCardToParameters( captureCard ) ), HttpMethod.GET, getRequestEntity(), Int.class );
+		Int integer = responseEntity.getBody();
+		
+		return integer.getInteger();
 	}
 
 	/* (non-Javadoc)
@@ -58,7 +61,10 @@ public class CaptureTemplate extends AbstractCaptureOperations implements Captur
 	 */
 	@Override
 	public int addCardInput( CardInput cardInput ) {
-		return restTemplate.postForObject( buildUri( "AddCardInput" ), convertCardInputToParameters( cardInput ), Integer.class );
+		ResponseEntity<Int> responseEntity = restTemplate.exchange( buildUri( "AddCardInput", convertCardInputToParameters( cardInput ) ), HttpMethod.GET, getRequestEntity(), Int.class );
+		Int integer = responseEntity.getBody();
+		
+		return integer.getInteger();
 	}
 
 	/* (non-Javadoc)
