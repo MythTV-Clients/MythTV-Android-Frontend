@@ -23,6 +23,7 @@ package org.mythtv.services.api.capture.impl;
 
 import java.util.List;
 
+import org.mythtv.services.api.Bool;
 import org.mythtv.services.api.capture.CaptureCard;
 import org.mythtv.services.api.capture.CaptureCardList;
 import org.mythtv.services.api.capture.CaptureOperations;

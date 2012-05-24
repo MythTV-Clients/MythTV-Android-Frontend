@@ -25,7 +25,6 @@ import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 
-import org.codehaus.jackson.annotate.JsonProperty;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -111,89 +110,5 @@ public abstract class AbstractOperations {
 	}
 
 	private static final LinkedMultiValueMap<String, String> EMPTY_PARAMETERS = new LinkedMultiValueMap<String, String>();
-
-	public class Bool {
-		
-		@JsonProperty( "bool" )
-		private Boolean bool;
-		
-		public Bool() { }
-
-		/**
-		 * @return the bool
-		 */
-		public Boolean getBool() {
-			return bool;
-		}
-
-		/**
-		 * @param bool the bool to set
-		 */
-		public void setBool( Boolean bool ) {
-			this.bool = bool;
-		}
-
-		/* (non-Javadoc)
-		 * @see java.lang.Object#toString()
-		 */
-		@Override
-		public String toString() {
-			StringBuilder builder = new StringBuilder();
-			
-			builder.append( "Bool [" );
-			
-			if( bool != null ) {
-				builder.append( "bool=" );
-				builder.append( bool );
-			}
-			
-			builder.append( "]" );
-		
-			return builder.toString();
-		}
-		
-	}
-	
-	public class Int {
-		
-		@JsonProperty( "int" )
-		private Integer integer;
-		
-		public Int() { }
-
-		/**
-		 * @return the integer
-		 */
-		public Integer getInteger() {
-			return integer;
-		}
-
-		/**
-		 * @param integer the integer to set
-		 */
-		public void setInteger( Integer integer ) {
-			this.integer = integer;
-		}
-
-		/* (non-Javadoc)
-		 * @see java.lang.Object#toString()
-		 */
-		@Override
-		public String toString() {
-			StringBuilder builder = new StringBuilder();
-			
-			builder.append( "Int [" );
-			
-			if( integer != null ) {
-				builder.append( "integer=" );
-				builder.append( integer );
-			}
-			
-			builder.append( "]" );
-		
-			return builder.toString();
-		}
-		
-	}
 
 }

@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import org.mythtv.services.api.Bool;
 import org.mythtv.services.api.content.ArtworkInfo;
 import org.mythtv.services.api.content.ArtworkInfos;
 import org.mythtv.services.api.content.ContentOperations;

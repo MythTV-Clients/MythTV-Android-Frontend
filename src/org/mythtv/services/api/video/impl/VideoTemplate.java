@@ -23,6 +23,7 @@ package org.mythtv.services.api.video.impl;
 
 import java.util.List;
 
+import org.mythtv.services.api.Bool;
 import org.mythtv.services.api.video.BlurayInfo;
 import org.mythtv.services.api.video.VideoLookup;
 import org.mythtv.services.api.video.VideoLookupList;
