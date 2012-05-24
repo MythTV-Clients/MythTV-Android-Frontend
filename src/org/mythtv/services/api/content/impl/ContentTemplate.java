@@ -186,10 +186,10 @@ public class ContentTemplate extends AbstractContentOperations implements Conten
 		parameters.add( "StorageGroup", storageGroup );
 		parameters.add( "URL", url );
 
-		ResponseEntity<Boolean> responseEntity = restTemplate.exchange( buildUri( "DownloadFile", parameters ), HttpMethod.GET, getRequestEntity(), Boolean.class );
-		boolean downloaded = responseEntity.getBody();
+		ResponseEntity<Bool> responseEntity = restTemplate.exchange( buildUri( "DownloadFile", parameters ), HttpMethod.GET, getRequestEntity(), Bool.class );
+		Bool bool = responseEntity.getBody();
 
-		return downloaded;
+		return bool.getBool();
 	}
 
 	/* (non-Javadoc)
@@ -503,10 +503,10 @@ public class ContentTemplate extends AbstractContentOperations implements Conten
 	@Override
 	public boolean removeLiveStream( int id ) {
 		
-		ResponseEntity<Boolean> responseEntity = restTemplate.exchange( buildUri( "RemoveLiveStream", "Id", "" + id ), HttpMethod.GET, getRequestEntity(), Boolean.class );
-		Boolean removed = responseEntity.getBody();
+		ResponseEntity<Bool> responseEntity = restTemplate.exchange( buildUri( "RemoveLiveStream", "Id", "" + id ), HttpMethod.GET, getRequestEntity(), Bool.class );
+		Bool bool = responseEntity.getBody();
 
-		return removed;
+		return bool.getBool();
 	}
 
 	/* (non-Javadoc)

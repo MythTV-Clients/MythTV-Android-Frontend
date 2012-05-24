@@ -112,7 +112,10 @@ public class CaptureTemplate extends AbstractCaptureOperations implements Captur
 		LinkedMultiValueMap<String, String> parameters = new LinkedMultiValueMap<String, String>();
 		parameters.add( "CardId", new String( "" + cardId ) );
 
-		return restTemplate.postForObject( buildUri( "RemoveCaptureCard" ), parameters, Boolean.class );
+		ResponseEntity<Bool> responseEntity = restTemplate.exchange( buildUri( "RemoveCaptureCard", parameters ), HttpMethod.GET, getRequestEntity(), Bool.class );
+		Bool bool = responseEntity.getBody();
+		
+		return bool.getBool();
 	}
 
 	/* (non-Javadoc)
@@ -123,7 +126,10 @@ public class CaptureTemplate extends AbstractCaptureOperations implements Captur
 		LinkedMultiValueMap<String, String> parameters = new LinkedMultiValueMap<String, String>();
 		parameters.add( "CardInputId", new String( "" + cardInputId ) );
 
-		return restTemplate.postForObject( buildUri( "RemoveCardInput" ), parameters, Boolean.class );
+		ResponseEntity<Bool> responseEntity = restTemplate.exchange( buildUri( "RemoveCardInput", parameters ), HttpMethod.GET, getRequestEntity(), Bool.class );
+		Bool bool = responseEntity.getBody();
+
+		return bool.getBool();
 	}
 
 	/* (non-Javadoc)
@@ -135,7 +141,10 @@ public class CaptureTemplate extends AbstractCaptureOperations implements Captur
 		parameters.add( "CardId", new String( "" + cardId ) );
 		parameters.add( setting, value );
 		
-		return restTemplate.postForObject( buildUri( "UpdateCaptureCard" ), parameters, Boolean.class );
+		ResponseEntity<Bool> responseEntity = restTemplate.exchange( buildUri( "UpdateCaptureCard", parameters ), HttpMethod.GET, getRequestEntity(), Bool.class );
+		Bool bool = responseEntity.getBody();
+
+		return bool.getBool();
 	}
 
 	/* (non-Javadoc)
@@ -147,7 +156,10 @@ public class CaptureTemplate extends AbstractCaptureOperations implements Captur
 		parameters.add( "CardInputId", new String( "" + cardInputId ) );
 		parameters.add( setting, value );
 		
-		return restTemplate.postForObject( buildUri( "UpdateCardInput" ), parameters, Boolean.class );
+		ResponseEntity<Bool> responseEntity = restTemplate.exchange( buildUri( "UpdateCardInput", parameters ), HttpMethod.GET, getRequestEntity(), Bool.class );
+		Bool bool = responseEntity.getBody();
+
+		return bool.getBool();
 	}
 
 	// internal helpers
