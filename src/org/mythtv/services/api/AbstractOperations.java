@@ -112,7 +112,7 @@ public abstract class AbstractOperations {
 
 	private static final LinkedMultiValueMap<String, String> EMPTY_PARAMETERS = new LinkedMultiValueMap<String, String>();
 
-	protected class Bool {
+	public class Bool {
 		
 		@JsonProperty( "bool" )
 		private Boolean bool;
@@ -154,7 +154,7 @@ public abstract class AbstractOperations {
 		
 	}
 	
-	protected class Int {
+	public class Int {
 		
 		@JsonProperty( "int" )
 		private Integer integer;
