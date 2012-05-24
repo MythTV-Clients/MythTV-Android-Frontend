@@ -1,14 +1,8 @@
 package org.mythtv.client.ui.frontends;
 
-import java.util.List;
 
 import org.mythtv.R;
-import org.mythtv.client.MainApplication;
-import org.mythtv.services.api.dvr.Program;
-import org.mythtv.services.api.frontend.FrontendOperations;
 
-import android.support.v4.app.Fragment;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,7 +10,7 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 
-public class NavigationFragment extends Fragment implements OnClickListener  {
+public class NavigationFragment extends AbstractFrontendFragment implements OnClickListener  {
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -88,25 +82,8 @@ public class NavigationFragment extends Fragment implements OnClickListener  {
 		
 	}
 	
-	public MainApplication getApplicationContext() {
-		return (MainApplication) getActivity().getApplicationContext();
-	}
 	
-	/**
-	 * When calling execute there must be 2 paramters.
-	 * Frontend URL
-	 * Command
-	 * @author pot8oe
-	 *
-	 */
-	private class SendActionTask extends AsyncTask<String, Void, Void> {
-
-		@Override
-		protected Void doInBackground(String... params) {
-			getApplicationContext().getMythServicesApi().frontendOperations().sendAction(params[0], params[1], null, 0, 0);
-			return null;
-		}
-		
-	}
+	
+	
 	
 }
