@@ -25,7 +25,6 @@ import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 
-import org.codehaus.jackson.annotate.JsonProperty;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
