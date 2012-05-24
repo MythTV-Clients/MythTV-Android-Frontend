@@ -24,9 +24,8 @@
   android:layout_width="match_parent"
   android:layout_height="match_parent"
   android:orientation="vertical"
-  android:weightSum="100"
->            
-
+  android:weightSum="100">
+  
 	<fragment android:name="org.mythtv.client.ui.frontends.FrontendsFragment"
     	android:id="@+id/frontends_fragment"
     	android:layout_width="fill_parent"
@@ -35,5 +34,13 @@
 	<fragment android:name="org.mythtv.client.ui.frontends.NavigationFragment"
     	android:id="@+id/navigation_fragment"
     	android:layout_width="fill_parent"
-    	android:layout_height="fill_parent" />
+    	android:layout_height="fill_parent"
+    	android:layout_weight="50" />
+	
+	<fragment android:name="org.mythtv.client.ui.frontends.MediaControlFragment"
+    	android:id="@+id/media_control_fragment"
+    	android:layout_width="fill_parent"
+    	android:layout_height="fill_parent"
+    	android:layout_weight="50" />
+	
 </LinearLayout>
