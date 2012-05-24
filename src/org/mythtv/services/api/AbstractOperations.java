@@ -22,9 +22,10 @@
 package org.mythtv.services.api;
 
 import java.net.URI;
+import java.text.SimpleDateFormat;
 import java.util.Collections;
 
-import org.springframework.http.ContentCodingType;
+import org.codehaus.jackson.annotate.JsonProperty;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -42,6 +43,8 @@ public abstract class AbstractOperations {
 	
 	private static final String TAG = AbstractOperations.class.getSimpleName();
 	
+	protected static final SimpleDateFormat sdf = new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ss" );
+
 	private final String apiUrlBase;
 
 	private HttpEntity<?> requestEntity;
@@ -109,4 +112,6 @@ public abstract class AbstractOperations {
 
 	private static final LinkedMultiValueMap<String, String> EMPTY_PARAMETERS = new LinkedMultiValueMap<String, String>();
 
+
 }
+

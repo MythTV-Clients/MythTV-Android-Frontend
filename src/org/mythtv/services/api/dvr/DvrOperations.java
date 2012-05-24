@@ -97,6 +97,13 @@ public interface DvrOperations {
 	/**
 	 * - GET
 	 * 
+	 * @return
+	 */
+	List<Encoder> getEncoderList();
+	
+	/**
+	 * - GET
+	 * 
 	 * @param startIndex
 	 * @param count
 	 * @return

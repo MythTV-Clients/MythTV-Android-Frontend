@@ -21,14 +21,17 @@
  */
 package org.mythtv.services.api.content.impl;
 
-import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import org.mythtv.services.api.Bool;
 import org.mythtv.services.api.content.ArtworkInfo;
+import org.mythtv.services.api.content.ArtworkInfos;
 import org.mythtv.services.api.content.ContentOperations;
 import org.mythtv.services.api.content.LiveStreamInfo;
 import org.mythtv.services.api.content.LiveStreamInfoWrapper;
+import org.mythtv.services.api.content.LiveStreamInfos;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
@@ -41,8 +44,6 @@ import org.springframework.web.client.RestTemplate;
  */
 public class ContentTemplate extends AbstractContentOperations implements ContentOperations {
 
-	private static final SimpleDateFormat sdf = new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ss" );
-	
 	private final RestTemplate restTemplate;
 	
 	public ContentTemplate( RestTemplate restTemplate, String apiUrlBase ) {
@@ -58,7 +59,6 @@ public class ContentTemplate extends AbstractContentOperations implements Conten
 		
 		LinkedMultiValueMap<String, String> parameters = new LinkedMultiValueMap<String, String>();
 		parameters.add( "FileName", "" + filename );
-		
 		
 		if( storageGroup != null ) {
 			parameters.add( "StorageGroup", "" + storageGroup );
@@ -143,8 +143,38 @@ public class ContentTemplate extends AbstractContentOperations implements Conten
 	 */
 	@Override
 	public LiveStreamInfo addVideoLiveStream( int id, int maxSegments, int width, int height, int bitrate, int audioBitrate, int sampleRate ) {
-		// TODO Auto-generated method stub
-		return null;
+		
+		LinkedMultiValueMap<String, String> parameters = new LinkedMultiValueMap<String, String>();
+		parameters.add( "Id", "" + id );
+		
+		if( maxSegments > 0 ) {
+			parameters.add( "MaxSegments", "" + maxSegments );
+		}
+
+		if( width > 0 ) {
+			parameters.add( "Width", "" + width );
+		}
+
+		if( height > 0 ) {
+			parameters.add( "Height", "" + height );
+		}
+
+		if( bitrate > 0 ) {
+			parameters.add( "Bitrate", "" + bitrate );
+		}
+
+		if( audioBitrate > 0 ) {
+			parameters.add( "AudioBitrate", "" + audioBitrate );
+		}
+
+		if( sampleRate > 0 ) {
+			parameters.add( "SampleRate", "" + sampleRate );
+		}
+
+		ResponseEntity<LiveStreamInfoWrapper> responseEntity = restTemplate.exchange( buildUri( "AddVideoLiveStream", parameters ), HttpMethod.GET, getRequestEntity(), LiveStreamInfoWrapper.class );
+		LiveStreamInfoWrapper wrapper = responseEntity.getBody();
+
+		return wrapper.getLiveStreamInfo();
 	}
 
 	/* (non-Javadoc)
@@ -152,8 +182,15 @@ public class ContentTemplate extends AbstractContentOperations implements Conten
 	 */
 	@Override
 	public boolean downloadFile( String url, String storageGroup ) {
-		// TODO Auto-generated method stub
-		return false;
+
+		LinkedMultiValueMap<String, String> parameters = new LinkedMultiValueMap<String, String>();
+		parameters.add( "StorageGroup", storageGroup );
+		parameters.add( "URL", url );
+
+		ResponseEntity<Bool> responseEntity = restTemplate.exchange( buildUri( "DownloadFile", parameters ), HttpMethod.GET, getRequestEntity(), Bool.class );
+		Bool bool = responseEntity.getBody();
+
+		return bool.getBool();
 	}
 
 	/* (non-Javadoc)
@@ -161,8 +198,22 @@ public class ContentTemplate extends AbstractContentOperations implements Conten
 	 */
 	@Override
 	public String getAlbumArt( int id, int width, int height ) {
-		// TODO Auto-generated method stub
-		return null;
+
+		LinkedMultiValueMap<String, String> parameters = new LinkedMultiValueMap<String, String>();
+		parameters.add( "Id", "" + id );
+		
+		if( width > 0 ) {
+			parameters.add( "Width", "" + width );
+		}
+
+		if( height > 0 ) {
+			parameters.add( "Height", "" + height );
+		}
+
+		ResponseEntity<String> responseEntity = restTemplate.exchange( buildUri( "GetAlbumArt", parameters ), HttpMethod.GET, getRequestEntity(), String.class );
+		String albumArt = responseEntity.getBody();
+
+		return albumArt;
 	}
 
 	/* (non-Javadoc)
@@ -189,8 +240,14 @@ public class ContentTemplate extends AbstractContentOperations implements Conten
 	 */
 	@Override
 	public List<String> getFileList( String storageGroup ) {
-		// TODO Auto-generated method stub
-		return null;
+
+		LinkedMultiValueMap<String, String> parameters = new LinkedMultiValueMap<String, String>();
+		parameters.add( "StorageGroup", storageGroup );
+		
+		ResponseEntity<String[]> responseEntity = restTemplate.exchange( buildUri( "GetFileList", parameters ), HttpMethod.GET, getRequestEntity(), String[].class );
+		List<String> urls = Arrays.asList( responseEntity.getBody() );
+
+		return urls;
 	}
 
 	/* (non-Javadoc)
@@ -198,17 +255,29 @@ public class ContentTemplate extends AbstractContentOperations implements Conten
 	 */
 	@Override
 	public List<LiveStreamInfo> getFilteredLiveStreamList( String filename ) {
-		// TODO Auto-generated method stub
-		return null;
+
+		LinkedMultiValueMap<String, String> parameters = new LinkedMultiValueMap<String, String>();
+		parameters.add( "FileName", filename );
+		
+		ResponseEntity<LiveStreamInfos> responseEntity = restTemplate.exchange( buildUri( "GetFilteredLiveStreamList", parameters ), HttpMethod.GET, getRequestEntity(), LiveStreamInfos.class );
+		LiveStreamInfos liveStreamInfos = responseEntity.getBody();
+
+		return liveStreamInfos.getLiveStreamInfos();
 	}
 
 	/* (non-Javadoc)
 	 * @see org.mythtv.services.api.content.ContentOperations#getHash(java.lang.String, java.lang.String)
 	 */
 	@Override
-	public String getHash( String storageGroup, String filename ) {
-		// TODO Auto-generated method stub
-		return null;
+ 	public String getHash( String storageGroup, String filename ) {
+		LinkedMultiValueMap<String, String> parameters = new LinkedMultiValueMap<String, String>();
+		parameters.add( "StorageGroup", storageGroup );
+		parameters.add( "FileName", filename );
+		
+		ResponseEntity<String> responseEntity = restTemplate.exchange( buildUri( "GetHash", parameters ), HttpMethod.GET, getRequestEntity(), String.class );
+		String hash = responseEntity.getBody();
+
+		return hash;
 	}
 
 	/* (non-Javadoc)
@@ -216,8 +285,23 @@ public class ContentTemplate extends AbstractContentOperations implements Conten
 	 */
 	@Override
 	public String getImageFile( String storageGroup, String filename, int width, int height ) {
-		// TODO Auto-generated method stub
-		return null;
+
+		LinkedMultiValueMap<String, String> parameters = new LinkedMultiValueMap<String, String>();
+		parameters.add( "StorageGroup", storageGroup );
+		parameters.add( "FileName", filename );
+		
+		if( width > 0 ) {
+			parameters.add( "Width", "" + width );
+		}
+
+		if( height > 0 ) {
+			parameters.add( "Height", "" + height );
+		}
+
+		ResponseEntity<String> responseEntity = restTemplate.exchange( buildUri( "GetImageFile", parameters ), HttpMethod.GET, getRequestEntity(), String.class );
+		String file = responseEntity.getBody();
+
+		return file;
 	}
 
 	/* (non-Javadoc)
@@ -228,7 +312,6 @@ public class ContentTemplate extends AbstractContentOperations implements Conten
 	
 		LinkedMultiValueMap<String, String> parameters = new LinkedMultiValueMap<String, String>();
 		parameters.add( "Id", "" + id );
-
 
 		ResponseEntity<LiveStreamInfoWrapper> responseEntity = restTemplate.exchange( buildUri( "GetLiveStream", parameters ), HttpMethod.GET, getRequestEntity(), LiveStreamInfoWrapper.class );
 		LiveStreamInfoWrapper wrapper = responseEntity.getBody();
@@ -241,8 +324,11 @@ public class ContentTemplate extends AbstractContentOperations implements Conten
 	 */
 	@Override
 	public List<LiveStreamInfo> getLiveStreamList() {
-		// TODO Auto-generated method stub
-		return null;
+
+		ResponseEntity<LiveStreamInfos> responseEntity = restTemplate.exchange( buildUri( "GetLiveStreamList" ), HttpMethod.GET, getRequestEntity(), LiveStreamInfos.class );
+		LiveStreamInfos liveStreamInfos = responseEntity.getBody();
+
+		return liveStreamInfos.getLiveStreamInfos();
 	}
 
 	/* (non-Javadoc)
@@ -250,8 +336,14 @@ public class ContentTemplate extends AbstractContentOperations implements Conten
 	 */
 	@Override
 	public String getMusic( int id ) {
-		// TODO Auto-generated method stub
-		return null;
+
+		LinkedMultiValueMap<String, String> parameters = new LinkedMultiValueMap<String, String>();
+		parameters.add( "Id", "" + id );
+
+		ResponseEntity<String> responseEntity = restTemplate.exchange( buildUri( "GetMusic", parameters ), HttpMethod.GET, getRequestEntity(), String.class );
+		String music = responseEntity.getBody();
+
+		return music;
 	}
 
 	/* (non-Javadoc)
@@ -259,8 +351,27 @@ public class ContentTemplate extends AbstractContentOperations implements Conten
 	 */
 	@Override
 	public String getPreviewImage( int channelId, Date startTime, int width, int height, int secondsIn ) {
-		// TODO Auto-generated method stub
-		return null;
+
+		LinkedMultiValueMap<String, String> parameters = new LinkedMultiValueMap<String, String>();
+		parameters.add( "ChanId", "" + channelId );
+		parameters.add( "StartTime", sdf.format( startTime ) );
+		
+		if( width > 0 ) {
+			parameters.add( "Width", "" + width );
+		}
+
+		if( height > 0 ) {
+			parameters.add( "Height", "" + height );
+		}
+
+		if( secondsIn > 0 ) {
+			parameters.add( "SecsIn", "" + secondsIn );
+		}
+
+		ResponseEntity<String> responseEntity = restTemplate.exchange( buildUri( "GetPreviewImage", parameters ), HttpMethod.GET, getRequestEntity(), String.class );
+		String previewImage = responseEntity.getBody();
+
+		return previewImage;
 	}
 
 	/* (non-Javadoc)
@@ -268,8 +379,18 @@ public class ContentTemplate extends AbstractContentOperations implements Conten
 	 */
 	@Override
 	public List<ArtworkInfo> getProgramArtworkList( String inetRef, int season ) {
-		// TODO Auto-generated method stub
-		return null;
+
+		LinkedMultiValueMap<String, String> parameters = new LinkedMultiValueMap<String, String>();
+		parameters.add( "Inetref", inetRef );
+		
+		if( season > 0 ) {
+			parameters.add( "Season", "" + season );
+		}
+
+		ResponseEntity<ArtworkInfos> responseEntity = restTemplate.exchange( buildUri( "GetProgramArtwork", parameters ), HttpMethod.GET, getRequestEntity(), ArtworkInfos.class );
+		ArtworkInfos artworkInfos = responseEntity.getBody();
+
+		return artworkInfos.getArtworkInfos();
 	}
 
 	/* (non-Javadoc)
@@ -277,8 +398,15 @@ public class ContentTemplate extends AbstractContentOperations implements Conten
 	 */
 	@Override
 	public String getRecording( int channelId, Date startTime ) {
-		// TODO Auto-generated method stub
-		return null;
+
+		LinkedMultiValueMap<String, String> parameters = new LinkedMultiValueMap<String, String>();
+		parameters.add( "ChanId", "" + channelId );
+		parameters.add( "StartTime", sdf.format( startTime ) );
+
+		ResponseEntity<String> responseEntity = restTemplate.exchange( buildUri( "GetRecording", parameters ), HttpMethod.GET, getRequestEntity(), String.class );
+		String recording = responseEntity.getBody();
+
+		return recording;
 	}
 
 	/* (non-Javadoc)
@@ -286,8 +414,30 @@ public class ContentTemplate extends AbstractContentOperations implements Conten
 	 */
 	@Override
 	public String getRecordingArtwork( String type, String inetRef, int season, int width, int height ) {
-		// TODO Auto-generated method stub
-		return null;
+
+		LinkedMultiValueMap<String, String> parameters = new LinkedMultiValueMap<String, String>();
+		parameters.add( "Inetref", inetRef );
+		
+		if( null != type && !"".equals( type ) ) {
+			parameters.add( "Type", type );
+		}
+
+		if( season > 0 ) {
+			parameters.add( "Season", "" + season );
+		}
+
+		if( width > 0 ) {
+			parameters.add( "Width", "" + width );
+		}
+
+		if( height > 0 ) {
+			parameters.add( "Height", "" + height );
+		}
+
+		ResponseEntity<String> responseEntity = restTemplate.exchange( buildUri( "GetRecordingArtwork", parameters ), HttpMethod.GET, getRequestEntity(), String.class );
+		String artworkInfo = responseEntity.getBody();
+
+		return artworkInfo;
 	}
 
 	/* (non-Javadoc)
@@ -295,8 +445,15 @@ public class ContentTemplate extends AbstractContentOperations implements Conten
 	 */
 	@Override
 	public List<ArtworkInfo> getRecordingArtworkList( int channelId, Date startTime ) {
-		// TODO Auto-generated method stub
-		return null;
+
+		LinkedMultiValueMap<String, String> parameters = new LinkedMultiValueMap<String, String>();
+		parameters.add( "ChanId", "" + channelId );
+		parameters.add( "StartTime", sdf.format( startTime ) );
+		
+		ResponseEntity<ArtworkInfos> responseEntity = restTemplate.exchange( buildUri( "GetRecordingArtworkList", parameters ), HttpMethod.GET, getRequestEntity(), ArtworkInfos.class );
+		ArtworkInfos artworkInfos = responseEntity.getBody();
+
+		return artworkInfos.getArtworkInfos();
 	}
 
 	/* (non-Javadoc)
@@ -304,8 +461,14 @@ public class ContentTemplate extends AbstractContentOperations implements Conten
 	 */
 	@Override
 	public String getVideo( int id ) {
-		// TODO Auto-generated method stub
-		return null;
+
+		LinkedMultiValueMap<String, String> parameters = new LinkedMultiValueMap<String, String>();
+		parameters.add( "Id", "" + id );
+		
+		ResponseEntity<String> responseEntity = restTemplate.exchange( buildUri( "GetVideo", parameters ), HttpMethod.GET, getRequestEntity(), String.class );
+		String video = responseEntity.getBody();
+
+		return video;
 	}
 
 	/* (non-Javadoc)
@@ -313,8 +476,26 @@ public class ContentTemplate extends AbstractContentOperations implements Conten
 	 */
 	@Override
 	public String getVideoArtwork( String type, int id, int width, int height ) {
-		// TODO Auto-generated method stub
-		return null;
+
+		LinkedMultiValueMap<String, String> parameters = new LinkedMultiValueMap<String, String>();
+		parameters.add( "Id", "" + id );
+		
+		if( null != type && !"".equals( type ) ) {
+			parameters.add( "Type", type );
+		}
+
+		if( width > 0 ) {
+			parameters.add( "Width", "" + width );
+		}
+
+		if( height > 0 ) {
+			parameters.add( "Height", "" + height );
+		}
+
+		ResponseEntity<String> responseEntity = restTemplate.exchange( buildUri( "GetVideoArtwork", parameters ), HttpMethod.GET, getRequestEntity(), String.class );
+		String artworkInfo = responseEntity.getBody();
+
+		return artworkInfo;
 	}
 
 	/* (non-Javadoc)
@@ -323,10 +504,10 @@ public class ContentTemplate extends AbstractContentOperations implements Conten
 	@Override
 	public boolean removeLiveStream( int id ) {
 		
-		ResponseEntity<Boolean> responseEntity = restTemplate.exchange( buildUri( "RemoveLiveStream", "Id", "" + id ), HttpMethod.GET, getRequestEntity(), Boolean.class );
-		Boolean removed = responseEntity.getBody();
+		ResponseEntity<Bool> responseEntity = restTemplate.exchange( buildUri( "RemoveLiveStream", "Id", "" + id ), HttpMethod.GET, getRequestEntity(), Bool.class );
+		Bool bool = responseEntity.getBody();
 
-		return removed;
+		return bool.getBool();
 	}
 
 	/* (non-Javadoc)

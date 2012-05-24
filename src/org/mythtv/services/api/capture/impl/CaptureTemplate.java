@@ -23,6 +23,7 @@ package org.mythtv.services.api.capture.impl;
 
 import java.util.List;
 
+import org.mythtv.services.api.Bool;
 import org.mythtv.services.api.capture.CaptureCard;
 import org.mythtv.services.api.capture.CaptureCardList;
 import org.mythtv.services.api.capture.CaptureOperations;
@@ -50,7 +51,10 @@ public class CaptureTemplate extends AbstractCaptureOperations implements Captur
 	 */
 	@Override
 	public int addCaptureCard( CaptureCard captureCard ) {
-		return restTemplate.postForObject( buildUri( "AddCaptureCard" ), convertCaptureCardToParameters( captureCard ), Integer.class );
+		ResponseEntity<Int> responseEntity = restTemplate.exchange( buildUri( "AddCaptureCard", convertCaptureCardToParameters( captureCard ) ), HttpMethod.GET, getRequestEntity(), Int.class );
+		Int integer = responseEntity.getBody();
+		
+		return integer.getInteger();
 	}
 
 	/* (non-Javadoc)
@@ -58,7 +62,10 @@ public class CaptureTemplate extends AbstractCaptureOperations implements Captur
 	 */
 	@Override
 	public int addCardInput( CardInput cardInput ) {
-		return restTemplate.postForObject( buildUri( "AddCardInput" ), convertCardInputToParameters( cardInput ), Integer.class );
+		ResponseEntity<Int> responseEntity = restTemplate.exchange( buildUri( "AddCardInput", convertCardInputToParameters( cardInput ) ), HttpMethod.GET, getRequestEntity(), Int.class );
+		Int integer = responseEntity.getBody();
+		
+		return integer.getInteger();
 	}
 
 	/* (non-Javadoc)
@@ -112,7 +119,10 @@ public class CaptureTemplate extends AbstractCaptureOperations implements Captur
 		LinkedMultiValueMap<String, String> parameters = new LinkedMultiValueMap<String, String>();
 		parameters.add( "CardId", new String( "" + cardId ) );
 
-		return restTemplate.postForObject( buildUri( "RemoveCaptureCard" ), parameters, Boolean.class );
+		ResponseEntity<Bool> responseEntity = restTemplate.exchange( buildUri( "RemoveCaptureCard", parameters ), HttpMethod.GET, getRequestEntity(), Bool.class );
+		Bool bool = responseEntity.getBody();
+		
+		return bool.getBool();
 	}
 
 	/* (non-Javadoc)
@@ -123,7 +133,10 @@ public class CaptureTemplate extends AbstractCaptureOperations implements Captur
 		LinkedMultiValueMap<String, String> parameters = new LinkedMultiValueMap<String, String>();
 		parameters.add( "CardInputId", new String( "" + cardInputId ) );
 
-		return restTemplate.postForObject( buildUri( "RemoveCardInput" ), parameters, Boolean.class );
+		ResponseEntity<Bool> responseEntity = restTemplate.exchange( buildUri( "RemoveCardInput", parameters ), HttpMethod.GET, getRequestEntity(), Bool.class );
+		Bool bool = responseEntity.getBody();
+
+		return bool.getBool();
 	}
 
 	/* (non-Javadoc)
@@ -135,7 +148,10 @@ public class CaptureTemplate extends AbstractCaptureOperations implements Captur
 		parameters.add( "CardId", new String( "" + cardId ) );
 		parameters.add( setting, value );
 		
-		return restTemplate.postForObject( buildUri( "UpdateCaptureCard" ), parameters, Boolean.class );
+		ResponseEntity<Bool> responseEntity = restTemplate.exchange( buildUri( "UpdateCaptureCard", parameters ), HttpMethod.GET, getRequestEntity(), Bool.class );
+		Bool bool = responseEntity.getBody();
+
+		return bool.getBool();
 	}
 
 	/* (non-Javadoc)
@@ -147,7 +163,10 @@ public class CaptureTemplate extends AbstractCaptureOperations implements Captur
 		parameters.add( "CardInputId", new String( "" + cardInputId ) );
 		parameters.add( setting, value );
 		
-		return restTemplate.postForObject( buildUri( "UpdateCardInput" ), parameters, Boolean.class );
+		ResponseEntity<Bool> responseEntity = restTemplate.exchange( buildUri( "UpdateCardInput", parameters ), HttpMethod.GET, getRequestEntity(), Bool.class );
+		Bool bool = responseEntity.getBody();
+
+		return bool.getBool();
 	}
 
 	// internal helpers

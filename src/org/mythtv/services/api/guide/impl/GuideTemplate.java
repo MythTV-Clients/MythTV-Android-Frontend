@@ -26,6 +26,9 @@ import java.util.Date;
 import org.mythtv.services.api.dvr.Program;
 import org.mythtv.services.api.guide.GuideOperations;
 import org.mythtv.services.api.guide.ProgramGuide;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 /**
@@ -46,8 +49,22 @@ public class GuideTemplate extends AbstractGuideOperations implements GuideOpera
 	 */
 	@Override
 	public String getChannelIcon( int channelId, int width, int height ) {
-		// TODO Auto-generated method stub
-		return null;
+
+		LinkedMultiValueMap<String, String> parameters = new LinkedMultiValueMap<String, String>();
+		parameters.add( "ChanId", "" + channelId );
+		
+		if( width > 0 ) {
+			parameters.add( "Width", "" + width );
+		}
+		
+		if( height > 0 ) {
+			parameters.add( "Height", "" + height );
+		}
+		
+		ResponseEntity<String> responseEntity = restTemplate.exchange( buildUri( "GetChannelIcon", parameters ), HttpMethod.GET, getRequestEntity(), String.class );
+		String icon = responseEntity.getBody();
+
+		return icon;
 	}
 
 	/* (non-Javadoc)
@@ -55,8 +72,18 @@ public class GuideTemplate extends AbstractGuideOperations implements GuideOpera
 	 */
 	@Override
 	public Program getProgramDetails( int channelId, Date startTime ) {
-		// TODO Auto-generated method stub
-		return null;
+
+		LinkedMultiValueMap<String, String> parameters = new LinkedMultiValueMap<String, String>();
+		parameters.add( "ChanId", "" + channelId );
+		
+		if( null != startTime ) {
+			parameters.add( "StartTime", sdf.format( startTime ) );
+		}
+
+		ResponseEntity<Program> responseEntity = restTemplate.exchange( buildUri( "GetProgramDetails", parameters ), HttpMethod.GET, getRequestEntity(), Program.class );
+		Program program = responseEntity.getBody();
+
+		return program;
 	}
 
 	/* (non-Javadoc)
@@ -64,8 +91,27 @@ public class GuideTemplate extends AbstractGuideOperations implements GuideOpera
 	 */
 	@Override
 	public ProgramGuide getProgramGuide( Date start, Date end, int startChannelId, int numberOfChannels, boolean details ) {
-		// TODO Auto-generated method stub
-		return null;
+
+		LinkedMultiValueMap<String, String> parameters = new LinkedMultiValueMap<String, String>();
+		parameters.add( "StartTime", sdf.format( start ) );
+		parameters.add( "EndTime", sdf.format( end ) );
+		
+		if( startChannelId > 0 ) {
+			parameters.add( "StartChanId", "" + startChannelId );
+		}
+
+		if( numberOfChannels > 0 ) {
+			parameters.add( "NumChannels", "" + numberOfChannels );
+		}
+
+		if( details ) {
+			parameters.add( "Details", Boolean.toString( details ) );
+		}
+
+		ResponseEntity<ProgramGuide> responseEntity = restTemplate.exchange( buildUri( "GetProgramGuide", parameters ), HttpMethod.GET, getRequestEntity(), ProgramGuide.class );
+		ProgramGuide programGuide = responseEntity.getBody();
+
+		return programGuide;
 	}
 	
 }
