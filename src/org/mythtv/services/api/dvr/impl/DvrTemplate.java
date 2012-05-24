@@ -24,6 +24,7 @@ package org.mythtv.services.api.dvr.impl;
 import java.util.Date;
 import java.util.List;
 
+import org.mythtv.services.api.Bool;
 import org.mythtv.services.api.dvr.DvrOperations;
 import org.mythtv.services.api.dvr.Encoder;
 import org.mythtv.services.api.dvr.EncoderList;

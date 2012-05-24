@@ -112,47 +112,6 @@ public abstract class AbstractOperations {
 
 	private static final LinkedMultiValueMap<String, String> EMPTY_PARAMETERS = new LinkedMultiValueMap<String, String>();
 
-	protected class Bool {
-		
-		@JsonProperty( "bool" )
-		private Boolean bool;
-		
-		public Bool() { }
-
-		/**
-		 * @return the bool
-		 */
-		public Boolean getBool() {
-			return bool;
-		}
-
-		/**
-		 * @param bool the bool to set
-		 */
-		public void setBool( Boolean bool ) {
-			this.bool = bool;
-		}
-
-		/* (non-Javadoc)
-		 * @see java.lang.Object#toString()
-		 */
-		@Override
-		public String toString() {
-			StringBuilder builder = new StringBuilder();
-			
-			builder.append( "Bool [" );
-			
-			if( bool != null ) {
-				builder.append( "bool=" );
-				builder.append( bool );
-			}
-			
-			builder.append( "]" );
-		
-			return builder.toString();
-		}
-		
-	}
 	
 	protected class Int {
 		
@@ -195,5 +154,5 @@ public abstract class AbstractOperations {
 		}
 		
 	}
-
 }
+
