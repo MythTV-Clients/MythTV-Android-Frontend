@@ -21,7 +21,6 @@
  */
 package org.mythtv.services.api.frontend.impl;
 
-import org.mythtv.services.api.frontend.Bool;
 import org.mythtv.services.api.frontend.FrontendActionList;
 import org.mythtv.services.api.frontend.FrontendOperations;
 import org.mythtv.services.api.frontend.FrontendStatus;
