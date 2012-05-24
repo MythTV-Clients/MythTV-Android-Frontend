@@ -23,30 +23,42 @@ package org.mythtv.client.ui.dvr;
 
 
 import org.mythtv.R;
-import org.mythtv.client.ui.BaseActivity;
+import org.mythtv.client.MainApplication;
 import org.mythtv.services.api.content.LiveStreamInfo;
 import org.mythtv.services.api.dvr.Program;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.MediaController;
-import android.widget.VideoView;
+// Enable this code to use vitamio: http://vov.io/vitamio/
+// Section 1 of 4
+/*import io.vov.vitamio.MediaPlayer;
+import io.vov.vitamio.MediaPlayer.OnPreparedListener;
+import io.vov.vitamio.MediaPlayer.OnSubtitleUpdateListener;
+import io.vov.vitamio.widget.MediaController;
+import io.vov.vitamio.widget.VideoView;*/
 
 /**
  * @author John Baab
  * 
  */
-public class VideoActivity extends BaseActivity {
+public class VideoActivity extends Activity {
 
 	private static final String TAG = VideoActivity.class.getSimpleName();
 
 	public static final String EXTRA_PROGRAM_GROUP_KEY = "org.mythtv.client.ui.dvr.programGroup.EXTRA_PROGRAM_GROUP_KEY";
 	private LiveStreamInfo info = null;
 	private ProgressDialog progressDialog;
+	private Boolean firstrun = true;
+	
+	public MainApplication getApplicationContext() {
+		return (MainApplication) super.getApplicationContext();
+	}
 
 	// ***************************************
 	// Activity methods
@@ -74,29 +86,64 @@ public class VideoActivity extends BaseActivity {
 		Log.v( TAG, "onCreate : exit" );
 	}
 	
+	protected void onDestroy() {
+		
+		Log.v( TAG, "onDestroy : enter" );
+		
+        super.onDestroy();
+
+        new RemoveStreamTask().execute();
+        
+        Log.v( TAG, "onDestroy : exit" );
+    }
+	
+	/*protected void onResume() {
+		
+		Log.v( TAG, "onResume : enter" );
+		
+		super.onResume();
+		
+		if (firstrun == false){
+			finish();
+		}
+		else{
+			firstrun = false;
+		}
+		
+		Log.v( TAG, "onResume : exit" );
+	}*/
+	
 	private void startVideo(){
 		
 		Log.v( TAG, "Starting Video" );
-	    
-		// replace me with the real url once the return is working
-	    //String url = "http://devimages.apple.com/iphone/samples/bipbop/gear1/prog_index.m3u8";
-		String url = getApplicationContext().getMasterBackend() + info.getRelativeUrl();
+		
+		String temp = getApplicationContext().getMasterBackend();
+		temp = temp.replaceAll("/$", "");
+		String url = temp + info.getRelativeUrl();
 	    Log.v( TAG, "URL: " + url );
-	    Log.v( TAG, "Height: " + info.getHeight() );
-	    VideoView videoView = (VideoView)findViewById(R.id.videoView);
 	    
-	    // This didn't help with the choppy video playback
-	    //videoView.isHardwareAccelerated();
-	    videoView.setVideoURI(Uri.parse(url));
-	    videoView.setMediaController(new MediaController(this));
+	    // Enable this code to use vitamio: http://vov.io/vitamio/
+	    // Section 2 of 4
+	    /*VideoView mVideoView = (VideoView) findViewById(R.id.surface_view);
+	    mVideoView.setVideoURI(Uri.parse(url));
+	    mVideoView.setMediaController(new MediaController(this));*/
 	    
 	    if (progressDialog!=null) {
 			progressDialog.dismiss();
 			progressDialog = null;
 		}
 	    
-	    videoView.requestFocus();
-	    videoView.start();
+	    // Disable this code to use vitamio: http://vov.io/vitamio/
+	    // Section 3 of 4
+	    Intent tostart = new Intent(Intent.ACTION_VIEW);
+	    tostart.setDataAndType(Uri.parse(url), "video/*");
+	    startActivity(tostart);
+	    
+	    
+	    // Enable this code to use vitamio: http://vov.io/vitamio/
+	    // Section 4 of 4
+	    /*mVideoView.requestFocus();
+	    mVideoView.start();*/
 	    
 	    Log.v( TAG, "Done Starting Video" );
 	
@@ -142,12 +189,12 @@ public class VideoActivity extends BaseActivity {
 
 		@Override
 		protected LiveStreamInfo doInBackground( Void... params ) {
-			Log.v( TAG, "doInBackground : enter" );
+			Log.v( TAG, "CreateStreamTask : enter" );
 
 			LiveStreamInfo lookup = null;
 
 			try {
-				Log.v( TAG, "doInBackground : lookup" );
+				Log.v( TAG, "CreateStreamTask : api" );
 				Program program = getApplicationContext().getCurrentProgram();
 				
 				//lookup = getApplicationContext().getMythServicesApi().contentOperations().
@@ -157,18 +204,18 @@ public class VideoActivity extends BaseActivity {
 				lookup = getApplicationContext().getMythServicesApi().contentOperations().
 						addLiveStream(null, program.getFilename(), null, -1, -1, -1, -1, -1, -1);
 			} catch( Exception e ) {
-				Log.v( TAG, "doInBackground : error" );
+				Log.v( TAG, "CreateStreamTask : error" );
 
 				this.e = e;
 			}
 
-			Log.v( TAG, "doInBackground : exit" );
+			Log.v( TAG, "CreateStreamTask : exit" );
 			return lookup;
 		}
 
 		@Override
 		protected void onPostExecute( LiveStreamInfo result ) {
-			Log.v( TAG, "onPostExecute : enter" );
+			Log.v( TAG, "CreateStreamTask onPostExecute : enter" );
 
 			if( null == e ) {
 				setLiveStreamInfo( result );
@@ -177,7 +224,7 @@ public class VideoActivity extends BaseActivity {
 				exceptionDialolg( e );
 			}
 
-			Log.v( TAG, "onPostExecute : exit" );
+			Log.v( TAG, "CreateStreamTask onPostExecute : exit" );
 		}
 	}
 	
@@ -187,12 +234,12 @@ public class VideoActivity extends BaseActivity {
 
 		@Override
 		protected LiveStreamInfo doInBackground( Void... params ) {
-			Log.v( TAG, "doInBackground : enter" );
+			Log.v( TAG, "UpdateStreamInfoTask : enter" );
 
 			LiveStreamInfo lookup = null;
 
 			try {
-				Log.v( TAG, "doInBackground : lookup" );
+				Log.v( TAG, "UpdateStreamInfoTask : api" );
 				lookup = info;
 				
 				while (lookup.getStatusInt() < 2 || lookup.getPercentComplete() < 1){
@@ -200,28 +247,65 @@ public class VideoActivity extends BaseActivity {
 					lookup = getApplicationContext().getMythServicesApi().contentOperations().getLiveStream(info.getId());
 				}
 			} catch( Exception e ) {
-				Log.v( TAG, "doInBackground : error" );
+				Log.v( TAG, "UpdateStreamInfoTask : error" );
 
 				this.e = e;
 			}
 
-			Log.v( TAG, "doInBackground : exit" );
+			Log.v( TAG, "UpdateStreamInfoTask : exit" );
 			return lookup;
 		}
 
 		@Override
 		protected void onPostExecute( LiveStreamInfo result ) {
-			Log.v( TAG, "onPostExecute : enter" );
+			Log.v( TAG, "UpdateStreamInfoTask onPostExecute : enter" );
 
 			if( null == e ) {
 				setLiveStreamInfo( result );
 			} else {
-				Log.e( TAG, "error creating live stream", e );
+				Log.e( TAG, "error updating live stream", e );
 				exceptionDialolg( e );
 			}
 
-			Log.v( TAG, "onPostExecute : exit" );
+			Log.v( TAG, "UpdateStreamInfoTask onPostExecute : exit" );
 		}
 	}
+	
+	private class RemoveStreamTask extends AsyncTask<Void, Void, LiveStreamInfo> {
+
+		private Exception e = null;
+
+		@Override
+		protected LiveStreamInfo doInBackground( Void... params ) {
+			Log.v( TAG, "RemoveStreamTask : enter" );
+
+			LiveStreamInfo lookup = null;
+
+			try {
+				Log.v( TAG, "RemoveStreamTask : api" );
+				getApplicationContext().getMythServicesApi().contentOperations().removeLiveStream(info.getId());
+			} catch( Exception e ) {
+				Log.v( TAG, "RemoveStreamTask : error" );
+
+				this.e = e;
+			}
+
+			Log.v( TAG, "RemoveStreamTask : exit" );
+			return lookup;
+		}
+
+		@Override
+		protected void onPostExecute( LiveStreamInfo result ) {
+			Log.v( TAG, "RemoveStreamTask onPostExecute : enter" );
+
+			if( null != e ) {
+				Log.e( TAG, "error removing live stream", e );
+				exceptionDialolg( e );
+			}
+
+			Log.v( TAG, "RemoveStreamTask onPostExecute : exit" );
+		}
+	}
+	
 
 }
