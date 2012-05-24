@@ -60,10 +60,10 @@ public class FrontendTemplate extends AbstractFrontendOperations implements Fron
 	@Override
 	public boolean sendMessage( String frontedApiUrlBase, String message ) {
 
-		ResponseEntity<Boolean> responseEntity = restTemplate.exchange( frontedApiUrlBase + "/Frontend/SendMessage", HttpMethod.GET, getRequestEntity(), Boolean.class );
-		Boolean sent = responseEntity.getBody();
+		ResponseEntity<Bool> responseEntity = restTemplate.exchange( frontedApiUrlBase + "/Frontend/SendMessage", HttpMethod.GET, getRequestEntity(), Bool.class );
+		Bool bool = responseEntity.getBody();
 
-		return sent;
+		return bool.getBool();
 	}
 
 	/* (non-Javadoc)
@@ -78,10 +78,10 @@ public class FrontendTemplate extends AbstractFrontendOperations implements Fron
 		parameters.add( "Width", "" + width );
 		parameters.add( "Height", "" + height );
 
-		ResponseEntity<Boolean> responseEntity = restTemplate.exchange( buildUri( frontedApiUrlBase + "/Frontend/SendAction", parameters ), HttpMethod.GET, getRequestEntity(), Boolean.class );
-		Boolean sent = responseEntity.getBody();
+		ResponseEntity<Bool> responseEntity = restTemplate.exchange( buildUri( frontedApiUrlBase + "/Frontend/SendAction", parameters ), HttpMethod.GET, getRequestEntity(), Bool.class );
+		Bool bool = responseEntity.getBody();
 
-		return sent;
+		return bool.getBool();
 	}
 
 	/* (non-Javadoc)

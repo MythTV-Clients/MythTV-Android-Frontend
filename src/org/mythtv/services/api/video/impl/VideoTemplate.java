@@ -57,10 +57,10 @@ public class VideoTemplate extends AbstractVideoOperations implements VideoOpera
 		parameters.add( "FileName", filename );
 		parameters.add( "HostName", hostname );
 
-		ResponseEntity<Boolean> responseEntity = restTemplate.exchange( buildUri( "AddVideo", parameters ), HttpMethod.GET, getRequestEntity(), Boolean.class );
-		Boolean added = responseEntity.getBody();
+		ResponseEntity<Bool> responseEntity = restTemplate.exchange( buildUri( "AddVideo", parameters ), HttpMethod.GET, getRequestEntity(), Bool.class );
+		Bool bool = responseEntity.getBody();
 
-		return added;
+		return bool.getBool();
 	}
 
 	/* (non-Javadoc)
@@ -171,10 +171,10 @@ public class VideoTemplate extends AbstractVideoOperations implements VideoOpera
 		LinkedMultiValueMap<String, String> parameters = new LinkedMultiValueMap<String, String>();
 		parameters.add( "Id", "" + id );
 		
-		ResponseEntity<Boolean> responseEntity = restTemplate.exchange( buildUri( "RemoveVideoFromDB", parameters ), HttpMethod.GET, getRequestEntity(), Boolean.class );
-		Boolean added = responseEntity.getBody();
+		ResponseEntity<Bool> responseEntity = restTemplate.exchange( buildUri( "RemoveVideoFromDB", parameters ), HttpMethod.GET, getRequestEntity(), Bool.class );
+		Bool bool = responseEntity.getBody();
 
-		return added;
+		return bool.getBool();
 	}
 	
 }
