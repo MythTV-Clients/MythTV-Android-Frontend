@@ -336,27 +336,37 @@ public class RecordingsFragment extends MythtvListFragment {
 
 			String programGroup = getItem( position );
 
-			List<Program> programsInProgramGroup = new ArrayList<Program>();
-			for( Integer index : recordingsInProgramGroups.get( programGroup ) ) {
-				Program program = programs.get( index );
-				Log.v( TAG, "getView : program=" + program );
-				
-				programsInProgramGroup.add( program );
-			}
-			
-			for( Program program : programsInProgramGroup ) {
-				if( !programGroupBanners.containsKey( programGroup ) && ( null != program.getArtwork() && null != program.getArtwork().getArtworkInfos() && !program.getArtwork().getArtworkInfos().isEmpty() ) ) {
+			if( !"All".equalsIgnoreCase( programGroup ) ) {
+				List<Program> programsInProgramGroup = new ArrayList<Program>();
+				for( Integer index : recordingsInProgramGroups.get( programGroup ) ) {
+					Program program = programs.get( index );
+					Log.v( TAG, "getView : program=" + program );
 
-					for( ArtworkInfo info : program.getArtwork().getArtworkInfos() ) {
-						if( info.getStorageGroup().equals( DownloadBannerImageTask.BANNERS_DIR ) ) {
+					programsInProgramGroup.add( program );
+				}
 
-							if( info.getUrl().indexOf( "FileName" ) != -1 ) { 
-								String filename = info.getUrl().substring( info.getUrl().indexOf( "FileName" ) );
+				for( Program program : programsInProgramGroup ) {
+					Log.v( TAG, "getView : programsInProgramGroup iteration" );
 
-								programGroupBanners.put( programGroup, null );
-								new DownloadBannerImageTask().execute( programGroup, filename.split( "=" )[ 1 ], row );
-								
-								break;
+					if( !programGroupBanners.containsKey( programGroup ) && ( null != program.getArtwork() && null != program.getArtwork().getArtworkInfos() && !program.getArtwork().getArtworkInfos().isEmpty() ) ) {
+						Log.v( TAG, "getView : programsInProgramGroup contains artwork" );
+
+						for( ArtworkInfo info : program.getArtwork().getArtworkInfos() ) {
+							Log.v( TAG, "getView : programsInProgramGroup artwork iteration" );
+
+							if( info.getStorageGroup().equals( DownloadBannerImageTask.BANNERS_DIR ) ) {
+								Log.v( TAG, "getView : programsInProgramGroup contains banner artwork" );
+
+								if( info.getUrl().indexOf( "FileName" ) != -1 ) { 
+									Log.v( TAG, "getView : downloading banner" );
+
+									String filename = info.getUrl().substring( info.getUrl().indexOf( "FileName" ) );
+
+									programGroupBanners.put( programGroup, null );
+									new DownloadBannerImageTask().execute( programGroup, filename.split( "=" )[ 1 ], row );
+
+									break;
+								}
 							}
 						}
 					}
@@ -364,6 +374,8 @@ public class RecordingsFragment extends MythtvListFragment {
 			}
 			
 			if( !programGroupBanners.containsKey( programGroup ) ) {
+				Log.v( TAG, "getView : programsInProgramGroup contains no artwork" );
+
 				TextView textView = (TextView) row.findViewById( R.id.program_group_row );
 				textView.setText( programGroup );
 			}
