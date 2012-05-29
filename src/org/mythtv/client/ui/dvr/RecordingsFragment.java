@@ -21,10 +21,13 @@
  */
 package org.mythtv.client.ui.dvr;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 
 import org.mythtv.R;
@@ -36,7 +39,6 @@ import android.app.AlertDialog;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -58,10 +60,8 @@ public class RecordingsFragment extends MythtvListFragment {
 	private OnProgramGroupListener listener = null;
 	private ProgramGroupAdapter adapter = null;
 
+	private List<ProgramGroup> programGroups;
 	private List<Program> programs;
-//	private List<String> programGroups;
-	private Map<String, List<Integer>> recordingsInProgramGroups;
-	private Map<String, Bitmap> programGroupBanners = new TreeMap<String, Bitmap>();
 	
 	@Override
 	public void onCreate( Bundle savedInstanceState ) {
@@ -105,16 +105,7 @@ public class RecordingsFragment extends MythtvListFragment {
 		super.onListItemClick( l, v, position, id );
 	    
 		if( null != listener ) {
-			if( "all".equalsIgnoreCase( adapter.getItem( position ) ) ) {
-				listener.onProgramGroupSelected( programs );
-			} else {
-				
-				List<Program> programsInProgramGroup = new ArrayList<Program>();
-				for( Integer index : recordingsInProgramGroups.get( adapter.getItem( position ) ) ) {
-					programsInProgramGroup.add( programs.get( index ) );
-				}
-				listener.onProgramGroupSelected( programsInProgramGroup );
-			}
+			listener.onProgramGroupSelected( adapter.getItem( position ).getRecordings() );
 		}
 
 		Log.v( TAG, "onListItemClick : exit" );
@@ -140,78 +131,94 @@ public class RecordingsFragment extends MythtvListFragment {
 		void onProgramGroupSelected( List<Program> programs );
 	}
 
-	private void setPrograms( List<Program> programs ) {
-		Log.v( TAG, "setPrograms : enter" );
-
-		this.programs = programs;
-		adapter = new ProgramGroupAdapter( recordingsInProgramGroups.keySet() );
-		setListAdapter( adapter );
-		
-		Log.v( TAG, "setPrograms : exit" );
-	}
-
-//	private void setProgramGroups( List<Program> programs ) {
-//		Log.v( TAG, "setProgramGroups : enter" );
-//		
-//		programGroups = new ArrayList<String>();
-//		
-//		String title;
-//		for( Program program : programs ) {
-//			Log.v( TAG, "setProgramGroups : program iteration" );
-//
-//			title = program.getTitle();
-//
-//			if( !programGroups.contains( title ) ) {
-//				Log.v( TAG, "setProgramGroups : adding program group" );
-//
-//				programGroups.add( title );
-//			}
-//		}
-//
-//		if( !programGroups.isEmpty() ) {
-//			Log.v( TAG, "setProgramGroups : sorting program groups" );
-//
-//			Collections.sort( programGroups, String.CASE_INSENSITIVE_ORDER );
-//		}
-//
-//		Log.v( TAG, "setProgramGroups : adding 'All' program group to start" );
-//		programGroups.add( 0, "All" );
-//				
-//		Log.v( TAG, "setProgramGroups : exit" );
-//	}
-	
 	private void setRecordingsInProgramGroups( List<Program> programs ) {
 		Log.v( TAG, "setRecordingsInProgramGroups : enter" );
 		
-		recordingsInProgramGroups = new TreeMap<String, List<Integer>>();
+		programGroups = new ArrayList<ProgramGroup>();
+		ProgramGroup all = new ProgramGroup();
+		all.setName( "All" );
+		all.setRecordings( programs );
+		programGroups.add( all );
 		
-		List<Integer> allRecordings = new ArrayList<Integer>();
+		Map<String, List<Program>>recordingsInProgramGroups = new TreeMap<String, List<Program>>();
 		
 		String title;
-		for( int i = 0; i < programs.size(); i++ ) {
+		for( Program program : programs ) {
 			Log.v( TAG, "setRecordingsInProgramGroups : program iteration" );
-			allRecordings.add( i );
-			
-			Program program = programs.get( i );
 			
 			title = program.getTitle();
-			Log.v( TAG, "setRecordingsInProgramGroups : program iteration" );
-			
+
 			if( !recordingsInProgramGroups.containsKey( title ) ) {
-				List<Integer> recordingsInThisProgramGroup = new ArrayList<Integer>();
-				recordingsInThisProgramGroup.add( i );
+				List<Program> recordingsInThisProgramGroup = new ArrayList<Program>();
+				recordingsInThisProgramGroup.add( program );
 				
 				Log.v( TAG, "setRecordingsInProgramGroups : adding new program group, title=" + title );
 				recordingsInProgramGroups.put( title, recordingsInThisProgramGroup );
 			} else {
 				Log.v( TAG, "setRecordingsInProgramGroups : updating program group, title=" + title );
 
-				recordingsInProgramGroups.get( title ).add( i );
+				recordingsInProgramGroups.get( title ).add( program );
 			}
 		}
+
+		for( String key : recordingsInProgramGroups.keySet() ) {
+			ProgramGroup programGroup = new ProgramGroup();
+			programGroup.setName( key );
+			programGroup.setRecordings( recordingsInProgramGroups.get( key ) );
+			
+			programGroups.add( programGroup );
+			
+			for( Program program : programGroup.getRecordings() ) {
+				Log.v( TAG, "getView : programsInProgramGroup iteration" );
+
+				if( null == programGroup.getBanner() && ( null != program.getArtwork() && null != program.getArtwork().getArtworkInfos() && !program.getArtwork().getArtworkInfos().isEmpty() ) ) {
+					Log.v( TAG, "getView : programsInProgramGroup contains artwork" );
+
+					File root = getActivity().getExternalCacheDir();
+
+					File pictureDir = new File( root, DownloadBannerImageTask.BANNERS_DIR );
+					pictureDir.mkdirs();
+
+					File f = new File( pictureDir, programGroup.getName() + ".png" );
+					if( f.exists() ) {
+						Log.v( TAG, "getView : loading banner from cache" );
+						
+						try {
+							InputStream is = new FileInputStream( f );
+							Bitmap bitmap = BitmapFactory.decodeStream( is );
+							programGroup.setBanner( new BitmapDrawable( bitmap ) );
+						} catch( Exception e ) {
+							Log.e( TAG, "getView : error reading file", e );
+						}
+						
+						break;
+					} else {
+						for( ArtworkInfo info : program.getArtwork().getArtworkInfos() ) {
+							Log.v( TAG, "getView : programsInProgramGroup artwork iteration" );
+
+							if( info.getStorageGroup().equals( DownloadBannerImageTask.BANNERS_DIR ) ) {
+								Log.v( TAG, "getView : programsInProgramGroup contains banner artwork" );
+
+								if( info.getUrl().indexOf( "FileName" ) != -1 ) { 
+									Log.v( TAG, "getView : downloading banner" );
+
+									String filename = info.getUrl().substring( info.getUrl().indexOf( "FileName" ) );
+
+									new DownloadBannerImageTask().execute( programGroup, filename.split( "=" )[ 1 ] );
+								}
+
+								break;
+							}
+						}
+					}
+				}
+			}
+
+		}
 		
-		recordingsInProgramGroups.put( "All", allRecordings );
-		
+		adapter = new ProgramGroupAdapter( programGroups );
+		setListAdapter( adapter );
+
 		Log.v( TAG, "setRecordingsInProgramGroups : exit" );
 	}
 	
@@ -254,39 +261,16 @@ public class RecordingsFragment extends MythtvListFragment {
 			Log.v( TAG, "onPostExecute : enter" );
 
 			if( null == e ) {
-//				Map<String, String> banners = new HashMap<String, String>();
 
 				Log.v( TAG, "onPostExecute : filter livetv" );
 				List<Program> filteredResults = new ArrayList<Program>();
 				for( Program program : result ) {
 					if( !"livetv".equalsIgnoreCase( program.getRecording().getRecordingGroup() ) ) {
 						filteredResults.add( program );
-
-//						if( !banners.containsKey( program.getTitle() ) && ( null != program.getArtwork() && null != program.getArtwork().getArtworkInfos() && !program.getArtwork().getArtworkInfos().isEmpty() ) ) {
-//
-//							for( ArtworkInfo info : program.getArtwork().getArtworkInfos() ) {
-//								if( info.getStorageGroup().equals( DownloadBannerImageTask.BANNERS_DIR ) ) {
-//
-//									if( info.getUrl().indexOf( "FileName" ) != -1 ) { 
-//										String filename = info.getUrl().substring( info.getUrl().indexOf( "FileName" ) );
-//
-//										banners.put( program.getTitle(), ( filename.split( "=" ) )[1] );
-//									}
-//								}
-//							}
-//						}
 					}
 				}
 
-//				for( String key : banners.keySet() ) {
-//					Log.v( TAG, "onPostExecute : banner key=" + key + ", filename=" + banners.get( key ) );
-//
-//					new DownloadBannerImageTask().execute( banners.get( key ) );
-//				}
-			
-//				setProgramGroups( filteredResults );
 				setRecordingsInProgramGroups( filteredResults );
-				setPrograms( filteredResults );
 			} else {
 				Log.e( TAG, "error getting programs", e );
 				exceptionDialolg( e );
@@ -299,12 +283,12 @@ public class RecordingsFragment extends MythtvListFragment {
 
 	private class ProgramGroupAdapter extends BaseAdapter {
 		
-		List<String> programGroups = null;
+		List<ProgramGroup> programGroups = null;
 
-		ProgramGroupAdapter( Set<String> programGroups ) {
+		ProgramGroupAdapter( List<ProgramGroup> programGroups ) {
 			super();
 
-			this.programGroups = new ArrayList<String>( programGroups );
+			this.programGroups = programGroups;
 		}
 
 		@Override
@@ -313,7 +297,7 @@ public class RecordingsFragment extends MythtvListFragment {
 		}
 
 		@Override
-		public String getItem( int position ) {
+		public ProgramGroup getItem( int position ) {
 			return programGroups.get( position );
 		}
 
@@ -334,50 +318,22 @@ public class RecordingsFragment extends MythtvListFragment {
 				row = inflater.inflate( R.layout.program_group_row, parent, false );
 			}
 
-			String programGroup = getItem( position );
-
-			if( !"All".equalsIgnoreCase( programGroup ) ) {
-				List<Program> programsInProgramGroup = new ArrayList<Program>();
-				for( Integer index : recordingsInProgramGroups.get( programGroup ) ) {
-					Program program = programs.get( index );
-					Log.v( TAG, "getView : program=" + program );
-
-					programsInProgramGroup.add( program );
-				}
-
-				for( Program program : programsInProgramGroup ) {
-					Log.v( TAG, "getView : programsInProgramGroup iteration" );
-
-					if( !programGroupBanners.containsKey( programGroup ) && ( null != program.getArtwork() && null != program.getArtwork().getArtworkInfos() && !program.getArtwork().getArtworkInfos().isEmpty() ) ) {
-						Log.v( TAG, "getView : programsInProgramGroup contains artwork" );
-
-						for( ArtworkInfo info : program.getArtwork().getArtworkInfos() ) {
-							Log.v( TAG, "getView : programsInProgramGroup artwork iteration" );
-
-							if( info.getStorageGroup().equals( DownloadBannerImageTask.BANNERS_DIR ) ) {
-								Log.v( TAG, "getView : programsInProgramGroup contains banner artwork" );
-
-								if( info.getUrl().indexOf( "FileName" ) != -1 ) { 
-									Log.v( TAG, "getView : downloading banner" );
-
-									String filename = info.getUrl().substring( info.getUrl().indexOf( "FileName" ) );
-
-									programGroupBanners.put( programGroup, null );
-									new DownloadBannerImageTask().execute( programGroup, filename.split( "=" )[ 1 ], row );
-
-									break;
-								}
-							}
-						}
-					}
-				}
-			}
+			ProgramGroup programGroup = getItem( position );
+			Log.v( TAG, "getView : programGroup=" + programGroup.toString() );
 			
-			if( !programGroupBanners.containsKey( programGroup ) ) {
-				Log.v( TAG, "getView : programsInProgramGroup contains no artwork" );
+			TextView textView = (TextView) row.findViewById( R.id.program_group_row );
+			if( null == programGroup.getBanner() ) {
+				Log.v( TAG, "getView : programGroup contains no artwork" );
 
-				TextView textView = (TextView) row.findViewById( R.id.program_group_row );
-				textView.setText( programGroup );
+				row.setBackgroundDrawable( null );
+
+				textView.setText( programGroup.getName() );
+			} else {
+				Log.v( TAG, "getView : programGroup contains artwork" );
+
+				row.setBackgroundDrawable( programGroup.getBanner() );
+
+				textView.setText( "" );
 			}
 			
 			Log.v( TAG, "getView : exit" );
@@ -391,15 +347,13 @@ public class RecordingsFragment extends MythtvListFragment {
 		
 		private Exception e = null;
 
-		private String programGroup;
-		private View row;
+		private ProgramGroup programGroup;
 		
 		@Override
 		protected Bitmap doInBackground( Object... params ) {
 			Log.v( TAG, "doInBackground : enter" );
 
-			programGroup = (String) params[ 0 ];
-			row = (View) params[ 2 ];
+			programGroup = (ProgramGroup) params[ 0 ];
 			
 			Bitmap bitmap = null;
 
@@ -425,13 +379,30 @@ public class RecordingsFragment extends MythtvListFragment {
 			if( null == e ) {
 				Log.v( TAG, "onPostExecute : result size=" + result.getHeight() + "x" + result.getWidth() );
 
-				programGroupBanners.put( programGroup, result );
+				programGroup.setBanner( new BitmapDrawable( result ) );
 				
-				TextView textView = (TextView) row.findViewById( R.id.program_group_row );
-				textView.setText( "" );
-
-				Drawable drawable = new BitmapDrawable( result );
-				row.setBackgroundDrawable( drawable );
+		        try {
+		            File root = getActivity().getExternalCacheDir();
+		            
+		            File pictureDir = new File( root, BANNERS_DIR );
+		            pictureDir.mkdirs();
+		            
+		            File f = new File( pictureDir, programGroup.getName() + ".png" );
+	                if( f.exists() ) {
+		                return;
+		            }
+		
+	                if( !f.exists() ) {
+		                String name = f.getAbsolutePath();
+		                FileOutputStream fos = new FileOutputStream( name );
+		                result.compress( Bitmap.CompressFormat.PNG, 100, fos );
+		                fos.flush();
+		                fos.close();
+		            }
+		        } catch( Exception e ) {
+		        	Log.e( TAG, "error saving file", e );
+		        }
+		 
 			} else {
 				Log.e( TAG, "error getting programs", e );
 				exceptionDialolg( e );

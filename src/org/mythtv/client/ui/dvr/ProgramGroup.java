@@ -21,7 +21,11 @@
  */
 package org.mythtv.client.ui.dvr;
 
-import android.graphics.Bitmap;
+import java.util.List;
+
+import org.mythtv.services.api.dvr.Program;
+
+import android.graphics.drawable.Drawable;
 
 /**
  * @author Daniel Frey
@@ -30,8 +34,8 @@ import android.graphics.Bitmap;
 public class ProgramGroup implements Comparable<ProgramGroup> {
 
 	private String name;
-	private int count;
-	private Bitmap banner;
+	private List<Program> recordings;
+	private Drawable banner;
 	
 	public ProgramGroup() { }
 
@@ -50,30 +54,30 @@ public class ProgramGroup implements Comparable<ProgramGroup> {
 	}
 
 	/**
-	 * @return the count
+	 * @return the recordings
 	 */
-	public int getCount() {
-		return count;
+	public List<Program> getRecordings() {
+		return recordings;
 	}
 
 	/**
-	 * @param count the count to set
+	 * @param recordings the recordings to set
 	 */
-	public void setCount( int count ) {
-		this.count = count;
+	public void setRecordings( List<Program> recordings ) {
+		this.recordings = recordings;
 	}
 
 	/**
 	 * @return the banner
 	 */
-	public Bitmap getBanner() {
+	public Drawable getBanner() {
 		return banner;
 	}
 
 	/**
 	 * @param banner the banner to set
 	 */
-	public void setBanner( Bitmap banner ) {
+	public void setBanner( Drawable banner ) {
 		this.banner = banner;
 	}
 
@@ -142,15 +146,15 @@ public class ProgramGroup implements Comparable<ProgramGroup> {
 			builder.append( ", " );
 		}
 		
-		builder.append( "count=" );
-		builder.append( count );
-		builder.append( ", " );
-		
-		if( banner != null ) {
-			builder.append( "banner=" );
-			builder.append( banner.getWidth() + "x" + banner.getHeight() );
+		if( recordings != null ) {
+			builder.append( "recordings=" );
+			builder.append( recordings.size() );
+			builder.append( ", " );
 		}
 		
+		builder.append( "banner=" );
+		builder.append( null == banner ? "not set" : "set" );
+
 		builder.append( "]" );
 	
 		return builder.toString();
