@@ -14,16 +14,18 @@
  *  You should have received a copy of the GNU General Public License
  *  along with MythTV for Android.  If not, see <http://www.gnu.org/licenses/>.
  *   
- * @author Daniel Frey <dmfrey at gmail dot com>
+ * @author John Baab <rhpot1991@ubuntu.com>
  * 
  * This software can be found at <https://github.com/dmfrey/mythtv-for-android/>
  *
  */
 package org.mythtv.client.ui.dvr;
 
-
-import io.vov.vitamio.widget.MediaController;
-import io.vov.vitamio.widget.VideoView;
+	
+// Enable this code to use vitamio: http://vov.io/vitamio/
+// Section 1 of 4
+//import io.vov.vitamio.widget.MediaController;
+//import io.vov.vitamio.widget.VideoView;
 
 import org.mythtv.R;
 import org.mythtv.client.MainApplication;
@@ -33,6 +35,7 @@ import org.mythtv.services.api.dvr.Program;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -119,9 +122,9 @@ public class VideoActivity extends Activity {
 	    
 	    // Enable this code to use vitamio: http://vov.io/vitamio/
 	    // Section 2 of 4
-	    VideoView mVideoView = (VideoView) findViewById(R.id.surface_view);
+	    /*VideoView mVideoView = (VideoView) findViewById(R.id.surface_view);
 	    mVideoView.setVideoURI(Uri.parse(url));
-	    mVideoView.setMediaController(new MediaController(this));
+	    mVideoView.setMediaController(new MediaController(this));*/
 	    
 	    if (progressDialog!=null) {
 			progressDialog.dismiss();
@@ -130,15 +133,15 @@ public class VideoActivity extends Activity {
 	    
 	    // Disable this code to use vitamio: http://vov.io/vitamio/
 	    // Section 3 of 4
-	    //Intent tostart = new Intent(Intent.ACTION_VIEW);
-	    //tostart.setDataAndType(Uri.parse(url), "video/*");
-	    //startActivity(tostart);
+	    Intent tostart = new Intent(Intent.ACTION_VIEW);
+	    tostart.setDataAndType(Uri.parse(url), "video/*");
+	    startActivity(tostart);
 	    
 	    
 	    // Enable this code to use vitamio: http://vov.io/vitamio/
 	    // Section 4 of 4
-	    mVideoView.requestFocus();
-	    mVideoView.start();
+	    /*mVideoView.requestFocus();
+	    mVideoView.start();*/
 	    
 	    Log.v( TAG, "Done Starting Video" );
 	
