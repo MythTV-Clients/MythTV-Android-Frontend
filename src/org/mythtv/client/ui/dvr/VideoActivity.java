@@ -97,7 +97,7 @@ public class VideoActivity extends Activity {
         Log.v( TAG, "onDestroy : exit" );
     }
 	
-	/*protected void onResume() {
+	protected void onResume() {
 		
 		Log.v( TAG, "onResume : enter" );
 		
@@ -111,7 +111,7 @@ public class VideoActivity extends Activity {
 		}
 		
 		Log.v( TAG, "onResume : exit" );
-	}*/
+	}
 	
 	private void startVideo(){
 		

@@ -111,6 +111,4 @@ public abstract class AbstractOperations {
 
 	private static final LinkedMultiValueMap<String, String> EMPTY_PARAMETERS = new LinkedMultiValueMap<String, String>();
 
-
 }
-
