@@ -66,34 +66,6 @@ public class ProgramGroupActivity extends AbstractProgramGroupActivity implement
 		programGroup.setOnProgramListener( this );
 		programGroup.loadPrograms( programs );
 		
-		//String key = getIntent().getStringExtra( EXTRA_PROGRAM_GROUP_KEY );
-
-		//if( key != null ) {
-		//	Log.v( TAG, "onCreate : loading program group fragment for '" + key + "'" );
-
-		//	setTitle( key );
-		//	programGroup.loadPrograms( key );
-		//}
-
-		// if( getResources().getConfiguration().orientation ==
-		// Configuration.ORIENTATION_LANDSCAPE ) {
-		// // If the screen is now in landscape mode, we can show the
-		// // dialog in-line with the list so we don't need this activity.
-		// finish();
-		// return;
-		// }
-		//
-		// if( savedInstanceState == null ) {
-		// Log.v( TAG, "onCreate : setting up fragment" );
-		//
-		// // During initial setup, plug in the details fragment.
-		// ProgramGroupListFragment programGroup = new
-		// ProgramGroupListFragment();
-		// programGroup.setArguments( getIntent().getExtras() );
-		// getSupportFragmentManager().beginTransaction().add(
-		// android.R.id.content, programGroup ).commit();
-		// }
-
 		Log.v( TAG, "onCreate : exit" );
 	}
 
@@ -102,8 +74,6 @@ public class ProgramGroupActivity extends AbstractProgramGroupActivity implement
 		Log.v( TAG, "onResume : enter" );
 
 		super.onResume();
-
-//		items.setOnItemListener( this );
 
 		Log.v( TAG, "onResume : exit" );
 	}
@@ -120,13 +90,5 @@ public class ProgramGroupActivity extends AbstractProgramGroupActivity implement
 
 		Log.d( TAG, "onProgramGroupSelected : exit" );
 	}
-
-//	public void onItemSelected( RSSItem item ) {
-//		Log.v( TAG, "onItemSelected : enter" );
-//	
-//		startActivity( new Intent( Intent.ACTION_VIEW, item.getLink() ) );
-//
-//	Log.v( TAG, "onItemSelected : exit" );
-//	}
 
 }

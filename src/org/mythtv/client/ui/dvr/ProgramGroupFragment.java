@@ -6,7 +6,7 @@ package org.mythtv.client.ui.dvr;
 import java.util.List;
 
 import org.mythtv.R;
-import org.mythtv.client.ui.util.PersistentListFragment;
+import org.mythtv.client.ui.util.MythtvListFragment;
 import org.mythtv.services.api.dvr.Program;
 
 import android.os.Bundle;
@@ -23,7 +23,7 @@ import android.widget.TextView;
  * @author John Baab
  * 
  */
-public class ProgramGroupFragment extends PersistentListFragment {
+public class ProgramGroupFragment extends MythtvListFragment {
 
 	private OnProgramListener listener = null;
 	private ProgramAdapter adapter = null;
@@ -91,8 +91,6 @@ public class ProgramGroupFragment extends PersistentListFragment {
 	    
 		if( null != listener ) {
 			listener.onProgramSelected( adapter.getItem( position ) );
-			//Program program = null;
-			//listener.onProgramSelected(program);
 		}
 
 		Log.v( TAG, "onListItemClick : exit" );

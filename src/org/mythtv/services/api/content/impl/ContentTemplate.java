@@ -284,7 +284,7 @@ public class ContentTemplate extends AbstractContentOperations implements Conten
 	 * @see org.mythtv.services.api.content.ContentOperations#getImageFile(java.lang.String, java.lang.String, int, int)
 	 */
 	@Override
-	public String getImageFile( String storageGroup, String filename, int width, int height ) {
+	public byte[] getImageFile( String storageGroup, String filename, int width, int height ) {
 
 		LinkedMultiValueMap<String, String> parameters = new LinkedMultiValueMap<String, String>();
 		parameters.add( "StorageGroup", storageGroup );
@@ -298,10 +298,10 @@ public class ContentTemplate extends AbstractContentOperations implements Conten
 			parameters.add( "Height", "" + height );
 		}
 
-		ResponseEntity<String> responseEntity = restTemplate.exchange( buildUri( "GetImageFile", parameters ), HttpMethod.GET, getRequestEntity(), String.class );
-		String file = responseEntity.getBody();
+		ResponseEntity<byte[]> responseEntity = restTemplate.exchange( buildUri( "GetImageFile", parameters ), HttpMethod.GET, getRequestEntity(), byte[].class );
+		byte[] bytes = responseEntity.getBody();
 
-		return file;
+		return bytes;
 	}
 
 	/* (non-Javadoc)

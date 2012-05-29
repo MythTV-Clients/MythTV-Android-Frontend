@@ -95,6 +95,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	public void onUpgrade( SQLiteDatabase db, int oldVersion, int newVersion ) {
 		Log.v( TAG, "onUpgrade : enter" );
 
+	    db.execSQL( "DROP TABLE IF EXISTS location_profile" );
+	    db.execSQL( "DROP TABLE IF EXISTS playback_profile" );
+
+	    onCreate( db );
+	    
 		Log.v( TAG, "onUpgrade : exit" );
 	}
 
