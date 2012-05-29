@@ -22,16 +22,21 @@
 package org.mythtv.client.ui.dvr;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 import org.mythtv.R;
-import org.mythtv.client.ui.util.PersistentListFragment;
+import org.mythtv.client.ui.util.MythtvListFragment;
+import org.mythtv.services.api.content.ArtworkInfo;
 import org.mythtv.services.api.dvr.Program;
 
 import android.app.AlertDialog;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -46,26 +51,18 @@ import android.widget.TextView;
  * @author Daniel Frey
  * 
  */
-public class RecordingsFragment extends PersistentListFragment {
+public class RecordingsFragment extends MythtvListFragment {
 
 	private static final String TAG = RecordingsFragment.class.getSimpleName();
 
 	private OnProgramGroupListener listener = null;
 	private ProgramGroupAdapter adapter = null;
-	private boolean persistentSelection = false;
 
 	private List<Program> programs;
-	private List<String> programGroups;
-	private Map<String, List<Program>> recordingsInProgramGroups;
+//	private List<String> programGroups;
+	private Map<String, List<Integer>> recordingsInProgramGroups;
+	private Map<String, Bitmap> programGroupBanners = new TreeMap<String, Bitmap>();
 	
-	public RecordingsFragment() {
-		this( false );
-	}
-
-	public RecordingsFragment( boolean persistentSelection ) {
-		this.persistentSelection = persistentSelection;
-	}
-
 	@Override
 	public void onCreate( Bundle savedInstanceState ) {
 		Log.v( TAG, "onCreate : enter" );
@@ -98,12 +95,6 @@ public class RecordingsFragment extends PersistentListFragment {
 
 		super.onActivityCreated( state );
 
-		restoreState( state );
-
-		if( persistentSelection ) {
-			enablePersistentSelection();
-		}
-
 		Log.v( TAG, "onActivityCreated : exit" );
 	}
 
@@ -117,9 +108,13 @@ public class RecordingsFragment extends PersistentListFragment {
 			if( "all".equalsIgnoreCase( adapter.getItem( position ) ) ) {
 				listener.onProgramGroupSelected( programs );
 			} else {
-				listener.onProgramGroupSelected( recordingsInProgramGroups.get( adapter.getItem( position ) ) );
+				
+				List<Program> programsInProgramGroup = new ArrayList<Program>();
+				for( Integer index : recordingsInProgramGroups.get( adapter.getItem( position ) ) ) {
+					programsInProgramGroup.add( programs.get( index ) );
+				}
+				listener.onProgramGroupSelected( programsInProgramGroup );
 			}
-			
 		}
 
 		Log.v( TAG, "onListItemClick : exit" );
@@ -149,69 +144,75 @@ public class RecordingsFragment extends PersistentListFragment {
 		Log.v( TAG, "setPrograms : enter" );
 
 		this.programs = programs;
-		adapter = new ProgramGroupAdapter( programs );
+		adapter = new ProgramGroupAdapter( recordingsInProgramGroups.keySet() );
 		setListAdapter( adapter );
-		
-		//listener.onProgramGroupSelected( programs );
 		
 		Log.v( TAG, "setPrograms : exit" );
 	}
 
-	private void setProgramGroups( List<Program> programs ) {
-		Log.v( TAG, "setProgramGroups : enter" );
-		
-		programGroups = new ArrayList<String>();
-		
-		String title;
-		for( Program program : programs ) {
-			Log.v( TAG, "setProgramGroups : program iteration" );
-
-			title = program.getTitle();
-
-			if( !programGroups.contains( title ) ) {
-				Log.v( TAG, "setProgramGroups : adding program group" );
-
-				programGroups.add( title );
-			}
-		}
-
-		if( !programGroups.isEmpty() ) {
-			Log.v( TAG, "setProgramGroups : sorting program groups" );
-
-			Collections.sort( programGroups, String.CASE_INSENSITIVE_ORDER );
-		}
-
-		Log.v( TAG, "setProgramGroups : adding 'All' program group to start" );
-		programGroups.add( 0, "All" );
-				
-		Log.v( TAG, "setProgramGroups : exit" );
-	}
+//	private void setProgramGroups( List<Program> programs ) {
+//		Log.v( TAG, "setProgramGroups : enter" );
+//		
+//		programGroups = new ArrayList<String>();
+//		
+//		String title;
+//		for( Program program : programs ) {
+//			Log.v( TAG, "setProgramGroups : program iteration" );
+//
+//			title = program.getTitle();
+//
+//			if( !programGroups.contains( title ) ) {
+//				Log.v( TAG, "setProgramGroups : adding program group" );
+//
+//				programGroups.add( title );
+//			}
+//		}
+//
+//		if( !programGroups.isEmpty() ) {
+//			Log.v( TAG, "setProgramGroups : sorting program groups" );
+//
+//			Collections.sort( programGroups, String.CASE_INSENSITIVE_ORDER );
+//		}
+//
+//		Log.v( TAG, "setProgramGroups : adding 'All' program group to start" );
+//		programGroups.add( 0, "All" );
+//				
+//		Log.v( TAG, "setProgramGroups : exit" );
+//	}
 	
 	private void setRecordingsInProgramGroups( List<Program> programs ) {
-		Log.v( TAG, "setProgramGroups : enter" );
+		Log.v( TAG, "setRecordingsInProgramGroups : enter" );
 		
-		recordingsInProgramGroups = new TreeMap<String, List<Program>>();
+		recordingsInProgramGroups = new TreeMap<String, List<Integer>>();
+		
+		List<Integer> allRecordings = new ArrayList<Integer>();
 		
 		String title;
-		for( Program program : programs ) {
-			Log.v( TAG, "setProgramGroups : program iteration" );
+		for( int i = 0; i < programs.size(); i++ ) {
+			Log.v( TAG, "setRecordingsInProgramGroups : program iteration" );
+			allRecordings.add( i );
+			
+			Program program = programs.get( i );
 			
 			title = program.getTitle();
+			Log.v( TAG, "setRecordingsInProgramGroups : program iteration" );
 			
 			if( !recordingsInProgramGroups.containsKey( title ) ) {
-				List<Program> recordingsInThisProgram = new ArrayList<Program>();
-				recordingsInThisProgram.add( program );
+				List<Integer> recordingsInThisProgramGroup = new ArrayList<Integer>();
+				recordingsInThisProgramGroup.add( i );
 				
-				Log.v( TAG, "setProgramGroups : adding new program group" );
-				recordingsInProgramGroups.put( title, recordingsInThisProgram );
+				Log.v( TAG, "setRecordingsInProgramGroups : adding new program group, title=" + title );
+				recordingsInProgramGroups.put( title, recordingsInThisProgramGroup );
 			} else {
-				Log.v( TAG, "setProgramGroups : updating program group" );
+				Log.v( TAG, "setRecordingsInProgramGroups : updating program group, title=" + title );
 
-				recordingsInProgramGroups.get( title ).add( program );
+				recordingsInProgramGroups.get( title ).add( i );
 			}
 		}
 		
-		Log.v( TAG, "setProgramGroups : exit" );
+		recordingsInProgramGroups.put( "All", allRecordings );
+		
+		Log.v( TAG, "setRecordingsInProgramGroups : exit" );
 	}
 	
 	private void exceptionDialolg( Throwable t ) {
@@ -253,9 +254,39 @@ public class RecordingsFragment extends PersistentListFragment {
 			Log.v( TAG, "onPostExecute : enter" );
 
 			if( null == e ) {
-				setProgramGroups( result );
-				setRecordingsInProgramGroups( result );
-				setPrograms( result );
+//				Map<String, String> banners = new HashMap<String, String>();
+
+				Log.v( TAG, "onPostExecute : filter livetv" );
+				List<Program> filteredResults = new ArrayList<Program>();
+				for( Program program : result ) {
+					if( !"livetv".equalsIgnoreCase( program.getRecording().getRecordingGroup() ) ) {
+						filteredResults.add( program );
+
+//						if( !banners.containsKey( program.getTitle() ) && ( null != program.getArtwork() && null != program.getArtwork().getArtworkInfos() && !program.getArtwork().getArtworkInfos().isEmpty() ) ) {
+//
+//							for( ArtworkInfo info : program.getArtwork().getArtworkInfos() ) {
+//								if( info.getStorageGroup().equals( DownloadBannerImageTask.BANNERS_DIR ) ) {
+//
+//									if( info.getUrl().indexOf( "FileName" ) != -1 ) { 
+//										String filename = info.getUrl().substring( info.getUrl().indexOf( "FileName" ) );
+//
+//										banners.put( program.getTitle(), ( filename.split( "=" ) )[1] );
+//									}
+//								}
+//							}
+//						}
+					}
+				}
+
+//				for( String key : banners.keySet() ) {
+//					Log.v( TAG, "onPostExecute : banner key=" + key + ", filename=" + banners.get( key ) );
+//
+//					new DownloadBannerImageTask().execute( banners.get( key ) );
+//				}
+			
+//				setProgramGroups( filteredResults );
+				setRecordingsInProgramGroups( filteredResults );
+				setPrograms( filteredResults );
 			} else {
 				Log.e( TAG, "error getting programs", e );
 				exceptionDialolg( e );
@@ -263,30 +294,17 @@ public class RecordingsFragment extends PersistentListFragment {
 
 			Log.v( TAG, "onPostExecute : exit" );
 		}
+
 	}
 
 	private class ProgramGroupAdapter extends BaseAdapter {
+		
 		List<String> programGroups = null;
 
-		ProgramGroupAdapter( List<Program> programs ) {
+		ProgramGroupAdapter( Set<String> programGroups ) {
 			super();
 
-			List<String> sortedProgramGroups = new ArrayList<String>();
-			for( Program program : programs ) {
-				String title = program.getTitle();
-
-				if( !sortedProgramGroups.contains( title ) ) {
-					sortedProgramGroups.add( title );
-				}
-			}
-
-			if( !sortedProgramGroups.isEmpty() ) {
-				Collections.sort( sortedProgramGroups, String.CASE_INSENSITIVE_ORDER );
-			}
-
-			sortedProgramGroups.add( 0, "All" );
-			
-			this.programGroups = sortedProgramGroups;
+			this.programGroups = new ArrayList<String>( programGroups );
 		}
 
 		@Override
@@ -306,6 +324,8 @@ public class RecordingsFragment extends PersistentListFragment {
 
 		@Override
 		public View getView( int position, View convertView, ViewGroup parent ) {
+			Log.v( TAG, "getView : enter" );
+
 			View row = convertView;
 
 			if( row == null ) {
@@ -316,10 +336,98 @@ public class RecordingsFragment extends PersistentListFragment {
 
 			String programGroup = getItem( position );
 
-			( (TextView) row ).setText( programGroup );
+			List<Program> programsInProgramGroup = new ArrayList<Program>();
+			for( Integer index : recordingsInProgramGroups.get( programGroup ) ) {
+				Program program = programs.get( index );
+				Log.v( TAG, "getView : program=" + program );
+				
+				programsInProgramGroup.add( program );
+			}
+			
+			for( Program program : programsInProgramGroup ) {
+				if( !programGroupBanners.containsKey( programGroup ) && ( null != program.getArtwork() && null != program.getArtwork().getArtworkInfos() && !program.getArtwork().getArtworkInfos().isEmpty() ) ) {
 
+					for( ArtworkInfo info : program.getArtwork().getArtworkInfos() ) {
+						if( info.getStorageGroup().equals( DownloadBannerImageTask.BANNERS_DIR ) ) {
+
+							if( info.getUrl().indexOf( "FileName" ) != -1 ) { 
+								String filename = info.getUrl().substring( info.getUrl().indexOf( "FileName" ) );
+
+								programGroupBanners.put( programGroup, null );
+								new DownloadBannerImageTask().execute( programGroup, filename.split( "=" )[ 1 ], row );
+								
+								break;
+							}
+						}
+					}
+				}
+			}
+			
+			if( !programGroupBanners.containsKey( programGroup ) ) {
+				TextView textView = (TextView) row.findViewById( R.id.program_group_row );
+				textView.setText( programGroup );
+			}
+			
+			Log.v( TAG, "getView : exit" );
 			return row;
 		}
+	}
+
+	private class DownloadBannerImageTask extends AsyncTask<Object, Void, Bitmap> {
+
+		private static final String BANNERS_DIR = "Banners";
+		
+		private Exception e = null;
+
+		private String programGroup;
+		private View row;
+		
+		@Override
+		protected Bitmap doInBackground( Object... params ) {
+			Log.v( TAG, "doInBackground : enter" );
+
+			programGroup = (String) params[ 0 ];
+			row = (View) params[ 2 ];
+			
+			Bitmap bitmap = null;
+
+			try {
+				Log.v( TAG, "doInBackground : lookup" );
+
+				byte[] bytes = getApplicationContext().getMythServicesApi().contentOperations().getImageFile( BANNERS_DIR, (String) params[ 1 ], -1, -1 );
+				bitmap = BitmapFactory.decodeByteArray( bytes, 0, bytes.length );
+			} catch( Exception e ) {
+				Log.v( TAG, "doInBackground : error" );
+
+				this.e = e;
+			}
+
+			Log.v( TAG, "doInBackground : exit" );
+			return bitmap;
+		}
+
+		@Override
+		protected void onPostExecute( Bitmap result ) {
+			Log.v( TAG, "onPostExecute : enter" );
+
+			if( null == e ) {
+				Log.v( TAG, "onPostExecute : result size=" + result.getHeight() + "x" + result.getWidth() );
+
+				programGroupBanners.put( programGroup, result );
+				
+				TextView textView = (TextView) row.findViewById( R.id.program_group_row );
+				textView.setText( "" );
+
+				Drawable drawable = new BitmapDrawable( result );
+				row.setBackgroundDrawable( drawable );
+			} else {
+				Log.e( TAG, "error getting programs", e );
+				exceptionDialolg( e );
+			}
+
+			Log.v( TAG, "onPostExecute : exit" );
+		}
+
 	}
 
 }

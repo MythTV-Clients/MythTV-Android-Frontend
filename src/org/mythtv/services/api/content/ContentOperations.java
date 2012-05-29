@@ -133,7 +133,7 @@ public interface ContentOperations {
 	 * @param height
 	 * @return
 	 */
-	String getImageFile( String storageGroup, String filename, int width, int height );
+	byte[] getImageFile( String storageGroup, String filename, int width, int height );
 	
 	/**
 	 * - GET

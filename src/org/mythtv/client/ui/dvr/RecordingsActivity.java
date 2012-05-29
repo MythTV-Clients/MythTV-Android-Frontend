@@ -36,12 +36,7 @@ public class RecordingsActivity extends AbstractRecordingsActivity implements Re
 		recordings.setOnProgramGroupListener( this );
 
 		isTwoPane = ( null != findViewById( R.id.fragment_dvr_program_group ) );
-		Log.d( TAG, "onCreate : isTwoPane=" + isTwoPane );
 		
-		if( isTwoPane ) {
-			recordings.enablePersistentSelection();
-		}
-
 		Log.i( TAG, "onCreate : exit" );
 	}
 
