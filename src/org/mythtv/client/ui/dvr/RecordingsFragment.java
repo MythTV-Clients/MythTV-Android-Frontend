@@ -26,6 +26,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -60,9 +61,6 @@ public class RecordingsFragment extends MythtvListFragment {
 	private OnProgramGroupListener listener = null;
 	private ProgramGroupAdapter adapter = null;
 
-	private List<ProgramGroup> programGroups;
-	private List<Program> programs;
-	
 	@Override
 	public void onCreate( Bundle savedInstanceState ) {
 		Log.v( TAG, "onCreate : enter" );
@@ -80,10 +78,29 @@ public class RecordingsFragment extends MythtvListFragment {
 
 		super.onResume();
 	    
-		if( null == programs || programs.isEmpty() ) {
+		if( null != getApplicationContext().getRecordingsLoaded() ) {
+			Log.v( TAG, "onResume : recordings previously loaded" );
+			
+			Calendar now = Calendar.getInstance();
+			long nowTimeInMillis = now.getTimeInMillis();
+			long loadedTimeInMillis = getApplicationContext().getRecordingsLoaded().getTimeInMillis();
+			
+			long diff = loadedTimeInMillis - nowTimeInMillis;
+			if( diff / (60 * 1000) > 30 ) {
+				Log.v( TAG, "onResume : its been more than 30 minutes, refresh recordings" );
+				
+				getApplicationContext().getProgramGroups().clear();
+			}
+		}
+		
+		if( null == getApplicationContext().getProgramGroups() || getApplicationContext().getProgramGroups().isEmpty() ) {
 			Log.v( TAG, "onResume : load recordings" );
 
 			loadRecordings();
+		} else {
+			Log.v( TAG, "onResume : restore recordings" );
+
+			setProgramGroupAdapter();
 		}
 
 		Log.v( TAG, "onResume : exit" );
@@ -134,7 +151,7 @@ public class RecordingsFragment extends MythtvListFragment {
 	private void setRecordingsInProgramGroups( List<Program> programs ) {
 		Log.v( TAG, "setRecordingsInProgramGroups : enter" );
 		
-		programGroups = new ArrayList<ProgramGroup>();
+		List<ProgramGroup> programGroups = new ArrayList<ProgramGroup>();
 		ProgramGroup all = new ProgramGroup();
 		all.setName( "All" );
 		all.setRecordings( programs );
@@ -215,11 +232,22 @@ public class RecordingsFragment extends MythtvListFragment {
 			}
 
 		}
+
+		getApplicationContext().setProgramGroups( programGroups );
+		getApplicationContext().setRecordingsLoaded( Calendar.getInstance() );
 		
-		adapter = new ProgramGroupAdapter( programGroups );
+		setProgramGroupAdapter();
+		
+		Log.v( TAG, "setRecordingsInProgramGroups : exit" );
+	}
+	
+	private void setProgramGroupAdapter() {
+		Log.v( TAG, "setProgramGroupAdapter : enter" );
+		
+		adapter = new ProgramGroupAdapter( getApplicationContext().getProgramGroups() );
 		setListAdapter( adapter );
 
-		Log.v( TAG, "setRecordingsInProgramGroups : exit" );
+		Log.v( TAG, "setProgramGroupAdapter : exit" );
 	}
 	
 	private void exceptionDialolg( Throwable t ) {
