@@ -29,6 +29,8 @@ package org.mythtv.client.ui.dvr;
 
 import org.mythtv.R;
 import org.mythtv.client.MainApplication;
+import org.mythtv.client.ui.preferences.LocationProfile;
+import org.mythtv.client.ui.preferences.PlaybackProfile;
 import org.mythtv.services.api.content.LiveStreamInfo;
 import org.mythtv.services.api.dvr.Program;
 
@@ -53,6 +55,7 @@ public class VideoActivity extends Activity {
 	private LiveStreamInfo info = null;
 	private ProgressDialog progressDialog;
 	private Boolean firstrun = true;
+	private PlaybackProfile selectedPlaybackProfile;
 	
 	public MainApplication getApplicationContext() {
 		return (MainApplication) super.getApplicationContext();
@@ -195,12 +198,27 @@ public class VideoActivity extends Activity {
 				Log.v( TAG, "CreateStreamTask : api" );
 				Program program = getApplicationContext().getCurrentProgram();
 				
+				String location = getApplicationContext().getLocation();
+				
+				if (location == "HOME"){
+					selectedPlaybackProfile = getApplicationContext().getSelectedHomePlaybackProfile();
+				}
+				else if (location == "AWAY"){
+					selectedPlaybackProfile = getApplicationContext().getSelectedAwayPlaybackProfile();
+				}
+				else{
+					Log.e( TAG, "Unknown Location!" );
+				}
+				
+				
 				//lookup = getApplicationContext().getMythServicesApi().contentOperations().
 				//	addRecordingLiveStream(Integer.valueOf(program.getChannelInfo().getChannelId()), program.getStartTime(), 
 				//			-1, -1, -1, -1, -1, -1);
 				
 				lookup = getApplicationContext().getMythServicesApi().contentOperations().
-						addLiveStream(null, program.getFilename(), null, -1, -1, -1, -1, -1, -1);
+						addLiveStream(null, program.getFilename(), null, -1, selectedPlaybackProfile.getWidth(),
+								selectedPlaybackProfile.getHeight(), selectedPlaybackProfile.getVideoBitrate(), 
+								selectedPlaybackProfile.getAudioBitrate(), selectedPlaybackProfile.getAudioSampleRate());
 			} catch( Exception e ) {
 				Log.v( TAG, "CreateStreamTask : error" );
 
