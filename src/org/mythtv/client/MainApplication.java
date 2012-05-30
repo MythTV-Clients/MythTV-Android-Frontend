@@ -58,6 +58,7 @@ public class MainApplication extends Application {
 	
 	private String masterBackend;
 	
+	private List<Program> programs;
 	private Program currentProgram;
 	private List<Program> currentRecordingsInProgramGroup;
 	
@@ -243,6 +244,22 @@ public class MainApplication extends Application {
 		
 		Log.v( TAG, "clearMasterBackend : enter" );
 	}
+
+	/**
+	 * @return the programs
+	 */
+	public List<Program> getPrograms() {
+		return programs;
+	}
+
+
+	/**
+	 * @param programs the programs to set
+	 */
+	public void setPrograms( List<Program> programs ) {
+		this.programs = programs;
+	}
+
 
 	/**
 	 * @return the currentRecordingsInProgramGroup
