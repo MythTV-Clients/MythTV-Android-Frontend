@@ -88,7 +88,7 @@ public interface ContentOperations {
 	 * @param height
 	 * @return
 	 */
-	String getAlbumArt( int id, int width, int height );
+	byte[] getAlbumArt( int id, int width, int height );
 	
 	/**
 	 * - GET
@@ -97,7 +97,7 @@ public interface ContentOperations {
 	 * @param filename
 	 * @return
 	 */
-	String getFile( String storageGroup, String filename );
+	byte[] getFile( String storageGroup, String filename );
 	
 	/**
 	 * - GET
@@ -156,7 +156,7 @@ public interface ContentOperations {
 	 * @param id
 	 * @return
 	 */
-	String getMusic( int id );
+	byte[] getMusic( int id );
 	
 	/**
 	 * - GET
@@ -168,7 +168,7 @@ public interface ContentOperations {
 	 * @param secondsIn
 	 * @return
 	 */
-	String getPreviewImage( int channelId, Date startTime, int width, int height, int secondsIn );
+	byte[] getPreviewImage( int channelId, Date startTime, int width, int height, int secondsIn );
 	
 	/**
 	 * - GET
@@ -186,7 +186,7 @@ public interface ContentOperations {
 	 * @param startTime
 	 * @return
 	 */
-	String getRecording( int channelId, Date startTime );
+	byte[] getRecording( int channelId, Date startTime );
 	
 	/**
 	 * - GET
@@ -198,7 +198,7 @@ public interface ContentOperations {
 	 * @param height
 	 * @return
 	 */
-	String getRecordingArtwork( String type, String inetRef, int season, int width, int height );
+	byte[] getRecordingArtwork( String type, String inetRef, int season, int width, int height );
 	
 	/**
 	 * - GET
@@ -215,7 +215,7 @@ public interface ContentOperations {
 	 * @param id
 	 * @return
 	 */
-	String getVideo( int id );
+	byte[] getVideo( int id );
 	
 	/**
 	 * - GET
@@ -226,7 +226,7 @@ public interface ContentOperations {
 	 * @param height
 	 * @return
 	 */
-	String getVideoArtwork( String type, int id, int width, int height );
+	byte[] getVideoArtwork( String type, int id, int width, int height );
 	
 	/**
 	 * - GET

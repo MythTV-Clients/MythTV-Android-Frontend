@@ -197,7 +197,7 @@ public class ContentTemplate extends AbstractContentOperations implements Conten
 	 * @see org.mythtv.services.api.content.ContentOperations#getAlbumArt(int, int, int)
 	 */
 	@Override
-	public String getAlbumArt( int id, int width, int height ) {
+	public byte[] getAlbumArt( int id, int width, int height ) {
 
 		LinkedMultiValueMap<String, String> parameters = new LinkedMultiValueMap<String, String>();
 		parameters.add( "Id", "" + id );
@@ -210,17 +210,17 @@ public class ContentTemplate extends AbstractContentOperations implements Conten
 			parameters.add( "Height", "" + height );
 		}
 
-		ResponseEntity<String> responseEntity = restTemplate.exchange( buildUri( "GetAlbumArt", parameters ), HttpMethod.GET, getRequestEntity(), String.class );
-		String albumArt = responseEntity.getBody();
+		ResponseEntity<byte[]> responseEntity = restTemplate.exchange( buildUri( "GetAlbumArt", parameters ), HttpMethod.GET, getRequestEntity(), byte[].class );
+		byte[] bytes = responseEntity.getBody();
 
-		return albumArt;
+		return bytes;
 	}
 
 	/* (non-Javadoc)
 	 * @see org.mythtv.services.api.content.ContentOperations#getFile(java.lang.String, java.lang.String)
 	 */
 	@Override
-	public String getFile( String storageGroup, String filename ) {
+	public byte[] getFile( String storageGroup, String filename ) {
 		
 		LinkedMultiValueMap<String, String> parameters = new LinkedMultiValueMap<String, String>();
 		parameters.add( "StorageGroup", storageGroup );
@@ -229,10 +229,10 @@ public class ContentTemplate extends AbstractContentOperations implements Conten
 			parameters.add( "FileName", filename );
 		}
 
-		ResponseEntity<String> responseEntity = restTemplate.exchange( buildUri( "GetFile", parameters ), HttpMethod.GET, getRequestEntity(), String.class );
-		String url = responseEntity.getBody();
+		ResponseEntity<byte[]> responseEntity = restTemplate.exchange( buildUri( "GetFile", parameters ), HttpMethod.GET, getRequestEntity(), byte[].class );
+		byte[] bytes = responseEntity.getBody();
 
-		return url;
+		return bytes;
 	}
 
 	/* (non-Javadoc)
@@ -335,22 +335,22 @@ public class ContentTemplate extends AbstractContentOperations implements Conten
 	 * @see org.mythtv.services.api.content.ContentOperations#getMusic(int)
 	 */
 	@Override
-	public String getMusic( int id ) {
+	public byte[] getMusic( int id ) {
 
 		LinkedMultiValueMap<String, String> parameters = new LinkedMultiValueMap<String, String>();
 		parameters.add( "Id", "" + id );
 
-		ResponseEntity<String> responseEntity = restTemplate.exchange( buildUri( "GetMusic", parameters ), HttpMethod.GET, getRequestEntity(), String.class );
-		String music = responseEntity.getBody();
+		ResponseEntity<byte[]> responseEntity = restTemplate.exchange( buildUri( "GetMusic", parameters ), HttpMethod.GET, getRequestEntity(), byte[].class );
+		byte[] bytes = responseEntity.getBody();
 
-		return music;
+		return bytes;
 	}
 
 	/* (non-Javadoc)
 	 * @see org.mythtv.services.api.content.ContentOperations#getPreviewImage(int, java.util.Date, int, int, int)
 	 */
 	@Override
-	public String getPreviewImage( int channelId, Date startTime, int width, int height, int secondsIn ) {
+	public byte[] getPreviewImage( int channelId, Date startTime, int width, int height, int secondsIn ) {
 
 		LinkedMultiValueMap<String, String> parameters = new LinkedMultiValueMap<String, String>();
 		parameters.add( "ChanId", "" + channelId );
@@ -368,10 +368,10 @@ public class ContentTemplate extends AbstractContentOperations implements Conten
 			parameters.add( "SecsIn", "" + secondsIn );
 		}
 
-		ResponseEntity<String> responseEntity = restTemplate.exchange( buildUri( "GetPreviewImage", parameters ), HttpMethod.GET, getRequestEntity(), String.class );
-		String previewImage = responseEntity.getBody();
+		ResponseEntity<byte[]> responseEntity = restTemplate.exchange( buildUri( "GetPreviewImage", parameters ), HttpMethod.GET, getRequestEntity(), byte[].class );
+		byte[] bytes = responseEntity.getBody();
 
-		return previewImage;
+		return bytes;
 	}
 
 	/* (non-Javadoc)
@@ -397,23 +397,23 @@ public class ContentTemplate extends AbstractContentOperations implements Conten
 	 * @see org.mythtv.services.api.content.ContentOperations#getRecording(int, java.util.Date)
 	 */
 	@Override
-	public String getRecording( int channelId, Date startTime ) {
+	public byte[] getRecording( int channelId, Date startTime ) {
 
 		LinkedMultiValueMap<String, String> parameters = new LinkedMultiValueMap<String, String>();
 		parameters.add( "ChanId", "" + channelId );
 		parameters.add( "StartTime", sdf.format( startTime ) );
 
-		ResponseEntity<String> responseEntity = restTemplate.exchange( buildUri( "GetRecording", parameters ), HttpMethod.GET, getRequestEntity(), String.class );
-		String recording = responseEntity.getBody();
+		ResponseEntity<byte[]> responseEntity = restTemplate.exchange( buildUri( "GetRecording", parameters ), HttpMethod.GET, getRequestEntity(), byte[].class );
+		byte[] bytes = responseEntity.getBody();
 
-		return recording;
+		return bytes;
 	}
 
 	/* (non-Javadoc)
 	 * @see org.mythtv.services.api.content.ContentOperations#getRecordingArtwork(java.lang.String, java.lang.String, int, int, int)
 	 */
 	@Override
-	public String getRecordingArtwork( String type, String inetRef, int season, int width, int height ) {
+	public byte[] getRecordingArtwork( String type, String inetRef, int season, int width, int height ) {
 
 		LinkedMultiValueMap<String, String> parameters = new LinkedMultiValueMap<String, String>();
 		parameters.add( "Inetref", inetRef );
@@ -434,10 +434,10 @@ public class ContentTemplate extends AbstractContentOperations implements Conten
 			parameters.add( "Height", "" + height );
 		}
 
-		ResponseEntity<String> responseEntity = restTemplate.exchange( buildUri( "GetRecordingArtwork", parameters ), HttpMethod.GET, getRequestEntity(), String.class );
-		String artworkInfo = responseEntity.getBody();
+		ResponseEntity<byte[]> responseEntity = restTemplate.exchange( buildUri( "GetRecordingArtwork", parameters ), HttpMethod.GET, getRequestEntity(), byte[].class );
+		byte[] bytes = responseEntity.getBody();
 
-		return artworkInfo;
+		return bytes;
 	}
 
 	/* (non-Javadoc)
@@ -460,22 +460,22 @@ public class ContentTemplate extends AbstractContentOperations implements Conten
 	 * @see org.mythtv.services.api.content.ContentOperations#getVideo(int)
 	 */
 	@Override
-	public String getVideo( int id ) {
+	public byte[] getVideo( int id ) {
 
 		LinkedMultiValueMap<String, String> parameters = new LinkedMultiValueMap<String, String>();
 		parameters.add( "Id", "" + id );
 		
-		ResponseEntity<String> responseEntity = restTemplate.exchange( buildUri( "GetVideo", parameters ), HttpMethod.GET, getRequestEntity(), String.class );
-		String video = responseEntity.getBody();
+		ResponseEntity<byte[]> responseEntity = restTemplate.exchange( buildUri( "GetVideo", parameters ), HttpMethod.GET, getRequestEntity(), byte[].class );
+		byte[] bytes = responseEntity.getBody();
 
-		return video;
+		return bytes;
 	}
 
 	/* (non-Javadoc)
 	 * @see org.mythtv.services.api.content.ContentOperations#getVideoArtwork(java.lang.String, int, int, int)
 	 */
 	@Override
-	public String getVideoArtwork( String type, int id, int width, int height ) {
+	public byte[] getVideoArtwork( String type, int id, int width, int height ) {
 
 		LinkedMultiValueMap<String, String> parameters = new LinkedMultiValueMap<String, String>();
 		parameters.add( "Id", "" + id );
@@ -492,10 +492,10 @@ public class ContentTemplate extends AbstractContentOperations implements Conten
 			parameters.add( "Height", "" + height );
 		}
 
-		ResponseEntity<String> responseEntity = restTemplate.exchange( buildUri( "GetVideoArtwork", parameters ), HttpMethod.GET, getRequestEntity(), String.class );
-		String artworkInfo = responseEntity.getBody();
+		ResponseEntity<byte[]> responseEntity = restTemplate.exchange( buildUri( "GetVideoArtwork", parameters ), HttpMethod.GET, getRequestEntity(), byte[].class );
+		byte[] bytes = responseEntity.getBody();
 
-		return artworkInfo;
+		return bytes;
 	}
 
 	/* (non-Javadoc)

@@ -31,10 +31,10 @@
     <!-- <VideoView
         android:id="@+id/videoView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/> -->
+        android:layout_height="match_parent"/> 
         
         <io.vov.vitamio.widget.VideoView android:id="@+id/surface_view"
 		android:layout_width="match_parent" android:layout_height="match_parent"
-		android:layout_centerHorizontal="true" android:layout_centerVertical="true" />
+		android:layout_centerHorizontal="true" android:layout_centerVertical="true" />-->
 
 </RelativeLayout>

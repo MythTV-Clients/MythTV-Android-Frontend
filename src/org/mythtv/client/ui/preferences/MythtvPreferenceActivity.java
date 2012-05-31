@@ -729,7 +729,7 @@ public class MythtvPreferenceActivity extends PreferenceActivity {
     		PreferenceCategory homePlaybackProfilesPreferenceCategory = (PreferenceCategory) findPreference( PREFERENCE_CATEGORY_HOME_PLAYBACK_SAVED_KEY );
     		homePlaybackProfilesPreferenceCategory.removeAll();
 
-    		final List<PlaybackProfile> homePlaybackProfiles = db.fetchAwayPlaybackProfiles();
+    		final List<PlaybackProfile> homePlaybackProfiles = db.fetchHomePlaybackProfiles();
     		if( null != homePlaybackProfiles && !homePlaybackProfiles.isEmpty() ) {
     			Log.v( TAG, "setupPreferences : setting Home Playback Profiles" );
     			
@@ -756,7 +756,7 @@ public class MythtvPreferenceActivity extends PreferenceActivity {
     					// Fires the locationChanged event when the user selects a
     					// location even if the user selects the same location already 
     					// selected.
-    					selectPlaybackProfile( context, homePlaybackProfiles, LocationType.AWAY, new PlaybackProfileChangedEventListener() {
+    					selectPlaybackProfile( context, homePlaybackProfiles, LocationType.HOME, new PlaybackProfileChangedEventListener() {
 
     						@Override
     						public void defaultPlaybackProfileChanged() {
@@ -855,8 +855,8 @@ public class MythtvPreferenceActivity extends PreferenceActivity {
     		
     		LocationProfile selectedAwayLocationProfile = db.fetchSelectedAwayLocationProfile();
 
-    		Preference deleteHomeLocationProfilePreference = findPreference( PREFERENCE_AWAY_DELETE_KEY );
-    		deleteHomeLocationProfilePreference.setOnPreferenceClickListener( new OnPreferenceClickListener() {
+    		Preference deleteAwayLocationProfilePreference = findPreference( PREFERENCE_AWAY_DELETE_KEY );
+    		deleteAwayLocationProfilePreference.setOnPreferenceClickListener( new OnPreferenceClickListener() {
 
     			public boolean onPreferenceClick( Preference preference ) {
     				
