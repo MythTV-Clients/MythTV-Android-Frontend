@@ -216,13 +216,7 @@ public class RecordingsFragment extends MythtvListFragment {
 							if( info.getStorageGroup().equals( DownloadBannerImageTask.BANNERS_DIR ) ) {
 								Log.v( TAG, "getView : programsInProgramGroup contains banner artwork" );
 
-								if( info.getUrl().indexOf( "FileName" ) != -1 ) { 
-									Log.v( TAG, "getView : downloading banner" );
-
-									String filename = info.getUrl().substring( info.getUrl().indexOf( "FileName" ) );
-
-									new DownloadBannerImageTask().execute( programGroup, filename.split( "=" )[ 1 ] );
-								}
+								new DownloadBannerImageTask().execute( programGroup, program.getInetref() );
 
 								break;
 							}
@@ -371,6 +365,7 @@ public class RecordingsFragment extends MythtvListFragment {
 
 	private class DownloadBannerImageTask extends AsyncTask<Object, Void, Bitmap> {
 
+		private static final String BANNER_TYPE = "Banner";
 		private static final String BANNERS_DIR = "Banners";
 		
 		private Exception e = null;
@@ -388,7 +383,7 @@ public class RecordingsFragment extends MythtvListFragment {
 			try {
 				Log.v( TAG, "doInBackground : lookup" );
 
-				byte[] bytes = getApplicationContext().getMythServicesApi().contentOperations().getImageFile( BANNERS_DIR, (String) params[ 1 ], -1, -1 );
+				byte[] bytes = getApplicationContext().getMythServicesApi().contentOperations().getRecordingArtwork( BANNER_TYPE, (String) params[ 1 ], -1, -1, -1 );
 				bitmap = BitmapFactory.decodeByteArray( bytes, 0, bytes.length );
 			} catch( Exception e ) {
 				Log.v( TAG, "doInBackground : error" );
