@@ -21,11 +21,6 @@
  */
 package org.mythtv.services.api;
 
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import org.mythtv.services.api.capture.CaptureOperations;
 import org.mythtv.services.api.capture.impl.CaptureTemplate;
 import org.mythtv.services.api.channel.ChannelOperations;
@@ -42,12 +37,6 @@ import org.mythtv.services.api.myth.MythOperations;
 import org.mythtv.services.api.myth.impl.MythTemplate;
 import org.mythtv.services.api.video.VideoOperations;
 import org.mythtv.services.api.video.impl.VideoTemplate;
-import org.springframework.http.MediaType;
-import org.springframework.http.converter.ByteArrayHttpMessageConverter;
-import org.springframework.http.converter.FormHttpMessageConverter;
-import org.springframework.http.converter.HttpMessageConverter;
-import org.springframework.http.converter.StringHttpMessageConverter;
-import org.springframework.http.converter.json.MappingJacksonHttpMessageConverter;
 import org.springframework.social.support.ClientHttpRequestFactorySelector;
 import org.springframework.web.client.RestTemplate;
 
@@ -72,8 +61,8 @@ public class MythServicesTemplate implements MythServices {
 	public MythServicesTemplate( String apiUrlBase ) {
 		this.apiUrlBase = apiUrlBase;
 
-		restTemplate = new RestTemplate( ClientHttpRequestFactorySelector.getRequestFactory() );
-		restTemplate.setMessageConverters( getMessageConverters() );
+		restTemplate = new RestTemplate( true, ClientHttpRequestFactorySelector.getRequestFactory() );
+		//restTemplate.setMessageConverters( getMessageConverters() );
 
 		getRestTemplate().setErrorHandler( new MythServicesErrorHandler() );
 		initSubApis();
@@ -143,36 +132,6 @@ public class MythServicesTemplate implements MythServices {
 	@Override
 	public VideoOperations videoOperations() {
 		return videoOperations;
-	}
-
-	// subclassing hooks
-
-	protected List<HttpMessageConverter<?>> getMessageConverters() {
-		List<HttpMessageConverter<?>> messageConverters = new ArrayList<HttpMessageConverter<?>>();
-		messageConverters.add( new StringHttpMessageConverter() );
-		messageConverters.add( getFormMessageConverter() );
-		messageConverters.add( getJsonMessageConverter() );
-		messageConverters.add( getByteArrayMessageConverter() );
-		
-		return messageConverters;
-	}
-
-	protected FormHttpMessageConverter getFormMessageConverter() {
-		FormHttpMessageConverter converter = new FormHttpMessageConverter();
-		converter.setCharset( Charset.forName( "UTF-8" ) );
-		
-		return converter;
-	}
-
-	protected MappingJacksonHttpMessageConverter getJsonMessageConverter() {
-		return new MappingJacksonHttpMessageConverter();
-	}
-
-	protected ByteArrayHttpMessageConverter getByteArrayMessageConverter() {
-		ByteArrayHttpMessageConverter converter = new ByteArrayHttpMessageConverter();
-		converter.setSupportedMediaTypes( Arrays.asList( MediaType.IMAGE_JPEG, MediaType.IMAGE_GIF, MediaType.IMAGE_PNG ) );
-		
-		return converter;
 	}
 
 	// private helper
