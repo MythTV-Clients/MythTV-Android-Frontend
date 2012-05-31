@@ -855,8 +855,8 @@ public class MythtvPreferenceActivity extends PreferenceActivity {
     		
     		LocationProfile selectedAwayLocationProfile = db.fetchSelectedAwayLocationProfile();
 
-    		Preference deleteHomeLocationProfilePreference = findPreference( PREFERENCE_AWAY_DELETE_KEY );
-    		deleteHomeLocationProfilePreference.setOnPreferenceClickListener( new OnPreferenceClickListener() {
+    		Preference deleteAwayLocationProfilePreference = findPreference( PREFERENCE_AWAY_DELETE_KEY );
+    		deleteAwayLocationProfilePreference.setOnPreferenceClickListener( new OnPreferenceClickListener() {
 
     			public boolean onPreferenceClick( Preference preference ) {
     				
