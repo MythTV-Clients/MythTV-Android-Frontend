@@ -38,6 +38,7 @@ import android.view.MenuItem;
 
 /**
  * @author Daniel Frey
+ * @author John Baab
  *
  */
 public class MythtvPreferenceActivity extends PreferenceActivity {

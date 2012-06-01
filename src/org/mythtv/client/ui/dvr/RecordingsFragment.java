@@ -196,7 +196,10 @@ public class RecordingsFragment extends MythtvListFragment {
 					File pictureDir = new File( root, DownloadBannerImageTask.BANNERS_DIR );
 					pictureDir.mkdirs();
 
-					File f = new File( pictureDir, programGroup.getName() + ".png" );
+		            String filename = programGroup.getName();
+		            filename = filename.replace( ':', '_' );
+
+		            File f = new File( pictureDir, filename + ".png" );
 					if( f.exists() ) {
 						Log.v( TAG, "getView : loading banner from cache" );
 						
@@ -410,7 +413,10 @@ public class RecordingsFragment extends MythtvListFragment {
 		            File pictureDir = new File( root, BANNERS_DIR );
 		            pictureDir.mkdirs();
 		            
-		            File f = new File( pictureDir, programGroup.getName() + ".png" );
+		            String filename = programGroup.getName();
+		            filename = filename.replace( ':', '_' );
+		            
+		            File f = new File( pictureDir, filename + ".png" );
 	                if( f.exists() ) {
 		                return;
 		            }

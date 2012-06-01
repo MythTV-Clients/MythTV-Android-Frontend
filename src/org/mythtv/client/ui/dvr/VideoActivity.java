@@ -173,7 +173,8 @@ public class VideoActivity extends Activity {
 	public void checkLiveStreamInfo( LiveStreamInfo info ){
 		Log.v( TAG, "checkLiveStreamInfo : enter" );
 
-		if(info.getStatusInt() < 2 || info.getPercentComplete() < 1){
+		//if(info.getStatusInt() < 2 || info.getPercentComplete() < 1){
+		if(info.getStatusInt() < 2 || info.getCurrentSegment() <= 2){
 			new UpdateStreamInfoTask().execute();
 		}
 		else{
@@ -258,7 +259,8 @@ public class VideoActivity extends Activity {
 				Log.v( TAG, "UpdateStreamInfoTask : api" );
 				lookup = info;
 				
-				while (lookup.getStatusInt() < 2 || lookup.getPercentComplete() < 1){
+				//while (lookup.getStatusInt() < 2 || lookup.getPercentComplete() < 1){
+				while (lookup.getStatusInt() < 2 || lookup.getCurrentSegment() <= 2){
 					Thread.sleep(5000);
 					lookup = getApplicationContext().getMythServicesApi().contentOperations().getLiveStream(info.getId());
 				}
