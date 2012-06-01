@@ -34,6 +34,10 @@ public class ProgramGroupFragment extends MythtvListFragment {
 	
 	private Activity activity;
 	
+	public ProgramGroupFragment() {
+		this( null );
+	}
+	
 	public ProgramGroupFragment( Activity activity ) {
 		super();
 		Log.i( TAG, "initialize : enter" );
@@ -54,12 +58,18 @@ public class ProgramGroupFragment extends MythtvListFragment {
 	    Log.i( TAG, "onActivityCreated : exit" );
 	}
 
+	public void setActivity( Activity activity ) {
+		this.activity = activity;
+	}
+	
 	public void loadPrograms() {
 		Log.i( TAG, "loadPrograms : enter" );
 
-		adapter = new ProgramAdapter( ( (MainApplication) activity.getApplicationContext() ).getCurrentRecordingsInProgramGroup() );
-		setListAdapter( adapter );
-
+		if( null != activity ) {
+			adapter = new ProgramAdapter( ( (MainApplication) activity.getApplicationContext() ).getCurrentRecordingsInProgramGroup() );
+			setListAdapter( adapter );
+		}
+		
 		Log.i( TAG, "loadPrograms : exit" );
 	}
 	

@@ -58,7 +58,7 @@ public class ProgramGroupActivity extends AbstractProgramGroupActivity {
 		setContentView( R.layout.fragment_dvr_program_group );
 
 		programGroupFragment = (ProgramGroupFragment) getSupportFragmentManager().findFragmentById( R.id.fragment_dvr_program_group );
-
+		programGroupFragment.setActivity( this );
 		programGroupFragment.loadPrograms();
 		
 		Log.v( TAG, "onCreate : exit" );
@@ -73,17 +73,4 @@ public class ProgramGroupActivity extends AbstractProgramGroupActivity {
 		Log.v( TAG, "onResume : exit" );
 	}
 	
-	public void onProgramSelected( Program program ) {
-//		Log.d( TAG, "onProgramGroupSelected : enter" );
-//
-//		Log.v( TAG, "onProgramGroupSelected : starting program group activity" );
-//
-//		getApplicationContext().setCurrentProgram( program );
-//		
-//		Intent i = new Intent( this, VideoActivity.class );
-//		startActivity( i );
-//
-//		Log.d( TAG, "onProgramGroupSelected : exit" );
-	}
-
 }
