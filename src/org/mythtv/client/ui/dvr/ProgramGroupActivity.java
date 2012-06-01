@@ -21,12 +21,9 @@
  */
 package org.mythtv.client.ui.dvr;
 
-import java.util.List;
-
 import org.mythtv.R;
 import org.mythtv.services.api.dvr.Program;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -35,13 +32,13 @@ import android.util.Log;
  * @author John Baab
  * 
  */
-public class ProgramGroupActivity extends AbstractProgramGroupActivity implements ProgramGroupFragment.OnProgramListener{
+public class ProgramGroupActivity extends AbstractProgramGroupActivity {
 
 	private static final String TAG = ProgramGroupActivity.class.getSimpleName();
 
 	public static final String EXTRA_PROGRAM_GROUP_KEY = "org.mythtv.client.ui.dvr.programGroup.EXTRA_PROGRAM_GROUP_KEY";
 
-	private ProgramGroupFragment programGroup = null;
+	private ProgramGroupFragment programGroupFragment = null;
 
 	// ***************************************
 	// Activity methods
@@ -60,11 +57,9 @@ public class ProgramGroupActivity extends AbstractProgramGroupActivity implement
 
 		setContentView( R.layout.fragment_dvr_program_group );
 
-		programGroup = (ProgramGroupFragment) getSupportFragmentManager().findFragmentById( R.id.fragment_dvr_program_group );
+		programGroupFragment = (ProgramGroupFragment) getSupportFragmentManager().findFragmentById( R.id.fragment_dvr_program_group );
 
-		List<Program> programs = getApplicationContext().getCurrentRecordingsInProgramGroup();
-		programGroup.setOnProgramListener( this );
-		programGroup.loadPrograms( programs );
+		programGroupFragment.loadPrograms();
 		
 		Log.v( TAG, "onCreate : exit" );
 	}
@@ -79,16 +74,16 @@ public class ProgramGroupActivity extends AbstractProgramGroupActivity implement
 	}
 	
 	public void onProgramSelected( Program program ) {
-		Log.d( TAG, "onProgramGroupSelected : enter" );
-
-		Log.v( TAG, "onProgramGroupSelected : starting program group activity" );
-
-		getApplicationContext().setCurrentProgram( program );
-		
-		Intent i = new Intent( this, VideoActivity.class );
-		startActivity( i );
-
-		Log.d( TAG, "onProgramGroupSelected : exit" );
+//		Log.d( TAG, "onProgramGroupSelected : enter" );
+//
+//		Log.v( TAG, "onProgramGroupSelected : starting program group activity" );
+//
+//		getApplicationContext().setCurrentProgram( program );
+//		
+//		Intent i = new Intent( this, VideoActivity.class );
+//		startActivity( i );
+//
+//		Log.d( TAG, "onProgramGroupSelected : exit" );
 	}
 
 }

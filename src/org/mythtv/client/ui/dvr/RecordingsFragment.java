@@ -122,7 +122,9 @@ public class RecordingsFragment extends MythtvListFragment {
 		super.onListItemClick( l, v, position, id );
 	    
 		if( null != listener ) {
-			listener.onProgramGroupSelected( adapter.getItem( position ).getRecordings() );
+			Log.v( TAG, "onListItemClick : selecting programGroup at position " + position );
+			
+			listener.onProgramGroupSelected( adapter.getItem( position ) );
 		}
 
 		Log.v( TAG, "onListItemClick : exit" );
@@ -145,7 +147,7 @@ public class RecordingsFragment extends MythtvListFragment {
 	}
 
 	public interface OnProgramGroupListener {
-		void onProgramGroupSelected( List<Program> programs );
+		void onProgramGroupSelected( ProgramGroup programGroup );
 	}
 
 	private void setRecordingsInProgramGroups( List<Program> programs ) {

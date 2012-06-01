@@ -31,7 +31,7 @@ import android.util.Log;
  * 
  * 
  */
-public abstract class AbstractProgramGroupActivity extends AbstractMythtvFragmentActivity implements ProgramGroupFragment.OnProgramListener {
+public abstract class AbstractProgramGroupActivity extends AbstractMythtvFragmentActivity {
 
 	protected static final String TAG = AbstractProgramGroupActivity.class.getSimpleName();
 
