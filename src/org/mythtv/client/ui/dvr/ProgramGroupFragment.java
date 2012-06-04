@@ -6,9 +6,12 @@ package org.mythtv.client.ui.dvr;
 import java.util.List;
 
 import org.mythtv.R;
+import org.mythtv.client.MainApplication;
 import org.mythtv.client.ui.util.MythtvListFragment;
 import org.mythtv.services.api.dvr.Program;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -25,23 +28,22 @@ import android.widget.TextView;
  */
 public class ProgramGroupFragment extends MythtvListFragment {
 
-	private OnProgramListener listener = null;
-	private ProgramAdapter adapter = null;
 	private static final String TAG = ProgramGroupFragment.class.getSimpleName();
+
+	private ProgramAdapter adapter = null;
 	
-	private List<Program> recordingsInGroup = null;
+	private Activity activity;
 	
 	public ProgramGroupFragment() {
 		this( null );
 	}
-
-	public ProgramGroupFragment( List<Program> recordingsInGroup ) {
+	
+	public ProgramGroupFragment( Activity activity ) {
 		super();
 		Log.i( TAG, "initialize : enter" );
 
-		this.recordingsInGroup = recordingsInGroup;
-		setRetainInstance( true );
-
+		this.activity = activity;
+		
 		Log.i( TAG, "initialize : exit" );
 	}
 
@@ -51,34 +53,24 @@ public class ProgramGroupFragment extends MythtvListFragment {
 
 		super.onActivityCreated( savedInstanceState );
 	    
-	    if( null != savedInstanceState ) {
-	      
-	    } else if( null != recordingsInGroup ) {
-    		loadPrograms( recordingsInGroup );
-	    }
+   		loadPrograms();
 
 	    Log.i( TAG, "onActivityCreated : exit" );
 	}
 
-	public void loadPrograms( List<Program> recordingsInGroup ) {
+	public void setActivity( Activity activity ) {
+		this.activity = activity;
+	}
+	
+	public void loadPrograms() {
 		Log.i( TAG, "loadPrograms : enter" );
 
-		adapter = new ProgramAdapter( recordingsInGroup );
-		setListAdapter( adapter );
-
+		if( null != activity ) {
+			adapter = new ProgramAdapter( ( (MainApplication) activity.getApplicationContext() ).getCurrentRecordingsInProgramGroup() );
+			setListAdapter( adapter );
+		}
+		
 		Log.i( TAG, "loadPrograms : exit" );
-	}
-	
-	public void setOnProgramListener( OnProgramListener listener ) {
-		Log.v( TAG, "setOnProgramListener : enter" );
-
-		this.listener = listener;
-
-		Log.v( TAG, "setOnProgramListener : exit" );
-	}
-	
-	public interface OnProgramListener {
-		void onProgramSelected( Program program );
 	}
 	
 	@Override
@@ -89,9 +81,11 @@ public class ProgramGroupFragment extends MythtvListFragment {
 		
 		Log.v (TAG, "position : " + position);
 	    
-		if( null != listener ) {
-			listener.onProgramSelected( adapter.getItem( position ) );
-		}
+		Program program = adapter.getItem( position );
+		getApplicationContext().setCurrentProgram( program );
+		
+		Intent i = new Intent( getActivity(), VideoActivity.class );
+		startActivity( i );
 
 		Log.v( TAG, "onListItemClick : exit" );
 	}

@@ -26,7 +26,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.media.CamcorderProfile;
 import android.util.Log;
 
 /**
@@ -38,7 +37,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	private static final String TAG = DatabaseHelper.class.getSimpleName();
 	
 	private static final String DATABASE_NAME = "mythtvdb";
-	private static final int DATABASE_VERSION = 1;
+	private static final int DATABASE_VERSION = 4;
 
 	public static final String TABLE_LOCATION_PROFILE = "LOCATION_PROFILE";
 	public static final String TABLE_LOCATION_PROFILE_ID = "_ID";
@@ -81,9 +80,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		Log.v( TAG, "onCreate : enter" );
 		
 		db.execSQL( "CREATE TABLE location_profile( _id INTEGER PRIMARY KEY AUTOINCREMENT, type TEXT, name TEXT, url TEXT, selected INTEGER default 0 );" );
-		db.execSQL( "CREATE TABLE playback_profile( _id INTEGER PRIMARY KEY AUTOINCREMENT, type TEXT, name TEXT, url TEXT, width INTEGER, height INTEGER, bitrate INTEGER default 800000, audio_bitrate INTEGER default 64000, sample_rate INTEGER default 44100, selected INTEGER default 0 );" );
 
-		populateDatabase( db );
+		createPlaybackProfiles( db );
 		
 		Log.v( TAG, "onCreate : exit" );
 	}
@@ -95,117 +93,88 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	public void onUpgrade( SQLiteDatabase db, int oldVersion, int newVersion ) {
 		Log.v( TAG, "onUpgrade : enter" );
 
-	    db.execSQL( "DROP TABLE IF EXISTS location_profile" );
 	    db.execSQL( "DROP TABLE IF EXISTS playback_profile" );
 
-	    onCreate( db );
+	    createPlaybackProfiles( db );
 	    
 		Log.v( TAG, "onUpgrade : exit" );
 	}
 
 	// internal helpers
 	
-	private void populateDatabase( SQLiteDatabase db ) {
-		Log.v( TAG, "populateDatabase : enter" );
+	private void createPlaybackProfiles( SQLiteDatabase db ) {
+		Log.v( TAG, "createPlaybackProfiles : enter" );
 		
+		db.execSQL( "CREATE TABLE playback_profile( _id INTEGER PRIMARY KEY AUTOINCREMENT, type TEXT, name TEXT, url TEXT, width INTEGER, height INTEGER, bitrate INTEGER default 800000, audio_bitrate INTEGER default 64000, sample_rate INTEGER default 44100, selected INTEGER default 0 );" );
+
 		ContentValues values = new ContentValues();
 
-		CamcorderProfile largeProfile = CamcorderProfile.get( CamcorderProfile.QUALITY_720P );
-		if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
-			Log.v( TAG, "onCreate : Large Profile Settings" );
-			Log.v( TAG, "onCreate : largeProfile.videoFrameWidth=" + largeProfile.videoFrameWidth );
-			Log.v( TAG, "onCreate : largeProfile.videoFrameHeight=" + largeProfile.videoFrameHeight );
-			Log.v( TAG, "onCreate : largeProfile.videoBitRate=" + largeProfile.videoBitRate );
-			Log.v( TAG, "onCreate : largeProfile.audioBitRate=" + largeProfile.audioBitRate );
-			Log.v( TAG, "onCreate : largeProfile.audioSampleRate=" + largeProfile.audioSampleRate );
-		}
-		
 		values.put( TABLE_PLAYBACK_PROFILE_TYPE, "HOME" );
 		values.put( TABLE_PLAYBACK_PROFILE_NAME, "Large" );
-		values.put( TABLE_PLAYBACK_PROFILE_WIDTH, largeProfile.videoFrameWidth );
-		values.put( TABLE_PLAYBACK_PROFILE_HEIGHT, largeProfile.videoFrameHeight );
-		values.put( TABLE_PLAYBACK_PROFILE_BITRATE, largeProfile.videoBitRate );
-		values.put( TABLE_PLAYBACK_PROFILE_AUDIO_BITRATE, largeProfile.audioBitRate );
-		values.put( TABLE_PLAYBACK_PROFILE_SAMPLE_RATE, largeProfile.audioSampleRate );
+		values.put( TABLE_PLAYBACK_PROFILE_WIDTH, 1280 );
+		values.put( TABLE_PLAYBACK_PROFILE_HEIGHT, 720 );
+		values.put( TABLE_PLAYBACK_PROFILE_BITRATE, 8000000 );
+		values.put( TABLE_PLAYBACK_PROFILE_AUDIO_BITRATE, 96000 );
+		values.put( TABLE_PLAYBACK_PROFILE_SAMPLE_RATE, 48000 );
 		values.put( TABLE_PLAYBACK_PROFILE_SELECTED, 1 );
 		db.insert( TABLE_PLAYBACK_PROFILE, null, values );
 
 		values = new ContentValues();
 		values.put( TABLE_PLAYBACK_PROFILE_TYPE, "AWAY" );
 		values.put( TABLE_PLAYBACK_PROFILE_NAME, "Large" );
-		values.put( TABLE_PLAYBACK_PROFILE_WIDTH, largeProfile.videoFrameWidth );
-		values.put( TABLE_PLAYBACK_PROFILE_HEIGHT, largeProfile.videoFrameHeight );
-		values.put( TABLE_PLAYBACK_PROFILE_BITRATE, largeProfile.videoBitRate );
-		values.put( TABLE_PLAYBACK_PROFILE_AUDIO_BITRATE, largeProfile.audioBitRate );
-		values.put( TABLE_PLAYBACK_PROFILE_SAMPLE_RATE, largeProfile.audioSampleRate );
+		values.put( TABLE_PLAYBACK_PROFILE_WIDTH, 1280 );
+		values.put( TABLE_PLAYBACK_PROFILE_HEIGHT, 720 );
+		values.put( TABLE_PLAYBACK_PROFILE_BITRATE, 8000000 );
+		values.put( TABLE_PLAYBACK_PROFILE_AUDIO_BITRATE, 96000 );
+		values.put( TABLE_PLAYBACK_PROFILE_SAMPLE_RATE, 48000 );
 		values.put( TABLE_PLAYBACK_PROFILE_SELECTED, 0 );
 		db.insert( TABLE_PLAYBACK_PROFILE, null, values );
 
-		CamcorderProfile mediumProfile = CamcorderProfile.get( CamcorderProfile.QUALITY_480P );
-		if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
-			Log.v( TAG, "onCreate : Medium Profile Settings" );
-			Log.v( TAG, "onCreate : mediumProfile.videoFrameWidth=" + mediumProfile.videoFrameWidth );
-			Log.v( TAG, "onCreate : mediumProfile.videoFrameHeight=" + mediumProfile.videoFrameHeight );
-			Log.v( TAG, "onCreate : mediumProfile.videoBitRate=" + mediumProfile.videoBitRate );
-			Log.v( TAG, "onCreate : mediumProfile.audioBitRate=" + mediumProfile.audioBitRate );
-			Log.v( TAG, "onCreate : mediumProfile.audioSampleRate=" + mediumProfile.audioSampleRate );
-		}
-		
 		values = new ContentValues();
 		values.put( TABLE_PLAYBACK_PROFILE_TYPE, "HOME" );
 		values.put( TABLE_PLAYBACK_PROFILE_NAME, "Medium" );
-		values.put( TABLE_PLAYBACK_PROFILE_WIDTH, mediumProfile.videoFrameWidth );
-		values.put( TABLE_PLAYBACK_PROFILE_HEIGHT, mediumProfile.videoFrameHeight );
-		values.put( TABLE_PLAYBACK_PROFILE_BITRATE, mediumProfile.videoBitRate );
-		values.put( TABLE_PLAYBACK_PROFILE_AUDIO_BITRATE, mediumProfile.audioBitRate );
-		values.put( TABLE_PLAYBACK_PROFILE_SAMPLE_RATE, mediumProfile.audioSampleRate );
+		values.put( TABLE_PLAYBACK_PROFILE_WIDTH, 720 );
+		values.put( TABLE_PLAYBACK_PROFILE_HEIGHT, 480 );
+		values.put( TABLE_PLAYBACK_PROFILE_BITRATE, 5000000 );
+		values.put( TABLE_PLAYBACK_PROFILE_AUDIO_BITRATE, 96000 );
+		values.put( TABLE_PLAYBACK_PROFILE_SAMPLE_RATE, 48000 );
 		values.put( TABLE_PLAYBACK_PROFILE_SELECTED, 0 );
 		db.insert( TABLE_PLAYBACK_PROFILE, null, values );
 
 		values = new ContentValues();
 		values.put( TABLE_PLAYBACK_PROFILE_TYPE, "AWAY" );
 		values.put( TABLE_PLAYBACK_PROFILE_NAME, "Medium" );
-		values.put( TABLE_PLAYBACK_PROFILE_WIDTH, mediumProfile.videoFrameWidth );
-		values.put( TABLE_PLAYBACK_PROFILE_HEIGHT, mediumProfile.videoFrameHeight );
-		values.put( TABLE_PLAYBACK_PROFILE_BITRATE, mediumProfile.videoBitRate );
-		values.put( TABLE_PLAYBACK_PROFILE_AUDIO_BITRATE, mediumProfile.audioBitRate );
-		values.put( TABLE_PLAYBACK_PROFILE_SAMPLE_RATE, mediumProfile.audioSampleRate );
+		values.put( TABLE_PLAYBACK_PROFILE_WIDTH, 720 );
+		values.put( TABLE_PLAYBACK_PROFILE_HEIGHT, 480 );
+		values.put( TABLE_PLAYBACK_PROFILE_BITRATE, 5000000 );
+		values.put( TABLE_PLAYBACK_PROFILE_AUDIO_BITRATE, 96000 );
+		values.put( TABLE_PLAYBACK_PROFILE_SAMPLE_RATE, 48000 );
 		values.put( TABLE_PLAYBACK_PROFILE_SELECTED, 1 );
 		db.insert( TABLE_PLAYBACK_PROFILE, null, values );
 
-		CamcorderProfile smallProfile = CamcorderProfile.get( CamcorderProfile.QUALITY_LOW );
-		if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
-			Log.v( TAG, "onCreate : Small Profile Settings" );
-			Log.v( TAG, "onCreate : smallProfile.videoFrameWidth=" + smallProfile.videoFrameWidth );
-			Log.v( TAG, "onCreate : smallProfile.videoFrameHeight=" + smallProfile.videoFrameHeight );
-			Log.v( TAG, "onCreate : smallProfile.videoBitRate=" + smallProfile.videoBitRate );
-			Log.v( TAG, "onCreate : smallProfile.audioBitRate=" + smallProfile.audioBitRate );
-			Log.v( TAG, "onCreate : smallProfile.audioSampleRate=" + smallProfile.audioSampleRate );
-		}
-		
 		values = new ContentValues();
 		values.put( TABLE_PLAYBACK_PROFILE_TYPE, "HOME" );
 		values.put( TABLE_PLAYBACK_PROFILE_NAME, "Small" );
-		values.put( TABLE_PLAYBACK_PROFILE_WIDTH, smallProfile.videoFrameWidth );
-		values.put( TABLE_PLAYBACK_PROFILE_HEIGHT, smallProfile.videoFrameHeight );
-		values.put( TABLE_PLAYBACK_PROFILE_BITRATE, smallProfile.videoBitRate );
-		values.put( TABLE_PLAYBACK_PROFILE_AUDIO_BITRATE, smallProfile.audioBitRate );
-		values.put( TABLE_PLAYBACK_PROFILE_SAMPLE_RATE, smallProfile.audioSampleRate );
+		values.put( TABLE_PLAYBACK_PROFILE_WIDTH, 352 );
+		values.put( TABLE_PLAYBACK_PROFILE_HEIGHT, 288 );
+		values.put( TABLE_PLAYBACK_PROFILE_BITRATE, 1200000 );
+		values.put( TABLE_PLAYBACK_PROFILE_AUDIO_BITRATE, 96000 );
+		values.put( TABLE_PLAYBACK_PROFILE_SAMPLE_RATE, 48000 );
 		values.put( TABLE_PLAYBACK_PROFILE_SELECTED, 0 );
 		db.insert( TABLE_PLAYBACK_PROFILE, null, values );
 
 		values = new ContentValues();
 		values.put( TABLE_PLAYBACK_PROFILE_TYPE, "AWAY" );
 		values.put( TABLE_PLAYBACK_PROFILE_NAME, "Small" );
-		values.put( TABLE_PLAYBACK_PROFILE_WIDTH, smallProfile.videoFrameWidth );
-		values.put( TABLE_PLAYBACK_PROFILE_HEIGHT, smallProfile.videoFrameHeight );
-		values.put( TABLE_PLAYBACK_PROFILE_BITRATE, smallProfile.videoBitRate );
-		values.put( TABLE_PLAYBACK_PROFILE_AUDIO_BITRATE, smallProfile.audioBitRate );
-		values.put( TABLE_PLAYBACK_PROFILE_SAMPLE_RATE, smallProfile.audioSampleRate );
+		values.put( TABLE_PLAYBACK_PROFILE_WIDTH, 352 );
+		values.put( TABLE_PLAYBACK_PROFILE_HEIGHT, 288 );
+		values.put( TABLE_PLAYBACK_PROFILE_BITRATE, 1200000 );
+		values.put( TABLE_PLAYBACK_PROFILE_AUDIO_BITRATE, 96000 );
+		values.put( TABLE_PLAYBACK_PROFILE_SAMPLE_RATE, 48000 );
 		values.put( TABLE_PLAYBACK_PROFILE_SELECTED, 0 );
 		db.insert( TABLE_PLAYBACK_PROFILE, null, values );
 		
-		Log.v( TAG, "populateDatabase : exit" );
+		Log.v( TAG, "createPlaybackProfiles : exit" );
 	}
 	
 }

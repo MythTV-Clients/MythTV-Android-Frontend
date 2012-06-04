@@ -3,10 +3,7 @@
  */
 package org.mythtv.client.ui.dvr;
 
-import java.util.List;
-
 import org.mythtv.R;
-import org.mythtv.services.api.dvr.Program;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -40,7 +37,7 @@ public class RecordingsActivity extends AbstractRecordingsActivity implements Re
 		Log.i( TAG, "onCreate : exit" );
 	}
 
-	public void addProgramGroupFragment( List<Program> programs ) {
+	public void addProgramGroupFragment( ProgramGroup programGroup ) {
 		Log.d( TAG, "addProgramGroupFragment : enter" );
 
 		FragmentManager fragMgr = getSupportFragmentManager();
@@ -50,28 +47,32 @@ public class RecordingsActivity extends AbstractRecordingsActivity implements Re
 		if( null == programGroupFragment ) {
 			Log.v( TAG, "addProgramGroupFragment : creating new program group fragment" );
 
-			programGroupFragment = new ProgramGroupFragment( programs );
+			programGroupFragment = new ProgramGroupFragment( this );
 
-			xaction.add( R.id.fragment_dvr_program_group, programGroupFragment ).setTransition( FragmentTransaction.TRANSIT_FRAGMENT_OPEN ).addToBackStack( null ).commit();
+			xaction
+				.add( R.id.fragment_dvr_program_group, programGroupFragment )
+				.setTransition( FragmentTransaction.TRANSIT_FRAGMENT_OPEN )
+				.addToBackStack( null )
+				.commit();
 		}
 
-		programGroupFragment.loadPrograms( programs );
+		programGroupFragment.loadPrograms();
 		
 		Log.d( TAG, "addProgramGroupFragment : exit" );
 	}
 
-	public void onProgramGroupSelected( List<Program> programs ) {
+	public void onProgramGroupSelected( ProgramGroup programGroup ) {
 		Log.d( TAG, "onProgramGroupSelected : enter" );
+
+		getApplicationContext().setCurrentRecordingsInProgramGroup( programGroup.getRecordings() );
 
 		if( isTwoPane ) {
 			Log.v( TAG, "onProgramGroupSelected : adding program group to pane" );
 
-			addProgramGroupFragment( programs );
+			addProgramGroupFragment( programGroup );
 		} else {
 			Log.v( TAG, "onProgramGroupSelected : starting program group activity" );
 
-			getApplicationContext().setCurrentRecordingsInProgramGroup( programs );
-			
 			Intent i = new Intent( this, ProgramGroupActivity.class );
 			startActivity( i );
 		}

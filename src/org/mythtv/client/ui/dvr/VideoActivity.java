@@ -29,7 +29,6 @@ package org.mythtv.client.ui.dvr;
 
 import org.mythtv.R;
 import org.mythtv.client.MainApplication;
-import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.preferences.PlaybackProfile;
 import org.mythtv.services.api.content.LiveStreamInfo;
 import org.mythtv.services.api.dvr.Program;
@@ -217,7 +216,7 @@ public class VideoActivity extends Activity {
 				//			-1, -1, -1, -1, -1, -1);
 				
 				lookup = getApplicationContext().getMythServicesApi().contentOperations().
-						addLiveStream(null, program.getFilename(), null, -1, selectedPlaybackProfile.getWidth(),
+						addLiveStream(null, program.getFilename(), null, -1, -1,
 								selectedPlaybackProfile.getHeight(), selectedPlaybackProfile.getVideoBitrate(), 
 								selectedPlaybackProfile.getAudioBitrate(), selectedPlaybackProfile.getAudioSampleRate());
 			} catch( Exception e ) {
