@@ -15,6 +15,7 @@
  *  along with MythTV for Android.  If not, see <http://www.gnu.org/licenses/>.
  *   
  * @author Daniel Frey <dmfrey at gmail dot com>
+ * @author John Baab <rhpot1991@ubuntu.com>
  * 
  * This software can be found at <https://github.com/dmfrey/mythtv-for-android/>
  *
@@ -30,6 +31,7 @@ import android.util.Log;
 
 /**
  * @author Daniel Frey
+ * @author John Baab
  *
  */
 public class DatabaseHelper extends SQLiteOpenHelper {
@@ -110,32 +112,98 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		ContentValues values = new ContentValues();
 
 		values.put( TABLE_PLAYBACK_PROFILE_TYPE, "HOME" );
-		values.put( TABLE_PLAYBACK_PROFILE_NAME, "Large" );
+		values.put( TABLE_PLAYBACK_PROFILE_NAME, "720p" );
 		values.put( TABLE_PLAYBACK_PROFILE_WIDTH, 1280 );
 		values.put( TABLE_PLAYBACK_PROFILE_HEIGHT, 720 );
-		values.put( TABLE_PLAYBACK_PROFILE_BITRATE, 8000000 );
-		values.put( TABLE_PLAYBACK_PROFILE_AUDIO_BITRATE, 96000 );
+		values.put( TABLE_PLAYBACK_PROFILE_BITRATE, 2000000 );
+		values.put( TABLE_PLAYBACK_PROFILE_AUDIO_BITRATE, 192000 );
+		values.put( TABLE_PLAYBACK_PROFILE_SAMPLE_RATE, 48000 );
+		values.put( TABLE_PLAYBACK_PROFILE_SELECTED, 0 );
+		db.insert( TABLE_PLAYBACK_PROFILE, null, values );
+
+		values = new ContentValues();
+		values.put( TABLE_PLAYBACK_PROFILE_TYPE, "AWAY" );
+		values.put( TABLE_PLAYBACK_PROFILE_NAME, "720p" );
+		values.put( TABLE_PLAYBACK_PROFILE_WIDTH, 1280 );
+		values.put( TABLE_PLAYBACK_PROFILE_HEIGHT, 720 );
+		values.put( TABLE_PLAYBACK_PROFILE_BITRATE, 2000000 );
+		values.put( TABLE_PLAYBACK_PROFILE_AUDIO_BITRATE, 192000 );
+		values.put( TABLE_PLAYBACK_PROFILE_SAMPLE_RATE, 48000 );
+		values.put( TABLE_PLAYBACK_PROFILE_SELECTED, 0 );
+		db.insert( TABLE_PLAYBACK_PROFILE, null, values );
+		
+		values = new ContentValues();
+		values.put( TABLE_PLAYBACK_PROFILE_TYPE, "HOME" );
+		values.put( TABLE_PLAYBACK_PROFILE_NAME, "630p" );
+		values.put( TABLE_PLAYBACK_PROFILE_WIDTH, 1120 );
+		values.put( TABLE_PLAYBACK_PROFILE_HEIGHT, 630 );
+		values.put( TABLE_PLAYBACK_PROFILE_BITRATE, 1500000 );
+		values.put( TABLE_PLAYBACK_PROFILE_AUDIO_BITRATE, 192000 );
+		values.put( TABLE_PLAYBACK_PROFILE_SAMPLE_RATE, 48000 );
+		values.put( TABLE_PLAYBACK_PROFILE_SELECTED, 0 );
+		db.insert( TABLE_PLAYBACK_PROFILE, null, values );
+
+		values = new ContentValues();
+		values.put( TABLE_PLAYBACK_PROFILE_TYPE, "AWAY" );
+		values.put( TABLE_PLAYBACK_PROFILE_NAME, "630p" );
+		values.put( TABLE_PLAYBACK_PROFILE_WIDTH, 1120 );
+		values.put( TABLE_PLAYBACK_PROFILE_HEIGHT, 630 );
+		values.put( TABLE_PLAYBACK_PROFILE_BITRATE, 1500000 );
+		values.put( TABLE_PLAYBACK_PROFILE_AUDIO_BITRATE, 192000 );
+		values.put( TABLE_PLAYBACK_PROFILE_SAMPLE_RATE, 48000 );
+		values.put( TABLE_PLAYBACK_PROFILE_SELECTED, 0 );
+		db.insert( TABLE_PLAYBACK_PROFILE, null, values );
+		
+		values = new ContentValues();
+		values.put( TABLE_PLAYBACK_PROFILE_TYPE, "HOME" );
+		values.put( TABLE_PLAYBACK_PROFILE_NAME, "540p" );
+		values.put( TABLE_PLAYBACK_PROFILE_WIDTH, 960 );
+		values.put( TABLE_PLAYBACK_PROFILE_HEIGHT, 540 );
+		values.put( TABLE_PLAYBACK_PROFILE_BITRATE, 1000000 );
+		values.put( TABLE_PLAYBACK_PROFILE_AUDIO_BITRATE, 128000 );
 		values.put( TABLE_PLAYBACK_PROFILE_SAMPLE_RATE, 48000 );
 		values.put( TABLE_PLAYBACK_PROFILE_SELECTED, 1 );
 		db.insert( TABLE_PLAYBACK_PROFILE, null, values );
 
 		values = new ContentValues();
 		values.put( TABLE_PLAYBACK_PROFILE_TYPE, "AWAY" );
-		values.put( TABLE_PLAYBACK_PROFILE_NAME, "Large" );
-		values.put( TABLE_PLAYBACK_PROFILE_WIDTH, 1280 );
-		values.put( TABLE_PLAYBACK_PROFILE_HEIGHT, 720 );
-		values.put( TABLE_PLAYBACK_PROFILE_BITRATE, 8000000 );
-		values.put( TABLE_PLAYBACK_PROFILE_AUDIO_BITRATE, 96000 );
+		values.put( TABLE_PLAYBACK_PROFILE_NAME, "540p" );
+		values.put( TABLE_PLAYBACK_PROFILE_WIDTH, 960 );
+		values.put( TABLE_PLAYBACK_PROFILE_HEIGHT, 540 );
+		values.put( TABLE_PLAYBACK_PROFILE_BITRATE, 1000000 );
+		values.put( TABLE_PLAYBACK_PROFILE_AUDIO_BITRATE, 128000 );
 		values.put( TABLE_PLAYBACK_PROFILE_SAMPLE_RATE, 48000 );
 		values.put( TABLE_PLAYBACK_PROFILE_SELECTED, 0 );
 		db.insert( TABLE_PLAYBACK_PROFILE, null, values );
 
 		values = new ContentValues();
 		values.put( TABLE_PLAYBACK_PROFILE_TYPE, "HOME" );
-		values.put( TABLE_PLAYBACK_PROFILE_NAME, "Medium" );
-		values.put( TABLE_PLAYBACK_PROFILE_WIDTH, 720 );
+		values.put( TABLE_PLAYBACK_PROFILE_NAME, "480p" );
+		values.put( TABLE_PLAYBACK_PROFILE_WIDTH, 854 );
 		values.put( TABLE_PLAYBACK_PROFILE_HEIGHT, 480 );
-		values.put( TABLE_PLAYBACK_PROFILE_BITRATE, 5000000 );
+		values.put( TABLE_PLAYBACK_PROFILE_BITRATE, 800000 );
+		values.put( TABLE_PLAYBACK_PROFILE_AUDIO_BITRATE, 128000 );
+		values.put( TABLE_PLAYBACK_PROFILE_SAMPLE_RATE, 48000 );
+		values.put( TABLE_PLAYBACK_PROFILE_SELECTED, 0 );
+		db.insert( TABLE_PLAYBACK_PROFILE, null, values );
+
+		values = new ContentValues();
+		values.put( TABLE_PLAYBACK_PROFILE_TYPE, "AWAY" );
+		values.put( TABLE_PLAYBACK_PROFILE_NAME, "480p" );
+		values.put( TABLE_PLAYBACK_PROFILE_WIDTH, 854 );
+		values.put( TABLE_PLAYBACK_PROFILE_HEIGHT, 480 );
+		values.put( TABLE_PLAYBACK_PROFILE_BITRATE, 800000 );
+		values.put( TABLE_PLAYBACK_PROFILE_AUDIO_BITRATE, 128000 );
+		values.put( TABLE_PLAYBACK_PROFILE_SAMPLE_RATE, 48000 );
+		values.put( TABLE_PLAYBACK_PROFILE_SELECTED, 0 );
+		db.insert( TABLE_PLAYBACK_PROFILE, null, values );
+
+		values = new ContentValues();
+		values.put( TABLE_PLAYBACK_PROFILE_TYPE, "HOME" );
+		values.put( TABLE_PLAYBACK_PROFILE_NAME, "360p" );
+		values.put( TABLE_PLAYBACK_PROFILE_WIDTH, 640 );
+		values.put( TABLE_PLAYBACK_PROFILE_HEIGHT, 360 );
+		values.put( TABLE_PLAYBACK_PROFILE_BITRATE, 500000 );
 		values.put( TABLE_PLAYBACK_PROFILE_AUDIO_BITRATE, 96000 );
 		values.put( TABLE_PLAYBACK_PROFILE_SAMPLE_RATE, 48000 );
 		values.put( TABLE_PLAYBACK_PROFILE_SELECTED, 0 );
@@ -143,21 +211,21 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 		values = new ContentValues();
 		values.put( TABLE_PLAYBACK_PROFILE_TYPE, "AWAY" );
-		values.put( TABLE_PLAYBACK_PROFILE_NAME, "Medium" );
-		values.put( TABLE_PLAYBACK_PROFILE_WIDTH, 720 );
-		values.put( TABLE_PLAYBACK_PROFILE_HEIGHT, 480 );
-		values.put( TABLE_PLAYBACK_PROFILE_BITRATE, 5000000 );
+		values.put( TABLE_PLAYBACK_PROFILE_NAME, "360p" );
+		values.put( TABLE_PLAYBACK_PROFILE_WIDTH, 640 );
+		values.put( TABLE_PLAYBACK_PROFILE_HEIGHT, 360 );
+		values.put( TABLE_PLAYBACK_PROFILE_BITRATE, 500000 );
 		values.put( TABLE_PLAYBACK_PROFILE_AUDIO_BITRATE, 96000 );
 		values.put( TABLE_PLAYBACK_PROFILE_SAMPLE_RATE, 48000 );
 		values.put( TABLE_PLAYBACK_PROFILE_SELECTED, 1 );
 		db.insert( TABLE_PLAYBACK_PROFILE, null, values );
-
+		
 		values = new ContentValues();
 		values.put( TABLE_PLAYBACK_PROFILE_TYPE, "HOME" );
-		values.put( TABLE_PLAYBACK_PROFILE_NAME, "Small" );
-		values.put( TABLE_PLAYBACK_PROFILE_WIDTH, 352 );
-		values.put( TABLE_PLAYBACK_PROFILE_HEIGHT, 288 );
-		values.put( TABLE_PLAYBACK_PROFILE_BITRATE, 1200000 );
+		values.put( TABLE_PLAYBACK_PROFILE_NAME, "270p" );
+		values.put( TABLE_PLAYBACK_PROFILE_WIDTH, 480 );
+		values.put( TABLE_PLAYBACK_PROFILE_HEIGHT, 270 );
+		values.put( TABLE_PLAYBACK_PROFILE_BITRATE, 300000 );
 		values.put( TABLE_PLAYBACK_PROFILE_AUDIO_BITRATE, 96000 );
 		values.put( TABLE_PLAYBACK_PROFILE_SAMPLE_RATE, 48000 );
 		values.put( TABLE_PLAYBACK_PROFILE_SELECTED, 0 );
@@ -165,10 +233,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 		values = new ContentValues();
 		values.put( TABLE_PLAYBACK_PROFILE_TYPE, "AWAY" );
-		values.put( TABLE_PLAYBACK_PROFILE_NAME, "Small" );
-		values.put( TABLE_PLAYBACK_PROFILE_WIDTH, 352 );
-		values.put( TABLE_PLAYBACK_PROFILE_HEIGHT, 288 );
-		values.put( TABLE_PLAYBACK_PROFILE_BITRATE, 1200000 );
+		values.put( TABLE_PLAYBACK_PROFILE_NAME, "270p" );
+		values.put( TABLE_PLAYBACK_PROFILE_WIDTH, 480 );
+		values.put( TABLE_PLAYBACK_PROFILE_HEIGHT, 270 );
+		values.put( TABLE_PLAYBACK_PROFILE_BITRATE, 300000 );
 		values.put( TABLE_PLAYBACK_PROFILE_AUDIO_BITRATE, 96000 );
 		values.put( TABLE_PLAYBACK_PROFILE_SAMPLE_RATE, 48000 );
 		values.put( TABLE_PLAYBACK_PROFILE_SELECTED, 0 );
