@@ -33,24 +33,25 @@ import org.mythtv.client.ui.preferences.PlaybackProfile;
 import org.mythtv.services.api.content.LiveStreamInfo;
 import org.mythtv.services.api.dvr.Program;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 
 /**
  * @author John Baab
  * 
  */
-public class VideoActivity extends Activity {
+public class VideoActivity extends FragmentActivity {
 
 	private static final String TAG = VideoActivity.class.getSimpleName();
 
 	public static final String EXTRA_PROGRAM_GROUP_KEY = "org.mythtv.client.ui.dvr.programGroup.EXTRA_PROGRAM_GROUP_KEY";
+	
 	private LiveStreamInfo info = null;
 	private ProgressDialog progressDialog;
 	private Boolean firstrun = true;
@@ -71,54 +72,57 @@ public class VideoActivity extends Activity {
 	 */
 	@Override
 	protected void onCreate( Bundle savedInstanceState ) {
-		
 		Log.v( TAG, "onCreate : enter" );
-
 		super.onCreate( savedInstanceState );
 
-	    setContentView(R.layout.activity_video);
+	    setContentView( R.layout.activity_video );
 	    
-	    progressDialog = ProgressDialog.show(this,
-        		"Please wait...", "Retrieving video...", true, true);
+	    progressDialog = ProgressDialog.show( this, "Please wait...", "Retrieving video...", true, true );
 	    
 	    new CreateStreamTask().execute();
 	    
 		Log.v( TAG, "onCreate : exit" );
 	}
 	
-	protected void onDestroy() {
-		
-		Log.v( TAG, "onDestroy : enter" );
-		
-        super.onDestroy();
-
-        new RemoveStreamTask().execute();
-        
-        Log.v( TAG, "onDestroy : exit" );
-    }
-	
+	/* (non-Javadoc)
+	 * @see android.app.Activity#onResume()
+	 */
+	@Override
 	protected void onResume() {
-		
 		Log.v( TAG, "onResume : enter" );
-		
 		super.onResume();
 		
-		if (firstrun == false){
+		if( !firstrun ) {
+			Log.v( TAG, "onResume : resuming after video playback started" );
+			
 			finish();
-		}
-		else{
+		} else {
 			firstrun = false;
 		}
 		
 		Log.v( TAG, "onResume : exit" );
 	}
 	
-	private void startVideo(){
-		
+	/* (non-Javadoc)
+	 * @see android.app.Activity#onDestroy()
+	 */
+	@Override
+	protected void onDestroy() {
+		Log.v( TAG, "onDestroy : enter" );
+        super.onDestroy();
+
+        new RemoveStreamTask().execute();
+        
+        Log.v( TAG, "onDestroy : exit" );
+    }
+
+	// internal helpers
+	
+	private void startVideo() {
 		Log.v( TAG, "Starting Video" );
 		
 		String temp = getApplicationContext().getMasterBackend();
-		temp = temp.replaceAll("/$", "");
+		temp = temp.replaceAll( "/$", "" );
 		String url = temp + info.getRelativeUrl();
 	    Log.v( TAG, "URL: " + url );
 	    
@@ -128,16 +132,16 @@ public class VideoActivity extends Activity {
 	    mVideoView.setVideoURI(Uri.parse(url));
 	    mVideoView.setMediaController(new MediaController(this));*/
 	    
-	    if (progressDialog!=null) {
+	    if( progressDialog!=null ) {
 			progressDialog.dismiss();
 			progressDialog = null;
 		}
 	    
 	    // Disable this code to use vitamio: http://vov.io/vitamio/
 	    // Section 3 of 4
-	    Intent tostart = new Intent(Intent.ACTION_VIEW);
-	    tostart.setDataAndType(Uri.parse(url), "video/*");
-	    startActivity(tostart);
+	    Intent tostart = new Intent( Intent.ACTION_VIEW );
+	    tostart.setDataAndType( Uri.parse(url), "video/*" );
+	    startActivity( tostart );
 	    
 	    
 	    // Enable this code to use vitamio: http://vov.io/vitamio/
@@ -146,7 +150,6 @@ public class VideoActivity extends Activity {
 	    mVideoView.start();*/
 	    
 	    Log.v( TAG, "Done Starting Video" );
-	
 	}
 	
 	private void exceptionDialolg( Throwable t ) {
@@ -164,7 +167,7 @@ public class VideoActivity extends Activity {
 
 		this.info = info;
 		
-		checkLiveStreamInfo(info);
+		checkLiveStreamInfo( info );
 
 		Log.v( TAG, "setLiveStreamInfo : exit" );
 	}
@@ -173,10 +176,9 @@ public class VideoActivity extends Activity {
 		Log.v( TAG, "checkLiveStreamInfo : enter" );
 
 		//if(info.getStatusInt() < 2 || info.getPercentComplete() < 1){
-		if(info.getStatusInt() < 2 || info.getCurrentSegment() <= 2){
+		if( info.getStatusInt() < 2 || info.getCurrentSegment() <= 2 ) {
 			new UpdateStreamInfoTask().execute();
-		}
-		else{
+		} else {
 			startVideo();
 		}
 

@@ -200,6 +200,7 @@ public class RecordingsFragment extends MythtvListFragment {
 
 		            String filename = programGroup.getName();
 		            filename = filename.replace( ':', '_' );
+		            filename = filename.replace( '/', '_' );
 
 		            File f = new File( pictureDir, filename + ".png" );
 					if( f.exists() ) {
@@ -417,6 +418,7 @@ public class RecordingsFragment extends MythtvListFragment {
 		            
 		            String filename = programGroup.getName();
 		            filename = filename.replace( ':', '_' );
+		            filename = filename.replace( '/', '_' );
 		            
 		            File f = new File( pictureDir, filename + ".png" );
 	                if( f.exists() ) {

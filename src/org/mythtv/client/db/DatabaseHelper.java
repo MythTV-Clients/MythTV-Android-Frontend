@@ -39,7 +39,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	private static final String TAG = DatabaseHelper.class.getSimpleName();
 	
 	private static final String DATABASE_NAME = "mythtvdb";
-	private static final int DATABASE_VERSION = 4;
+	private static final int DATABASE_VERSION = 5;
 
 	public static final String TABLE_LOCATION_PROFILE = "LOCATION_PROFILE";
 	public static final String TABLE_LOCATION_PROFILE_ID = "_ID";
