@@ -7,14 +7,14 @@
         android:id="@+id/frontend_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="30px" >
+        android:textSize="30dp" >
     </TextView>
 
     <TextView
         android:id="@+id/frontend_url"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="20px" >
+        android:textSize="20dp" >
     </TextView>
     
 </RelativeLayout>

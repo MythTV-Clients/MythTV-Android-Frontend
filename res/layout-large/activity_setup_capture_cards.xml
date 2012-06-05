@@ -26,13 +26,11 @@
     <fragment 
         android:name="org.mythtv.client.ui.setup.capture.CaptureCardsListFragment"
         android:id="@+id/setup_fragment_capture_cards"
-        android:layout_weight="1"
         android:layout_width="0px"
         android:layout_height="match_parent" />
 
     <FrameLayout 
         android:id="@+id/setup_frame_capture_card" 
-        android:layout_weight="1"
         android:layout_width="0px" 
         android:layout_height="match_parent"
         android:background="?android:attr/detailsElementBackground" />

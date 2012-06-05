@@ -22,7 +22,6 @@
 package org.mythtv.client.ui.dvr;
 
 import org.mythtv.R;
-import org.mythtv.services.api.dvr.Program;
 
 import android.os.Bundle;
 import android.util.Log;

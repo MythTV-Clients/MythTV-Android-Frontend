@@ -3,8 +3,6 @@
  */
 package org.mythtv.client.ui.frontends;
 
-import java.util.List;
-
 import org.mythtv.R;
 
 import android.os.Bundle;
