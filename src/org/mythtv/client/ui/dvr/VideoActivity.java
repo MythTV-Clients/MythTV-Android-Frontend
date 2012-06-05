@@ -36,7 +36,6 @@ import org.mythtv.services.api.dvr.Program;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -52,8 +51,6 @@ public class VideoActivity extends FragmentActivity {
 	private static final String TAG = VideoActivity.class.getSimpleName();
 
 	public static final String EXTRA_PROGRAM_GROUP_KEY = "org.mythtv.client.ui.dvr.programGroup.EXTRA_PROGRAM_GROUP_KEY";
-	
-	private SharedPreferences mPreferences;
 	
 	private LiveStreamInfo info = null;
 	private ProgressDialog progressDialog;
@@ -80,9 +77,6 @@ public class VideoActivity extends FragmentActivity {
 
 	    setContentView( R.layout.activity_video );
 	    
-	    mPreferences = getSharedPreferences( "org.mythtv.dvr.videoActivity", MODE_PRIVATE );
-	    firstrun = mPreferences.getBoolean( "FIRSTRUN", Boolean.TRUE );
-	    
 	    progressDialog = ProgressDialog.show( this, "Please wait...", "Retrieving video...", true, true );
 	    
 	    new CreateStreamTask().execute();
@@ -90,30 +84,6 @@ public class VideoActivity extends FragmentActivity {
 		Log.v( TAG, "onCreate : exit" );
 	}
 	
-	/* (non-Javadoc)
-	 * @see android.app.Activity#onRestart()
-	 */
-	@Override
-	protected void onRestart() {
-		Log.v( TAG, "onRestart : enter" );
-		
-		super.onRestart();
-
-		Log.v( TAG, "onRestart : exit" );
-	}
-
-	/* (non-Javadoc)
-	 * @see android.app.Activity#onStart()
-	 */
-	@Override
-	protected void onStart() {
-		Log.v( TAG, "onStart : enter" );
-		
-		super.onRestart();
-
-		Log.v( TAG, "onStart : exit" );
-	}
-
 	/* (non-Javadoc)
 	 * @see android.app.Activity#onResume()
 	 */
@@ -126,38 +96,13 @@ public class VideoActivity extends FragmentActivity {
 			Log.v( TAG, "onResume : resuming after video playback started" );
 			
 			finish();
+		} else {
+			firstrun = false;
 		}
 		
 		Log.v( TAG, "onResume : exit" );
 	}
 	
-	/* (non-Javadoc)
-	 * @see android.app.Activity#onPause()
-	 */
-	@Override
-	protected void onPause() {
-		Log.v( TAG, "onPause : enter" );
-		super.onPause();
-
-        SharedPreferences.Editor ed = mPreferences.edit();
-        ed.putBoolean( "FIRSTRUN", firstrun );
-        ed.commit();
-
-        Log.v( TAG, "onPause : exit" );
-	}
-
-	/* (non-Javadoc)
-	 * @see android.app.Activity#onStop()
-	 */
-	@Override
-	protected void onStop() {
-		Log.v( TAG, "onStop : enter" );
-		
-		super.onStop();
-
-		Log.v( TAG, "onStop : exit" );
-	}
-
 	/* (non-Javadoc)
 	 * @see android.app.Activity#onDestroy()
 	 */
@@ -187,13 +132,11 @@ public class VideoActivity extends FragmentActivity {
 	    mVideoView.setVideoURI(Uri.parse(url));
 	    mVideoView.setMediaController(new MediaController(this));*/
 	    
-	    if (progressDialog!=null) {
+	    if( progressDialog!=null ) {
 			progressDialog.dismiss();
 			progressDialog = null;
 		}
 	    
-	    firstrun = false;
-
 	    // Disable this code to use vitamio: http://vov.io/vitamio/
 	    // Section 3 of 4
 	    Intent tostart = new Intent( Intent.ACTION_VIEW );
