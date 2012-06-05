@@ -216,7 +216,7 @@ public class VideoActivity extends Activity {
 				//			-1, -1, -1, -1, -1, -1);
 				
 				lookup = getApplicationContext().getMythServicesApi().contentOperations().
-						addLiveStream(null, program.getFilename(), null, -1, -1,
+						addLiveStream(null, program.getFilename(), program.getHostname(), -1, -1,
 								selectedPlaybackProfile.getHeight(), selectedPlaybackProfile.getVideoBitrate(), 
 								selectedPlaybackProfile.getAudioBitrate(), selectedPlaybackProfile.getAudioSampleRate());
 			} catch( Exception e ) {
