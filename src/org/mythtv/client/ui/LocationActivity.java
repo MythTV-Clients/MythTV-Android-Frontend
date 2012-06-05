@@ -25,15 +25,15 @@ import org.mythtv.R;
 import org.mythtv.client.db.MythtvDatabaseManager;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.preferences.MythtvPreferenceActivity;
+import org.mythtv.client.ui.preferences.MythtvPreferenceActivityHC;
 import org.mythtv.client.ui.preferences.PlaybackProfile;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo.State;
+import android.os.Build;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -73,8 +73,6 @@ public class LocationActivity extends AbstractMythtvFragmentActivity {
 	    Log.d( TAG, "onResume : enter" );
 	    super.onResume();
 	    
-	    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences( this );
-
 		MythtvDatabaseManager db = new MythtvDatabaseManager( this );
 		
 		ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService( Context.CONNECTIVITY_SERVICE );
@@ -135,7 +133,9 @@ public class LocationActivity extends AbstractMythtvFragmentActivity {
 		Log.d( TAG, "onCreateOptionsMenu : enter" );
 
 	    MenuItem prefs = menu.add( Menu.NONE, EDIT_ID, Menu.NONE, "Prefs" );
-    	prefs.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
+	    if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
+	    	prefs.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
+	    }
 	    
 		Log.d( TAG, "onCreateOptionsMenu : exit" );
 		return super.onCreateOptionsMenu( menu );
@@ -156,8 +156,12 @@ public class LocationActivity extends AbstractMythtvFragmentActivity {
 		case EDIT_ID:
 			Log.d( TAG, "onOptionsItemSelected : prefs selected" );
 
-			startActivity( new Intent( this, MythtvPreferenceActivity.class ) );
-			
+		    if( Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB ) {
+				startActivity( new Intent( this, MythtvPreferenceActivity.class ) );
+		    } else {
+		    	startActivity( new Intent( this, MythtvPreferenceActivityHC.class ) );
+		    }
+		    
 	        return true;
 		}
 
