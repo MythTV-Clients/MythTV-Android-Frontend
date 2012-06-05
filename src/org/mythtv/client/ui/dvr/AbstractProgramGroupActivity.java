@@ -24,6 +24,7 @@ package org.mythtv.client.ui.dvr;
 import org.mythtv.client.ui.AbstractMythtvFragmentActivity;
 
 import android.app.ActionBar;
+import android.os.Build;
 import android.util.Log;
 
 /**
@@ -38,8 +39,10 @@ public abstract class AbstractProgramGroupActivity extends AbstractMythtvFragmen
 	protected void setupActionBar() {
 		Log.v( TAG, "setupActionBar : enter" );
 
-		ActionBar actionBar = getActionBar();
-		actionBar.setDisplayHomeAsUpEnabled( true );
+		if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
+			ActionBar actionBar = getActionBar();
+			actionBar.setDisplayHomeAsUpEnabled( true );
+		}
 		
 		Log.v( TAG, "setupActionBar : exit" );
 	}
