@@ -212,11 +212,11 @@ public class MainApplication extends Application {
 		Log.v( TAG, "getMasterBackend : enter" );
 
 		if( null == masterBackend || "".equals( masterBackend ) ) {
-			Log.v( TAG, "getMasterBackend : masterbackend not set, checking SharedPreferences" );
+//			Log.v( TAG, "getMasterBackend : masterbackend not set, checking SharedPreferences" );
 
 			masterBackend = mythtvPreferences.getString( MASTER_BACKEND, null );
 		}
-		Log.v( TAG, "getMasterBackend : masterBackend=" + masterBackend );
+//		Log.v( TAG, "getMasterBackend : masterBackend=" + masterBackend );
 		
 		Log.v( TAG, "getMasterBackend : exit" );
 		return masterBackend;
