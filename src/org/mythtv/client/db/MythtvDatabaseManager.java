@@ -150,6 +150,8 @@ public class MythtvDatabaseManager {
 				profile = convertCursorToLocationProfile( cursor );
 			}
 			
+			cursor.close();
+			
 		} catch( SQLException e ) {
 			Log.e( TAG, "fetchLocationProfile : error", e );
 			
@@ -161,9 +163,9 @@ public class MythtvDatabaseManager {
 				public void onClick( DialogInterface dialog, int which ) { }
 			
 			});
+		} finally {
+			close();
 		}
-		
-		close();
 		
 		Log.v( TAG, "fetchLocationProfile : exit" );
 		return profile;
@@ -328,6 +330,8 @@ public class MythtvDatabaseManager {
 				profile = convertCursorToPlaybackProfile( cursor );
 			}
 			
+			cursor.close();
+			
 		} catch( SQLException e ) {
 			Log.e( TAG, "fetchPlaybackProfile : error", e );
 			
@@ -479,6 +483,7 @@ public class MythtvDatabaseManager {
 			}
 		}
 		
+		cursor.close();
 		close();
 		
 		Log.v( TAG, "fetchLocationProfilesByType : exit" );
@@ -510,6 +515,7 @@ public class MythtvDatabaseManager {
 			}
 		}
 		
+		cursor.close();
 		close();
 		
 		Log.v( TAG, "fetchPlaybackProfilesByType : exit" );
@@ -536,6 +542,7 @@ public class MythtvDatabaseManager {
 		long id = db.insert( TABLE_LOCATION_PROFILE, null, initialValues );
 		
 		close();
+		
 		Log.v( TAG, "createLocationProfile : enter" );
 		return id;
 	}
@@ -604,6 +611,8 @@ public class MythtvDatabaseManager {
 				profile = convertCursorToLocationProfile( cursor );
 			}
 			
+			cursor.close();
+			
 		} catch( SQLException e ) {
 			Log.e( TAG, "fetchSelectedLocationProfileByType : error", e );
 			
@@ -615,9 +624,9 @@ public class MythtvDatabaseManager {
 				public void onClick( DialogInterface dialog, int which ) { }
 			
 			});
+		} finally {
+			close();
 		}
-		
-		close();
 		
 		Log.v( TAG, "fetchSelectedLocationProfileByType : exit" );
 		return profile;
@@ -645,6 +654,8 @@ public class MythtvDatabaseManager {
 				profile = convertCursorToPlaybackProfile( cursor );
 			}
 			
+			cursor.close();
+			
 		} catch( SQLException e ) {
 			Log.e( TAG, "fetchSelectedPlaybackProfileByType : error", e );
 			
@@ -656,9 +667,9 @@ public class MythtvDatabaseManager {
 				public void onClick( DialogInterface dialog, int which ) { }
 			
 			});
+		} finally {
+			close();
 		}
-		
-		close();
 		
 		Log.v( TAG, "fetchSelectedPlaybackProfileByType : exit" );
 		return profile;
