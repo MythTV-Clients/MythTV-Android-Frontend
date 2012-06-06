@@ -8,14 +8,14 @@
         android:id="@+id/frontend_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="14dp" >
+        android:textSize="30dp" >
     </TextView>
 
     <TextView
         android:id="@+id/frontend_url"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="10dp" >
+        android:textSize="20dp" >
     </TextView>
     
 </LinearLayout>
