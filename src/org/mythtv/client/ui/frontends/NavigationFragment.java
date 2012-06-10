@@ -17,7 +17,7 @@ public class NavigationFragment extends AbstractFrontendFragment implements OnCl
 			Bundle savedInstanceState) {
 		
 		//inflate fragment layout
-		View view = inflater.inflate(R.layout.fragment_navigation, container, false);
+		View view = inflater.inflate(R.layout.fragment_mythmote_navigation, container, false);
 		
 		//set onclick listener for each button
 		((ImageButton)view.findViewById(R.id.imageButton_nav_info)).setOnClickListener(this);

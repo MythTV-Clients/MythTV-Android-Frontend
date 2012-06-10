@@ -16,7 +16,7 @@ public class MediaControlFragment extends AbstractFrontendFragment implements On
 			Bundle savedInstanceState) {
 		
 		//inflate fragment layout
-		View view = inflater.inflate(R.layout.fragment_media_control, container, false);
+		View view = inflater.inflate(R.layout.fragment_mythmote_media_control, container, false);
 		
 		//set onclick listener for each button
 		((ImageButton)view.findViewById(R.id.imageButton_mediactrl_rec)).setOnClickListener(this);
