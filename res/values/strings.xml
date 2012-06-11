@@ -61,7 +61,7 @@
 	<string name="preference_home_playback_profiles_saved">Configured Home Playback Profiles</string>
 					
 	<string name="preference_away_profiles">Away Profiles</string>
-	<string name="preference_away_profiles_summary">Modify your home profile settings</string>
+	<string name="preference_away_profiles_summary">Modify your away profile settings</string>
 	<string name="preference_away_profiles_select">Select Away Profile</string>
 	<string name="preference_away_profiles_default">Selected Away Profile</string>
 	<string name="preference_away_profiles_modify">Modify Away Profiles</string>
