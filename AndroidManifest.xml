@@ -63,7 +63,7 @@
 						
 		<!-- Frontends Activities -->
 		<activity 
-			android:name=".client.ui.frontends.FrontendsActivity" />
+			android:name=".client.ui.frontends.MythmoteActivity" />
 		
 		<!-- MythTV Setup Activities -->
 		<activity 

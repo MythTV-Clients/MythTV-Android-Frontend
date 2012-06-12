@@ -12,9 +12,9 @@ import android.util.Log;
  * @author Daniel Frey
  *
  */
-public class FrontendsActivity extends AbstractFrontendsActivity {
+public class MythmoteActivity extends AbstractFrontendsActivity {
 
-	private static final String TAG = FrontendsActivity.class.getSimpleName();
+	private static final String TAG = MythmoteActivity.class.getSimpleName();
 		
 	private boolean isTwoPane = false;
 
@@ -26,7 +26,7 @@ public class FrontendsActivity extends AbstractFrontendsActivity {
 		Log.v( TAG, "onCreate : enter" );
 		
 		super.onCreate( savedInstanceState );
-		setContentView( R.layout.activity_frontends );
+		setContentView( R.layout.activity_mythmote );
 
 		FrontendsFragment frontends = (FrontendsFragment) getSupportFragmentManager().findFragmentById( R.id.frontends_fragment );
 

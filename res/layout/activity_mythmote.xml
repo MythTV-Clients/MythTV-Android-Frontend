@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 
+ *  This file is part of MythTV for Android
+ * 
+ *  MythTV for Android is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  MythTV for Android is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with MythTV for Android.  If not, see <http://www.gnu.org/licenses/>.
+ *   
+ * @author Daniel Frey <dmfrey at gmail dot com>
+ * 
+ * This software can be found at <https://github.com/dmfrey/mythtv-for-android/>
+-->
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:orientation="vertical"
+  android:weightSum="100">
+  
+	<fragment android:name="org.mythtv.client.ui.frontends.FrontendsFragment"
+    	android:id="@+id/frontends_fragment"
+    	android:layout_width="fill_parent"
+    	android:layout_height="wrap_content" />
+	
+	<fragment android:name="org.mythtv.client.ui.frontends.NavigationFragment"
+	   	android:id="@+id/navigation_fragment"
+	   	android:layout_width="fill_parent"
+	   	android:layout_height="fill_parent"
+	   	android:layout_weight="40" />
+	
+	<fragment android:name="org.mythtv.client.ui.frontends.ChannelControlFragment"
+	   	android:id="@+id/channel_fragment"
+	   	android:layout_width="fill_parent"
+	   	android:layout_height="wrap_content" />
+	
+	<fragment android:name="org.mythtv.client.ui.frontends.VolumeControlFragment"
+	   	android:id="@+id/volume_fragment"
+	   	android:layout_width="fill_parent"
+	   	android:layout_height="wrap_content" />
+	
+	<fragment android:name="org.mythtv.client.ui.frontends.MediaControlFragment"
+    	android:id="@+id/media_control_fragment"
+    	android:layout_width="fill_parent"
+    	android:layout_height="fill_parent"
+    	android:layout_weight="60" />
+		
+</LinearLayout>
