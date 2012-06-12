@@ -46,7 +46,7 @@ public class MediaControlFragment extends AbstractFrontendFragment implements On
 			break;
 			
 		case R.id.imageButton_mediactrl_stop:
-			new SendActionTask().execute(fe.getUrl(), "STOP");
+			new SendActionTask().execute(fe.getUrl(), "STOPPLAYBACK");
 			break;
 			
 		case R.id.imageButton_mediactrl_pause:
@@ -62,11 +62,11 @@ public class MediaControlFragment extends AbstractFrontendFragment implements On
 			break;
 			
 		case R.id.imageButton_mediactrl_rew:
-			new SendActionTask().execute(fe.getUrl(), "RWND");
+			new SendActionTask().execute(fe.getUrl(), "RWNDSTICKY");
 			break;
 			
 		case R.id.imageButton_mediactrl_ff:
-			new SendActionTask().execute(fe.getUrl(), "FFWD");
+			new SendActionTask().execute(fe.getUrl(), "FFWDSTICKY");
 			break;
 			
 		case R.id.imageButton_mediactrl_next:
