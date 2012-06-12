@@ -37,12 +37,6 @@
 	   	android:layout_height="fill_parent"
 	   	android:layout_weight="40" />
 	
-	<fragment android:name="org.mythtv.client.ui.frontends.MediaControlFragment"
-    	android:id="@+id/media_control_fragment"
-    	android:layout_width="fill_parent"
-    	android:layout_height="fill_parent"
-    	android:layout_weight="60" />
-	
 	<fragment android:name="org.mythtv.client.ui.frontends.ChannelControlFragment"
 	   	android:id="@+id/channel_fragment"
 	   	android:layout_width="fill_parent"
@@ -53,4 +47,10 @@
 	   	android:layout_width="fill_parent"
 	   	android:layout_height="wrap_content" />
 	
+	<fragment android:name="org.mythtv.client.ui.frontends.MediaControlFragment"
+    	android:id="@+id/media_control_fragment"
+    	android:layout_width="fill_parent"
+    	android:layout_height="fill_parent"
+    	android:layout_weight="60" />
+		
 </LinearLayout>

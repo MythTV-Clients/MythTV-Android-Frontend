@@ -26,7 +26,7 @@ import java.util.List;
 
 import org.mythtv.R;
 import org.mythtv.client.ui.dvr.DvrDashboardFragment;
-import org.mythtv.client.ui.frontends.FrontendsActivity;
+import org.mythtv.client.ui.frontends.MythmoteActivity;
 import org.mythtv.client.ui.media.MediaDashboardFragment;
 import org.mythtv.client.ui.setup.SetupActivity;
 
@@ -103,7 +103,7 @@ public class HomeActivity extends AbstractLocationAwareFragmentActivity {
 		case R.id.menu_frontends:
 			Log.d( TAG, "onOptionsItemSelected : setup selected" );
 
-			startActivity( new Intent( this, FrontendsActivity.class ) );
+			startActivity( new Intent( this, MythmoteActivity.class ) );
 			return true;
 		case R.id.menu_setup:
 			Log.d( TAG, "onOptionsItemSelected : setup selected" );
