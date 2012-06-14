@@ -71,6 +71,8 @@
 		<activity 
 		    android:name=".client.ui.setup.capture.CaptureCardsActivity" />
 		
+		<service android:name=".service.dvr.DvrService" />
+		
 	</application>
 
 </manifest>

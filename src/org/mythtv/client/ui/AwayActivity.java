@@ -43,6 +43,9 @@ public class AwayActivity extends AbstractLocationAwareFragmentActivity {
 
 	private final static String TAG = AwayActivity.class.getSimpleName();
 	
+	/* (non-Javadoc)
+	 * @see org.mythtv.client.ui.AbstractLocationAwareFragmentActivity#onCreate(android.os.Bundle)
+	 */
 	@Override
 	protected void onCreate( Bundle savedInstanceState ) {
 		Log.d( TAG, "onCreate : enter" );

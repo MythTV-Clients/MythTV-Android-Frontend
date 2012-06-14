@@ -289,6 +289,14 @@ public class DvrTemplate extends AbstractDvrOperations implements DvrOperations 
 	}
 
 	/* (non-Javadoc)
+	 * @see org.mythtv.services.api.dvr.DvrOperations#getRecordedListResponseEntity()
+	 */
+	@Override
+	public ResponseEntity<ProgramList> getRecordedListResponseEntity() {
+		return restTemplate.exchange( buildUri( "GetRecordedList" ), HttpMethod.GET, getRequestEntity(), ProgramList.class );
+	}
+
+	/* (non-Javadoc)
 	 * @see org.mythtv.services.api.dvr.DvrOperations#getRecordedList(int, int, boolean)
 	 */
 	@Override
