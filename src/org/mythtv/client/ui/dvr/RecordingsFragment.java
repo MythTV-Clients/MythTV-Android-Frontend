@@ -432,6 +432,8 @@ public class RecordingsFragment extends MythtvListFragment {
 		                fos.flush();
 		                fos.close();
 		            }
+	                
+	                adapter.notifyDataSetChanged();
 		        } catch( Exception e ) {
 		        	Log.e( TAG, "error saving file", e );
 		        }
