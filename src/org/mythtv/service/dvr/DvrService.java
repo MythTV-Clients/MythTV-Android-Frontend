@@ -23,7 +23,8 @@
 package org.mythtv.service.dvr;
 
 import org.mythtv.service.MythtvService;
-import org.mythtv.service.dvr.RecordingListProcessor.RecordingListProcessorCallback;
+import org.mythtv.service.dvr.recordings.ProgramListProcessor;
+import org.mythtv.service.dvr.recordings.ProgramListProcessor.RecordingListProcessorCallback;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -64,7 +65,7 @@ public class DvrService extends MythtvService {
 			if( method.equals( Method.GET ) ) {
 				Log.v( TAG, "onHandleIntent : getting recording list" );
 				
-				RecordingListProcessor processor = new RecordingListProcessor( getApplicationContext() );
+				ProgramListProcessor processor = new ProgramListProcessor( getApplicationContext() );
 				processor.getRecordedList( makeRecordingListProcessorCallback() );
 			} else {
 				Log.w( TAG, "onHandleIntent : incorrect method for retrieving recording list" );

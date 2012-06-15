@@ -22,11 +22,11 @@
 package org.mythtv.client.ui;
 
 import org.mythtv.R;
-import org.mythtv.client.db.MythtvDatabaseManager;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.preferences.MythtvPreferenceActivity;
 import org.mythtv.client.ui.preferences.MythtvPreferenceActivityHC;
 import org.mythtv.client.ui.preferences.PlaybackProfile;
+import org.mythtv.db.MythtvDatabaseManager;
 
 import android.content.Context;
 import android.content.Intent;

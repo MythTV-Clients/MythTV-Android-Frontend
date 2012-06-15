@@ -3,6 +3,8 @@
  */
 package org.mythtv.client.ui.preferences;
 
+import static android.provider.BaseColumns._ID;
+
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.EventListener;
@@ -13,10 +15,11 @@ import javax.jmdns.ServiceEvent;
 import javax.jmdns.ServiceListener;
 
 import org.mythtv.R;
-import org.mythtv.client.db.DatabaseHelper;
-import org.mythtv.client.db.MythtvDatabaseManager;
 import org.mythtv.client.ui.LocationActivity;
 import org.mythtv.client.ui.preferences.LocationProfile.LocationType;
+import org.mythtv.db.MythtvDatabaseManager;
+import org.mythtv.db.preferences.LocationProfileConstants;
+import org.mythtv.db.preferences.PlaybackProfileConstants;
 
 import android.app.ActionBar;
 import android.app.AlertDialog;
@@ -186,11 +189,11 @@ public class MythtvPreferenceActivityHC extends PreferenceActivity {
 
 			// put extra information is needed
 			if( null != profile ) {
-				intent.putExtra( DatabaseHelper.TABLE_LOCATION_PROFILE_ID, profile.getId() );
-				intent.putExtra( DatabaseHelper.TABLE_LOCATION_PROFILE_TYPE, profile.getType().name() );
-				intent.putExtra( DatabaseHelper.TABLE_LOCATION_PROFILE_NAME, profile.getName() );
-				intent.putExtra( DatabaseHelper.TABLE_LOCATION_PROFILE_URL, profile.getUrl() );
-				intent.putExtra( DatabaseHelper.TABLE_LOCATION_PROFILE_SELECTED, ( profile.isSelected() ? 1 : 0 ) );
+				intent.putExtra( _ID, profile.getId() );
+				intent.putExtra( LocationProfileConstants.FIELD_TYPE, profile.getType().name() );
+				intent.putExtra( LocationProfileConstants.FIELD_NAME, profile.getName() );
+				intent.putExtra( LocationProfileConstants.FIELD_URL, profile.getUrl() );
+				intent.putExtra( LocationProfileConstants.FIELD_SELECTED, ( profile.isSelected() ? 1 : 0 ) );
 			}
 
 			// start activity
@@ -210,15 +213,15 @@ public class MythtvPreferenceActivityHC extends PreferenceActivity {
 
 			// put extra information is needed
 			if( null != profile ) {
-				intent.putExtra( DatabaseHelper.TABLE_PLAYBACK_PROFILE_ID, profile.getId() );
-				intent.putExtra( DatabaseHelper.TABLE_PLAYBACK_PROFILE_TYPE, profile.getType().name() );
-				intent.putExtra( DatabaseHelper.TABLE_PLAYBACK_PROFILE_NAME, profile.getName() );
-				intent.putExtra( DatabaseHelper.TABLE_PLAYBACK_PROFILE_WIDTH, profile.getWidth() );
-				intent.putExtra( DatabaseHelper.TABLE_PLAYBACK_PROFILE_HEIGHT, profile.getHeight() );
-				intent.putExtra( DatabaseHelper.TABLE_PLAYBACK_PROFILE_BITRATE, profile.getVideoBitrate() );
-				intent.putExtra( DatabaseHelper.TABLE_PLAYBACK_PROFILE_AUDIO_BITRATE, profile.getAudioBitrate() );
-				intent.putExtra( DatabaseHelper.TABLE_PLAYBACK_PROFILE_SAMPLE_RATE, profile.getAudioSampleRate() );
-				intent.putExtra( DatabaseHelper.TABLE_PLAYBACK_PROFILE_SELECTED, ( profile.isSelected() ? 1 : 0 ) );
+				intent.putExtra( _ID, profile.getId() );
+				intent.putExtra( PlaybackProfileConstants.FIELD_TYPE, profile.getType().name() );
+				intent.putExtra( PlaybackProfileConstants.FIELD_NAME, profile.getName() );
+				intent.putExtra( PlaybackProfileConstants.FIELD_WIDTH, profile.getWidth() );
+				intent.putExtra( PlaybackProfileConstants.FIELD_HEIGHT, profile.getHeight() );
+				intent.putExtra( PlaybackProfileConstants.FIELD_BITRATE, profile.getVideoBitrate() );
+				intent.putExtra( PlaybackProfileConstants.FIELD_AUDIO_BITRATE, profile.getAudioBitrate() );
+				intent.putExtra( PlaybackProfileConstants.FIELD_SAMPLE_RATE, profile.getAudioSampleRate() );
+				intent.putExtra( PlaybackProfileConstants.FIELD_SELECTED, ( profile.isSelected() ? 1 : 0 ) );
 			}
 
 			// start activity
