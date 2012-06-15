@@ -15,6 +15,7 @@
  *  along with MythTV for Android.  If not, see <http://www.gnu.org/licenses/>.
  *   
  * @author Daniel Frey <dmfrey at gmail dot com>
+ * @author John Baab <rhpot1991@ubuntu.com>
  * 
  * This software can be found at <https://github.com/dmfrey/mythtv-for-android/>
  *
@@ -38,6 +39,7 @@ import android.widget.EditText;
 
 /**
  * @author Daniel Frey
+ * @author John Baab
  * 
  */
 public class LocationProfileEditor extends AbstractMythtvFragmentActivity {
@@ -92,7 +94,25 @@ public class LocationProfileEditor extends AbstractMythtvFragmentActivity {
 	}
 
 	private final String getUrl() {
-		return getTextBoxText( R.id.preference_location_profile_edit_text_url );
+		String url = getTextBoxText( R.id.preference_location_profile_edit_text_url ).trim();
+		
+		if (!url.matches("^http://.*")){
+			url = "http://" + url;
+		}
+		
+		if (!url.matches(".*/$")){
+			url += "/";
+		}
+		
+		if (!url.matches(".*:\\d+.*")){
+			Log.v( TAG, "No port found in url." );
+			url = url.replaceAll("/$", ":6544/");
+		}
+		else{
+			Log.v( TAG, "Port found in url." );
+		}
+		
+		return url;
 	}
 
 	private final void setUrl( String url ) {
