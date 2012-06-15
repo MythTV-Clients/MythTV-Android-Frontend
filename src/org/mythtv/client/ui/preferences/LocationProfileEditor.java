@@ -96,11 +96,11 @@ public class LocationProfileEditor extends AbstractMythtvFragmentActivity {
 	private final String getUrl() {
 		String url = getTextBoxText( R.id.preference_location_profile_edit_text_url ).trim();
 		
-		if (!url.matches("^http://.*")){
+		if (!url.startsWith("http://")){
 			url = "http://" + url;
 		}
 		
-		if (!url.matches(".*/$")){
+		if (!url.endsWith("/")){
 			url += "/";
 		}
 		
