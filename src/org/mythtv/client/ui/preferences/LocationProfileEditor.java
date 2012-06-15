@@ -105,11 +105,7 @@ public class LocationProfileEditor extends AbstractMythtvFragmentActivity {
 		}
 		
 		if (!url.matches(".*:\\d+.*")){
-			Log.v( TAG, "No port found in url." );
 			url = url.replaceAll("/$", ":6544/");
-		}
-		else{
-			Log.v( TAG, "Port found in url." );
 		}
 		
 		return url;
