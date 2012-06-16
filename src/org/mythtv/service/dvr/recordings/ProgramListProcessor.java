@@ -133,6 +133,32 @@ public class ProgramListProcessor {
 
 			if( !programIds.isEmpty() ) {
 				Log.v( TAG, "updateContentProvider : looking up programs to remove" );
+
+				StringBuilder sb = new StringBuilder();
+				for( int i = 0; i < programIds.size(); i++ ) {
+					sb.append( "'" ).append( programIds.get( i ) ).append( "'" );
+					
+					if( i == programIds.size() - 1 ) {
+						sb.append( ", " );
+					}
+				}
+				
+				List<Integer> deleteIds = new ArrayList<Integer>();
+				Cursor cursor = mContext.getContentResolver().query( ProgramConstants.CONTENT_URI, null, ProgramConstants.FIELD_PROGRAM_ID + " not in (?)", new String[] { sb.toString() }, null );
+				if( cursor.moveToFirst() ) {
+					int id = cursor.getInt( cursor.getColumnIndexOrThrow( BaseColumns._ID ) );
+					deleteIds.add( id );
+
+					Log.v( TAG, "updateContentProvider : queing for deletion, id=" + id );
+				}
+				
+				if( !deleteIds.isEmpty() ) {
+					for( Integer id : deleteIds ) {
+						int deleted = mContext.getContentResolver().delete( ContentUris.withAppendedId( ProgramConstants.CONTENT_URI, id ), null, null );
+						
+						Log.v( TAG, "updateContentProvider : deleted, id=" + deleted );
+					}
+				}
 			}
 		}
 		

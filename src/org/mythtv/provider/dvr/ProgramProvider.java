@@ -157,10 +157,17 @@ public class ProgramProvider extends ContentProvider {
 		if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
 			Log.v( TAG, "delete : uri=" + uri.toString() );
 		}
-		
 
+		SQLiteDatabase db = database.getWritableDatabase();
+
+		String recordId = Long.toString( ContentUris.parseId( uri ) );
+		int affected = db.delete( ProgramConstants.TABLE_NAME, BaseColumns._ID
+				+ "="
+				+ recordId
+				+ ( !TextUtils.isEmpty( selection ) ? " AND (" + selection + ')' : "" ), selectionArgs );
+		
 		Log.v( TAG, "delete : exit" );
-		return 0;
+		return affected;
 	}
 
 	/* (non-Javadoc)
@@ -185,7 +192,7 @@ public class ProgramProvider extends ContentProvider {
 		int affected = db.update( ProgramConstants.TABLE_NAME, values, BaseColumns._ID
 				+ "="
 				+ recordId
-				+ ( !TextUtils.isEmpty( selection ) ? " AND (" + selection + ')' : ""), selectionArgs );
+				+ ( !TextUtils.isEmpty( selection ) ? " AND (" + selection + ')' : "" ), selectionArgs );
 
 		getContext().getContentResolver().notifyChange( uri, null );
 
