@@ -27,7 +27,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.mythtv.client.MainApplication;
+import org.mythtv.db.content.ArtworkConstants;
 import org.mythtv.db.dvr.ProgramConstants;
+import org.mythtv.services.api.content.ArtworkInfo;
 import org.mythtv.services.api.dvr.Program;
 import org.mythtv.services.api.dvr.ProgramList;
 import org.springframework.http.ResponseEntity;
@@ -73,7 +75,7 @@ public class ProgramListProcessor {
 		ResponseEntity<ProgramList> entity = application.getMythServicesApi().dvrOperations().getRecordedListResponseEntity();
 		Log.d( TAG, "getRecordedList : entity status code = " + entity.getStatusCode().toString() );
 		
-		updateContentProvider( entity.getBody() );
+		updateProgramContentProvider( entity.getBody() );
 		
 		callback.send( entity.getStatusCode().value() );
 		
@@ -82,8 +84,8 @@ public class ProgramListProcessor {
 
 	// internal helpers
 	
-	private void updateContentProvider( ProgramList programList ) {
-		Log.v( TAG, "updateContentProvider : enter" );
+	private void updateProgramContentProvider( ProgramList programList ) {
+		Log.v( TAG, "updateProgramContentProvider : enter" );
 
 		if( null != programList && null != programList.getPrograms() && ( null != programList.getPrograms().getPrograms() && !programList.getPrograms().getPrograms().isEmpty() ) ) {
 
@@ -92,8 +94,9 @@ public class ProgramListProcessor {
 			List<String> programIds = new ArrayList<String>();
 			
 			for( Program program : programList.getPrograms().getPrograms() ) {
-				Log.v( TAG, "updateContentProvider : program=" + program.toString() );
+				Log.v( TAG, "updateProgramContentProvider : program=" + program.toString() );
 				
+				if( !"livetv".equalsIgnoreCase( program.getRecording().getRecordingGroup() ) ) {
 				values = new ContentValues();
 				values.put( ProgramConstants.FIELD_START_TIME, null != program.getStartTime() ? sdf.format( program.getStartTime() ) : "" );
 				values.put( ProgramConstants.FIELD_END_TIME, null != program.getEndTime() ? sdf.format( program.getEndTime() ) : "" );
@@ -129,40 +132,78 @@ public class ProgramListProcessor {
 				cursor.close();
 				
 				programIds.add( program.getProgramId() );
+
+				updateArtworkContentProvider( program );
+				}
 			}
+			Log.v( TAG, "updateProgramContentProvider : programIds=" + programIds.toString() );
 
 			if( !programIds.isEmpty() ) {
-				Log.v( TAG, "updateContentProvider : looking up programs to remove" );
+				Log.v( TAG, "updateProgramContentProvider : looking up programs to remove" );
 
 				StringBuilder sb = new StringBuilder();
 				for( int i = 0; i < programIds.size(); i++ ) {
 					sb.append( "'" ).append( programIds.get( i ) ).append( "'" );
 					
-					if( i == programIds.size() - 1 ) {
+					if( i < programIds.size() - 1 ) {
 						sb.append( ", " );
 					}
 				}
+				Log.v( TAG, "updateProgramContentProvider : sb=" + sb.toString() );
 				
 				List<Integer> deleteIds = new ArrayList<Integer>();
-				Cursor cursor = mContext.getContentResolver().query( ProgramConstants.CONTENT_URI, null, ProgramConstants.FIELD_PROGRAM_ID + " not in (?)", new String[] { sb.toString() }, null );
-				if( cursor.moveToFirst() ) {
+				Cursor cursor = mContext.getContentResolver().query( ProgramConstants.CONTENT_URI, new String[] { BaseColumns._ID }, ProgramConstants.FIELD_PROGRAM_ID + " not in (" + sb.toString() + ")", null, null );
+				while( cursor.moveToNext() ) {
 					int id = cursor.getInt( cursor.getColumnIndexOrThrow( BaseColumns._ID ) );
 					deleteIds.add( id );
 
-					Log.v( TAG, "updateContentProvider : queing for deletion, id=" + id );
+					Log.v( TAG, "updateProgramContentProvider : queing for deletion, id=" + id );
 				}
+				cursor.close();
 				
 				if( !deleteIds.isEmpty() ) {
 					for( Integer id : deleteIds ) {
 						int deleted = mContext.getContentResolver().delete( ContentUris.withAppendedId( ProgramConstants.CONTENT_URI, id ), null, null );
 						
-						Log.v( TAG, "updateContentProvider : deleted, id=" + deleted );
+						Log.v( TAG, "updateProgramContentProvider : deleted, id=" + deleted );
 					}
 				}
 			}
 		}
 		
-		Log.v( TAG, "updateContentProvider : exit" );
+		Log.v( TAG, "updateProgramContentProvider : exit" );
 	}
 
+	private void updateArtworkContentProvider( Program program ) {
+		Log.v( TAG, "updateArtworkContentProvider : enter" );
+		
+		if( null != program.getArtwork() && ( null != program.getArtwork().getArtworkInfos() && !program.getArtwork().getArtworkInfos().isEmpty() ) ) {
+			
+			ContentValues values;
+
+			for( ArtworkInfo artwork : program.getArtwork().getArtworkInfos() ) {
+				Log.v( TAG, "updateArtworkContentProvider : artwork=" + artwork.toString() );
+				
+				values = new ContentValues();
+				values.put( ArtworkConstants.FIELD_URL, null != artwork.getUrl() ? artwork.getUrl() : "" );
+				values.put( ArtworkConstants.FIELD_FILE_NAME, null != artwork.getFilename() ? artwork.getFilename() : "" );
+				values.put( ArtworkConstants.FIELD_STORAGE_GROUP, null != artwork.getStorageGroup() ? artwork.getStorageGroup() : "" );
+				values.put( ArtworkConstants.FIELD_TYPE, null != artwork.getType() ? artwork.getType() : "" );
+				
+				Cursor cursor = mContext.getContentResolver().query( ArtworkConstants.CONTENT_URI, null, ArtworkConstants.FIELD_URL + " = ?", new String[] { artwork.getUrl() }, null );
+				if( cursor.moveToFirst() ) {
+					//int id = cursor.getInt( cursor.getColumnIndexOrThrow( BaseColumns._ID ) );
+					//mContext.getContentResolver().update( ContentUris.withAppendedId( ArtworkConstants.CONTENT_URI, id ), values, null, null );
+				} else {
+					mContext.getContentResolver().insert( ArtworkConstants.CONTENT_URI, values );
+				}
+				cursor.close();
+				
+			}
+
+		}
+		
+		Log.v( TAG, "updateArtworkContentProvider : exit" );
+	}
+	
 }

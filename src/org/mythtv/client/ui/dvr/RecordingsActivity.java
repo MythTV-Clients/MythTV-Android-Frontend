@@ -30,7 +30,7 @@ public class RecordingsActivity extends AbstractRecordingsActivity implements Re
 
 		RecordingsFragment recordings = (RecordingsFragment) getSupportFragmentManager().findFragmentById( R.id.fragment_dvr_program_groups );
 
-		recordings.setOnProgramGroupListener( this );
+//		recordings.setOnProgramGroupListener( this );
 
 		isTwoPane = ( null != findViewById( R.id.fragment_dvr_program_group ) );
 		

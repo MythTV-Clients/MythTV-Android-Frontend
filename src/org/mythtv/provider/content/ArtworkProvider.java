@@ -15,15 +15,15 @@
  *  along with MythTV for Android.  If not, see <http://www.gnu.org/licenses/>.
  *   
  * @author Daniel Frey <dmfrey at gmail dot com>
- * @author John Baab <rhpot1991@ubuntu.com>
  * 
  * This software can be found at <https://github.com/dmfrey/mythtv-for-android/>
  *
  */
-package org.mythtv.provider.dvr;
+
+package org.mythtv.provider.content;
 
 import org.mythtv.db.DatabaseHelper;
-import org.mythtv.db.dvr.ProgramConstants;
+import org.mythtv.db.content.ArtworkConstants;
 import org.mythtv.provider.AbstractMythtvContentProvider;
 
 import android.content.ContentUris;
@@ -40,22 +40,22 @@ import android.util.Log;
  * @author Daniel Frey
  *
  */
-public class ProgramProvider extends AbstractMythtvContentProvider {
+public class ArtworkProvider extends AbstractMythtvContentProvider {
 
-	private static final String TAG = ProgramProvider.class.getSimpleName();
+	private static final String TAG = ArtworkProvider.class.getSimpleName();
 
-	private static final int PROGRAMS = 1;
-	private static final int PROGRAM_ID = 2;
+	private static final int ARTWORKS = 1;
+	private static final int ARTWORK_ID = 2;
 
 	/**
 	 * The MIME type of a directory of events
 	 */
-	private static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.mythtv.program";
+	private static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.mythtv.artwork";
 
 	/**
 	 * The MIME type of a single event
 	 */
-	private static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.mythtv.program";
+	private static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.mythtv.artwork";
 
 	private DatabaseHelper database;
 	private UriMatcher uriMatcher;
@@ -68,8 +68,8 @@ public class ProgramProvider extends AbstractMythtvContentProvider {
 		Log.v( TAG, "onCreate : enter" );
 		
 		uriMatcher = new UriMatcher( UriMatcher.NO_MATCH );
-		uriMatcher.addURI( ProgramConstants.AUTHORITY, "program", PROGRAMS );
-		uriMatcher.addURI( ProgramConstants.AUTHORITY, "program/#", PROGRAM_ID );
+		uriMatcher.addURI( ArtworkConstants.AUTHORITY, "artwork", ARTWORKS );
+		uriMatcher.addURI( ArtworkConstants.AUTHORITY, "artwork/#", ARTWORK_ID );
 		
 		database = new DatabaseHelper( getContext() );
 		
@@ -88,7 +88,7 @@ public class ProgramProvider extends AbstractMythtvContentProvider {
 			Log.v( TAG, "query : uri=" + uri.toString() );
 		//}
 		
-		if( uriMatcher.match( uri ) == PROGRAM_ID ) {
+		if( uriMatcher.match( uri ) == ARTWORK_ID ) {
 			Log.v( TAG, "query : uri segment=" + uri.getPathSegments().get( 1 ) );
 
 			long id = Long.parseLong( uri.getPathSegments().get( 1 ) );
@@ -97,7 +97,7 @@ public class ProgramProvider extends AbstractMythtvContentProvider {
 
 		// Get the database and run the query
 		SQLiteDatabase db = database.getReadableDatabase();
-		Cursor cursor = db.query( ProgramConstants.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder );
+		Cursor cursor = db.query( ArtworkConstants.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder );
 
 		// Tell the cursor what uri to watch, so it knows when its
 		// source data changes
@@ -119,12 +119,12 @@ public class ProgramProvider extends AbstractMythtvContentProvider {
 		//}
 		
 		switch( uriMatcher.match( uri ) ) {
-			case PROGRAMS:
-				Log.v( TAG, "getType : exit, programs selected" );
+			case ARTWORKS:
+				Log.v( TAG, "getType : exit, artworks selected" );
 
 				return CONTENT_TYPE;
-			case PROGRAM_ID:
-				Log.v( TAG, "getType : exit, program id selected" );
+			case ARTWORK_ID:
+				Log.v( TAG, "getType : exit, artwork id selected" );
 
 				return CONTENT_ITEM_TYPE;
 			default:
@@ -148,15 +148,15 @@ public class ProgramProvider extends AbstractMythtvContentProvider {
 		SQLiteDatabase db = database.getWritableDatabase();
 
 		// Validate the requested uri
-		if( uriMatcher.match( uri ) != PROGRAMS ) {
+		if( uriMatcher.match( uri ) != ARTWORKS ) {
 			throw new IllegalArgumentException( "Unknown URI " + uri );
 		}
 
 		// Insert into database
-		long id = db.insertOrThrow( ProgramConstants.TABLE_NAME, null, values );
+		long id = db.insertOrThrow( ArtworkConstants.TABLE_NAME, null, values );
 
 		// Notify any watchers of the change
-		Uri newUri = ContentUris.withAppendedId( ProgramConstants.CONTENT_URI, id );
+		Uri newUri = ContentUris.withAppendedId( ArtworkConstants.CONTENT_URI, id );
 
 		getContext().getContentResolver().notifyChange( newUri, null );
 		
@@ -178,7 +178,7 @@ public class ProgramProvider extends AbstractMythtvContentProvider {
 		SQLiteDatabase db = database.getWritableDatabase();
 
 		String recordId = Long.toString( ContentUris.parseId( uri ) );
-		int affected = db.delete( ProgramConstants.TABLE_NAME, BaseColumns._ID
+		int affected = db.delete( ArtworkConstants.TABLE_NAME, BaseColumns._ID
 				+ "="
 				+ recordId
 				+ ( !TextUtils.isEmpty( selection ) ? " AND (" + selection + ')' : "" ), selectionArgs );
@@ -201,12 +201,12 @@ public class ProgramProvider extends AbstractMythtvContentProvider {
 		SQLiteDatabase db = database.getWritableDatabase();
 
 		// Validate the requested uri
-		if( uriMatcher.match( uri ) != PROGRAM_ID ) {
+		if( uriMatcher.match( uri ) != ARTWORK_ID ) {
 			throw new IllegalArgumentException( "Unknown URI " + uri );
 		}
 
 		String recordId = Long.toString( ContentUris.parseId( uri ) );
-		int affected = db.update( ProgramConstants.TABLE_NAME, values, BaseColumns._ID
+		int affected = db.update( ArtworkConstants.TABLE_NAME, values, BaseColumns._ID
 				+ "="
 				+ recordId
 				+ ( !TextUtils.isEmpty( selection ) ? " AND (" + selection + ')' : "" ), selectionArgs );
@@ -215,29 +215,6 @@ public class ProgramProvider extends AbstractMythtvContentProvider {
 
 		Log.v( TAG, "update : exit" );
 		return affected;
-	}
-
-	public Cursor getProgramGroups( Uri uri ) {
-		Log.v( TAG, "getProgramGroups : enter" );
-		
-		if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
-			Log.v( TAG, "getProgramGroups : uri=" + uri.toString() );
-		}
-		
-		// Get the database and run the query
-		SQLiteDatabase db = database.getReadableDatabase();
-		Cursor cursor = db.query( 
-				Boolean.TRUE,
-				ProgramConstants.TABLE_NAME, 
-				new String[] { ProgramConstants.FIELD_TITLE }, 
-				null, null, null, null, null, null );
-
-		// Tell the cursor what uri to watch, so it knows when its
-		// source data changes
-		cursor.setNotificationUri( getContext().getContentResolver(), uri );
-		
-		Log.v( TAG, "getProgramGroups : exit" );
-		return cursor;
 	}
 
 }

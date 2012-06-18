@@ -76,6 +76,10 @@
 		
 		<!-- MythTV Android Providers -->
 		<provider
+            android:name=".provider.content.ArtworkProvider"
+            android:authorities="org.mythtv.content.artworks" />
+        		
+		<provider
             android:name=".provider.dvr.ProgramProvider"
             android:authorities="org.mythtv.dvr.programs" />
         		
