@@ -109,4 +109,7 @@ public class ProgramConstants {
 	public static final String FIELD_EPISODE = "EPISODE";
 	public static final String FIELD_EPISODE_DATA_TYPE = "TEXT";
 
+	public static final String FIELD_PROGRAM_GROUP_ID = "PROGRAM_GROUP_ID";
+	public static final String FIELD_PROGRAM_GROUP_ID_DATA_TYPE = "INTEGER";
+
 }

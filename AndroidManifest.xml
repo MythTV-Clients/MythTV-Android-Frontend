@@ -80,8 +80,16 @@
             android:authorities="org.mythtv.content.artworks" />
         		
 		<provider
+            android:name=".provider.dvr.ProgramGroupProvider"
+            android:authorities="org.mythtv.dvr.programGroups" />
+        		
+		<provider
             android:name=".provider.dvr.ProgramProvider"
             android:authorities="org.mythtv.dvr.programs" />
+        		
+		<provider
+            android:name=".provider.dvr.RecordingProvider"
+            android:authorities="org.mythtv.dvr.recordings" />
         		
 	</application>
 

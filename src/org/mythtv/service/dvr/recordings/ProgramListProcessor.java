@@ -29,6 +29,8 @@ import java.util.List;
 import org.mythtv.client.MainApplication;
 import org.mythtv.db.content.ArtworkConstants;
 import org.mythtv.db.dvr.ProgramConstants;
+import org.mythtv.db.dvr.ProgramGroupConstants;
+import org.mythtv.db.dvr.RecordingConstants;
 import org.mythtv.services.api.content.ArtworkInfo;
 import org.mythtv.services.api.dvr.Program;
 import org.mythtv.services.api.dvr.ProgramList;
@@ -38,6 +40,7 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.net.Uri;
 import android.provider.BaseColumns;
 import android.util.Log;
 
@@ -91,68 +94,89 @@ public class ProgramListProcessor {
 
 			ContentValues values;
 			
-			List<String> programIds = new ArrayList<String>();
+			List<String> programGroups = new ArrayList<String>();
 			
 			for( Program program : programList.getPrograms().getPrograms() ) {
 				Log.v( TAG, "updateProgramContentProvider : program=" + program.toString() );
 				
 				if( !"livetv".equalsIgnoreCase( program.getRecording().getRecordingGroup() ) ) {
-				values = new ContentValues();
-				values.put( ProgramConstants.FIELD_START_TIME, null != program.getStartTime() ? sdf.format( program.getStartTime() ) : "" );
-				values.put( ProgramConstants.FIELD_END_TIME, null != program.getEndTime() ? sdf.format( program.getEndTime() ) : "" );
-				values.put( ProgramConstants.FIELD_TITLE, null != program.getTitle() ? program.getTitle() : "" );
-				values.put( ProgramConstants.FIELD_SUB_TITLE, null != program.getSubTitle() ? program.getSubTitle() : "" );
-				values.put( ProgramConstants.FIELD_CATEGORY, null != program.getCategory() ? program.getCategory() : "" );
-				values.put( ProgramConstants.FIELD_CATEGORY_TYPE, null != program.getCategoryType() ? program.getCategoryType() : "" );
-				values.put( ProgramConstants.FIELD_REPEAT, program.isRepeat() );
-				values.put( ProgramConstants.FIELD_VIDEO_PROPS, program.getVideoProps() );
-				values.put( ProgramConstants.FIELD_AUDIO_PROPS, program.getAudioProps() );
-				values.put( ProgramConstants.FIELD_SUB_PROPS, program.getSubProps() );
-				values.put( ProgramConstants.FIELD_SERIES_ID, null != program.getSeriesId() ? program.getSeriesId() : "" );
-				values.put( ProgramConstants.FIELD_PROGRAM_ID, null != program.getProgramId() ? program.getProgramId() : "" );
-				values.put( ProgramConstants.FIELD_STARS, program.getStars() );
-				values.put( ProgramConstants.FIELD_FILE_SIZE, null != program.getFileSize() ? program.getFileSize() : "" );
-				values.put( ProgramConstants.FIELD_LAST_MODIFIED, null != program.getLastModified() ? sdf.format( program.getLastModified() ) : "" );
-				values.put( ProgramConstants.FIELD_PROGRAM_FLAGS, null != program.getProgramFlags() ? program.getProgramFlags() : "" );
-				values.put( ProgramConstants.FIELD_HOSTNAME, null != program.getHostname() ? program.getHostname() : "" );
-				values.put( ProgramConstants.FIELD_FILENAME, null != program.getFilename() ? program.getFilename() : "" );
-				values.put( ProgramConstants.FIELD_AIR_DATE, null != program.getAirDate() ? sdf.format( program.getAirDate() ) : "" );
-				values.put( ProgramConstants.FIELD_DESCRIPTION, null != program.getDescription() ? program.getDescription() : "" );
-				values.put( ProgramConstants.FIELD_INETREF, null != program.getInetref() ? program.getInetref() : "" );
-				values.put( ProgramConstants.FIELD_SEASON, null != program.getSeason() ? program.getSeason() : "" );
-				values.put( ProgramConstants.FIELD_EPISODE, null != program.getEpisode() ? program.getEpisode() : "" );
+					long programGroupId = 0;
+					
+					values = new ContentValues();
+					values.put( ProgramGroupConstants.FIELD_PROGRAM_GROUP, program.getTitle() );
+					values.put( ProgramGroupConstants.FIELD_INETREF, program.getInetref() );
+					
+					Cursor cursor = mContext.getContentResolver().query( ProgramGroupConstants.CONTENT_URI, null, ProgramGroupConstants.FIELD_PROGRAM_GROUP + " = ?", new String[] { program.getTitle() }, null );
+					if( cursor.moveToFirst() ) {
+						programGroupId = cursor.getInt( cursor.getColumnIndexOrThrow( BaseColumns._ID ) );
+					} else {
+						Uri programGroupUri = mContext.getContentResolver().insert( ProgramGroupConstants.CONTENT_URI, values );
+						programGroupId = ContentUris.parseId( programGroupUri );
+					}
+					cursor.close();
 
-				Cursor cursor = mContext.getContentResolver().query( ProgramConstants.CONTENT_URI, null, ProgramConstants.FIELD_PROGRAM_ID + " = ?", new String[] { program.getProgramId() }, null );
-				if( cursor.moveToFirst() ) {
-					int id = cursor.getInt( cursor.getColumnIndexOrThrow( BaseColumns._ID ) );
-					mContext.getContentResolver().update( ContentUris.withAppendedId( ProgramConstants.CONTENT_URI, id ), values, null, null );
-				} else {
-					mContext.getContentResolver().insert( ProgramConstants.CONTENT_URI, values );
-				}
-				cursor.close();
-				
-				programIds.add( program.getProgramId() );
+					if( programGroups.contains( program.getTitle() ) ) {
+						programGroups.add( program.getTitle() );
+					}
 
-				updateArtworkContentProvider( program );
+					values = new ContentValues();
+					values.put( ProgramConstants.FIELD_START_TIME, null != program.getStartTime() ? sdf.format( program.getStartTime() ) : "" );
+					values.put( ProgramConstants.FIELD_END_TIME, null != program.getEndTime() ? sdf.format( program.getEndTime() ) : "" );
+					values.put( ProgramConstants.FIELD_TITLE, null != program.getTitle() ? program.getTitle() : "" );
+					values.put( ProgramConstants.FIELD_SUB_TITLE, null != program.getSubTitle() ? program.getSubTitle() : "" );
+					values.put( ProgramConstants.FIELD_CATEGORY, null != program.getCategory() ? program.getCategory() : "" );
+					values.put( ProgramConstants.FIELD_CATEGORY_TYPE, null != program.getCategoryType() ? program.getCategoryType() : "" );
+					values.put( ProgramConstants.FIELD_REPEAT, program.isRepeat() );
+					values.put( ProgramConstants.FIELD_VIDEO_PROPS, program.getVideoProps() );
+					values.put( ProgramConstants.FIELD_AUDIO_PROPS, program.getAudioProps() );
+					values.put( ProgramConstants.FIELD_SUB_PROPS, program.getSubProps() );
+					values.put( ProgramConstants.FIELD_SERIES_ID, null != program.getSeriesId() ? program.getSeriesId() : "" );
+					values.put( ProgramConstants.FIELD_PROGRAM_ID, null != program.getProgramId() ? program.getProgramId() : "" );
+					values.put( ProgramConstants.FIELD_STARS, program.getStars() );
+					values.put( ProgramConstants.FIELD_FILE_SIZE, null != program.getFileSize() ? program.getFileSize() : "" );
+					values.put( ProgramConstants.FIELD_LAST_MODIFIED, null != program.getLastModified() ? sdf.format( program.getLastModified() ) : "" );
+					values.put( ProgramConstants.FIELD_PROGRAM_FLAGS, null != program.getProgramFlags() ? program.getProgramFlags() : "" );
+					values.put( ProgramConstants.FIELD_HOSTNAME, null != program.getHostname() ? program.getHostname() : "" );
+					values.put( ProgramConstants.FIELD_FILENAME, null != program.getFilename() ? program.getFilename() : "" );
+					values.put( ProgramConstants.FIELD_AIR_DATE, null != program.getAirDate() ? sdf.format( program.getAirDate() ) : "" );
+					values.put( ProgramConstants.FIELD_DESCRIPTION, null != program.getDescription() ? program.getDescription() : "" );
+					values.put( ProgramConstants.FIELD_INETREF, null != program.getInetref() ? program.getInetref() : "" );
+					values.put( ProgramConstants.FIELD_SEASON, null != program.getSeason() ? program.getSeason() : "" );
+					values.put( ProgramConstants.FIELD_EPISODE, null != program.getEpisode() ? program.getEpisode() : "" );
+					values.put( ProgramConstants.FIELD_PROGRAM_GROUP_ID, programGroupId );
+					
+					long programId = 0;
+					cursor = mContext.getContentResolver().query( ProgramConstants.CONTENT_URI, null, ProgramConstants.FIELD_PROGRAM_ID + " = ?", new String[] { program.getProgramId() }, null );
+					if( cursor.moveToFirst() ) {
+						programId = cursor.getInt( cursor.getColumnIndexOrThrow( BaseColumns._ID ) );
+						mContext.getContentResolver().update( ContentUris.withAppendedId( ProgramConstants.CONTENT_URI, programId ), values, null, null );
+					} else {
+						Uri programUri = mContext.getContentResolver().insert( ProgramConstants.CONTENT_URI, values );
+						programId = ContentUris.parseId( programUri );
+					}
+					cursor.close();
+
+					updateRecordingContentProvider( program, programId );
+					updateArtworkContentProvider( program, programId );
 				}
 			}
-			Log.v( TAG, "updateProgramContentProvider : programIds=" + programIds.toString() );
+			Log.v( TAG, "updateProgramContentProvider : programGroups=" + programGroups.toString() );
 
-			if( !programIds.isEmpty() ) {
+			if( !programGroups.isEmpty() ) {
 				Log.v( TAG, "updateProgramContentProvider : looking up programs to remove" );
 
 				StringBuilder sb = new StringBuilder();
-				for( int i = 0; i < programIds.size(); i++ ) {
-					sb.append( "'" ).append( programIds.get( i ) ).append( "'" );
+				for( int i = 0; i < programGroups.size(); i++ ) {
+					sb.append( "'" ).append( programGroups.get( i ) ).append( "'" );
 					
-					if( i < programIds.size() - 1 ) {
+					if( i < programGroups.size() - 1 ) {
 						sb.append( ", " );
 					}
 				}
 				Log.v( TAG, "updateProgramContentProvider : sb=" + sb.toString() );
 				
 				List<Integer> deleteIds = new ArrayList<Integer>();
-				Cursor cursor = mContext.getContentResolver().query( ProgramConstants.CONTENT_URI, new String[] { BaseColumns._ID }, ProgramConstants.FIELD_PROGRAM_ID + " not in (" + sb.toString() + ")", null, null );
+				Cursor cursor = mContext.getContentResolver().query( ProgramGroupConstants.CONTENT_URI, new String[] { BaseColumns._ID }, ProgramGroupConstants.FIELD_PROGRAM_GROUP + " not in (" + sb.toString() + ")", null, null );
 				while( cursor.moveToNext() ) {
 					int id = cursor.getInt( cursor.getColumnIndexOrThrow( BaseColumns._ID ) );
 					deleteIds.add( id );
@@ -163,9 +187,10 @@ public class ProgramListProcessor {
 				
 				if( !deleteIds.isEmpty() ) {
 					for( Integer id : deleteIds ) {
+						int programsDeleted = mContext.getContentResolver().delete( ProgramConstants.CONTENT_URI, ProgramConstants.FIELD_PROGRAM_GROUP_ID + " = ?", new String[] { "" + id } );
 						int deleted = mContext.getContentResolver().delete( ContentUris.withAppendedId( ProgramConstants.CONTENT_URI, id ), null, null );
 						
-						Log.v( TAG, "updateProgramContentProvider : deleted, id=" + deleted );
+						Log.v( TAG, "updateProgramContentProvider : deleted, id=" + deleted + ", programsDeleted=" + programsDeleted );
 					}
 				}
 			}
@@ -174,7 +199,44 @@ public class ProgramListProcessor {
 		Log.v( TAG, "updateProgramContentProvider : exit" );
 	}
 
-	private void updateArtworkContentProvider( Program program ) {
+	private void updateRecordingContentProvider( Program program, long programId ) {
+		Log.v( TAG, "updateRecordingContentProvider : enter" );
+		
+		if( null != program.getRecording() ) {
+			
+			Log.v( TAG, "updateRecordingContentProvider : recording=" + program.getRecording().toString() );
+				
+			ContentValues values = new ContentValues();
+			values.put( RecordingConstants.FIELD_STATUS, program.getRecording().getStatus() );
+			values.put( RecordingConstants.FIELD_PRIORITY, program.getRecording().getPriority() );
+			values.put( RecordingConstants.FIELD_START_TS, null != program.getRecording().getStartTimestamp() ? sdf.format( program.getRecording().getStartTimestamp() ) : "" );
+			values.put( RecordingConstants.FIELD_END_TS, null != program.getRecording().getEndTimestamp() ? sdf.format( program.getRecording().getEndTimestamp() ) : "" );
+			values.put( RecordingConstants.FIELD_RECORD_ID, program.getRecording().getRecordid() );
+			values.put( RecordingConstants.FIELD_REC_GROUP, null != program.getRecording().getRecordingGroup() ? program.getRecording().getRecordingGroup() : "" );
+			values.put( RecordingConstants.FIELD_STORAGE_GROUP, null != program.getRecording().getStorageGroup() ? program.getRecording().getStorageGroup() : "" );
+			values.put( RecordingConstants.FIELD_PLAY_GROUP, null != program.getRecording().getPlayGroup() ? program.getRecording().getPlayGroup() : "" );
+			values.put( RecordingConstants.FIELD_REC_TYPE, program.getRecording().getRecordingType() );
+			values.put( RecordingConstants.FIELD_DUP_IN_TYPE, program.getRecording().getDuplicateInType() );
+			values.put( RecordingConstants.FIELD_DUP_METHOD, program.getRecording().getDuplicateMethod() );
+			values.put( RecordingConstants.FIELD_ENCODER_ID, program.getRecording().getEncoderId() );
+			values.put( RecordingConstants.FIELD_PROFILE, null != program.getRecording().getProfile() ? program.getRecording().getProfile() : "" );
+			values.put( RecordingConstants.FIELD_PROGRAM_ID, programId );
+				
+			Cursor cursor = mContext.getContentResolver().query( RecordingConstants.CONTENT_URI, null, RecordingConstants.FIELD_PROGRAM_ID + " = ?", new String[] { "" + programId }, null );
+			if( cursor.moveToFirst() ) {
+				//int id = cursor.getInt( cursor.getColumnIndexOrThrow( BaseColumns._ID ) );
+				//mContext.getContentResolver().update( ContentUris.withAppendedId( ArtworkConstants.CONTENT_URI, id ), values, null, null );
+			} else {
+				mContext.getContentResolver().insert( RecordingConstants.CONTENT_URI, values );
+			}
+			cursor.close();
+				
+		}
+		
+		Log.v( TAG, "updateRecordingContentProvider : exit" );
+	}
+	
+	private void updateArtworkContentProvider( Program program, long programId ) {
 		Log.v( TAG, "updateArtworkContentProvider : enter" );
 		
 		if( null != program.getArtwork() && ( null != program.getArtwork().getArtworkInfos() && !program.getArtwork().getArtworkInfos().isEmpty() ) ) {

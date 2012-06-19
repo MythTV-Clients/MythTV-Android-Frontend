@@ -27,7 +27,7 @@ import java.util.List;
 
 import org.mythtv.R;
 import org.mythtv.client.ui.util.MythtvListFragment;
-import org.mythtv.db.dvr.ProgramConstants;
+import org.mythtv.db.dvr.ProgramGroupConstants;
 
 import android.app.AlertDialog;
 import android.database.Cursor;
@@ -70,9 +70,9 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 	public Loader<Cursor> onCreateLoader( int id, Bundle args ) {
 		Log.v( TAG, "onCreateLoader : enter" );
 		
-		String[] projection = { BaseColumns._ID, ProgramConstants.FIELD_TITLE };
+		String[] projection = { BaseColumns._ID, ProgramGroupConstants.FIELD_PROGRAM_GROUP, ProgramGroupConstants.FIELD_INETREF };
 		 
-	    CursorLoader cursorLoader = new CursorLoader( getActivity(), ProgramConstants.CONTENT_URI, projection, null, null, ProgramConstants.FIELD_TITLE );
+	    CursorLoader cursorLoader = new CursorLoader( getActivity(), ProgramGroupConstants.CONTENT_URI, projection, null, null, ProgramGroupConstants.FIELD_PROGRAM_GROUP );
 		
 	    Log.v( TAG, "onCreateLoader : exit" );
 		return cursorLoader;
@@ -114,7 +114,7 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 		 
 	    adapter = new SimpleCursorAdapter(
 	            getActivity().getApplicationContext(), R.layout.program_group_row,
-	            null, new String[] { ProgramConstants.FIELD_TITLE }, new int[] { R.id.program_group_row },
+	            null, new String[] { ProgramGroupConstants.FIELD_PROGRAM_GROUP }, new int[] { R.id.program_group_row },
 	            CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER );
 	 
 	    setListAdapter( adapter );
