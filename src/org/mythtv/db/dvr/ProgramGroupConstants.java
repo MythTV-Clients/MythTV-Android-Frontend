@@ -45,4 +45,7 @@ public class ProgramGroupConstants {
 	public static final String FIELD_INETREF = "INETREF";
 	public static final String FIELD_INETREF_DATA_TYPE = "TEXT";
 
+	public static final String FIELD_BANNER_URL = "BANNER_URL";
+	public static final String FIELD_BANNER_URL_DATA_TYPE = "TEXT";
+
 }

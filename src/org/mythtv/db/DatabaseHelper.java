@@ -49,7 +49,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	private static final String TAG = DatabaseHelper.class.getSimpleName();
 	
 	private static final String DATABASE_NAME = "mythtvdb";
-	private static final int DATABASE_VERSION = 11;
+	private static final int DATABASE_VERSION = 12;
 
 	public DatabaseHelper( Context context ) {
 		super( context, DATABASE_NAME, null, DATABASE_VERSION );
@@ -100,7 +100,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			createPlaybackProfiles( db );
 		}
 
-		if( oldVersion < 11 ) {
+		if( oldVersion < 12 ) {
 			Log.v( TAG, "onUpgrade : upgrading to db version 7" );
 
 			dropProgramGroup( db );
@@ -330,7 +330,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		sqlBuilder.append( "CREATE TABLE " + ProgramGroupConstants.TABLE_NAME + " (" );
 		sqlBuilder.append( _ID ).append( " " ).append( ProgramGroupConstants.FIELD_ID_DATA_TYPE ).append( " " ).append( ProgramGroupConstants.FIELD_ID_PRIMARY_KEY ).append( ", " );
 		sqlBuilder.append( ProgramGroupConstants.FIELD_PROGRAM_GROUP ).append( " " ).append( ProgramGroupConstants.FIELD_PROGRAM_GROUP_DATA_TYPE ).append( ", " );
-		sqlBuilder.append( ProgramGroupConstants.FIELD_INETREF ).append( " " ).append( ProgramGroupConstants.FIELD_INETREF_DATA_TYPE );
+		sqlBuilder.append( ProgramGroupConstants.FIELD_INETREF ).append( " " ).append( ProgramGroupConstants.FIELD_INETREF_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ProgramGroupConstants.FIELD_BANNER_URL ).append( " " ).append( ProgramGroupConstants.FIELD_BANNER_URL_DATA_TYPE );
 		sqlBuilder.append( ");" );
 		String sql = sqlBuilder.toString();
 		if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
