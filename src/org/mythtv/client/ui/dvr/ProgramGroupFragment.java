@@ -129,6 +129,7 @@ public class ProgramGroupFragment extends MythtvListFragment implements LoaderMa
 		Log.v (TAG, "onListItemClick : position=" + position + ", id=" + id );
 	    
 		Intent i = new Intent( getActivity(), VideoActivity.class );
+		i.putExtra( VideoActivity.EXTRA_PROGRAM_KEY, id );
 		startActivity( i );
 
 		Log.v( TAG, "onListItemClick : exit" );
