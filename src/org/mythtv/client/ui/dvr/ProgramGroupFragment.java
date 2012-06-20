@@ -3,21 +3,24 @@
  */
 package org.mythtv.client.ui.dvr;
 
-import java.util.List;
-
 import org.mythtv.R;
-import org.mythtv.client.MainApplication;
 import org.mythtv.client.ui.util.MythtvListFragment;
-import org.mythtv.services.api.dvr.Program;
+import org.mythtv.db.dvr.ProgramConstants;
 
-import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
+import android.provider.BaseColumns;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
+import android.support.v4.widget.CursorAdapter;
+import android.support.v4.widget.SimpleCursorAdapter;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -26,51 +29,95 @@ import android.widget.TextView;
  * @author John Baab
  * 
  */
-public class ProgramGroupFragment extends MythtvListFragment {
+public class ProgramGroupFragment extends MythtvListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
 	private static final String TAG = ProgramGroupFragment.class.getSimpleName();
 
-	private ProgramAdapter adapter = null;
+	private ProgramCursorAdapter adapter;
 	
-	private Activity activity;
+	public ProgramGroupFragment() { }
 	
-	public ProgramGroupFragment() {
-		this( null );
-	}
-	
-	public ProgramGroupFragment( Activity activity ) {
-		super();
-		Log.i( TAG, "initialize : enter" );
-
-		this.activity = activity;
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.LoaderManager.LoaderCallbacks#onCreateLoader(int, android.os.Bundle)
+	 */
+	@Override
+	public Loader<Cursor> onCreateLoader( int id, Bundle args ) {
+		Log.v( TAG, "onCreateLoader : enter" );
 		
-		Log.i( TAG, "initialize : exit" );
+		String name = args.getString( ProgramGroupActivity.EXTRA_PROGRAM_GROUP_KEY );
+		Log.v( TAG, "onCreateLoader : name=" + name );
+		
+		String[] projection = { BaseColumns._ID, ProgramConstants.FIELD_TITLE, ProgramConstants.FIELD_SUB_TITLE };
+		String[] selectionArgs = { name };
+		 
+	    CursorLoader cursorLoader = new CursorLoader( getActivity(), ProgramConstants.CONTENT_URI, projection, ProgramConstants.FIELD_TITLE + "=?", selectionArgs, ProgramConstants.FIELD_SUB_TITLE );
+	    Log.v( TAG, "onCreateLoader : cursorLoader=" + cursorLoader.toString() );
+	    
+	    Log.v( TAG, "onCreateLoader : exit" );
+		return cursorLoader;
+	}
+
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.LoaderManager.LoaderCallbacks#onLoadFinished(android.support.v4.content.Loader, java.lang.Object)
+	 */
+	@Override
+	public void onLoadFinished( Loader<Cursor> loader, Cursor cursor ) {
+		Log.v( TAG, "onLoadFinished : enter" );
+		
+		adapter.swapCursor( cursor );
+		
+		Log.v( TAG, "onLoadFinished : exit" );
+	}
+
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.LoaderManager.LoaderCallbacks#onLoaderReset(android.support.v4.content.Loader)
+	 */
+	@Override
+	public void onLoaderReset( Loader<Cursor> loader ) {
+		Log.v( TAG, "onLoaderReset : enter" );
+		
+		adapter.swapCursor( null );
+				
+		Log.v( TAG, "onLoaderReset : exit" );
+	}
+
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.Fragment#onCreate(android.os.Bundle)
+	 */
+	@Override
+	public void onCreate( Bundle savedInstanceState ) {
+		Log.i( TAG, "onCreate : enter" );
+		super.onCreate( savedInstanceState );
+
+		Log.i( TAG, "onCreate : exit" );
 	}
 
 	@Override
 	public void onActivityCreated( Bundle savedInstanceState ) {
 		Log.i( TAG, "onActivityCreated : enter" );
-
 		super.onActivityCreated( savedInstanceState );
 	    
-   		loadPrograms();
-
 	    Log.i( TAG, "onActivityCreated : exit" );
 	}
 
-	public void setActivity( Activity activity ) {
-		this.activity = activity;
-	}
-	
-	public void loadPrograms() {
+	public void loadPrograms( String name ) {
 		Log.i( TAG, "loadPrograms : enter" );
 
-		if( null != activity ) {
-			adapter = new ProgramAdapter( ( (MainApplication) activity.getApplicationContext() ).getCurrentRecordingsInProgramGroup() );
-			setListAdapter( adapter );
-		}
+		Log.i( TAG, "loadPrograms : name=" + name );
+
+		Bundle args = new Bundle();
+		args.putString( ProgramGroupActivity.EXTRA_PROGRAM_GROUP_KEY, name );
 		
-		Log.i( TAG, "loadPrograms : exit" );
+		getLoaderManager().initLoader( 0, args, this );
+
+	    adapter = new ProgramCursorAdapter(
+	            getActivity().getApplicationContext(), R.layout.program_row,
+	            null, new String[] { ProgramConstants.FIELD_SUB_TITLE }, new int[] { R.id.program_sub_title },
+	            CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER );
+
+	    setListAdapter( adapter );
+	    
+	    Log.i( TAG, "loadPrograms : exit" );
 	}
 	
 	@Override
@@ -79,61 +126,54 @@ public class ProgramGroupFragment extends MythtvListFragment {
 
 		super.onListItemClick( l, v, position, id );
 		
-		Log.v (TAG, "position : " + position);
+		Log.v (TAG, "onListItemClick : position=" + position + ", id=" + id );
 	    
-		Program program = adapter.getItem( position );
-		getApplicationContext().setCurrentProgram( program );
-		
 		Intent i = new Intent( getActivity(), VideoActivity.class );
 		startActivity( i );
 
 		Log.v( TAG, "onListItemClick : exit" );
 	}
 	
-	private class ProgramAdapter extends BaseAdapter {
-		List<Program> programs = null;
+	private class ProgramCursorAdapter extends SimpleCursorAdapter {
 
-		ProgramAdapter( List<Program> programs ) {
-			super();
-
-			this.programs = programs;
-		}
-
-		@Override
-		public int getCount() {
-			return programs.size();
-		}
-
-		@Override
-		public Program getItem( int position ) {
-			return programs.get( position );
-		}
-
-		@Override
-		public long getItemId( int position ) {
-			return position;
+		public ProgramCursorAdapter( Context context, int layout, Cursor c, String[] from, int[] to, int flags ) {
+			super( context, layout, c, from, to, flags );
 		}
 
 		@Override
 		public View getView( int position, View convertView, ViewGroup parent ) {
-			View row = convertView;
+			Log.v( TAG, "getView : enter" );
 
-			if( row == null ) {
-				LayoutInflater inflater = getActivity().getLayoutInflater();
+			View row =  super.getView( position, convertView, parent );
+			
+			getCursor().moveToPosition( position );
+		    try {
+		        int idIndex = getCursor().getColumnIndexOrThrow( BaseColumns._ID );
+		        int titleIndex = getCursor().getColumnIndexOrThrow( ProgramConstants.FIELD_TITLE );
+				int subTitleIndex = getCursor().getColumnIndexOrThrow( ProgramConstants.FIELD_SUB_TITLE );
 
-				row = inflater.inflate( R.layout.program_row, parent, false );
-			}
+		        int id = getCursor().getInt( idIndex );
+		        String title = getCursor().getString( titleIndex );
+		        String subTitle = getCursor().getString( subTitleIndex );
 
-			Program program = getItem( position );
+		        Log.v( TAG, "getView : id=" + id + ", title=" + title + ", subTitle=" + subTitle );
+		        
+				if( row == null ) {
+					LayoutInflater inflater = getActivity().getLayoutInflater();
 
-			TextView title = (TextView) row.findViewById( R.id.program_sub_title );
-			title.setText( !"".equals( program.getSubTitle().trim() ) ? program.getSubTitle() : program.getTitle() );
+					row = inflater.inflate( R.layout.program_row, parent, false );
+				}
 
-			//TextView description = (TextView) row.findViewById( R.id.program_description );
-			//description.setText( program.getDescription() );
+				TextView t = (TextView) row.findViewById( R.id.program_sub_title );
+				t.setText( !"".equals( subTitle ) ? subTitle : title );
 
+		    } catch( Exception e ) {
+				Log.e( TAG, "getView : error", e );
+		    }
+		    
 			return row;
 		}
+
 	}
 
 }

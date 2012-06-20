@@ -30,24 +30,26 @@ public class RecordingsActivity extends AbstractRecordingsActivity implements Re
 
 		RecordingsFragment recordings = (RecordingsFragment) getSupportFragmentManager().findFragmentById( R.id.fragment_dvr_program_groups );
 
-//		recordings.setOnProgramGroupListener( this );
+		recordings.setOnProgramGroupListener( this );
 
 		isTwoPane = ( null != findViewById( R.id.fragment_dvr_program_group ) );
 		
 		Log.i( TAG, "onCreate : exit" );
 	}
 
-	public void addProgramGroupFragment( ProgramGroup programGroup ) {
+	public void addProgramGroupFragment( String programGroup ) {
 		Log.d( TAG, "addProgramGroupFragment : enter" );
 
 		FragmentManager fragMgr = getSupportFragmentManager();
+		
 		ProgramGroupFragment programGroupFragment = (ProgramGroupFragment) fragMgr.findFragmentById( R.id.fragment_dvr_program_group );
+		
 		FragmentTransaction xaction = fragMgr.beginTransaction();
 
 		if( null == programGroupFragment ) {
 			Log.v( TAG, "addProgramGroupFragment : creating new program group fragment" );
 
-			programGroupFragment = new ProgramGroupFragment( this );
+			programGroupFragment = new ProgramGroupFragment();
 
 			xaction
 				.add( R.id.fragment_dvr_program_group, programGroupFragment )
@@ -56,16 +58,15 @@ public class RecordingsActivity extends AbstractRecordingsActivity implements Re
 				.commit();
 		}
 
-		programGroupFragment.loadPrograms();
+		programGroupFragment.loadPrograms( programGroup );
 		
 		Log.d( TAG, "addProgramGroupFragment : exit" );
 	}
 
-	public void onProgramGroupSelected( ProgramGroup programGroup ) {
+	public void onProgramGroupSelected( String programGroup ) {
 		Log.d( TAG, "onProgramGroupSelected : enter" );
 
-		getApplicationContext().setCurrentRecordingsInProgramGroup( programGroup.getRecordings() );
-
+		
 		if( isTwoPane ) {
 			Log.v( TAG, "onProgramGroupSelected : adding program group to pane" );
 
@@ -74,6 +75,7 @@ public class RecordingsActivity extends AbstractRecordingsActivity implements Re
 			Log.v( TAG, "onProgramGroupSelected : starting program group activity" );
 
 			Intent i = new Intent( this, ProgramGroupActivity.class );
+			i.putExtra( ProgramGroupActivity.EXTRA_PROGRAM_GROUP_KEY, programGroup );
 			startActivity( i );
 		}
 

@@ -30,7 +30,6 @@ import org.mythtv.R;
 import org.mythtv.client.ui.util.MythtvListFragment;
 import org.mythtv.db.dvr.ProgramGroupConstants;
 
-import android.app.AlertDialog;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
@@ -60,6 +59,7 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 
 	private static final String TAG = RecordingsFragment.class.getSimpleName();
 
+	private OnProgramGroupListener listener = null;
 	private ProgramGroupCursorAdapter adapter;
 	
 	/* (non-Javadoc)
@@ -146,22 +146,39 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 		super.onListItemClick( l, v, position, id );
 		Log.v( TAG, "onListItemClick : position=" + position + ", id=" + id );
 
+		Cursor cursor = getActivity().getApplicationContext().getContentResolver().query( ContentUris.withAppendedId( ProgramGroupConstants.CONTENT_URI, id ), new String[] { ProgramGroupConstants.FIELD_PROGRAM_GROUP }, null, null, null );
+		if( cursor.moveToFirst() ) {
+			int nameIndex = cursor.getColumnIndexOrThrow( ProgramGroupConstants.FIELD_PROGRAM_GROUP );
+			String name = cursor.getString( nameIndex );
+		
+			listener.onProgramGroupSelected( name );
+		}
+		cursor.close();
+		
 		Log.v( TAG, "onListItemClick : exit" );
 	}
 	  
+	public void setOnProgramGroupListener( OnProgramGroupListener listener ) {
+		Log.v( TAG, "setOnProgramGroupListener : enter" );
+
+		this.listener = listener;
+
+		Log.v( TAG, "setOnProgramGroupListener : exit" );
+	}
+
 	public interface OnProgramGroupListener {
-		void onProgramGroupSelected( ProgramGroup programGroup );
+		void onProgramGroupSelected( String programGroup );
 	}
 
-	private void exceptionDialolg( Throwable t ) {
-		AlertDialog.Builder builder = new AlertDialog.Builder( getActivity() );
-
-		builder
-			.setTitle( R.string.exception )
-			.setMessage( t.toString() )
-			.setPositiveButton( R.string.close, null )
-				.show();
-	}
+//	private void exceptionDialolg( Throwable t ) {
+//		AlertDialog.Builder builder = new AlertDialog.Builder( getActivity() );
+//
+//		builder
+//			.setTitle( R.string.exception )
+//			.setMessage( t.toString() )
+//			.setPositiveButton( R.string.close, null )
+//				.show();
+//	}
 
 	private class ProgramGroupCursorAdapter extends SimpleCursorAdapter {
 
@@ -236,7 +253,6 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 		    
 			return row;
 		}
-
 		
 	}
 	
