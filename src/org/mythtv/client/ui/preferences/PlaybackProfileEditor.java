@@ -21,11 +21,13 @@
  */
 package org.mythtv.client.ui.preferences;
 
+import static android.provider.BaseColumns._ID;
+
 import org.mythtv.R;
-import org.mythtv.client.db.DatabaseHelper;
-import org.mythtv.client.db.MythtvDatabaseManager;
 import org.mythtv.client.ui.AbstractMythtvFragmentActivity;
 import org.mythtv.client.ui.preferences.LocationProfile.LocationType;
+import org.mythtv.db.MythtvDatabaseManager;
+import org.mythtv.db.preferences.PlaybackProfileConstants;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -57,18 +59,18 @@ public class PlaybackProfileEditor extends AbstractMythtvFragmentActivity {
 		setupSaveButtonEvent( R.id.btnPreferencePlaybackProfileSave );
 		setupCancelButtonEvent( R.id.btnPreferencePlaybackProfileCancel );
 
-		int id = getIntent().getIntExtra( DatabaseHelper.TABLE_PLAYBACK_PROFILE_ID, -1 );
+		int id = getIntent().getIntExtra( _ID, -1 );
 		//if( id != -1 ) {
 			profile = new PlaybackProfile();
 			profile.setId( id );
-			profile.setType( LocationType.valueOf( getIntent().getStringExtra( DatabaseHelper.TABLE_PLAYBACK_PROFILE_TYPE ) ) );
-			profile.setName( getIntent().getStringExtra( DatabaseHelper.TABLE_PLAYBACK_PROFILE_NAME ) );
-			profile.setWidth( getIntent().getIntExtra( DatabaseHelper.TABLE_PLAYBACK_PROFILE_WIDTH, -1 ) );
-			profile.setHeight( getIntent().getIntExtra( DatabaseHelper.TABLE_PLAYBACK_PROFILE_HEIGHT, -1 ) );
-			profile.setVideoBitrate( getIntent().getIntExtra( DatabaseHelper.TABLE_PLAYBACK_PROFILE_BITRATE, -1 ) );
-			profile.setAudioBitrate( getIntent().getIntExtra( DatabaseHelper.TABLE_PLAYBACK_PROFILE_AUDIO_BITRATE, -1 ) );
-			profile.setAudioSampleRate( getIntent().getIntExtra( DatabaseHelper.TABLE_PLAYBACK_PROFILE_SAMPLE_RATE, -1 ) );
-			profile.setSelected( 0 != getIntent().getIntExtra( DatabaseHelper.TABLE_PLAYBACK_PROFILE_SELECTED, 0 ) );
+			profile.setType( LocationType.valueOf( getIntent().getStringExtra( PlaybackProfileConstants.FIELD_TYPE ) ) );
+			profile.setName( getIntent().getStringExtra( PlaybackProfileConstants.FIELD_NAME ) );
+			profile.setWidth( getIntent().getIntExtra( PlaybackProfileConstants.FIELD_WIDTH, -1 ) );
+			profile.setHeight( getIntent().getIntExtra( PlaybackProfileConstants.FIELD_HEIGHT, -1 ) );
+			profile.setVideoBitrate( getIntent().getIntExtra( PlaybackProfileConstants.FIELD_BITRATE, -1 ) );
+			profile.setAudioBitrate( getIntent().getIntExtra( PlaybackProfileConstants.FIELD_AUDIO_BITRATE, -1 ) );
+			profile.setAudioSampleRate( getIntent().getIntExtra( PlaybackProfileConstants.FIELD_SAMPLE_RATE, -1 ) );
+			profile.setSelected( 0 != getIntent().getIntExtra( PlaybackProfileConstants.FIELD_SELECTED, 0 ) );
 
 			setUiFromPlaybackProfile();
 		//}

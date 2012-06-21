@@ -3,8 +3,13 @@
  */
 package org.mythtv.client.ui;
 
+import org.mythtv.service.dvr.DvrServiceHelper;
+
 import android.app.ActionBar;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -17,6 +22,11 @@ import android.view.MenuItem;
 public abstract class AbstractLocationAwareFragmentActivity extends AbstractMythtvFragmentActivity {
 
 	protected static final String TAG = AbstractLocationAwareFragmentActivity.class.getSimpleName();
+
+	private Long requestId;
+	private BroadcastReceiver requestReceiver;
+
+	private DvrServiceHelper mDvrServiceHelper;
 
 	// ***************************************
 	// FragmentActivity methods
@@ -31,12 +41,86 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 		Log.v( TAG, "onCreate : enter" );
 
 		super.onCreate( savedInstanceState );
-
+		
 		resources = getResources();
 
 		setupActionBar();
 
 		Log.v( TAG, "onCreate : exit" );
+	}
+
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.FragmentActivity#onResume()
+	 */
+	@Override
+	protected void onResume() {
+		Log.v( TAG, "onResume : enter" );
+		super.onResume();
+
+		IntentFilter filter = new IntentFilter( DvrServiceHelper.ACTION_REQUEST_RESULT );
+		requestReceiver = new BroadcastReceiver() {
+
+			@Override
+			public void onReceive( Context context, Intent intent ) {
+
+				long resultRequestId = intent.getLongExtra( DvrServiceHelper.EXTRA_REQUEST_ID, 0 );
+
+				Log.d( TAG, "Received intent " + intent.getAction() + ", request ID " + resultRequestId );
+
+				if( resultRequestId == requestId ) {
+
+					Log.d( TAG, "Result is for our request ID" );
+					
+					int resultCode = intent.getIntExtra( DvrServiceHelper.EXTRA_RESULT_CODE, 0 );
+
+					Log.d( TAG, "Result code = " + resultCode );
+
+					if( resultCode == 200 ) {
+						Log.d( TAG, "Updating UI with new data" );
+					} else {
+						Log.d( TAG, "error occurred" );
+					}
+				} else {
+					Log.d( TAG, "Result is NOT for our request ID" );
+				}
+
+			}
+		};
+
+		mDvrServiceHelper = DvrServiceHelper.getInstance( this );
+		this.registerReceiver( requestReceiver, filter );
+
+		if( requestId == null ) {
+			Log.i( TAG, "onResume : loading recordedList" );
+
+			requestId = mDvrServiceHelper.getRecordingedList();
+		} else if( mDvrServiceHelper.isRequestPending( requestId ) ) {
+			Log.i( TAG, "onResume : recordedList waiting" );
+		} else {
+			Log.i( TAG, "onResume : recordedList loaded" );
+		}
+
+		Log.v( TAG, "onResume : exit" );
+	}
+
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.FragmentActivity#onPause()
+	 */
+	@Override
+	protected void onPause() {
+		Log.v( TAG, "onPause : enter" );
+		super.onPause();
+
+		// Unregister for broadcast
+		if( null != requestReceiver ) {
+			try {
+				unregisterReceiver( requestReceiver );
+			} catch( IllegalArgumentException e ) {
+				Log.e( TAG, e.getLocalizedMessage(), e );
+			}
+		}
+		
+		Log.v( TAG, "onPause : exit" );
 	}
 
 	/*

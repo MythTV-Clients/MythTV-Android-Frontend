@@ -30,12 +30,14 @@ package org.mythtv.client.ui.dvr;
 import org.mythtv.R;
 import org.mythtv.client.MainApplication;
 import org.mythtv.client.ui.preferences.PlaybackProfile;
+import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.services.api.content.LiveStreamInfo;
-import org.mythtv.services.api.dvr.Program;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.ContentUris;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -50,7 +52,7 @@ public class VideoActivity extends FragmentActivity {
 
 	private static final String TAG = VideoActivity.class.getSimpleName();
 
-	public static final String EXTRA_PROGRAM_GROUP_KEY = "org.mythtv.client.ui.dvr.programGroup.EXTRA_PROGRAM_GROUP_KEY";
+	public static final String EXTRA_PROGRAM_KEY = "org.mythtv.client.ui.dvr.programGroup.EXTRA_PROGRAM_KEY";
 	
 	private LiveStreamInfo info = null;
 	private ProgressDialog progressDialog;
@@ -78,8 +80,21 @@ public class VideoActivity extends FragmentActivity {
 	    setContentView( R.layout.activity_video );
 	    
 	    progressDialog = ProgressDialog.show( this, "Please wait...", "Retrieving video...", true, true );
+
+	    long id = getIntent().getExtras().getLong( EXTRA_PROGRAM_KEY );
 	    
-	    new CreateStreamTask().execute();
+	    String[] projection = new String[] { ProgramConstants.FIELD_FILENAME, ProgramConstants.FIELD_HOSTNAME };
+	    
+	    Cursor cursor = getContentResolver().query( ContentUris.withAppendedId( ProgramConstants.CONTENT_URI, id ) , projection, null, null, null );
+	    if( cursor.moveToFirst() ) {
+	        int filenameIndex = cursor.getColumnIndexOrThrow( ProgramConstants.FIELD_FILENAME );
+			int hostnameIndex = cursor.getColumnIndexOrThrow( ProgramConstants.FIELD_HOSTNAME );
+
+	        String filename = cursor.getString( filenameIndex );
+	        String hostname = cursor.getString( hostnameIndex );
+
+	    	new CreateStreamTask().execute( filename, hostname );
+	    }
 	    
 		Log.v( TAG, "onCreate : exit" );
 	}
@@ -186,19 +201,18 @@ public class VideoActivity extends FragmentActivity {
 	}
 	
 	
-	private class CreateStreamTask extends AsyncTask<Void, Void, LiveStreamInfo> {
+	private class CreateStreamTask extends AsyncTask<String, Void, LiveStreamInfo> {
 
 		private Exception e = null;
 
 		@Override
-		protected LiveStreamInfo doInBackground( Void... params ) {
+		protected LiveStreamInfo doInBackground( String... params ) {
 			Log.v( TAG, "CreateStreamTask : enter" );
 
 			LiveStreamInfo lookup = null;
 
 			try {
 				Log.v( TAG, "CreateStreamTask : api" );
-				Program program = getApplicationContext().getCurrentProgram();
 				
 				String location = getApplicationContext().getLocation();
 				
@@ -218,7 +232,7 @@ public class VideoActivity extends FragmentActivity {
 				//			-1, -1, -1, -1, -1, -1);
 				
 				lookup = getApplicationContext().getMythServicesApi().contentOperations().
-						addLiveStream(null, program.getFilename(), program.getHostname(), -1, -1,
+						addLiveStream(null, params[ 0 ], params[ 1 ], -1, -1,
 								selectedPlaybackProfile.getHeight(), selectedPlaybackProfile.getVideoBitrate(), 
 								selectedPlaybackProfile.getAudioBitrate(), selectedPlaybackProfile.getAudioSampleRate());
 			} catch( Exception e ) {

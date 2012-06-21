@@ -24,6 +24,8 @@ package org.mythtv.services.api.dvr;
 import java.util.Date;
 import java.util.List;
 
+import org.springframework.http.ResponseEntity;
+
 /**
  * @author Daniel Frey
  *
@@ -155,6 +157,8 @@ public interface DvrOperations {
 	 * @return
 	 */
 	List<Program> getRecordedList();
+
+	ResponseEntity<ProgramList> getRecordedListResponseEntity();
 
 	/**
 	 * - GET

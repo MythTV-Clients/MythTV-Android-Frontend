@@ -51,14 +51,15 @@ public class ProgramGroupActivity extends AbstractProgramGroupActivity {
 	@Override
 	protected void onCreate( Bundle savedInstanceState ) {
 		Log.v( TAG, "onCreate : enter" );
-
 		super.onCreate( savedInstanceState );
 
+		Bundle extras = getIntent().getExtras(); 
+		String name = extras.getString( EXTRA_PROGRAM_GROUP_KEY );
+		
 		setContentView( R.layout.fragment_dvr_program_group );
 
 		programGroupFragment = (ProgramGroupFragment) getSupportFragmentManager().findFragmentById( R.id.fragment_dvr_program_group );
-		programGroupFragment.setActivity( this );
-		programGroupFragment.loadPrograms();
+		programGroupFragment.loadPrograms( name );
 		
 		Log.v( TAG, "onCreate : exit" );
 	}

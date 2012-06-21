@@ -20,13 +20,19 @@
  * This software can be found at <https://github.com/dmfrey/mythtv-for-android/>
  *
  */
+
 package org.mythtv.client.ui.preferences;
 
+import static android.provider.BaseColumns._ID;
+import static org.mythtv.db.preferences.LocationProfileConstants.FIELD_NAME;
+import static org.mythtv.db.preferences.LocationProfileConstants.FIELD_SELECTED;
+import static org.mythtv.db.preferences.LocationProfileConstants.FIELD_TYPE;
+import static org.mythtv.db.preferences.LocationProfileConstants.FIELD_URL;
+
 import org.mythtv.R;
-import org.mythtv.client.db.DatabaseHelper;
-import org.mythtv.client.db.MythtvDatabaseManager;
 import org.mythtv.client.ui.AbstractMythtvFragmentActivity;
 import org.mythtv.client.ui.preferences.LocationProfile.LocationType;
+import org.mythtv.db.MythtvDatabaseManager;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -59,14 +65,14 @@ public class LocationProfileEditor extends AbstractMythtvFragmentActivity {
 		setupSaveButtonEvent( R.id.btnPreferenceLocationProfileSave );
 		setupCancelButtonEvent( R.id.btnPreferenceLocationProfileCancel );
 
-		int id = getIntent().getIntExtra( DatabaseHelper.TABLE_LOCATION_PROFILE_ID, -1 );
+		int id = getIntent().getIntExtra( _ID, -1 );
 		//if( id != -1 ) {
 			profile = new LocationProfile();
 			profile.setId( id );
-			profile.setType( LocationType.valueOf( getIntent().getStringExtra( DatabaseHelper.TABLE_LOCATION_PROFILE_TYPE ) ) );
-			profile.setName( getIntent().getStringExtra( DatabaseHelper.TABLE_LOCATION_PROFILE_NAME ) );
-			profile.setUrl( getIntent().getStringExtra( DatabaseHelper.TABLE_LOCATION_PROFILE_URL ) );
-			profile.setSelected( 0 != getIntent().getIntExtra( DatabaseHelper.TABLE_LOCATION_PROFILE_SELECTED, 0 ) );
+			profile.setType( LocationType.valueOf( getIntent().getStringExtra( FIELD_TYPE ) ) );
+			profile.setName( getIntent().getStringExtra( FIELD_NAME ) );
+			profile.setUrl( getIntent().getStringExtra( FIELD_URL ) );
+			profile.setSelected( 0 != getIntent().getIntExtra( FIELD_SELECTED, 0 ) );
 
 			setUiFromLocationProfile();
 		//}

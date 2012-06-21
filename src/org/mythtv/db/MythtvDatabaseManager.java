@@ -20,25 +20,9 @@
  *
  */
 
-package org.mythtv.client.db;
+package org.mythtv.db;
 
-import static org.mythtv.client.db.DatabaseHelper.TABLE_LOCATION_PROFILE;
-import static org.mythtv.client.db.DatabaseHelper.TABLE_LOCATION_PROFILE_ID;
-import static org.mythtv.client.db.DatabaseHelper.TABLE_LOCATION_PROFILE_NAME;
-import static org.mythtv.client.db.DatabaseHelper.TABLE_LOCATION_PROFILE_SELECTED;
-import static org.mythtv.client.db.DatabaseHelper.TABLE_LOCATION_PROFILE_TYPE;
-import static org.mythtv.client.db.DatabaseHelper.TABLE_LOCATION_PROFILE_URL;
-
-import static org.mythtv.client.db.DatabaseHelper.TABLE_PLAYBACK_PROFILE;
-import static org.mythtv.client.db.DatabaseHelper.TABLE_PLAYBACK_PROFILE_ID;
-import static org.mythtv.client.db.DatabaseHelper.TABLE_PLAYBACK_PROFILE_NAME;
-import static org.mythtv.client.db.DatabaseHelper.TABLE_PLAYBACK_PROFILE_SELECTED;
-import static org.mythtv.client.db.DatabaseHelper.TABLE_PLAYBACK_PROFILE_TYPE;
-import static org.mythtv.client.db.DatabaseHelper.TABLE_PLAYBACK_PROFILE_WIDTH;
-import static org.mythtv.client.db.DatabaseHelper.TABLE_PLAYBACK_PROFILE_HEIGHT;
-import static org.mythtv.client.db.DatabaseHelper.TABLE_PLAYBACK_PROFILE_BITRATE;
-import static org.mythtv.client.db.DatabaseHelper.TABLE_PLAYBACK_PROFILE_AUDIO_BITRATE;
-import static org.mythtv.client.db.DatabaseHelper.TABLE_PLAYBACK_PROFILE_SAMPLE_RATE;
+import static android.provider.BaseColumns._ID;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,6 +31,8 @@ import org.mythtv.R;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.preferences.LocationProfile.LocationType;
 import org.mythtv.client.ui.preferences.PlaybackProfile;
+import org.mythtv.db.preferences.LocationProfileConstants;
+import org.mythtv.db.preferences.PlaybackProfileConstants;
 
 import android.app.AlertDialog;
 import android.content.ContentValues;
@@ -138,9 +124,9 @@ public class MythtvDatabaseManager {
 		
 		try {
 			Cursor cursor = db.query( 
-						TABLE_LOCATION_PROFILE, 
-						new String[] { TABLE_LOCATION_PROFILE_ID, TABLE_LOCATION_PROFILE_TYPE, TABLE_LOCATION_PROFILE_NAME, TABLE_LOCATION_PROFILE_URL, TABLE_LOCATION_PROFILE_SELECTED }, 
-						TABLE_LOCATION_PROFILE_ID + "=" + id, 
+						LocationProfileConstants.TABLE_NAME, 
+						new String[] { _ID, LocationProfileConstants.FIELD_TYPE, LocationProfileConstants.FIELD_NAME, LocationProfileConstants.FIELD_URL, LocationProfileConstants.FIELD_SELECTED }, 
+						_ID + "=" + id, 
 						null, null, null, null 
 					  );
 			
@@ -223,12 +209,12 @@ public class MythtvDatabaseManager {
 		open();
 
 		ContentValues args = new ContentValues();
-		args.put( TABLE_LOCATION_PROFILE_TYPE, profile.getType().name() );
-		args.put( TABLE_LOCATION_PROFILE_NAME, profile.getName() );
-		args.put( TABLE_LOCATION_PROFILE_URL, profile.getUrl() );
-		args.put( TABLE_LOCATION_PROFILE_SELECTED, profile.isSelected() ? 1 : 0 );
+		args.put( LocationProfileConstants.FIELD_TYPE, profile.getType().name() );
+		args.put( LocationProfileConstants.FIELD_NAME, profile.getName() );
+		args.put( LocationProfileConstants.FIELD_URL, profile.getUrl() );
+		args.put( LocationProfileConstants.FIELD_SELECTED, profile.isSelected() ? 1 : 0 );
 
-		int rows = db.update( TABLE_LOCATION_PROFILE, args, TABLE_LOCATION_PROFILE_ID + "=" + profile.getId(), null );
+		int rows = db.update( LocationProfileConstants.TABLE_NAME, args, _ID + "=" + profile.getId(), null );
 	
 		close();
 
@@ -245,7 +231,7 @@ public class MythtvDatabaseManager {
 		
 		open();
 		
-		boolean result = db.delete( TABLE_LOCATION_PROFILE, TABLE_LOCATION_PROFILE_ID + "=" + id, null ) > 0;
+		boolean result = db.delete( LocationProfileConstants.TABLE_NAME, _ID + "=" + id, null ) > 0;
 		
 		close();
 		
@@ -318,9 +304,9 @@ public class MythtvDatabaseManager {
 		
 		try {
 			Cursor cursor = db.query( 
-						TABLE_PLAYBACK_PROFILE, 
-						new String[] { TABLE_PLAYBACK_PROFILE_ID, TABLE_PLAYBACK_PROFILE_TYPE, TABLE_PLAYBACK_PROFILE_NAME, TABLE_PLAYBACK_PROFILE_WIDTH, TABLE_PLAYBACK_PROFILE_HEIGHT, TABLE_PLAYBACK_PROFILE_BITRATE, TABLE_PLAYBACK_PROFILE_AUDIO_BITRATE, TABLE_PLAYBACK_PROFILE_SAMPLE_RATE, TABLE_PLAYBACK_PROFILE_SELECTED }, 
-						TABLE_PLAYBACK_PROFILE_ID + "=" + id, 
+						PlaybackProfileConstants.TABLE_NAME, 
+						new String[] { _ID, PlaybackProfileConstants.FIELD_TYPE, PlaybackProfileConstants.FIELD_NAME, PlaybackProfileConstants.FIELD_WIDTH, PlaybackProfileConstants.FIELD_HEIGHT, PlaybackProfileConstants.FIELD_BITRATE, PlaybackProfileConstants.FIELD_AUDIO_BITRATE, PlaybackProfileConstants.FIELD_SAMPLE_RATE, PlaybackProfileConstants.FIELD_SELECTED }, 
+						_ID + "=" + id, 
 						null, null, null, null 
 					  );
 			
@@ -361,16 +347,16 @@ public class MythtvDatabaseManager {
 		open();
 
 		ContentValues args = new ContentValues();
-		args.put( TABLE_PLAYBACK_PROFILE_TYPE, profile.getType().name() );
-		args.put( TABLE_PLAYBACK_PROFILE_NAME, profile.getName() );
-		args.put( TABLE_PLAYBACK_PROFILE_WIDTH, profile.getWidth() );
-		args.put( TABLE_PLAYBACK_PROFILE_HEIGHT, profile.getHeight() );
-		args.put( TABLE_PLAYBACK_PROFILE_BITRATE, profile.getVideoBitrate() );
-		args.put( TABLE_PLAYBACK_PROFILE_AUDIO_BITRATE, profile.getAudioBitrate() );
-		args.put( TABLE_PLAYBACK_PROFILE_SAMPLE_RATE, profile.getAudioSampleRate() );
-		args.put( TABLE_PLAYBACK_PROFILE_SELECTED, profile.isSelected() ? 1 : 0 );
+		args.put( PlaybackProfileConstants.FIELD_TYPE, profile.getType().name() );
+		args.put( PlaybackProfileConstants.FIELD_NAME, profile.getName() );
+		args.put( PlaybackProfileConstants.FIELD_WIDTH, profile.getWidth() );
+		args.put( PlaybackProfileConstants.FIELD_HEIGHT, profile.getHeight() );
+		args.put( PlaybackProfileConstants.FIELD_BITRATE, profile.getVideoBitrate() );
+		args.put( PlaybackProfileConstants.FIELD_AUDIO_BITRATE, profile.getAudioBitrate() );
+		args.put( PlaybackProfileConstants.FIELD_SAMPLE_RATE, profile.getAudioSampleRate() );
+		args.put( PlaybackProfileConstants.FIELD_SELECTED, profile.isSelected() ? 1 : 0 );
 
-		int rows = db.update( TABLE_PLAYBACK_PROFILE, args, TABLE_PLAYBACK_PROFILE_ID + "=" + profile.getId(), null );
+		int rows = db.update( PlaybackProfileConstants.TABLE_NAME, args, _ID + "=" + profile.getId(), null );
 	
 		close();
 
@@ -469,7 +455,7 @@ public class MythtvDatabaseManager {
 		
 		List<LocationProfile> profiles = new ArrayList<LocationProfile>();
 
-		Cursor cursor = db.query( TABLE_LOCATION_PROFILE, new String[] { TABLE_LOCATION_PROFILE_ID, TABLE_LOCATION_PROFILE_TYPE, TABLE_LOCATION_PROFILE_NAME, TABLE_LOCATION_PROFILE_URL, TABLE_LOCATION_PROFILE_SELECTED }, "type=?",	new String[] { type.name() }, null, null, null );
+		Cursor cursor = db.query( LocationProfileConstants.TABLE_NAME, new String[] { _ID, LocationProfileConstants.FIELD_TYPE, LocationProfileConstants.FIELD_NAME, LocationProfileConstants.FIELD_URL, LocationProfileConstants.FIELD_SELECTED }, "type=?",	new String[] { type.name() }, null, null, null );
 		
 		int count = cursor.getCount();
 		if( count > 0 && cursor.moveToFirst() ) {
@@ -501,7 +487,7 @@ public class MythtvDatabaseManager {
 		
 		List<PlaybackProfile> profiles = new ArrayList<PlaybackProfile>();
 
-		Cursor cursor = db.query( TABLE_PLAYBACK_PROFILE, new String[] { TABLE_PLAYBACK_PROFILE_ID, TABLE_PLAYBACK_PROFILE_TYPE, TABLE_PLAYBACK_PROFILE_NAME, TABLE_PLAYBACK_PROFILE_WIDTH, TABLE_PLAYBACK_PROFILE_HEIGHT, TABLE_PLAYBACK_PROFILE_BITRATE, TABLE_PLAYBACK_PROFILE_AUDIO_BITRATE, TABLE_PLAYBACK_PROFILE_SAMPLE_RATE, TABLE_PLAYBACK_PROFILE_SELECTED }, "type=?",	new String[] { type.name() }, null, null, null );
+		Cursor cursor = db.query( PlaybackProfileConstants.TABLE_NAME, new String[] { _ID, PlaybackProfileConstants.FIELD_TYPE, PlaybackProfileConstants.FIELD_NAME, PlaybackProfileConstants.FIELD_WIDTH, PlaybackProfileConstants.FIELD_HEIGHT, PlaybackProfileConstants.FIELD_BITRATE, PlaybackProfileConstants.FIELD_AUDIO_BITRATE, PlaybackProfileConstants.FIELD_SAMPLE_RATE, PlaybackProfileConstants.FIELD_SELECTED }, "type=?",	new String[] { type.name() }, null, null, null );
 		
 		int count = cursor.getCount();
 		if( count > 0 && cursor.moveToFirst() ) {
@@ -534,12 +520,12 @@ public class MythtvDatabaseManager {
 		open();
 		
 		ContentValues initialValues = new ContentValues();
-		initialValues.put( TABLE_LOCATION_PROFILE_TYPE, profile.getType().name() );
-		initialValues.put( TABLE_LOCATION_PROFILE_NAME, profile.getName() );
-		initialValues.put( TABLE_LOCATION_PROFILE_URL, profile.getUrl() );
-		initialValues.put( TABLE_LOCATION_PROFILE_SELECTED, 0 );
+		initialValues.put( LocationProfileConstants.FIELD_TYPE, profile.getType().name() );
+		initialValues.put( LocationProfileConstants.FIELD_NAME, profile.getName() );
+		initialValues.put( LocationProfileConstants.FIELD_URL, profile.getUrl() );
+		initialValues.put( LocationProfileConstants.FIELD_SELECTED, 0 );
 
-		long id = db.insert( TABLE_LOCATION_PROFILE, null, initialValues );
+		long id = db.insert( LocationProfileConstants.TABLE_NAME, null, initialValues );
 		
 		close();
 		
@@ -553,14 +539,14 @@ public class MythtvDatabaseManager {
 		open();
 		
 		ContentValues args = new ContentValues();
-		args.put( TABLE_LOCATION_PROFILE_SELECTED, 0 );
+		args.put( LocationProfileConstants.FIELD_SELECTED, 0 );
 
-		db.update( TABLE_LOCATION_PROFILE, args, TABLE_LOCATION_PROFILE_TYPE + "=?", new String[] { type.name() } );
+		db.update( LocationProfileConstants.TABLE_NAME, args, LocationProfileConstants.FIELD_TYPE + "=?", new String[] { type.name() } );
 
 		args = new ContentValues();
-		args.put( TABLE_LOCATION_PROFILE_SELECTED, 1 );
+		args.put( LocationProfileConstants.FIELD_SELECTED, 1 );
 
-		int rows = db.update( TABLE_LOCATION_PROFILE, args, TABLE_LOCATION_PROFILE_ID + "=?", new String[] { "" + id } );
+		int rows = db.update( LocationProfileConstants.TABLE_NAME, args, _ID + "=?", new String[] { "" + id } );
 	
 		close();
 
@@ -574,14 +560,14 @@ public class MythtvDatabaseManager {
 		open();
 		
 		ContentValues args = new ContentValues();
-		args.put( TABLE_PLAYBACK_PROFILE_SELECTED, 0 );
+		args.put( PlaybackProfileConstants.FIELD_SELECTED, 0 );
 
-		db.update( TABLE_PLAYBACK_PROFILE, args, TABLE_PLAYBACK_PROFILE_TYPE + "=?", new String[] { type.name() } );
+		db.update( PlaybackProfileConstants.TABLE_NAME, args, PlaybackProfileConstants.FIELD_TYPE + "=?", new String[] { type.name() } );
 
 		args = new ContentValues();
-		args.put( TABLE_PLAYBACK_PROFILE_SELECTED, 1 );
+		args.put( PlaybackProfileConstants.FIELD_SELECTED, 1 );
 
-		int rows = db.update( TABLE_PLAYBACK_PROFILE, args, TABLE_PLAYBACK_PROFILE_ID + "=?", new String[] { "" + id } );
+		int rows = db.update( PlaybackProfileConstants.TABLE_NAME, args, _ID + "=?", new String[] { "" + id } );
 	
 		close();
 
@@ -598,9 +584,9 @@ public class MythtvDatabaseManager {
 
 		try {
 			Cursor cursor = db.query( 
-						TABLE_LOCATION_PROFILE, 
-						new String[] { TABLE_LOCATION_PROFILE_ID, TABLE_LOCATION_PROFILE_TYPE, TABLE_LOCATION_PROFILE_NAME, TABLE_LOCATION_PROFILE_URL, TABLE_LOCATION_PROFILE_SELECTED }, 
-						TABLE_LOCATION_PROFILE_TYPE + "=? and " + TABLE_LOCATION_PROFILE_SELECTED + "=?", 
+						LocationProfileConstants.TABLE_NAME, 
+						new String[] { _ID, LocationProfileConstants.FIELD_TYPE, LocationProfileConstants.FIELD_NAME, LocationProfileConstants.FIELD_URL, LocationProfileConstants.FIELD_SELECTED }, 
+						LocationProfileConstants.FIELD_TYPE + "=? and " + LocationProfileConstants.FIELD_SELECTED + "=?", 
 						new String[] { type.name(), "1" }, 
 						null, null, null 
 					  );
@@ -641,9 +627,9 @@ public class MythtvDatabaseManager {
 
 		try {
 			Cursor cursor = db.query( 
-						TABLE_PLAYBACK_PROFILE, 
-						new String[] { TABLE_PLAYBACK_PROFILE_ID, TABLE_PLAYBACK_PROFILE_TYPE, TABLE_PLAYBACK_PROFILE_NAME, TABLE_PLAYBACK_PROFILE_WIDTH, TABLE_PLAYBACK_PROFILE_HEIGHT, TABLE_PLAYBACK_PROFILE_BITRATE, TABLE_PLAYBACK_PROFILE_AUDIO_BITRATE, TABLE_PLAYBACK_PROFILE_SAMPLE_RATE, TABLE_PLAYBACK_PROFILE_SELECTED }, 
-						TABLE_PLAYBACK_PROFILE_TYPE + "=? and " + TABLE_PLAYBACK_PROFILE_SELECTED + "=?", 
+						PlaybackProfileConstants.TABLE_NAME, 
+						new String[] { _ID, PlaybackProfileConstants.FIELD_TYPE, PlaybackProfileConstants.FIELD_NAME, PlaybackProfileConstants.FIELD_WIDTH, PlaybackProfileConstants.FIELD_HEIGHT, PlaybackProfileConstants.FIELD_BITRATE, PlaybackProfileConstants.FIELD_AUDIO_BITRATE, PlaybackProfileConstants.FIELD_SAMPLE_RATE, PlaybackProfileConstants.FIELD_SELECTED }, 
+						PlaybackProfileConstants.FIELD_TYPE + "=? and " + PlaybackProfileConstants.FIELD_SELECTED + "=?", 
 						new String[] { type.name(), "1" }, 
 						null, null, null 
 					  );
