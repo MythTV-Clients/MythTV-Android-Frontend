@@ -84,9 +84,9 @@ public class ProgramProvider extends AbstractMythtvContentProvider {
 	public Cursor query( Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder ) {
 		Log.v( TAG, "query : enter" );
 		
-		//if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
+		if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
 			Log.v( TAG, "query : uri=" + uri.toString() );
-		//}
+		}
 		
 		if( uriMatcher.match( uri ) == PROGRAM_ID ) {
 			Log.v( TAG, "query : uri segment=" + uri.getPathSegments().get( 1 ) );
@@ -114,9 +114,9 @@ public class ProgramProvider extends AbstractMythtvContentProvider {
 	public String getType( Uri uri ) {
 		Log.v( TAG, "getType : enter" );
 
-		//if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
+		if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
 			Log.v( TAG, "getType : uri=" + uri.toString() );
-		//}
+		}
 		
 		switch( uriMatcher.match( uri ) ) {
 			case PROGRAMS:
@@ -141,9 +141,9 @@ public class ProgramProvider extends AbstractMythtvContentProvider {
 	public Uri insert( Uri uri, ContentValues values ) {
 		Log.v( TAG, "insert : enter" );
 
-		//if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
+		if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
 			Log.v( TAG, "insert : uri=" + uri.toString() );
-		//}
+		}
 		
 		SQLiteDatabase db = database.getWritableDatabase();
 
