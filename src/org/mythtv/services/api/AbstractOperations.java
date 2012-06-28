@@ -25,6 +25,7 @@ import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 
+import org.springframework.http.ContentCodingType;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -56,7 +57,7 @@ public abstract class AbstractOperations {
 		
 		HttpHeaders requestHeaders = new HttpHeaders();
 		requestHeaders.setAccept( Collections.singletonList( MediaType.APPLICATION_JSON ) );
-		//requestHeaders.setAcceptEncoding( Collections.singletonList( ContentCodingType.GZIP ) );
+		requestHeaders.setAcceptEncoding( Collections.singletonList( ContentCodingType.GZIP ) );
 		
 		requestEntity = new HttpEntity<Object>( requestHeaders );
 	}
