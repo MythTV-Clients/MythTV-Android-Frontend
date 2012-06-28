@@ -21,16 +21,13 @@
  */
 package org.mythtv.client;
 
-import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 
-import org.mythtv.client.ui.dvr.ProgramGroup;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.preferences.PlaybackProfile;
 import org.mythtv.services.api.MythServices;
 import org.mythtv.services.api.capture.CaptureCard;
-import org.mythtv.services.api.dvr.Program;
 import org.mythtv.services.connect.MythServicesServiceProvider;
 
 import android.app.Application;
@@ -61,12 +58,6 @@ public class MainApplication extends Application {
 	private PlaybackProfile selectedAwayPlaybackProfile;
 	
 	private String masterBackend;
-	
-	private Calendar recordingsLoaded;
-	private List<ProgramGroup> programGroups;
-
-	private Program currentProgram;
-	private List<Program> currentRecordingsInProgramGroup;
 	
 	private List<String> captureCards;
 	private Map<String,List<CaptureCard>> currentCaptureCards;
@@ -266,66 +257,6 @@ public class MainApplication extends Application {
 		this.location = location;
 	}
 
-
-	/**
-	 * @return the recordingsLoaded
-	 */
-	public Calendar getRecordingsLoaded() {
-		return recordingsLoaded;
-	}
-
-
-	/**
-	 * @param recordingsLoaded the recordingsLoaded to set
-	 */
-	public void setRecordingsLoaded( Calendar recordingsLoaded ) {
-		this.recordingsLoaded = recordingsLoaded;
-	}
-
-
-	/**
-	 * @return the programGroups
-	 */
-	public List<ProgramGroup> getProgramGroups() {
-		return programGroups;
-	}
-
-
-	/**
-	 * @param programGroups the programGroups to set
-	 */
-	public void setProgramGroups( List<ProgramGroup> programGroups ) {
-		this.programGroups = programGroups;
-	}
-
-
-	/**
-	 * @return the currentRecordingsInProgramGroup
-	 */
-	public List<Program> getCurrentRecordingsInProgramGroup() {
-		return currentRecordingsInProgramGroup;
-	}
-
-	/**
-	 * @param currentRecordingsInProgramGroup the currentRecordingsInProgramGroup to set
-	 */
-	public void setCurrentRecordingsInProgramGroup( List<Program> currentRecordingsInProgramGroup ) {
-		this.currentRecordingsInProgramGroup = currentRecordingsInProgramGroup;
-	}
-	
-	/**
-	 * @return the currentProgram
-	 */
-	public Program getCurrentProgram() {
-		return currentProgram;
-	}
-
-	/**
-	 * @param currentProgram the currentProgram to set
-	 */
-	public void setCurrentProgram( Program currentProgram) {
-		this.currentProgram = currentProgram;
-	}
 
 	/**
 	 * @return the captureCards
