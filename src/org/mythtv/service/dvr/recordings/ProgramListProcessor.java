@@ -94,7 +94,8 @@ public class ProgramListProcessor {
 
 			ContentValues values;
 			
-			List<String> programGroups = new ArrayList<String>();
+			List<Long> programGroupIds = new ArrayList<Long>();
+			List<Long> programIds = new ArrayList<Long>();
 			
 			for( Program program : programList.getPrograms().getPrograms() ) {
 				Log.v( TAG, "updateProgramContentProvider : program=" + program.toString() );
@@ -106,19 +107,23 @@ public class ProgramListProcessor {
 					values.put( ProgramGroupConstants.FIELD_PROGRAM_GROUP, program.getTitle() );
 					values.put( ProgramGroupConstants.FIELD_INETREF, program.getInetref() );
 					
-					Cursor cursor = mContext.getContentResolver().query( ProgramGroupConstants.CONTENT_URI, null, ProgramGroupConstants.FIELD_PROGRAM_GROUP + " = ?", new String[] { program.getTitle() }, null );
+					Cursor cursor = mContext.getContentResolver().query( ProgramGroupConstants.CONTENT_URI, new String[] { BaseColumns._ID }, ProgramGroupConstants.FIELD_PROGRAM_GROUP + " = ?", new String[] { program.getTitle() }, null );
 					if( cursor.moveToFirst() ) {
+						Log.v( TAG, "updateProgramContentProvider : programGroup already exists" );
+						
 						programGroupId = cursor.getInt( cursor.getColumnIndexOrThrow( BaseColumns._ID ) );
 					} else {
+						Log.v( TAG, "updateProgramContentProvider : adding new programGroup" );
+						
 						Uri programGroupUri = mContext.getContentResolver().insert( ProgramGroupConstants.CONTENT_URI, values );
 						programGroupId = ContentUris.parseId( programGroupUri );
 					}
 					cursor.close();
 
-					if( programGroups.contains( program.getTitle() ) ) {
-						programGroups.add( program.getTitle() );
+					if( !programGroupIds.contains( programGroupId ) ) {
+						programGroupIds.add( programGroupId );
 					}
-
+					
 					values = new ContentValues();
 					values.put( ProgramConstants.FIELD_START_TIME, null != program.getStartTime() ? sdf.format( program.getStartTime() ) : "" );
 					values.put( ProgramConstants.FIELD_END_TIME, null != program.getEndTime() ? sdf.format( program.getEndTime() ) : "" );
@@ -146,39 +151,50 @@ public class ProgramListProcessor {
 					values.put( ProgramConstants.FIELD_PROGRAM_GROUP_ID, programGroupId );
 					
 					long programId = 0;
-					cursor = mContext.getContentResolver().query( ProgramConstants.CONTENT_URI, null, ProgramConstants.FIELD_PROGRAM_ID + " = ?", new String[] { program.getProgramId() }, null );
+					cursor = mContext.getContentResolver().query( ProgramConstants.CONTENT_URI,  new String[] { BaseColumns._ID }, ProgramConstants.FIELD_TITLE + " = ? and " + ProgramConstants.FIELD_SUB_TITLE + " = ?", new String[] { program.getTitle(), program.getSubTitle() }, null );
 					if( cursor.moveToFirst() ) {
+						Log.v( TAG, "updateProgramContentProvider : program already exists" );
+						
 						programId = cursor.getInt( cursor.getColumnIndexOrThrow( BaseColumns._ID ) );
 						mContext.getContentResolver().update( ContentUris.withAppendedId( ProgramConstants.CONTENT_URI, programId ), values, null, null );
 					} else {
+						Log.v( TAG, "updateProgramContentProvider : adding new program" );
+						
 						Uri programUri = mContext.getContentResolver().insert( ProgramConstants.CONTENT_URI, values );
 						programId = ContentUris.parseId( programUri );
 					}
 					cursor.close();
 
+					Log.v( TAG, "updateProgramContentProvider : programId=" + programId );
+					programIds.add( programId );
+					
 					updateRecordingContentProvider( program, programId );
 					updateArtworkContentProvider( program, programId );
 				}
 			}
-			Log.v( TAG, "updateProgramContentProvider : programGroups=" + programGroups.toString() );
 
-			if( !programGroups.isEmpty() ) {
+			if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
+				Log.v( TAG, "updateProgramContentProvider : programIds=" + programIds.toString() );
+			}
+			if( !programIds.isEmpty() ) {
 				Log.v( TAG, "updateProgramContentProvider : looking up programs to remove" );
 
 				StringBuilder sb = new StringBuilder();
-				for( int i = 0; i < programGroups.size(); i++ ) {
-					sb.append( "'" ).append( programGroups.get( i ) ).append( "'" );
+				for( int i = 0; i < programIds.size(); i++ ) {
+					sb.append( programIds.get( i ) );
 					
-					if( i < programGroups.size() - 1 ) {
-						sb.append( ", " );
+					if( i < programIds.size() - 1 ) {
+						sb.append( "," );
 					}
 				}
-				Log.v( TAG, "updateProgramContentProvider : sb=" + sb.toString() );
+				if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
+					Log.v( TAG, "updateProgramContentProvider : existing program ids=" + sb.toString() );
+				}
 				
-				List<Integer> deleteIds = new ArrayList<Integer>();
-				Cursor cursor = mContext.getContentResolver().query( ProgramGroupConstants.CONTENT_URI, new String[] { BaseColumns._ID }, ProgramGroupConstants.FIELD_PROGRAM_GROUP + " not in (" + sb.toString() + ")", null, null );
+				List<Long> deleteIds = new ArrayList<Long>();
+				Cursor cursor = mContext.getContentResolver().query( ProgramConstants.CONTENT_URI, new String[] { BaseColumns._ID }, BaseColumns._ID + " not in (" + sb.toString() + ")", null, null );
 				while( cursor.moveToNext() ) {
-					int id = cursor.getInt( cursor.getColumnIndexOrThrow( BaseColumns._ID ) );
+					Long id = cursor.getLong( cursor.getColumnIndexOrThrow( BaseColumns._ID ) );
 					deleteIds.add( id );
 
 					Log.v( TAG, "updateProgramContentProvider : queing for deletion, id=" + id );
@@ -186,11 +202,53 @@ public class ProgramListProcessor {
 				cursor.close();
 				
 				if( !deleteIds.isEmpty() ) {
-					for( Integer id : deleteIds ) {
-						int programsDeleted = mContext.getContentResolver().delete( ProgramConstants.CONTENT_URI, ProgramConstants.FIELD_PROGRAM_GROUP_ID + " = ?", new String[] { "" + id } );
+					for( Long id : deleteIds ) {
+						Cursor recordingCursor = mContext.getContentResolver().query( RecordingConstants.CONTENT_URI, new String[] { BaseColumns._ID }, RecordingConstants.FIELD_PROGRAM_ID + " = ?", new String[] { "" + id }, null );
+						if( recordingCursor.moveToFirst() ) {
+							Long recordingId = recordingCursor.getLong( cursor.getColumnIndexOrThrow( BaseColumns._ID ) );
+							mContext.getContentResolver().delete( ContentUris.withAppendedId( RecordingConstants.CONTENT_URI, recordingId ), null, null );
+						}
+
 						int deleted = mContext.getContentResolver().delete( ContentUris.withAppendedId( ProgramConstants.CONTENT_URI, id ), null, null );
 						
-						Log.v( TAG, "updateProgramContentProvider : deleted, id=" + deleted + ", programsDeleted=" + programsDeleted );
+						Log.v( TAG, "updateProgramProvider : deleted, id=" + deleted );
+					}
+				}
+			}
+
+			if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
+				Log.v( TAG, "updateProgramContentProvider : programGroupIds=" + programGroupIds.toString() );
+			}
+			if( !programGroupIds.isEmpty() ) {
+				Log.v( TAG, "updateProgramGroupContentProvider : looking up program groups to remove" );
+
+				StringBuilder sb = new StringBuilder();
+				for( int i = 0; i < programGroupIds.size(); i++ ) {
+					sb.append( programGroupIds.get( i ) );
+					
+					if( i < programGroupIds.size() - 1 ) {
+						sb.append( "," );
+					}
+				}
+				if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
+					Log.v( TAG, "updateProgramGroupContentProvider : existing program group ids=" + sb.toString() );
+				}
+				
+				List<Long> deleteIds = new ArrayList<Long>();
+				Cursor cursor = mContext.getContentResolver().query( ProgramGroupConstants.CONTENT_URI, new String[] { BaseColumns._ID }, BaseColumns._ID + " not in (" + sb.toString() + ")", null, null );
+				while( cursor.moveToNext() ) {
+					Long id = cursor.getLong( cursor.getColumnIndexOrThrow( BaseColumns._ID ) );
+					deleteIds.add( id );
+
+					Log.v( TAG, "updateProgramGroupContentProvider : queing for deletion, id=" + id );
+				}
+				cursor.close();
+				
+				if( !deleteIds.isEmpty() ) {
+					for( Long id : deleteIds ) {
+						int deleted = mContext.getContentResolver().delete( ContentUris.withAppendedId( ProgramGroupConstants.CONTENT_URI, id ), null, null );
+						
+						Log.v( TAG, "updateProgramGroupContentProvider : deleted, id=" + deleted );
 					}
 				}
 			}
