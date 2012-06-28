@@ -46,7 +46,7 @@ public class RecordingsActivity extends AbstractRecordingsActivity implements Re
 		
 		FragmentTransaction xaction = fragMgr.beginTransaction();
 
-		if( null == programGroupFragment ) {
+//		if( null == programGroupFragment ) {
 			Log.v( TAG, "addProgramGroupFragment : creating new program group fragment" );
 
 			programGroupFragment = new ProgramGroupFragment();
@@ -56,7 +56,7 @@ public class RecordingsActivity extends AbstractRecordingsActivity implements Re
 				.setTransition( FragmentTransaction.TRANSIT_FRAGMENT_OPEN )
 				.addToBackStack( null )
 				.commit();
-		}
+//		}
 
 		programGroupFragment.loadPrograms( programGroup );
 		

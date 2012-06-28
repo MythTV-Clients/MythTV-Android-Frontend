@@ -107,13 +107,13 @@ public class VideoActivity extends FragmentActivity {
 		Log.v( TAG, "onResume : enter" );
 		super.onResume();
 		
-		if( !firstrun ) {
-			Log.v( TAG, "onResume : resuming after video playback started" );
-			
-			finish();
-		} else {
-			firstrun = false;
-		}
+//		if( !firstrun ) {
+//			Log.v( TAG, "onResume : resuming after video playback started" );
+//			
+//			finish();
+//		} else {
+//			firstrun = false;
+//		}
 		
 		Log.v( TAG, "onResume : exit" );
 	}

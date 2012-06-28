@@ -35,7 +35,8 @@ public class ProgramGroupFragment extends MythtvListFragment implements LoaderMa
 
 	private ProgramCursorAdapter adapter;
 	
-	public ProgramGroupFragment() { }
+	public ProgramGroupFragment() {
+	}
 	
 	/* (non-Javadoc)
 	 * @see android.support.v4.app.LoaderManager.LoaderCallbacks#onCreateLoader(int, android.os.Bundle)
