@@ -24,8 +24,11 @@ package org.mythtv.client.ui.dvr;
 import org.mythtv.client.ui.AbstractMythtvFragmentActivity;
 
 import android.app.ActionBar;
+import android.content.Intent;
 import android.os.Build;
+import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 
 /**
  * @author John Baab
@@ -36,15 +39,41 @@ public abstract class AbstractProgramGroupActivity extends AbstractMythtvFragmen
 
 	protected static final String TAG = AbstractProgramGroupActivity.class.getSimpleName();
 
-	protected void setupActionBar() {
-		Log.v( TAG, "setupActionBar : enter" );
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.FragmentActivity#onCreate(android.os.Bundle)
+	 */
+	@Override
+	protected void onCreate( Bundle savedInstanceState ) {
+		Log.v( TAG, "onCreate : enter" );
+		super.onCreate( savedInstanceState );
 
 		if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
 			ActionBar actionBar = getActionBar();
 			actionBar.setDisplayHomeAsUpEnabled( true );
 		}
 		
-		Log.v( TAG, "setupActionBar : exit" );
+		Log.v( TAG, "onCreate : exit" );
+	}
+	
+	/* (non-Javadoc)
+	 * @see android.app.Activity#onOptionsItemSelected(android.view.MenuItem)
+	 */
+	@Override
+	public boolean onOptionsItemSelected( MenuItem item ) {
+		Log.v( TAG, "onOptionsItemSelected : enter" );
+
+		switch( item.getItemId() ) {
+			case android.R.id.home:
+				// app icon in action bar clicked; go home
+				Intent intent = new Intent( this, RecordingsActivity.class );
+				intent.addFlags( Intent.FLAG_ACTIVITY_CLEAR_TOP );
+				startActivity( intent );
+
+				return true;
+		}
+
+		Log.v( TAG, "onOptionsItemSelected : exit" );
+		return super.onOptionsItemSelected( item );
 	}
 
 }
