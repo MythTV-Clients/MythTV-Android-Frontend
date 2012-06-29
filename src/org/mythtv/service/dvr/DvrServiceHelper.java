@@ -116,7 +116,6 @@ public class DvrServiceHelper {
 
 	private void handleRecordingsResponse( int resultCode, Bundle resultData ){
 
-
 		Intent origIntent = (Intent) resultData.getParcelable( DvrService.ORIGINAL_INTENT_EXTRA );
 
 		if( null != origIntent ) {
