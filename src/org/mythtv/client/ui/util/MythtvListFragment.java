@@ -30,6 +30,9 @@ import android.widget.ListView;
 
 public class MythtvListFragment extends ListFragment {
 
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.ListFragment#onListItemClick(android.widget.ListView, android.view.View, int, long)
+	 */
 	@Override
 	public void onListItemClick( ListView l, View v, int position, long id ) {
 		l.setItemChecked( position, true );
