@@ -22,6 +22,7 @@
 
 package org.mythtv.service.dvr.recordings;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -114,6 +115,38 @@ public class ProgramListProcessor {
 						programGroupId = cursor.getInt( cursor.getColumnIndexOrThrow( BaseColumns._ID ) );
 					} else {
 						Log.v( TAG, "updateProgramContentProvider : adding new programGroup" );
+						
+						String filename = "N/A";
+						boolean bannerFound = false;
+
+						Log.v( TAG, "updateProgramContentProvider : looking for banner to download" );
+						if( null != program.getArtwork() && !program.getArtwork().getArtworkInfos().isEmpty() ) {
+							
+							for( ArtworkInfo artworkInfo : program.getArtwork().getArtworkInfos() ) {
+								if( "banner".equals( artworkInfo.getType() ) ) {
+									Log.v( TAG, "updateProgramContentProvider : banner found" );
+
+									bannerFound = true;
+									
+									break;
+								}
+							}
+							
+						}
+						
+						if( bannerFound && ( null != program.getInetref() && !"".equals( program.getInetref() ) ) ) {
+							Log.v( TAG, "updateProgramContentProvider : generating banner filename" );
+
+							File root = mContext.getExternalCacheDir();
+			            
+			            	File pictureDir = new File( root, "Banners" );
+			            	pictureDir.mkdirs();
+			            
+			            	File f = new File( pictureDir, program.getInetref() + ".png" );
+			            	filename = f.getAbsolutePath();
+			            	f.delete();
+						}
+						values.put( ProgramGroupConstants.FIELD_BANNER_URL, filename );
 						
 						Uri programGroupUri = mContext.getContentResolver().insert( ProgramGroupConstants.CONTENT_URI, values );
 						programGroupId = ContentUris.parseId( programGroupUri );

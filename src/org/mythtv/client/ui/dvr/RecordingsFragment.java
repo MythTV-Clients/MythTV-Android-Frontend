@@ -31,7 +31,6 @@ import org.mythtv.client.ui.util.MythtvListFragment;
 import org.mythtv.db.dvr.ProgramGroupConstants;
 
 import android.content.ContentUris;
-import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -170,16 +169,6 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 		void onProgramGroupSelected( String programGroup );
 	}
 
-//	private void exceptionDialolg( Throwable t ) {
-//		AlertDialog.Builder builder = new AlertDialog.Builder( getActivity() );
-//
-//		builder
-//			.setTitle( R.string.exception )
-//			.setMessage( t.toString() )
-//			.setPositiveButton( R.string.close, null )
-//				.show();
-//	}
-
 	private class ProgramGroupCursorAdapter extends SimpleCursorAdapter {
 
 		public ProgramGroupCursorAdapter( Context context, int layout, Cursor c, String[] from, int[] to, int flags ) {
@@ -197,36 +186,25 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 			
 			getCursor().moveToPosition( position );
 		    try {
-		        int idIndex = getCursor().getColumnIndexOrThrow( BaseColumns._ID );
 		        int nameIndex = getCursor().getColumnIndexOrThrow( ProgramGroupConstants.FIELD_PROGRAM_GROUP );
 				int inetrefIndex = getCursor().getColumnIndexOrThrow( ProgramGroupConstants.FIELD_INETREF );
 		        int bannerIndex = getCursor().getColumnIndexOrThrow( ProgramGroupConstants.FIELD_BANNER_URL );
 
-		        int id = getCursor().getInt( idIndex );
 		        String name = getCursor().getString( nameIndex );
 		        String inetref = getCursor().getString( inetrefIndex );
 		        String banner = getCursor().getString( bannerIndex );
-		        Log.v( TAG, "getView : id=" + id + ", name=" + name + ", inetref=" + inetref + ", banner=" + banner );
+		        Log.v( TAG, "getView : name=" + name + ", inetref=" + inetref + ", banner=" + banner );
 		        
 				TextView textView = (TextView) row.findViewById( R.id.program_group_row );
-				if( null == banner || "".equals( banner ) ) {
+				if( null == banner || "".equals( banner ) || "N/A".equals( banner ) ) {
 					Log.v( TAG, "getView : program group contains no artwork" );
 
 					row.setBackgroundDrawable( null );
 					textView.setText( name );
-
-					if( !"N/A".equals( banner ) && ( null != inetref && !"".equals( inetref ) ) ) {
-						new DownloadBannerImageTask().execute( id, name, inetref );
-					}
 				} else {
 					Log.v( TAG, "getView : program group contains artwork" );
 
-					File root = getActivity().getExternalCacheDir();
-
-					File pictureDir = new File( root, DownloadBannerImageTask.BANNERS_DIR );
-					pictureDir.mkdirs();
-
-		            File f = new File( pictureDir, inetref + ".png" );
+		            File f = new File( banner );
 					if( f.exists() ) {
 						Log.v( TAG, "getView : loading banner from cache" );
 						
@@ -243,7 +221,9 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 							textView.setText( name );
 						}
 					} else {
-				        row.setBackgroundDrawable( null );
+						new DownloadBannerImageTask().execute( inetref );
+
+						row.setBackgroundDrawable( null );
 						textView.setText( name );
 					}
 				}
@@ -263,17 +243,13 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 		
 		private Exception e = null;
 
-		private int id;
-		private String title;
 		private String inetref;
 		
 		@Override
 		protected Bitmap doInBackground( Object... params ) {
 			Log.v( TAG, "doInBackground : enter" );
 
-			id = (Integer) params[ 0 ];
-			title = (String) params[ 1 ];
-			inetref = (String) params[ 2 ];
+			inetref = (String) params[ 0 ];
 			
 			Bitmap bitmap = null;
 
@@ -310,22 +286,13 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 		                return;
 		            }
 		
-	                if( !f.exists() ) {
-		                String name = f.getAbsolutePath();
-		                FileOutputStream fos = new FileOutputStream( name );
-		                result.compress( Bitmap.CompressFormat.PNG, 100, fos );
-		                fos.flush();
-		                fos.close();
+	                String name = f.getAbsolutePath();
+	                FileOutputStream fos = new FileOutputStream( name );
+	                result.compress( Bitmap.CompressFormat.PNG, 100, fos );
+	                fos.flush();
+	                fos.close();
 
-		                ContentValues values = new ContentValues();
-						values.put( ProgramGroupConstants.FIELD_PROGRAM_GROUP, title );
-						values.put( ProgramGroupConstants.FIELD_INETREF, inetref );
-						values.put( ProgramGroupConstants.FIELD_BANNER_URL, name );
-
-						getActivity().getApplicationContext().getContentResolver().update( ContentUris.withAppendedId( ProgramGroupConstants.CONTENT_URI, id ), values, null, null );
-						
-						adapter.notifyDataSetChanged();
-		            }
+					adapter.notifyDataSetChanged();
 	                
 		        } catch( Exception e ) {
 		        	Log.e( TAG, "error saving file", e );
@@ -333,13 +300,6 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 		 
 			} else {
 				Log.e( TAG, "error getting program group banner", e );
-
-	        	ContentValues values = new ContentValues();
-				values.put( ProgramGroupConstants.FIELD_PROGRAM_GROUP, title );
-				values.put( ProgramGroupConstants.FIELD_INETREF, inetref );
-				values.put( ProgramGroupConstants.FIELD_BANNER_URL, "N/A" );
-
-				getActivity().getApplicationContext().getContentResolver().update( ContentUris.withAppendedId( ProgramGroupConstants.CONTENT_URI, id ), values, null, null );
 			}
 
 			Log.v( TAG, "onPostExecute : exit" );
