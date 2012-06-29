@@ -80,6 +80,14 @@ public class DvrDashboardFragment extends AbstractMythFragment {
 			}
 		} );
 
+		root.findViewById( R.id.dvr_btn_recording_rules ).setOnClickListener( new View.OnClickListener() {
+			public void onClick( View view ) {
+				Log.v( TAG, "recording_rules.onClick : enter" );
+
+				Log.v( TAG, "recording_rules.onClick : exit" );
+			}
+		} );
+
 		Log.v( TAG, "onCreateView : exit" );
 		return root;
 	}

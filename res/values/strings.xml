@@ -135,6 +135,7 @@
     <string name="btn_upcoming">Upcoming</string>
     <string name="btn_live">Live TV</string>
     <string name="btn_guide">Guide</string>
+    <string name="btn_recording_rules">Recording Rules</string>
     
     <!-- Media Dashboard -->
     <string name="tab_multimedia">Multimedia</string>
