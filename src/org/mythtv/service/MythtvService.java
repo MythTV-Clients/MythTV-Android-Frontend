@@ -14,12 +14,9 @@
  *  You should have received a copy of the GNU General Public License
  *  along with MythTV for Android.  If not, see <http://www.gnu.org/licenses/>.
  *   
- * @author Daniel Frey <dmfrey at gmail dot com>
- * 
- * This software can be found at <https://github.com/dmfrey/mythtv-for-android/>
+ * This software can be found at <https://github.com/MythTV-Android/mythtv-for-android/>
  *
  */
-
 package org.mythtv.service;
 
 import android.app.IntentService;

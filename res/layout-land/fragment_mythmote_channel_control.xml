@@ -15,9 +15,8 @@
  *  You should have received a copy of the GNU General Public License
  *  along with MythTV for Android.  If not, see <http://www.gnu.org/licenses/>.
  *   
- * @author Thomas Kenny <tom8oe at gmail dot com>
- * 
- * This software can be found at <https://github.com/dmfrey/mythtv-for-android/>
+ * This software can be found at <https://github.com/MythTV-Android/mythtv-for-android/>
+ *
 -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"

@@ -14,12 +14,9 @@
  *  You should have received a copy of the GNU General Public License
  *  along with MythTV for Android.  If not, see <http://www.gnu.org/licenses/>.
  *   
- * @author Daniel Frey <dmfrey at gmail dot com>
- * 
- * This software can be found at <https://github.com/dmfrey/mythtv-for-android/>
+ * This software can be found at <https://github.com/MythTV-Android/mythtv-for-android/>
  *
  */
-
 package org.mythtv.client.ui.util;
 
 import org.mythtv.client.MainApplication;
@@ -28,6 +25,10 @@ import android.support.v4.app.ListFragment;
 import android.view.View;
 import android.widget.ListView;
 
+/**
+ * @author Daniel Frey
+ *
+ */
 public class MythtvListFragment extends ListFragment {
 
 	/* (non-Javadoc)

@@ -14,9 +14,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with MythTV for Android.  If not, see <http://www.gnu.org/licenses/>.
  *   
- * @author Daniel Frey <dmfrey at gmail dot com>
- * 
- * This software can be found at <https://github.com/dmfrey/mythtv-for-android/>
+ * This software can be found at <https://github.com/MythTV-Android/mythtv-for-android/>
  *
  */
 package org.mythtv.client.ui.frontends;
@@ -25,6 +23,7 @@ import org.mythtv.client.ui.AbstractMythtvFragmentActivity;
 import org.mythtv.client.ui.AwayActivity;
 import org.mythtv.client.ui.HomeActivity;
 
+import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.content.Intent;
 import android.os.Build;
@@ -38,6 +37,9 @@ import android.view.MenuItem;
  */
 public abstract class AbstractFrontendsActivity extends AbstractMythtvFragmentActivity /* implements FrontendsFragment.OnFrontendListener */ {
 
+	/* (non-Javadoc)
+	 * @see org.mythtv.client.ui.AbstractMythtvFragmentActivity#onCreate(android.os.Bundle)
+	 */
 	@Override
 	protected void onCreate( Bundle savedInstanceState ) {
 		Log.i( TAG, "onCreate : enter" );
@@ -49,6 +51,7 @@ public abstract class AbstractFrontendsActivity extends AbstractMythtvFragmentAc
 		Log.i( TAG, "onCreate : exit" );
 	}
 
+	@TargetApi( 11 )
 	protected void setupActionBar() {
 		Log.v( TAG, "setupActionBar : enter" );
 

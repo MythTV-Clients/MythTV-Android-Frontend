@@ -14,9 +14,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with MythTV for Android.  If not, see <http://www.gnu.org/licenses/>.
  *   
- * @author Daniel Frey <dmfrey at gmail dot com>
- * 
- * This software can be found at <https://github.com/dmfrey/mythtv-for-android/>
+ * This software can be found at <https://github.com/MythTV-Android/mythtv-for-android/>
  *
  */
 package org.mythtv.client.ui.widget;
@@ -29,6 +27,9 @@ import android.view.ViewGroup;
 /**
  * Custom layout that arranges children in a grid-like manner, optimizing for
  * even horizontal and vertical whitespace.
+ *
+ * @author Daniel Frey
+ *
  */
 public class DashboardLayout extends ViewGroup {
 
