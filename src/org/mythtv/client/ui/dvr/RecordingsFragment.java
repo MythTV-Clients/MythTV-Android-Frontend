@@ -29,20 +29,14 @@ import java.io.InputStream;
 import org.mythtv.R;
 import org.mythtv.client.ui.util.MythtvListFragment;
 import org.mythtv.db.dvr.ProgramGroupConstants;
-import org.mythtv.service.dvr.DvrServiceHelper;
 
-import android.annotation.TargetApi;
-import android.content.BroadcastReceiver;
 import android.content.ContentUris;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.provider.BaseColumns;
 import android.support.v4.app.LoaderManager;
@@ -51,9 +45,6 @@ import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
@@ -66,16 +57,10 @@ import android.widget.TextView;
 public class RecordingsFragment extends MythtvListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
 	private static final String TAG = RecordingsFragment.class.getSimpleName();
-	private static final int REFRESH_ID = Menu.FIRST + 2;
 
 	private OnProgramGroupListener listener = null;
 	private ProgramGroupCursorAdapter adapter;
 	
-	private Long requestId;
-	private BroadcastReceiver requestReceiver;
-
-	private DvrServiceHelper mDvrServiceHelper;
-
 	/* (non-Javadoc)
 	 * @see android.support.v4.app.LoaderManager.LoaderCallbacks#onCreateLoader(int, android.os.Bundle)
 	 */
@@ -146,110 +131,12 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 		Log.v( TAG, "onResume : exit" );
 	}
 	
-	/* (non-Javadoc)
-	 * @see android.support.v4.app.Fragment#onCreateOptionsMenu(android.view.Menu, android.view.MenuInflater)
-	 */
-	@TargetApi( 11 )
-	@Override
-	public void onCreateOptionsMenu( Menu menu, MenuInflater inflater ) {
-		Log.v( TAG, "onCreateOptionsMenu : enter" );
-		super.onCreateOptionsMenu( menu, inflater );
-
-	    MenuItem refresh = menu.add( Menu.NONE, REFRESH_ID, Menu.NONE, "Refresh" );
-	    if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-	    	refresh.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
-	    }
-		 
-		Log.v( TAG, "onCreateOptionsMenu : exit" );
-	}
-
-	/* (non-Javadoc)
-	 * @see android.support.v4.app.Fragment#onOptionsItemSelected(android.view.MenuItem)
-	 */
-	@Override
-	public boolean onOptionsItemSelected( MenuItem item ) {
-		Log.v( TAG, "onOptionsItemSelected : enter" );
-		
-		switch( item.getItemId() ) {
-		case REFRESH_ID:
-			Log.d( TAG, "onOptionsItemSelected : prefs selected" );
-
-			IntentFilter filter = new IntentFilter( DvrServiceHelper.ACTION_REQUEST_RESULT );
-			requestReceiver = new BroadcastReceiver() {
-
-				@Override
-				public void onReceive( Context context, Intent intent ) {
-
-					long resultRequestId = intent.getLongExtra( DvrServiceHelper.EXTRA_REQUEST_ID, 0 );
-
-					Log.d( TAG, "Received intent " + intent.getAction() + ", request ID " + resultRequestId );
-
-					if( resultRequestId == requestId ) {
-
-						Log.d( TAG, "Result is for our request ID" );
-						
-						int resultCode = intent.getIntExtra( DvrServiceHelper.EXTRA_RESULT_CODE, 0 );
-
-						Log.d( TAG, "Result code = " + resultCode );
-
-						if( resultCode == 200 ) {
-							Log.d( TAG, "Updating UI with new data" );
-						} else {
-							Log.d( TAG, "error occurred" );
-						}
-					} else {
-						Log.d( TAG, "Result is NOT for our request ID" );
-					}
-
-				}
-			};
-
-			mDvrServiceHelper = DvrServiceHelper.getInstance( getActivity() );
-			getActivity().registerReceiver( requestReceiver, filter );
-
-			if( requestId == null ) {
-				Log.i( TAG, "onResume : loading recordedList" );
-
-				requestId = mDvrServiceHelper.getRecordingedList();
-			} else if( mDvrServiceHelper.isRequestPending( requestId ) ) {
-				Log.i( TAG, "onResume : recordedList waiting" );
-			} else {
-				Log.i( TAG, "onResume : recordedList loaded" );
-			}
-		    
-	        return true;
-		}
-		
-		Log.v( TAG, "onOptionsItemSelected : exit" );
-		return super.onOptionsItemSelected( item );
-	}
-
 	@Override
 	public void onActivityCreated( Bundle state ) {
 		Log.v( TAG, "onActivityCreated : enter" );
 		super.onActivityCreated( state );
 
 		Log.v( TAG, "onActivityCreated : exit" );
-	}
-
-	/* (non-Javadoc)
-	 * @see android.support.v4.app.Fragment#onPause()
-	 */
-	@Override
-	public void onPause() {
-		Log.v( TAG, "onPause : enter" );
-		super.onPause();
-
-		// Unregister for broadcast
-		if( null != requestReceiver ) {
-			try {
-				getActivity().unregisterReceiver( requestReceiver );
-			} catch( IllegalArgumentException e ) {
-				Log.e( TAG, e.getLocalizedMessage(), e );
-			}
-		}
-		
-		Log.v( TAG, "onPause : exit" );
 	}
 
 	@Override
@@ -270,7 +157,7 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 		
 		Log.v( TAG, "onListItemClick : exit" );
 	}
-	  
+	
 	public void setOnProgramGroupListener( OnProgramGroupListener listener ) {
 		Log.v( TAG, "setOnProgramGroupListener : enter" );
 

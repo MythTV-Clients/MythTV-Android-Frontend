@@ -35,8 +35,9 @@ public class ProgramGroupFragment extends MythtvListFragment implements LoaderMa
 
 	private ProgramCursorAdapter adapter;
 	
-	public ProgramGroupFragment() {
-	}
+	private String programGroup = "*";
+	
+	public ProgramGroupFragment() { }
 	
 	/* (non-Javadoc)
 	 * @see android.support.v4.app.LoaderManager.LoaderCallbacks#onCreateLoader(int, android.os.Bundle)
@@ -45,11 +46,8 @@ public class ProgramGroupFragment extends MythtvListFragment implements LoaderMa
 	public Loader<Cursor> onCreateLoader( int id, Bundle args ) {
 		Log.v( TAG, "onCreateLoader : enter" );
 		
-		String name = args.getString( ProgramGroupActivity.EXTRA_PROGRAM_GROUP_KEY );
-		Log.v( TAG, "onCreateLoader : name=" + name );
-		
 		String[] projection = { BaseColumns._ID, ProgramConstants.FIELD_TITLE, ProgramConstants.FIELD_SUB_TITLE };
-		String[] selectionArgs = { name };
+		String[] selectionArgs = { programGroup };
 		 
 	    CursorLoader cursorLoader = new CursorLoader( getActivity(), ProgramConstants.CONTENT_URI, projection, ProgramConstants.FIELD_TITLE + "=?", selectionArgs, ProgramConstants.FIELD_SUB_TITLE );
 	    Log.v( TAG, "onCreateLoader : cursorLoader=" + cursorLoader.toString() );
@@ -82,43 +80,38 @@ public class ProgramGroupFragment extends MythtvListFragment implements LoaderMa
 		Log.v( TAG, "onLoaderReset : exit" );
 	}
 
-	/* (non-Javadoc)
-	 * @see android.support.v4.app.Fragment#onCreate(android.os.Bundle)
-	 */
-	@Override
-	public void onCreate( Bundle savedInstanceState ) {
-		Log.i( TAG, "onCreate : enter" );
-		super.onCreate( savedInstanceState );
-
-		Log.i( TAG, "onCreate : exit" );
-	}
-
 	@Override
 	public void onActivityCreated( Bundle savedInstanceState ) {
 		Log.i( TAG, "onActivityCreated : enter" );
 		super.onActivityCreated( savedInstanceState );
 	    
-	    Log.i( TAG, "onActivityCreated : exit" );
-	}
-
-	public void loadPrograms( String name ) {
-		Log.i( TAG, "loadPrograms : enter" );
-
-		Log.i( TAG, "loadPrograms : name=" + name );
-
-		Bundle args = new Bundle();
-		args.putString( ProgramGroupActivity.EXTRA_PROGRAM_GROUP_KEY, name );
-		
-		getLoaderManager().initLoader( 0, args, this );
-
 	    adapter = new ProgramCursorAdapter(
 	            getActivity().getApplicationContext(), R.layout.program_row,
 	            null, new String[] { ProgramConstants.FIELD_SUB_TITLE }, new int[] { R.id.program_sub_title },
 	            CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER );
 
 	    setListAdapter( adapter );
-	    
-	    Log.i( TAG, "loadPrograms : exit" );
+
+	    getLoaderManager().initLoader( 0, null, this );
+		
+	    Log.i( TAG, "onActivityCreated : exit" );
+	}
+
+	public void loadPrograms( String name ) {
+		Log.i( TAG, "loadPrograms : enter" );
+
+		if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
+			Log.v( TAG, "loadPrograms : name=" + name );
+		}
+		
+		programGroup = name;
+		try {
+			getLoaderManager().restartLoader( 0, null, this );
+		} catch( Exception e ) {
+			Log.w( TAG, e.getLocalizedMessage(), e );
+		}
+
+		Log.i( TAG, "loadPrograms : exit" );
 	}
 	
 	@Override
