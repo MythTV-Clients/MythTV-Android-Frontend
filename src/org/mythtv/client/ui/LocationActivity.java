@@ -26,6 +26,7 @@ import org.mythtv.client.ui.preferences.MythtvPreferenceActivityHC;
 import org.mythtv.client.ui.preferences.PlaybackProfile;
 import org.mythtv.db.MythtvDatabaseManager;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
@@ -47,7 +48,7 @@ public class LocationActivity extends AbstractMythtvFragmentActivity {
 	private static final String TAG = LocationActivity.class.getSimpleName();
 	private static final int EDIT_ID = Menu.FIRST + 2;
 
-	private Button home, away;
+	private Button home;
 	
 	@Override
 	protected void onCreate( Bundle savedInstanceState ) {
@@ -58,7 +59,6 @@ public class LocationActivity extends AbstractMythtvFragmentActivity {
 		setContentView( R.layout.activity_location );
 		
 		home = (Button) findViewById( R.id.btn_home );
-		away = (Button) findViewById( R.id.btn_away );
 		
 		Log.d( TAG, "onCreate : exit" );
 	}
@@ -120,12 +120,10 @@ public class LocationActivity extends AbstractMythtvFragmentActivity {
 	    Log.d( TAG, "onResume : exit" );
 	}
 	
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.mythtv.client.ui.BaseActivity#onCreateOptionsMenu(android.view.Menu)
+	/* (non-Javadoc)
+	 * @see android.app.Activity#onCreateOptionsMenu(android.view.Menu)
 	 */
+	@TargetApi( 11 )
 	@Override
 	public boolean onCreateOptionsMenu( Menu menu ) {
 		Log.d( TAG, "onCreateOptionsMenu : enter" );
@@ -139,12 +137,8 @@ public class LocationActivity extends AbstractMythtvFragmentActivity {
 		return super.onCreateOptionsMenu( menu );
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.mythtv.client.ui.BaseActivity#onOptionsItemSelected(android.view.
-	 * MenuItem)
+	/* (non-Javadoc)
+	 * @see android.app.Activity#onOptionsItemSelected(android.view.MenuItem)
 	 */
 	@Override
 	public boolean onOptionsItemSelected( MenuItem item ) {

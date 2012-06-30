@@ -21,10 +21,17 @@ package org.mythtv.client.ui;
 
 import org.mythtv.client.MainApplication;
 
+import android.annotation.TargetApi;
 import android.content.res.Resources;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 
 /**
  * @author Daniel Frey
@@ -33,6 +40,8 @@ import android.util.Log;
 public abstract class AbstractMythtvFragmentActivity extends FragmentActivity implements MythtvApplicationContext {
 
 	protected static final String TAG = AbstractMythtvFragmentActivity.class.getSimpleName();
+
+	private static final int ABOUT_ID = Menu.FIRST + 1;
 
 	protected Resources resources;
 
@@ -63,5 +72,51 @@ public abstract class AbstractMythtvFragmentActivity extends FragmentActivity im
 		
 		Log.v( TAG, "onCreate : exit" );
 	}
-	
+
+
+	/* (non-Javadoc)
+	 * @see android.app.Activity#onCreateOptionsMenu(android.view.Menu)
+	 */
+	@TargetApi( 11 )
+	@Override
+	public boolean onCreateOptionsMenu( Menu menu ) {
+		Log.v( TAG, "onCreateOptionsMenu : enter" );
+
+	    MenuItem prefs = menu.add( Menu.NONE, ABOUT_ID, Menu.NONE, "ABOUT" );
+	    if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
+	    	prefs.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
+	    }
+	    
+		Log.v( TAG, "onCreateOptionsMenu : exit" );
+		return super.onCreateOptionsMenu( menu );
+	}
+
+	/* (non-Javadoc)
+	 * @see android.app.Activity#onOptionsItemSelected(android.view.MenuItem)
+	 */
+	@Override
+	public boolean onOptionsItemSelected( MenuItem item ) {
+		Log.d( TAG, "onOptionsItemSelected : enter" );
+
+		switch( item.getItemId() ) {
+		case ABOUT_ID:
+			Log.d( TAG, "onOptionsItemSelected : prefs selected" );
+
+		    FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+		    Fragment prev = getSupportFragmentManager().findFragmentByTag( "aboutDialog" );
+		    if( null != prev ) {
+		        ft.remove( prev );
+		    }
+		    ft.addToBackStack( null );
+
+		    DialogFragment newFragment = AboutDialogFragment.newInstance();
+		    newFragment.show( ft, "aboutDialog" );
+		    
+	        return true;
+		}
+
+		Log.d( TAG, "onOptionsItemSelected : exit" );
+		return super.onOptionsItemSelected( item );
+	}
+
 }

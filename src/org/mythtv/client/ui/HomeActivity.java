@@ -30,9 +30,11 @@ import org.mythtv.client.ui.setup.SetupActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.Menu;
@@ -47,6 +49,9 @@ public class HomeActivity extends AbstractLocationAwareFragmentActivity {
 
 	private final static String TAG = HomeActivity.class.getSimpleName();
 
+	/* (non-Javadoc)
+	 * @see org.mythtv.client.ui.AbstractLocationAwareFragmentActivity#onCreate(android.os.Bundle)
+	 */
 	@Override
 	protected void onCreate( Bundle savedInstanceState ) {
 		Log.d( TAG, "onCreate : enter" );
@@ -107,6 +112,20 @@ public class HomeActivity extends AbstractLocationAwareFragmentActivity {
 			Log.d( TAG, "onOptionsItemSelected : setup selected" );
 
 			startActivity( new Intent( this, SetupActivity.class ) );
+			return true;
+		case R.id.menu_about:
+			Log.d( TAG, "onOptionsItemSelected : about selected" );
+
+		    FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+		    Fragment prev = getSupportFragmentManager().findFragmentByTag( "aboutDialog" );
+		    if( null != prev ) {
+		        ft.remove( prev );
+		    }
+		    ft.addToBackStack( null );
+
+		    DialogFragment newFragment = AboutDialogFragment.newInstance();
+		    newFragment.show( ft, "aboutDialog" );
+		    
 			return true;
 		}
 

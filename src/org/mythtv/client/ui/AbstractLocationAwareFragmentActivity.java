@@ -21,6 +21,7 @@ package org.mythtv.client.ui;
 
 import org.mythtv.service.dvr.DvrServiceHelper;
 
+import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -163,6 +164,7 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 
 	// internal helpers
 
+	@TargetApi( 11 )
 	protected void setupActionBar() {
 		Log.v( TAG, "setupActionBar : enter" );
 
