@@ -24,7 +24,7 @@
     <!-- Base application theme is the default theme. -->
     <style name="Theme" parent="android:style/Theme" />
     
-    <style name="Theme.Mythtv" parent="android:style/Theme.DeviceDefault.Light">
+    <style name="Theme.Mythtv" parent="android:style/Theme.Light">
     </style>
     
     <style name="DashboardButton">
