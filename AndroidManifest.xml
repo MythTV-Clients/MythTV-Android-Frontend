@@ -108,6 +108,10 @@
             android:authorities="org.mythtv.dvr.programs" />
         		
 		<provider
+            android:name=".provider.dvr.UpcomingProvider"
+            android:authorities="org.mythtv.dvr.upcoming" />
+		
+		<provider
             android:name=".provider.dvr.RecordingProvider"
             android:authorities="org.mythtv.dvr.recordings" />
         		

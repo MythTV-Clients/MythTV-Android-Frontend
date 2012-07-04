@@ -26,6 +26,7 @@ import org.mythtv.db.content.ArtworkConstants;
 import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.db.dvr.ProgramGroupConstants;
 import org.mythtv.db.dvr.RecordingConstants;
+import org.mythtv.db.dvr.UpcomingConstants;
 import org.mythtv.db.preferences.LocationProfileConstants;
 import org.mythtv.db.preferences.PlaybackProfileConstants;
 
@@ -79,6 +80,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		dropArtwork( db );
 		createArtwork( db );
 		
+		dropUpcoming( db );
+		createUpcoming( db );
+
 		Log.v( TAG, "onCreate : exit" );
 	}
 
@@ -97,7 +101,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		}
 
 		if( oldVersion < 12 ) {
-			Log.v( TAG, "onUpgrade : upgrading to db version 7" );
+			Log.v( TAG, "onUpgrade : upgrading to db version 12" );
 
 			dropProgramGroup( db );
 			createProgramGroup( db );
@@ -120,7 +124,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			dropProgramArtworks( db );
 			createProgramArtworks( db );
 		}
-	    
+
+		if( oldVersion < 13 ) {
+			Log.v( TAG, "onUpgrade : upgrading to db version 13" );
+
+			dropUpcoming( db );
+			createUpcoming( db );
+		}
+		
 		Log.v( TAG, "onUpgrade : exit" );
 	}
 
@@ -392,6 +403,53 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		db.execSQL( "DROP TABLE IF EXISTS " + ProgramConstants.TABLE_NAME );
 		
 		Log.v( TAG, "dropProgram : exit" );
+	}
+	
+	private void createUpcoming( SQLiteDatabase db ) {
+		Log.v( TAG, "createUpcoming : enter" );
+		
+		StringBuilder sqlBuilder = new StringBuilder();
+		sqlBuilder.append( "CREATE TABLE " + UpcomingConstants.TABLE_NAME + " (" );
+		sqlBuilder.append( _ID ).append( " " ).append( UpcomingConstants.FIELD_ID_DATA_TYPE ).append( " " ).append( UpcomingConstants.FIELD_ID_PRIMARY_KEY ).append( ", " );
+		sqlBuilder.append( UpcomingConstants.FIELD_START_TIME ).append( " " ).append( UpcomingConstants.FIELD_START_TIME_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( UpcomingConstants.FIELD_END_TIME ).append( " " ).append( UpcomingConstants.FIELD_END_TIME_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( UpcomingConstants.FIELD_TITLE ).append( " " ).append( UpcomingConstants.FIELD_TITLE_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( UpcomingConstants.FIELD_SUB_TITLE ).append( " " ).append( UpcomingConstants.FIELD_SUB_TITLE_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( UpcomingConstants.FIELD_CATEGORY ).append( " " ).append( UpcomingConstants.FIELD_CATEGORY_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( UpcomingConstants.FIELD_CATEGORY_TYPE ).append( " " ).append( UpcomingConstants.FIELD_CATEGORY_TYPE_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( UpcomingConstants.FIELD_REPEAT ).append( " " ).append( UpcomingConstants.FIELD_REPEAT_DATA_TYPE ).append( " default " ).append( UpcomingConstants.FIELD_REPEAT_DEFAULT ).append( ", " );
+		sqlBuilder.append( UpcomingConstants.FIELD_VIDEO_PROPS ).append( " " ).append( UpcomingConstants.FIELD_VIDEO_PROPS_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( UpcomingConstants.FIELD_AUDIO_PROPS ).append( " " ).append( UpcomingConstants.FIELD_AUDIO_PROPS_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( UpcomingConstants.FIELD_SUB_PROPS ).append( " " ).append( UpcomingConstants.FIELD_SUB_PROPS_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( UpcomingConstants.FIELD_SERIES_ID ).append( " " ).append( UpcomingConstants.FIELD_SERIES_ID_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( UpcomingConstants.FIELD_PROGRAM_ID ).append( " " ).append( UpcomingConstants.FIELD_PROGRAM_ID_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( UpcomingConstants.FIELD_STARS ).append( " " ).append( UpcomingConstants.FIELD_STARS_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( UpcomingConstants.FIELD_FILE_SIZE ).append( " " ).append( UpcomingConstants.FIELD_FILE_SIZE_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( UpcomingConstants.FIELD_LAST_MODIFIED ).append( " " ).append( UpcomingConstants.FIELD_LAST_MODIFIED_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( UpcomingConstants.FIELD_PROGRAM_FLAGS ).append( " " ).append( UpcomingConstants.FIELD_PROGRAM_FLAGS_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( UpcomingConstants.FIELD_HOSTNAME ).append( " " ).append( UpcomingConstants.FIELD_HOSTNAME_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( UpcomingConstants.FIELD_FILENAME ).append( " " ).append( UpcomingConstants.FIELD_FILENAME_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( UpcomingConstants.FIELD_AIR_DATE ).append( " " ).append( UpcomingConstants.FIELD_AIR_DATE_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( UpcomingConstants.FIELD_DESCRIPTION ).append( " " ).append( UpcomingConstants.FIELD_DESCRIPTION_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( UpcomingConstants.FIELD_INETREF ).append( " " ).append( UpcomingConstants.FIELD_INETREF_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( UpcomingConstants.FIELD_SEASON ).append( " " ).append( UpcomingConstants.FIELD_SEASON_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( UpcomingConstants.FIELD_EPISODE ).append( " " ).append( UpcomingConstants.FIELD_EPISODE_DATA_TYPE );
+		sqlBuilder.append( ");" );
+		String sql = sqlBuilder.toString();
+		if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
+			Log.v( TAG, "createUpcoming : sql=" + sql );
+		}
+		db.execSQL( sql );
+	
+		Log.v( TAG, "createUpcoming : exit" );
+	}
+	
+	private void dropUpcoming( SQLiteDatabase db ) {
+		Log.v( TAG, "dropUpcoming : enter" );
+		
+		db.execSQL( "DROP TABLE IF EXISTS " + UpcomingConstants.TABLE_NAME );
+		
+		Log.v( TAG, "dropUpcoming : exit" );
 	}
 	
 	private void createRecording( SQLiteDatabase db ) {
