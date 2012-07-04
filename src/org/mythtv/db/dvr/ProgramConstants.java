@@ -27,6 +27,8 @@ import android.net.Uri;
  */
 public class ProgramConstants {
 
+	public enum ProgramType { RECORDED, UPCOMING };
+	
 	public static final String AUTHORITY = "org.mythtv.dvr.programs";
 	public static final String TABLE_NAME = "program";
 	
@@ -36,6 +38,9 @@ public class ProgramConstants {
 	public static final String FIELD_ID_DATA_TYPE = "INTEGER";
 	public static final String FIELD_ID_PRIMARY_KEY = "PRIMARY KEY AUTOINCREMENT";
 	
+	public static final String FIELD_PROGRAM_TYPE = "PROGRAM_TYPE";
+	public static final String FIELD_PROGRAM_TYPE_DATA_TYPE = "TEXT";
+
 	public static final String FIELD_START_TIME = "START_TIME";
 	public static final String FIELD_START_TIME_DATA_TYPE = "TEXT";
 

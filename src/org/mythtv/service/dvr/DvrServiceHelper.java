@@ -19,12 +19,12 @@
  */
 package org.mythtv.service.dvr;
 
-import static org.mythtv.service.dvr.DvrService.Method;
-import static org.mythtv.service.dvr.DvrService.Resource;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+
+import org.mythtv.service.dvr.DvrService.Method;
+import org.mythtv.service.dvr.DvrService.Resource;
 
 import android.content.Context;
 import android.content.Intent;
@@ -46,6 +46,7 @@ public class DvrServiceHelper {
 
 	private static final String REQUEST_ID = "REQUEST_ID";
 	private static final String RECORDINGS_HASHKEY = "recordings";
+	private static final String UPCOMING_HASHKEY = "upcoming";
 	
 	private static Object lock = new Object();
 	private static DvrServiceHelper instance;
@@ -78,8 +79,8 @@ public class DvrServiceHelper {
 		return pendingRequests.containsValue( requestId );
 	}
 
-	public long getRecordingedList() {
-		Log.d( TAG, "getRecordingedList : enter" );
+	public long getRecordingsList() {
+		Log.d( TAG, "getRecordingsList : enter" );
 
 		long requestId = generateRequestID();
 		pendingRequests.put( RECORDINGS_HASHKEY, requestId );
@@ -99,9 +100,36 @@ public class DvrServiceHelper {
 		intent.putExtra( DvrService.SERVICE_CALLBACK, serviceCallback );
 		intent.putExtra( REQUEST_ID, requestId );
 
-		this.ctx.startService( intent );
+		ctx.startService( intent );
 
-		Log.d( TAG, "getRecordingedList : exit" );
+		Log.d( TAG, "getRecordingsList : exit" );
+		return requestId;
+	}
+
+	public long getUpcomingList() {
+		Log.d( TAG, "getUpcomingList : enter" );
+
+		long requestId = generateRequestID();
+		pendingRequests.put( UPCOMING_HASHKEY, requestId );
+		
+		ResultReceiver serviceCallback = new ResultReceiver(null){
+
+			@Override
+			protected void onReceiveResult( int resultCode, Bundle resultData ) {
+				handleUpcomingResponse( resultCode, resultData );
+			}
+		
+		};
+
+		Intent intent = new Intent( ctx, DvrService.class );
+		intent.putExtra( DvrService.METHOD_EXTRA, Method.GET.name() );
+		intent.putExtra( DvrService.RESOURCE_TYPE_EXTRA, Resource.UPCOMING_LISTS.name() );
+		intent.putExtra( DvrService.SERVICE_CALLBACK, serviceCallback );
+		intent.putExtra( REQUEST_ID, requestId );
+
+		ctx.startService( intent );
+
+		Log.d( TAG, "getUpcomingList : exit" );
 		return requestId;
 	}
 
@@ -119,6 +147,24 @@ public class DvrServiceHelper {
 			long requestId = origIntent.getLongExtra( REQUEST_ID, 0 );
 
 			pendingRequests.remove( RECORDINGS_HASHKEY );
+
+			Intent resultBroadcast = new Intent( ACTION_REQUEST_RESULT );
+			resultBroadcast.putExtra( EXTRA_REQUEST_ID, requestId );
+			resultBroadcast.putExtra( EXTRA_RESULT_CODE, resultCode );
+
+			ctx.sendBroadcast( resultBroadcast );
+		}
+
+	}
+
+	private void handleUpcomingResponse( int resultCode, Bundle resultData ){
+
+		Intent origIntent = (Intent) resultData.getParcelable( DvrService.ORIGINAL_INTENT_EXTRA );
+
+		if( null != origIntent ) {
+			long requestId = origIntent.getLongExtra( REQUEST_ID, 0 );
+
+			pendingRequests.remove( UPCOMING_HASHKEY );
 
 			Intent resultBroadcast = new Intent( ACTION_REQUEST_RESULT );
 			resultBroadcast.putExtra( EXTRA_REQUEST_ID, requestId );

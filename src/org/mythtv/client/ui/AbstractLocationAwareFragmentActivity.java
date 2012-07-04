@@ -105,18 +105,20 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 		};
 
 		mDvrServiceHelper = DvrServiceHelper.getInstance( this );
-		this.registerReceiver( requestReceiver, filter );
+		registerReceiver( requestReceiver, filter );
 
 		if( requestId == null ) {
 			Log.i( TAG, "onResume : loading recordedList" );
 
-			requestId = mDvrServiceHelper.getRecordingedList();
+			requestId = mDvrServiceHelper.getRecordingsList();
 		} else if( mDvrServiceHelper.isRequestPending( requestId ) ) {
 			Log.i( TAG, "onResume : recordedList waiting" );
 		} else {
 			Log.i( TAG, "onResume : recordedList loaded" );
 		}
 
+		mDvrServiceHelper.getUpcomingList();
+		
 		Log.v( TAG, "onResume : exit" );
 	}
 

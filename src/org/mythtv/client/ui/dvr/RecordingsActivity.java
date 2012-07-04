@@ -90,7 +90,7 @@ public class RecordingsActivity extends AbstractRecordingsActivity implements Re
 		case REFRESH_ID:
 			Log.d( TAG, "onOptionsItemSelected : refresh selected" );
 
-			requestId = mDvrServiceHelper.getRecordingedList();
+			requestId = mDvrServiceHelper.getRecordingsList();
 		    
 	        return true;
 		}

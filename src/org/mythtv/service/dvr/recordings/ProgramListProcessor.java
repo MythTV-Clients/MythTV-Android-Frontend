@@ -61,6 +61,12 @@ public class ProgramListProcessor {
 
 	}
 
+	public interface UpcomingListProcessorCallback {
+
+		void send( int resultCode );
+
+	}
+
 	public ProgramListProcessor( Context context ) {
 		Log.v( TAG, "initialize : enter" );
 		
@@ -76,16 +82,29 @@ public class ProgramListProcessor {
 		ResponseEntity<ProgramList> entity = application.getMythServicesApi().dvrOperations().getRecordedListResponseEntity();
 		Log.d( TAG, "getRecordedList : entity status code = " + entity.getStatusCode().toString() );
 		
-		updateProgramContentProvider( entity.getBody() );
+		updateProgramContentProvider( entity.getBody(), ProgramConstants.ProgramType.RECORDED );
 		
 		callback.send( entity.getStatusCode().value() );
 		
 		Log.d( TAG, "getRecordedList : exit" );
 	}
 
+	public void getUpcomingList( UpcomingListProcessorCallback callback ) {
+		Log.d( TAG, "getUpcomingList : enter" );
+
+		ResponseEntity<ProgramList> entity = application.getMythServicesApi().dvrOperations().getUpcomingListResponseEntity();
+		Log.d( TAG, "getUpcomingList : entity status code = " + entity.getStatusCode().toString() );
+		
+		updateProgramContentProvider( entity.getBody(), ProgramConstants.ProgramType.UPCOMING );
+		
+		callback.send( entity.getStatusCode().value() );
+		
+		Log.d( TAG, "getUpcomingList : exit" );
+	}
+
 	// internal helpers
 	
-	private void updateProgramContentProvider( ProgramList programList ) {
+	private void updateProgramContentProvider( ProgramList programList, ProgramConstants.ProgramType programType ) {
 		Log.v( TAG, "updateProgramContentProvider : enter" );
 
 		if( null != programList && null != programList.getPrograms() && ( null != programList.getPrograms().getPrograms() && !programList.getPrograms().getPrograms().isEmpty() ) ) {
@@ -155,6 +174,7 @@ public class ProgramListProcessor {
 					}
 					
 					values = new ContentValues();
+					values.put( ProgramConstants.FIELD_PROGRAM_TYPE, null != programType ? programType.name() : "" );
 					values.put( ProgramConstants.FIELD_START_TIME, null != program.getStartTime() ? sdf.format( program.getStartTime() ) : "" );
 					values.put( ProgramConstants.FIELD_END_TIME, null != program.getEndTime() ? sdf.format( program.getEndTime() ) : "" );
 					values.put( ProgramConstants.FIELD_TITLE, null != program.getTitle() ? program.getTitle() : "" );
@@ -222,7 +242,7 @@ public class ProgramListProcessor {
 				}
 				
 				List<Long> deleteIds = new ArrayList<Long>();
-				Cursor cursor = mContext.getContentResolver().query( ProgramConstants.CONTENT_URI, new String[] { BaseColumns._ID }, BaseColumns._ID + " not in (" + sb.toString() + ")", null, null );
+				Cursor cursor = mContext.getContentResolver().query( ProgramConstants.CONTENT_URI, new String[] { BaseColumns._ID }, BaseColumns._ID + " not in (" + sb.toString() + ") and " + ProgramConstants.FIELD_PROGRAM_TYPE + " = ?", new String[] { programType.name() }, null );
 				while( cursor.moveToNext() ) {
 					Long id = cursor.getLong( cursor.getColumnIndexOrThrow( BaseColumns._ID ) );
 					deleteIds.add( id );

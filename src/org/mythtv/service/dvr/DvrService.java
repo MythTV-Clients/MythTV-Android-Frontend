@@ -22,6 +22,7 @@ package org.mythtv.service.dvr;
 import org.mythtv.service.MythtvService;
 import org.mythtv.service.dvr.recordings.ProgramListProcessor;
 import org.mythtv.service.dvr.recordings.ProgramListProcessor.RecordingListProcessorCallback;
+import org.mythtv.service.dvr.recordings.ProgramListProcessor.UpcomingListProcessorCallback;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -37,7 +38,7 @@ public class DvrService extends MythtvService {
 	private static final String TAG = DvrService.class.getSimpleName();
 
 	public static enum Method { GET, POST, PUT, DELETE };
-	public static enum Resource { RECORDING_LISTS };
+	public static enum Resource { RECORDING_LISTS, UPCOMING_LISTS };
 
 	private Intent mOriginalRequestIntent;
 	private ResultReceiver mCallback;
@@ -64,6 +65,21 @@ public class DvrService extends MythtvService {
 				
 				ProgramListProcessor processor = new ProgramListProcessor( getApplicationContext() );
 				processor.getRecordedList( makeRecordingListProcessorCallback() );
+			} else {
+				Log.w( TAG, "onHandleIntent : incorrect method for retrieving recording list" );
+				
+				mCallback.send( REQUEST_INVALID, getOriginalIntentBundle() );
+			}
+			
+			break;
+
+		case UPCOMING_LISTS:
+
+			if( method.equals( Method.GET ) ) {
+				Log.v( TAG, "onHandleIntent : getting recording list" );
+				
+				ProgramListProcessor processor = new ProgramListProcessor( getApplicationContext() );
+				processor.getUpcomingList( makeUpcomingListProcessorCallback() );
 			} else {
 				Log.w( TAG, "onHandleIntent : incorrect method for retrieving recording list" );
 				
@@ -106,5 +122,18 @@ public class DvrService extends MythtvService {
 		return callback;
 	}
 
+	private UpcomingListProcessorCallback makeUpcomingListProcessorCallback() {
+		UpcomingListProcessorCallback callback = new UpcomingListProcessorCallback() {
+
+			@Override
+			public void send( int resultCode ) {
+				if( null != mCallback ) {
+					mCallback.send( resultCode, getOriginalIntentBundle() );
+				}
+			}
+		};
+		
+		return callback;
+	}
 
 }
