@@ -156,6 +156,9 @@ public interface DvrOperations {
 	 */
 	List<Program> getRecordedList();
 
+	/**
+	 * @return
+	 */
 	ResponseEntity<ProgramList> getRecordedListResponseEntity();
 
 	/**
@@ -178,6 +181,11 @@ public interface DvrOperations {
 	 */
 	List<Program> getUpcomingList( int startIndex, int count, boolean showAll );
 	
+	/**
+	 * @return
+	 */
+	ResponseEntity<ProgramList> getUpcomingListResponseEntity();
+
 	/**
 	 * - POST
 	 * 
