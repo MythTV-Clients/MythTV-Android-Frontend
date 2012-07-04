@@ -39,6 +39,8 @@ import android.net.wifi.WifiManager.MulticastLock;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.telephony.PhoneStateListener;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -53,7 +55,7 @@ import android.widget.TextView;
  * @author pot8oe
  *
  */
-public class FrontendsFragment extends Fragment implements ServiceListener, OnItemSelectedListener {
+public class FrontendsFragment extends AbstractFrontendFragment implements ServiceListener, OnItemSelectedListener {
 
 	private final static String TAG = FrontendsFragment.class.getSimpleName();
 
@@ -65,6 +67,7 @@ public class FrontendsFragment extends Fragment implements ServiceListener, OnIt
 
 	private static List<Frontend> frontends = new ArrayList<Frontend>();
 	private static Frontend selectedFrontend;
+	private static TelephonyManager sTelManager;
 
 	private static JmDNS zeroConf = null;
 	private static MulticastLock mLock = null;
@@ -92,6 +95,24 @@ public class FrontendsFragment extends Fragment implements ServiceListener, OnIt
 		super.onCreate(savedInstanceState);
 
 		// setRetainInstance( true );
+		sTelManager = (TelephonyManager)super.getActivity().getSystemService(Context.TELEPHONY_SERVICE);
+		sTelManager.listen(new PhoneStateListener(){
+
+			@Override
+			public void onCallStateChanged(int state, String incomingNumber) {
+				
+				if(state == TelephonyManager.CALL_STATE_RINGING){
+					
+					final FrontendsFragment frontends = (FrontendsFragment) getFragmentManager().findFragmentById( R.id.frontends_fragment );
+					final Frontend fe = frontends.getSelectedFrontend();
+					
+					if( null==fe ) return;
+					
+					new SendMessageTask().execute(fe.getUrl(), "Incoming Call From: " + incomingNumber);
+				}
+				
+				super.onCallStateChanged(state, incomingNumber);
+			}}, PhoneStateListener.LISTEN_CALL_STATE);
 		
 		adapter = new FrontendAdapter(getActivity(), R.layout.frontend_row, frontends);
 		//adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
