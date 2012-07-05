@@ -63,9 +63,9 @@ public class ProgramGroupFragment extends MythtvListFragment implements LoaderMa
 		Log.v( TAG, "onCreateLoader : enter" );
 		
 		String[] projection = { BaseColumns._ID, ProgramConstants.FIELD_TITLE, ProgramConstants.FIELD_SUB_TITLE };
-		String[] selectionArgs = { programGroup };
+		String[] selectionArgs = { programGroup, ProgramConstants.ProgramType.RECORDED.name() };
 		 
-	    CursorLoader cursorLoader = new CursorLoader( getActivity(), ProgramConstants.CONTENT_URI, projection, ProgramConstants.FIELD_TITLE + "=?", selectionArgs, ProgramConstants.FIELD_SUB_TITLE );
+	    CursorLoader cursorLoader = new CursorLoader( getActivity(), ProgramConstants.CONTENT_URI, projection, ProgramConstants.FIELD_TITLE + " = ? and " + ProgramConstants.FIELD_PROGRAM_TYPE + " = ?", selectionArgs, ProgramConstants.FIELD_SUB_TITLE );
 	    Log.v( TAG, "onCreateLoader : cursorLoader=" + cursorLoader.toString() );
 	    
 	    Log.v( TAG, "onCreateLoader : exit" );

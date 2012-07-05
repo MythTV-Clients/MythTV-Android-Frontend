@@ -40,9 +40,9 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 
 	protected static final String TAG = AbstractLocationAwareFragmentActivity.class.getSimpleName();
 
-	private Long requestId;
-	private BroadcastReceiver requestReceiver;
-
+	private ProgramListReceiver programListReceiver;
+	private UpcomingReceiver upcomingReceiver;
+	
 	private DvrServiceHelper mDvrServiceHelper;
 
 	// ***************************************
@@ -74,49 +74,18 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 		Log.v( TAG, "onResume : enter" );
 		super.onResume();
 
-		IntentFilter filter = new IntentFilter( DvrServiceHelper.ACTION_REQUEST_RESULT );
-		requestReceiver = new BroadcastReceiver() {
-
-			@Override
-			public void onReceive( Context context, Intent intent ) {
-
-				long resultRequestId = intent.getLongExtra( DvrServiceHelper.EXTRA_REQUEST_ID, 0 );
-
-				Log.d( TAG, "Received intent " + intent.getAction() + ", request ID " + resultRequestId );
-
-				if( resultRequestId == requestId ) {
-
-					Log.d( TAG, "Result is for our request ID" );
-					
-					int resultCode = intent.getIntExtra( DvrServiceHelper.EXTRA_RESULT_CODE, 0 );
-
-					Log.d( TAG, "Result code = " + resultCode );
-
-					if( resultCode == 200 ) {
-						Log.d( TAG, "Updating UI with new data" );
-					} else {
-						Log.d( TAG, "error occurred" );
-					}
-				} else {
-					Log.d( TAG, "Result is NOT for our request ID" );
-				}
-
-			}
-		};
-
 		mDvrServiceHelper = DvrServiceHelper.getInstance( this );
-		registerReceiver( requestReceiver, filter );
 
-		if( requestId == null ) {
-			Log.i( TAG, "onResume : loading recordedList" );
-
-			requestId = mDvrServiceHelper.getRecordingsList();
-		} else if( mDvrServiceHelper.isRequestPending( requestId ) ) {
-			Log.i( TAG, "onResume : recordedList waiting" );
-		} else {
-			Log.i( TAG, "onResume : recordedList loaded" );
-		}
-
+		IntentFilter programListFilter = new IntentFilter( DvrServiceHelper.PROGRAM_LIST_RESULT );
+		programListFilter.setPriority( IntentFilter.SYSTEM_LOW_PRIORITY );
+        programListReceiver = new ProgramListReceiver();
+        registerReceiver( programListReceiver, programListFilter );
+        mDvrServiceHelper.getRecordingsList();
+        
+		IntentFilter upcomingFilter = new IntentFilter( DvrServiceHelper.UPCOMING_RESULT );
+		upcomingFilter.setPriority( IntentFilter.SYSTEM_LOW_PRIORITY );
+		upcomingReceiver = new UpcomingReceiver();
+        registerReceiver( upcomingReceiver, upcomingFilter );
 		mDvrServiceHelper.getUpcomingList();
 		
 		Log.v( TAG, "onResume : exit" );
@@ -131,14 +100,22 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 		super.onPause();
 
 		// Unregister for broadcast
-		if( null != requestReceiver ) {
+		if( null != programListReceiver ) {
 			try {
-				unregisterReceiver( requestReceiver );
+				unregisterReceiver( programListReceiver );
 			} catch( IllegalArgumentException e ) {
 				Log.e( TAG, e.getLocalizedMessage(), e );
 			}
 		}
 		
+		if( null != upcomingReceiver ) {
+			try {
+				unregisterReceiver( upcomingReceiver );
+			} catch( IllegalArgumentException e ) {
+				Log.e( TAG, e.getLocalizedMessage(), e );
+			}
+		}
+
 		Log.v( TAG, "onPause : exit" );
 	}
 
@@ -176,6 +153,28 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 		}
 		
 		Log.v( TAG, "setupActionBar : exit" );
+	}
+
+	private class ProgramListReceiver extends BroadcastReceiver {
+
+		@Override
+		public void onReceive( Context context, Intent intent ) {
+			Log.v( TAG, "ProgramListReceiver.onReceive : enter" );
+			
+			Log.v( TAG, "ProgramListReceiver.onReceive : exit" );
+		}
+		
+	}
+	
+	private class UpcomingReceiver extends BroadcastReceiver {
+
+		@Override
+		public void onReceive( Context context, Intent intent ) {
+			Log.v( TAG, "UpcomingReceiver.onReceive : enter" );
+			
+			Log.v( TAG, "UpcomingReceiver.onReceive : exit" );
+		}
+		
 	}
 
 }

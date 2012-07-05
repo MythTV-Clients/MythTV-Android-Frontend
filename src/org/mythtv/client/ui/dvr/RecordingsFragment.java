@@ -23,18 +23,26 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.util.ArrayList;
 
 import org.mythtv.R;
 import org.mythtv.client.ui.util.MythtvListFragment;
+import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.db.dvr.ProgramGroupConstants;
+import org.mythtv.service.dvr.DvrServiceHelper;
 
+import android.annotation.TargetApi;
+import android.content.BroadcastReceiver;
 import android.content.ContentUris;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.BaseColumns;
 import android.support.v4.app.LoaderManager;
@@ -43,6 +51,9 @@ import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
@@ -55,20 +66,49 @@ import android.widget.TextView;
 public class RecordingsFragment extends MythtvListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
 	private static final String TAG = RecordingsFragment.class.getSimpleName();
+	private static final String PROGRAM_GROUP_IDS_KEY = "PROGRAM_GROUP_IDS_KEY";
+	private static final int REFRESH_ID = Menu.FIRST + 2;
 
 	private OnProgramGroupListener listener = null;
 	private ProgramGroupCursorAdapter adapter;
 	
+	private ProgramListReceiver programListReceiver;
+
+	private DvrServiceHelper mDvrServiceHelper;
+
 	/* (non-Javadoc)
 	 * @see android.support.v4.app.LoaderManager.LoaderCallbacks#onCreateLoader(int, android.os.Bundle)
 	 */
+	@SuppressWarnings( "unchecked" )
 	@Override
 	public Loader<Cursor> onCreateLoader( int id, Bundle args ) {
 		Log.v( TAG, "onCreateLoader : enter" );
 		
 		String[] projection = { BaseColumns._ID, ProgramGroupConstants.FIELD_PROGRAM_GROUP, ProgramGroupConstants.FIELD_INETREF, ProgramGroupConstants.FIELD_BANNER_URL };
-		 
-	    CursorLoader cursorLoader = new CursorLoader( getActivity(), ProgramGroupConstants.CONTENT_URI, projection, null, null, ProgramGroupConstants.FIELD_PROGRAM_GROUP );
+		
+		ArrayList<Integer> programGroupIds = (ArrayList<Integer>) args.get( PROGRAM_GROUP_IDS_KEY );
+		StringBuilder sb = new StringBuilder();
+		for( int i = 0; i < programGroupIds.size(); i++ ) {
+			sb.append( programGroupIds.get( i ).toString() );
+			
+			if( i < programGroupIds.size() - 1 ) {
+				sb.append( "," );
+			}
+		}
+		
+		String selection = null;
+		if( sb.length() != 0 ) {
+			selection = BaseColumns._ID + " in (" + sb.toString() + ")";
+		}
+		
+		if( selection.length() > 0 ) {
+			selection += " and ";
+		}
+		selection += ProgramGroupConstants.FIELD_PROGRAM_TYPE + " = ?";
+		
+		String[] selectionArgs = new String[] { ProgramConstants.ProgramType.RECORDED.name() };
+		
+	    CursorLoader cursorLoader = new CursorLoader( getActivity(), ProgramGroupConstants.CONTENT_URI, projection, selection, selectionArgs, ProgramGroupConstants.FIELD_PROGRAM_GROUP );
 		
 	    Log.v( TAG, "onCreateLoader : exit" );
 		return cursorLoader;
@@ -108,7 +148,20 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 		
 		setRetainInstance( true );
 
-		getLoaderManager().initLoader( 0, null, this );
+		ArrayList<Integer> programGroupIds = new ArrayList<Integer>();
+		Cursor cursor = getActivity().getContentResolver().query( ProgramConstants.CONTENT_URI, new String[] { ProgramConstants.FIELD_PROGRAM_GROUP_ID }, ProgramConstants.FIELD_PROGRAM_TYPE + " = ?", new String[] { ProgramConstants.ProgramType.RECORDED.name() }, null );
+		while( cursor.moveToNext() ) {
+			Integer programGroupId = cursor.getInt( cursor.getColumnIndexOrThrow( ProgramConstants.FIELD_PROGRAM_GROUP_ID ) );
+			if( !programGroupIds.contains( programGroupId ) ) {
+				programGroupIds.add( programGroupId );
+			}
+		}
+		Log.v( TAG, "onCreate : programGroupIds=" + programGroupIds.toString() );
+		
+		Bundle bundle = new Bundle();
+		bundle.putIntegerArrayList( PROGRAM_GROUP_IDS_KEY, programGroupIds );
+		
+		getLoaderManager().initLoader( 0, bundle, this );
 		 
 	    adapter = new ProgramGroupCursorAdapter(
 	            getActivity().getApplicationContext(), R.layout.program_group_row,
@@ -120,15 +173,79 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 		Log.v( TAG, "onCreate : exit" );
 	}
 
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.Fragment#onPause()
+	 */
+	@Override
+	public void onPause() {
+		Log.v( TAG, "onPause : enter" );
+		super.onPause();
+
+		// Unregister for broadcast
+		if( null != programListReceiver ) {
+			try {
+				getActivity().unregisterReceiver( programListReceiver );
+				programListReceiver = null;
+			} catch( IllegalArgumentException e ) {
+				Log.e( TAG, e.getLocalizedMessage(), e );
+			}
+		}
+		
+		Log.v( TAG, "onPause : exit" );
+	}
+
 	@Override
 	public void onResume() {
 		Log.v( TAG, "onResume : enter" );
-
 		super.onResume();
 	    
+		mDvrServiceHelper = DvrServiceHelper.getInstance( getActivity() );
+
+		IntentFilter programListFilter = new IntentFilter( DvrServiceHelper.PROGRAM_LIST_RESULT );
+		programListFilter.setPriority( IntentFilter.SYSTEM_LOW_PRIORITY );
+        programListReceiver = new ProgramListReceiver();
+        getActivity().registerReceiver( programListReceiver, programListFilter );
+
 		Log.v( TAG, "onResume : exit" );
 	}
 	
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.Fragment#onCreateOptionsMenu(android.view.Menu, android.view.MenuInflater)
+	 */
+	@TargetApi( 11 )
+	@Override
+	public void onCreateOptionsMenu( Menu menu, MenuInflater inflater ) {
+		Log.v( TAG, "onCreateOptionsMenu : enter" );
+		super.onCreateOptionsMenu( menu, inflater );
+
+		MenuItem refresh = menu.add( Menu.NONE, REFRESH_ID, Menu.NONE, "Refresh" );
+	    if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
+	    	refresh.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
+	    }
+		
+		Log.v( TAG, "onCreateOptionsMenu : exit" );
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mythtv.client.ui.dvr.AbstractRecordingsActivity#onOptionsItemSelected(android.view.MenuItem)
+	 */
+	@Override
+	public boolean onOptionsItemSelected( MenuItem item ) {
+		Log.v( TAG, "onOptionsItemSelected : enter" );
+		
+		switch( item.getItemId() ) {
+		case REFRESH_ID:
+			Log.d( TAG, "onOptionsItemSelected : refresh selected" );
+
+			mDvrServiceHelper.getRecordingsList();
+		    
+	        return true;
+		}
+		
+		Log.v( TAG, "onOptionsItemSelected : exit" );
+		return super.onOptionsItemSelected( item );
+	}
+
 	@Override
 	public void onActivityCreated( Bundle state ) {
 		Log.v( TAG, "onActivityCreated : enter" );
@@ -306,4 +423,38 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 
 	}
 
+	private class ProgramListReceiver extends BroadcastReceiver {
+
+		@Override
+		public void onReceive( Context context, Intent intent ) {
+			Log.v( TAG, "ProgramListReceiver.onReceive : enter" );
+
+			restartLoader();
+			
+			Log.v( TAG, "ProgramListReceiver.onReceive : exit" );
+		}
+		
+	}
+
+	private void restartLoader() {
+		Log.v( TAG, "restartLoader : enter" );
+		
+		ArrayList<Integer> programGroupIds = new ArrayList<Integer>();
+		Cursor cursor = getActivity().getContentResolver().query( ProgramConstants.CONTENT_URI, new String[] { ProgramConstants.FIELD_PROGRAM_GROUP_ID }, ProgramConstants.FIELD_PROGRAM_TYPE + " = ?", new String[] { ProgramConstants.ProgramType.RECORDED.name() }, null );
+		while( cursor.moveToNext() ) {
+			Integer programGroupId = cursor.getInt( cursor.getColumnIndexOrThrow( ProgramConstants.FIELD_PROGRAM_GROUP_ID ) );
+			if( !programGroupIds.contains( programGroupId ) ) {
+				programGroupIds.add( programGroupId );
+			}
+		}
+		Log.v( TAG, "onCreate : programGroupIds=" + programGroupIds.toString() );
+		
+		Bundle bundle = new Bundle();
+		bundle.putIntegerArrayList( PROGRAM_GROUP_IDS_KEY, programGroupIds );
+		
+		getLoaderManager().restartLoader( 0, bundle, this );
+
+		Log.v( TAG, "restartLoader : exit" );
+	}
+	
 }

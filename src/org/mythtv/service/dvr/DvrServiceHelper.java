@@ -40,7 +40,9 @@ public class DvrServiceHelper {
 
 	private static final String TAG = DvrServiceHelper.class.getSimpleName();
 	
-	public static String ACTION_REQUEST_RESULT = "REQUEST_RESULT";
+	public static String PROGRAM_LIST_RESULT = "PROGRAM_LIST_RESULT";
+	public static String UPCOMING_RESULT = "UPCOMING_RESULT";
+
 	public static String EXTRA_REQUEST_ID = "EXTRA_REQUEST_ID";
 	public static String EXTRA_RESULT_CODE = "EXTRA_RESULT_CODE";
 
@@ -148,7 +150,7 @@ public class DvrServiceHelper {
 
 			pendingRequests.remove( RECORDINGS_HASHKEY );
 
-			Intent resultBroadcast = new Intent( ACTION_REQUEST_RESULT );
+			Intent resultBroadcast = new Intent( PROGRAM_LIST_RESULT );
 			resultBroadcast.putExtra( EXTRA_REQUEST_ID, requestId );
 			resultBroadcast.putExtra( EXTRA_RESULT_CODE, resultCode );
 
@@ -166,7 +168,7 @@ public class DvrServiceHelper {
 
 			pendingRequests.remove( UPCOMING_HASHKEY );
 
-			Intent resultBroadcast = new Intent( ACTION_REQUEST_RESULT );
+			Intent resultBroadcast = new Intent( UPCOMING_RESULT );
 			resultBroadcast.putExtra( EXTRA_REQUEST_ID, requestId );
 			resultBroadcast.putExtra( EXTRA_RESULT_CODE, resultCode );
 

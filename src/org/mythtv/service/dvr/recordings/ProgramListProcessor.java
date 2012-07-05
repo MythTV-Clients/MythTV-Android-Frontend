@@ -121,10 +121,11 @@ public class ProgramListProcessor {
 					long programGroupId = 0;
 					
 					values = new ContentValues();
+					values.put( ProgramGroupConstants.FIELD_PROGRAM_TYPE, null != programType ? programType.name() : "" );
 					values.put( ProgramGroupConstants.FIELD_PROGRAM_GROUP, program.getTitle() );
 					values.put( ProgramGroupConstants.FIELD_INETREF, program.getInetref() );
 					
-					Cursor cursor = mContext.getContentResolver().query( ProgramGroupConstants.CONTENT_URI, new String[] { BaseColumns._ID }, ProgramGroupConstants.FIELD_PROGRAM_GROUP + " = ?", new String[] { program.getTitle() }, null );
+					Cursor cursor = mContext.getContentResolver().query( ProgramGroupConstants.CONTENT_URI, new String[] { BaseColumns._ID }, ProgramGroupConstants.FIELD_PROGRAM_GROUP + " = ? and " + ProgramGroupConstants.FIELD_PROGRAM_TYPE + " = ?", new String[] { program.getTitle(), programType.name() }, null );
 					if( cursor.moveToFirst() ) {
 						Log.v( TAG, "updateProgramContentProvider : programGroup already exists" );
 						
@@ -201,7 +202,7 @@ public class ProgramListProcessor {
 					values.put( ProgramConstants.FIELD_PROGRAM_GROUP_ID, programGroupId );
 					
 					long programId = 0;
-					cursor = mContext.getContentResolver().query( ProgramConstants.CONTENT_URI,  new String[] { BaseColumns._ID }, ProgramConstants.FIELD_TITLE + " = ? and " + ProgramConstants.FIELD_SUB_TITLE + " = ?", new String[] { program.getTitle(), program.getSubTitle() }, null );
+					cursor = mContext.getContentResolver().query( ProgramConstants.CONTENT_URI,  new String[] { BaseColumns._ID }, ProgramConstants.FIELD_TITLE + " = ? and " + ProgramConstants.FIELD_SUB_TITLE + " = ? and " + ProgramConstants.FIELD_PROGRAM_TYPE + " = ?", new String[] { program.getTitle(), program.getSubTitle(), programType.name() }, null );
 					if( cursor.moveToFirst() ) {
 						Log.v( TAG, "updateProgramContentProvider : program already exists" );
 						
@@ -285,7 +286,7 @@ public class ProgramListProcessor {
 				}
 				
 				List<Long> deleteIds = new ArrayList<Long>();
-				Cursor cursor = mContext.getContentResolver().query( ProgramGroupConstants.CONTENT_URI, new String[] { BaseColumns._ID }, BaseColumns._ID + " not in (" + sb.toString() + ")", null, null );
+				Cursor cursor = mContext.getContentResolver().query( ProgramGroupConstants.CONTENT_URI, new String[] { BaseColumns._ID }, BaseColumns._ID + " not in (" + sb.toString() + ") and " + ProgramGroupConstants.FIELD_PROGRAM_TYPE + " = ?", new String[] { programType.name() }, null );
 				while( cursor.moveToNext() ) {
 					Long id = cursor.getLong( cursor.getColumnIndexOrThrow( BaseColumns._ID ) );
 					deleteIds.add( id );
