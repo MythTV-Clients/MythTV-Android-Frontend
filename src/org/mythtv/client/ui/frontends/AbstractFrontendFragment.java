@@ -20,6 +20,7 @@
 package org.mythtv.client.ui.frontends;
 
 import org.mythtv.client.MainApplication;
+import org.mythtv.services.api.frontend.FrontendStatus;
 
 import android.os.AsyncTask;
 import android.support.v4.app.Fragment;
@@ -33,6 +34,46 @@ public class AbstractFrontendFragment extends Fragment {
 	
 	public MainApplication getApplicationContext() {
 		return (MainApplication) getActivity().getApplicationContext();
+	}
+
+	/**
+	 * When calling execute there must be 1 paramter:
+	 * Frontend URL
+	 * @author pot8oe
+	 *
+	 */
+	protected class GetStatusTask extends AsyncTask<String, Void, Void> {
+
+		FrontendStatus status;
+		
+		@Override
+		protected Void doInBackground(String... params) {
+			status = getApplicationContext().getMythServicesApi().frontendOperations().getStatus(params[0]);
+			return null;
+		}
+		
+		
+		public FrontendStatus getFrontendStatus()
+		{
+			return status;
+		}
+	}
+	
+	/**
+	 * When calling execute there must be 2 paramters.
+	 * Frontend URL
+	 * Message
+	 * @author pot8oe
+	 *
+	 */
+	protected class SendMessageTask extends AsyncTask<String, Void, Void> {
+
+		@Override
+		protected Void doInBackground(String... params) {
+			getApplicationContext().getMythServicesApi().frontendOperations().sendMessage(params[0], params[1]);
+			return null;
+		}
+		
 	}
 	
 	/**
@@ -51,6 +92,8 @@ public class AbstractFrontendFragment extends Fragment {
 		}
 		
 	}
+	
+	
 	
 	
 }

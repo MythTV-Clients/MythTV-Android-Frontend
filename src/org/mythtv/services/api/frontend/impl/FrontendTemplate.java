@@ -59,7 +59,10 @@ public class FrontendTemplate extends AbstractFrontendOperations implements Fron
 	@Override
 	public boolean sendMessage( String frontedApiUrlBase, String message ) {
 
-		ResponseEntity<Bool> responseEntity = restTemplate.exchange( frontedApiUrlBase + "/Frontend/SendMessage", HttpMethod.GET, getRequestEntity(), Bool.class );
+		LinkedMultiValueMap<String, String> parameters = new LinkedMultiValueMap<String, String>();
+		parameters.add( "Message", message );
+		
+		ResponseEntity<Bool> responseEntity = restTemplate.exchange( buildUri( frontedApiUrlBase + "/Frontend/SendMessage", parameters), HttpMethod.GET, getRequestEntity(), Bool.class );
 		Bool bool = responseEntity.getBody();
 
 		return bool.getBool();
