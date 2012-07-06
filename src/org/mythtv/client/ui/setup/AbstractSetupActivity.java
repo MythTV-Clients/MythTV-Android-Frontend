@@ -17,15 +17,13 @@
  * This software can be found at <https://github.com/MythTV-Android/mythtv-for-android/>
  *
  */
-package org.mythtv.client.ui.dvr;
+package org.mythtv.client.ui.setup;
 
 import org.mythtv.client.ui.AbstractMythtvFragmentActivity;
 import org.mythtv.client.ui.AwayActivity;
 import org.mythtv.client.ui.HomeActivity;
 
-import android.app.ActionBar;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
@@ -34,12 +32,13 @@ import android.view.MenuItem;
  * @author Daniel Frey
  * 
  */
-public abstract class AbstractRecordingsActivity extends AbstractMythtvFragmentActivity implements RecordingsFragment.OnProgramGroupListener {
+public abstract class AbstractSetupActivity extends AbstractMythtvFragmentActivity /* implements FrontendsFragment.OnFrontendListener */ {
 
-	protected static final String TAG = AbstractRecordingsActivity.class.getSimpleName();
-
+	/* (non-Javadoc)
+	 * @see org.mythtv.client.ui.AbstractMythtvFragmentActivity#onCreate(android.os.Bundle)
+	 */
 	@Override
-	public void onCreate( Bundle savedInstanceState ) {
+	protected void onCreate( Bundle savedInstanceState ) {
 		Log.i( TAG, "onCreate : enter" );
 		
 		super.onCreate( savedInstanceState );
@@ -47,17 +46,6 @@ public abstract class AbstractRecordingsActivity extends AbstractMythtvFragmentA
 		setupActionBar();
 		
 		Log.i( TAG, "onCreate : exit" );
-	}
-
-	protected void setupActionBar() {
-		Log.v( TAG, "setupActionBar : enter" );
-
-		if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-			ActionBar actionBar = getActionBar();
-			actionBar.setDisplayHomeAsUpEnabled( true );
-		}
-		
-		Log.v( TAG, "setupActionBar : exit" );
 	}
 
 	/* (non-Javadoc)

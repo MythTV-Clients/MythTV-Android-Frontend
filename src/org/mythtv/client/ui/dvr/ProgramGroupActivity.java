@@ -21,15 +21,17 @@ package org.mythtv.client.ui.dvr;
 
 import org.mythtv.R;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 
 /**
  * @author Daniel Frey
  * @author John Baab
  * 
  */
-public class ProgramGroupActivity extends AbstractProgramGroupActivity {
+public class ProgramGroupActivity extends AbstractDvrActivity {
 
 	private static final String TAG = ProgramGroupActivity.class.getSimpleName();
 
@@ -62,13 +64,25 @@ public class ProgramGroupActivity extends AbstractProgramGroupActivity {
 		Log.v( TAG, "onCreate : exit" );
 	}
 
+	/* (non-Javadoc)
+	 * @see android.app.Activity#onOptionsItemSelected(android.view.MenuItem)
+	 */
 	@Override
-	public void onResume() {
-		Log.v( TAG, "onResume : enter" );
+	public boolean onOptionsItemSelected( MenuItem item ) {
+		Log.v( TAG, "onOptionsItemSelected : enter" );
 
-		super.onResume();
+		switch( item.getItemId() ) {
+			case android.R.id.home:
+				// app icon in action bar clicked; go home
+				Intent intent = new Intent( this, RecordingsActivity.class );
+				intent.addFlags( Intent.FLAG_ACTIVITY_CLEAR_TOP );
+				startActivity( intent );
 
-		Log.v( TAG, "onResume : exit" );
+				return true;
+		}
+
+		Log.v( TAG, "onOptionsItemSelected : exit" );
+		return super.onOptionsItemSelected( item );
 	}
 	
 }

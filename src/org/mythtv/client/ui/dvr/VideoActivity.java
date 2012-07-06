@@ -26,7 +26,6 @@ package org.mythtv.client.ui.dvr;
 //import io.vov.vitamio.widget.VideoView;
 
 import org.mythtv.R;
-import org.mythtv.client.MainApplication;
 import org.mythtv.client.ui.preferences.PlaybackProfile;
 import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.services.api.content.LiveStreamInfo;
@@ -39,14 +38,13 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 
 /**
  * @author John Baab
  * 
  */
-public class VideoActivity extends FragmentActivity {
+public class VideoActivity extends AbstractDvrActivity {
 
 	private static final String TAG = VideoActivity.class.getSimpleName();
 
@@ -57,10 +55,6 @@ public class VideoActivity extends FragmentActivity {
 	private Boolean firstrun = true;
 	private PlaybackProfile selectedPlaybackProfile;
 	
-	public MainApplication getApplicationContext() {
-		return (MainApplication) super.getApplicationContext();
-	}
-
 	// ***************************************
 	// Activity methods
 	// ***************************************
@@ -77,6 +71,8 @@ public class VideoActivity extends FragmentActivity {
 
 	    setContentView( R.layout.activity_video );
 	    
+	    setupActionBar();
+	    
 	    progressDialog = ProgressDialog.show( this, "Please wait...", "Retrieving video...", true, true );
 
 	    long id = getIntent().getExtras().getLong( EXTRA_PROGRAM_KEY );
@@ -90,6 +86,9 @@ public class VideoActivity extends FragmentActivity {
 
 	        String filename = cursor.getString( filenameIndex );
 	        String hostname = cursor.getString( hostnameIndex );
+
+			Log.v( TAG, "onCreate : filename=" + filename );
+			Log.v( TAG, "onCreate : hostname=" + hostname );
 
 	    	new CreateStreamTask().execute( filename, hostname );
 	    }

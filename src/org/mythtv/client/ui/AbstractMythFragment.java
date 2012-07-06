@@ -29,7 +29,7 @@ import android.support.v4.app.Fragment;
  */
 public abstract class AbstractMythFragment extends Fragment implements MythtvApplicationContext {
 
-	protected static final String TAG = AbstractMythtvFragmentActivity.class.getSimpleName();
+	protected static final String TAG = AbstractMythFragment.class.getSimpleName();
 	
 	//***************************************
     // MythActivity methods

@@ -21,13 +21,10 @@ package org.mythtv.client.ui;
 
 import org.mythtv.service.dvr.DvrServiceHelper;
 
-import android.annotation.TargetApi;
-import android.app.ActionBar;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
@@ -142,18 +139,6 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 	}
 
 	// internal helpers
-
-	@TargetApi( 11 )
-	protected void setupActionBar() {
-		Log.v( TAG, "setupActionBar : enter" );
-
-		if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-			ActionBar actionBar = getActionBar();
-			actionBar.setDisplayHomeAsUpEnabled( true );
-		}
-		
-		Log.v( TAG, "setupActionBar : exit" );
-	}
 
 	private class ProgramListReceiver extends BroadcastReceiver {
 

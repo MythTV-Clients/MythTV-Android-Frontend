@@ -23,10 +23,7 @@ import org.mythtv.client.ui.AbstractMythtvFragmentActivity;
 import org.mythtv.client.ui.AwayActivity;
 import org.mythtv.client.ui.HomeActivity;
 
-import android.annotation.TargetApi;
-import android.app.ActionBar;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
@@ -49,18 +46,6 @@ public abstract class AbstractFrontendsActivity extends AbstractMythtvFragmentAc
 		setupActionBar();
 		
 		Log.i( TAG, "onCreate : exit" );
-	}
-
-	@TargetApi( 11 )
-	protected void setupActionBar() {
-		Log.v( TAG, "setupActionBar : enter" );
-
-		if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-			ActionBar actionBar = getActionBar();
-			actionBar.setDisplayHomeAsUpEnabled( true );
-		}
-		
-		Log.v( TAG, "setupActionBar : exit" );
 	}
 
 	/* (non-Javadoc)

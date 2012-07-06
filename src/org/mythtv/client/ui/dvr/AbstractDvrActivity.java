@@ -20,10 +20,10 @@
 package org.mythtv.client.ui.dvr;
 
 import org.mythtv.client.ui.AbstractMythtvFragmentActivity;
+import org.mythtv.client.ui.AwayActivity;
+import org.mythtv.client.ui.HomeActivity;
 
-import android.app.ActionBar;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
@@ -33,9 +33,9 @@ import android.view.MenuItem;
  * 
  * 
  */
-public abstract class AbstractProgramGroupActivity extends AbstractMythtvFragmentActivity {
+public abstract class AbstractDvrActivity extends AbstractMythtvFragmentActivity {
 
-	protected static final String TAG = AbstractProgramGroupActivity.class.getSimpleName();
+	protected static final String TAG = AbstractDvrActivity.class.getSimpleName();
 
 	/* (non-Javadoc)
 	 * @see android.support.v4.app.FragmentActivity#onCreate(android.os.Bundle)
@@ -45,10 +45,7 @@ public abstract class AbstractProgramGroupActivity extends AbstractMythtvFragmen
 		Log.v( TAG, "onCreate : enter" );
 		super.onCreate( savedInstanceState );
 
-		if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-			ActionBar actionBar = getActionBar();
-			actionBar.setDisplayHomeAsUpEnabled( true );
-		}
+		setupActionBar();
 		
 		Log.v( TAG, "onCreate : exit" );
 	}
@@ -62,12 +59,19 @@ public abstract class AbstractProgramGroupActivity extends AbstractMythtvFragmen
 
 		switch( item.getItemId() ) {
 			case android.R.id.home:
+			
 				// app icon in action bar clicked; go home
-				Intent intent = new Intent( this, RecordingsActivity.class );
-				intent.addFlags( Intent.FLAG_ACTIVITY_CLEAR_TOP );
-				startActivity( intent );
+				if( getApplicationContext().getLocation().equals( "HOME" ) ) {
+					Intent intent = new Intent( this, HomeActivity.class );
+					intent.addFlags( Intent.FLAG_ACTIVITY_CLEAR_TOP );
+					startActivity( intent );
+				} else {
+					Intent intent = new Intent( this, AwayActivity.class );
+					intent.addFlags( Intent.FLAG_ACTIVITY_CLEAR_TOP );
+					startActivity( intent );
+				}
 
-				return true;
+			return true;
 		}
 
 		Log.v( TAG, "onOptionsItemSelected : exit" );

@@ -31,21 +31,21 @@ import android.util.Log;
  * @author Daniel Frey
  * 
  */
-public class RecordingsActivity extends AbstractRecordingsActivity implements RecordingsFragment.OnProgramGroupListener {
+public class RecordingsActivity extends AbstractDvrActivity implements RecordingsFragment.OnProgramGroupListener {
 
 	private static final String TAG = RecordingsActivity.class.getSimpleName();
 	
 	@Override
 	public void onCreate( Bundle savedInstanceState ) {
-		Log.i( TAG, "onCreate : enter" );
-		
+		Log.v( TAG, "onCreate : enter" );
 		super.onCreate( savedInstanceState );
+
 		setContentView( R.layout.activity_dvr_recordings );
 
 		RecordingsFragment recordingsFragment = (RecordingsFragment) getSupportFragmentManager().findFragmentById( R.id.fragment_dvr_program_groups );
 		recordingsFragment.setOnProgramGroupListener( this );
 
-		Log.i( TAG, "onCreate : exit" );
+		Log.v( TAG, "onCreate : exit" );
 	}
 
 	public void onProgramGroupSelected( String programGroup ) {
