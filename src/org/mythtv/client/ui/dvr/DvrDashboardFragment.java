@@ -66,6 +66,8 @@ public class DvrDashboardFragment extends AbstractMythFragment {
 			public void onClick( View view ) {
 				Log.v( TAG, "upcoming.onClick : enter" );
 
+				startActivity( new Intent( getActivity(), UpcomingActivity.class ) );
+
 				Log.v( TAG, "upcoming.onClick : exit" );
 			}
 		} );

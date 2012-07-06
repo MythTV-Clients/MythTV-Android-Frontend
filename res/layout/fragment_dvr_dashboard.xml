@@ -31,7 +31,6 @@
     <Button android:id="@+id/dvr_btn_upcoming"
         style="@style/DashboardButton"
         android:text="@string/btn_upcoming"
-        android:textColor="@color/body_text_disabled"
         android:drawableTop="@drawable/dvr_btn_upcoming" />
     <Button android:id="@+id/dvr_btn_guide"
         style="@style/DashboardButton"

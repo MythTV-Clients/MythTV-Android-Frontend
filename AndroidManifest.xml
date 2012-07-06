@@ -81,7 +81,9 @@
 			android:name=".client.ui.dvr.RecordingsActivity" />
 		<activity 
 			android:name=".client.ui.dvr.VideoActivity" />
-						
+		<activity 
+			android:name=".client.ui.dvr.UpcomingActivity" />
+								
 		<!-- Frontends Activities -->
 		<activity 
 			android:name=".client.ui.frontends.MythmoteActivity" />
