@@ -3,6 +3,10 @@
  */
 package org.mythtv.client.ui.dvr;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import org.mythtv.R;
 import org.mythtv.client.ui.util.MythtvListFragment;
 import org.mythtv.db.dvr.ProgramConstants;
@@ -21,13 +25,14 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
-import android.support.v4.widget.SimpleCursorAdapter;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 /**
@@ -37,6 +42,7 @@ import android.widget.TextView;
 public class UpcomingFragment extends MythtvListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
 	private static final String TAG = UpcomingFragment.class.getSimpleName();
+	private static final SimpleDateFormat sdf = new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ss" );
 	private static final int REFRESH_ID = Menu.FIRST + 2;
 
 	private UpcomingCursorAdapter adapter;
@@ -73,6 +79,7 @@ public class UpcomingFragment extends MythtvListFragment implements LoaderManage
 		
 		adapter.swapCursor( cursor );
 		
+		
 		Log.v( TAG, "onLoadFinished : exit" );
 	}
 
@@ -100,10 +107,7 @@ public class UpcomingFragment extends MythtvListFragment implements LoaderManage
 
 		getLoaderManager().initLoader( 0, null, this );
 		 
-	    adapter = new UpcomingCursorAdapter(
-	            getActivity().getApplicationContext(), R.layout.program_group_row,
-	            null, new String[] { ProgramConstants.FIELD_TITLE }, new int[] { R.id.program_group_row },
-	            CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER );
+	    adapter = new UpcomingCursorAdapter( getActivity().getApplicationContext() );
 	    
 	    setListAdapter( adapter );
 		
@@ -188,38 +192,117 @@ public class UpcomingFragment extends MythtvListFragment implements LoaderManage
 
 	// internal helpers
 
-	private class UpcomingCursorAdapter extends SimpleCursorAdapter {
+	@SuppressWarnings( "unused" )
+	private class UpcomingCursorAdapter extends CursorAdapter {
 
-		public UpcomingCursorAdapter( Context context, int layout, Cursor c, String[] from, int[] to, int flags ) {
-			super( context, layout, c, from, to, flags );
+		private LayoutInflater mInflater;
+		private String currentStartDate, previousStartDate, endTime, title;
+		
+		public UpcomingCursorAdapter( Context context ) {
+			super( context, null, false );
+			
+			mInflater = LayoutInflater.from( context );
 		}
 
 		/* (non-Javadoc)
-		 * @see android.support.v4.widget.CursorAdapter#getView(int, android.view.View, android.view.ViewGroup)
+		 * @see android.support.v4.widget.CursorAdapter#newView(android.content.Context, android.database.Cursor, android.view.ViewGroup)
 		 */
 		@Override
-		public View getView( int position, View convertView, ViewGroup parent ) {
+		public View newView( Context context, Cursor cursor, ViewGroup parent ) {
+			Log.v( TAG, "UpcomingCursorAdapter.newView : enter" );
 			
-			View row =  super.getView( position, convertView, parent );
-			
-			getCursor().moveToPosition( position );
-		    try {
-		        int titleIndex = getCursor().getColumnIndexOrThrow( ProgramConstants.FIELD_TITLE );
-				int startTimeIndex = getCursor().getColumnIndexOrThrow( ProgramConstants.FIELD_START_TIME );
-		        int endTimeIndex = getCursor().getColumnIndexOrThrow( ProgramConstants.FIELD_END_TIME );
-
-		        String title = getCursor().getString( titleIndex );
-		        String startTime = getCursor().getString( startTimeIndex );
-		        String endTime = getCursor().getString( endTimeIndex );
-		        Log.v( TAG, "getView : title=" + title + ", startTime=" + startTime + ", endTime=" + endTime );
-		        
-				TextView textView = (TextView) row.findViewById( R.id.program_group_row );
-				textView.setText( title );
-		    } catch( Exception e ) {
-				Log.e( TAG, "getView : error", e );
-		    }
+			View view = mInflater.inflate( R.layout.upcoming_row, parent, false );
 		    
-			return row;
+			ViewHolder refHolder = new ViewHolder();
+		    refHolder.title = (TextView) view.findViewById( R.id.upcoming_title );
+		    refHolder.header = (LinearLayout) view.findViewById( R.id.upcoming_header_row );
+		    refHolder.headerLabel = (TextView) view.findViewById( R.id.upcoming_header_label );
+		    
+		    view.setTag(refHolder);
+		    
+		    Log.v( TAG, "UpcomingCursorAdapter.newView : exit" );
+			return view;
+		}
+
+		/* (non-Javadoc)
+		 * @see android.support.v4.widget.CursorAdapter#bindView(android.view.View, android.content.Context, android.database.Cursor)
+		 */
+		@Override
+		public void bindView( View view, Context context, Cursor cursor ) {
+			Log.v( TAG, "UpcomingCursorAdapter.bindView : enter" );
+			
+			String sStartTime = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_START_TIME ) );
+			String sEndTime = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_END_TIME ) );
+			String sTitle = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_TITLE ) );
+			Log.v( TAG, "UpcomingCursorAdapter.bindView : sTitle=" + sTitle );
+
+			currentStartDate = sStartTime.substring( 0, sStartTime.indexOf( 'T' ) );
+			Log.v( TAG, "UpcomingCursorAdapter.bindView : currentStartDate=" + currentStartDate );
+			
+			long diffInSeconds = -1;
+			try {
+				Date dStartTime = sdf.parse( sStartTime );
+				Date dEndTime = sdf.parse( sEndTime );
+				
+				diffInSeconds = ( dEndTime.getTime() - dStartTime.getTime() ) / 1000;
+				Log.v( TAG, "UpcomingCursorAdapter.bindView : seconds=" + diffInSeconds );
+			} catch( ParseException e ) {
+				Log.v( TAG, "UpcomingCursorAdapter.bindView : error parsing start and end dates" );
+			}
+			
+			long diffInMinutes = ( diffInSeconds / 60 ) >= 60 ? diffInSeconds % 60 : diffInSeconds;
+			Log.v( TAG, "UpcomingCursorAdapter.bindView : duration=" + diffInMinutes );
+			
+			ViewHolder mHolder = (ViewHolder) view.getTag();
+			
+			if( cursor.isFirst() ) {
+				Log.v( TAG, "UpcomingCursorAdapter.bindView : cursor at first position, displaying header" );
+
+				mHolder.header.setVisibility( View.VISIBLE );
+				mHolder.headerLabel.setVisibility( View.VISIBLE );
+				mHolder.headerLabel.setText( currentStartDate );
+				mHolder.title.setVisibility( View.GONE );
+			} else {
+				Log.v( TAG, "UpcomingCursorAdapter.bindView : cursor is not at first position" );
+				cursor.moveToPrevious();
+				
+				String previousStartTime = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_START_TIME ) );
+				previousStartDate = previousStartTime.substring( 0, previousStartTime.indexOf( 'T' ) );
+				Log.v( TAG, "UpcomingCursorAdapter.bindView : previousStartDate=" + previousStartDate );
+				
+				Log.v( TAG, "UpcomingCursorAdapter.bindView : current before previous=" + currentStartDate.equals( previousStartDate ) + "  '" + currentStartDate + "'  '" + previousStartDate + "'" );
+				
+				if( !currentStartDate.equals( previousStartDate ) ) {
+					Log.v( TAG, "UpcomingCursorAdapter.bindView : section change" );
+					
+					mHolder.header.setVisibility( View.VISIBLE );
+					mHolder.headerLabel.setVisibility( View.VISIBLE );
+					mHolder.headerLabel.setText( currentStartDate );
+					mHolder.title.setVisibility( View.GONE );
+				} else {
+					Log.v( TAG, "UpcomingCursorAdapter.bindView : show detail" );
+
+					mHolder.header.setVisibility( View.GONE );
+					mHolder.headerLabel.setVisibility( View.GONE );
+					mHolder.title.setVisibility( View.VISIBLE );
+					mHolder.title.setText( sTitle );
+				}
+				
+				cursor.moveToNext();
+			}
+			
+			Log.v( TAG, "UpcomingCursorAdapter.bindView : exit" );
+		}
+
+		private class ViewHolder {
+			
+			LinearLayout header;
+			TextView headerLabel;
+			
+			TextView title;
+			
+			ViewHolder() { }
+
 		}
 		
 	}
