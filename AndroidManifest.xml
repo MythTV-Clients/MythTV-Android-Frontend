@@ -99,6 +99,10 @@
 		
 		<!-- MythTV Android Providers -->
 		<provider
+            android:name=".provider.channel.ChannelProvider"
+            android:authorities="org.mythtv.channel.channels" />
+        		
+		<provider
             android:name=".provider.content.ArtworkProvider"
             android:authorities="org.mythtv.content.artworks" />
         		

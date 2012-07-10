@@ -45,7 +45,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	private static final String TAG = DatabaseHelper.class.getSimpleName();
 	
 	private static final String DATABASE_NAME = "mythtvdb";
-	private static final int DATABASE_VERSION = 14;
+	private static final int DATABASE_VERSION = 17;
 
 	public DatabaseHelper( Context context ) {
 		super( context, DATABASE_NAME, null, DATABASE_VERSION );
@@ -96,8 +96,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			createPlaybackProfiles( db );
 		}
 
-		if( oldVersion < 14 ) {
-			Log.v( TAG, "onUpgrade : upgrading to db version 13" );
+		if( oldVersion < 17 ) {
+			Log.v( TAG, "onUpgrade : upgrading to db version 17" );
 
 			dropProgramGroup( db );
 			createProgramGroup( db );
@@ -110,9 +110,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 			dropChannel( db );
 			createChannel( db );
-
-			dropProgramChannels( db );
-			createProgramChannels( db );
 
 			dropArtwork( db );
 			createArtwork( db );
@@ -377,7 +374,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		sqlBuilder.append( ProgramConstants.FIELD_INETREF ).append( " " ).append( ProgramConstants.FIELD_INETREF_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( ProgramConstants.FIELD_SEASON ).append( " " ).append( ProgramConstants.FIELD_SEASON_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( ProgramConstants.FIELD_EPISODE ).append( " " ).append( ProgramConstants.FIELD_EPISODE_DATA_TYPE ).append( ", " );
-		sqlBuilder.append( ProgramConstants.FIELD_PROGRAM_GROUP_ID ).append( " " ).append( ProgramConstants.FIELD_PROGRAM_GROUP_ID_DATA_TYPE );
+		sqlBuilder.append( ProgramConstants.FIELD_PROGRAM_GROUP_ID ).append( " " ).append( ProgramConstants.FIELD_PROGRAM_GROUP_ID_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ProgramConstants.FIELD_CHANNEL_ID ).append( " " ).append( ProgramConstants.FIELD_CHANNEL_ID_DATA_TYPE );
 		sqlBuilder.append( ");" );
 		String sql = sqlBuilder.toString();
 		if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
@@ -468,9 +466,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		sqlBuilder.append( ChannelConstants.FIELD_DEFAULT_AUTH ).append( " " ).append( ChannelConstants.FIELD_DEFAULT_AUTH_DATA_TYPE );
 		sqlBuilder.append( ");" );
 		String sql = sqlBuilder.toString();
-		if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
+		//if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
 			Log.v( TAG, "createChannel : sql=" + sql );
-		}
+		//}
 		db.execSQL( sql );
 	
 		Log.v( TAG, "createChannel : exit" );
@@ -482,32 +480,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		db.execSQL( "DROP TABLE IF EXISTS " + ChannelConstants.TABLE_NAME );
 		
 		Log.v( TAG, "dropChannel : exit" );
-	}
-	
-	private void createProgramChannels( SQLiteDatabase db ) {
-		Log.v( TAG, "createProgramChannels : enter" );
-		
-		StringBuilder sqlBuilder = new StringBuilder();
-		sqlBuilder.append( "CREATE TABLE PROGRAM_CHANNELS (" );
-		sqlBuilder.append( "PROGRAM_ID INTEGER, " );
-		sqlBuilder.append( "CHANNEL_ID INTEGER, " );
-		sqlBuilder.append( "PRIMARY KEY( PROGRAM_ID, CHANNEL_ID ) " );
-		sqlBuilder.append( ");" );
-		String sql = sqlBuilder.toString();
-		if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
-			Log.v( TAG, "createProgramChannels : sql=" + sql );
-		}
-		db.execSQL( sql );
-	
-		Log.v( TAG, "createProgramChannels : exit" );
-	}
-	
-	private void dropProgramChannels( SQLiteDatabase db ) {
-		Log.v( TAG, "dropProgramChannels : enter" );
-		
-		db.execSQL( "DROP TABLE IF EXISTS PROGRAM_CHANNELS" );
-		
-		Log.v( TAG, "dropProgramChannels : exit" );
 	}
 	
 	private void createArtwork( SQLiteDatabase db ) {

@@ -61,7 +61,6 @@
 		    android:textColor="@color/body_text_1" />
 		
 			<RelativeLayout
-				android:id="@+id/upcoming_detail_footer"
 			    android:layout_width="fill_parent"
 			    android:layout_height="wrap_content"
 			    android:orientation="horizontal"

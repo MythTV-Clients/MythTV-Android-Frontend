@@ -40,4 +40,39 @@
     <color name="block_column_1">#ff0fabff</color>
     <color name="block_column_2">#ffdf1831</color>
     <color name="block_column_3">#ff009939</color>
+    
+    <color name="program_category_Action">#906020</color>
+    <color name="program_category_Adult">#702020</color>
+    <color name="program_category_Animals">#609060</color>
+    <color name="program_category_Art_Music">#801060</color>
+    <color name="program_category_Business">#801060</color>
+    <color name="program_category_Children">#b00010</color>
+    <color name="program_category_Comedy">#006080</color>
+    <color name="program_category_Crime_Mystery">#105050</color>
+    <color name="program_category_Documentary">#504020</color>
+    <color name="program_category_Drama">#400060</color>
+    <color name="program_category_Educational">#606060</color>
+    <color name="program_category_Food">#208040</color>
+    <color name="program_category_Game">#701010</color>
+    <color name="program_category_Health_Medical">#806060</color>
+    <color name="program_category_History">#807020</color>
+    <color name="program_category_Horror">#101040</color>
+    <color name="program_category_HowTo">#a0a000</color>
+    <color name="program_category_Misc">#403060</color>
+    <color name="program_category_Movie">#809090</color>
+    <color name="program_category_News">#606040</color>
+    <color name="program_category_Reality">#304040</color>
+    <color name="program_category_Romance">#a02050</color>
+    <color name="program_category_Science_Nature">#008050</color>
+    <color name="program_category_SciFi_Fantasy">#606090</color>
+    <color name="program_category_Shopping">#103010</color>
+    <color name="program_category_Soaps">#508080</color>
+    <color name="program_category_Spiritual">#804080</color>
+    <color name="program_category_Sports">#005030</color>
+    <color name="program_category_Talk">#203040</color>
+    <color name="program_category_Travel">#2060b0</color>
+    <color name="program_category_Unknown">#303030</color>
+    <color name="program_category_War">#b06050</color>
+    <color name="program_category_Western">#806040</color>
+
 </resources>

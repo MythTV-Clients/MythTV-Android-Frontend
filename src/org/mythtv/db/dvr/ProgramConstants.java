@@ -114,4 +114,7 @@ public class ProgramConstants {
 	public static final String FIELD_PROGRAM_GROUP_ID = "PROGRAM_GROUP_ID";
 	public static final String FIELD_PROGRAM_GROUP_ID_DATA_TYPE = "INTEGER";
 
+	public static final String FIELD_CHANNEL_ID = "CHANNEL_ID";
+	public static final String FIELD_CHANNEL_ID_DATA_TYPE = "INTEGER";
+
 }

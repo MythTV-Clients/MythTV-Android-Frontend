@@ -31,6 +31,68 @@ import org.mythtv.services.api.content.ArtworkInfos;
  */
 public class Program {
 
+	public static enum Category {
+		ACTION( "Action" ),
+		ADULT( "Adult" ),
+		ANIMALS( "Animals" ),
+		ART_MUSIC( "Art/Music" ),
+		BUSINESS( "Business" ),
+		CHILDREN( "Children" ),
+		COMEDY( "Comedy" ),
+		CRIME_MYSTERY( "Crime/Mystery" ),
+		DOCUMENTARY( "Documentary" ),
+		DRAMA( "Drama" ),
+		EDUCATIONAL( "Educational" ),
+		FOOD( "Food" ),
+		GAME( "Game" ),
+		HEALTH_MEDICAL( "Health/Medical" ),
+		HISTORY( "History" ),
+		HORROR( "Horror" ),
+		HOWTO( "HowTo" ),
+		MISC( "Misc" ),
+		MOVIE( "Movie" ),
+		NEWS( "News" ),
+		REALITY( "Reality" ),
+		ROMANCE( "Romance" ),
+		SCIENCE_NATURE( "Science/Nature" ),
+		SCIFI_FANTASY( "SciFi/Fantasy" ),
+		SHOPPING( "Shopping" ),
+		SOAPS( "Soaps" ),
+		SPIRITUAL( "Spiritual" ),
+		SPORTS( "Sports" ),
+		TALK( "Talk" ),
+		TRAVEL( "Travel" ),
+		UNKNOWN( "Unknown" ),
+		WAR( "War" ),
+		WESTERN( "Western" );
+		
+		private String category;
+		
+		private Category( String category ) {
+			this.category = category;
+		}
+
+		/**
+		 * @return the category
+		 */
+		public String getCategory() {
+			return category;
+		}
+
+		public static Category fromString( String category ) {
+			if( null != category ) {
+				for( Category c : Category.values() ) {
+					if( category.equalsIgnoreCase( c.category ) ) {
+						return c;
+					}
+				}
+			}
+			
+			return UNKNOWN;
+		}
+		
+	}
+	
 	@JsonProperty( "StartTime" )
 	private Date startTime;
 	

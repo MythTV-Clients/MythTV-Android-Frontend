@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.mythtv.client.MainApplication;
+import org.mythtv.db.channel.ChannelConstants;
 import org.mythtv.db.content.ArtworkConstants;
 import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.db.dvr.ProgramGroupConstants;
@@ -174,6 +175,8 @@ public class ProgramListProcessor {
 						programGroupIds.add( programGroupId );
 					}
 					
+					Long channelId = updateChannelContentProvider( program );
+					
 					values = new ContentValues();
 					values.put( ProgramConstants.FIELD_PROGRAM_TYPE, null != programType ? programType.name() : "" );
 					values.put( ProgramConstants.FIELD_START_TIME, null != program.getStartTime() ? sdf.format( program.getStartTime() ) : "" );
@@ -200,6 +203,7 @@ public class ProgramListProcessor {
 					values.put( ProgramConstants.FIELD_SEASON, null != program.getSeason() ? program.getSeason() : "" );
 					values.put( ProgramConstants.FIELD_EPISODE, null != program.getEpisode() ? program.getEpisode() : "" );
 					values.put( ProgramConstants.FIELD_PROGRAM_GROUP_ID, programGroupId );
+					values.put( ProgramConstants.FIELD_CHANNEL_ID, channelId );
 					
 					long programId = 0;
 					cursor = mContext.getContentResolver().query( ProgramConstants.CONTENT_URI,  new String[] { BaseColumns._ID }, ProgramConstants.FIELD_TITLE + " = ? and " + ProgramConstants.FIELD_SUB_TITLE + " = ? and " + ProgramConstants.FIELD_PROGRAM_TYPE + " = ?", new String[] { program.getTitle(), program.getSubTitle(), programType.name() }, null );
@@ -343,6 +347,60 @@ public class ProgramListProcessor {
 		}
 		
 		Log.v( TAG, "updateRecordingContentProvider : exit" );
+	}
+	
+	private Long updateChannelContentProvider( Program program ) {
+		Log.v( TAG, "updateChannelContentProvider : enter" );
+		
+		if( null != program.getChannelInfo() ) {
+			
+			Log.v( TAG, "updateChannelContentProvider : channelInfo=" + program.getChannelInfo().toString() );
+				
+			ContentValues values = new ContentValues();
+			values.put( ChannelConstants.FIELD_CHAN_ID, program.getChannelInfo().getChannelId() );
+			values.put( ChannelConstants.FIELD_CHAN_NUM, program.getChannelInfo().getChannelNumber() );
+			values.put( ChannelConstants.FIELD_CALLSIGN, program.getChannelInfo().getCallSign() );
+			values.put( ChannelConstants.FIELD_ICON_URL, program.getChannelInfo().getIconUrl() );
+			values.put( ChannelConstants.FIELD_CHANNEL_NAME, program.getChannelInfo().getChannelName() );
+			values.put( ChannelConstants.FIELD_MPLEX_ID, program.getChannelInfo().getMultiplexId() );
+			values.put( ChannelConstants.FIELD_TRANSPORT_ID, program.getChannelInfo().getTransportId() );
+			values.put( ChannelConstants.FIELD_SERVICE_ID, program.getChannelInfo().getServiceId() );
+			values.put( ChannelConstants.FIELD_NETWORK_ID, program.getChannelInfo().getNetworkId() );
+			values.put( ChannelConstants.FIELD_ATSC_MAJOR_CHAN, program.getChannelInfo().getAtscMajorChannel() );
+			values.put( ChannelConstants.FIELD_ATSC_MINOR_CHAN, program.getChannelInfo().getAtscMinorChannel() );
+			values.put( ChannelConstants.FIELD_FORMAT, program.getChannelInfo().getFormat() );
+			values.put( ChannelConstants.FIELD_MODULATION, program.getChannelInfo().getModulation() );
+			values.put( ChannelConstants.FIELD_FREQUENCY, program.getChannelInfo().getFrequency() );
+			values.put( ChannelConstants.FIELD_FREQUENCY_ID, program.getChannelInfo().getFrequencyId() );
+			values.put( ChannelConstants.FIELD_FREQUENCY_TABLE, program.getChannelInfo().getFrequenceTable() );
+			values.put( ChannelConstants.FIELD_FINE_TUNE, program.getChannelInfo().getFineTune() );
+			values.put( ChannelConstants.FIELD_SIS_STANDARD, program.getChannelInfo().getSiStandard() );
+			values.put( ChannelConstants.FIELD_CHAN_FILTERS, program.getChannelInfo().getChannelFilters() );
+			values.put( ChannelConstants.FIELD_SOURCE_ID, program.getChannelInfo().getSourceId() );
+			values.put( ChannelConstants.FIELD_INPUT_ID, program.getChannelInfo().getInputId() );
+			values.put( ChannelConstants.FIELD_COMM_FREE, program.getChannelInfo().getCommercialFree() );
+			values.put( ChannelConstants.FIELD_USE_EIT, program.getChannelInfo().isUseEit() );
+			values.put( ChannelConstants.FIELD_VISIBLE, program.getChannelInfo().isVisable() );
+			values.put( ChannelConstants.FIELD_XMLTV_ID, program.getChannelInfo().getXmltvId() );
+			values.put( ChannelConstants.FIELD_DEFAULT_AUTH, program.getChannelInfo().getDefaultAuth() );
+
+			long id = 0;
+			Cursor cursor = mContext.getContentResolver().query( ChannelConstants.CONTENT_URI, null, ChannelConstants.FIELD_CHAN_ID + " = ? and " + ChannelConstants.FIELD_SOURCE_ID + " = ?", new String[] { "" + program.getChannelInfo().getChannelId(), "" + program.getChannelInfo().getSourceId() }, null );
+			if( cursor.moveToFirst() ) {
+				id = cursor.getInt( cursor.getColumnIndexOrThrow( BaseColumns._ID ) );
+				//mContext.getContentResolver().update( ContentUris.withAppendedId( ChannelConstants.CONTENT_URI, id ), values, null, null );
+			} else {
+				Uri contentUri = mContext.getContentResolver().insert( ChannelConstants.CONTENT_URI, values );
+				id = ContentUris.parseId( contentUri );
+			}
+			cursor.close();
+			
+			Log.v( TAG, "updateRecordingContentProvider : exit" );
+			return id;
+		}
+		
+		Log.v( TAG, "updateRecordingContentProvider : exit, channel info is empty" );
+		return null;
 	}
 	
 	private void updateArtworkContentProvider( Program program, long programId ) {
