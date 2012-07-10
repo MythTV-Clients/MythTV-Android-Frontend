@@ -27,6 +27,7 @@ import org.mythtv.services.api.channel.ChannelOperations;
 import org.mythtv.services.api.channel.LineupList;
 import org.mythtv.services.api.channel.VideoMultiplex;
 import org.mythtv.services.api.channel.VideoSource;
+import org.mythtv.services.api.dvr.Program;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
@@ -77,8 +78,14 @@ public class ChannelTemplate extends AbstractChannelOperations implements Channe
 	 */
 	@Override
 	public ChannelInfo getChannelInfo( int channelId ) {
-		// TODO Auto-generated method stub
-		return null;
+
+		LinkedMultiValueMap<String, String> parameters = new LinkedMultiValueMap<String, String>();
+		parameters.add( "ChanId", "" + channelId );
+
+		ResponseEntity<ChannelInfo> responseEntity = restTemplate.exchange( buildUri( "GetChannelInfo", parameters ), HttpMethod.GET, getRequestEntity(), ChannelInfo.class );
+		ChannelInfo channelInfo = responseEntity.getBody();
+		
+		return channelInfo;
 	}
 
 	/* (non-Javadoc)
