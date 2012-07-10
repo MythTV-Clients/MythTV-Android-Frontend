@@ -18,7 +18,7 @@
  * This software can be found at <https://github.com/MythTV-Android/mythtv-for-android/>
  *
 -->
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical" >
@@ -72,25 +72,28 @@
 		    		    
 		<TextView
 			android:id="@+id/upcoming_channel"
-			android:layout_width="0dp"
+			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
+			android:layout_alignParentLeft="true"
+			android:layout_centerVertical="true"
 			android:textColor="@color/body_text_1" />
 				
 		<TextView
 			android:id="@+id/upcoming_start_time"
-			android:layout_width="0dp"
+			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
+			android:layout_centerInParent="true"
 			android:textColor="@color/body_text_1" />
+		
+		<Button
+		    android:id="@+id/upcoming_dont_record"
+		    android:layout_width="40dp"
+		    android:layout_height="wrap_content"
+		    android:layout_alignParentRight="true"
+		    android:text="@string/btn_upcoming_dont_record"
+		    android:textColor="@color/body_text_1"
+		    android:textSize="@dimen/text_size_small" />
 
 	</RelativeLayout>
-
-	<Button
-	    android:id="@+id/upcoming_dont_record"
-	    android:layout_width="40dp"
-	    android:layout_height="wrap_content"
-	    android:layout_alignParentRight="true"
-	    android:text="@string/btn_upcoming_dont_record"
-	    android:textColor="@color/body_text_1"
-	    android:textSize="@dimen/text_size_small" />
 			
-</RelativeLayout>
+</LinearLayout>
