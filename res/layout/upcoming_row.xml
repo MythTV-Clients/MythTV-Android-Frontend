@@ -60,40 +60,40 @@
 		    android:layout_height="wrap_content"
 		    android:textColor="@color/body_text_1" />
 		
-	</LinearLayout>
-
-	<RelativeLayout
-		android:id="@+id/upcoming_detail_footer"
-	    android:layout_width="fill_parent"
-	    android:layout_height="wrap_content"
-	    android:orientation="horizontal"
-    	android:paddingLeft="8dp"
-    	android:paddingRight="8dp" >
-		    		    
-		<TextView
-			android:id="@+id/upcoming_channel"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_alignParentLeft="true"
-			android:layout_centerVertical="true"
-			android:textColor="@color/body_text_1" />
+			<RelativeLayout
+				android:id="@+id/upcoming_detail_footer"
+			    android:layout_width="fill_parent"
+			    android:layout_height="wrap_content"
+			    android:orientation="horizontal"
+		    	android:paddingLeft="8dp"
+		    	android:paddingRight="8dp" >
+				    		    
+				<TextView
+					android:id="@+id/upcoming_channel"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_alignParentLeft="true"
+					android:layout_centerVertical="true"
+					android:textColor="@color/body_text_1" />
+						
+				<TextView
+					android:id="@+id/upcoming_start_time"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_centerInParent="true"
+					android:textColor="@color/body_text_1" />
 				
-		<TextView
-			android:id="@+id/upcoming_start_time"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_centerInParent="true"
-			android:textColor="@color/body_text_1" />
+				<Button
+				    android:id="@+id/upcoming_dont_record"
+				    android:layout_width="40dp"
+				    android:layout_height="wrap_content"
+				    android:layout_alignParentRight="true"
+				    android:text="@string/btn_upcoming_dont_record"
+				    android:textColor="@color/body_text_1"
+				    android:textSize="@dimen/text_size_small" />
 		
-		<Button
-		    android:id="@+id/upcoming_dont_record"
-		    android:layout_width="40dp"
-		    android:layout_height="wrap_content"
-		    android:layout_alignParentRight="true"
-		    android:text="@string/btn_upcoming_dont_record"
-		    android:textColor="@color/body_text_1"
-		    android:textSize="@dimen/text_size_small" />
-
-	</RelativeLayout>
+		</RelativeLayout>
+		
+	</LinearLayout>
 			
 </LinearLayout>
