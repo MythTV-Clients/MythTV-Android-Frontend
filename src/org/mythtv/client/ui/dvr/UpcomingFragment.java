@@ -32,7 +32,9 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 /**
@@ -58,7 +60,7 @@ public class UpcomingFragment extends MythtvListFragment implements LoaderManage
 	public Loader<Cursor> onCreateLoader( int id, Bundle args ) {
 		Log.v( TAG, "onCreateLoader : enter" );
 		
-		String[] projection = { BaseColumns._ID, ProgramConstants.FIELD_TITLE, ProgramConstants.FIELD_START_TIME, ProgramConstants.FIELD_END_TIME };
+		String[] projection = { BaseColumns._ID, ProgramConstants.FIELD_TITLE, ProgramConstants.FIELD_SUB_TITLE, ProgramConstants.FIELD_START_TIME, ProgramConstants.FIELD_END_TIME };
 		
 		String selection = ProgramConstants.FIELD_PROGRAM_TYPE + " = ?";
 		
@@ -214,10 +216,18 @@ public class UpcomingFragment extends MythtvListFragment implements LoaderManage
 			View view = mInflater.inflate( R.layout.upcoming_row, parent, false );
 		    
 			ViewHolder refHolder = new ViewHolder();
-		    refHolder.title = (TextView) view.findViewById( R.id.upcoming_title );
 		    refHolder.header = (LinearLayout) view.findViewById( R.id.upcoming_header_row );
 		    refHolder.headerLabel = (TextView) view.findViewById( R.id.upcoming_header_label );
 		    
+		    refHolder.detail = (LinearLayout) view.findViewById( R.id.upcoming_detail_row );
+		    refHolder.title = (TextView) view.findViewById( R.id.upcoming_title );
+		    refHolder.subTitle = (TextView) view.findViewById( R.id.upcoming_sub_title );
+
+		    refHolder.detailFooter = (RelativeLayout) view.findViewById( R.id.upcoming_detail_footer );
+		    refHolder.channel = (TextView) view.findViewById( R.id.upcoming_channel );
+		    refHolder.startTime = (TextView) view.findViewById( R.id.upcoming_start_time );
+		    refHolder.dontRecord = (Button) view.findViewById( R.id.upcoming_dont_record );
+
 		    view.setTag(refHolder);
 		    
 		    Log.v( TAG, "UpcomingCursorAdapter.newView : exit" );
@@ -234,10 +244,9 @@ public class UpcomingFragment extends MythtvListFragment implements LoaderManage
 			String sStartTime = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_START_TIME ) );
 			String sEndTime = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_END_TIME ) );
 			String sTitle = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_TITLE ) );
-			Log.v( TAG, "UpcomingCursorAdapter.bindView : sTitle=" + sTitle );
+			String sSubTitle = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_SUB_TITLE ) );
 
 			currentStartDate = sStartTime.substring( 0, sStartTime.indexOf( 'T' ) );
-			Log.v( TAG, "UpcomingCursorAdapter.bindView : currentStartDate=" + currentStartDate );
 			
 			long diffInSeconds = -1;
 			try {
@@ -261,31 +270,36 @@ public class UpcomingFragment extends MythtvListFragment implements LoaderManage
 				mHolder.header.setVisibility( View.VISIBLE );
 				mHolder.headerLabel.setVisibility( View.VISIBLE );
 				mHolder.headerLabel.setText( currentStartDate );
-				mHolder.title.setVisibility( View.GONE );
+				mHolder.detail.setVisibility( View.GONE );
+				mHolder.detailFooter.setVisibility( View.GONE );
+				mHolder.dontRecord.setVisibility( View.GONE );
 			} else {
 				Log.v( TAG, "UpcomingCursorAdapter.bindView : cursor is not at first position" );
 				cursor.moveToPrevious();
 				
 				String previousStartTime = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_START_TIME ) );
 				previousStartDate = previousStartTime.substring( 0, previousStartTime.indexOf( 'T' ) );
-				Log.v( TAG, "UpcomingCursorAdapter.bindView : previousStartDate=" + previousStartDate );
-				
-				Log.v( TAG, "UpcomingCursorAdapter.bindView : current before previous=" + currentStartDate.equals( previousStartDate ) + "  '" + currentStartDate + "'  '" + previousStartDate + "'" );
 				
 				if( !currentStartDate.equals( previousStartDate ) ) {
 					Log.v( TAG, "UpcomingCursorAdapter.bindView : section change" );
 					
 					mHolder.header.setVisibility( View.VISIBLE );
-					mHolder.headerLabel.setVisibility( View.VISIBLE );
+					mHolder.detail.setVisibility( View.GONE );
+					mHolder.detailFooter.setVisibility( View.GONE );
+					mHolder.dontRecord.setVisibility( View.GONE );
+					
 					mHolder.headerLabel.setText( currentStartDate );
-					mHolder.title.setVisibility( View.GONE );
 				} else {
 					Log.v( TAG, "UpcomingCursorAdapter.bindView : show detail" );
 
 					mHolder.header.setVisibility( View.GONE );
-					mHolder.headerLabel.setVisibility( View.GONE );
-					mHolder.title.setVisibility( View.VISIBLE );
+					mHolder.detail.setVisibility( View.VISIBLE );
+					mHolder.detailFooter.setVisibility( View.VISIBLE );
+					mHolder.dontRecord.setVisibility( View.VISIBLE );
+					
 					mHolder.title.setText( sTitle );
+					mHolder.subTitle.setText( sSubTitle );
+					mHolder.startTime.setText( sStartTime.substring( sStartTime.indexOf( 'T' ) + 1 ) );
 				}
 				
 				cursor.moveToNext();
@@ -299,7 +313,14 @@ public class UpcomingFragment extends MythtvListFragment implements LoaderManage
 			LinearLayout header;
 			TextView headerLabel;
 			
+			LinearLayout detail;
 			TextView title;
+			TextView subTitle;
+
+			RelativeLayout detailFooter;
+			TextView channel;
+			TextView startTime;
+			Button dontRecord;
 			
 			ViewHolder() { }
 

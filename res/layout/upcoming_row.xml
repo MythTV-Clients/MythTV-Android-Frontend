@@ -18,21 +18,22 @@
  * This software can be found at <https://github.com/MythTV-Android/mythtv-for-android/>
  *
 -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent" >
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
     
 	<LinearLayout
 	    android:id="@+id/upcoming_header_row"
 	    android:layout_width="fill_parent"
-	    android:layout_height="wrap_content" >
+	    android:layout_height="wrap_content"
+	    android:paddingLeft="8dp"
+	    android:paddingRight="8dp" >
     
     	<TextView
     	    android:id="@+id/upcoming_header_label"
-    	    android:layout_width="wrap_content"
+    	    android:layout_width="fill_parent"
     	    android:layout_height="wrap_content"
-    	    android:layout_marginLeft="4dip"
-    	    android:text="temp header"
     	    android:textAppearance="?android:attr/textAppearanceLarge"
     	    android:textColor="@color/body_text_1" />
 
@@ -41,17 +42,55 @@
 	<LinearLayout
 	    android:id="@+id/upcoming_detail_row"
 	    android:layout_width="fill_parent"
-	    android:layout_height="wrap_content" >
-    
+	    android:layout_height="wrap_content"
+	    android:orientation="vertical"
+	    android:paddingLeft="8dp"
+	    android:paddingRight="8dp" >
+	    
 		<TextView
   			android:id="@+id/upcoming_title"
-  			android:layout_width="wrap_content"
-  			android:layout_height="?android:attr/listPreferredItemHeight"
+  			android:layout_width="fill_parent"
+  			android:layout_height="wrap_content"
   			android:textColor="@color/body_text_1"
-  			android:textAppearance="?android:attr/textAppearanceLarge"
-  			android:layout_marginLeft="4dip"
-			android:text="temp detail" />
+  			android:textAppearance="?android:attr/textAppearanceLarge" />
 
+		<TextView
+		    android:id="@+id/upcoming_sub_title"
+		    android:layout_width="fill_parent"
+		    android:layout_height="wrap_content"
+		    android:textColor="@color/body_text_1" />
+		
 	</LinearLayout>
 
-</LinearLayout>
+	<RelativeLayout
+		android:id="@+id/upcoming_detail_footer"
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"
+	    android:orientation="horizontal"
+    	android:paddingLeft="8dp"
+    	android:paddingRight="8dp" >
+		    		    
+		<TextView
+			android:id="@+id/upcoming_channel"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:textColor="@color/body_text_1" />
+				
+		<TextView
+			android:id="@+id/upcoming_start_time"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:textColor="@color/body_text_1" />
+
+	</RelativeLayout>
+
+	<Button
+	    android:id="@+id/upcoming_dont_record"
+	    android:layout_width="40dp"
+	    android:layout_height="wrap_content"
+	    android:layout_alignParentRight="true"
+	    android:text="@string/btn_upcoming_dont_record"
+	    android:textColor="@color/body_text_1"
+	    android:textSize="@dimen/text_size_small" />
+			
+</RelativeLayout>

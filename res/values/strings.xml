@@ -140,6 +140,8 @@
     <string name="btn_guide">Guide</string>
     <string name="btn_recording_rules">Recording Rules</string>
     
+    <string name="btn_upcoming_dont_record">X</string>
+    
     <!-- Media Dashboard -->
     <string name="tab_multimedia">Multimedia</string>
     <string name="btn_videos">Videos</string>
