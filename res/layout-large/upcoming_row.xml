@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 
+ *  This file is part of MythTV for Android
+ * 
+ *  MythTV for Android is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  MythTV for Android is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with MythTV for Android.  If not, see <http://www.gnu.org/licenses/>.
+ *   
+ * This software can be found at <https://github.com/MythTV-Android/mythtv-for-android/>
+ *
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+    
+	<LinearLayout
+	    android:id="@+id/upcoming_header_row"
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"
+	    android:paddingLeft="8dp"
+	    android:paddingRight="8dp" >
+    
+    	<TextView
+    	    android:id="@+id/upcoming_header_label"
+    	    android:layout_width="fill_parent"
+    	    android:layout_height="wrap_content"
+    	    android:textAppearance="?android:attr/textAppearanceLarge"
+    	    android:textColor="@color/body_text_1" />
+
+	</LinearLayout>
+
+	<LinearLayout
+	    android:id="@+id/upcoming_detail_row"
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"
+	    android:orientation="horizontal"
+	    android:paddingLeft="8dp"
+	    android:paddingRight="8dp" >
+	    
+		<TextView
+  			android:id="@+id/upcoming_title"
+  			android:layout_width="wrap_content"
+  			android:layout_height="wrap_content"
+  			android:paddingRight="8dp"
+  			android:textColor="@color/body_text_1"
+  			android:textAppearance="?android:attr/textAppearanceLarge" />
+
+		<TextView
+		    android:id="@+id/upcoming_sub_title"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:textColor="@color/body_text_1" />
+		
+			<RelativeLayout
+				android:id="@+id/upcoming_detail_footer"
+			    android:layout_width="fill_parent"
+			    android:layout_height="wrap_content"
+			    android:orientation="horizontal"
+		    	android:paddingLeft="8dp"
+		    	android:paddingRight="8dp" >
+				    		    
+				<TextView
+					android:id="@+id/upcoming_channel"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_toLeftOf="@id/upcoming_dont_record"
+					android:textColor="@color/body_text_1"
+					android:layout_centerVertical="true"
+					android:paddingLeft="10dp"
+		    		android:paddingRight="10dp" />
+						
+				<TextView
+					android:id="@+id/upcoming_start_time"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_toLeftOf="@id/upcoming_dont_record"
+					android:textColor="@color/body_text_1"
+					android:layout_centerVertical="true"
+					android:paddingLeft="10dp"
+		    		android:paddingRight="10dp"  />
+				
+				<Button
+				    android:id="@+id/upcoming_dont_record"
+				    android:layout_width="40dp"
+				    android:layout_height="wrap_content"
+				    android:layout_alignParentRight="true"
+				    android:text="@string/btn_upcoming_dont_record"
+				    android:textColor="@color/body_text_1"
+				    android:textSize="@dimen/text_size_small"
+				    android:paddingLeft="10dp"
+		    		android:paddingRight="10dp"  />
+		
+		</RelativeLayout>
+		
+	</LinearLayout>
+			
+</LinearLayout>
