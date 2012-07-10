@@ -268,7 +268,7 @@ public class DvrTemplate extends AbstractDvrOperations implements DvrOperations 
 		parameters.add( "ChanId", "" + channelId );
 		parameters.add( "StartTime", sdf.format( startTime ) );
 
-		ResponseEntity<Program> responseEntity = restTemplate.exchange( buildUri( "GetRecorded" ), HttpMethod.GET, getRequestEntity(), Program.class );
+		ResponseEntity<Program> responseEntity = restTemplate.exchange( buildUri( "GetRecorded", parameters ), HttpMethod.GET, getRequestEntity(), Program.class );
 		Program program = responseEntity.getBody();
 		
 		return program;
