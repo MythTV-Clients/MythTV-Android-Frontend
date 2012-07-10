@@ -21,6 +21,8 @@ package org.mythtv.services.api.channel;
 
 import java.util.List;
 
+import org.springframework.http.ResponseEntity;
+
 /**
  * @author Daniel Frey
  *
@@ -93,6 +95,24 @@ public interface ChannelOperations {
 	 * @return
 	 */
 	List<ChannelInfo> getChannelInfoList( int sourceId, int startIndex, int count );
+
+	/**
+	 * @param sourceId
+	 * @param startIndex
+	 * @param count
+	 * @return
+	 */
+	ResponseEntity<ChannelInfoList> getChannelInfoListResponseEntity( int sourceId, int startIndex, int count );
+
+	/**
+	 * @return
+	 */
+	List<ChannelInfo> getChannelInfoList();
+	
+	/**
+	 * @return
+	 */
+	ResponseEntity<ChannelInfoList> getChannelInfoListResponseEntity();
 	
 	/**
 	 * - GET

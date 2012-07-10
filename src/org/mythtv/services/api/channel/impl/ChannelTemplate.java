@@ -22,10 +22,14 @@ package org.mythtv.services.api.channel.impl;
 import java.util.List;
 
 import org.mythtv.services.api.channel.ChannelInfo;
+import org.mythtv.services.api.channel.ChannelInfoList;
 import org.mythtv.services.api.channel.ChannelOperations;
 import org.mythtv.services.api.channel.LineupList;
 import org.mythtv.services.api.channel.VideoMultiplex;
 import org.mythtv.services.api.channel.VideoSource;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 /**
@@ -82,8 +86,54 @@ public class ChannelTemplate extends AbstractChannelOperations implements Channe
 	 */
 	@Override
 	public List<ChannelInfo> getChannelInfoList( int sourceId, int startIndex, int count ) {
-		// TODO Auto-generated method stub
-		return null;
+		
+		ResponseEntity<ChannelInfoList> responseEntity = getChannelInfoListResponseEntity( sourceId, startIndex, count );
+		ChannelInfoList channelInfoList = responseEntity.getBody();
+		
+		return channelInfoList.getChannelInfos().getChannelInfos();
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mythtv.services.api.channel.ChannelOperations#getChannelInfoListResponseEntity(int, int, int)
+	 */
+	@Override
+	public ResponseEntity<ChannelInfoList> getChannelInfoListResponseEntity( int sourceId, int startIndex, int count ) {
+
+		LinkedMultiValueMap<String, String> parameters = new LinkedMultiValueMap<String, String>();
+		
+		if( sourceId > 0 ) {
+			parameters.add( "SourceId", "" + sourceId );
+		}
+		
+		if( startIndex > 0 ) {
+			parameters.add( "StartIndex", "" + startIndex );
+		}
+
+		if( count > 0 ) {
+			parameters.add( "Count", "" + count );
+		}
+
+		return restTemplate.exchange( buildUri( "GetChannelInfoList", parameters ), HttpMethod.GET, getRequestEntity(), ChannelInfoList.class );
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mythtv.services.api.channel.ChannelOperations#getChannelInfoList()
+	 */
+	@Override
+	public List<ChannelInfo> getChannelInfoList() {
+
+		ResponseEntity<ChannelInfoList> responseEntity = getChannelInfoListResponseEntity();
+		ChannelInfoList channelInfoList = responseEntity.getBody();
+		
+		return channelInfoList.getChannelInfos().getChannelInfos();
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mythtv.services.api.channel.ChannelOperations#getChannelInfoListResponseEntity()
+	 */
+	@Override
+	public ResponseEntity<ChannelInfoList> getChannelInfoListResponseEntity() {
+		return restTemplate.exchange( buildUri( "GetChannelInfoList" ), HttpMethod.GET, getRequestEntity(), ChannelInfoList.class );
 	}
 
 	/* (non-Javadoc)

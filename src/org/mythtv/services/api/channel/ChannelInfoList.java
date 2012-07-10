@@ -35,14 +35,14 @@ public class ChannelInfoList {
 	/**
 	 * @return the channelInfos
 	 */
-	protected ChannelInfos getChannelInfos() {
+	public ChannelInfos getChannelInfos() {
 		return channelInfos;
 	}
 
 	/**
 	 * @param channelInfos the channelInfos to set
 	 */
-	protected void setChannelInfos( ChannelInfos channelInfos ) {
+	public void setChannelInfos( ChannelInfos channelInfos ) {
 		this.channelInfos = channelInfos;
 	}
 

@@ -62,126 +62,126 @@ public class ChannelInfos {
 	/**
 	 * @return the startIndex
 	 */
-	protected int getStartIndex() {
+	public int getStartIndex() {
 		return startIndex;
 	}
 
 	/**
 	 * @param startIndex the startIndex to set
 	 */
-	protected void setStartIndex( int startIndex ) {
+	public void setStartIndex( int startIndex ) {
 		this.startIndex = startIndex;
 	}
 
 	/**
 	 * @return the count
 	 */
-	protected int getCount() {
+	public int getCount() {
 		return count;
 	}
 
 	/**
 	 * @param count the count to set
 	 */
-	protected void setCount( int count ) {
+	public void setCount( int count ) {
 		this.count = count;
 	}
 
 	/**
 	 * @return the currentPage
 	 */
-	protected int getCurrentPage() {
+	public int getCurrentPage() {
 		return currentPage;
 	}
 
 	/**
 	 * @param currentPage the currentPage to set
 	 */
-	protected void setCurrentPage( int currentPage ) {
+	public void setCurrentPage( int currentPage ) {
 		this.currentPage = currentPage;
 	}
 
 	/**
 	 * @return the totalPages
 	 */
-	protected int getTotalPages() {
+	public int getTotalPages() {
 		return totalPages;
 	}
 
 	/**
 	 * @param totalPages the totalPages to set
 	 */
-	protected void setTotalPages( int totalPages ) {
+	public void setTotalPages( int totalPages ) {
 		this.totalPages = totalPages;
 	}
 
 	/**
 	 * @return the totalAvailable
 	 */
-	protected int getTotalAvailable() {
+	public int getTotalAvailable() {
 		return totalAvailable;
 	}
 
 	/**
 	 * @param totalAvailable the totalAvailable to set
 	 */
-	protected void setTotalAvailable( int totalAvailable ) {
+	public void setTotalAvailable( int totalAvailable ) {
 		this.totalAvailable = totalAvailable;
 	}
 
 	/**
 	 * @return the asOf
 	 */
-	protected Date getAsOf() {
+	public Date getAsOf() {
 		return asOf;
 	}
 
 	/**
 	 * @param asOf the asOf to set
 	 */
-	protected void setAsOf( Date asOf ) {
+	public void setAsOf( Date asOf ) {
 		this.asOf = asOf;
 	}
 
 	/**
 	 * @return the version
 	 */
-	protected String getVersion() {
+	public String getVersion() {
 		return version;
 	}
 
 	/**
 	 * @param version the version to set
 	 */
-	protected void setVersion( String version ) {
+	public void setVersion( String version ) {
 		this.version = version;
 	}
 
 	/**
 	 * @return the protocolVersion
 	 */
-	protected String getProtocolVersion() {
+	public String getProtocolVersion() {
 		return protocolVersion;
 	}
 
 	/**
 	 * @param protocolVersion the protocolVersion to set
 	 */
-	protected void setProtocolVersion( String protocolVersion ) {
+	public void setProtocolVersion( String protocolVersion ) {
 		this.protocolVersion = protocolVersion;
 	}
 
 	/**
 	 * @return the channelInfos
 	 */
-	protected List<ChannelInfo> getChannelInfos() {
+	public List<ChannelInfo> getChannelInfos() {
 		return channelInfos;
 	}
 
 	/**
 	 * @param channelInfos the channelInfos to set
 	 */
-	protected void setChannelInfos( List<ChannelInfo> channelInfos ) {
+	public void setChannelInfos( List<ChannelInfo> channelInfos ) {
 		this.channelInfos = channelInfos;
 	}
 
