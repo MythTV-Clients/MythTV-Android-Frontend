@@ -27,7 +27,6 @@ import org.mythtv.services.api.channel.ChannelOperations;
 import org.mythtv.services.api.channel.LineupList;
 import org.mythtv.services.api.channel.VideoMultiplex;
 import org.mythtv.services.api.channel.VideoSource;
-import org.mythtv.services.api.dvr.Program;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
