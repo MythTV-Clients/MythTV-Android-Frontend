@@ -32,6 +32,7 @@ import org.mythtv.db.dvr.ProgramGroupConstants;
 import org.mythtv.service.dvr.DvrServiceHelper;
 
 import android.annotation.TargetApi;
+import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.ContentUris;
 import android.content.Context;
@@ -75,6 +76,7 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 	private ProgramListReceiver programListReceiver;
 
 	private DvrServiceHelper mDvrServiceHelper;
+	private ProgressDialog mProgressDialog;
 
 	/* (non-Javadoc)
 	 * @see android.support.v4.app.LoaderManager.LoaderCallbacks#onCreateLoader(int, android.os.Bundle)
@@ -123,6 +125,10 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 		
 		adapter.swapCursor( cursor );
 		
+	    if( null != mProgressDialog ) {
+	    	mProgressDialog.dismiss();
+	    }
+	    
 		Log.v( TAG, "onLoadFinished : exit" );
 	}
 
@@ -209,6 +215,12 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
         programListReceiver = new ProgramListReceiver();
         getActivity().registerReceiver( programListReceiver, programListFilter );
 
+		Cursor recordedCursor = getActivity().getContentResolver().query( ProgramConstants.CONTENT_URI, new String[] { BaseColumns._ID }, ProgramConstants.FIELD_PROGRAM_TYPE + " = ?", new String[] { ProgramConstants.ProgramType.RECORDED.name() }, null );
+		Log.v( TAG, "onResume : recorded count=" + recordedCursor.getCount() );
+		if( recordedCursor.getCount() == 0 ) {
+			loadData();
+		}
+        
 		Log.v( TAG, "onResume : exit" );
 	}
 	
@@ -240,7 +252,7 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 		case REFRESH_ID:
 			Log.d( TAG, "onOptionsItemSelected : refresh selected" );
 
-			mDvrServiceHelper.getRecordingsList();
+			loadData();
 		    
 	        return true;
 		}
@@ -288,6 +300,18 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 		void onProgramGroupSelected( String programGroup );
 	}
 
+	// internal helpers
+	
+	private void loadData() {
+		Log.v( TAG, "loadData : enter" );
+		
+		mProgressDialog = ProgressDialog.show( getActivity(), "Please wait...", "Loading Recordings...", true, true );
+
+		mDvrServiceHelper.getRecordingsList();
+	    
+		Log.v( TAG, "loadData : exit" );
+	}
+	
 	private class ProgramGroupCursorAdapter extends SimpleCursorAdapter {
 
 		public ProgramGroupCursorAdapter( Context context, int layout, Cursor c, String[] from, int[] to, int flags ) {
