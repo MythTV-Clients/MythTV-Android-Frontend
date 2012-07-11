@@ -96,7 +96,7 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 			}
 		}
 		
-		String selection = null;
+		String selection = "";
 		if( sb.length() != 0 ) {
 			selection = BaseColumns._ID + " in (" + sb.toString() + ")";
 		}
