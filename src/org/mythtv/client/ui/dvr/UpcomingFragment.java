@@ -9,6 +9,7 @@ import java.util.Date;
 
 import org.mythtv.R;
 import org.mythtv.client.ui.util.MythtvListFragment;
+import org.mythtv.client.ui.util.ProgramHelper;
 import org.mythtv.db.channel.ChannelConstants;
 import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.service.dvr.DvrServiceHelper;
@@ -20,7 +21,6 @@ import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.res.Configuration;
 import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
@@ -56,6 +56,7 @@ public class UpcomingFragment extends MythtvListFragment implements LoaderManage
 	private UpcomingReceiver upcomingReceiver;
 
 	private DvrServiceHelper mDvrServiceHelper;
+	private ProgramHelper mProgramHelper;
 
 	/* (non-Javadoc)
 	 * @see android.support.v4.app.LoaderManager.LoaderCallbacks#onCreateLoader(int, android.os.Bundle)
@@ -108,6 +109,8 @@ public class UpcomingFragment extends MythtvListFragment implements LoaderManage
 
 		super.onCreate( savedInstanceState );
 
+		mProgramHelper = ProgramHelper.createInstance( getActivity() );
+		
 		setHasOptionsMenu( true );
 		
 		setRetainInstance( true );
@@ -311,7 +314,7 @@ public class UpcomingFragment extends MythtvListFragment implements LoaderManage
 					}
 					channelCursor.close();
 					
-					selectCategoryColor( mHolder.category, Program.Category.fromString( sCategory ) );
+					mHolder.category.setBackgroundColor( mProgramHelper.getCategoryColor( sCategory ) );
 					mHolder.title.setText( sTitle );
 					mHolder.subTitle.setText( sSubTitle );
 					mHolder.channel.setText( sChannel );
@@ -340,163 +343,6 @@ public class UpcomingFragment extends MythtvListFragment implements LoaderManage
 			
 			ViewHolder() { }
 
-		}
-		
-		private void selectCategoryColor( View view, Program.Category category ) {
-			
-			Log.v( TAG, "UpcomingCursorAdapter.selectCategoryColor : category=" + category.name() );
-
-			switch( category ) {
-			case ACTION:
-				view.setBackgroundColor( getResources().getColor( R.color.program_category_Action ) );
-				break;
-
-			case ADULT:
-				view.setBackgroundColor( getResources().getColor( R.color.program_category_Adult ) );
-				break;
-
-			case ANIMALS:
-				view.setBackgroundColor( getResources().getColor( R.color.program_category_Animals ) );
-				break;
-
-			case ART_MUSIC:
-				view.setBackgroundColor( getResources().getColor( R.color.program_category_Art_Music ) );
-				break;
-
-			case BUSINESS:
-				view.setBackgroundColor( getResources().getColor( R.color.program_category_Business ) );
-				break;
-
-			case CHILDREN:
-				view.setBackgroundColor( getResources().getColor( R.color.program_category_Children ) );
-				break;
-
-			case COMEDY:
-				view.setBackgroundColor( getResources().getColor( R.color.program_category_Comedy ) );
-				break;
-
-			case COOKING:
-				view.setBackgroundColor( getResources().getColor( R.color.program_category_Food ) );
-				break;
-
-			case CRIME_MYSTERY:
-				view.setBackgroundColor( getResources().getColor( R.color.program_category_Crime_Mystery ) );
-				break;
-
-			case DOCUMENTARY:
-				view.setBackgroundColor( getResources().getColor( R.color.program_category_Documentary ) );
-				break;
-
-			case DRAMA:
-				view.setBackgroundColor( getResources().getColor( R.color.program_category_Drama ) );
-				break;
-
-			case EDUCATIONAL:
-				view.setBackgroundColor( getResources().getColor( R.color.program_category_Educational ) );
-				break;
-
-			case FOOD:
-				view.setBackgroundColor( getResources().getColor( R.color.program_category_Food ) );
-				break;
-
-			case GAME:
-				view.setBackgroundColor( getResources().getColor( R.color.program_category_Game ) );
-				break;
-
-			case HEALTH_MEDICAL:
-				view.setBackgroundColor( getResources().getColor( R.color.program_category_Health_Medical ) );
-				break;
-
-			case HISTORY:
-				view.setBackgroundColor( getResources().getColor( R.color.program_category_History ) );
-				break;
-
-			case HORROR:
-				view.setBackgroundColor( getResources().getColor( R.color.program_category_Horror ) );
-				break;
-
-			case HOWTO:
-				view.setBackgroundColor( getResources().getColor( R.color.program_category_HowTo ) );
-				break;
-
-			case MISC:
-				view.setBackgroundColor( getResources().getColor( R.color.program_category_Misc ) );
-				break;
-
-			case MOVIE:
-				view.setBackgroundColor( getResources().getColor( R.color.program_category_Movie ) );
-				break;
-
-			case MUSIC:
-				view.setBackgroundColor( getResources().getColor( R.color.program_category_Art_Music ) );
-				break;
-
-			case NEWS:
-				view.setBackgroundColor( getResources().getColor( R.color.program_category_News ) );
-				break;
-
-			case REALITY:
-				view.setBackgroundColor( getResources().getColor( R.color.program_category_Reality ) );
-				break;
-
-			case ROMANCE:
-				view.setBackgroundColor( getResources().getColor( R.color.program_category_Romance ) );
-				break;
-
-			case SCIENCE_NATURE:
-				view.setBackgroundColor( getResources().getColor( R.color.program_category_Science_Nature ) );
-				break;
-
-			case SCIFI_FANTASY:
-				view.setBackgroundColor( getResources().getColor( R.color.program_category_SciFi_Fantasy ) );
-				break;
-
-			case SHOPPING:
-				view.setBackgroundColor( getResources().getColor( R.color.program_category_Shopping ) );
-				break;
-
-			case SITCOM:
-				view.setBackgroundColor( getResources().getColor( R.color.program_category_Comedy ) );
-				break;
-
-			case SOAPS:
-				view.setBackgroundColor( getResources().getColor( R.color.program_category_Soaps ) );
-				break;
-
-			case SPIRITUAL:
-				view.setBackgroundColor( getResources().getColor( R.color.program_category_Spiritual ) );
-				break;
-
-			case SPORTS:
-				view.setBackgroundColor( getResources().getColor( R.color.program_category_Sports ) );
-				break;
-
-			case TALK:
-				view.setBackgroundColor( getResources().getColor( R.color.program_category_Talk ) );
-				break;
-
-			case TRAVEL:
-				view.setBackgroundColor( getResources().getColor( R.color.program_category_Travel ) );
-				break;
-
-			case UNKNOWN:
-				view.setBackgroundColor( getResources().getColor( R.color.program_category_Unknown ) );
-				break;
-
-			case WAR:
-				view.setBackgroundColor( getResources().getColor( R.color.program_category_War ) );
-				break;
-
-			case WESTERN:
-				view.setBackgroundColor( getResources().getColor( R.color.program_category_Western ) );
-				break;
-
-			default:
-				Log.v( TAG, "UpcomingCursorAdapter.selectCategoryColor : could not match category - " + category.name() );
-				view.setBackgroundColor( getResources().getColor( R.color.program_category_Unknown ) );
-				break;
-			}
-			
 		}
 		
 	}
