@@ -21,6 +21,7 @@ package org.mythtv.client.ui.dvr;
 
 import org.mythtv.R;
 import org.mythtv.client.ui.util.MythtvListFragment;
+import org.mythtv.client.ui.util.ProgramHelper;
 import org.mythtv.db.dvr.ProgramConstants;
 
 import android.content.Context;
@@ -49,7 +50,8 @@ public class ProgramGroupFragment extends MythtvListFragment implements LoaderMa
 
 	private static final String TAG = ProgramGroupFragment.class.getSimpleName();
 
-	private ProgramCursorAdapter adapter;
+	private ProgramCursorAdapter mAdapter;
+	private static ProgramHelper mProgramHelper; 
 	
 	private String programGroup = "*";
 	
@@ -62,7 +64,7 @@ public class ProgramGroupFragment extends MythtvListFragment implements LoaderMa
 	public Loader<Cursor> onCreateLoader( int id, Bundle args ) {
 		Log.v( TAG, "onCreateLoader : enter" );
 		
-		String[] projection = { BaseColumns._ID, ProgramConstants.FIELD_TITLE, ProgramConstants.FIELD_SUB_TITLE };
+		String[] projection = { BaseColumns._ID, ProgramConstants.FIELD_TITLE, ProgramConstants.FIELD_SUB_TITLE, ProgramConstants.FIELD_CATEGORY };
 		String[] selectionArgs = { programGroup, ProgramConstants.ProgramType.RECORDED.name() };
 		 
 	    CursorLoader cursorLoader = new CursorLoader( getActivity(), ProgramConstants.CONTENT_URI, projection, ProgramConstants.FIELD_TITLE + " = ? and " + ProgramConstants.FIELD_PROGRAM_TYPE + " = ?", selectionArgs, ProgramConstants.FIELD_SUB_TITLE );
@@ -79,7 +81,7 @@ public class ProgramGroupFragment extends MythtvListFragment implements LoaderMa
 	public void onLoadFinished( Loader<Cursor> loader, Cursor cursor ) {
 		Log.v( TAG, "onLoadFinished : enter" );
 		
-		adapter.swapCursor( cursor );
+		mAdapter.swapCursor( cursor );
 		
 		Log.v( TAG, "onLoadFinished : exit" );
 	}
@@ -91,7 +93,7 @@ public class ProgramGroupFragment extends MythtvListFragment implements LoaderMa
 	public void onLoaderReset( Loader<Cursor> loader ) {
 		Log.v( TAG, "onLoaderReset : enter" );
 		
-		adapter.swapCursor( null );
+		mAdapter.swapCursor( null );
 				
 		Log.v( TAG, "onLoaderReset : exit" );
 	}
@@ -101,12 +103,14 @@ public class ProgramGroupFragment extends MythtvListFragment implements LoaderMa
 		Log.i( TAG, "onActivityCreated : enter" );
 		super.onActivityCreated( savedInstanceState );
 	    
-	    adapter = new ProgramCursorAdapter(
+		mProgramHelper = ProgramHelper.createInstance( getActivity() );
+		
+	    mAdapter = new ProgramCursorAdapter(
 	            getActivity().getApplicationContext(), R.layout.program_row,
 	            null, new String[] { ProgramConstants.FIELD_SUB_TITLE }, new int[] { R.id.program_sub_title },
 	            CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER );
 
-	    setListAdapter( adapter );
+	    setListAdapter( mAdapter );
 
 	    getLoaderManager().initLoader( 0, null, this );
 		
@@ -147,8 +151,14 @@ public class ProgramGroupFragment extends MythtvListFragment implements LoaderMa
 	
 	private class ProgramCursorAdapter extends SimpleCursorAdapter {
 
+		private Context mContext;
+		private LayoutInflater mInflater;
+		
 		public ProgramCursorAdapter( Context context, int layout, Cursor c, String[] from, int[] to, int flags ) {
 			super( context, layout, c, from, to, flags );
+		
+			mContext = context;
+			mInflater = LayoutInflater.from( context );
 		}
 
 		@Override
@@ -159,22 +169,20 @@ public class ProgramGroupFragment extends MythtvListFragment implements LoaderMa
 			
 			getCursor().moveToPosition( position );
 		    try {
-		        int idIndex = getCursor().getColumnIndexOrThrow( BaseColumns._ID );
-		        int titleIndex = getCursor().getColumnIndexOrThrow( ProgramConstants.FIELD_TITLE );
-				int subTitleIndex = getCursor().getColumnIndexOrThrow( ProgramConstants.FIELD_SUB_TITLE );
-
-		        int id = getCursor().getInt( idIndex );
-		        String title = getCursor().getString( titleIndex );
-		        String subTitle = getCursor().getString( subTitleIndex );
+		        int id = getCursor().getInt( getCursor().getColumnIndexOrThrow( BaseColumns._ID ) );
+		        String title = getCursor().getString( getCursor().getColumnIndexOrThrow( ProgramConstants.FIELD_TITLE ) );
+		        String subTitle = getCursor().getString( getCursor().getColumnIndexOrThrow( ProgramConstants.FIELD_SUB_TITLE ) );
+		        String category = getCursor().getString( getCursor().getColumnIndexOrThrow( ProgramConstants.FIELD_CATEGORY ) );
 
 		        Log.v( TAG, "getView : id=" + id + ", title=" + title + ", subTitle=" + subTitle );
 		        
 				if( row == null ) {
-					LayoutInflater inflater = getActivity().getLayoutInflater();
-
-					row = inflater.inflate( R.layout.program_row, parent, false );
+					row = mInflater.inflate( R.layout.program_row, parent, false );
 				}
 
+				View v = (View) row.findViewById( R.id.program_category );
+				v.setBackgroundColor( mProgramHelper.getCategoryColor( category ) );
+				
 				TextView t = (TextView) row.findViewById( R.id.program_sub_title );
 				t.setText( !"".equals( subTitle ) ? subTitle : title );
 
