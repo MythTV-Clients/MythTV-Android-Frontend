@@ -80,7 +80,8 @@
 		<activity 
 			android:name=".client.ui.dvr.RecordingsActivity" />
 		<activity 
-			android:name=".client.ui.dvr.VideoActivity" />
+			android:name=".client.ui.dvr.VideoActivity"
+			android:screenOrientation="landscape" />
 		<activity 
 			android:name=".client.ui.dvr.UpcomingActivity" />
 								
