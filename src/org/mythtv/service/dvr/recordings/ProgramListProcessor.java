@@ -110,13 +110,17 @@ public class ProgramListProcessor {
 
 		if( null != programList && null != programList.getPrograms() && ( null != programList.getPrograms().getPrograms() && !programList.getPrograms().getPrograms().isEmpty() ) ) {
 
+			Log.v( TAG, "updateProgramContentProvider : " + programType.name() + ", count=" + programList.getPrograms().getPrograms().size() );
+
 			ContentValues values;
 			
 			List<Long> programGroupIds = new ArrayList<Long>();
 			List<Long> programIds = new ArrayList<Long>();
 			
+			int count = 0;
 			for( Program program : programList.getPrograms().getPrograms() ) {
-				Log.v( TAG, "updateProgramContentProvider : program=" + program.toString() );
+				count++;
+				//Log.v( TAG, "updateProgramContentProvider : program=" + program.toString() );
 				
 				if( !"livetv".equalsIgnoreCase( program.getRecording().getRecordingGroup() ) ) {
 					long programGroupId = 0;
@@ -137,7 +141,7 @@ public class ProgramListProcessor {
 						String filename = "N/A";
 						boolean bannerFound = false;
 
-						Log.v( TAG, "updateProgramContentProvider : looking for banner to download" );
+						//Log.v( TAG, "updateProgramContentProvider : looking for banner to download" );
 						if( null != program.getArtwork() && !program.getArtwork().getArtworkInfos().isEmpty() ) {
 							
 							for( ArtworkInfo artworkInfo : program.getArtwork().getArtworkInfos() ) {
@@ -153,7 +157,7 @@ public class ProgramListProcessor {
 						}
 						
 						if( bannerFound && ( null != program.getInetref() && !"".equals( program.getInetref() ) ) ) {
-							Log.v( TAG, "updateProgramContentProvider : generating banner filename" );
+							//Log.v( TAG, "updateProgramContentProvider : generating banner filename" );
 
 							File root = mContext.getExternalCacheDir();
 			            
@@ -206,21 +210,21 @@ public class ProgramListProcessor {
 					values.put( ProgramConstants.FIELD_CHANNEL_ID, channelId );
 					
 					long programId = 0;
-					cursor = mContext.getContentResolver().query( ProgramConstants.CONTENT_URI,  new String[] { BaseColumns._ID }, ProgramConstants.FIELD_TITLE + " = ? and " + ProgramConstants.FIELD_SUB_TITLE + " = ? and " + ProgramConstants.FIELD_PROGRAM_TYPE + " = ?", new String[] { program.getTitle(), program.getSubTitle(), programType.name() }, null );
+					cursor = mContext.getContentResolver().query( ProgramConstants.CONTENT_URI,  new String[] { BaseColumns._ID }, ProgramConstants.FIELD_START_TIME + " = ? and " + ProgramConstants.FIELD_TITLE + " = ? and " + ProgramConstants.FIELD_SUB_TITLE + " = ? and " + ProgramConstants.FIELD_PROGRAM_ID + " = ? and " + ProgramConstants.FIELD_PROGRAM_TYPE + " = ?", new String[] { sdf.format( program.getStartTime() ), program.getTitle(), program.getSubTitle(), program.getProgramId(), programType.name() }, null );
 					if( cursor.moveToFirst() ) {
-						Log.v( TAG, "updateProgramContentProvider : program already exists" );
+						Log.v( TAG, "updateProgramContentProvider : program already exists " + count );
 						
 						programId = cursor.getInt( cursor.getColumnIndexOrThrow( BaseColumns._ID ) );
 						mContext.getContentResolver().update( ContentUris.withAppendedId( ProgramConstants.CONTENT_URI, programId ), values, null, null );
 					} else {
-						Log.v( TAG, "updateProgramContentProvider : adding new program" );
+						Log.v( TAG, "updateProgramContentProvider : *************************** adding new program " + count );
 						
 						Uri programUri = mContext.getContentResolver().insert( ProgramConstants.CONTENT_URI, values );
 						programId = ContentUris.parseId( programUri );
 					}
 					cursor.close();
 
-					Log.v( TAG, "updateProgramContentProvider : programId=" + programId );
+					//Log.v( TAG, "updateProgramContentProvider : programId=" + programId );
 					programIds.add( programId );
 					
 					updateRecordingContentProvider( program, programId );
@@ -228,9 +232,9 @@ public class ProgramListProcessor {
 				}
 			}
 
-			if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
-				Log.v( TAG, "updateProgramContentProvider : programIds=" + programIds.toString() );
-			}
+			//if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
+			//	Log.v( TAG, "updateProgramContentProvider : programIds=" + programIds.toString() );
+			//}
 			if( !programIds.isEmpty() ) {
 				Log.v( TAG, "updateProgramContentProvider : looking up programs to remove" );
 
@@ -242,9 +246,9 @@ public class ProgramListProcessor {
 						sb.append( "," );
 					}
 				}
-				if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
+				//if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
 					Log.v( TAG, "updateProgramContentProvider : existing program ids=" + sb.toString() );
-				}
+				//}
 				
 				List<Long> deleteIds = new ArrayList<Long>();
 				Cursor cursor = mContext.getContentResolver().query( ProgramConstants.CONTENT_URI, new String[] { BaseColumns._ID }, BaseColumns._ID + " not in (" + sb.toString() + ") and " + ProgramConstants.FIELD_PROGRAM_TYPE + " = ?", new String[] { programType.name() }, null );
@@ -255,6 +259,7 @@ public class ProgramListProcessor {
 					Log.v( TAG, "updateProgramContentProvider : queing for deletion, id=" + id );
 				}
 				cursor.close();
+				Log.v( TAG, "updateProgramContentProvider : " + programType.name() + ", delete count=" + deleteIds.size() );
 				
 				if( !deleteIds.isEmpty() ) {
 					for( Long id : deleteIds ) {
@@ -271,9 +276,9 @@ public class ProgramListProcessor {
 				}
 			}
 
-			if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
-				Log.v( TAG, "updateProgramContentProvider : programGroupIds=" + programGroupIds.toString() );
-			}
+			//if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
+			//	Log.v( TAG, "updateProgramContentProvider : programGroupIds=" + programGroupIds.toString() );
+			//}
 			if( !programGroupIds.isEmpty() ) {
 				Log.v( TAG, "updateProgramGroupContentProvider : looking up program groups to remove" );
 
@@ -285,9 +290,9 @@ public class ProgramListProcessor {
 						sb.append( "," );
 					}
 				}
-				if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
+				//if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
 					Log.v( TAG, "updateProgramGroupContentProvider : existing program group ids=" + sb.toString() );
-				}
+				//}
 				
 				List<Long> deleteIds = new ArrayList<Long>();
 				Cursor cursor = mContext.getContentResolver().query( ProgramGroupConstants.CONTENT_URI, new String[] { BaseColumns._ID }, BaseColumns._ID + " not in (" + sb.toString() + ") and " + ProgramGroupConstants.FIELD_PROGRAM_TYPE + " = ?", new String[] { programType.name() }, null );
@@ -295,7 +300,7 @@ public class ProgramListProcessor {
 					Long id = cursor.getLong( cursor.getColumnIndexOrThrow( BaseColumns._ID ) );
 					deleteIds.add( id );
 
-					Log.v( TAG, "updateProgramGroupContentProvider : queing for deletion, id=" + id );
+					//Log.v( TAG, "updateProgramGroupContentProvider : queing for deletion, id=" + id );
 				}
 				cursor.close();
 				
@@ -309,15 +314,18 @@ public class ProgramListProcessor {
 			}
 		}
 		
+		Cursor cursor = mContext.getContentResolver().query( ProgramConstants.CONTENT_URI, new String[] { BaseColumns._ID }, ProgramConstants.FIELD_PROGRAM_TYPE + " = ?", new String[] { programType.name() }, null );
+		Log.v( TAG, "updateProgramContentProvider : " + programType.name() + " - total count=" + cursor.getCount() );
+		
 		Log.v( TAG, "updateProgramContentProvider : exit" );
 	}
 
 	private void updateRecordingContentProvider( Program program, long programId ) {
-		Log.v( TAG, "updateRecordingContentProvider : enter" );
+		//Log.v( TAG, "updateRecordingContentProvider : enter" );
 		
 		if( null != program.getRecording() ) {
 			
-			Log.v( TAG, "updateRecordingContentProvider : recording=" + program.getRecording().toString() );
+		//	Log.v( TAG, "updateRecordingContentProvider : recording=" + program.getRecording().toString() );
 				
 			ContentValues values = new ContentValues();
 			values.put( RecordingConstants.FIELD_STATUS, program.getRecording().getStatus() );
@@ -346,15 +354,15 @@ public class ProgramListProcessor {
 				
 		}
 		
-		Log.v( TAG, "updateRecordingContentProvider : exit" );
+		//Log.v( TAG, "updateRecordingContentProvider : exit" );
 	}
 	
 	private Long updateChannelContentProvider( Program program ) {
-		Log.v( TAG, "updateChannelContentProvider : enter" );
+		//Log.v( TAG, "updateChannelContentProvider : enter" );
 		
 		if( null != program.getChannelInfo() ) {
 			
-			Log.v( TAG, "updateChannelContentProvider : channelInfo=" + program.getChannelInfo().toString() );
+		//	Log.v( TAG, "updateChannelContentProvider : channelInfo=" + program.getChannelInfo().toString() );
 				
 			ContentValues values = new ContentValues();
 			values.put( ChannelConstants.FIELD_CHAN_ID, program.getChannelInfo().getChannelId() );
@@ -395,23 +403,23 @@ public class ProgramListProcessor {
 			}
 			cursor.close();
 			
-			Log.v( TAG, "updateRecordingContentProvider : exit" );
+		//	Log.v( TAG, "updateRecordingContentProvider : exit" );
 			return id;
 		}
 		
-		Log.v( TAG, "updateRecordingContentProvider : exit, channel info is empty" );
+		//Log.v( TAG, "updateRecordingContentProvider : exit, channel info is empty" );
 		return null;
 	}
 	
 	private void updateArtworkContentProvider( Program program, long programId ) {
-		Log.v( TAG, "updateArtworkContentProvider : enter" );
+		//Log.v( TAG, "updateArtworkContentProvider : enter" );
 		
 		if( null != program.getArtwork() && ( null != program.getArtwork().getArtworkInfos() && !program.getArtwork().getArtworkInfos().isEmpty() ) ) {
 			
 			ContentValues values;
 
 			for( ArtworkInfo artwork : program.getArtwork().getArtworkInfos() ) {
-				Log.v( TAG, "updateArtworkContentProvider : artwork=" + artwork.toString() );
+		//		Log.v( TAG, "updateArtworkContentProvider : artwork=" + artwork.toString() );
 				
 				values = new ContentValues();
 				values.put( ArtworkConstants.FIELD_URL, null != artwork.getUrl() ? artwork.getUrl() : "" );
@@ -432,7 +440,7 @@ public class ProgramListProcessor {
 
 		}
 		
-		Log.v( TAG, "updateArtworkContentProvider : exit" );
+		//Log.v( TAG, "updateArtworkContentProvider : exit" );
 	}
 	
 }

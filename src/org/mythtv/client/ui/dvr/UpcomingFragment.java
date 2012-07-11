@@ -12,6 +12,7 @@ import org.mythtv.client.ui.util.MythtvListFragment;
 import org.mythtv.db.channel.ChannelConstants;
 import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.service.dvr.DvrServiceHelper;
+import org.mythtv.services.api.dvr.Program;
 
 import android.annotation.TargetApi;
 import android.content.BroadcastReceiver;
@@ -83,8 +84,9 @@ public class UpcomingFragment extends MythtvListFragment implements LoaderManage
 		Log.v( TAG, "onLoadFinished : enter" );
 		
 		adapter.swapCursor( cursor );
-		
-		
+				
+	    getListView().setFastScrollEnabled( true );
+	    
 		Log.v( TAG, "onLoadFinished : exit" );
 	}
 
@@ -202,7 +204,7 @@ public class UpcomingFragment extends MythtvListFragment implements LoaderManage
 
 		private Context mContext;
 		private LayoutInflater mInflater;
-		private String currentStartDate, previousStartDate, endTime, title;
+		private String currentStartDate, previousStartDate, previousStartTime, endTime, title;
 		
 		public UpcomingCursorAdapter( Context context ) {
 			super( context, null, false );
@@ -225,6 +227,7 @@ public class UpcomingFragment extends MythtvListFragment implements LoaderManage
 		    refHolder.headerLabel = (TextView) view.findViewById( R.id.upcoming_header_label );
 		    
 		    refHolder.detail = (LinearLayout) view.findViewById( R.id.upcoming_detail_row );
+		    refHolder.category = (View) view.findViewById( R.id.upcoming_category );
 		    refHolder.title = (TextView) view.findViewById( R.id.upcoming_title );
 		    refHolder.subTitle = (TextView) view.findViewById( R.id.upcoming_sub_title );
 
@@ -244,32 +247,12 @@ public class UpcomingFragment extends MythtvListFragment implements LoaderManage
 		@Override
 		public void bindView( View view, Context context, Cursor cursor ) {
 			Log.v( TAG, "UpcomingCursorAdapter.bindView : enter" );
-			
+
+			Log.v( TAG, "UpcomingCursorAdapter.bindView : cursor size=" + cursor.getCount() );
+
 			String sStartTime = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_START_TIME ) );
-			String sEndTime = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_END_TIME ) );
-			String sTitle = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_TITLE ) );
-			String sSubTitle = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_SUB_TITLE ) );
-			String sCategory = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_CATEGORY ) );
-			Integer iChannelId = cursor.getInt( cursor.getColumnIndex( ProgramConstants.FIELD_CHANNEL_ID ) );
 			
 			currentStartDate = sStartTime.substring( 0, sStartTime.indexOf( 'T' ) );
-			
-			Date dStartTime = null;
-			
-			long diffInSeconds = -1;
-			try {
-				dStartTime = parser.parse( sStartTime );
-
-				Date dEndTime = parser.parse( sEndTime );
-				
-				diffInSeconds = ( dEndTime.getTime() - dStartTime.getTime() ) / 1000;
-				Log.v( TAG, "UpcomingCursorAdapter.bindView : seconds=" + diffInSeconds );
-			} catch( ParseException e ) {
-				Log.v( TAG, "UpcomingCursorAdapter.bindView : error parsing start and end dates" );
-			}
-			
-			long diffInMinutes = ( diffInSeconds / 60 ) >= 60 ? diffInSeconds % 60 : diffInSeconds;
-			Log.v( TAG, "UpcomingCursorAdapter.bindView : duration=" + diffInMinutes );
 			
 			ViewHolder mHolder = (ViewHolder) view.getTag();
 			
@@ -285,7 +268,7 @@ public class UpcomingFragment extends MythtvListFragment implements LoaderManage
 				Log.v( TAG, "UpcomingCursorAdapter.bindView : cursor is not at first position" );
 				cursor.moveToPrevious();
 				
-				String previousStartTime = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_START_TIME ) );
+				previousStartTime = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_START_TIME ) );
 				previousStartDate = previousStartTime.substring( 0, previousStartTime.indexOf( 'T' ) );
 				
 				if( !currentStartDate.equals( previousStartDate ) ) {
@@ -298,29 +281,43 @@ public class UpcomingFragment extends MythtvListFragment implements LoaderManage
 				} else {
 					Log.v( TAG, "UpcomingCursorAdapter.bindView : show detail" );
 
-					String sChannel = "";
+					mHolder.header.setVisibility( View.GONE );
+					mHolder.detail.setVisibility( View.VISIBLE );
 					
+					String sEndTime = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_END_TIME ) );
+					String sTitle = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_TITLE ) );
+					String sSubTitle = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_SUB_TITLE ) );
+					String sCategory = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_CATEGORY ) );
+					Integer iChannelId = cursor.getInt( cursor.getColumnIndex( ProgramConstants.FIELD_CHANNEL_ID ) );
+
+					Date dStartTime = null;
+					
+					try {
+						dStartTime = parser.parse( previousStartTime );
+					} catch( ParseException e ) {
+						Log.v( TAG, "UpcomingCursorAdapter.bindView : error parsing start and end dates" );
+					}
+					
+					String sChannel = "";
 					Cursor channelCursor = mContext.getContentResolver().query( ContentUris.withAppendedId( ChannelConstants.CONTENT_URI, iChannelId ), new String[] { ChannelConstants.FIELD_CHAN_NUM, ChannelConstants.FIELD_CHANNEL_NAME }, null, null, null );
 					if( channelCursor.moveToFirst() ) {
 						String sChannelNumber = channelCursor.getString( channelCursor.getColumnIndexOrThrow( ChannelConstants.FIELD_CHAN_NUM ) );
 						String sChannelName = channelCursor.getString( channelCursor.getColumnIndexOrThrow( ChannelConstants.FIELD_CHANNEL_NAME ) );
 					
 						sChannel = sChannelNumber; 
-						if( getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE ) {
-							sChannel += " - " + sChannelName;
-						}
+//						if( getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE ) {
+//							sChannel += " - " + sChannelName;
+//						}
 					}
 					channelCursor.close();
 					
-					mHolder.header.setVisibility( View.GONE );
-					mHolder.detail.setVisibility( View.VISIBLE );
-					
+					selectCategoryColor( mHolder.category, Program.Category.fromString( sCategory ) );
 					mHolder.title.setText( sTitle );
 					mHolder.subTitle.setText( sSubTitle );
 					mHolder.channel.setText( sChannel );
 					mHolder.startTime.setText( null != dStartTime ? formatter.format( dStartTime ) : ""  );
 				}
-				
+
 				cursor.moveToNext();
 			}
 			
@@ -333,6 +330,7 @@ public class UpcomingFragment extends MythtvListFragment implements LoaderManage
 			TextView headerLabel;
 			
 			LinearLayout detail;
+			View category;
 			TextView title;
 			TextView subTitle;
 
@@ -342,6 +340,151 @@ public class UpcomingFragment extends MythtvListFragment implements LoaderManage
 			
 			ViewHolder() { }
 
+		}
+		
+		private void selectCategoryColor( View view, Program.Category category ) {
+			
+			Log.v( TAG, "UpcomingCursorAdapter.selectCategoryColor : category=" + category.name() );
+
+			switch( category ) {
+			case ACTION:
+				view.setBackgroundColor( getResources().getColor( R.color.program_category_Action ) );
+				break;
+
+			case ADULT:
+				view.setBackgroundColor( getResources().getColor( R.color.program_category_Adult ) );
+				break;
+
+			case ANIMALS:
+				view.setBackgroundColor( getResources().getColor( R.color.program_category_Animals ) );
+				break;
+
+			case ART_MUSIC:
+				view.setBackgroundColor( getResources().getColor( R.color.program_category_Art_Music ) );
+				break;
+
+			case BUSINESS:
+				view.setBackgroundColor( getResources().getColor( R.color.program_category_Business ) );
+				break;
+
+			case CHILDREN:
+				view.setBackgroundColor( getResources().getColor( R.color.program_category_Children ) );
+				break;
+
+			case COMEDY:
+				view.setBackgroundColor( getResources().getColor( R.color.program_category_Comedy ) );
+				break;
+
+			case CRIME_MYSTERY:
+				view.setBackgroundColor( getResources().getColor( R.color.program_category_Crime_Mystery ) );
+				break;
+
+			case DOCUMENTARY:
+				view.setBackgroundColor( getResources().getColor( R.color.program_category_Documentary ) );
+				break;
+
+			case DRAMA:
+				view.setBackgroundColor( getResources().getColor( R.color.program_category_Drama ) );
+				break;
+
+			case EDUCATIONAL:
+				view.setBackgroundColor( getResources().getColor( R.color.program_category_Educational ) );
+				break;
+
+			case FOOD:
+				view.setBackgroundColor( getResources().getColor( R.color.program_category_Food ) );
+				break;
+
+			case GAME:
+				view.setBackgroundColor( getResources().getColor( R.color.program_category_Game ) );
+				break;
+
+			case HEALTH_MEDICAL:
+				view.setBackgroundColor( getResources().getColor( R.color.program_category_Health_Medical ) );
+				break;
+
+			case HISTORY:
+				view.setBackgroundColor( getResources().getColor( R.color.program_category_History ) );
+				break;
+
+			case HORROR:
+				view.setBackgroundColor( getResources().getColor( R.color.program_category_Horror ) );
+				break;
+
+			case HOWTO:
+				view.setBackgroundColor( getResources().getColor( R.color.program_category_HowTo ) );
+				break;
+
+			case MISC:
+				view.setBackgroundColor( getResources().getColor( R.color.program_category_Misc ) );
+				break;
+
+			case MOVIE:
+				view.setBackgroundColor( getResources().getColor( R.color.program_category_Movie ) );
+				break;
+
+			case NEWS:
+				view.setBackgroundColor( getResources().getColor( R.color.program_category_News ) );
+				break;
+
+			case REALITY:
+				view.setBackgroundColor( getResources().getColor( R.color.program_category_Reality ) );
+				break;
+
+			case ROMANCE:
+				view.setBackgroundColor( getResources().getColor( R.color.program_category_Romance ) );
+				break;
+
+			case SCIENCE_NATURE:
+				view.setBackgroundColor( getResources().getColor( R.color.program_category_Science_Nature ) );
+				break;
+
+			case SCIFI_FANTASY:
+				view.setBackgroundColor( getResources().getColor( R.color.program_category_SciFi_Fantasy ) );
+				break;
+
+			case SHOPPING:
+				view.setBackgroundColor( getResources().getColor( R.color.program_category_Shopping ) );
+				break;
+
+			case SOAPS:
+				view.setBackgroundColor( getResources().getColor( R.color.program_category_Soaps ) );
+				break;
+
+			case SPIRITUAL:
+				view.setBackgroundColor( getResources().getColor( R.color.program_category_Spiritual ) );
+				break;
+
+			case SPORTS:
+				view.setBackgroundColor( getResources().getColor( R.color.program_category_Sports ) );
+				break;
+
+			case TALK:
+				view.setBackgroundColor( getResources().getColor( R.color.program_category_Talk ) );
+				break;
+
+			case TRAVEL:
+				view.setBackgroundColor( getResources().getColor( R.color.program_category_Travel ) );
+				break;
+
+			case UNKNOWN:
+				view.setBackgroundColor( getResources().getColor( R.color.program_category_Unknown ) );
+				break;
+
+			case WAR:
+				view.setBackgroundColor( getResources().getColor( R.color.program_category_War ) );
+				break;
+
+			case WESTERN:
+				view.setBackgroundColor( getResources().getColor( R.color.program_category_Western ) );
+				break;
+
+			default:
+				Log.v( TAG, "UpcomingCursorAdapter.selectCategoryColor : could not match category - " + category.name() );
+				view.setBackgroundColor( getResources().getColor( R.color.program_category_Unknown ) );
+				break;
+			}
+			
 		}
 		
 	}

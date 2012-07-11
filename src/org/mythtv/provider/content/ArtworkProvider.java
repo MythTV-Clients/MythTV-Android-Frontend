@@ -62,7 +62,7 @@ public class ArtworkProvider extends AbstractMythtvContentProvider {
 	 */
 	@Override
 	public boolean onCreate() {
-		Log.v( TAG, "onCreate : enter" );
+		//Log.v( TAG, "onCreate : enter" );
 		
 		uriMatcher = new UriMatcher( UriMatcher.NO_MATCH );
 		uriMatcher.addURI( ArtworkConstants.AUTHORITY, "artwork", ARTWORKS );
@@ -70,7 +70,7 @@ public class ArtworkProvider extends AbstractMythtvContentProvider {
 		
 		database = new DatabaseHelper( getContext() );
 		
-		Log.v( TAG, "onCreate : exit" );
+		//Log.v( TAG, "onCreate : exit" );
 		return true;
 	}
 
@@ -79,14 +79,14 @@ public class ArtworkProvider extends AbstractMythtvContentProvider {
 	 */
 	@Override
 	public Cursor query( Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder ) {
-		Log.v( TAG, "query : enter" );
+		//Log.v( TAG, "query : enter" );
 		
 		//if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
-			Log.v( TAG, "query : uri=" + uri.toString() );
+		//	Log.v( TAG, "query : uri=" + uri.toString() );
 		//}
 		
 		if( uriMatcher.match( uri ) == ARTWORK_ID ) {
-			Log.v( TAG, "query : uri segment=" + uri.getPathSegments().get( 1 ) );
+		//	Log.v( TAG, "query : uri segment=" + uri.getPathSegments().get( 1 ) );
 
 			long id = Long.parseLong( uri.getPathSegments().get( 1 ) );
 			selection = appendRowId( selection, id );
@@ -100,7 +100,7 @@ public class ArtworkProvider extends AbstractMythtvContentProvider {
 		// source data changes
 		cursor.setNotificationUri( getContext().getContentResolver(), uri );
 		
-		Log.v( TAG, "query : exit" );
+		//Log.v( TAG, "query : exit" );
 		return cursor;
 	}
 
@@ -109,23 +109,23 @@ public class ArtworkProvider extends AbstractMythtvContentProvider {
 	 */
 	@Override
 	public String getType( Uri uri ) {
-		Log.v( TAG, "getType : enter" );
+		//Log.v( TAG, "getType : enter" );
 
 		//if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
-			Log.v( TAG, "getType : uri=" + uri.toString() );
+		//	Log.v( TAG, "getType : uri=" + uri.toString() );
 		//}
 		
 		switch( uriMatcher.match( uri ) ) {
 			case ARTWORKS:
-				Log.v( TAG, "getType : exit, artworks selected" );
+		//		Log.v( TAG, "getType : exit, artworks selected" );
 
 				return CONTENT_TYPE;
 			case ARTWORK_ID:
-				Log.v( TAG, "getType : exit, artwork id selected" );
+		//		Log.v( TAG, "getType : exit, artwork id selected" );
 
 				return CONTENT_ITEM_TYPE;
 			default:
-				Log.w( TAG, "getType : exit, unknown uri" );
+		//		Log.w( TAG, "getType : exit, unknown uri" );
 
 				throw new IllegalArgumentException( "Unknown URI " + uri );
 		}
@@ -136,10 +136,10 @@ public class ArtworkProvider extends AbstractMythtvContentProvider {
 	 */
 	@Override
 	public Uri insert( Uri uri, ContentValues values ) {
-		Log.v( TAG, "insert : enter" );
+		//Log.v( TAG, "insert : enter" );
 
 		//if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
-			Log.v( TAG, "insert : uri=" + uri.toString() );
+		//	Log.v( TAG, "insert : uri=" + uri.toString() );
 		//}
 		
 		SQLiteDatabase db = database.getWritableDatabase();
@@ -157,7 +157,7 @@ public class ArtworkProvider extends AbstractMythtvContentProvider {
 
 		getContext().getContentResolver().notifyChange( newUri, null );
 		
-		Log.v( TAG, "insert : exit" );
+		//Log.v( TAG, "insert : exit" );
 		return newUri;
 	}
 
@@ -166,11 +166,11 @@ public class ArtworkProvider extends AbstractMythtvContentProvider {
 	 */
 	@Override
 	public int delete( Uri uri, String selection, String[] selectionArgs ) {
-		Log.v( TAG, "delete : enter" );
+		//Log.v( TAG, "delete : enter" );
 		
-		if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
-			Log.v( TAG, "delete : uri=" + uri.toString() );
-		}
+		//if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
+		//	Log.v( TAG, "delete : uri=" + uri.toString() );
+		//}
 
 		SQLiteDatabase db = database.getWritableDatabase();
 
@@ -180,7 +180,7 @@ public class ArtworkProvider extends AbstractMythtvContentProvider {
 				+ recordId
 				+ ( !TextUtils.isEmpty( selection ) ? " AND (" + selection + ')' : "" ), selectionArgs );
 		
-		Log.v( TAG, "delete : exit" );
+		//Log.v( TAG, "delete : exit" );
 		return affected;
 	}
 
@@ -189,11 +189,11 @@ public class ArtworkProvider extends AbstractMythtvContentProvider {
 	 */
 	@Override
 	public int update( Uri uri, ContentValues values, String selection, String[] selectionArgs ) {
-		Log.v( TAG, "update : enter" );
+		//Log.v( TAG, "update : enter" );
 
-		if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
-			Log.v( TAG, "update : uri=" + uri.toString() );
-		}
+		//if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
+		//	Log.v( TAG, "update : uri=" + uri.toString() );
+		//}
 		
 		SQLiteDatabase db = database.getWritableDatabase();
 
@@ -210,7 +210,7 @@ public class ArtworkProvider extends AbstractMythtvContentProvider {
 
 		getContext().getContentResolver().notifyChange( uri, null );
 
-		Log.v( TAG, "update : exit" );
+		//Log.v( TAG, "update : exit" );
 		return affected;
 	}
 
