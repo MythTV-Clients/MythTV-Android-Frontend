@@ -77,13 +77,13 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 		programListFilter.setPriority( IntentFilter.SYSTEM_LOW_PRIORITY );
         programListReceiver = new ProgramListReceiver();
         registerReceiver( programListReceiver, programListFilter );
-        mDvrServiceHelper.getRecordingsList();
+//        mDvrServiceHelper.getRecordingsList();
         
 		IntentFilter upcomingFilter = new IntentFilter( DvrServiceHelper.UPCOMING_RESULT );
 		upcomingFilter.setPriority( IntentFilter.SYSTEM_LOW_PRIORITY );
 		upcomingReceiver = new UpcomingReceiver();
         registerReceiver( upcomingReceiver, upcomingFilter );
-		mDvrServiceHelper.getUpcomingList();
+//		mDvrServiceHelper.getUpcomingList();
 		
 		Log.v( TAG, "onResume : exit" );
 	}
