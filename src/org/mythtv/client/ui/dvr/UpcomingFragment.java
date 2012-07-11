@@ -375,6 +375,10 @@ public class UpcomingFragment extends MythtvListFragment implements LoaderManage
 				view.setBackgroundColor( getResources().getColor( R.color.program_category_Comedy ) );
 				break;
 
+			case COOKING:
+				view.setBackgroundColor( getResources().getColor( R.color.program_category_Food ) );
+				break;
+
 			case CRIME_MYSTERY:
 				view.setBackgroundColor( getResources().getColor( R.color.program_category_Crime_Mystery ) );
 				break;
@@ -423,6 +427,10 @@ public class UpcomingFragment extends MythtvListFragment implements LoaderManage
 				view.setBackgroundColor( getResources().getColor( R.color.program_category_Movie ) );
 				break;
 
+			case MUSIC:
+				view.setBackgroundColor( getResources().getColor( R.color.program_category_Art_Music ) );
+				break;
+
 			case NEWS:
 				view.setBackgroundColor( getResources().getColor( R.color.program_category_News ) );
 				break;
@@ -445,6 +453,10 @@ public class UpcomingFragment extends MythtvListFragment implements LoaderManage
 
 			case SHOPPING:
 				view.setBackgroundColor( getResources().getColor( R.color.program_category_Shopping ) );
+				break;
+
+			case SITCOM:
+				view.setBackgroundColor( getResources().getColor( R.color.program_category_Comedy ) );
 				break;
 
 			case SOAPS:
