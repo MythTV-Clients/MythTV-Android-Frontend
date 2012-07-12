@@ -125,6 +125,8 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 		
 		adapter.swapCursor( cursor );
 		
+	    getListView().setFastScrollEnabled( true );
+
 	    if( null != mProgressDialog ) {
 	    	mProgressDialog.dismiss();
 	    }
