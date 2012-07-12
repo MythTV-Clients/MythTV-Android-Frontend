@@ -24,6 +24,10 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.WeakHashMap;
 
 import org.mythtv.R;
 import org.mythtv.client.ui.util.MythtvListFragment;
@@ -50,13 +54,14 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
-import android.support.v4.widget.SimpleCursorAdapter;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -142,15 +147,20 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 		Log.v( TAG, "onLoaderReset : enter" );
 		
 		adapter.swapCursor( null );
-				
+		
+		restartLoader();
+		
 		Log.v( TAG, "onLoaderReset : exit" );
 	}
 
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
+	 */
 	@Override
-	public void onCreate( Bundle savedInstanceState ) {
-		Log.v( TAG, "onCreate : enter" );
+	public void onActivityCreated( Bundle savedInstanceState ) {
+		Log.v( TAG, "onActivityCreated : enter" );
 
-		super.onCreate( savedInstanceState );
+		super.onActivityCreated( savedInstanceState );
 
 		setHasOptionsMenu( true );
 		
@@ -164,21 +174,18 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 				programGroupIds.add( programGroupId );
 			}
 		}
-		Log.v( TAG, "onCreate : programGroupIds=" + programGroupIds.toString() );
+		Log.v( TAG, "onActivityCreated : programGroupIds=" + programGroupIds.toString() );
 		
 		Bundle bundle = new Bundle();
 		bundle.putIntegerArrayList( PROGRAM_GROUP_IDS_KEY, programGroupIds );
 		
 		getLoaderManager().initLoader( 0, bundle, this );
 		 
-	    adapter = new ProgramGroupCursorAdapter(
-	            getActivity().getApplicationContext(), R.layout.program_group_row,
-	            null, new String[] { ProgramGroupConstants.FIELD_PROGRAM_GROUP }, new int[] { R.id.program_group_row },
-	            CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER );
+	    adapter = new ProgramGroupCursorAdapter( getActivity().getApplicationContext() );
 	    
 	    setListAdapter( adapter );
 		
-		Log.v( TAG, "onCreate : exit" );
+		Log.v( TAG, "onActivityCreated : exit" );
 	}
 
 	/* (non-Javadoc)
@@ -263,14 +270,9 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 		return super.onOptionsItemSelected( item );
 	}
 
-	@Override
-	public void onActivityCreated( Bundle state ) {
-		Log.v( TAG, "onActivityCreated : enter" );
-		super.onActivityCreated( state );
-
-		Log.v( TAG, "onActivityCreated : exit" );
-	}
-
+	/* (non-Javadoc)
+	 * @see org.mythtv.client.ui.util.MythtvListFragment#onListItemClick(android.widget.ListView, android.view.View, int, long)
+	 */
 	@Override
 	public void onListItemClick( ListView l, View v, int position, long id ) {
 		Log.v( TAG, "onListItemClick : enter" );
@@ -314,71 +316,186 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 		Log.v( TAG, "loadData : exit" );
 	}
 	
-	private class ProgramGroupCursorAdapter extends SimpleCursorAdapter {
+	private class ProgramGroupCursorAdapter extends CursorAdapter {
 
-		public ProgramGroupCursorAdapter( Context context, int layout, Cursor c, String[] from, int[] to, int flags ) {
-			super( context, layout, c, from, to, flags );
+		private Context mContext;
+		private LayoutInflater mInflater;
+
+		private Map<String, BitmapDrawable> images = new HashMap<String, BitmapDrawable>();
+		
+		public ProgramGroupCursorAdapter( Context context ) {
+			super( context, null, false );
+			
+			mContext = context;
+			mInflater = LayoutInflater.from( context );
 		}
 
 		/* (non-Javadoc)
-		 * @see android.support.v4.widget.CursorAdapter#getView(int, android.view.View, android.view.ViewGroup)
+		 * @see android.support.v4.widget.CursorAdapter#swapCursor(android.database.Cursor)
 		 */
 		@SuppressWarnings( "deprecation" )
 		@Override
-		public View getView( int position, View convertView, ViewGroup parent ) {
-			
-			View row =  super.getView( position, convertView, parent );
-			
-			getCursor().moveToPosition( position );
-		    try {
-		        int nameIndex = getCursor().getColumnIndexOrThrow( ProgramGroupConstants.FIELD_PROGRAM_GROUP );
-				int inetrefIndex = getCursor().getColumnIndexOrThrow( ProgramGroupConstants.FIELD_INETREF );
-		        int bannerIndex = getCursor().getColumnIndexOrThrow( ProgramGroupConstants.FIELD_BANNER_URL );
+		public Cursor swapCursor( Cursor newCursor ) {
+			Log.v( TAG, "swapCursor : enter" );
 
-		        String name = getCursor().getString( nameIndex );
-		        String inetref = getCursor().getString( inetrefIndex );
-		        String banner = getCursor().getString( bannerIndex );
-		        Log.v( TAG, "getView : name=" + name + ", inetref=" + inetref + ", banner=" + banner );
-		        
-				TextView textView = (TextView) row.findViewById( R.id.program_group_row );
-				if( null == banner || "".equals( banner ) || "N/A".equals( banner ) ) {
-					Log.v( TAG, "getView : program group contains no artwork" );
+			if( null != newCursor ) {
+				images.clear();
 
-					row.setBackgroundDrawable( null );
-					textView.setText( name );
-				} else {
-					Log.v( TAG, "getView : program group contains artwork" );
+				while( newCursor.moveToNext() ) {
+					String inetref = newCursor.getString( newCursor.getColumnIndexOrThrow( ProgramGroupConstants.FIELD_INETREF ) );
+					String banner = newCursor.getString( newCursor.getColumnIndexOrThrow( ProgramGroupConstants.FIELD_BANNER_URL ) );
 
-		            File f = new File( banner );
-					if( f.exists() ) {
-						Log.v( TAG, "getView : loading banner from cache" );
-						
-						try {
-							InputStream is = new FileInputStream( f );
-							Bitmap bitmap = BitmapFactory.decodeStream( is );
+					Log.v( TAG, "swapCursor : checking banners" );
+					if( null != banner && ( !"".equals( banner ) || !"N/A".equals( banner ) ) ) {
 
-							row.setBackgroundDrawable( new BitmapDrawable( bitmap ) );
-							textView.setText( "" );
-						} catch( Exception e ) {
-							Log.e( TAG, "getView : error reading file" );
+						if( !images.containsKey( inetref ) ) {
+							Log.v( TAG, "swapCursor : banner not found in adapter cache" );
 
-							row.setBackgroundDrawable( null );
-							textView.setText( name );
+							File f = new File( banner );
+							if( f.exists() ) {
+								Log.v( TAG, "swapCursor : loading banner from cache" );
+
+								try {
+									InputStream is = new FileInputStream( f );
+									Bitmap bitmap = BitmapFactory.decodeStream( is );
+									BitmapDrawable drawable = new BitmapDrawable( bitmap );
+
+									images.put( inetref, drawable );
+									Log.v( TAG, "swapCursor : banner added to adapter cache" );
+								} catch( Exception e ) {
+									Log.e( TAG, "swapCursor : error reading file" );
+								}
+							} else {
+								Log.v( TAG, "swapCursor : banner not found in cache" );
+
+								if( null != inetref && !"".equals( inetref ) ) {
+									Log.v( TAG, "swapCursor : download banner" );
+
+									new DownloadBannerImageTask().execute( inetref );
+								}
+							}
 						}
-					} else {
-						new DownloadBannerImageTask().execute( inetref );
-
-						row.setBackgroundDrawable( null );
-						textView.setText( name );
 					}
 				}
-		    } catch( Exception e ) {
-				Log.e( TAG, "getView : error", e );
-		    }
-		    
-			return row;
+
+				newCursor.moveToFirst();
+				notifyDataSetChanged();
+			}
+			
+			Log.v( TAG, "swapCursor : exit" );
+			return super.swapCursor( newCursor );
 		}
+
+		/* (non-Javadoc)
+		 * @see android.support.v4.widget.CursorAdapter#newView(android.content.Context, android.database.Cursor, android.view.ViewGroup)
+		 */
+		@Override
+		public View newView( Context context, Cursor cursor, ViewGroup parent ) {
+			Log.v( TAG, "newView : enter" );
+
+	        View view = mInflater.inflate( R.layout.program_group_row, parent, false );
+			
+			ViewHolder refHolder = new ViewHolder();
+			refHolder.programGroupDetail = (LinearLayout) view.findViewById( R.id.program_group_detail );
+			refHolder.programGroup = (TextView) view.findViewById( R.id.program_group_row );
+			
+			view.setTag( refHolder );
+			
+			Log.v( TAG, "newView : exit" );
+			return view;
+		}
+
+		/* (non-Javadoc)
+		 * @see android.support.v4.widget.CursorAdapter#bindView(android.view.View, android.content.Context, android.database.Cursor)
+		 */
+		@Override
+		public void bindView( View view, Context context, Cursor cursor ) {
+	        Log.v( TAG, "bindView : enter" );
+
+	        String name = getCursor().getString( getCursor().getColumnIndexOrThrow( ProgramGroupConstants.FIELD_PROGRAM_GROUP ) );
+	        String inetref = cursor.getString( getCursor().getColumnIndexOrThrow( ProgramGroupConstants.FIELD_INETREF ) );
+	        Log.v( TAG, "bindView : name=" + name + ", inetref=" + inetref );
+
+	        ViewHolder mHolder = (ViewHolder) view.getTag();
+			
+			if( images.containsKey( inetref ) ) {
+				Log.v( TAG, "bindView : loading banner from adapter cache" );
+					
+				mHolder.programGroupDetail.setBackgroundDrawable( images.get( inetref ) );
+				mHolder.programGroup.setText( "" );
+			} else {
+				Log.v( TAG, "bindView : banner not found in adapter cache" );
+
+				mHolder.programGroupDetail.setBackgroundDrawable( null );
+				mHolder.programGroup.setText( name );
+			}
+			
+			Log.v( TAG, "bindView : exit" );
+		}
+
+//		/* (non-Javadoc)
+//		 * @see android.support.v4.widget.CursorAdapter#getView(int, android.view.View, android.view.ViewGroup)
+//		 */
+//		@SuppressWarnings( "deprecation" )
+//		@Override
+//		public View getView( int position, View convertView, ViewGroup parent ) {
+//			
+//			View row =  super.getView( position, convertView, parent );
+//			
+//			getCursor().moveToPosition( position );
+//		    try {
+//		        String name = getCursor().getString( getCursor().getColumnIndexOrThrow( ProgramGroupConstants.FIELD_PROGRAM_GROUP ) );
+//		        String inetref = getCursor().getString( getCursor().getColumnIndexOrThrow( ProgramGroupConstants.FIELD_INETREF ) );
+//		        String banner = getCursor().getString( getCursor().getColumnIndexOrThrow( ProgramGroupConstants.FIELD_BANNER_URL ) );
+//		        Log.v( TAG, "getView : name=" + name + ", inetref=" + inetref + ", banner=" + banner );
+//		        
+//				TextView textView = (TextView) row.findViewById( R.id.program_group_row );
+//				if( null == banner || "".equals( banner ) || "N/A".equals( banner ) ) {
+//					Log.v( TAG, "getView : program group contains no artwork" );
+//
+//					row.setBackgroundDrawable( null );
+//					textView.setText( name );
+//				} else {
+//					Log.v( TAG, "getView : program group contains artwork" );
+//
+//		            File f = new File( banner );
+//					if( f.exists() ) {
+//						Log.v( TAG, "getView : loading banner from cache" );
+//						
+//						try {
+//							InputStream is = new FileInputStream( f );
+//							Bitmap bitmap = BitmapFactory.decodeStream( is );
+//
+//							row.setBackgroundDrawable( new BitmapDrawable( bitmap ) );
+//							textView.setText( "" );
+//						} catch( Exception e ) {
+//							Log.e( TAG, "getView : error reading file" );
+//
+//							row.setBackgroundDrawable( null );
+//							textView.setText( name );
+//						}
+//					} else {
+//						new DownloadBannerImageTask().execute( inetref );
+//
+//						row.setBackgroundDrawable( null );
+//						textView.setText( name );
+//					}
+//				}
+//		    } catch( Exception e ) {
+//				Log.e( TAG, "getView : error", e );
+//		    }
+//		    
+//			return row;
+//		}
 		
+		private class ViewHolder {
+			
+			LinearLayout programGroupDetail;
+			TextView programGroup;
+
+			ViewHolder() { }
+
+		}
 	}
 	
 	private class DownloadBannerImageTask extends AsyncTask<Object, Void, Bitmap> {

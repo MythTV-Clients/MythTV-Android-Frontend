@@ -120,15 +120,18 @@ public class UpcomingFragment extends MythtvListFragment implements LoaderManage
 		Log.v( TAG, "onLoaderReset : enter" );
 		
 		adapter.swapCursor( null );
-				
+		
 		Log.v( TAG, "onLoaderReset : exit" );
 	}
 
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
+	 */
 	@Override
-	public void onCreate( Bundle savedInstanceState ) {
-		Log.v( TAG, "onCreate : enter" );
+	public void onActivityCreated( Bundle savedInstanceState ) {
+		Log.v( TAG, "onActivityCreated : enter" );
 
-		super.onCreate( savedInstanceState );
+		super.onActivityCreated( savedInstanceState );
 
 		mProgramHelper = ProgramHelper.createInstance( getActivity() );
 		
@@ -142,7 +145,7 @@ public class UpcomingFragment extends MythtvListFragment implements LoaderManage
 	    
 	    setListAdapter( adapter );
 		
-		Log.v( TAG, "onCreate : exit" );
+		Log.v( TAG, "onActivityCreated : exit" );
 	}
 
 	/* (non-Javadoc)
@@ -287,8 +290,6 @@ public class UpcomingFragment extends MythtvListFragment implements LoaderManage
 		@Override
 		public void bindView( View view, Context context, Cursor cursor ) {
 			Log.v( TAG, "UpcomingCursorAdapter.bindView : enter" );
-
-			Log.v( TAG, "UpcomingCursorAdapter.bindView : cursor size=" + cursor.getCount() );
 
 			String sStartTime = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_START_TIME ) );
 			
