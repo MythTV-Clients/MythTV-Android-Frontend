@@ -24,10 +24,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.WeakHashMap;
 
 import org.mythtv.R;
 import org.mythtv.client.ui.util.MythtvListFragment;
