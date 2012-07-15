@@ -81,17 +81,15 @@ public class VideoActivity extends AbstractDvrActivity {
 	    
 	    Cursor cursor = getContentResolver().query( ContentUris.withAppendedId( ProgramConstants.CONTENT_URI, id ) , projection, null, null, null );
 	    if( cursor.moveToFirst() ) {
-	        int filenameIndex = cursor.getColumnIndexOrThrow( ProgramConstants.FIELD_FILENAME );
-			int hostnameIndex = cursor.getColumnIndexOrThrow( ProgramConstants.FIELD_HOSTNAME );
-
-	        String filename = cursor.getString( filenameIndex );
-	        String hostname = cursor.getString( hostnameIndex );
+	        String filename = cursor.getString( cursor.getColumnIndexOrThrow( ProgramConstants.FIELD_FILENAME ) );
+	        String hostname = cursor.getString( cursor.getColumnIndexOrThrow( ProgramConstants.FIELD_HOSTNAME ) );
 
 			Log.v( TAG, "onCreate : filename=" + filename );
 			Log.v( TAG, "onCreate : hostname=" + hostname );
 
 	    	new CreateStreamTask().execute( filename, hostname );
 	    }
+	    cursor.close();
 	    
 		Log.v( TAG, "onCreate : exit" );
 	}
