@@ -84,7 +84,7 @@
 					android:id="@+id/upcoming_channel"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
-					android:layout_toLeftOf="@id/upcoming_dont_record"
+					android:layout_toLeftOf="@id/upcoming_start_time"
 					android:textColor="@color/body_text_1"
 					android:layout_centerVertical="true"
 					android:paddingLeft="10dp"
