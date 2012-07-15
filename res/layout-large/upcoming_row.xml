@@ -24,22 +24,6 @@
     android:orientation="vertical" >
     
 	<LinearLayout
-	    android:id="@+id/upcoming_header_row"
-	    android:layout_width="fill_parent"
-	    android:layout_height="wrap_content"
-	    android:paddingLeft="8dp"
-	    android:paddingRight="8dp" >
-    
-    	<TextView
-    	    android:id="@+id/upcoming_header_label"
-    	    android:layout_width="fill_parent"
-    	    android:layout_height="wrap_content"
-    	    android:textAppearance="?android:attr/textAppearanceLarge"
-    	    android:textColor="@color/body_text_1" />
-
-	</LinearLayout>
-
-	<LinearLayout
     	android:id="@+id/upcoming_detail_row"
     	android:layout_width="fill_parent"
     	android:layout_height="wrap_content"
@@ -115,6 +99,22 @@
 		
 		</LinearLayout>
 			
+	</LinearLayout>
+
+	<LinearLayout
+	    android:id="@+id/upcoming_header_row"
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"
+	    android:paddingLeft="8dp"
+	    android:paddingRight="8dp" >
+    
+    	<TextView
+    	    android:id="@+id/upcoming_header_label"
+    	    android:layout_width="fill_parent"
+    	    android:layout_height="wrap_content"
+    	    android:textAppearance="?android:attr/textAppearanceLarge"
+    	    android:textColor="@color/body_text_1" />
+
 	</LinearLayout>
 
 </LinearLayout>

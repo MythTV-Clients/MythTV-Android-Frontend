@@ -301,10 +301,9 @@ public class UpcomingFragment extends MythtvListFragment implements LoaderManage
 				Log.v( TAG, "UpcomingCursorAdapter.bindView : cursor at first position, displaying header" );
 
 				mHolder.header.setVisibility( View.VISIBLE );
-				mHolder.headerLabel.setVisibility( View.VISIBLE );
-				mHolder.headerLabel.setText( currentStartDate );
 				mHolder.detail.setVisibility( View.GONE );
-				mHolder.dontRecord.setVisibility( View.GONE );
+
+				mHolder.headerLabel.setText( currentStartDate );
 			} else {
 				Log.v( TAG, "UpcomingCursorAdapter.bindView : cursor is not at first position" );
 				cursor.moveToPrevious();
@@ -316,48 +315,44 @@ public class UpcomingFragment extends MythtvListFragment implements LoaderManage
 					Log.v( TAG, "UpcomingCursorAdapter.bindView : section change" );
 					
 					mHolder.header.setVisibility( View.VISIBLE );
-					mHolder.detail.setVisibility( View.GONE );
+					//mHolder.detail.setVisibility( View.GONE );
 					
 					mHolder.headerLabel.setText( currentStartDate );
 				} else {
 					Log.v( TAG, "UpcomingCursorAdapter.bindView : show detail" );
 
 					mHolder.header.setVisibility( View.GONE );
-					mHolder.detail.setVisibility( View.VISIBLE );
-					
-					String sEndTime = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_END_TIME ) );
-					String sTitle = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_TITLE ) );
-					String sSubTitle = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_SUB_TITLE ) );
-					String sCategory = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_CATEGORY ) );
-					Integer iChannelId = cursor.getInt( cursor.getColumnIndex( ProgramConstants.FIELD_CHANNEL_ID ) );
-
-					Date dStartTime = null;
-					
-					try {
-						dStartTime = parser.parse( previousStartTime );
-					} catch( ParseException e ) {
-						Log.v( TAG, "UpcomingCursorAdapter.bindView : error parsing start and end dates" );
-					}
-					
-					String sChannel = "";
-					Cursor channelCursor = mContext.getContentResolver().query( ContentUris.withAppendedId( ChannelConstants.CONTENT_URI, iChannelId ), new String[] { ChannelConstants.FIELD_CHAN_NUM, ChannelConstants.FIELD_CHANNEL_NAME }, null, null, null );
-					if( channelCursor.moveToFirst() ) {
-						String sChannelNumber = channelCursor.getString( channelCursor.getColumnIndexOrThrow( ChannelConstants.FIELD_CHAN_NUM ) );
-						String sChannelName = channelCursor.getString( channelCursor.getColumnIndexOrThrow( ChannelConstants.FIELD_CHANNEL_NAME ) );
-					
-						sChannel = sChannelNumber; 
-//						if( getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE ) {
-//							sChannel += " - " + sChannelName;
-//						}
-					}
-					channelCursor.close();
-					
-					mHolder.category.setBackgroundColor( mProgramHelper.getCategoryColor( sCategory ) );
-					mHolder.title.setText( sTitle );
-					mHolder.subTitle.setText( sSubTitle );
-					mHolder.channel.setText( sChannel );
-					mHolder.startTime.setText( null != dStartTime ? formatter.format( dStartTime ) : ""  );
+					//mHolder.detail.setVisibility( View.VISIBLE );
 				}
+
+				String sEndTime = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_END_TIME ) );
+				String sTitle = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_TITLE ) );
+				String sSubTitle = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_SUB_TITLE ) );
+				String sCategory = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_CATEGORY ) );
+				Integer iChannelId = cursor.getInt( cursor.getColumnIndex( ProgramConstants.FIELD_CHANNEL_ID ) );
+
+				Date dStartTime = null;
+				
+				try {
+					dStartTime = parser.parse( previousStartTime );
+				} catch( ParseException e ) {
+					Log.v( TAG, "UpcomingCursorAdapter.bindView : error parsing start and end dates" );
+				}
+				
+				String sChannel = "";
+				Cursor channelCursor = mContext.getContentResolver().query( ContentUris.withAppendedId( ChannelConstants.CONTENT_URI, iChannelId ), new String[] { ChannelConstants.FIELD_CHAN_NUM }, null, null, null );
+				if( channelCursor.moveToFirst() ) {
+					String sChannelNumber = channelCursor.getString( channelCursor.getColumnIndexOrThrow( ChannelConstants.FIELD_CHAN_NUM ) );
+				
+					sChannel = sChannelNumber; 
+				}
+				channelCursor.close();
+				
+				mHolder.category.setBackgroundColor( mProgramHelper.getCategoryColor( sCategory ) );
+				mHolder.title.setText( sTitle );
+				mHolder.subTitle.setText( sSubTitle );
+				mHolder.channel.setText( sChannel );
+				mHolder.startTime.setText( null != dStartTime ? formatter.format( dStartTime ) : ""  );
 
 				cursor.moveToNext();
 			}
