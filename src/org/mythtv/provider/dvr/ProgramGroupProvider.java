@@ -31,7 +31,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.provider.BaseColumns;
 import android.text.TextUtils;
-import android.util.Log;
 
 /**
  * @author Daniel Frey
@@ -39,7 +38,7 @@ import android.util.Log;
  */
 public class ProgramGroupProvider extends AbstractMythtvContentProvider {
 
-	private static final String TAG = ProgramGroupProvider.class.getSimpleName();
+//	private static final String TAG = ProgramGroupProvider.class.getSimpleName();
 
 	private static final int PROGRAM_GROUPS = 1;
 	private static final int PROGRAM_GROUP_ID = 2;

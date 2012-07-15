@@ -31,7 +31,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.provider.BaseColumns;
 import android.text.TextUtils;
-import android.util.Log;
 
 /**
  * @author Daniel Frey
@@ -39,7 +38,7 @@ import android.util.Log;
  */
 public class RecordingProvider extends AbstractMythtvContentProvider {
 
-	private static final String TAG = RecordingProvider.class.getSimpleName();
+//	private static final String TAG = RecordingProvider.class.getSimpleName();
 
 	private static final int RECORDINGS = 1;
 	private static final int RECORDING_ID = 2;

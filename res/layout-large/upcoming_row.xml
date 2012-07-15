@@ -18,27 +18,12 @@
  * This software can be found at <https://github.com/MythTV-Android/mythtv-for-android/>
  *
 -->
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical" >
     
-	<LinearLayout
-	    android:id="@+id/upcoming_header_row"
-	    android:layout_width="fill_parent"
-	    android:layout_height="wrap_content"
-	    android:paddingLeft="8dp"
-	    android:paddingRight="8dp" >
-    
-    	<TextView
-    	    android:id="@+id/upcoming_header_label"
-    	    android:layout_width="fill_parent"
-    	    android:layout_height="wrap_content"
-    	    android:textAppearance="?android:attr/textAppearanceLarge"
-    	    android:textColor="@color/body_text_1" />
-
-	</LinearLayout>
-
 	<LinearLayout
     	android:id="@+id/upcoming_detail_row"
     	android:layout_width="fill_parent"
@@ -115,6 +100,23 @@
 		
 		</LinearLayout>
 			
+	</LinearLayout>
+
+	<LinearLayout
+	    android:id="@+id/upcoming_header_row"
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"
+	    android:paddingLeft="8dp"
+	    android:paddingRight="8dp"
+    	android:background="@drawable/upcoming_section_back">
+    
+    	<TextView
+    	    android:id="@+id/upcoming_header_label"
+    	    android:layout_width="fill_parent"
+    	    android:layout_height="wrap_content"
+    	    android:textAppearance="?android:attr/textAppearanceLarge"
+    	    android:textColor="@color/body_text_1" />
+
 	</LinearLayout>
 
 </LinearLayout>
