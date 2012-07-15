@@ -21,7 +21,9 @@ package org.mythtv.client.ui.frontends;
 
 import org.mythtv.R;
 
+import android.content.Context;
 import android.os.Bundle;
+import android.os.PowerManager;
 import android.util.Log;
 
 /**
@@ -33,6 +35,8 @@ public class MythmoteActivity extends AbstractFrontendsActivity {
 	private static final String TAG = MythmoteActivity.class.getSimpleName();
 		
 	private boolean isTwoPane = false;
+	private PowerManager powerManager;
+	private PowerManager.WakeLock wakeLock;
 
 	/* (non-Javadoc)
 	 * @see org.mythtv.client.ui.AbstractMythtvFragmentActivity#onCreate(android.os.Bundle)
@@ -43,6 +47,8 @@ public class MythmoteActivity extends AbstractFrontendsActivity {
 		
 		super.onCreate( savedInstanceState );
 		setContentView( R.layout.activity_mythmote );
+		
+		powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
 
 		FrontendsFragment frontends = (FrontendsFragment) getSupportFragmentManager().findFragmentById( R.id.frontends_fragment );
 
@@ -52,6 +58,23 @@ public class MythmoteActivity extends AbstractFrontendsActivity {
 		}
 
 		Log.v( TAG, "onCreate : exit" );
+	}
+
+	@Override
+	protected void onResume() {
+		
+		wakeLock = powerManager.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, "Mythmote wakelock");
+		wakeLock.acquire();
+		
+		super.onResume();
+	}
+	
+	@Override
+	protected void onPause() {
+		
+		wakeLock.release();
+		
+		super.onPause();
 	}
 
 //	@Override
