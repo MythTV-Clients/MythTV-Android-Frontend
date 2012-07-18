@@ -21,7 +21,7 @@
 
 <resources>
 
-	<style name="Theme.Mythtv" parent="android:style/Theme.DeviceDefault.Light">
+	<style name="Theme.Mythtv" parent="android:style/Theme.Holo.Light">
     </style>
     
 </resources>
