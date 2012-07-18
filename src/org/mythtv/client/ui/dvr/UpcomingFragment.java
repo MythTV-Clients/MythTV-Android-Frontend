@@ -235,7 +235,9 @@ public class UpcomingFragment extends MythtvListFragment implements LoaderManage
 	private void loadData() {
 		Log.v( TAG, "loadData : enter" );
 		
-		mProgressDialog = ProgressDialog.show( getActivity(), "Please wait...", "Loading Upcoming Recordings...", true, true );
+		mProgressDialog = ProgressDialog.show( getActivity(), 
+				this.getString(R.string.please_wait_title_str),
+				this.getString(R.string.loading_upcoming_recordings_msg_str), true, true );
 
 		mDvrServiceHelper.getUpcomingList();
 		
