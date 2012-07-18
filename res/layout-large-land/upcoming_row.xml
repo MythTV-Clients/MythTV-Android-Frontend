@@ -35,7 +35,8 @@
     	    android:layout_width="fill_parent"
     	    android:layout_height="wrap_content"
     	    android:textAppearance="?android:attr/textAppearanceLarge"
-    	    android:textColor="@color/body_text_1" />
+    	    android:textColor="@color/body_text_1"
+    	    android:background="@drawable/upcoming_section_back" />
 
 	</LinearLayout>
 
