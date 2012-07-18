@@ -308,8 +308,8 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 		Log.v( TAG, "loadData : enter" );
 		
 		mProgressDialog = ProgressDialog.show( getActivity(), 
-				this.getResources().getString(R.string.please_wait_title_str), 
-				this.getResources().getString(R.string.loading_recordings_msg_str), 
+				this.getString(R.string.please_wait_title_str), 
+				this.getString(R.string.loading_recordings_msg_str), 
 				true, true );
 
 		mDvrServiceHelper.getRecordingsList();
