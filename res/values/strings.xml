@@ -158,5 +158,9 @@
     <!-- Setup Dashboard Buttons -->
 	<string name="setup_title">Setup</string>
     <string name="btn_capture">Tuners</string>
+    
+    <!-- Dialog Strings -->
+    <string name="please_wait_title_str">Please wait…</string>
+    <string name="loading_recordings_msg_str">Loading Recordings…</string>
 
 </resources>

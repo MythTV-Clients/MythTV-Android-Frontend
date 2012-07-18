@@ -307,7 +307,10 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 	private void loadData() {
 		Log.v( TAG, "loadData : enter" );
 		
-		mProgressDialog = ProgressDialog.show( getActivity(), "Please wait...", "Loading Recordings...", true, true );
+		mProgressDialog = ProgressDialog.show( getActivity(), 
+				this.getResources().getString(R.string.please_wait_title_str), 
+				this.getResources().getString(R.string.loading_recordings_msg_str), 
+				true, true );
 
 		mDvrServiceHelper.getRecordingsList();
 	    
@@ -316,7 +319,6 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 	
 	private class ProgramGroupCursorAdapter extends CursorAdapter {
 
-		private Context mContext;
 		private LayoutInflater mInflater;
 
 		private Map<String, BitmapDrawable> images = new HashMap<String, BitmapDrawable>();
@@ -324,7 +326,6 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 		public ProgramGroupCursorAdapter( Context context ) {
 			super( context, null, false );
 			
-			mContext = context;
 			mInflater = LayoutInflater.from( context );
 		}
 
