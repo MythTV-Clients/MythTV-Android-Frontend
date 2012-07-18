@@ -42,6 +42,9 @@ public class ProgramGroupConstants {
 	public static final String FIELD_PROGRAM_GROUP = "PROGRAM_GROUP";
 	public static final String FIELD_PROGRAM_GROUP_DATA_TYPE = "TEXT";
 
+	public static final String FIELD_PROGRAM_GROUP_SORT = "PROGRAM_GROUP_SORT";
+	public static final String FIELD_PROGRAM_GROUP_SORT_DATA_TYPE = "TEXT";
+
 	public static final String FIELD_INETREF = "INETREF";
 	public static final String FIELD_INETREF_DATA_TYPE = "TEXT";
 

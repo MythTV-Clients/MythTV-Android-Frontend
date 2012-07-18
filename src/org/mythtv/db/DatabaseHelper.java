@@ -45,7 +45,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	private static final String TAG = DatabaseHelper.class.getSimpleName();
 	
 	private static final String DATABASE_NAME = "mythtvdb";
-	private static final int DATABASE_VERSION = 17;
+	private static final int DATABASE_VERSION = 19;
 
 	public DatabaseHelper( Context context ) {
 		super( context, DATABASE_NAME, null, DATABASE_VERSION );
@@ -96,8 +96,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			createPlaybackProfiles( db );
 		}
 
-		if( oldVersion < 17 ) {
-			Log.v( TAG, "onUpgrade : upgrading to db version 17" );
+		if( oldVersion < 19 ) {
+			Log.v( TAG, "onUpgrade : upgrading to db version 19" );
 
 			dropProgramGroup( db );
 			createProgramGroup( db );
@@ -324,6 +324,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		sqlBuilder.append( _ID ).append( " " ).append( ProgramGroupConstants.FIELD_ID_DATA_TYPE ).append( " " ).append( ProgramGroupConstants.FIELD_ID_PRIMARY_KEY ).append( ", " );
 		sqlBuilder.append( ProgramGroupConstants.FIELD_PROGRAM_TYPE ).append( " " ).append( ProgramGroupConstants.FIELD_PROGRAM_TYPE_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( ProgramGroupConstants.FIELD_PROGRAM_GROUP ).append( " " ).append( ProgramGroupConstants.FIELD_PROGRAM_GROUP_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ProgramGroupConstants.FIELD_PROGRAM_GROUP_SORT ).append( " " ).append( ProgramGroupConstants.FIELD_PROGRAM_GROUP_SORT_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( ProgramGroupConstants.FIELD_INETREF ).append( " " ).append( ProgramGroupConstants.FIELD_INETREF_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( ProgramGroupConstants.FIELD_BANNER_URL ).append( " " ).append( ProgramGroupConstants.FIELD_BANNER_URL_DATA_TYPE );
 		sqlBuilder.append( ");" );

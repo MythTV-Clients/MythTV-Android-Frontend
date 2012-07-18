@@ -113,7 +113,7 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 		
 		String[] selectionArgs = new String[] { ProgramConstants.ProgramType.RECORDED.name() };
 		
-	    CursorLoader cursorLoader = new CursorLoader( getActivity(), ProgramGroupConstants.CONTENT_URI, projection, selection, selectionArgs, ProgramGroupConstants.FIELD_PROGRAM_GROUP );
+	    CursorLoader cursorLoader = new CursorLoader( getActivity(), ProgramGroupConstants.CONTENT_URI, projection, selection, selectionArgs, ProgramGroupConstants.FIELD_PROGRAM_GROUP_SORT );
 		
 	    Log.v( TAG, "onCreateLoader : exit" );
 		return cursorLoader;

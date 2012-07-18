@@ -125,9 +125,22 @@ public class ProgramListProcessor {
 				if( !"livetv".equalsIgnoreCase( program.getRecording().getRecordingGroup() ) ) {
 					long programGroupId = 0;
 					
+					// Removing Grammar Articles.  English only at this time, needs internationalization
+					String cleanTitle = program.getTitle();
+					if( cleanTitle.startsWith( "The" ) || cleanTitle.startsWith( "the" ) || cleanTitle.startsWith( "THE" ) ) {
+						cleanTitle = cleanTitle.substring( 3 ).trim();
+					}
+					if( cleanTitle.startsWith( "An" ) || cleanTitle.startsWith( "an" ) || cleanTitle.startsWith( "AN" ) ) {
+						cleanTitle = cleanTitle.substring( 2 ).trim();
+					}
+					if( cleanTitle.startsWith( "A" ) || cleanTitle.startsWith( "a" ) ) {
+						cleanTitle = cleanTitle.substring( 1 ).trim();
+					}
+					
 					values = new ContentValues();
 					values.put( ProgramGroupConstants.FIELD_PROGRAM_TYPE, null != programType ? programType.name() : "" );
 					values.put( ProgramGroupConstants.FIELD_PROGRAM_GROUP, program.getTitle() );
+					values.put( ProgramGroupConstants.FIELD_PROGRAM_GROUP_SORT, cleanTitle );
 					values.put( ProgramGroupConstants.FIELD_INETREF, program.getInetref() );
 					
 					Cursor cursor = mContext.getContentResolver().query( ProgramGroupConstants.CONTENT_URI, new String[] { BaseColumns._ID }, ProgramGroupConstants.FIELD_PROGRAM_GROUP + " = ? and " + ProgramGroupConstants.FIELD_PROGRAM_TYPE + " = ?", new String[] { program.getTitle(), programType.name() }, null );
