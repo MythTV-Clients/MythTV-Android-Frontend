@@ -189,6 +189,7 @@ public class UpcomingFragment extends MythtvListFragment implements LoaderManage
 		if( upcomingCursor.getCount() == 0 ) {
 			loadData();
 		}
+        upcomingCursor.close();
         
 		Log.v( TAG, "onResume : exit" );
 	}

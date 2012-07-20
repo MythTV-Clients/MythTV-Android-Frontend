@@ -172,6 +172,7 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 				programGroupIds.add( programGroupId );
 			}
 		}
+		cursor.close();
 		Log.v( TAG, "onActivityCreated : programGroupIds=" + programGroupIds.toString() );
 		
 		Bundle bundle = new Bundle();
@@ -227,6 +228,7 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 		if( recordedCursor.getCount() == 0 ) {
 			loadData();
 		}
+        recordedCursor.close();
         
 		Log.v( TAG, "onResume : exit" );
 	}
