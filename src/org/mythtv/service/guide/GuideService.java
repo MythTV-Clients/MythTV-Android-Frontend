@@ -17,11 +17,10 @@
  * This software can be found at <https://github.com/MythTV-Android/mythtv-for-android/>
  *
  */
-package org.mythtv.service.dvr;
+package org.mythtv.service.guide;
 
 import org.mythtv.service.MythtvService;
-import org.mythtv.service.dvr.ProgramListProcessor.RecordingListProcessorCallback;
-import org.mythtv.service.dvr.ProgramListProcessor.UpcomingListProcessorCallback;
+import org.mythtv.service.guide.GuideProcessor.GuideProcessorCallback;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -32,19 +31,19 @@ import android.util.Log;
  * @author Daniel Frey
  *
  */
-public class DvrService extends MythtvService {
+public class GuideService extends MythtvService {
 
-	protected static final String TAG = DvrService.class.getSimpleName();
+	protected static final String TAG = GuideService.class.getSimpleName();
 
-	public static enum Resource { RECORDING_LISTS, UPCOMING_LISTS };
+	public static enum Resource { GUIDE_LISTS };
 
 	private Intent mOriginalRequestIntent;
 	private ResultReceiver mCallback;
 
-	public DvrService() {
-		super( "DvrService" );
+	public GuideService() {
+		super( "GuideService" );
 	}
-
+	
 	@Override
 	protected void onHandleIntent( Intent requestIntent ) {
 		Log.v( TAG, "onHandleIntent : enter" );
@@ -56,30 +55,15 @@ public class DvrService extends MythtvService {
 		mCallback = requestIntent.getParcelableExtra( SERVICE_CALLBACK );
 
 		switch( resourceType ) {
-		case RECORDING_LISTS:
+		case GUIDE_LISTS:
 
 			if( method.equals( Method.GET ) ) {
-				Log.v( TAG, "onHandleIntent : getting recording list" );
+				Log.v( TAG, "onHandleIntent : getting guide list" );
 				
-				ProgramListProcessor processor = new ProgramListProcessor( getApplicationContext() );
-				processor.getRecordedList( makeRecordingListProcessorCallback() );
+				GuideProcessor processor = new GuideProcessor( getApplicationContext() );
+				processor.getProgramGuide( makeGuideProcessorCallback() );
 			} else {
-				Log.w( TAG, "onHandleIntent : incorrect method for retrieving recording list" );
-				
-				mCallback.send( REQUEST_INVALID, getOriginalIntentBundle() );
-			}
-			
-			break;
-
-		case UPCOMING_LISTS:
-
-			if( method.equals( Method.GET ) ) {
-				Log.v( TAG, "onHandleIntent : getting recording list" );
-				
-				ProgramListProcessor processor = new ProgramListProcessor( getApplicationContext() );
-				processor.getUpcomingList( makeUpcomingListProcessorCallback() );
-			} else {
-				Log.w( TAG, "onHandleIntent : incorrect method for retrieving recording list" );
+				Log.w( TAG, "onHandleIntent : incorrect method for retrieving program guide" );
 				
 				mCallback.send( REQUEST_INVALID, getOriginalIntentBundle() );
 			}
@@ -106,22 +90,8 @@ public class DvrService extends MythtvService {
 
 	// internal helpers
 	
-	private RecordingListProcessorCallback makeRecordingListProcessorCallback() {
-		RecordingListProcessorCallback callback = new RecordingListProcessorCallback() {
-
-			@Override
-			public void send( int resultCode ) {
-				if( null != mCallback ) {
-					mCallback.send( resultCode, getOriginalIntentBundle() );
-				}
-			}
-		};
-		
-		return callback;
-	}
-
-	private UpcomingListProcessorCallback makeUpcomingListProcessorCallback() {
-		UpcomingListProcessorCallback callback = new UpcomingListProcessorCallback() {
+	private GuideProcessorCallback makeGuideProcessorCallback() {
+		GuideProcessorCallback callback = new GuideProcessorCallback() {
 
 			@Override
 			public void send( int resultCode ) {

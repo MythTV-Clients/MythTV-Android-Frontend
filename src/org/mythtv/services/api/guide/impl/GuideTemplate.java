@@ -90,6 +90,17 @@ public class GuideTemplate extends AbstractGuideOperations implements GuideOpera
 	@Override
 	public ProgramGuide getProgramGuide( Date start, Date end, int startChannelId, int numberOfChannels, boolean details ) {
 
+		ResponseEntity<ProgramGuide> responseEntity = getProgramGuideResponseEntity( start, end, startChannelId, numberOfChannels, details );
+		ProgramGuide programGuide = responseEntity.getBody();
+
+		return programGuide;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mythtv.services.api.guide.GuideOperations#getProgramGuideResponseEntity(java.util.Date, java.util.Date, int, int, boolean)
+	 */
+	@Override
+	public ResponseEntity<ProgramGuide> getProgramGuideResponseEntity( Date start, Date end, int startChannelId, int numberOfChannels, boolean details ) {
 		LinkedMultiValueMap<String, String> parameters = new LinkedMultiValueMap<String, String>();
 		parameters.add( "StartTime", sdf.format( start ) );
 		parameters.add( "EndTime", sdf.format( end ) );
@@ -106,10 +117,7 @@ public class GuideTemplate extends AbstractGuideOperations implements GuideOpera
 			parameters.add( "Details", Boolean.toString( details ) );
 		}
 
-		ResponseEntity<ProgramGuide> responseEntity = restTemplate.exchange( buildUri( "GetProgramGuide", parameters ), HttpMethod.GET, getRequestEntity(), ProgramGuide.class );
-		ProgramGuide programGuide = responseEntity.getBody();
-
-		return programGuide;
+		return restTemplate.exchange( buildUri( "GetProgramGuide", parameters ), HttpMethod.GET, getRequestEntity(), ProgramGuide.class );
 	}
 	
 }

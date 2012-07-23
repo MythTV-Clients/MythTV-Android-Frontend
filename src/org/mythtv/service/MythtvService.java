@@ -29,8 +29,10 @@ import android.util.Log;
  */
 public abstract class MythtvService extends IntentService {
 
-	private static final String TAG = MythtvService.class.getSimpleName();
+	protected static final String TAG = MythtvService.class.getSimpleName();
 	
+	public static enum Method { GET, POST, PUT, DELETE };
+
 	protected static final int REQUEST_INVALID = -1;
 
 	public static final String METHOD_EXTRA = "org.mythtv.service.METHOD_EXTRA";

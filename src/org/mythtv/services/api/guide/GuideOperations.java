@@ -22,6 +22,7 @@ package org.mythtv.services.api.guide;
 import java.util.Date;
 
 import org.mythtv.services.api.dvr.Program;
+import org.springframework.http.ResponseEntity;
 
 /**
  * @author Daniel Frey
@@ -60,4 +61,14 @@ public interface GuideOperations {
 	 */
 	ProgramGuide getProgramGuide( Date start, Date end, int startChannelId, int numberOfChannels, boolean details );
 	
+	/**
+	 * @param start
+	 * @param end
+	 * @param startChannelId
+	 * @param numberOfChannels
+	 * @param details
+	 * @return
+	 */
+	ResponseEntity<ProgramGuide> getProgramGuideResponseEntity( Date start, Date end, int startChannelId, int numberOfChannels, boolean details );
+
 }

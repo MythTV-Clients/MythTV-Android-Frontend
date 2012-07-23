@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import org.mythtv.service.dvr.DvrService.Method;
+import org.mythtv.service.MythtvService.Method;
 import org.mythtv.service.dvr.DvrService.Resource;
 
 import android.content.Context;

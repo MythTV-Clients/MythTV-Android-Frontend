@@ -99,6 +99,8 @@
 		<!-- MythTV Android Services -->
 		<service android:name=".service.dvr.DvrService" />
 		
+		<service android:name=".service.guide.GuideService" />
+				
 		<!-- MythTV Android Providers -->
 		<provider
             android:name=".provider.channel.ChannelProvider"
