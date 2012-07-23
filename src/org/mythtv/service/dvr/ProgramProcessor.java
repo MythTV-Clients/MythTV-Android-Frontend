@@ -24,7 +24,6 @@ import java.util.List;
 
 import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.service.AbstractMythtvProcessor;
-import org.mythtv.service.channel.ChannelProcessor;
 import org.mythtv.services.api.dvr.Program;
 
 import android.content.ContentUris;
@@ -43,24 +42,20 @@ public class ProgramProcessor extends AbstractMythtvProcessor {
 
 	protected static final String TAG = ProgramProcessor.class.getSimpleName();
 
-	private ChannelProcessor channelProcessor;
 	private RecordingProcessor recordingProcessor;
 	
 	public ProgramProcessor( Context context ) {
 		super( context );
 		Log.v( TAG, "initialize : enter" );
 
-		channelProcessor = new ChannelProcessor( context );
 		recordingProcessor = new RecordingProcessor( context );
 		
 		Log.v( TAG, "initialize : exit" );
 	}
 
-	public Long updateProgramContentProvider( Program program, Long programGroupId, ProgramConstants.ProgramType programType ) {
+	public Long updateProgramContentProvider( Program program, Long programGroupId, Long channelId, ProgramConstants.ProgramType programType ) {
 		Log.v( TAG, "updateProgramContentProvider : enter" );
 
-		Long channelId = channelProcessor.updateChannelContentProvider( program.getChannelInfo() );
-		
 		ContentValues values = new ContentValues();
 		values.put( ProgramConstants.FIELD_PROGRAM_TYPE, null != programType ? programType.name() : "" );
 		values.put( ProgramConstants.FIELD_START_TIME, null != program.getStartTime() ? sdf.format( program.getStartTime() ) : "" );

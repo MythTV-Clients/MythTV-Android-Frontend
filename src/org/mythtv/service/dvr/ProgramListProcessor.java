@@ -25,6 +25,7 @@ import java.util.List;
 import org.mythtv.db.content.ArtworkConstants;
 import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.service.AbstractMythtvProcessor;
+import org.mythtv.service.channel.ChannelProcessor;
 import org.mythtv.services.api.content.ArtworkInfo;
 import org.mythtv.services.api.dvr.Program;
 import org.mythtv.services.api.dvr.ProgramList;
@@ -44,6 +45,7 @@ public class ProgramListProcessor extends AbstractMythtvProcessor {
 
 	protected static final String TAG = ProgramListProcessor.class.getSimpleName();
 
+	private ChannelProcessor channelProcessor;
 	private ProgramProcessor programProcessor;
 	private ProgramGroupProcessor programGroupProcessor;
 	
@@ -63,6 +65,7 @@ public class ProgramListProcessor extends AbstractMythtvProcessor {
 		super( context );
 		Log.v( TAG, "initialize : enter" );
 		
+		channelProcessor = new ChannelProcessor( context );
 		programProcessor = new ProgramProcessor( context );
 		programGroupProcessor = new ProgramGroupProcessor( context );
 		
@@ -132,7 +135,8 @@ public class ProgramListProcessor extends AbstractMythtvProcessor {
 						programGroupIds.add( programGroupId );
 					}
 					
-					long programId = programProcessor.updateProgramContentProvider( program, programGroupId, programType );
+					long channelId = channelProcessor.updateChannelContentProvider( program.getChannelInfo() );
+					long programId = programProcessor.updateProgramContentProvider( program, programGroupId, channelId, programType );
 					programIds.add( programId );
 					
 					updateArtworkContentProvider( program, programId );
