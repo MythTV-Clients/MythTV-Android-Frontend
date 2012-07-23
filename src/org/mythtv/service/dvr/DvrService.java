@@ -20,9 +20,8 @@
 package org.mythtv.service.dvr;
 
 import org.mythtv.service.MythtvService;
-import org.mythtv.service.dvr.recordings.ProgramListProcessor;
-import org.mythtv.service.dvr.recordings.ProgramListProcessor.RecordingListProcessorCallback;
-import org.mythtv.service.dvr.recordings.ProgramListProcessor.UpcomingListProcessorCallback;
+import org.mythtv.service.dvr.ProgramListProcessor.RecordingListProcessorCallback;
+import org.mythtv.service.dvr.ProgramListProcessor.UpcomingListProcessorCallback;
 
 import android.content.Intent;
 import android.os.Bundle;
