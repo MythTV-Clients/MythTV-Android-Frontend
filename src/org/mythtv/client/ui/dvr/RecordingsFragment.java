@@ -409,6 +409,7 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 		/* (non-Javadoc)
 		 * @see android.support.v4.widget.CursorAdapter#bindView(android.view.View, android.content.Context, android.database.Cursor)
 		 */
+		@SuppressWarnings( "deprecation" )
 		@Override
 		public void bindView( View view, Context context, Cursor cursor ) {
 	        Log.v( TAG, "bindView : enter" );
@@ -434,61 +435,6 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 			Log.v( TAG, "bindView : exit" );
 		}
 
-//		/* (non-Javadoc)
-//		 * @see android.support.v4.widget.CursorAdapter#getView(int, android.view.View, android.view.ViewGroup)
-//		 */
-//		@SuppressWarnings( "deprecation" )
-//		@Override
-//		public View getView( int position, View convertView, ViewGroup parent ) {
-//			
-//			View row =  super.getView( position, convertView, parent );
-//			
-//			getCursor().moveToPosition( position );
-//		    try {
-//		        String name = getCursor().getString( getCursor().getColumnIndexOrThrow( ProgramGroupConstants.FIELD_PROGRAM_GROUP ) );
-//		        String inetref = getCursor().getString( getCursor().getColumnIndexOrThrow( ProgramGroupConstants.FIELD_INETREF ) );
-//		        String banner = getCursor().getString( getCursor().getColumnIndexOrThrow( ProgramGroupConstants.FIELD_BANNER_URL ) );
-//		        Log.v( TAG, "getView : name=" + name + ", inetref=" + inetref + ", banner=" + banner );
-//		        
-//				TextView textView = (TextView) row.findViewById( R.id.program_group_row );
-//				if( null == banner || "".equals( banner ) || "N/A".equals( banner ) ) {
-//					Log.v( TAG, "getView : program group contains no artwork" );
-//
-//					row.setBackgroundDrawable( null );
-//					textView.setText( name );
-//				} else {
-//					Log.v( TAG, "getView : program group contains artwork" );
-//
-//		            File f = new File( banner );
-//					if( f.exists() ) {
-//						Log.v( TAG, "getView : loading banner from cache" );
-//						
-//						try {
-//							InputStream is = new FileInputStream( f );
-//							Bitmap bitmap = BitmapFactory.decodeStream( is );
-//
-//							row.setBackgroundDrawable( new BitmapDrawable( bitmap ) );
-//							textView.setText( "" );
-//						} catch( Exception e ) {
-//							Log.e( TAG, "getView : error reading file" );
-//
-//							row.setBackgroundDrawable( null );
-//							textView.setText( name );
-//						}
-//					} else {
-//						new DownloadBannerImageTask().execute( inetref );
-//
-//						row.setBackgroundDrawable( null );
-//						textView.setText( name );
-//					}
-//				}
-//		    } catch( Exception e ) {
-//				Log.e( TAG, "getView : error", e );
-//		    }
-//		    
-//			return row;
-//		}
-		
 		private class ViewHolder {
 			
 			LinearLayout programGroupDetail;
@@ -594,6 +540,7 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 				programGroupIds.add( programGroupId );
 			}
 		}
+		cursor.close();
 		Log.v( TAG, "onCreate : programGroupIds=" + programGroupIds.toString() );
 		
 		Bundle bundle = new Bundle();
