@@ -45,7 +45,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	private static final String TAG = DatabaseHelper.class.getSimpleName();
 	
 	private static final String DATABASE_NAME = "mythtvdb";
-	private static final int DATABASE_VERSION = 19;
+	private static final int DATABASE_VERSION = 26;
 
 	public DatabaseHelper( Context context ) {
 		super( context, DATABASE_NAME, null, DATABASE_VERSION );
@@ -96,8 +96,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			createPlaybackProfiles( db );
 		}
 
-		if( oldVersion < 19 ) {
-			Log.v( TAG, "onUpgrade : upgrading to db version 19" );
+		if( oldVersion < 26 ) {
+			Log.v( TAG, "onUpgrade : upgrading to db version 26" );
 
 			dropProgramGroup( db );
 			createProgramGroup( db );
@@ -352,6 +352,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		sqlBuilder.append( "CREATE TABLE " + ProgramConstants.TABLE_NAME + " (" );
 		sqlBuilder.append( _ID ).append( " " ).append( ProgramConstants.FIELD_ID_DATA_TYPE ).append( " " ).append( ProgramConstants.FIELD_ID_PRIMARY_KEY ).append( ", " );
 		sqlBuilder.append( ProgramConstants.FIELD_PROGRAM_TYPE ).append( " " ).append( ProgramConstants.FIELD_PROGRAM_TYPE_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ProgramConstants.FIELD_PROGRAM_GROUP ).append( " " ).append( ProgramConstants.FIELD_PROGRAM_GROUP_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ProgramConstants.FIELD_START_DATE ).append( " " ).append( ProgramConstants.FIELD_START_DATE_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( ProgramConstants.FIELD_START_TIME ).append( " " ).append( ProgramConstants.FIELD_START_TIME_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( ProgramConstants.FIELD_END_TIME ).append( " " ).append( ProgramConstants.FIELD_END_TIME_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( ProgramConstants.FIELD_TITLE ).append( " " ).append( ProgramConstants.FIELD_TITLE_DATA_TYPE ).append( ", " );
@@ -379,9 +381,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		sqlBuilder.append( ProgramConstants.FIELD_CHANNEL_ID ).append( " " ).append( ProgramConstants.FIELD_CHANNEL_ID_DATA_TYPE );
 		sqlBuilder.append( ");" );
 		String sql = sqlBuilder.toString();
-		if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
+		//if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
 			Log.v( TAG, "createProgram : sql=" + sql );
-		}
+		//}
 		db.execSQL( sql );
 	
 		Log.v( TAG, "createProgram : exit" );

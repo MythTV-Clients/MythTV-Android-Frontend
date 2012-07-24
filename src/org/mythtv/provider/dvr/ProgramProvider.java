@@ -28,6 +28,7 @@ import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteStatement;
 import android.net.Uri;
 import android.provider.BaseColumns;
 import android.text.TextUtils;
@@ -37,8 +38,6 @@ import android.text.TextUtils;
  *
  */
 public class ProgramProvider extends AbstractMythtvContentProvider {
-
-//	private static final String TAG = ProgramProvider.class.getSimpleName();
 
 	private static final int PROGRAMS = 1;
 	private static final int PROGRAM_ID = 2;
@@ -61,7 +60,6 @@ public class ProgramProvider extends AbstractMythtvContentProvider {
 	 */
 	@Override
 	public boolean onCreate() {
-		//Log.v( TAG, "onCreate : enter" );
 		
 		uriMatcher = new UriMatcher( UriMatcher.NO_MATCH );
 		uriMatcher.addURI( ProgramConstants.AUTHORITY, "program", PROGRAMS );
@@ -69,7 +67,6 @@ public class ProgramProvider extends AbstractMythtvContentProvider {
 		
 		database = new DatabaseHelper( getContext() );
 		
-		//Log.v( TAG, "onCreate : exit" );
 		return true;
 	}
 
@@ -78,14 +75,8 @@ public class ProgramProvider extends AbstractMythtvContentProvider {
 	 */
 	@Override
 	public Cursor query( Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder ) {
-		//Log.v( TAG, "query : enter" );
-		
-		//if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
-		//	Log.v( TAG, "query : uri=" + uri.toString() );
-		//}
 		
 		if( uriMatcher.match( uri ) == PROGRAM_ID ) {
-		//	Log.v( TAG, "query : uri segment=" + uri.getPathSegments().get( 1 ) );
 
 			long id = Long.parseLong( uri.getPathSegments().get( 1 ) );
 			selection = appendRowId( selection, id );
@@ -99,7 +90,6 @@ public class ProgramProvider extends AbstractMythtvContentProvider {
 		// source data changes
 		cursor.setNotificationUri( getContext().getContentResolver(), uri );
 		
-		//Log.v( TAG, "query : exit" );
 		return cursor;
 	}
 
@@ -108,23 +98,15 @@ public class ProgramProvider extends AbstractMythtvContentProvider {
 	 */
 	@Override
 	public String getType( Uri uri ) {
-		//Log.v( TAG, "getType : enter" );
-
-		//if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
-		//	Log.v( TAG, "getType : uri=" + uri.toString() );
-		//}
 		
 		switch( uriMatcher.match( uri ) ) {
 			case PROGRAMS:
-		//		Log.v( TAG, "getType : exit, programs selected" );
 
 				return CONTENT_TYPE;
 			case PROGRAM_ID:
-		//		Log.v( TAG, "getType : exit, program id selected" );
 
 				return CONTENT_ITEM_TYPE;
 			default:
-		//		Log.w( TAG, "getType : exit, unknown uri" );
 
 				throw new IllegalArgumentException( "Unknown URI " + uri );
 		}
@@ -135,11 +117,6 @@ public class ProgramProvider extends AbstractMythtvContentProvider {
 	 */
 	@Override
 	public Uri insert( Uri uri, ContentValues values ) {
-		//Log.v( TAG, "insert : enter" );
-
-		//if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
-		//	Log.v( TAG, "insert : uri=" + uri.toString() );
-		//}
 		
 		SQLiteDatabase db = database.getWritableDatabase();
 
@@ -156,7 +133,6 @@ public class ProgramProvider extends AbstractMythtvContentProvider {
 
 		getContext().getContentResolver().notifyChange( newUri, null );
 		
-		//Log.v( TAG, "insert : exit" );
 		return newUri;
 	}
 
@@ -165,12 +141,7 @@ public class ProgramProvider extends AbstractMythtvContentProvider {
 	 */
 	@Override
 	public int delete( Uri uri, String selection, String[] selectionArgs ) {
-		//Log.v( TAG, "delete : enter" );
 		
-		//if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
-		//	Log.v( TAG, "delete : uri=" + uri.toString() );
-		//}
-
 		SQLiteDatabase db = database.getWritableDatabase();
 
 		String recordId = Long.toString( ContentUris.parseId( uri ) );
@@ -179,7 +150,6 @@ public class ProgramProvider extends AbstractMythtvContentProvider {
 				+ recordId
 				+ ( !TextUtils.isEmpty( selection ) ? " AND (" + selection + ')' : "" ), selectionArgs );
 		
-		//Log.v( TAG, "delete : exit" );
 		return affected;
 	}
 
@@ -188,29 +158,86 @@ public class ProgramProvider extends AbstractMythtvContentProvider {
 	 */
 	@Override
 	public int update( Uri uri, ContentValues values, String selection, String[] selectionArgs ) {
-		//Log.v( TAG, "update : enter" );
 
-		//if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
-		//	Log.v( TAG, "update : uri=" + uri.toString() );
-		//}
-		
 		SQLiteDatabase db = database.getWritableDatabase();
-
+		
 		// Validate the requested uri
-		if( uriMatcher.match( uri ) != PROGRAM_ID ) {
-			throw new IllegalArgumentException( "Unknown URI " + uri );
+		if( uriMatcher.match( uri ) == PROGRAM_ID ) {
+
+			long id = Long.parseLong( uri.getPathSegments().get( 1 ) );
+			selection = appendRowId( selection, id );
 		}
 
-		String recordId = Long.toString( ContentUris.parseId( uri ) );
-		int affected = db.update( ProgramConstants.TABLE_NAME, values, BaseColumns._ID
-				+ "="
-				+ recordId
-				+ ( !TextUtils.isEmpty( selection ) ? " AND (" + selection + ')' : "" ), selectionArgs );
+		int affected = db.update( ProgramConstants.TABLE_NAME, values, selection , selectionArgs );
 
 		getContext().getContentResolver().notifyChange( uri, null );
 
-		//Log.v( TAG, "update : exit" );
 		return affected;
+	}
+
+	/* (non-Javadoc)
+	 * @see android.content.ContentProvider#bulkInsert(android.net.Uri, android.content.ContentValues[])
+	 */
+	@Override
+	public int bulkInsert( Uri uri, ContentValues[] values ) {
+	
+		final SQLiteDatabase db = database.getWritableDatabase();
+
+		final int match = uriMatcher.match( uri );
+		switch( match ) {
+			case PROGRAMS:
+				int numInserted = 0;
+			
+				db.beginTransaction();
+				try {
+					//standard SQL insert statement, that can be reused
+					SQLiteStatement insert = db.compileStatement( ProgramConstants.INSERT_ROW );
+				
+					for( ContentValues value : values ) {
+						insert.bindString( 1, value.getAsString( ProgramConstants.FIELD_PROGRAM_TYPE ) );
+						insert.bindString( 2, value.getAsString( ProgramConstants.FIELD_PROGRAM_GROUP ) );
+						insert.bindString( 3, value.getAsString( ProgramConstants.FIELD_START_DATE ) );
+						insert.bindString( 4, value.getAsString( ProgramConstants.FIELD_START_TIME ) );
+						insert.bindString( 5, value.getAsString( ProgramConstants.FIELD_END_TIME ) );
+						insert.bindString( 6, value.getAsString( ProgramConstants.FIELD_TITLE ) );
+						insert.bindString( 7, value.getAsString( ProgramConstants.FIELD_SUB_TITLE ) );
+						insert.bindString( 8, value.getAsString( ProgramConstants.FIELD_CATEGORY ) );
+						insert.bindString( 9, value.getAsString( ProgramConstants.FIELD_CATEGORY_TYPE ) );
+						insert.bindLong( 10, value.getAsInteger( ProgramConstants.FIELD_REPEAT ) );
+						insert.bindLong( 11, value.getAsInteger( ProgramConstants.FIELD_VIDEO_PROPS ) );
+						insert.bindLong( 12, value.getAsInteger( ProgramConstants.FIELD_AUDIO_PROPS ) );
+						insert.bindLong( 13, value.getAsInteger( ProgramConstants.FIELD_SUB_PROPS ) );
+						insert.bindString( 14, value.getAsString( ProgramConstants.FIELD_SERIES_ID ) );
+						insert.bindString( 15, value.getAsString( ProgramConstants.FIELD_PROGRAM_ID ) );
+						insert.bindDouble( 16, value.getAsFloat( ProgramConstants.FIELD_STARS ) );
+						insert.bindString( 17, value.getAsString( ProgramConstants.FIELD_FILE_SIZE ) );
+						insert.bindString( 18, value.getAsString( ProgramConstants.FIELD_LAST_MODIFIED ) );
+						insert.bindString( 19, value.getAsString( ProgramConstants.FIELD_PROGRAM_FLAGS ) );
+						insert.bindString( 20, value.getAsString( ProgramConstants.FIELD_HOSTNAME ) );
+						insert.bindString( 21, value.getAsString( ProgramConstants.FIELD_FILENAME ) );
+						insert.bindString( 22, value.getAsString( ProgramConstants.FIELD_AIR_DATE ) );
+						insert.bindString( 23, value.getAsString( ProgramConstants.FIELD_DESCRIPTION ) );
+						insert.bindString( 24, value.getAsString( ProgramConstants.FIELD_INETREF ) );
+						insert.bindString( 25, value.getAsString( ProgramConstants.FIELD_SEASON ) );
+						insert.bindString( 26, value.getAsString( ProgramConstants.FIELD_EPISODE ) );
+						insert.bindLong( 27, value.getAsInteger( ProgramConstants.FIELD_PROGRAM_GROUP_ID ) );
+						insert.bindLong( 28, value.getAsInteger( ProgramConstants.FIELD_CHANNEL_ID ) );
+						insert.execute();
+					}
+					db.setTransactionSuccessful();
+	            
+					numInserted = values.length;
+				} finally {
+					db.endTransaction();
+				}
+			
+				return numInserted;
+			
+			default:
+				throw new UnsupportedOperationException( "unsupported uri: " + uri );
+		
+		}
+
 	}
 
 }

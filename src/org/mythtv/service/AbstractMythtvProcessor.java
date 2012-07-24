@@ -33,7 +33,8 @@ public abstract class AbstractMythtvProcessor {
 
 	protected static final String TAG = AbstractMythtvProcessor.class.getSimpleName();
 
-	protected static final SimpleDateFormat sdf = new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ss" );
+	protected static final SimpleDateFormat dateFormatter = new SimpleDateFormat( "yyyy-MM-dd" );
+	protected static final SimpleDateFormat dateTimeFormatter = new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ss" );
 	
 	protected MainApplication application;
 	protected Context mContext;
@@ -41,6 +42,12 @@ public abstract class AbstractMythtvProcessor {
 	public AbstractMythtvProcessor( Context context ) {
 		mContext = context;
 		application = (MainApplication) context.getApplicationContext();
+	}
+
+	public interface NotifyCallback {
+
+		void notify( String message );
+		
 	}
 
 }

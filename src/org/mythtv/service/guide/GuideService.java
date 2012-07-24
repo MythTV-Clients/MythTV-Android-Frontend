@@ -19,11 +19,13 @@
  */
 package org.mythtv.service.guide;
 
+import org.mythtv.service.AbstractMythtvProcessor.NotifyCallback;
 import org.mythtv.service.MythtvService;
 import org.mythtv.service.guide.GuideProcessor.GuideProcessorCallback;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.ResultReceiver;
 import android.util.Log;
 
@@ -37,13 +39,46 @@ public class GuideService extends MythtvService {
 
 	public static enum Resource { GUIDE_LISTS };
 
-	private Intent mOriginalRequestIntent;
+    public static final String BROADCAST_ACTION = "org.mythtv.service.guide.broadcast.DOWNLOAD_STATUS";
+    private final Handler handler = new Handler();
+	private Intent broadcastIntent;
+
+    private Intent mOriginalRequestIntent;
 	private ResultReceiver mCallback;
 
 	public GuideService() {
 		super( "GuideService" );
 	}
 	
+	/* (non-Javadoc)
+	 * @see android.app.IntentService#onCreate()
+	 */
+	@Override
+	public void onCreate() {
+		Log.v( TAG, "onCreate : enter" );
+		super.onCreate();
+		
+		broadcastIntent = new Intent( BROADCAST_ACTION );	
+
+		Log.v( TAG, "onCreate : exit" );
+	}
+
+	/* (non-Javadoc)
+	 * @see android.app.IntentService#onStart(android.content.Intent, int)
+	 */
+	@Override
+	public void onStart( Intent intent, int startId ) {
+		Log.v( TAG, "onStart : enter" );
+		super.onStart( intent, startId );
+		
+		handler.removeCallbacks( sendUpdatesToUI );
+
+		Log.v( TAG, "onStart : exit" );
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mythtv.service.MythtvService#onHandleIntent(android.content.Intent)
+	 */
 	@Override
 	protected void onHandleIntent( Intent requestIntent ) {
 		Log.v( TAG, "onHandleIntent : enter" );
@@ -61,7 +96,7 @@ public class GuideService extends MythtvService {
 				Log.v( TAG, "onHandleIntent : getting guide list" );
 				
 				GuideProcessor processor = new GuideProcessor( getApplicationContext() );
-				processor.getProgramGuide( makeGuideProcessorCallback() );
+				processor.getProgramGuide( makeGuideProcessorCallback(), makeNotifyCallback() );
 			} else {
 				Log.w( TAG, "onHandleIntent : incorrect method for retrieving program guide" );
 				
@@ -90,6 +125,18 @@ public class GuideService extends MythtvService {
 
 	// internal helpers
 	
+	private Runnable sendUpdatesToUI = new Runnable() {
+	    
+		public void run() {
+			Log.d( TAG, "Thread.sendUpdatesToUI.run : enter" );
+
+			sendBroadcast( broadcastIntent );
+
+    	    Log.d( TAG, "Thread.sendUpdatesToUI.run : exit" );
+    	}
+
+	};
+
 	private GuideProcessorCallback makeGuideProcessorCallback() {
 		GuideProcessorCallback callback = new GuideProcessorCallback() {
 
@@ -99,9 +146,25 @@ public class GuideService extends MythtvService {
 					mCallback.send( resultCode, getOriginalIntentBundle() );
 				}
 			}
+
 		};
 		
 		return callback;
 	}
 
+	private NotifyCallback makeNotifyCallback() {
+		NotifyCallback callback = new NotifyCallback() {
+
+			@Override
+			public void notify( String message ) {
+				broadcastIntent.putExtra( BROADCAST_ACTION, message );
+				
+				handler.postDelayed( sendUpdatesToUI, 1000 );				
+			}
+			
+		};
+		
+		return callback;
+	}
+	
 }

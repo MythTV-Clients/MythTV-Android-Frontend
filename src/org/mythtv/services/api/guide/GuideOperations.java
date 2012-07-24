@@ -59,7 +59,7 @@ public interface GuideOperations {
 	 * @param details
 	 * @return
 	 */
-	ProgramGuide getProgramGuide( Date start, Date end, int startChannelId, int numberOfChannels, boolean details );
+	ProgramGuideWrapper getProgramGuide( Date start, Date end, int startChannelId, int numberOfChannels, boolean details );
 	
 	/**
 	 * @param start
@@ -69,6 +69,6 @@ public interface GuideOperations {
 	 * @param details
 	 * @return
 	 */
-	ResponseEntity<ProgramGuide> getProgramGuideResponseEntity( Date start, Date end, int startChannelId, int numberOfChannels, boolean details );
+	ResponseEntity<ProgramGuideWrapper> getProgramGuideResponseEntity( Date start, Date end, int startChannelId, int numberOfChannels, boolean details );
 
 }

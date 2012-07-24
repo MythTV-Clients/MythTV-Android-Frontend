@@ -32,6 +32,8 @@ public class ChannelConstants {
 	
 	public static final Uri CONTENT_URI = Uri.parse( "content://" + AUTHORITY + "/" + TABLE_NAME );
 
+	public static final String INSERT_ROW;
+	
 	// db fields
 	public static final String FIELD_ID_DATA_TYPE = "INTEGER";
 	public static final String FIELD_ID_PRIMARY_KEY = "PRIMARY KEY AUTOINCREMENT";
@@ -115,5 +117,41 @@ public class ChannelConstants {
 
 	public static final String FIELD_DEFAULT_AUTH = "DEFAULT_AUTH";
 	public static final String FIELD_DEFAULT_AUTH_DATA_TYPE = "TEXT";
+
+	static {
+		StringBuilder sb = new StringBuilder();
+		
+		sb.append( "INSERT INTO " ).append( TABLE_NAME ).append( " ( " );
+		sb.append( FIELD_CHAN_ID ).append( "," );
+		sb.append( FIELD_CHAN_NUM ).append( "," );
+		sb.append( FIELD_CALLSIGN ).append( "," );
+		sb.append( FIELD_ICON_URL ).append( "," );
+		sb.append( FIELD_CHANNEL_NAME ).append( "," );
+		sb.append( FIELD_MPLEX_ID ).append( "," );
+		sb.append( FIELD_TRANSPORT_ID ).append( "," );
+		sb.append( FIELD_SERVICE_ID ).append( "," );
+		sb.append( FIELD_NETWORK_ID ).append( "," );
+		sb.append( FIELD_ATSC_MAJOR_CHAN ).append( "," );
+		sb.append( FIELD_ATSC_MINOR_CHAN ).append( "," );
+		sb.append( FIELD_FORMAT ).append( "," );
+		sb.append( FIELD_MODULATION ).append( "," );
+		sb.append( FIELD_FREQUENCY ).append( "," );
+		sb.append( FIELD_FREQUENCY_ID ).append( "," );
+		sb.append( FIELD_FREQUENCY_TABLE ).append( "," );
+		sb.append( FIELD_FINE_TUNE ).append( "," );
+		sb.append( FIELD_SIS_STANDARD ).append( "," );
+		sb.append( FIELD_CHAN_FILTERS ).append( "," );
+		sb.append( FIELD_SOURCE_ID ).append( "," );
+		sb.append( FIELD_INPUT_ID ).append( "," );
+		sb.append( FIELD_COMM_FREE ).append( "," );
+		sb.append( FIELD_USE_EIT ).append( "," );
+		sb.append( FIELD_VISIBLE ).append( "," );
+		sb.append( FIELD_XMLTV_ID ).append( "," );
+		sb.append( FIELD_DEFAULT_AUTH );
+		sb.append( " ) " );
+		sb.append( "VALUES( ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? )" );
+		
+		INSERT_ROW = sb.toString();
+	}
 
 }

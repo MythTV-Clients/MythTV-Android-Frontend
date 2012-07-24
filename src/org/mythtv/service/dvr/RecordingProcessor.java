@@ -47,7 +47,7 @@ public class RecordingProcessor extends AbstractMythtvProcessor {
 	}
 
 	public Long updateRecordingContentProvider( Recording recording, long programId ) {
-		Log.v( TAG, "updateRecordingContentProvider : enter" );
+//		Log.v( TAG, "updateRecordingContentProvider : enter" );
 		
 		if( null != recording ) {
 			
@@ -60,8 +60,8 @@ public class RecordingProcessor extends AbstractMythtvProcessor {
 			ContentValues values = new ContentValues();
 			values.put( RecordingConstants.FIELD_STATUS, recording.getStatus() );
 			values.put( RecordingConstants.FIELD_PRIORITY, recording.getPriority() );
-			values.put( RecordingConstants.FIELD_START_TS, null != recording.getStartTimestamp() ? sdf.format( recording.getStartTimestamp() ) : "" );
-			values.put( RecordingConstants.FIELD_END_TS, null != recording.getEndTimestamp() ? sdf.format( recording.getEndTimestamp() ) : "" );
+			values.put( RecordingConstants.FIELD_START_TS, null != recording.getStartTimestamp() ? dateTimeFormatter.format( recording.getStartTimestamp() ) : "" );
+			values.put( RecordingConstants.FIELD_END_TS, null != recording.getEndTimestamp() ? dateTimeFormatter.format( recording.getEndTimestamp() ) : "" );
 			values.put( RecordingConstants.FIELD_RECORD_ID, recording.getRecordid() );
 			values.put( RecordingConstants.FIELD_REC_GROUP, null != recording.getRecordingGroup() ? recording.getRecordingGroup() : "" );
 			values.put( RecordingConstants.FIELD_STORAGE_GROUP, null != recording.getStorageGroup() ? recording.getStorageGroup() : "" );
@@ -83,7 +83,7 @@ public class RecordingProcessor extends AbstractMythtvProcessor {
 			}
 			cursor.close();
 			
-			Log.v( TAG, "updateRecordingContentProvider : exit" );
+//			Log.v( TAG, "updateRecordingContentProvider : exit" );
 			return id;
 		}
 		

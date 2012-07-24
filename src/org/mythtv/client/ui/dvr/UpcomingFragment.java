@@ -26,14 +26,12 @@ import java.util.Date;
 import org.mythtv.R;
 import org.mythtv.client.ui.util.MythtvListFragment;
 import org.mythtv.client.ui.util.ProgramHelper;
-import org.mythtv.db.channel.ChannelConstants;
 import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.service.dvr.DvrServiceHelper;
 
 import android.annotation.TargetApi;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
-import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -332,7 +330,7 @@ public class UpcomingFragment extends MythtvListFragment implements LoaderManage
 				String sTitle = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_TITLE ) );
 				String sSubTitle = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_SUB_TITLE ) );
 				String sCategory = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_CATEGORY ) );
-				Integer iChannelId = cursor.getInt( cursor.getColumnIndex( ProgramConstants.FIELD_CHANNEL_ID ) );
+				String sChannelNumber = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_CHANNEL_ID ) );
 
 				Date dStartTime = null;
 				
@@ -342,19 +340,10 @@ public class UpcomingFragment extends MythtvListFragment implements LoaderManage
 					Log.v( TAG, "UpcomingCursorAdapter.bindView : error parsing start and end dates" );
 				}
 				
-				String sChannel = "";
-				Cursor channelCursor = mContext.getContentResolver().query( ContentUris.withAppendedId( ChannelConstants.CONTENT_URI, iChannelId ), new String[] { ChannelConstants.FIELD_CHAN_NUM }, null, null, null );
-				if( channelCursor.moveToFirst() ) {
-					String sChannelNumber = channelCursor.getString( channelCursor.getColumnIndexOrThrow( ChannelConstants.FIELD_CHAN_NUM ) );
-				
-					sChannel = sChannelNumber; 
-				}
-				channelCursor.close();
-				
 				mHolder.category.setBackgroundColor( mProgramHelper.getCategoryColor( sCategory ) );
 				mHolder.title.setText( sTitle );
 				mHolder.subTitle.setText( sSubTitle );
-				mHolder.channel.setText( sChannel );
+				mHolder.channel.setText( sChannelNumber );
 				mHolder.startTime.setText( null != dStartTime ? formatter.format( dStartTime ) : ""  );
 
 				cursor.moveToNext();

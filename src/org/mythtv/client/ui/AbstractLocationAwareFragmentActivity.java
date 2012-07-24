@@ -19,8 +19,10 @@
  */
 package org.mythtv.client.ui;
 
-import org.mythtv.service.dvr.DvrServiceHelper;
+import org.mythtv.service.guide.GuideService;
+import org.mythtv.service.guide.GuideServiceHelper;
 
+import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -37,11 +39,13 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 
 	protected static final String TAG = AbstractLocationAwareFragmentActivity.class.getSimpleName();
 
-	private ProgramListReceiver programListReceiver;
-	private UpcomingReceiver upcomingReceiver;
+	private GuideReceiver guideReceiver;
+	private NotifyReceiver notifyReceiver;
 	
-	private DvrServiceHelper mDvrServiceHelper;
-
+	private GuideServiceHelper mGuideServiceHelper;
+	
+	private ProgressDialog mProgressDialog;
+	
 	// ***************************************
 	// FragmentActivity methods
 	// ***************************************
@@ -71,20 +75,17 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 		Log.v( TAG, "onResume : enter" );
 		super.onResume();
 
-		mDvrServiceHelper = DvrServiceHelper.getInstance( this );
+		notifyReceiver = new NotifyReceiver();
+		registerReceiver( notifyReceiver, new IntentFilter( GuideService.BROADCAST_ACTION ) );
 
-		IntentFilter programListFilter = new IntentFilter( DvrServiceHelper.PROGRAM_LIST_RESULT );
-		programListFilter.setPriority( IntentFilter.SYSTEM_LOW_PRIORITY );
-        programListReceiver = new ProgramListReceiver();
-        registerReceiver( programListReceiver, programListFilter );
-//        mDvrServiceHelper.getRecordingsList();
-        
-		IntentFilter upcomingFilter = new IntentFilter( DvrServiceHelper.UPCOMING_RESULT );
-		upcomingFilter.setPriority( IntentFilter.SYSTEM_LOW_PRIORITY );
-		upcomingReceiver = new UpcomingReceiver();
-        registerReceiver( upcomingReceiver, upcomingFilter );
-//		mDvrServiceHelper.getUpcomingList();
-		
+		mGuideServiceHelper = GuideServiceHelper.getInstance( this );
+
+		IntentFilter guideFilter = new IntentFilter( GuideServiceHelper.GUIDE_RESULT );
+		guideFilter.setPriority( IntentFilter.SYSTEM_LOW_PRIORITY );
+        guideReceiver = new GuideReceiver();
+        registerReceiver( guideReceiver, guideFilter );
+        mGuideServiceHelper.getGuideList();
+
 		Log.v( TAG, "onResume : exit" );
 	}
 
@@ -96,18 +97,22 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 		Log.v( TAG, "onPause : enter" );
 		super.onPause();
 
+		if( null != mProgressDialog ) {
+			mProgressDialog.dismiss();
+		}
+
 		// Unregister for broadcast
-		if( null != programListReceiver ) {
+		if( null != notifyReceiver ) {
 			try {
-				unregisterReceiver( programListReceiver );
+				unregisterReceiver( notifyReceiver );
 			} catch( IllegalArgumentException e ) {
 				Log.e( TAG, e.getLocalizedMessage(), e );
 			}
 		}
 		
-		if( null != upcomingReceiver ) {
+		if( null != guideReceiver ) {
 			try {
-				unregisterReceiver( upcomingReceiver );
+				unregisterReceiver( guideReceiver );
 			} catch( IllegalArgumentException e ) {
 				Log.e( TAG, e.getLocalizedMessage(), e );
 			}
@@ -140,26 +145,38 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 
 	// internal helpers
 
-	private class ProgramListReceiver extends BroadcastReceiver {
+	private class GuideReceiver extends BroadcastReceiver {
 
 		@Override
 		public void onReceive( Context context, Intent intent ) {
-			Log.v( TAG, "ProgramListReceiver.onReceive : enter" );
+			Log.v( TAG, "GuideReceiver.onReceive : enter" );
 			
-			Log.v( TAG, "ProgramListReceiver.onReceive : exit" );
+    		if( null != mProgressDialog ) {
+    			mProgressDialog.dismiss();
+    		}
+
+			Log.v( TAG, "GuideReceiver.onReceive : exit" );
 		}
 		
 	}
 	
-	private class UpcomingReceiver extends BroadcastReceiver {
+    private class NotifyReceiver extends BroadcastReceiver {
+    	
+        @Override
+        public void onReceive( Context context, Intent intent ) {
+    		Log.d( TAG, "onReceive : enter" );
 
-		@Override
-		public void onReceive( Context context, Intent intent ) {
-			Log.v( TAG, "UpcomingReceiver.onReceive : enter" );
-			
-			Log.v( TAG, "UpcomingReceiver.onReceive : exit" );
-		}
-		
-	}
+    		if( null == mProgressDialog ) {
+        		mProgressDialog = ProgressDialog.show( context, "Loading Program Guide", "", true, false );
+    		}
+    		
+    		String message = intent.getExtras().getString( GuideService.BROADCAST_ACTION );
+    		
+    		mProgressDialog.setMessage( message );
+    		
+    		Log.d( TAG, "onReceive : exit" );
+        }
+        
+    };
 
 }

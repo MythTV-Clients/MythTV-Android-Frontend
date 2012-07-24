@@ -28,6 +28,7 @@ import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteStatement;
 import android.net.Uri;
 import android.provider.BaseColumns;
 import android.text.TextUtils;
@@ -212,6 +213,69 @@ public class ChannelProvider extends AbstractMythtvContentProvider {
 
 		//Log.v( TAG, "update : exit" );
 		return affected;
+	}
+
+	/* (non-Javadoc)
+	 * @see android.content.ContentProvider#bulkInsert(android.net.Uri, android.content.ContentValues[])
+	 */
+	@Override
+	public int bulkInsert( Uri uri, ContentValues[] values ) {
+		
+		final SQLiteDatabase db = database.getWritableDatabase();
+
+		final int match = uriMatcher.match( uri );
+		switch( match ) {
+			case CHANNELS:
+				int numInserted = 0;
+			
+				db.beginTransaction();
+				try {
+					//standard SQL insert statement, that can be reused
+					SQLiteStatement insert = db.compileStatement( ChannelConstants.INSERT_ROW );
+				
+					for( ContentValues value : values ) {
+						insert.bindString( 1, value.getAsString( ChannelConstants.FIELD_CHAN_ID ) );
+						insert.bindString( 2, value.getAsString( ChannelConstants.FIELD_CHAN_NUM ) );
+						insert.bindString( 3, value.getAsString( ChannelConstants.FIELD_CALLSIGN ) );
+						insert.bindString( 4, value.getAsString( ChannelConstants.FIELD_ICON_URL ) );
+						insert.bindString( 5, value.getAsString( ChannelConstants.FIELD_CHANNEL_NAME ) );
+						insert.bindLong( 6, value.getAsInteger( ChannelConstants.FIELD_MPLEX_ID ) );
+						insert.bindLong( 7, value.getAsInteger( ChannelConstants.FIELD_TRANSPORT_ID ) );
+						insert.bindLong( 8, value.getAsInteger( ChannelConstants.FIELD_SERVICE_ID ) );
+						insert.bindLong( 9, value.getAsInteger( ChannelConstants.FIELD_NETWORK_ID ) );
+						insert.bindLong( 10, value.getAsInteger( ChannelConstants.FIELD_ATSC_MAJOR_CHAN ) );
+						insert.bindLong( 11, value.getAsInteger( ChannelConstants.FIELD_ATSC_MINOR_CHAN ) );
+						insert.bindString( 12, value.getAsString( ChannelConstants.FIELD_FORMAT ) );
+						insert.bindString( 13, value.getAsString( ChannelConstants.FIELD_MODULATION ) );
+						insert.bindLong( 14, value.getAsInteger( ChannelConstants.FIELD_FREQUENCY ) );
+						insert.bindString( 15, value.getAsString( ChannelConstants.FIELD_FREQUENCY_ID ) );
+						insert.bindString( 16, value.getAsString( ChannelConstants.FIELD_FREQUENCY_TABLE ) );
+						insert.bindLong( 17, value.getAsInteger( ChannelConstants.FIELD_FINE_TUNE ) );
+						insert.bindString( 18, value.getAsString( ChannelConstants.FIELD_SIS_STANDARD ) );
+						insert.bindString( 19, value.getAsString( ChannelConstants.FIELD_CHAN_FILTERS ) );
+						insert.bindLong( 20, value.getAsInteger( ChannelConstants.FIELD_SOURCE_ID ) );
+						insert.bindLong( 21, value.getAsInteger( ChannelConstants.FIELD_INPUT_ID ) );
+						insert.bindLong( 22, value.getAsInteger( ChannelConstants.FIELD_COMM_FREE ) );
+						insert.bindLong( 23, value.getAsInteger( ChannelConstants.FIELD_USE_EIT ) );
+						insert.bindLong( 24, value.getAsInteger( ChannelConstants.FIELD_VISIBLE ) );
+						insert.bindString( 25, value.getAsString( ChannelConstants.FIELD_XMLTV_ID ) );
+						insert.bindString( 26, value.getAsString( ChannelConstants.FIELD_DEFAULT_AUTH ) );
+						insert.execute();
+					}
+					db.setTransactionSuccessful();
+	            
+					numInserted = values.length;
+				} finally {
+					db.endTransaction();
+				}
+			
+				return numInserted;
+			
+			default:
+				throw new UnsupportedOperationException( "unsupported uri: " + uri );
+		
+		}
+
 	}
 
 }

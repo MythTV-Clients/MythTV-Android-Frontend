@@ -20,6 +20,7 @@
 package org.mythtv.db.dvr;
 
 import android.net.Uri;
+import android.provider.BaseColumns;
 
 /**
  * @author Daniel Frey
@@ -27,19 +28,27 @@ import android.net.Uri;
  */
 public class ProgramConstants {
 
-	public enum ProgramType { RECORDED, UPCOMING };
+	public enum ProgramType { RECORDED, UPCOMING, GUIDE, PREVIOUSLY_RECORDED };
 	
 	public static final String AUTHORITY = "org.mythtv.dvr.programs";
 	public static final String TABLE_NAME = "program";
 	
 	public static final Uri CONTENT_URI = Uri.parse( "content://" + AUTHORITY + "/" + TABLE_NAME );
 
+	public static final String INSERT_ROW, UPDATE_ROW;
+	
 	// db fields
 	public static final String FIELD_ID_DATA_TYPE = "INTEGER";
 	public static final String FIELD_ID_PRIMARY_KEY = "PRIMARY KEY AUTOINCREMENT";
 	
 	public static final String FIELD_PROGRAM_TYPE = "PROGRAM_TYPE";
 	public static final String FIELD_PROGRAM_TYPE_DATA_TYPE = "TEXT";
+
+	public static final String FIELD_PROGRAM_GROUP = "PROGRAM_GROUP";
+	public static final String FIELD_PROGRAM_GROUP_DATA_TYPE = "TEXT";
+
+	public static final String FIELD_START_DATE = "START_DATE";
+	public static final String FIELD_START_DATE_DATA_TYPE = "TEXT";
 
 	public static final String FIELD_START_TIME = "START_TIME";
 	public static final String FIELD_START_TIME_DATA_TYPE = "TEXT";
@@ -115,6 +124,79 @@ public class ProgramConstants {
 	public static final String FIELD_PROGRAM_GROUP_ID_DATA_TYPE = "INTEGER";
 
 	public static final String FIELD_CHANNEL_ID = "CHANNEL_ID";
-	public static final String FIELD_CHANNEL_ID_DATA_TYPE = "INTEGER";
+	public static final String FIELD_CHANNEL_ID_DATA_TYPE = "TEXT";
 
+	static {
+		StringBuilder insert = new StringBuilder();
+		
+		insert.append( "INSERT INTO " ).append( TABLE_NAME ).append( " ( " );
+		insert.append( FIELD_PROGRAM_TYPE ).append( "," );
+		insert.append( FIELD_PROGRAM_GROUP ).append( "," );
+		insert.append( FIELD_START_DATE ).append( "," );
+		insert.append( FIELD_START_TIME ).append( "," );
+		insert.append( FIELD_END_TIME ).append( "," );
+		insert.append( FIELD_TITLE ).append( "," );
+		insert.append( FIELD_SUB_TITLE ).append( "," );
+		insert.append( FIELD_CATEGORY ).append( "," );
+		insert.append( FIELD_CATEGORY_TYPE ).append( "," );
+		insert.append( FIELD_REPEAT ).append( "," );
+		insert.append( FIELD_VIDEO_PROPS ).append( "," );
+		insert.append( FIELD_AUDIO_PROPS ).append( "," );
+		insert.append( FIELD_SUB_PROPS ).append( "," );
+		insert.append( FIELD_SERIES_ID ).append( "," );
+		insert.append( FIELD_PROGRAM_ID ).append( "," );
+		insert.append( FIELD_STARS ).append( "," );
+		insert.append( FIELD_FILE_SIZE ).append( "," );
+		insert.append( FIELD_LAST_MODIFIED ).append( "," );
+		insert.append( FIELD_PROGRAM_FLAGS ).append( "," );
+		insert.append( FIELD_HOSTNAME ).append( "," );
+		insert.append( FIELD_FILENAME ).append( "," );
+		insert.append( FIELD_AIR_DATE ).append( "," );
+		insert.append( FIELD_DESCRIPTION ).append( "," );
+		insert.append( FIELD_INETREF ).append( "," );
+		insert.append( FIELD_SEASON ).append( "," );
+		insert.append( FIELD_EPISODE ).append( "," );
+		insert.append( FIELD_PROGRAM_GROUP_ID ).append( "," );
+		insert.append( FIELD_CHANNEL_ID );
+		insert.append( " ) " );
+		insert.append( "VALUES( ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? )" );
+		
+		INSERT_ROW = insert.toString();
+		
+		StringBuilder update = new StringBuilder();
+		update.append( "UPDATE " ).append( TABLE_NAME );
+		update.append( " SET " );
+		update.append( FIELD_PROGRAM_TYPE ).append( " = ?, " );
+		update.append( FIELD_PROGRAM_GROUP ).append( " = ?, " );
+		update.append( FIELD_START_DATE ).append( " = ?, " );
+		update.append( FIELD_START_TIME ).append( " = ?, " );
+		update.append( FIELD_END_TIME ).append( " = ?, " );
+		update.append( FIELD_TITLE ).append( " = ?, " );
+		update.append( FIELD_SUB_TITLE ).append( " = ?, " );
+		update.append( FIELD_CATEGORY ).append( " = ?, " );
+		update.append( FIELD_CATEGORY_TYPE ).append( " = ?, " );
+		update.append( FIELD_REPEAT ).append( " = ?, " );
+		update.append( FIELD_VIDEO_PROPS ).append( " = ?, " );
+		update.append( FIELD_AUDIO_PROPS ).append( " = ?, " );
+		update.append( FIELD_SUB_PROPS ).append( " = ?, " );
+		update.append( FIELD_SERIES_ID ).append( " = ?, " );
+		update.append( FIELD_PROGRAM_ID ).append( " = ?, " );
+		update.append( FIELD_STARS ).append( " = ?, " );
+		update.append( FIELD_FILE_SIZE ).append( " = ?, " );
+		update.append( FIELD_LAST_MODIFIED ).append( " = ?, " );
+		update.append( FIELD_PROGRAM_FLAGS ).append( " = ?, " );
+		update.append( FIELD_HOSTNAME ).append( " = ?, " );
+		update.append( FIELD_FILENAME ).append( " = ?, " );
+		update.append( FIELD_AIR_DATE ).append( " = ?, " );
+		update.append( FIELD_DESCRIPTION ).append( " = ?, " );
+		update.append( FIELD_INETREF ).append( " = ?, " );
+		update.append( FIELD_SEASON ).append( " = ?, " );
+		update.append( FIELD_EPISODE ).append( " = ?, " );
+		update.append( FIELD_PROGRAM_GROUP_ID ).append( " = ?, " );
+		update.append( FIELD_CHANNEL_ID ).append( " = ?" );
+		update.append( " WHERE " ).append( BaseColumns._ID ).append( " = ?" );
+		
+		UPDATE_ROW = update.toString();
+	}
+	
 }
