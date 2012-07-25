@@ -26,7 +26,7 @@ import android.provider.BaseColumns;
  * @author Daniel Frey
  *
  */
-public class ProgramConstants {
+public class ProgramConstants implements BaseColumns {
 
 	public enum ProgramType { RECORDED, UPCOMING, GUIDE, PREVIOUSLY_RECORDED };
 	
@@ -194,7 +194,7 @@ public class ProgramConstants {
 		update.append( FIELD_EPISODE ).append( " = ?, " );
 		update.append( FIELD_PROGRAM_GROUP_ID ).append( " = ?, " );
 		update.append( FIELD_CHANNEL_ID ).append( " = ?" );
-		update.append( " WHERE " ).append( BaseColumns._ID ).append( " = ?" );
+		update.append( " WHERE " ).append( _ID ).append( " = ?" );
 		
 		UPDATE_ROW = update.toString();
 	}

@@ -35,7 +35,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
-import android.provider.BaseColumns;
 import android.util.Log;
 
 /**
@@ -67,11 +66,11 @@ public class ProgramGroupProcessor extends AbstractMythtvProcessor {
 		values.put( ProgramGroupConstants.FIELD_PROGRAM_GROUP_SORT, cleanTitle );
 		values.put( ProgramGroupConstants.FIELD_INETREF, program.getInetref() );
 		
-		Cursor cursor = mContext.getContentResolver().query( ProgramGroupConstants.CONTENT_URI, new String[] { BaseColumns._ID }, ProgramGroupConstants.FIELD_PROGRAM_GROUP + " = ? and " + ProgramGroupConstants.FIELD_PROGRAM_TYPE + " = ?", new String[] { program.getTitle(), programType.name() }, null );
+		Cursor cursor = mContext.getContentResolver().query( ProgramGroupConstants.CONTENT_URI, new String[] { ProgramGroupConstants._ID }, ProgramGroupConstants.FIELD_PROGRAM_GROUP + " = ? and " + ProgramGroupConstants.FIELD_PROGRAM_TYPE + " = ?", new String[] { program.getTitle(), programType.name() }, null );
 		if( cursor.moveToFirst() ) {
 			Log.v( TAG, "updateProgramContentProvider : programGroup already exists" );
 			
-			programGroupId = cursor.getInt( cursor.getColumnIndexOrThrow( BaseColumns._ID ) );
+			programGroupId = cursor.getInt( cursor.getColumnIndexOrThrow( ProgramGroupConstants._ID ) );
 		} else {
 			Log.v( TAG, "updateProgramContentProvider : adding new programGroup" );
 			
@@ -137,9 +136,9 @@ public class ProgramGroupProcessor extends AbstractMythtvProcessor {
 			}
 			
 			List<Long> deleteIds = new ArrayList<Long>();
-			Cursor cursor = mContext.getContentResolver().query( ProgramGroupConstants.CONTENT_URI, new String[] { BaseColumns._ID }, BaseColumns._ID + " not in (" + sb.toString() + ") and " + ProgramGroupConstants.FIELD_PROGRAM_TYPE + " = ?", new String[] { programType.name() }, null );
+			Cursor cursor = mContext.getContentResolver().query( ProgramGroupConstants.CONTENT_URI, new String[] { ProgramGroupConstants._ID }, ProgramGroupConstants._ID + " not in (" + sb.toString() + ") and " + ProgramGroupConstants.FIELD_PROGRAM_TYPE + " = ?", new String[] { programType.name() }, null );
 			while( cursor.moveToNext() ) {
-				Long id = cursor.getLong( cursor.getColumnIndexOrThrow( BaseColumns._ID ) );
+				Long id = cursor.getLong( cursor.getColumnIndexOrThrow( ProgramGroupConstants._ID ) );
 				deleteIds.add( id );
 
 				//Log.v( TAG, "removeDeletedProgramGroups : queing for deletion, id=" + id );

@@ -30,7 +30,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 import android.net.Uri;
-import android.provider.BaseColumns;
 import android.text.TextUtils;
 
 /**
@@ -43,12 +42,12 @@ public class ProgramProvider extends AbstractMythtvContentProvider {
 	private static final int PROGRAM_ID = 2;
 
 	/**
-	 * The MIME type of a directory of events
+	 * The MIME type of a directory of programs
 	 */
 	private static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.mythtv.program";
 
 	/**
-	 * The MIME type of a single event
+	 * The MIME type of a single program
 	 */
 	private static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.mythtv.program";
 
@@ -145,7 +144,7 @@ public class ProgramProvider extends AbstractMythtvContentProvider {
 		SQLiteDatabase db = database.getWritableDatabase();
 
 		String recordId = Long.toString( ContentUris.parseId( uri ) );
-		int affected = db.delete( ProgramConstants.TABLE_NAME, BaseColumns._ID
+		int affected = db.delete( ProgramConstants.TABLE_NAME, ProgramConstants._ID
 				+ "="
 				+ recordId
 				+ ( !TextUtils.isEmpty( selection ) ? " AND (" + selection + ')' : "" ), selectionArgs );

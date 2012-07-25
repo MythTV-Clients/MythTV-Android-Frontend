@@ -35,7 +35,6 @@ import org.springframework.http.ResponseEntity;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.provider.BaseColumns;
 import android.util.Log;
 
 /**
@@ -79,7 +78,7 @@ public class GuideProcessor extends AbstractMythtvProcessor {
 			
 			startDate = startDateFormatter.format( start );
 			
-			Cursor cursor = mContext.getContentResolver().query( ProgramConstants.CONTENT_URI, new String[] { BaseColumns._ID }, ProgramConstants.FIELD_START_DATE + " = ?", new String[] { startDate }, null );
+			Cursor cursor = mContext.getContentResolver().query( ProgramConstants.CONTENT_URI, new String[] { ProgramConstants._ID }, ProgramConstants.FIELD_START_DATE + " = ?", new String[] { startDate }, null );
 			if( cursor.getCount() == 0 ) {
 			
 				Log.v( TAG, "getGuide : loading data for date " + dateTimeFormatter.format( start ) + " thru "  + dateTimeFormatter.format( end ) );

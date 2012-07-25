@@ -33,7 +33,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
-import android.provider.BaseColumns;
 import android.util.Log;
 
 /**
@@ -98,7 +97,7 @@ public class ProgramProcessor extends AbstractMythtvProcessor {
 			values.put( ProgramConstants.FIELD_PROGRAM_GROUP_ID, null != programGroupId ? programGroupId : 0L );
 			values.put( ProgramConstants.FIELD_CHANNEL_ID, null != program.getChannelInfo() ? program.getChannelInfo().getChannelNumber() : "" );
 
-			String[] projection = new String[] { BaseColumns._ID };
+			String[] projection = new String[] { ProgramConstants._ID };
 			
 			StringBuilder sb = new StringBuilder();
 			sb.append( ProgramConstants.FIELD_START_TIME ).append( " = ? and " )
@@ -111,7 +110,7 @@ public class ProgramProcessor extends AbstractMythtvProcessor {
 			
 			Cursor cursor = mContext.getContentResolver().query( ProgramConstants.CONTENT_URI, projection, sb.toString(), args, null );
 			if( cursor.moveToFirst() ) {
-				programId = cursor.getLong( cursor.getColumnIndexOrThrow( BaseColumns._ID ) );
+				programId = cursor.getLong( cursor.getColumnIndexOrThrow( ProgramConstants._ID ) );
 				mContext.getContentResolver().update( ContentUris.withAppendedId( ProgramConstants.CONTENT_URI, programId ), values, null, null );
 			} else {
 				Uri programUri = mContext.getContentResolver().insert( ProgramConstants.CONTENT_URI, values );
@@ -223,9 +222,9 @@ public class ProgramProcessor extends AbstractMythtvProcessor {
 			}
 			
 			List<Long> deleteIds = new ArrayList<Long>();
-			Cursor cursor = mContext.getContentResolver().query( ProgramConstants.CONTENT_URI, new String[] { BaseColumns._ID }, BaseColumns._ID + " not in (" + sb.toString() + ") and " + ProgramConstants.FIELD_PROGRAM_TYPE + " = ?", new String[] { programType.name() }, null );
+			Cursor cursor = mContext.getContentResolver().query( ProgramConstants.CONTENT_URI, new String[] { ProgramConstants._ID }, ProgramConstants._ID + " not in (" + sb.toString() + ") and " + ProgramConstants.FIELD_PROGRAM_TYPE + " = ?", new String[] { programType.name() }, null );
 			while( cursor.moveToNext() ) {
-				Long id = cursor.getLong( cursor.getColumnIndexOrThrow( BaseColumns._ID ) );
+				Long id = cursor.getLong( cursor.getColumnIndexOrThrow( ProgramConstants._ID ) );
 				deleteIds.add( id );
 
 				Log.v( TAG, "removeDeletedPrograms : queing for deletion, id=" + id );

@@ -28,7 +28,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.provider.BaseColumns;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -64,7 +63,7 @@ public class ProgramGroupFragment extends MythtvListFragment implements LoaderMa
 	public Loader<Cursor> onCreateLoader( int id, Bundle args ) {
 		Log.v( TAG, "onCreateLoader : enter" );
 		
-		String[] projection = { BaseColumns._ID, ProgramConstants.FIELD_TITLE, ProgramConstants.FIELD_SUB_TITLE, ProgramConstants.FIELD_CATEGORY };
+		String[] projection = { ProgramConstants._ID, ProgramConstants.FIELD_TITLE, ProgramConstants.FIELD_SUB_TITLE, ProgramConstants.FIELD_CATEGORY };
 		String[] selectionArgs = { programGroup, ProgramConstants.ProgramType.RECORDED.name() };
 		 
 	    CursorLoader cursorLoader = new CursorLoader( getActivity(), ProgramConstants.CONTENT_URI, projection, ProgramConstants.FIELD_TITLE + " = ? and " + ProgramConstants.FIELD_PROGRAM_TYPE + " = ?", selectionArgs, ProgramConstants.FIELD_SEASON + " DESC ," + ProgramConstants.FIELD_EPISODE + " DESC" );
@@ -169,7 +168,7 @@ public class ProgramGroupFragment extends MythtvListFragment implements LoaderMa
 			
 			getCursor().moveToPosition( position );
 		    try {
-		        int id = getCursor().getInt( getCursor().getColumnIndexOrThrow( BaseColumns._ID ) );
+		        int id = getCursor().getInt( getCursor().getColumnIndexOrThrow( ProgramConstants._ID ) );
 		        String title = getCursor().getString( getCursor().getColumnIndexOrThrow( ProgramConstants.FIELD_TITLE ) );
 		        String subTitle = getCursor().getString( getCursor().getColumnIndexOrThrow( ProgramConstants.FIELD_SUB_TITLE ) );
 		        String category = getCursor().getString( getCursor().getColumnIndexOrThrow( ProgramConstants.FIELD_CATEGORY ) );

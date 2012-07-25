@@ -31,7 +31,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
-import android.provider.BaseColumns;
 import android.util.Log;
 
 /**
@@ -89,7 +88,7 @@ public class ChannelProcessor extends AbstractMythtvProcessor {
 			long id = 0;
 			Cursor cursor = mContext.getContentResolver().query( ChannelConstants.CONTENT_URI, null, ChannelConstants.FIELD_CHAN_ID + " = ? and " + ChannelConstants.FIELD_SOURCE_ID + " = ?", new String[] { "" + channel.getChannelId(), "" + channel.getSourceId() }, null );
 			if( cursor.moveToFirst() ) {
-				id = cursor.getInt( cursor.getColumnIndexOrThrow( BaseColumns._ID ) );
+				id = cursor.getInt( cursor.getColumnIndexOrThrow( ChannelConstants._ID ) );
 			} else {
 				Uri contentUri = mContext.getContentResolver().insert( ChannelConstants.CONTENT_URI, values );
 				id = ContentUris.parseId( contentUri );
@@ -109,7 +108,7 @@ public class ChannelProcessor extends AbstractMythtvProcessor {
 		
 		if( null != channels && !channels.isEmpty() ) {
 
-			Cursor cursor = mContext.getContentResolver().query( ChannelConstants.CONTENT_URI, new String[] { BaseColumns._ID }, null, null, null );
+			Cursor cursor = mContext.getContentResolver().query( ChannelConstants.CONTENT_URI, new String[] { ChannelConstants._ID }, null, null, null );
 			if( cursor.getCount() == 0 ) {
 				List<ChannelInfo> filtered = new ArrayList<ChannelInfo>();
 				for( ChannelInfo channel : channels ) {

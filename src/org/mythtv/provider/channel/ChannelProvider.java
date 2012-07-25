@@ -30,7 +30,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 import android.net.Uri;
-import android.provider.BaseColumns;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -176,7 +175,7 @@ public class ChannelProvider extends AbstractMythtvContentProvider {
 		SQLiteDatabase db = database.getWritableDatabase();
 
 		String recordId = Long.toString( ContentUris.parseId( uri ) );
-		int affected = db.delete( ChannelConstants.TABLE_NAME, BaseColumns._ID
+		int affected = db.delete( ChannelConstants.TABLE_NAME, ChannelConstants._ID
 				+ "="
 				+ recordId
 				+ ( !TextUtils.isEmpty( selection ) ? " AND (" + selection + ')' : "" ), selectionArgs );
@@ -204,7 +203,7 @@ public class ChannelProvider extends AbstractMythtvContentProvider {
 		}
 
 		String recordId = Long.toString( ContentUris.parseId( uri ) );
-		int affected = db.update( ChannelConstants.TABLE_NAME, values, BaseColumns._ID
+		int affected = db.update( ChannelConstants.TABLE_NAME, values, ChannelConstants._ID
 				+ "="
 				+ recordId
 				+ ( !TextUtils.isEmpty( selection ) ? " AND (" + selection + ')' : "" ), selectionArgs );

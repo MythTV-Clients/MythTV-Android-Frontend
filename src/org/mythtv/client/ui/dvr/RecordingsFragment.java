@@ -47,7 +47,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.BaseColumns;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -89,7 +88,7 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 	public Loader<Cursor> onCreateLoader( int id, Bundle args ) {
 		Log.v( TAG, "onCreateLoader : enter" );
 		
-		String[] projection = { BaseColumns._ID, ProgramGroupConstants.FIELD_PROGRAM_GROUP, ProgramGroupConstants.FIELD_INETREF, ProgramGroupConstants.FIELD_BANNER_URL };
+		String[] projection = { ProgramGroupConstants._ID, ProgramGroupConstants.FIELD_PROGRAM_GROUP, ProgramGroupConstants.FIELD_INETREF, ProgramGroupConstants.FIELD_BANNER_URL };
 		
 		ArrayList<Integer> programGroupIds = (ArrayList<Integer>) args.get( PROGRAM_GROUP_IDS_KEY );
 		StringBuilder sb = new StringBuilder();
@@ -103,7 +102,7 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 		
 		String selection = "";
 		if( sb.length() != 0 ) {
-			selection = BaseColumns._ID + " in (" + sb.toString() + ")";
+			selection = ProgramGroupConstants._ID + " in (" + sb.toString() + ")";
 		}
 		
 		if( selection.length() > 0 ) {
@@ -223,7 +222,7 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
         programListReceiver = new ProgramListReceiver();
         getActivity().registerReceiver( programListReceiver, programListFilter );
 
-		Cursor recordedCursor = getActivity().getContentResolver().query( ProgramConstants.CONTENT_URI, new String[] { BaseColumns._ID }, ProgramConstants.FIELD_PROGRAM_TYPE + " = ?", new String[] { ProgramConstants.ProgramType.RECORDED.name() }, null );
+		Cursor recordedCursor = getActivity().getContentResolver().query( ProgramConstants.CONTENT_URI, new String[] { ProgramConstants._ID }, ProgramConstants.FIELD_PROGRAM_TYPE + " = ?", new String[] { ProgramConstants.ProgramType.RECORDED.name() }, null );
 		Log.v( TAG, "onResume : recorded count=" + recordedCursor.getCount() );
 		if( recordedCursor.getCount() == 0 ) {
 			loadData();

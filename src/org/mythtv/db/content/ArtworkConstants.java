@@ -20,12 +20,13 @@
 package org.mythtv.db.content;
 
 import android.net.Uri;
+import android.provider.BaseColumns;
 
 /**
  * @author Daniel Frey
  *
  */
-public class ArtworkConstants {
+public class ArtworkConstants implements BaseColumns {
 
 	public static final String AUTHORITY = "org.mythtv.content.artworks";
 	public static final String TABLE_NAME = "artwork";

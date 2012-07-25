@@ -28,7 +28,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
-import android.provider.BaseColumns;
 import android.util.Log;
 
 /**
@@ -75,7 +74,7 @@ public class RecordingProcessor extends AbstractMythtvProcessor {
 				
 			Cursor cursor = mContext.getContentResolver().query( RecordingConstants.CONTENT_URI, null, RecordingConstants.FIELD_PROGRAM_ID + " = ?", new String[] { "" + programId }, null );
 			if( cursor.moveToFirst() ) {
-				id = cursor.getLong( cursor.getColumnIndexOrThrow( BaseColumns._ID ) );
+				id = cursor.getLong( cursor.getColumnIndexOrThrow( RecordingConstants._ID ) );
 				mContext.getContentResolver().update( ContentUris.withAppendedId( RecordingConstants.CONTENT_URI, id ), values, null, null );
 			} else {
 				Uri newRecording = mContext.getContentResolver().insert( RecordingConstants.CONTENT_URI, values );
@@ -96,9 +95,9 @@ public class RecordingProcessor extends AbstractMythtvProcessor {
 		
 		int count = 0;
 		
-		Cursor cursor = mContext.getContentResolver().query( RecordingConstants.CONTENT_URI, new String[] { BaseColumns._ID }, RecordingConstants.FIELD_PROGRAM_ID + " = ?", new String[] { "" + programId }, null );
+		Cursor cursor = mContext.getContentResolver().query( RecordingConstants.CONTENT_URI, new String[] { RecordingConstants._ID }, RecordingConstants.FIELD_PROGRAM_ID + " = ?", new String[] { "" + programId }, null );
 		if( cursor.moveToFirst() ) {
-			Long recordingId = cursor.getLong( cursor.getColumnIndexOrThrow( BaseColumns._ID ) );
+			Long recordingId = cursor.getLong( cursor.getColumnIndexOrThrow( RecordingConstants._ID ) );
 			count = mContext.getContentResolver().delete( ContentUris.withAppendedId( RecordingConstants.CONTENT_URI, recordingId ), null, null );
 		}
 		cursor.close();

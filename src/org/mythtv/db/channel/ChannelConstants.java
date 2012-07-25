@@ -20,12 +20,13 @@
 package org.mythtv.db.channel;
 
 import android.net.Uri;
+import android.provider.BaseColumns;
 
 /**
  * @author Daniel Frey
  *
  */
-public class ChannelConstants {
+public class ChannelConstants implements BaseColumns {
 
 	public static final String AUTHORITY = "org.mythtv.channel.channels";
 	public static final String TABLE_NAME = "channel";

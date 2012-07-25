@@ -38,7 +38,6 @@ import android.content.IntentFilter;
 import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.BaseColumns;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -80,7 +79,7 @@ public class UpcomingFragment extends MythtvListFragment implements LoaderManage
 	public Loader<Cursor> onCreateLoader( int id, Bundle args ) {
 		Log.v( TAG, "onCreateLoader : enter" );
 		
-		String[] projection = { BaseColumns._ID, ProgramConstants.FIELD_TITLE, ProgramConstants.FIELD_SUB_TITLE, ProgramConstants.FIELD_START_TIME, ProgramConstants.FIELD_END_TIME, ProgramConstants.FIELD_CATEGORY, ProgramConstants.FIELD_CHANNEL_ID };
+		String[] projection = { ProgramConstants._ID, ProgramConstants.FIELD_TITLE, ProgramConstants.FIELD_SUB_TITLE, ProgramConstants.FIELD_START_TIME, ProgramConstants.FIELD_END_TIME, ProgramConstants.FIELD_CATEGORY, ProgramConstants.FIELD_CHANNEL_ID };
 		
 		String selection = ProgramConstants.FIELD_PROGRAM_TYPE + " = ?";
 		
@@ -182,7 +181,7 @@ public class UpcomingFragment extends MythtvListFragment implements LoaderManage
         upcomingReceiver = new UpcomingReceiver();
         getActivity().registerReceiver( upcomingReceiver, upcomingFilter );
 
-		Cursor upcomingCursor = getActivity().getContentResolver().query( ProgramConstants.CONTENT_URI, new String[] { BaseColumns._ID }, ProgramConstants.FIELD_PROGRAM_TYPE + " = ?", new String[] { ProgramConstants.ProgramType.UPCOMING.name() }, null );
+		Cursor upcomingCursor = getActivity().getContentResolver().query( ProgramConstants.CONTENT_URI, new String[] { ProgramConstants._ID }, ProgramConstants.FIELD_PROGRAM_TYPE + " = ?", new String[] { ProgramConstants.ProgramType.UPCOMING.name() }, null );
 		Log.v( TAG, "onResume : upcoming count=" + upcomingCursor.getCount() );
 		if( upcomingCursor.getCount() == 0 ) {
 			loadData();

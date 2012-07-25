@@ -20,12 +20,13 @@
 package org.mythtv.db.dvr;
 
 import android.net.Uri;
+import android.provider.BaseColumns;
 
 /**
  * @author Daniel Frey
  *
  */
-public class ProgramGroupConstants {
+public class ProgramGroupConstants implements BaseColumns {
 
 	public static final String AUTHORITY = "org.mythtv.dvr.programGroups";
 	public static final String TABLE_NAME = "program_group";
