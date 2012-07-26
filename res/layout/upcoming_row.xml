@@ -77,14 +77,13 @@
 					android:layout_centerInParent="true"
 					android:textColor="@color/body_text_1" />
 				
-				<Button
-				    android:id="@+id/upcoming_dont_record"
-				    android:layout_width="40dp"
-				    android:layout_height="wrap_content"
-				    android:layout_alignParentRight="true"
-				    android:text="@string/btn_upcoming_dont_record"
-				    android:textColor="@color/body_text_1"
-				    android:textSize="@dimen/text_size_small" />
+				<TextView
+					android:id="@+id/upcoming_duration"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_alignParentRight="true"
+					android:layout_centerInParent="true"
+					android:textColor="@color/body_text_1" />
 		
 			</RelativeLayout>
 		

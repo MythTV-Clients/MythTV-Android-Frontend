@@ -103,24 +103,9 @@
 				
 		<!-- MythTV Android Providers -->
 		<provider
-            android:name=".provider.channel.ChannelProvider"
-            android:authorities="org.mythtv.channel.channels" />
-        		
-		<provider
-            android:name=".provider.content.ArtworkProvider"
-            android:authorities="org.mythtv.content.artworks" />
-        		
-		<provider
-            android:name=".provider.dvr.ProgramGroupProvider"
-            android:authorities="org.mythtv.dvr.programGroups" />
-        		
-		<provider
-            android:name=".provider.dvr.ProgramProvider"
-            android:authorities="org.mythtv.dvr.programs" />
-        		
-		<provider
-            android:name=".provider.dvr.RecordingProvider"
-            android:authorities="org.mythtv.dvr.recordings" />
+            android:name=".provider.MythtvProvider"
+            android:authorities="org.mythtv.provider.MythtvProvider"
+            android:exported="false" />
         		
 	</application>
 

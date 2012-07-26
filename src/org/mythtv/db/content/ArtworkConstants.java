@@ -19,6 +19,8 @@
  */
 package org.mythtv.db.content;
 
+import org.mythtv.provider.MythtvProvider;
+
 import android.net.Uri;
 import android.provider.BaseColumns;
 
@@ -28,10 +30,9 @@ import android.provider.BaseColumns;
  */
 public class ArtworkConstants implements BaseColumns {
 
-	public static final String AUTHORITY = "org.mythtv.content.artworks";
 	public static final String TABLE_NAME = "artwork";
 	
-	public static final Uri CONTENT_URI = Uri.parse( "content://" + AUTHORITY + "/" + TABLE_NAME );
+	public static final Uri CONTENT_URI = Uri.parse( "content://" + MythtvProvider.AUTHORITY + "/" + TABLE_NAME );
 
 	// db fields
 	public static final String FIELD_ID_DATA_TYPE = "INTEGER";

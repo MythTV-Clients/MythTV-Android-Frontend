@@ -21,7 +21,9 @@ package org.mythtv.client.ui.dvr;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 
 import org.mythtv.R;
 import org.mythtv.client.ui.util.MythtvListFragment;
@@ -49,7 +51,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -247,7 +248,7 @@ public class UpcomingFragment extends MythtvListFragment implements LoaderManage
 
 		private Context mContext;
 		private LayoutInflater mInflater;
-		private String currentStartDate, previousStartDate, previousStartTime, endTime, title;
+		private String currentStartDate, previousStartDate, previousStartTime, previousEndTime, endTime, title;
 		
 		public UpcomingCursorAdapter( Context context ) {
 			super( context, null, false );
@@ -276,7 +277,7 @@ public class UpcomingFragment extends MythtvListFragment implements LoaderManage
 
 		    refHolder.channel = (TextView) view.findViewById( R.id.upcoming_channel );
 		    refHolder.startTime = (TextView) view.findViewById( R.id.upcoming_start_time );
-		    refHolder.dontRecord = (Button) view.findViewById( R.id.upcoming_dont_record );
+		    refHolder.duration = (TextView) view.findViewById( R.id.upcoming_duration );
 
 		    view.setTag(refHolder);
 		    
@@ -310,19 +311,18 @@ public class UpcomingFragment extends MythtvListFragment implements LoaderManage
 				
 				previousStartTime = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_START_TIME ) );
 				previousStartDate = previousStartTime.substring( 0, previousStartTime.indexOf( 'T' ) );
+				previousEndTime = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_END_TIME ) );
 				
 				if( !currentStartDate.equals( previousStartDate ) ) {
 					Log.v( TAG, "UpcomingCursorAdapter.bindView : section change" );
 					
 					mHolder.header.setVisibility( View.VISIBLE );
-					//mHolder.detail.setVisibility( View.GONE );
 					
 					mHolder.headerLabel.setText( currentStartDate );
 				} else {
 					Log.v( TAG, "UpcomingCursorAdapter.bindView : show detail" );
 
 					mHolder.header.setVisibility( View.GONE );
-					//mHolder.detail.setVisibility( View.VISIBLE );
 				}
 
 				String sEndTime = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_END_TIME ) );
@@ -331,10 +331,20 @@ public class UpcomingFragment extends MythtvListFragment implements LoaderManage
 				String sCategory = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_CATEGORY ) );
 				String sChannelNumber = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_CHANNEL_ID ) );
 
-				Date dStartTime = null;
+				Date dStartTime = null, dEndTime = null;
 				
 				try {
 					dStartTime = parser.parse( previousStartTime );
+					dEndTime = parser.parse( previousEndTime );
+
+					Calendar startTime = new GregorianCalendar();
+					startTime.setTime( dStartTime );
+					
+					Calendar endTime = new GregorianCalendar();
+					endTime.setTime( dEndTime );
+
+					long durationInMinutes = ( endTime.getTimeInMillis() / 60000 ) - ( startTime.getTimeInMillis() / 60000 );
+					mHolder.duration.setText( durationInMinutes + " minutes" );
 				} catch( ParseException e ) {
 					Log.v( TAG, "UpcomingCursorAdapter.bindView : error parsing start and end dates" );
 				}
@@ -363,7 +373,7 @@ public class UpcomingFragment extends MythtvListFragment implements LoaderManage
 
 			TextView channel;
 			TextView startTime;
-			Button dontRecord;
+			TextView duration;
 			
 			ViewHolder() { }
 

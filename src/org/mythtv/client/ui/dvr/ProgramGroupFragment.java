@@ -150,7 +150,6 @@ public class ProgramGroupFragment extends MythtvListFragment implements LoaderMa
 	
 	private class ProgramCursorAdapter extends SimpleCursorAdapter {
 
-		private Context mContext;
 		private LayoutInflater mInflater;
 		
 		public ProgramCursorAdapter( Context context, int layout, Cursor c, String[] from, int[] to, int flags ) {

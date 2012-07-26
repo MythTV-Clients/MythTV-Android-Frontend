@@ -19,9 +19,6 @@
  */
 package org.mythtv.service.dvr;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.service.AbstractMythtvProcessor;
 import org.mythtv.services.api.dvr.Program;
@@ -40,7 +37,6 @@ public class ProgramListProcessor extends AbstractMythtvProcessor {
 	protected static final String TAG = ProgramListProcessor.class.getSimpleName();
 
 	private ProgramProcessor programProcessor;
-	private ProgramGroupProcessor programGroupProcessor;
 	
 	public interface RecordingListProcessorCallback {
 
@@ -59,7 +55,6 @@ public class ProgramListProcessor extends AbstractMythtvProcessor {
 		Log.v( TAG, "initialize : enter" );
 		
 		programProcessor = new ProgramProcessor( context );
-		programGroupProcessor = new ProgramGroupProcessor( context );
 		
 		Log.v( TAG, "initialize : exit" );
 	}
@@ -121,68 +116,16 @@ public class ProgramListProcessor extends AbstractMythtvProcessor {
 
 			Log.v( TAG, "processProgramList : " + programType.name() + ", count=" + programList.getPrograms().getPrograms().size() );
 
-			List<Long> programGroupIds = new ArrayList<Long>();
-			List<Long> programIds = new ArrayList<Long>();
-			
 			for( Program program : programList.getPrograms().getPrograms() ) {
 				
 				if( !"livetv".equalsIgnoreCase( program.getRecording().getRecordingGroup() ) ) {
-					long programGroupId = programGroupProcessor.updateProgramGroupContentProvider( program, programType );
-					
-					if( !programGroupIds.contains( programGroupId ) ) {
-						programGroupIds.add( programGroupId );
-					}
-					
-					long programId = programProcessor.updateProgramContentProvider( program, programGroupId, programType );
-					programIds.add( programId );
-					
-					//updateArtworkContentProvider( program, programId );
+					programProcessor.updateProgramContentProvider( program, programType );
 				}
 			}
 
-//			int deletedPrograms = programProcessor.removeDeletedPrograms( programIds, programType );
-//			Log.d( TAG, "processProgramList : deleted programs=" + deletedPrograms );
-
-//			int deletedProgramGroups = programGroupProcessor.removeDeletedProgramGroups( programGroupIds, programType );
-//			Log.d( TAG, "processProgramList : deleted program groups=" + deletedProgramGroups );
 		}
-		
-//		Cursor cursor = mContext.getContentResolver().query( ProgramConstants.CONTENT_URI, new String[] { BaseColumns._ID }, ProgramConstants.FIELD_PROGRAM_TYPE + " = ?", new String[] { programType.name() }, null );
-//		Log.v( TAG, "processProgramList : " + programType.name() + " - total count=" + cursor.getCount() );
 		
 		Log.v( TAG, "processProgramList : exit" );
 	}
 
-//	private void updateArtworkContentProvider( Program program, long programId ) {
-//		//Log.v( TAG, "updateArtworkContentProvider : enter" );
-//		
-//		if( null != program.getArtwork() && ( null != program.getArtwork().getArtworkInfos() && !program.getArtwork().getArtworkInfos().isEmpty() ) ) {
-//			
-//			ContentValues values;
-//
-//			for( ArtworkInfo artwork : program.getArtwork().getArtworkInfos() ) {
-//		//		Log.v( TAG, "updateArtworkContentProvider : artwork=" + artwork.toString() );
-//				
-//				values = new ContentValues();
-//				values.put( ArtworkConstants.FIELD_URL, null != artwork.getUrl() ? artwork.getUrl() : "" );
-//				values.put( ArtworkConstants.FIELD_FILE_NAME, null != artwork.getFilename() ? artwork.getFilename() : "" );
-//				values.put( ArtworkConstants.FIELD_STORAGE_GROUP, null != artwork.getStorageGroup() ? artwork.getStorageGroup() : "" );
-//				values.put( ArtworkConstants.FIELD_TYPE, null != artwork.getType() ? artwork.getType() : "" );
-//				
-//				Cursor cursor = mContext.getContentResolver().query( ArtworkConstants.CONTENT_URI, null, ArtworkConstants.FIELD_URL + " = ?", new String[] { artwork.getUrl() }, null );
-//				if( cursor.moveToFirst() ) {
-//					//int id = cursor.getInt( cursor.getColumnIndexOrThrow( BaseColumns._ID ) );
-//					//mContext.getContentResolver().update( ContentUris.withAppendedId( ArtworkConstants.CONTENT_URI, id ), values, null, null );
-//				} else {
-//					mContext.getContentResolver().insert( ArtworkConstants.CONTENT_URI, values );
-//				}
-//				cursor.close();
-//				
-//			}
-//
-//		}
-//		
-//		//Log.v( TAG, "updateArtworkContentProvider : exit" );
-//	}
-	
 }

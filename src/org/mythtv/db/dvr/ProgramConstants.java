@@ -19,6 +19,8 @@
  */
 package org.mythtv.db.dvr;
 
+import org.mythtv.provider.MythtvProvider;
+
 import android.net.Uri;
 import android.provider.BaseColumns;
 
@@ -30,10 +32,9 @@ public class ProgramConstants implements BaseColumns {
 
 	public enum ProgramType { RECORDED, UPCOMING, GUIDE, PREVIOUSLY_RECORDED };
 	
-	public static final String AUTHORITY = "org.mythtv.dvr.programs";
 	public static final String TABLE_NAME = "program";
 	
-	public static final Uri CONTENT_URI = Uri.parse( "content://" + AUTHORITY + "/" + TABLE_NAME );
+	public static final Uri CONTENT_URI = Uri.parse( "content://" + MythtvProvider.AUTHORITY + "/" + TABLE_NAME );
 
 	public static final String INSERT_ROW, UPDATE_ROW;
 	
@@ -120,9 +121,6 @@ public class ProgramConstants implements BaseColumns {
 	public static final String FIELD_EPISODE = "EPISODE";
 	public static final String FIELD_EPISODE_DATA_TYPE = "TEXT";
 
-	public static final String FIELD_PROGRAM_GROUP_ID = "PROGRAM_GROUP_ID";
-	public static final String FIELD_PROGRAM_GROUP_ID_DATA_TYPE = "INTEGER";
-
 	public static final String FIELD_CHANNEL_ID = "CHANNEL_ID";
 	public static final String FIELD_CHANNEL_ID_DATA_TYPE = "TEXT";
 
@@ -156,10 +154,9 @@ public class ProgramConstants implements BaseColumns {
 		insert.append( FIELD_INETREF ).append( "," );
 		insert.append( FIELD_SEASON ).append( "," );
 		insert.append( FIELD_EPISODE ).append( "," );
-		insert.append( FIELD_PROGRAM_GROUP_ID ).append( "," );
 		insert.append( FIELD_CHANNEL_ID );
 		insert.append( " ) " );
-		insert.append( "VALUES( ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? )" );
+		insert.append( "VALUES( ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? )" );
 		
 		INSERT_ROW = insert.toString();
 		
@@ -192,7 +189,6 @@ public class ProgramConstants implements BaseColumns {
 		update.append( FIELD_INETREF ).append( " = ?, " );
 		update.append( FIELD_SEASON ).append( " = ?, " );
 		update.append( FIELD_EPISODE ).append( " = ?, " );
-		update.append( FIELD_PROGRAM_GROUP_ID ).append( " = ?, " );
 		update.append( FIELD_CHANNEL_ID ).append( " = ?" );
 		update.append( " WHERE " ).append( _ID ).append( " = ?" );
 		

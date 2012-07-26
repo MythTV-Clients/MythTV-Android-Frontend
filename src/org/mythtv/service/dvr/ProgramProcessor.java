@@ -54,7 +54,7 @@ public class ProgramProcessor extends AbstractMythtvProcessor {
 		Log.v( TAG, "initialize : exit" );
 	}
 
-	public Long updateProgramContentProvider( Program program, Long programGroupId, ProgramConstants.ProgramType programType ) {
+	public Long updateProgramContentProvider( Program program, ProgramConstants.ProgramType programType ) {
 
 		Long programId = null;
 
@@ -94,7 +94,6 @@ public class ProgramProcessor extends AbstractMythtvProcessor {
 			values.put( ProgramConstants.FIELD_INETREF, null != program.getInetref() ? program.getInetref() : "" );
 			values.put( ProgramConstants.FIELD_SEASON, null != program.getSeason() ? program.getSeason() : "" );
 			values.put( ProgramConstants.FIELD_EPISODE, null != program.getEpisode() ? program.getEpisode() : "" );
-			values.put( ProgramConstants.FIELD_PROGRAM_GROUP_ID, null != programGroupId ? programGroupId : 0L );
 			values.put( ProgramConstants.FIELD_CHANNEL_ID, null != program.getChannelInfo() ? program.getChannelInfo().getChannelNumber() : "" );
 
 			String[] projection = new String[] { ProgramConstants._ID };
@@ -163,7 +162,6 @@ public class ProgramProcessor extends AbstractMythtvProcessor {
 				values.put( ProgramConstants.FIELD_INETREF, null != program.getInetref() ? program.getInetref() : "" );
 				values.put( ProgramConstants.FIELD_SEASON, null != program.getSeason() ? program.getSeason() : "" );
 				values.put( ProgramConstants.FIELD_EPISODE, null != program.getEpisode() ? program.getEpisode() : "" );
-				values.put( ProgramConstants.FIELD_PROGRAM_GROUP_ID, 0L );
 				values.put( ProgramConstants.FIELD_CHANNEL_ID, null != channelNumber ? channelNumber : "" );
 				valuesArray[ count ] = values;
 				

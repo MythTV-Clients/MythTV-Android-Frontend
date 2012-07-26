@@ -24,7 +24,6 @@ import static android.provider.BaseColumns._ID;
 import org.mythtv.db.channel.ChannelConstants;
 import org.mythtv.db.content.ArtworkConstants;
 import org.mythtv.db.dvr.ProgramConstants;
-import org.mythtv.db.dvr.ProgramGroupConstants;
 import org.mythtv.db.dvr.RecordingConstants;
 import org.mythtv.db.preferences.LocationProfileConstants;
 import org.mythtv.db.preferences.PlaybackProfileConstants;
@@ -45,7 +44,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	private static final String TAG = DatabaseHelper.class.getSimpleName();
 	
 	private static final String DATABASE_NAME = "mythtvdb";
-	private static final int DATABASE_VERSION = 26;
+	private static final int DATABASE_VERSION = 30;
 
 	public DatabaseHelper( Context context ) {
 		super( context, DATABASE_NAME, null, DATABASE_VERSION );
@@ -63,9 +62,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		
 		dropPlaybackProfiles( db );
 		createPlaybackProfiles( db );
-		
-		dropProgramGroup( db );
-		createProgramGroup( db );
 		
 		dropProgram( db );
 		createProgram( db );
@@ -96,11 +92,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			createPlaybackProfiles( db );
 		}
 
-		if( oldVersion < 26 ) {
-			Log.v( TAG, "onUpgrade : upgrading to db version 26" );
-
-			dropProgramGroup( db );
-			createProgramGroup( db );
+		if( oldVersion < 30 ) {
+			Log.v( TAG, "onUpgrade : upgrading to db version 30" );
 
 			dropProgram( db );
 			createProgram( db );
@@ -316,35 +309,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		Log.v( TAG, "dropPlaybackProfiles : exit" );
 	}
 	
-	private void createProgramGroup( SQLiteDatabase db ) {
-		Log.v( TAG, "createProgramGroup : enter" );
-		
-		StringBuilder sqlBuilder = new StringBuilder();
-		sqlBuilder.append( "CREATE TABLE " + ProgramGroupConstants.TABLE_NAME + " (" );
-		sqlBuilder.append( _ID ).append( " " ).append( ProgramGroupConstants.FIELD_ID_DATA_TYPE ).append( " " ).append( ProgramGroupConstants.FIELD_ID_PRIMARY_KEY ).append( ", " );
-		sqlBuilder.append( ProgramGroupConstants.FIELD_PROGRAM_TYPE ).append( " " ).append( ProgramGroupConstants.FIELD_PROGRAM_TYPE_DATA_TYPE ).append( ", " );
-		sqlBuilder.append( ProgramGroupConstants.FIELD_PROGRAM_GROUP ).append( " " ).append( ProgramGroupConstants.FIELD_PROGRAM_GROUP_DATA_TYPE ).append( ", " );
-		sqlBuilder.append( ProgramGroupConstants.FIELD_PROGRAM_GROUP_SORT ).append( " " ).append( ProgramGroupConstants.FIELD_PROGRAM_GROUP_SORT_DATA_TYPE ).append( ", " );
-		sqlBuilder.append( ProgramGroupConstants.FIELD_INETREF ).append( " " ).append( ProgramGroupConstants.FIELD_INETREF_DATA_TYPE ).append( ", " );
-		sqlBuilder.append( ProgramGroupConstants.FIELD_BANNER_URL ).append( " " ).append( ProgramGroupConstants.FIELD_BANNER_URL_DATA_TYPE );
-		sqlBuilder.append( ");" );
-		String sql = sqlBuilder.toString();
-		if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
-			Log.v( TAG, "createProgramGroup : sql=" + sql );
-		}
-		db.execSQL( sql );
-
-		Log.v( TAG, "createProgramGroup : exit" );
-	}
-	
-	private void dropProgramGroup( SQLiteDatabase db ) {
-		Log.v( TAG, "dropProgramGroup : enter" );
-		
-		db.execSQL( "DROP TABLE IF EXISTS " + ProgramGroupConstants.TABLE_NAME );
-		
-		Log.v( TAG, "dropProgramGroup : exit" );
-	}
-	
 	private void createProgram( SQLiteDatabase db ) {
 		Log.v( TAG, "createProgram : enter" );
 		
@@ -377,7 +341,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		sqlBuilder.append( ProgramConstants.FIELD_INETREF ).append( " " ).append( ProgramConstants.FIELD_INETREF_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( ProgramConstants.FIELD_SEASON ).append( " " ).append( ProgramConstants.FIELD_SEASON_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( ProgramConstants.FIELD_EPISODE ).append( " " ).append( ProgramConstants.FIELD_EPISODE_DATA_TYPE ).append( ", " );
-		sqlBuilder.append( ProgramConstants.FIELD_PROGRAM_GROUP_ID ).append( " " ).append( ProgramConstants.FIELD_PROGRAM_GROUP_ID_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( ProgramConstants.FIELD_CHANNEL_ID ).append( " " ).append( ProgramConstants.FIELD_CHANNEL_ID_DATA_TYPE );
 		sqlBuilder.append( ");" );
 		String sql = sqlBuilder.toString();
@@ -386,6 +349,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		//}
 		db.execSQL( sql );
 	
+		db.execSQL( "CREATE INDEX program_group_idx ON " + ProgramConstants.TABLE_NAME + " (" + ProgramConstants.FIELD_PROGRAM_GROUP + "," + ProgramConstants.FIELD_PROGRAM_TYPE + ")" );
+		
 		Log.v( TAG, "createProgram : exit" );
 	}
 	

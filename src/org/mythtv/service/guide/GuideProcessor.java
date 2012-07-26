@@ -72,24 +72,25 @@ public class GuideProcessor extends AbstractMythtvProcessor {
 		Date start = DateUtils.getYesterday();
 		Date end = DateUtils.getNextDay( start );
 		
-		String startDate = "";
+		String startDate = "", endDate = "";
 		ResponseEntity<ProgramGuideWrapper> entity = null;
 		for( int i = 0; i < 14; i++ ) {
 			
 			startDate = startDateFormatter.format( start );
+			endDate = startDateFormatter.format( end );
 			
-			Cursor cursor = mContext.getContentResolver().query( ProgramConstants.CONTENT_URI, new String[] { ProgramConstants._ID }, ProgramConstants.FIELD_START_DATE + " = ?", new String[] { startDate }, null );
+			Cursor cursor = mContext.getContentResolver().query( ProgramConstants.CONTENT_URI, new String[] { ProgramConstants._ID }, ProgramConstants.FIELD_START_DATE + " = ? and " + ProgramConstants.FIELD_PROGRAM_TYPE + " = ?", new String[] { startDate, ProgramConstants.ProgramType.GUIDE.name() }, null );
 			if( cursor.getCount() == 0 ) {
 			
 				Log.v( TAG, "getGuide : loading data for date " + dateTimeFormatter.format( start ) + " thru "  + dateTimeFormatter.format( end ) );
 
-				notifyCallback.notify( "Retrieving Program Guide for " + startDate );
+				notifyCallback.notify( "Retrieving Program Guide for " + endDate );
 
 				entity = application.getMythServicesApi().guideOperations().getProgramGuideResponseEntity( start, end, 1, -1, Boolean.TRUE );
 
 				switch( entity.getStatusCode() ) {
 					case OK :
-						notifyCallback.notify( "Loading Program Guide for " + startDate );
+						notifyCallback.notify( "Loading Program Guide for " + endDate );
 
 						processProgramGuide( guideCallback, entity.getBody().getProgramGuide() );
 						break;
@@ -118,13 +119,11 @@ public class GuideProcessor extends AbstractMythtvProcessor {
 		Log.v( TAG, "processProgramGuide : enter" );
 
 		long channelsProcessed = mChannelProcessor.batchUpdateChannelContentProvider( programGuide.getChannels() );
-		//Log.v( TAG, "processProgramGuide : channelsProcessed=" + channelsProcessed );
 		
 		for( ChannelInfo channelInfo : programGuide.getChannels() ) {
 			if( channelInfo.isVisable() ) {
 
-				long programsProcessed = mProgramProcessor.batchInsertProgramContentProvider( channelInfo.getPrograms(), channelInfo.getChannelNumber() );
-				//Log.v( TAG, "processProgramGuide : finished processing " + programsProcessed + " for channel " + channelInfo.getChannelId() );
+				mProgramProcessor.batchInsertProgramContentProvider( channelInfo.getPrograms(), channelInfo.getChannelNumber() );
 			}
 		}
 		

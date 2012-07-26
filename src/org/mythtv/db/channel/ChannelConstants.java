@@ -19,6 +19,8 @@
  */
 package org.mythtv.db.channel;
 
+import org.mythtv.provider.MythtvProvider;
+
 import android.net.Uri;
 import android.provider.BaseColumns;
 
@@ -28,10 +30,9 @@ import android.provider.BaseColumns;
  */
 public class ChannelConstants implements BaseColumns {
 
-	public static final String AUTHORITY = "org.mythtv.channel.channels";
 	public static final String TABLE_NAME = "channel";
 	
-	public static final Uri CONTENT_URI = Uri.parse( "content://" + AUTHORITY + "/" + TABLE_NAME );
+	public static final Uri CONTENT_URI = Uri.parse( "content://" + MythtvProvider.AUTHORITY + "/" + TABLE_NAME );
 
 	public static final String INSERT_ROW;
 	
