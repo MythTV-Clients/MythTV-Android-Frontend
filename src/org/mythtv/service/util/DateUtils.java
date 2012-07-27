@@ -19,6 +19,7 @@
  */
 package org.mythtv.service.util;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -28,10 +29,24 @@ import java.util.Date;
  */
 public class DateUtils {
 
+	public static final SimpleDateFormat dateFormatter = new SimpleDateFormat( "yyyy-MM-dd" );
+	public static final SimpleDateFormat dateTimeFormatter = new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ss" );
+	public static final SimpleDateFormat timeFormatter = new SimpleDateFormat( "hh:mm a" );
+
 	public static Date getEndOfDay( Date day ) {
 		return getEndOfDay( day, Calendar.getInstance() );
 	}
 
+	public static Date getToday() {
+		
+		Date day = new Date();
+		
+		Calendar today = Calendar.getInstance();
+		today.setTime( day );
+		
+		return getEndOfDay( today.getTime() );		
+	}
+	
 	public static Date getYesterday() {
 		
 		Date day = new Date();

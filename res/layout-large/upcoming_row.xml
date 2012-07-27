@@ -109,21 +109,4 @@
 			
 	</LinearLayout>
 
-	<LinearLayout
-	    android:id="@+id/upcoming_header_row"
-	    android:layout_width="fill_parent"
-	    android:layout_height="wrap_content"
-	    android:paddingLeft="8dp"
-	    android:paddingRight="8dp"
-    	android:background="@drawable/upcoming_section_back">
-    
-    	<TextView
-    	    android:id="@+id/upcoming_header_label"
-    	    android:layout_width="fill_parent"
-    	    android:layout_height="wrap_content"
-    	    android:textAppearance="?android:attr/textAppearanceLarge"
-    	    android:textColor="@color/body_text_1" />
-
-	</LinearLayout>
-
 </LinearLayout>

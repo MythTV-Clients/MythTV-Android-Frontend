@@ -19,8 +19,6 @@
  */
 package org.mythtv.service;
 
-import java.text.SimpleDateFormat;
-
 import org.mythtv.client.MainApplication;
 
 import android.content.Context;
@@ -33,9 +31,6 @@ public abstract class AbstractMythtvProcessor {
 
 	protected static final String TAG = AbstractMythtvProcessor.class.getSimpleName();
 
-	protected static final SimpleDateFormat dateFormatter = new SimpleDateFormat( "yyyy-MM-dd" );
-	protected static final SimpleDateFormat dateTimeFormatter = new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ss" );
-	
 	protected MainApplication application;
 	protected Context mContext;
 

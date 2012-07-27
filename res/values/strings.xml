@@ -141,6 +141,8 @@
     <string name="btn_recording_rules">Recording Rules</string>
     
     <string name="btn_upcoming_dont_record">X</string>
+    <string name="upcoming_today">Today</string>
+    <string name="upcoming_tomorrow">Tomorrow</string>
     
     <!-- Media Dashboard -->
     <string name="tab_multimedia">Multimedia</string>

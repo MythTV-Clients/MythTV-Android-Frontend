@@ -21,6 +21,7 @@ package org.mythtv.service.dvr;
 
 import org.mythtv.db.dvr.RecordingConstants;
 import org.mythtv.service.AbstractMythtvProcessor;
+import org.mythtv.service.util.DateUtils;
 import org.mythtv.services.api.dvr.Recording;
 
 import android.content.ContentUris;
@@ -59,8 +60,8 @@ public class RecordingProcessor extends AbstractMythtvProcessor {
 			ContentValues values = new ContentValues();
 			values.put( RecordingConstants.FIELD_STATUS, recording.getStatus() );
 			values.put( RecordingConstants.FIELD_PRIORITY, recording.getPriority() );
-			values.put( RecordingConstants.FIELD_START_TS, null != recording.getStartTimestamp() ? dateTimeFormatter.format( recording.getStartTimestamp() ) : "" );
-			values.put( RecordingConstants.FIELD_END_TS, null != recording.getEndTimestamp() ? dateTimeFormatter.format( recording.getEndTimestamp() ) : "" );
+			values.put( RecordingConstants.FIELD_START_TS, null != recording.getStartTimestamp() ? DateUtils.dateTimeFormatter.format( recording.getStartTimestamp() ) : "" );
+			values.put( RecordingConstants.FIELD_END_TS, null != recording.getEndTimestamp() ? DateUtils.dateTimeFormatter.format( recording.getEndTimestamp() ) : "" );
 			values.put( RecordingConstants.FIELD_RECORD_ID, recording.getRecordid() );
 			values.put( RecordingConstants.FIELD_REC_GROUP, null != recording.getRecordingGroup() ? recording.getRecordingGroup() : "" );
 			values.put( RecordingConstants.FIELD_STORAGE_GROUP, null != recording.getStorageGroup() ? recording.getStorageGroup() : "" );

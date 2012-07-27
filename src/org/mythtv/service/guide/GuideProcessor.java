@@ -19,7 +19,6 @@
  */
 package org.mythtv.service.guide;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.mythtv.db.dvr.ProgramConstants;
@@ -44,8 +43,6 @@ import android.util.Log;
 public class GuideProcessor extends AbstractMythtvProcessor {
 
 	protected static final String TAG = GuideProcessor.class.getSimpleName();
-
-	private static final SimpleDateFormat startDateFormatter = new SimpleDateFormat( "yyyy-MM-dd" );
 
 	private ChannelProcessor mChannelProcessor;
 	private ProgramProcessor mProgramProcessor;
@@ -76,13 +73,13 @@ public class GuideProcessor extends AbstractMythtvProcessor {
 		ResponseEntity<ProgramGuideWrapper> entity = null;
 		for( int i = 0; i < 14; i++ ) {
 			
-			startDate = startDateFormatter.format( start );
-			endDate = startDateFormatter.format( end );
+			startDate = DateUtils.dateFormatter.format( start );
+			endDate = DateUtils.dateFormatter.format( end );
 			
 			Cursor cursor = mContext.getContentResolver().query( ProgramConstants.CONTENT_URI, new String[] { ProgramConstants._ID }, ProgramConstants.FIELD_START_DATE + " = ? and " + ProgramConstants.FIELD_PROGRAM_TYPE + " = ?", new String[] { startDate, ProgramConstants.ProgramType.GUIDE.name() }, null );
 			if( cursor.getCount() == 0 ) {
 			
-				Log.v( TAG, "getGuide : loading data for date " + dateTimeFormatter.format( start ) + " thru "  + dateTimeFormatter.format( end ) );
+				Log.v( TAG, "getGuide : loading data for date " + DateUtils.dateTimeFormatter.format( start ) + " thru "  + DateUtils.dateTimeFormatter.format( end ) );
 
 				notifyCallback.notify( "Retrieving Program Guide for " + endDate );
 
