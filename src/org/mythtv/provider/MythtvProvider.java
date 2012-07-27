@@ -374,7 +374,7 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 						insert.bindString( 24, value.getAsString( ProgramConstants.FIELD_INETREF ) );
 						insert.bindString( 25, value.getAsString( ProgramConstants.FIELD_SEASON ) );
 						insert.bindString( 26, value.getAsString( ProgramConstants.FIELD_EPISODE ) );
-						insert.bindLong( 27, value.getAsInteger( ProgramConstants.FIELD_CHANNEL_ID ) );
+						insert.bindString( 27, value.getAsString( ProgramConstants.FIELD_CHANNEL_ID ) );
 						insert.execute();
 					}
 					db.setTransactionSuccessful();
