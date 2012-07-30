@@ -50,9 +50,9 @@ public abstract class AbstractMythtvFragmentActivity extends FragmentActivity im
 	//***************************************
     // MythActivity methods
     //***************************************
-	public MainApplication getApplicationContext() {
-		Log.v( TAG, "getApplicationContext : enter" );
-		Log.v( TAG, "getApplicationContext : exit" );
+	public MainApplication getMainApplication() {
+		Log.v( TAG, "getMainApplication : enter" );
+		Log.v( TAG, "getMainApplication : exit" );
 		return (MainApplication) super.getApplicationContext();
 	}
 

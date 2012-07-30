@@ -85,7 +85,9 @@
 			android:screenOrientation="landscape" />
 		<activity 
 			android:name=".client.ui.dvr.UpcomingActivity" />
-								
+		<activity 
+			android:name=".client.ui.dvr.GuideActivity" />
+										
 		<!-- Frontends Activities -->
 		<activity 
 			android:name=".client.ui.frontends.MythmoteActivity" />

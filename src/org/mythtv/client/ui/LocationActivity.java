@@ -79,14 +79,14 @@ public class LocationActivity extends AbstractMythtvFragmentActivity {
 		if( null != selectedAwayLocationProfile ) {
 			Log.v( TAG, "onResume : setting selected Away Location Profile" );
 			
-			getApplicationContext().setSelectedAwayLocationProfile( selectedAwayLocationProfile );
+			getMainApplication().setSelectedAwayLocationProfile( selectedAwayLocationProfile );
 		}
 
 		PlaybackProfile selectedAwayPlaybackProfile = db.fetchSelectedAwayPlaybackProfile();
 		if( null != selectedAwayPlaybackProfile ) {
 			Log.v( TAG, "onResume : setting selected Away Playback Profile" );
 			
-			getApplicationContext().setSelectedAwayPlaybackProfile( selectedAwayPlaybackProfile );
+			getMainApplication().setSelectedAwayPlaybackProfile( selectedAwayPlaybackProfile );
 		}
 
 		//wifi
@@ -101,14 +101,14 @@ public class LocationActivity extends AbstractMythtvFragmentActivity {
 			if( null != selectedHomeLocationProfile ) {
 				Log.v( TAG, "onResume : setting selected Home Location Profile" );
 				
-				getApplicationContext().setSelectedHomeLocationProfile( selectedHomeLocationProfile );
+				getMainApplication().setSelectedHomeLocationProfile( selectedHomeLocationProfile );
 			}
 
 			PlaybackProfile selectedHomePlaybackProfile = db.fetchSelectedHomePlaybackProfile();
 			if( null != selectedHomePlaybackProfile ) {
 				Log.v( TAG, "onResume : setting selected Home Playback Profile" );
 				
-				getApplicationContext().setSelectedHomePlaybackProfile( selectedHomePlaybackProfile );
+				getMainApplication().setSelectedHomePlaybackProfile( selectedHomePlaybackProfile );
 			}
 		} else {
 			Log.d( TAG, "onResume : disabling home" );

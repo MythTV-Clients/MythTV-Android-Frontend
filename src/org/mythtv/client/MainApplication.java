@@ -40,12 +40,16 @@ import android.util.Log;
  */
 public class MainApplication extends Application {
 
+	public static final String GUIDE_DATA_LOADED = "GUIDE_DATA_LOADED";
+
 	private static final String TAG = MainApplication.class.getSimpleName();
 	private static final String MASTER_BACKEND = "MASTER_BACKEND";
 	
 	private SharedPreferences mythtvPreferences;
 
 	private MythServicesServiceProvider provider;
+	
+	private boolean databaseLoading;
 	
 	private String location;
 	
@@ -282,6 +286,22 @@ public class MainApplication extends Application {
 	 */
 	public void setCurrentCaptureCards( Map<String, List<CaptureCard>> currentCaptureCards ) {
 		this.currentCaptureCards = currentCaptureCards;
+	}
+
+
+	/**
+	 * @return the databaseLoading
+	 */
+	public boolean isDatabaseLoading() {
+		return databaseLoading;
+	}
+
+
+	/**
+	 * @param databaseLoading the databaseLoading to set
+	 */
+	public void setDatabaseLoading( boolean databaseLoading ) {
+		this.databaseLoading = databaseLoading;
 	}
 
 }

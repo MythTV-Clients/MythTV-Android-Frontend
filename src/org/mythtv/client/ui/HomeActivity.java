@@ -58,7 +58,7 @@ public class HomeActivity extends AbstractLocationAwareFragmentActivity {
 
 		super.onCreate( savedInstanceState );
 
-		getApplicationContext().setLocation( "HOME" );
+		getMainApplication().setLocation( "HOME" );
 		
 		setContentView( R.layout.activity_home );
 

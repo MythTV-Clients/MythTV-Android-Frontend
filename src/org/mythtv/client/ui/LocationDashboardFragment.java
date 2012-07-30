@@ -45,8 +45,8 @@ public class LocationDashboardFragment extends AbstractMythFragment {
 			public void onClick( View view ) {
 				Log.v( TAG, "home.onClick : enter" );
 				
-				if( null != getApplicationContext().getSelectedHomeLocationProfile() ) {
-					getApplicationContext().connectSelectedHomeLocationProfile();
+				if( null != getMainApplication().getSelectedHomeLocationProfile() ) {
+					getMainApplication().connectSelectedHomeLocationProfile();
 					
 					startActivity( new Intent( getActivity(), HomeActivity.class ) );
 				} else {
@@ -70,10 +70,10 @@ public class LocationDashboardFragment extends AbstractMythFragment {
 			public void onClick( View view ) {
 				Log.v( TAG, "away.onClick : enter" );
 
-				if( null != getApplicationContext().getSelectedAwayLocationProfile() ) {
+				if( null != getMainApplication().getSelectedAwayLocationProfile() ) {
 					Log.v( TAG, "away.onClick : showing away dashboard" );
 
-					getApplicationContext().connectSelectedAwayLocationProfile();
+					getMainApplication().connectSelectedAwayLocationProfile();
 					
 					startActivity( new Intent( getActivity(), AwayActivity.class ) );
 				} else {

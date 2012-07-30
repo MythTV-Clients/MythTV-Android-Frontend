@@ -45,4 +45,8 @@ public abstract class AbstractMythtvProcessor {
 		
 	}
 
+	public MainApplication getMainApplication() {
+		return application;
+	}
+	
 }

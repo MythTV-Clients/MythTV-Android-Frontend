@@ -34,7 +34,7 @@ public abstract class AbstractMythListActivity extends ListActivity implements M
 	//***************************************
     // MythActivity methods
     //***************************************
-	public MainApplication getApplicationContext() {
+	public MainApplication getMainApplication() {
 		return (MainApplication) super.getApplicationContext();
 	}
 	

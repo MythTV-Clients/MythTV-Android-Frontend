@@ -50,7 +50,7 @@ public class AwayActivity extends AbstractLocationAwareFragmentActivity {
 
 		super.onCreate( savedInstanceState );
 
-		getApplicationContext().setLocation( "AWAY" );
+		getMainApplication().setLocation( "AWAY" );
 
 		setContentView( R.layout.activity_away );
 
