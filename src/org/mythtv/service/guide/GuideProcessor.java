@@ -126,6 +126,10 @@ public class GuideProcessor extends AbstractMythtvProcessor {
 		
 		getMainApplication().setDatabaseLoading( false );
 		
+		SharedPreferences.Editor editor = mythtvPreferences.edit();
+		editor.putLong( MainApplication.NEXT_GUIDE_DATA_LOAD, DateUtils.getNextDayAfterMythfilldatabase().getTime() );
+		editor.commit();
+
 		if( null == entity ) {
 			guideCallback.send( HttpStatus.NOT_MODIFIED.value() );
 		} else {

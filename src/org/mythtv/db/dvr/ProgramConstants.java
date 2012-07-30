@@ -177,7 +177,6 @@ public class ProgramConstants implements BaseColumns {
 		update.append( " SET " );
 		update.append( FIELD_PROGRAM_TYPE ).append( " = ?, " );
 		update.append( FIELD_PROGRAM_GROUP ).append( " = ?, " );
-		update.append( FIELD_START_TIME ).append( " = ?, " );
 		update.append( FIELD_END_TIME ).append( " = ?, " );
 		update.append( FIELD_DURATION ).append( " = ?, " );
 		update.append( FIELD_START_DATE ).append( " = ?, " );
@@ -192,7 +191,6 @@ public class ProgramConstants implements BaseColumns {
 		update.append( FIELD_AUDIO_PROPS ).append( " = ?, " );
 		update.append( FIELD_SUB_PROPS ).append( " = ?, " );
 		update.append( FIELD_SERIES_ID ).append( " = ?, " );
-		update.append( FIELD_PROGRAM_ID ).append( " = ?, " );
 		update.append( FIELD_STARS ).append( " = ?, " );
 		update.append( FIELD_FILE_SIZE ).append( " = ?, " );
 		update.append( FIELD_LAST_MODIFIED ).append( " = ?, " );
@@ -205,7 +203,9 @@ public class ProgramConstants implements BaseColumns {
 		update.append( FIELD_SEASON ).append( " = ?, " );
 		update.append( FIELD_EPISODE ).append( " = ?, " );
 		update.append( FIELD_CHANNEL_NUMBER ).append( " = ?" );
-		update.append( " WHERE " ).append( _ID ).append( " = ?" );
+		update.append( " WHERE " );
+		update.append( FIELD_PROGRAM_ID ).append( " = ? AND " );
+		update.append( FIELD_START_TIME ).append( " = ?" );
 		
 		UPDATE_ROW = update.toString();
 	}

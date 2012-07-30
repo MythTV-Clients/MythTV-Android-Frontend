@@ -41,6 +41,7 @@ import android.util.Log;
 public class MainApplication extends Application {
 
 	public static final String GUIDE_DATA_LOADED = "GUIDE_DATA_LOADED";
+	public static final String NEXT_GUIDE_DATA_LOAD = "NEXT_GUIDE_DATA_LOAD";
 
 	private static final String TAG = MainApplication.class.getSimpleName();
 	private static final String MASTER_BACKEND = "MASTER_BACKEND";

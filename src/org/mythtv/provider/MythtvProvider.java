@@ -33,6 +33,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 import android.net.Uri;
 import android.text.TextUtils;
+import android.util.Log;
 
 /**
  * @author Daniel Frey
@@ -40,6 +41,8 @@ import android.text.TextUtils;
  */
 public class MythtvProvider extends AbstractMythtvContentProvider {
 
+	private static final String TAG = MythtvProvider.class.getSimpleName();
+	
 	public static final String AUTHORITY = "org.mythtv.provider.MythtvProvider";
 	
 	private static final UriMatcher URI_MATCHER;
@@ -49,6 +52,7 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 	private static final int PROGRAMS = 1;
 	private static final int PROGRAM_ID = 2;
 	private static final int PROGRAM_GROUPS = 3;
+	private static final int PROGRAM_BATCH = 8;
 
 	private static final String RECORDING_CONTENT_TYPE = "vnd.mythtv.cursor.dir/recording";
 	private static final String RECORDING_CONTENT_ITEM_TYPE = "vnd.mythtv.cursor.item/recording";
@@ -65,6 +69,7 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 		URI_MATCHER.addURI( AUTHORITY, ProgramConstants.TABLE_NAME, PROGRAMS );
 		URI_MATCHER.addURI( AUTHORITY, ProgramConstants.TABLE_NAME + "/#", PROGRAM_ID );
 		URI_MATCHER.addURI( AUTHORITY, ProgramConstants.TABLE_NAME + "/programGroups", PROGRAM_GROUPS );
+		URI_MATCHER.addURI( AUTHORITY, ProgramConstants.TABLE_NAME + "/programBatch", PROGRAM_BATCH );
 		URI_MATCHER.addURI( AUTHORITY, RecordingConstants.TABLE_NAME, RECORDINGS );
 		URI_MATCHER.addURI( AUTHORITY, RecordingConstants.TABLE_NAME + "/#", RECORDING_ID );
 		URI_MATCHER.addURI( AUTHORITY, ChannelConstants.TABLE_NAME, CHANNELS );
@@ -98,6 +103,9 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				return PROGRAM_CONTENT_ITEM_TYPE;
 			
 			case PROGRAM_GROUPS:
+				return PROGRAM_CONTENT_TYPE;
+			
+			case PROGRAM_BATCH:
 				return PROGRAM_CONTENT_TYPE;
 			
 			case RECORDINGS:
@@ -334,13 +342,15 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 	 */
 	@Override
 	public int bulkInsert( Uri uri, ContentValues[] values ) {
-	
+		Log.v( TAG, "bulkInsert : enter" );
+		
 		final SQLiteDatabase db = database.getWritableDatabase();
 
 		int numInserted = 0;
 
 		switch( URI_MATCHER.match( uri ) ) {
 			case PROGRAMS:
+				Log.v( TAG, "bulkInsert : inserting programs" );
 			
 				db.beginTransaction();
 				try {
@@ -387,6 +397,57 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 					db.endTransaction();
 				}
 			
+				return numInserted;
+			
+			case PROGRAM_BATCH:
+				Log.v( TAG, "bulkInsert : updating programs" );
+
+				db.beginTransaction();
+				try {
+					//standard SQL insert statement, that can be reused
+					SQLiteStatement update = db.compileStatement( ProgramConstants.UPDATE_ROW );
+				
+					for( ContentValues value : values ) {
+						update.bindString( 1, value.getAsString( ProgramConstants.FIELD_PROGRAM_TYPE ) );
+						update.bindString( 2, value.getAsString( ProgramConstants.FIELD_PROGRAM_GROUP ) );
+						update.bindLong( 3, value.getAsLong( ProgramConstants.FIELD_END_TIME ) );
+						update.bindLong( 4, value.getAsLong( ProgramConstants.FIELD_DURATION ) );
+						update.bindString( 5, value.getAsString( ProgramConstants.FIELD_START_DATE ) );
+						update.bindString( 6, value.getAsString( ProgramConstants.FIELD_TIMESLOT_HOUR ) );
+						update.bindString( 7, value.getAsString( ProgramConstants.FIELD_TIMESLOT_MINUTE ) );
+						update.bindString( 8, value.getAsString( ProgramConstants.FIELD_TITLE ) );
+						update.bindString( 9, value.getAsString( ProgramConstants.FIELD_SUB_TITLE ) );
+						update.bindString( 10, value.getAsString( ProgramConstants.FIELD_CATEGORY ) );
+						update.bindString( 11, value.getAsString( ProgramConstants.FIELD_CATEGORY_TYPE ) );
+						update.bindLong( 12, value.getAsInteger( ProgramConstants.FIELD_REPEAT ) );
+						update.bindLong( 13, value.getAsInteger( ProgramConstants.FIELD_VIDEO_PROPS ) );
+						update.bindLong( 14, value.getAsInteger( ProgramConstants.FIELD_AUDIO_PROPS ) );
+						update.bindLong( 15, value.getAsInteger( ProgramConstants.FIELD_SUB_PROPS ) );
+						update.bindString( 16, value.getAsString( ProgramConstants.FIELD_SERIES_ID ) );
+						update.bindDouble( 17, value.getAsFloat( ProgramConstants.FIELD_STARS ) );
+						update.bindString( 18, value.getAsString( ProgramConstants.FIELD_FILE_SIZE ) );
+						update.bindString( 19, value.getAsString( ProgramConstants.FIELD_LAST_MODIFIED ) );
+						update.bindString( 20, value.getAsString( ProgramConstants.FIELD_PROGRAM_FLAGS ) );
+						update.bindString( 21, value.getAsString( ProgramConstants.FIELD_HOSTNAME ) );
+						update.bindString( 22, value.getAsString( ProgramConstants.FIELD_FILENAME ) );
+						update.bindString( 23, value.getAsString( ProgramConstants.FIELD_AIR_DATE ) );
+						update.bindString( 24, value.getAsString( ProgramConstants.FIELD_DESCRIPTION ) );
+						update.bindString( 25, value.getAsString( ProgramConstants.FIELD_INETREF ) );
+						update.bindString( 26, value.getAsString( ProgramConstants.FIELD_SEASON ) );
+						update.bindString( 27, value.getAsString( ProgramConstants.FIELD_EPISODE ) );
+						update.bindString( 28, value.getAsString( ProgramConstants.FIELD_CHANNEL_NUMBER ) );
+						update.bindString( 29, value.getAsString( ProgramConstants.FIELD_PROGRAM_ID ) );
+						update.bindLong( 30, value.getAsLong( ProgramConstants.FIELD_START_TIME ) );
+						update.execute();
+					}
+					db.setTransactionSuccessful();
+	            
+					numInserted = values.length;
+				} finally {
+					db.endTransaction();
+				}
+			
+				Log.v( TAG, "bulkInsert : exit, update programs" );
 				return numInserted;
 			
 			case CHANNELS:

@@ -20,6 +20,7 @@
 package org.mythtv.service.dvr;
 
 import org.mythtv.db.dvr.ProgramConstants;
+import org.mythtv.db.dvr.ProgramConstants.ProgramType;
 import org.mythtv.service.AbstractMythtvProcessor;
 import org.mythtv.service.util.NotificationHelper;
 import org.mythtv.service.util.NotificationHelper.NotificationType;
@@ -158,6 +159,26 @@ public class ProgramListProcessor extends AbstractMythtvProcessor {
 		mNotificationHelper.completed();
 		
 		Log.v( TAG, "processProgramList : exit" );
+	}
+
+	private void processProgramListBatch( ProgramList programList, ProgramType programType ) {
+		Log.v( TAG, "processProgramListBatch : enter" );
+
+		if( null != programList && null != programList.getPrograms() && ( null != programList.getPrograms().getPrograms() && !programList.getPrograms().getPrograms().isEmpty() ) ) {
+
+			Log.v( TAG, "processProgramListBatch : " + programType.name() + ", count=" + programList.getPrograms().getPrograms().size() );
+
+			getMainApplication().setDatabaseLoading( true );
+			
+			programProcessor.batchUpdateProgramContentProvider( programList.getPrograms().getPrograms(), programType );
+			
+			getMainApplication().setDatabaseLoading( false );
+
+		}
+
+		mNotificationHelper.completed();
+		
+		Log.v( TAG, "processProgramListBatch : exit" );
 	}
 
 }

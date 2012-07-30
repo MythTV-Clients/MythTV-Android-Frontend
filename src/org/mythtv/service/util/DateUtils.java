@@ -119,6 +119,23 @@ public class DateUtils {
 		return getEndOfDay( tomorrow.getTime() );
 	}
 	
+	public static Date getNextDayAfterMythfilldatabase() {
+		
+		Date day = new Date();
+		
+		Calendar today = Calendar.getInstance();
+		today.setTime( day );
+		
+		today.add( Calendar.DATE, 1 );
+		today.set( Calendar.HOUR, 4 );
+		today.set( Calendar.MINUTE, 0 );
+		today.set( Calendar.SECOND, 0 );
+		today.set( Calendar.MILLISECOND, 0 );
+		today.set( Calendar.AM_PM, Calendar.AM );
+		
+		return today.getTime();		
+	}
+	
 	// internal helpers
 	
 	private static Date getEndOfDay( Date day, Calendar cal ) {

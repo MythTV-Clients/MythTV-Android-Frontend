@@ -120,6 +120,31 @@ public class ProgramProcessor extends AbstractMythtvProcessor {
 		return null;
 	}
 
+	public Long batchUpdateProgramContentProvider( List<Program> programs, ProgramType programType ) {
+		
+		if( null != programs && !programs.isEmpty() ) {
+		
+			int count = 0;
+			ContentValues values;
+			ContentValues[] valuesArray = new ContentValues[ programs.size() ];
+			for( Program program : programs ) {
+				Log.v( TAG, "batchUpdateProgramContentProvider : programId=" + program.getProgramId() );
+				
+				values = convertProgramToContentValues( program, programType );
+				valuesArray[ count ] = values;
+				
+				count++;
+			}
+			
+			long numberUpdated = mContext.getContentResolver().bulkInsert( Uri.withAppendedPath( ProgramConstants.CONTENT_URI, "programBatch" ), valuesArray );
+			Log.v( TAG, "batchUpdateProgramContentProvider : numberUpdated=" + numberUpdated );
+			
+			return numberUpdated;
+		}
+		
+		return null;
+	}
+
 	public int resetRecordedPrograms() {
 		Log.v( TAG, "resetRecordedPrograms : enter" );
 		

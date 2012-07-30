@@ -19,10 +19,14 @@
  */
 package org.mythtv.client.ui;
 
+import java.util.Calendar;
+import java.util.Date;
+
 import org.mythtv.client.MainApplication;
 import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.service.guide.GuideService;
 import org.mythtv.service.guide.GuideServiceHelper;
+import org.mythtv.service.util.DateUtils;
 
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
@@ -123,7 +127,23 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 			showGuideAlertDialog();
         } else {
         	if( !getMainApplication().isDatabaseLoading() ) {
-        		mGuideServiceHelper.getGuideList();
+        		Log.v( TAG, "onResume : data is not currently loading" );
+        		
+        		long storedNext = mythtvPreferences.getLong( MainApplication.NEXT_GUIDE_DATA_LOAD, DateUtils.getYesterday().getTime() );
+        		
+        		Calendar next = Calendar.getInstance();
+        		next.setTimeInMillis( storedNext );
+        		
+        		Calendar now = Calendar.getInstance();
+        		now.setTime( new Date() );
+        		
+        		if( now.after( next ) ) {
+        			Log.v( TAG, "onResume : next program guide load date is passed" );
+
+        			mGuideServiceHelper.getGuideList();
+        		} else {
+        			Log.v( TAG, "onResume : next scheduled date is " + DateUtils.dateTimeFormatter.format( next.getTime() ) );
+        		}
         	}
         }
         
