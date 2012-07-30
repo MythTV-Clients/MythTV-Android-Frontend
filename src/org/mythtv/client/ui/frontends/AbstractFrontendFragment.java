@@ -19,10 +19,15 @@
  */
 package org.mythtv.client.ui.frontends;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
+import org.mythtv.R;
 import org.mythtv.client.MainApplication;
 import org.mythtv.services.api.frontend.FrontendStatus;
 
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.support.v4.app.Fragment;
 
 /**
@@ -30,7 +35,42 @@ import android.support.v4.app.Fragment;
  *
  */
 public class AbstractFrontendFragment extends Fragment {
+	
+	private final static int STATUS_CHECK_INTERVAL_MS = 10000;
+	
+	protected static GetStatusTask sGetStatusTask;
+	protected static Timer sStatusTimer;
+	
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		
+		//create only one get status task
+		if(null == sGetStatusTask) {
+			sGetStatusTask = new GetStatusTask();
+			
+			//kick it off with a status request
+			final FrontendsFragment frontends = (FrontendsFragment) getFragmentManager().findFragmentById( R.id.frontends_fragment );
+			final Frontend fe = frontends.getSelectedFrontend();
+			sGetStatusTask.execute(fe.getUrl());
+		}
+		
+		//create only one status timer
+		if(null == sStatusTimer){
+			sStatusTimer = new Timer();
+			sStatusTimer.schedule(new TimerTask(){
 
+				@Override
+				public void run() {
+					final FrontendsFragment frontends = (FrontendsFragment) getFragmentManager().findFragmentById( R.id.frontends_fragment );
+					final Frontend fe = frontends.getSelectedFrontend();
+					sGetStatusTask.execute(fe.getUrl());
+				}
+				
+			}, STATUS_CHECK_INTERVAL_MS, STATUS_CHECK_INTERVAL_MS);
+		}
+		
+		super.onCreate(savedInstanceState);
+	}
 	
 	public MainApplication getApplicationContext() {
 		return (MainApplication) getActivity().getApplicationContext();
