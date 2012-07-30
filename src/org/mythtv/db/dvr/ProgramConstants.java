@@ -48,15 +48,24 @@ public class ProgramConstants implements BaseColumns {
 	public static final String FIELD_PROGRAM_GROUP = "PROGRAM_GROUP";
 	public static final String FIELD_PROGRAM_GROUP_DATA_TYPE = "TEXT";
 
+	public static final String FIELD_START_TIME = "START_TIME";
+	public static final String FIELD_START_TIME_DATA_TYPE = "INTEGER";
+
+	public static final String FIELD_END_TIME = "END_TIME";
+	public static final String FIELD_END_TIME_DATA_TYPE = "INTEGER";
+	
+	public static final String FIELD_DURATION = "DURATION";
+	public static final String FIELD_DURATION_DATA_TYPE = "INTEGER";
+	
 	public static final String FIELD_START_DATE = "START_DATE";
 	public static final String FIELD_START_DATE_DATA_TYPE = "TEXT";
 
-	public static final String FIELD_START_TIME = "START_TIME";
-	public static final String FIELD_START_TIME_DATA_TYPE = "TEXT";
+	public static final String FIELD_TIMESLOT_HOUR = "TIMESLOT_HOUR";
+	public static final String FIELD_TIMESLOT_HOUR_DATA_TYPE = "TEXT";
 
-	public static final String FIELD_END_TIME = "END_TIME";
-	public static final String FIELD_END_TIME_DATA_TYPE = "TEXT";
-	
+	public static final String FIELD_TIMESLOT_MINUTE = "TIMESLOT";
+	public static final String FIELD_TIMESLOT_MINUTE_DATA_TYPE = "TEXT";
+
 	public static final String FIELD_TITLE = "TITLE";
 	public static final String FIELD_TITLE_DATA_TYPE = "TEXT";
 	
@@ -121,8 +130,8 @@ public class ProgramConstants implements BaseColumns {
 	public static final String FIELD_EPISODE = "EPISODE";
 	public static final String FIELD_EPISODE_DATA_TYPE = "TEXT";
 
-	public static final String FIELD_CHANNEL_ID = "CHANNEL_ID";
-	public static final String FIELD_CHANNEL_ID_DATA_TYPE = "TEXT";
+	public static final String FIELD_CHANNEL_NUMBER = "CHANNEL_NUMBER";
+	public static final String FIELD_CHANNEL_NUMBER_DATA_TYPE = "TEXT";
 
 	static {
 		StringBuilder insert = new StringBuilder();
@@ -130,9 +139,12 @@ public class ProgramConstants implements BaseColumns {
 		insert.append( "INSERT INTO " ).append( TABLE_NAME ).append( " ( " );
 		insert.append( FIELD_PROGRAM_TYPE ).append( "," );
 		insert.append( FIELD_PROGRAM_GROUP ).append( "," );
-		insert.append( FIELD_START_DATE ).append( "," );
 		insert.append( FIELD_START_TIME ).append( "," );
 		insert.append( FIELD_END_TIME ).append( "," );
+		insert.append( FIELD_DURATION ).append( "," );
+		insert.append( FIELD_START_DATE ).append( "," );
+		insert.append( FIELD_TIMESLOT_HOUR ).append( "," );
+		insert.append( FIELD_TIMESLOT_MINUTE ).append( "," );
 		insert.append( FIELD_TITLE ).append( "," );
 		insert.append( FIELD_SUB_TITLE ).append( "," );
 		insert.append( FIELD_CATEGORY ).append( "," );
@@ -154,9 +166,9 @@ public class ProgramConstants implements BaseColumns {
 		insert.append( FIELD_INETREF ).append( "," );
 		insert.append( FIELD_SEASON ).append( "," );
 		insert.append( FIELD_EPISODE ).append( "," );
-		insert.append( FIELD_CHANNEL_ID );
+		insert.append( FIELD_CHANNEL_NUMBER );
 		insert.append( " ) " );
-		insert.append( "VALUES( ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? )" );
+		insert.append( "VALUES( ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? )" );
 		
 		INSERT_ROW = insert.toString();
 		
@@ -165,9 +177,12 @@ public class ProgramConstants implements BaseColumns {
 		update.append( " SET " );
 		update.append( FIELD_PROGRAM_TYPE ).append( " = ?, " );
 		update.append( FIELD_PROGRAM_GROUP ).append( " = ?, " );
-		update.append( FIELD_START_DATE ).append( " = ?, " );
 		update.append( FIELD_START_TIME ).append( " = ?, " );
 		update.append( FIELD_END_TIME ).append( " = ?, " );
+		update.append( FIELD_DURATION ).append( " = ?, " );
+		update.append( FIELD_START_DATE ).append( " = ?, " );
+		update.append( FIELD_TIMESLOT_HOUR ).append( " = ?, " );
+		update.append( FIELD_TIMESLOT_MINUTE ).append( " = ?, " );
 		update.append( FIELD_TITLE ).append( " = ?, " );
 		update.append( FIELD_SUB_TITLE ).append( " = ?, " );
 		update.append( FIELD_CATEGORY ).append( " = ?, " );
@@ -189,7 +204,7 @@ public class ProgramConstants implements BaseColumns {
 		update.append( FIELD_INETREF ).append( " = ?, " );
 		update.append( FIELD_SEASON ).append( " = ?, " );
 		update.append( FIELD_EPISODE ).append( " = ?, " );
-		update.append( FIELD_CHANNEL_ID ).append( " = ?" );
+		update.append( FIELD_CHANNEL_NUMBER ).append( " = ?" );
 		update.append( " WHERE " ).append( _ID ).append( " = ?" );
 		
 		UPDATE_ROW = update.toString();

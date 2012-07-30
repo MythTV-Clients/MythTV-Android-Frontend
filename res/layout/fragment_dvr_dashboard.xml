@@ -35,7 +35,6 @@
     <Button android:id="@+id/dvr_btn_guide"
         style="@style/DashboardButton"
         android:text="@string/btn_guide"
-        android:textColor="@color/body_text_disabled"
         android:drawableTop="@drawable/dvr_btn_guide" />
     <Button android:id="@+id/dvr_btn_recording_rules"
         style="@style/DashboardButton"

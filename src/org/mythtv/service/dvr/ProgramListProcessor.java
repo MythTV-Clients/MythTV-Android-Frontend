@@ -21,6 +21,8 @@ package org.mythtv.service.dvr;
 
 import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.service.AbstractMythtvProcessor;
+import org.mythtv.service.util.NotificationHelper;
+import org.mythtv.service.util.NotificationHelper.NotificationType;
 import org.mythtv.services.api.dvr.Program;
 import org.mythtv.services.api.dvr.ProgramList;
 import org.springframework.http.ResponseEntity;
@@ -36,6 +38,8 @@ public class ProgramListProcessor extends AbstractMythtvProcessor {
 
 	protected static final String TAG = ProgramListProcessor.class.getSimpleName();
 
+	private NotificationHelper mNotificationHelper;
+	
 	private ProgramProcessor programProcessor;
 	
 	public interface RecordingListProcessorCallback {
@@ -54,6 +58,8 @@ public class ProgramListProcessor extends AbstractMythtvProcessor {
 		super( context );
 		Log.v( TAG, "initialize : enter" );
 		
+		mNotificationHelper = new NotificationHelper( context );
+		
 		programProcessor = new ProgramProcessor( context );
 		
 		Log.v( TAG, "initialize : exit" );
@@ -62,16 +68,22 @@ public class ProgramListProcessor extends AbstractMythtvProcessor {
 	public void getRecordedList( RecordingListProcessorCallback callback ) {
 		Log.v( TAG, "getRecordedList : enter" );
 
+		String message = "Retrieving Recorded Programs";
+		mNotificationHelper.createNotification( "Mythtv for Android", message, NotificationType.UPLOAD );
+		
 		ResponseEntity<ProgramList> entity = application.getMythServicesApi().dvrOperations().getRecordedListResponseEntity();
 		if( Log.isLoggable( TAG, Log.INFO ) ) {
 			Log.i( TAG, "getRecordedList : entity status code = " + entity.getStatusCode().toString() );
 		}
+		mNotificationHelper.completed();
 		
 		switch( entity.getStatusCode() ) {
 			case OK :
 				int updated = programProcessor.resetRecordedPrograms();
 				Log.v( TAG, "getRecordedList : updated=" + updated );
 
+				message = "Updating Recorded Programs";
+				mNotificationHelper.createNotification( "Mythtv for Android", message, NotificationType.UPLOAD );
 				processProgramList( entity.getBody(), ProgramConstants.ProgramType.RECORDED );
 				break;
 			default :
@@ -86,16 +98,22 @@ public class ProgramListProcessor extends AbstractMythtvProcessor {
 	public void getUpcomingList( UpcomingListProcessorCallback callback ) {
 		Log.v( TAG, "getUpcomingList : enter" );
 
+		String message = "Retrieving Upcoming Programs";
+		mNotificationHelper.createNotification( "Mythtv for Android", message, NotificationType.UPLOAD );
+
 		ResponseEntity<ProgramList> entity = application.getMythServicesApi().dvrOperations().getUpcomingListResponseEntity();
 		if( Log.isLoggable( TAG, Log.DEBUG ) ) {
 			Log.d( TAG, "getUpcomingList : entity status code = " + entity.getStatusCode().toString() );
 		}
+		mNotificationHelper.completed();
 		
 		switch( entity.getStatusCode() ) {
 			case OK :
 				int updated = programProcessor.resetUpcomingPrograms();
 				Log.v( TAG, "getUpcomingList : updated=" + updated );
 				
+				message = "Updating Upcoming Programs";
+				mNotificationHelper.createNotification( "Mythtv for Android", message, NotificationType.UPLOAD );
 				processProgramList( entity.getBody(), ProgramConstants.ProgramType.UPCOMING );
 				break;
 			default :
@@ -116,14 +134,28 @@ public class ProgramListProcessor extends AbstractMythtvProcessor {
 
 			Log.v( TAG, "processProgramList : " + programType.name() + ", count=" + programList.getPrograms().getPrograms().size() );
 
+			getMainApplication().setDatabaseLoading( true );
+			
+			int size = programList.getPrograms().getPrograms().size();
+			int count = 0;
 			for( Program program : programList.getPrograms().getPrograms() ) {
 				
 				if( !"livetv".equalsIgnoreCase( program.getRecording().getRecordingGroup() ) ) {
 					programProcessor.updateProgramContentProvider( program, programType );
 				}
+
+				count++;
+
+				double percentage = ( (float) count / (float) size ) * 100;
+				Log.v( TAG, "processProgramList : percentage=" + percentage );
+				mNotificationHelper.progressUpdate( percentage );
 			}
 
+			getMainApplication().setDatabaseLoading( false );
+
 		}
+
+		mNotificationHelper.completed();
 		
 		Log.v( TAG, "processProgramList : exit" );
 	}

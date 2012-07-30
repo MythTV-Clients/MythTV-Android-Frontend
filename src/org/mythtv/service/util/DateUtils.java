@@ -29,9 +29,41 @@ import java.util.Date;
  */
 public class DateUtils {
 
+	public enum Meridiem {
+		AM,
+		PM
+	}
+	
+	public enum Hours {
+		ONE( "1:00" ),
+		TWO( "2:00" ),
+		THREE( "3:00" ),
+		FOUR( "4:00" ),
+		FIVE( "5:00" ),
+		SIX( "6:00" ),
+		SEVEN( "7:00" ),
+		EIGHT( "8:00" ),
+		NINE( "9:00" ),
+		TEN( "10:00" ),
+		ELEVEN( "11:00" ),
+		TWELVE( "12:00" );
+		
+		String display;
+		
+		Hours( String display ) {
+			this.display = display;
+		}
+		
+		String getDisplay() {
+			return display;
+		}
+		
+	}
+	
 	public static final SimpleDateFormat dateFormatter = new SimpleDateFormat( "yyyy-MM-dd" );
 	public static final SimpleDateFormat dateTimeFormatter = new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ss" );
 	public static final SimpleDateFormat timeFormatter = new SimpleDateFormat( "hh:mm a" );
+	public static final SimpleDateFormat hourFormatter = new SimpleDateFormat( "hh:'00' a" );
 
 	public static Date getEndOfDay( Date day ) {
 		return getEndOfDay( day, Calendar.getInstance() );
@@ -47,6 +79,17 @@ public class DateUtils {
 		return getEndOfDay( today.getTime() );		
 	}
 	
+	public static Date getDaysFromToday( int days ) {
+		
+		Date day = new Date();
+		
+		Calendar today = Calendar.getInstance();
+		today.setTime( day );
+		today.add( Calendar.DATE, days );
+		
+		return getEndOfDay( today.getTime() );		
+	}
+
 	public static Date getYesterday() {
 		
 		Date day = new Date();
@@ -58,6 +101,15 @@ public class DateUtils {
 		return getEndOfDay( yesterday.getTime() );		
 	}
 	
+	public static Date getPreviousDay( Date day ) {
+		
+		Calendar yesterday = Calendar.getInstance();
+		yesterday.setTime( day );
+		yesterday.add( Calendar.DATE, -1 );
+		
+		return getEndOfDay( yesterday.getTime() );
+	}
+
 	public static Date getNextDay( Date day ) {
 		
 		Calendar tomorrow = Calendar.getInstance();

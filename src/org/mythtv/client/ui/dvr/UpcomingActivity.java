@@ -76,7 +76,7 @@ public class UpcomingActivity extends AbstractDvrActivity {
 
 		String formattedDay = null;
 		Bundle bundle = null;
-		for( int i = 0; i < 13; i++ ) {
+		for( int i = 0; i < 12; i++ ) {
 			formattedDay = DateUtils.dateFormatter.format( day );
 			fragmentHeadings.add( formattedDay );
 			

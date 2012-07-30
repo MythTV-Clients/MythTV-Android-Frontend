@@ -17,25 +17,36 @@
  * This software can be found at <https://github.com/MythTV-Android/mythtv-for-android/>
  *
  */
-package org.mythtv.client.ui;
+package org.mythtv.client.ui.dvr;
 
-import org.mythtv.client.MainApplication;
+import org.mythtv.R;
 
-import android.support.v4.app.Fragment;
+import android.os.Bundle;
+import android.util.Log;
 
 /**
  * @author Daniel Frey
  *
  */
-public abstract class AbstractMythFragment extends Fragment implements MythtvApplicationContext {
+public class GuideActivity extends AbstractDvrActivity {
 
-	protected static final String TAG = AbstractMythFragment.class.getSimpleName();
-	
-	//***************************************
-    // MythActivity methods
-    //***************************************
-	public MainApplication getMainApplication() {
-		return (MainApplication) getActivity().getApplicationContext();
+	private static final String TAG = GuideActivity.class.getSimpleName();
+
+	/* (non-Javadoc)
+	 * @see org.mythtv.client.ui.dvr.AbstractDvrActivity#onCreate(android.os.Bundle)
+	 */
+	@Override
+	protected void onCreate( Bundle savedInstanceState ) {
+		Log.v( TAG, "onCreate : enter" );
+		super.onCreate( savedInstanceState );
+
+		setContentView( R.layout.activity_dvr_guide );
+
+		setupActionBar();
+
+		GuideFragment guideFragment = (GuideFragment) getSupportFragmentManager().findFragmentById( R.id.fragment_dvr_guide );
+		
+		Log.v( TAG, "onCreate : exit" );
 	}
 	
 }

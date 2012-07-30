@@ -131,7 +131,7 @@ public class VideoActivity extends AbstractDvrActivity {
 	private void startVideo() {
 		Log.v( TAG, "Starting Video" );
 		
-		String temp = getApplicationContext().getMasterBackend();
+		String temp = getMainApplication().getMasterBackend();
 		temp = temp.replaceAll( "/$", "" );
 		String url = temp + info.getRelativeUrl();
 	    Log.v( TAG, "URL: " + url );
@@ -209,13 +209,13 @@ public class VideoActivity extends AbstractDvrActivity {
 			try {
 				Log.v( TAG, "CreateStreamTask : api" );
 				
-				String location = getApplicationContext().getLocation();
+				String location = getMainApplication().getLocation();
 				
 				if (location == "HOME"){
-					selectedPlaybackProfile = getApplicationContext().getSelectedHomePlaybackProfile();
+					selectedPlaybackProfile = getMainApplication().getSelectedHomePlaybackProfile();
 				}
 				else if (location == "AWAY"){
-					selectedPlaybackProfile = getApplicationContext().getSelectedAwayPlaybackProfile();
+					selectedPlaybackProfile = getMainApplication().getSelectedAwayPlaybackProfile();
 				}
 				else{
 					Log.e( TAG, "Unknown Location!" );
@@ -226,7 +226,7 @@ public class VideoActivity extends AbstractDvrActivity {
 				//	addRecordingLiveStream(Integer.valueOf(program.getChannelInfo().getChannelId()), program.getStartTime(), 
 				//			-1, -1, -1, -1, -1, -1);
 				
-				lookup = getApplicationContext().getMythServicesApi().contentOperations().
+				lookup = getMainApplication().getMythServicesApi().contentOperations().
 						addLiveStream(null, params[ 0 ], params[ 1 ], -1, -1,
 								selectedPlaybackProfile.getHeight(), selectedPlaybackProfile.getVideoBitrate(), 
 								selectedPlaybackProfile.getAudioBitrate(), selectedPlaybackProfile.getAudioSampleRate());
@@ -272,7 +272,7 @@ public class VideoActivity extends AbstractDvrActivity {
 				//while (lookup.getStatusInt() < 2 || lookup.getPercentComplete() < 1){
 				while (lookup.getStatusInt() < 2 || lookup.getCurrentSegment() <= 2){
 					Thread.sleep(5000);
-					lookup = getApplicationContext().getMythServicesApi().contentOperations().getLiveStream(info.getId());
+					lookup = getMainApplication().getMythServicesApi().contentOperations().getLiveStream(info.getId());
 				}
 			} catch( Exception e ) {
 				Log.v( TAG, "UpdateStreamInfoTask : error" );
@@ -311,7 +311,7 @@ public class VideoActivity extends AbstractDvrActivity {
 
 			try {
 				Log.v( TAG, "RemoveStreamTask : api" );
-				getApplicationContext().getMythServicesApi().contentOperations().removeLiveStream(info.getId());
+				getMainApplication().getMythServicesApi().contentOperations().removeLiveStream(info.getId());
 			} catch( Exception e ) {
 				Log.v( TAG, "RemoveStreamTask : error" );
 

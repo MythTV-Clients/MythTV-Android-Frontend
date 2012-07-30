@@ -19,17 +19,23 @@
  */
 package org.mythtv.client.ui;
 
+import org.mythtv.client.MainApplication;
+import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.service.guide.GuideService;
 import org.mythtv.service.guide.GuideServiceHelper;
 
-import android.app.ProgressDialog;
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 /**
  * @author Daniel Frey
@@ -39,12 +45,14 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 
 	protected static final String TAG = AbstractLocationAwareFragmentActivity.class.getSimpleName();
 
+	private SharedPreferences mythtvPreferences;
+	
 	private GuideReceiver guideReceiver;
 	private NotifyReceiver notifyReceiver;
 	
 	private GuideServiceHelper mGuideServiceHelper;
 	
-	private ProgressDialog mProgressDialog;
+	private boolean isGuideDataLoaded;
 	
 	// ***************************************
 	// FragmentActivity methods
@@ -62,8 +70,32 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 		
 		resources = getResources();
 
+		mythtvPreferences = getSharedPreferences( "MythtvPreferences", Context.MODE_PRIVATE );
+		
 		setupActionBar();
 
+		isGuideDataLoaded = mythtvPreferences.getBoolean( MainApplication.GUIDE_DATA_LOADED, false );
+
+		if( !isGuideDataLoaded ) {
+			Log.v( TAG, "onCreate : guide data not loaded, checking database" );
+
+			Cursor cursor = getContentResolver().query( ProgramConstants.CONTENT_URI, new String[] { ProgramConstants._ID }, ProgramConstants.FIELD_PROGRAM_TYPE + " = ?", new String[] { ProgramConstants.ProgramType.GUIDE.name() }, null );
+			if( cursor.getCount() == 0 ) {
+				Log.v( TAG, "onCreate : guide data not loaded" );
+			
+				isGuideDataLoaded = false;
+			} else {
+				Log.v( TAG, "onCreate : guide data loaded" );
+
+				isGuideDataLoaded = true;
+
+				SharedPreferences.Editor editor = mythtvPreferences.edit();
+				editor.putBoolean( MainApplication.GUIDE_DATA_LOADED, isGuideDataLoaded );
+				editor.commit();
+			}
+			cursor.close();
+		}
+		
 		Log.v( TAG, "onCreate : exit" );
 	}
 
@@ -84,8 +116,17 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 		guideFilter.setPriority( IntentFilter.SYSTEM_LOW_PRIORITY );
         guideReceiver = new GuideReceiver();
         registerReceiver( guideReceiver, guideFilter );
-        mGuideServiceHelper.getGuideList();
+        
+		isGuideDataLoaded = mythtvPreferences.getBoolean( MainApplication.GUIDE_DATA_LOADED, false );
 
+		if( !isGuideDataLoaded ) {
+			showGuideAlertDialog();
+        } else {
+        	if( !getMainApplication().isDatabaseLoading() ) {
+        		mGuideServiceHelper.getGuideList();
+        	}
+        }
+        
 		Log.v( TAG, "onResume : exit" );
 	}
 
@@ -96,10 +137,6 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 	protected void onPause() {
 		Log.v( TAG, "onPause : enter" );
 		super.onPause();
-
-		if( null != mProgressDialog ) {
-			mProgressDialog.dismiss();
-		}
 
 		// Unregister for broadcast
 		if( null != notifyReceiver ) {
@@ -145,16 +182,39 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 
 	// internal helpers
 
+	private void showGuideAlertDialog() {
+		AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder( this );
+
+		// set title
+		alertDialogBuilder.setTitle( "Mythtv for Android" );
+
+		// set dialog message
+		alertDialogBuilder
+		.setMessage( "Since this is the first time you have run Mythtv for Android, I need to download your program guide.  This process will take a long time as I need to download data for the next two weeks.  Subsequent updates will occur in the background, but for now, please be patient while I process data from your Mythtv backend. Your actions will be limited while downloading takes place." )
+		.setCancelable( true )
+		.setPositiveButton( "Close", new DialogInterface.OnClickListener() {
+			public void onClick( DialogInterface dialog,int id ) {
+				dialog.cancel();
+				
+	        	mGuideServiceHelper.getGuideList();
+	        	
+				SharedPreferences.Editor editor = mythtvPreferences.edit();
+				editor.putBoolean( MainApplication.GUIDE_DATA_LOADED, true );
+				editor.commit();
+			}
+		});
+
+		AlertDialog alertDialog = alertDialogBuilder.create();
+
+		alertDialog.show();
+	}
+	
 	private class GuideReceiver extends BroadcastReceiver {
 
 		@Override
 		public void onReceive( Context context, Intent intent ) {
 			Log.v( TAG, "GuideReceiver.onReceive : enter" );
 			
-    		if( null != mProgressDialog ) {
-    			mProgressDialog.dismiss();
-    		}
-
 			Log.v( TAG, "GuideReceiver.onReceive : exit" );
 		}
 		
@@ -166,13 +226,10 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
         public void onReceive( Context context, Intent intent ) {
     		Log.d( TAG, "onReceive : enter" );
 
-    		if( null == mProgressDialog ) {
-        		mProgressDialog = ProgressDialog.show( context, "Loading Program Guide", "", true, false );
-    		}
-    		
     		String message = intent.getExtras().getString( GuideService.BROADCAST_ACTION );
     		
-    		mProgressDialog.setMessage( message );
+    		Toast toast = Toast.makeText( context, message, Toast.LENGTH_LONG );
+    		toast.show();
     		
     		Log.d( TAG, "onReceive : exit" );
         }

@@ -28,6 +28,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 public class DvrDashboardFragment extends AbstractMythFragment {
 
@@ -49,14 +50,14 @@ public class DvrDashboardFragment extends AbstractMythFragment {
 		root.findViewById( R.id.dvr_btn_recordings ).setOnClickListener( new View.OnClickListener() {
 			public void onClick( View view ) {
 				Log.v( TAG, "recordings.onClick : enter" );
-				
-				startActivity( new Intent( getActivity(), RecordingsActivity.class ) );
-//				if( UIUtils.isHoneycombTablet( getActivity() ) ) {
-//					startActivity( new Intent( getActivity(), ScheduleMultiPaneActivity.class ) );
-//				} else {
-//					startActivity( new Intent( getActivity(), ScheduleActivity.class ) );
-//				}
 
+				if( getMainApplication().isDatabaseLoading() ) {
+		    		Toast toast = Toast.makeText( getActivity(), getActivity().getString( R.string.data_loading ), Toast.LENGTH_LONG );
+		    		toast.show();
+				} else {
+					startActivity( new Intent( getActivity(), RecordingsActivity.class ) );
+				}
+				
 				Log.v( TAG, "recordings.onClick : exit" );
 			}
 
@@ -66,7 +67,12 @@ public class DvrDashboardFragment extends AbstractMythFragment {
 			public void onClick( View view ) {
 				Log.v( TAG, "upcoming.onClick : enter" );
 
-				startActivity( new Intent( getActivity(), UpcomingActivity.class ) );
+				if( getMainApplication().isDatabaseLoading() ) {
+		    		Toast toast = Toast.makeText( getActivity(), getActivity().getString( R.string.data_loading ), Toast.LENGTH_LONG );
+		    		toast.show();
+				} else {
+					startActivity( new Intent( getActivity(), UpcomingActivity.class ) );
+				}
 
 				Log.v( TAG, "upcoming.onClick : exit" );
 			}
@@ -76,6 +82,13 @@ public class DvrDashboardFragment extends AbstractMythFragment {
 			public void onClick( View view ) {
 				Log.v( TAG, "guide.onClick : enter" );
 
+				if( getMainApplication().isDatabaseLoading() ) {
+		    		Toast toast = Toast.makeText( getActivity(), getActivity().getString( R.string.data_loading ), Toast.LENGTH_LONG );
+		    		toast.show();
+				} else {
+					startActivity( new Intent( getActivity(), GuideActivity.class ) );
+				}
+
 				Log.v( TAG, "guide.onClick : exit" );
 			}
 		} );
@@ -83,6 +96,13 @@ public class DvrDashboardFragment extends AbstractMythFragment {
 		root.findViewById( R.id.dvr_btn_recording_rules ).setOnClickListener( new View.OnClickListener() {
 			public void onClick( View view ) {
 				Log.v( TAG, "recording_rules.onClick : enter" );
+
+				if( getMainApplication().isDatabaseLoading() ) {
+		    		Toast toast = Toast.makeText( getActivity(), getActivity().getString( R.string.data_loading ), Toast.LENGTH_LONG );
+		    		toast.show();
+				} else {
+//					startActivity( new Intent( getActivity(), GuideActivity.class ) );
+				}
 
 				Log.v( TAG, "recording_rules.onClick : exit" );
 			}

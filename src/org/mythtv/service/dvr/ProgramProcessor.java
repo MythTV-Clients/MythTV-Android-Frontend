@@ -20,6 +20,7 @@
 package org.mythtv.service.dvr;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import org.mythtv.db.dvr.ProgramConstants;
@@ -65,37 +66,10 @@ public class ProgramProcessor extends AbstractMythtvProcessor {
 				Log.v( TAG, "updateProgramContentProvider : program=" + program.toString() );
 			}
 
-			// Removing Grammar Articles.  English only at this time, needs internationalization
-			String cleanTitle = ArticleCleaner.clean( program.getTitle() );
-
-			ContentValues values = new ContentValues();
-			values.put( ProgramConstants.FIELD_PROGRAM_TYPE, null != programType ? programType.name() : "" );
-			values.put( ProgramConstants.FIELD_PROGRAM_GROUP, cleanTitle );
-			values.put( ProgramConstants.FIELD_START_DATE, null != program.getStartTime() ? DateUtils.dateFormatter.format( program.getStartTime() ) : "" );
-			values.put( ProgramConstants.FIELD_START_TIME, null != program.getStartTime() ? DateUtils.dateTimeFormatter.format( program.getStartTime() ) : "" );
-			values.put( ProgramConstants.FIELD_END_TIME, null != program.getEndTime() ? DateUtils.dateTimeFormatter.format( program.getEndTime() ) : "" );
-			values.put( ProgramConstants.FIELD_TITLE, null != program.getTitle() ? program.getTitle() : "" );
-			values.put( ProgramConstants.FIELD_SUB_TITLE, null != program.getSubTitle() ? program.getSubTitle() : "" );
-			values.put( ProgramConstants.FIELD_CATEGORY, null != program.getCategory() ? program.getCategory() : "" );
-			values.put( ProgramConstants.FIELD_CATEGORY_TYPE, null != program.getCategoryType() ? program.getCategoryType() : "" );
-			values.put( ProgramConstants.FIELD_REPEAT, program.isRepeat() ? 1 : 0 );
-			values.put( ProgramConstants.FIELD_VIDEO_PROPS, program.getVideoProps() );
-			values.put( ProgramConstants.FIELD_AUDIO_PROPS, program.getAudioProps() );
-			values.put( ProgramConstants.FIELD_SUB_PROPS, program.getSubProps() );
-			values.put( ProgramConstants.FIELD_SERIES_ID, null != program.getSeriesId() ? program.getSeriesId() : "" );
-			values.put( ProgramConstants.FIELD_PROGRAM_ID, null != program.getProgramId() ? program.getProgramId() : "" );
-			values.put( ProgramConstants.FIELD_STARS, program.getStars() );
-			values.put( ProgramConstants.FIELD_FILE_SIZE, null != program.getFileSize() ? program.getFileSize() : "" );
-			values.put( ProgramConstants.FIELD_LAST_MODIFIED, null != program.getLastModified() ? DateUtils.dateTimeFormatter.format( program.getLastModified() ) : "" );
-			values.put( ProgramConstants.FIELD_PROGRAM_FLAGS, null != program.getProgramFlags() ? program.getProgramFlags() : "" );
-			values.put( ProgramConstants.FIELD_HOSTNAME, null != program.getHostname() ? program.getHostname() : "" );
-			values.put( ProgramConstants.FIELD_FILENAME, null != program.getFilename() ? program.getFilename() : "" );
-			values.put( ProgramConstants.FIELD_AIR_DATE, null != program.getAirDate() ? DateUtils.dateTimeFormatter.format( program.getAirDate() ) : "" );
-			values.put( ProgramConstants.FIELD_DESCRIPTION, null != program.getDescription() ? program.getDescription() : "" );
-			values.put( ProgramConstants.FIELD_INETREF, null != program.getInetref() ? program.getInetref() : "" );
-			values.put( ProgramConstants.FIELD_SEASON, null != program.getSeason() ? program.getSeason() : "" );
-			values.put( ProgramConstants.FIELD_EPISODE, null != program.getEpisode() ? program.getEpisode() : "" );
-			values.put( ProgramConstants.FIELD_CHANNEL_ID, null != program.getChannelInfo() ? program.getChannelInfo().getChannelNumber() : "" );
+			Calendar startTime = Calendar.getInstance();
+			startTime.setTime( program.getStartTime() );
+			
+			ContentValues values = convertProgramToContentValues( program, programType );
 
 			String[] projection = new String[] { ProgramConstants._ID };
 			
@@ -106,7 +80,7 @@ public class ProgramProcessor extends AbstractMythtvProcessor {
 				.append( ProgramConstants.FIELD_PROGRAM_ID ).append( " = ? and " )
 				.append( ProgramConstants.FIELD_PROGRAM_TYPE + " = ?" );
 			
-			String[] args = new String[] { DateUtils.dateTimeFormatter.format( program.getStartTime() ), program.getTitle(), program.getSubTitle(), program.getProgramId(), programType.name() };
+			String[] args = new String[] { "" + startTime.getTimeInMillis(), program.getTitle(), program.getSubTitle(), program.getProgramId(), programType.name() };
 			
 			Cursor cursor = mContext.getContentResolver().query( ProgramConstants.CONTENT_URI, projection, sb.toString(), args, null );
 			if( cursor.moveToFirst() ) {
@@ -133,37 +107,7 @@ public class ProgramProcessor extends AbstractMythtvProcessor {
 			ContentValues[] valuesArray = new ContentValues[ programs.size() ];
 			for( Program program : programs ) {
 				
-				// Removing Grammar Articles.  English only at this time, needs internationalization
-				String cleanTitle = ArticleCleaner.clean( program.getTitle() );
-
-				values = new ContentValues();
-				values.put( ProgramConstants.FIELD_PROGRAM_TYPE, ProgramConstants.ProgramType.GUIDE.name() );
-				values.put( ProgramConstants.FIELD_PROGRAM_GROUP, cleanTitle );
-				values.put( ProgramConstants.FIELD_START_DATE, null != program.getStartTime() ? DateUtils.dateFormatter.format( program.getStartTime() ) : "" );
-				values.put( ProgramConstants.FIELD_START_TIME, null != program.getStartTime() ? DateUtils.dateTimeFormatter.format( program.getStartTime() ) : "" );
-				values.put( ProgramConstants.FIELD_END_TIME, null != program.getEndTime() ? DateUtils.dateTimeFormatter.format( program.getEndTime() ) : "" );
-				values.put( ProgramConstants.FIELD_TITLE, null != program.getTitle() ? program.getTitle() : "" );
-				values.put( ProgramConstants.FIELD_SUB_TITLE, null != program.getSubTitle() ? program.getSubTitle() : "" );
-				values.put( ProgramConstants.FIELD_CATEGORY, null != program.getCategory() ? program.getCategory() : "" );
-				values.put( ProgramConstants.FIELD_CATEGORY_TYPE, null != program.getCategoryType() ? program.getCategoryType() : "" );
-				values.put( ProgramConstants.FIELD_REPEAT, program.isRepeat() ? 1 : 0 );
-				values.put( ProgramConstants.FIELD_VIDEO_PROPS, program.getVideoProps() );
-				values.put( ProgramConstants.FIELD_AUDIO_PROPS, program.getAudioProps() );
-				values.put( ProgramConstants.FIELD_SUB_PROPS, program.getSubProps() );
-				values.put( ProgramConstants.FIELD_SERIES_ID, null != program.getSeriesId() ? program.getSeriesId() : "" );
-				values.put( ProgramConstants.FIELD_PROGRAM_ID, null != program.getProgramId() ? program.getProgramId() : "" );
-				values.put( ProgramConstants.FIELD_STARS, program.getStars() );
-				values.put( ProgramConstants.FIELD_FILE_SIZE, null != program.getFileSize() ? program.getFileSize() : "" );
-				values.put( ProgramConstants.FIELD_LAST_MODIFIED, null != program.getLastModified() ? DateUtils.dateTimeFormatter.format( program.getLastModified() ) : "" );
-				values.put( ProgramConstants.FIELD_PROGRAM_FLAGS, null != program.getProgramFlags() ? program.getProgramFlags() : "" );
-				values.put( ProgramConstants.FIELD_HOSTNAME, null != program.getHostname() ? program.getHostname() : "" );
-				values.put( ProgramConstants.FIELD_FILENAME, null != program.getFilename() ? program.getFilename() : "" );
-				values.put( ProgramConstants.FIELD_AIR_DATE, null != program.getAirDate() ? DateUtils.dateTimeFormatter.format( program.getAirDate() ) : "" );
-				values.put( ProgramConstants.FIELD_DESCRIPTION, null != program.getDescription() ? program.getDescription() : "" );
-				values.put( ProgramConstants.FIELD_INETREF, null != program.getInetref() ? program.getInetref() : "" );
-				values.put( ProgramConstants.FIELD_SEASON, null != program.getSeason() ? program.getSeason() : "" );
-				values.put( ProgramConstants.FIELD_EPISODE, null != program.getEpisode() ? program.getEpisode() : "" );
-				values.put( ProgramConstants.FIELD_CHANNEL_ID, null != channelNumber ? channelNumber : "" );
+				values = convertProgramToContentValues( program, ProgramType.GUIDE );
 				valuesArray[ count ] = values;
 				
 				count++;
@@ -247,4 +191,53 @@ public class ProgramProcessor extends AbstractMythtvProcessor {
 		return count;
 	}
 
+	// internal helpers
+	
+	private ContentValues convertProgramToContentValues( Program program, ProgramType programType ) {
+		
+		Calendar startTime = Calendar.getInstance();
+		startTime.setTime( program.getStartTime() );
+		
+		Calendar endTime = Calendar.getInstance();
+		endTime.setTime( program.getEndTime() );
+
+		long durationInMinutes = ( endTime.getTimeInMillis() / 60000 ) - ( startTime.getTimeInMillis() / 60000 );
+
+		// Removing Grammar Articles.  English only at this time, needs internationalization
+		String cleanTitle = ArticleCleaner.clean( program.getTitle() );
+
+		ContentValues values = new ContentValues();
+		values.put( ProgramConstants.FIELD_PROGRAM_TYPE, null != programType ? programType.name() : "" );
+		values.put( ProgramConstants.FIELD_PROGRAM_GROUP, cleanTitle );
+		values.put( ProgramConstants.FIELD_START_TIME, startTime.getTimeInMillis() );
+		values.put( ProgramConstants.FIELD_END_TIME, endTime.getTimeInMillis() );
+		values.put( ProgramConstants.FIELD_DURATION, durationInMinutes );
+		values.put( ProgramConstants.FIELD_START_DATE, DateUtils.dateFormatter.format( program.getStartTime() ) );
+		values.put( ProgramConstants.FIELD_TIMESLOT_HOUR, startTime.get( Calendar.HOUR_OF_DAY) );
+		values.put( ProgramConstants.FIELD_TIMESLOT_MINUTE, startTime.get( Calendar.MINUTE ) );
+		values.put( ProgramConstants.FIELD_TITLE, null != program.getTitle() ? program.getTitle() : "" );
+		values.put( ProgramConstants.FIELD_SUB_TITLE, null != program.getSubTitle() ? program.getSubTitle() : "" );
+		values.put( ProgramConstants.FIELD_CATEGORY, null != program.getCategory() ? program.getCategory() : "" );
+		values.put( ProgramConstants.FIELD_CATEGORY_TYPE, null != program.getCategoryType() ? program.getCategoryType() : "" );
+		values.put( ProgramConstants.FIELD_REPEAT, program.isRepeat() ? 1 : 0 );
+		values.put( ProgramConstants.FIELD_VIDEO_PROPS, program.getVideoProps() );
+		values.put( ProgramConstants.FIELD_AUDIO_PROPS, program.getAudioProps() );
+		values.put( ProgramConstants.FIELD_SUB_PROPS, program.getSubProps() );
+		values.put( ProgramConstants.FIELD_SERIES_ID, null != program.getSeriesId() ? program.getSeriesId() : "" );
+		values.put( ProgramConstants.FIELD_PROGRAM_ID, null != program.getProgramId() ? program.getProgramId() : "" );
+		values.put( ProgramConstants.FIELD_STARS, program.getStars() );
+		values.put( ProgramConstants.FIELD_FILE_SIZE, null != program.getFileSize() ? program.getFileSize() : "" );
+		values.put( ProgramConstants.FIELD_LAST_MODIFIED, null != program.getLastModified() ? DateUtils.dateTimeFormatter.format( program.getLastModified() ) : "" );
+		values.put( ProgramConstants.FIELD_PROGRAM_FLAGS, null != program.getProgramFlags() ? program.getProgramFlags() : "" );
+		values.put( ProgramConstants.FIELD_HOSTNAME, null != program.getHostname() ? program.getHostname() : "" );
+		values.put( ProgramConstants.FIELD_FILENAME, null != program.getFilename() ? program.getFilename() : "" );
+		values.put( ProgramConstants.FIELD_AIR_DATE, null != program.getAirDate() ? DateUtils.dateTimeFormatter.format( program.getAirDate() ) : "" );
+		values.put( ProgramConstants.FIELD_DESCRIPTION, null != program.getDescription() ? program.getDescription() : "" );
+		values.put( ProgramConstants.FIELD_INETREF, null != program.getInetref() ? program.getInetref() : "" );
+		values.put( ProgramConstants.FIELD_SEASON, null != program.getSeason() ? program.getSeason() : "" );
+		values.put( ProgramConstants.FIELD_EPISODE, null != program.getEpisode() ? program.getEpisode() : "" );
+		values.put( ProgramConstants.FIELD_CHANNEL_NUMBER, null != program.getChannelInfo() ? program.getChannelInfo().getChannelNumber() : "" );
+
+		return values;
+	}
 }

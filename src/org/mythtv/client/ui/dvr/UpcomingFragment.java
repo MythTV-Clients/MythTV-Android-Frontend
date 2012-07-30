@@ -19,10 +19,7 @@
  */
 package org.mythtv.client.ui.dvr;
 
-import java.text.ParseException;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
 
 import org.mythtv.R;
 import org.mythtv.client.ui.util.MythtvListFragment;
@@ -65,7 +62,7 @@ public class UpcomingFragment extends MythtvListFragment implements LoaderManage
 		
 		String startDate = args.getString( "START_DATE" );
 		
-		String[] projection = { ProgramConstants._ID, ProgramConstants.FIELD_TITLE, ProgramConstants.FIELD_SUB_TITLE, ProgramConstants.FIELD_START_TIME, ProgramConstants.FIELD_END_TIME, ProgramConstants.FIELD_CATEGORY, ProgramConstants.FIELD_CHANNEL_ID };
+		String[] projection = { ProgramConstants._ID, ProgramConstants.FIELD_TITLE, ProgramConstants.FIELD_SUB_TITLE, ProgramConstants.FIELD_START_TIME, ProgramConstants.FIELD_DURATION, ProgramConstants.FIELD_CATEGORY, ProgramConstants.FIELD_CHANNEL_NUMBER };
 		
 		String selection =  ProgramConstants.FIELD_START_DATE + " = ? AND " + ProgramConstants.FIELD_PROGRAM_TYPE + " = ?";
 		
@@ -175,39 +172,24 @@ public class UpcomingFragment extends MythtvListFragment implements LoaderManage
 		public void bindView( View view, Context context, Cursor cursor ) {
 			Log.v( TAG, "UpcomingCursorAdapter.bindView : enter" );
 
-			String sStartTime = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_START_TIME ) );
-			String sEndTime = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_END_TIME ) );
+			long lStartTime = cursor.getLong( cursor.getColumnIndex( ProgramConstants.FIELD_START_TIME ) );
+			int iDuration = cursor.getInt( cursor.getColumnIndex( ProgramConstants.FIELD_DURATION ) );
 			String sTitle = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_TITLE ) );
 			String sSubTitle = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_SUB_TITLE ) );
 			String sCategory = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_CATEGORY ) );
-			String sChannelNumber = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_CHANNEL_ID ) );
+			String sChannelNumber = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_CHANNEL_NUMBER ) );
 			
 			ViewHolder mHolder = (ViewHolder) view.getTag();
-			
 
-				Date dStartTime = null, dEndTime = null;
+			Calendar startTime = Calendar.getInstance();
+			startTime.setTimeInMillis( lStartTime );
 				
-				try {
-					dStartTime = DateUtils.dateTimeFormatter.parse( sStartTime );
-					dEndTime = DateUtils.dateTimeFormatter.parse( sEndTime );
-
-					Calendar startTime = new GregorianCalendar();
-					startTime.setTime( dStartTime );
-					
-					Calendar endTime = new GregorianCalendar();
-					endTime.setTime( dEndTime );
-
-					long durationInMinutes = ( endTime.getTimeInMillis() / 60000 ) - ( startTime.getTimeInMillis() / 60000 );
-					mHolder.duration.setText( durationInMinutes + " minutes" );
-				} catch( ParseException e ) {
-					Log.v( TAG, "UpcomingCursorAdapter.bindView : error parsing start and end dates" );
-				}
-				
-				mHolder.category.setBackgroundColor( mProgramHelper.getCategoryColor( sCategory ) );
-				mHolder.title.setText( sTitle );
-				mHolder.subTitle.setText( sSubTitle );
-				mHolder.channel.setText( sChannelNumber );
-				mHolder.startTime.setText( null != dStartTime ? DateUtils.timeFormatter.format( dStartTime ) : ""  );
+			mHolder.category.setBackgroundColor( mProgramHelper.getCategoryColor( sCategory ) );
+			mHolder.title.setText( sTitle );
+			mHolder.subTitle.setText( sSubTitle );
+			mHolder.channel.setText( sChannelNumber );
+			mHolder.startTime.setText( DateUtils.timeFormatter.format( startTime.getTime() ) );
+			mHolder.duration.setText( iDuration + " minutes" );
 
 			Log.v( TAG, "UpcomingCursorAdapter.bindView : exit" );
 		}

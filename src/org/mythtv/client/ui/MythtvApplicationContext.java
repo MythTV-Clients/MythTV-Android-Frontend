@@ -27,6 +27,6 @@ import org.mythtv.client.MainApplication;
  */
 public interface MythtvApplicationContext {
 
-	MainApplication getApplicationContext(); 
+	MainApplication getMainApplication(); 
 	
 }

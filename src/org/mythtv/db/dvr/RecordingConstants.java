@@ -45,10 +45,10 @@ public class RecordingConstants implements BaseColumns {
 	public static final String FIELD_PRIORITY_DATA_TYPE = "INTEGER";
 	
 	public static final String FIELD_START_TS = "START_TS";
-	public static final String FIELD_START_TS_DATA_TYPE = "TEXT";
+	public static final String FIELD_START_TS_DATA_TYPE = "INTEGER";
 	
 	public static final String FIELD_END_TS = "END_TS";
-	public static final String FIELD_END_TS_DATA_TYPE = "TEXT";
+	public static final String FIELD_END_TS_DATA_TYPE = "INTEGER";
 	
 	public static final String FIELD_RECORD_ID = "RECORD_ID";
 	public static final String FIELD_RECORD_ID_DATA_TYPE = "INTEGER";

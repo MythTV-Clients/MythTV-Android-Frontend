@@ -21,11 +21,14 @@ package org.mythtv.service.guide;
 
 import java.util.Date;
 
+import org.mythtv.client.MainApplication;
 import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.service.AbstractMythtvProcessor;
 import org.mythtv.service.channel.ChannelProcessor;
 import org.mythtv.service.dvr.ProgramProcessor;
 import org.mythtv.service.util.DateUtils;
+import org.mythtv.service.util.NotificationHelper;
+import org.mythtv.service.util.NotificationHelper.NotificationType;
 import org.mythtv.services.api.channel.ChannelInfo;
 import org.mythtv.services.api.guide.ProgramGuide;
 import org.mythtv.services.api.guide.ProgramGuideWrapper;
@@ -33,6 +36,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.util.Log;
 
@@ -47,6 +51,11 @@ public class GuideProcessor extends AbstractMythtvProcessor {
 	private ChannelProcessor mChannelProcessor;
 	private ProgramProcessor mProgramProcessor;
 	
+	private SharedPreferences mythtvPreferences;
+	private boolean isGuideDataLoaded;
+	
+	private NotificationHelper mNotificationHelper;
+	
 	public interface GuideProcessorCallback {
 
 		void send( int resultCode );
@@ -60,36 +69,50 @@ public class GuideProcessor extends AbstractMythtvProcessor {
 		mChannelProcessor = new ChannelProcessor( context );
 		mProgramProcessor = new ProgramProcessor( context );
 		
+		mNotificationHelper = new NotificationHelper( context );
+		
+		mythtvPreferences = context.getSharedPreferences( "MythtvPreferences", Context.MODE_PRIVATE );
+		isGuideDataLoaded = mythtvPreferences.getBoolean( MainApplication.GUIDE_DATA_LOADED, false );
+		
 		Log.v( TAG, "initialize : exit" );
 	}
 
 	public void getProgramGuide( GuideProcessorCallback guideCallback, NotifyCallback notifyCallback ) {
 		Log.v( TAG, "getGuide : enter" );
 
+		getMainApplication().setDatabaseLoading( true );
+		
 		Date start = DateUtils.getYesterday();
 		Date end = DateUtils.getNextDay( start );
 		
-		String startDate = "", endDate = "";
+		String endDate = "";
 		ResponseEntity<ProgramGuideWrapper> entity = null;
-		for( int i = 0; i < 14; i++ ) {
-			
-			startDate = DateUtils.dateFormatter.format( start );
+		for( int i = 0; i < 13; i++ ) {
 			endDate = DateUtils.dateFormatter.format( end );
+			Log.v( TAG, "getGuide : checking if guide data loaded for " + end );
 			
-			Cursor cursor = mContext.getContentResolver().query( ProgramConstants.CONTENT_URI, new String[] { ProgramConstants._ID }, ProgramConstants.FIELD_START_DATE + " = ? and " + ProgramConstants.FIELD_PROGRAM_TYPE + " = ?", new String[] { startDate, ProgramConstants.ProgramType.GUIDE.name() }, null );
+			Cursor cursor = mContext.getContentResolver().query( ProgramConstants.CONTENT_URI, new String[] { ProgramConstants._ID }, ProgramConstants.FIELD_START_DATE + " = ? and " + ProgramConstants.FIELD_PROGRAM_TYPE + " = ?", new String[] { endDate, ProgramConstants.ProgramType.GUIDE.name() }, null );
 			if( cursor.getCount() == 0 ) {
 			
 				Log.v( TAG, "getGuide : loading data for date " + DateUtils.dateTimeFormatter.format( start ) + " thru "  + DateUtils.dateTimeFormatter.format( end ) );
 
-				notifyCallback.notify( "Retrieving Program Guide for " + endDate );
+				String message = "Retrieving Program Guide for " + endDate;
+				sendNotificationCallbackMessage( notifyCallback, message );
+				mNotificationHelper.createNotification( "Mythtv for Android", message, NotificationType.UPLOAD );
 
 				entity = application.getMythServicesApi().guideOperations().getProgramGuideResponseEntity( start, end, 1, -1, Boolean.TRUE );
 
 				switch( entity.getStatusCode() ) {
 					case OK :
-						notifyCallback.notify( "Loading Program Guide for " + endDate );
+						mNotificationHelper.completed();
 
+						message = "Loading Program Guide for " + endDate;
+						sendNotificationCallbackMessage( notifyCallback, message );
+						mNotificationHelper.createNotification( "Mythtv for Android", message, NotificationType.DOWNLOAD );
+						
 						processProgramGuide( guideCallback, entity.getBody().getProgramGuide() );
+						mNotificationHelper.completed();
+						
 						break;
 					default :
 						break;
@@ -100,6 +123,8 @@ public class GuideProcessor extends AbstractMythtvProcessor {
 			start = DateUtils.getNextDay( start );
 			end = DateUtils.getNextDay( start );
 		}
+		
+		getMainApplication().setDatabaseLoading( false );
 		
 		if( null == entity ) {
 			guideCallback.send( HttpStatus.NOT_MODIFIED.value() );
@@ -112,16 +137,31 @@ public class GuideProcessor extends AbstractMythtvProcessor {
 
 	// internal helpers
 	
+	private void sendNotificationCallbackMessage( NotifyCallback notifyCallback, String message ) {
+		
+		if( !isGuideDataLoaded ) {
+			notifyCallback.notify( message );
+		}
+		
+	}
+	
 	private long processProgramGuide( GuideProcessorCallback callback, ProgramGuide programGuide ) {
 		Log.v( TAG, "processProgramGuide : enter" );
 
 		long channelsProcessed = mChannelProcessor.batchUpdateChannelContentProvider( programGuide.getChannels() );
 		
+		int index = 0;
 		for( ChannelInfo channelInfo : programGuide.getChannels() ) {
 			if( channelInfo.isVisable() ) {
 
 				mProgramProcessor.batchInsertProgramContentProvider( channelInfo.getPrograms(), channelInfo.getChannelNumber() );
+			
 			}
+			
+			index++;
+
+			double percentage = ( index / programGuide.getChannels().size() ) * 100;
+			mNotificationHelper.progressUpdate( percentage );
 		}
 		
 		Log.v( TAG, "processProgramGuide : exit" );

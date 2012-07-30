@@ -58,7 +58,7 @@ public abstract class AbstractFrontendsActivity extends AbstractMythtvFragmentAc
 		switch( item.getItemId() ) {
 			case android.R.id.home:
 				// app icon in action bar clicked; go home
-				if( getApplicationContext().getLocation().equals( "HOME" ) ) {
+				if( getMainApplication().getLocation().equals( "HOME" ) ) {
 					Intent intent = new Intent( this, HomeActivity.class );
 					intent.addFlags( Intent.FLAG_ACTIVITY_CLEAR_TOP );
 					startActivity( intent );

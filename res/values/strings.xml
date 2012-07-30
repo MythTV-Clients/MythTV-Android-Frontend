@@ -30,7 +30,9 @@
     <string name="exception">Exception</string>
 	<string name="close">Close</string>
 	
-	<!-- About -->
+    <string name="data_loading">Mythtv for Android is currently loading data from your backend. Please try again later.</string>
+	
+    <!-- About -->
 	<string name="menu_about">About</string>
 	<string name="about_title">About MythTV for Android</string>
 	
@@ -143,6 +145,10 @@
     <string name="btn_upcoming_dont_record">X</string>
     <string name="upcoming_today">Today</string>
     <string name="upcoming_tomorrow">Tomorrow</string>
+    
+    <string name="guide_previous">PREV</string>
+    <string name="guide_date">today</string>
+    <string name="guide_next">NEXT</string>
     
     <!-- Media Dashboard -->
     <string name="tab_multimedia">Multimedia</string>
