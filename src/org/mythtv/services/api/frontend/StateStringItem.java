@@ -19,39 +19,48 @@
  */
 package org.mythtv.services.api.frontend;
 
-import java.util.List;
-
 import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
  * @author Daniel Frey
  * @author Thomas G. Kenny Jr
  */
-public class FrontendStatus {
+public class StateStringItem {
 
-	@JsonProperty( "FrontendStatus" )
-	private Status status;
+	@JsonProperty( "Key" )
+	private String key;
+	@JsonProperty( "Value" )
+	private String value;
 	
-	public FrontendStatus() { }
-	
-	
+	public StateStringItem() { }
+
 	/**
-	 * Returns the frontend status object
-	 * @return
+	 * @return the key
 	 */
-	public Status getStatus(){
-		return status;
-	}
-	
-	/**
-	 * Sets the frontend status object
-	 * @param s
-	 */
-	public void setStatus(Status s){
-		status = s;
+	public String getKey() {
+		return key;
 	}
 
-	
+	/**
+	 * @param key the key to set
+	 */
+	public void setKey( String key ) {
+		this.key = key;
+	}
+
+	/**
+	 * @return the value
+	 */
+	public String getValue() {
+		return value;
+	}
+
+	/**
+	 * @param value the value to set
+	 */
+	public void setValue( String value ) {
+		this.value = value;
+	}
 
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
@@ -60,11 +69,17 @@ public class FrontendStatus {
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		
-		builder.append( "FrontendStatus [" );
+		builder.append( "String [" );
 		
-		if( status != null ) {
-			builder.append( "state=" );
-			builder.append( status );
+		if( key != null ) {
+			builder.append( "key=" );
+			builder.append( key );
+			builder.append( ", " );
+		}
+		
+		if( value != null ) {
+			builder.append( "value=" );
+			builder.append( value );
 		}
 		
 		builder.append( "]" );
