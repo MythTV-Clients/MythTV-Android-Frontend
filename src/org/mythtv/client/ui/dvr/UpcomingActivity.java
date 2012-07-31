@@ -69,26 +69,7 @@ public class UpcomingActivity extends AbstractDvrActivity {
 
 		setupActionBar();
 
-		List<String> fragmentHeadings = new ArrayList<String>();
-		List<Fragment> fragments = new ArrayList<Fragment>();
-
-		Date day = DateUtils.getToday();
-
-		String formattedDay = null;
-		Bundle bundle = null;
-		for( int i = 0; i < 12; i++ ) {
-			formattedDay = DateUtils.dateFormatter.format( day );
-			fragmentHeadings.add( formattedDay );
-			
-			bundle = new Bundle();
-			bundle.putString( "START_DATE", formattedDay );
-			
-			fragments.add( Fragment.instantiate( this, UpcomingFragment.class.getName(), bundle ) );
-			
-			day = DateUtils.getNextDay( day );
-		}
-		
-		MythtvUpcomingPagerAdapter mAdapter = new MythtvUpcomingPagerAdapter( getSupportFragmentManager(), fragmentHeadings, fragments );
+		MythtvUpcomingPagerAdapter mAdapter = new MythtvUpcomingPagerAdapter( getSupportFragmentManager() );
 		ViewPager mPager = (ViewPager) findViewById( R.id.dvr_upcoming_pager );
 		mPager.setAdapter( mAdapter );
 		mPager.setCurrentItem( 0 );
@@ -192,14 +173,22 @@ public class UpcomingActivity extends AbstractDvrActivity {
 	private class MythtvUpcomingPagerAdapter extends FragmentStatePagerAdapter {
 
 		private List<String> fragmentHeadings;
-		private List<Fragment> fragments;
 		
-		public MythtvUpcomingPagerAdapter( FragmentManager fm, List<String> fragmentHeadings, List<Fragment> fragments ) {
+		public MythtvUpcomingPagerAdapter( FragmentManager fm ) {
 			super( fm );
 			
-			this.fragmentHeadings = fragmentHeadings;
-			this.fragments = fragments;
+			fragmentHeadings = new ArrayList<String>();
+
+			Date day = DateUtils.getToday();
 			
+			String formattedDay = null;
+			for( int i = 0; i < 12; i++ ) {
+				formattedDay = DateUtils.dateFormatter.format( day );
+				fragmentHeadings.add( formattedDay );
+				
+				day = DateUtils.getNextDay( day );
+			}
+
 		}
 
 		/* (non-Javadoc)
@@ -207,14 +196,14 @@ public class UpcomingActivity extends AbstractDvrActivity {
 		 */
 		@Override
 		public Fragment getItem( int position ) {
-			return fragments.get( position );
+			return UpcomingFragment.newInstance( fragmentHeadings.get( position ) );
 		}
 
 		/* (non-Javadoc)
 		 * @see android.support.v4.view.PagerAdapter#getCount()
 		 */
 		public int getCount() {
-			return fragments.size();
+			return fragmentHeadings.size();
 		}
 
 		/* (non-Javadoc)

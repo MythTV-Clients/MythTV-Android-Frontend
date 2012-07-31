@@ -20,6 +20,7 @@
 package org.mythtv.client.ui.dvr;
 
 import java.util.Calendar;
+import java.util.Date;
 
 import org.mythtv.R;
 import org.mythtv.client.ui.util.MythtvListFragment;
@@ -53,6 +54,17 @@ public class UpcomingFragment extends MythtvListFragment implements LoaderManage
 
 	private ProgramHelper mProgramHelper;
 
+	public static UpcomingFragment newInstance( String formattedDay ) {
+		
+		UpcomingFragment fragment = new UpcomingFragment();
+		
+		Bundle args = new Bundle();
+		args.putString( "START_DATE", formattedDay );
+		fragment.setArguments( args );
+		
+		return fragment;
+	}
+	
 	/* (non-Javadoc)
 	 * @see android.support.v4.app.LoaderManager.LoaderCallbacks#onCreateLoader(int, android.os.Bundle)
 	 */
@@ -60,13 +72,16 @@ public class UpcomingFragment extends MythtvListFragment implements LoaderManage
 	public Loader<Cursor> onCreateLoader( int id, Bundle args ) {
 		Log.v( TAG, "onCreateLoader : enter" );
 		
+		Calendar now = Calendar.getInstance();
+		now.setTime( new Date() );
+		
 		String startDate = args.getString( "START_DATE" );
 		
 		String[] projection = { ProgramConstants._ID, ProgramConstants.FIELD_TITLE, ProgramConstants.FIELD_SUB_TITLE, ProgramConstants.FIELD_START_TIME, ProgramConstants.FIELD_DURATION, ProgramConstants.FIELD_CATEGORY, ProgramConstants.FIELD_CHANNEL_NUMBER };
 		
-		String selection =  ProgramConstants.FIELD_START_DATE + " = ? AND " + ProgramConstants.FIELD_PROGRAM_TYPE + " = ?";
+		String selection =  ProgramConstants.FIELD_START_DATE + " = ? AND " + ProgramConstants.FIELD_START_TIME + " > ? AND " + ProgramConstants.FIELD_PROGRAM_TYPE + " = ?";
 		
-		String[] selectionArgs = new String[] { startDate, ProgramConstants.ProgramType.UPCOMING.name() };
+		String[] selectionArgs = new String[] { startDate, "" + now.getTimeInMillis(), ProgramConstants.ProgramType.UPCOMING.name() };
 		
 	    CursorLoader cursorLoader = new CursorLoader( getActivity(), ProgramConstants.CONTENT_URI, projection, selection, selectionArgs, ProgramConstants.FIELD_START_TIME );
 		
