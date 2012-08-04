@@ -108,12 +108,18 @@ public class ChannelProcessor extends AbstractMythtvProcessor {
 		
 		if( null != channels && !channels.isEmpty() ) {
 
+			List<String> lChannels = new ArrayList<String>();
+
 			Cursor cursor = mContext.getContentResolver().query( ChannelConstants.CONTENT_URI, new String[] { ChannelConstants._ID }, null, null, null );
 			if( cursor.getCount() == 0 ) {
 				List<ChannelInfo> filtered = new ArrayList<ChannelInfo>();
 				for( ChannelInfo channel : channels ) {
-					if( channel.isVisable() ) {
-						filtered.add( channel );
+					if( !lChannels.contains( channel.getChannelNumber() ) ) {
+						if( channel.isVisable() ) {
+							filtered.add( channel );
+						
+							lChannels.add( channel.getChannelNumber() );
+						}
 					}
 				}
 				

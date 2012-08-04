@@ -19,6 +19,8 @@
  */
 package org.mythtv.client.ui.dvr;
 
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -30,6 +32,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -50,6 +53,7 @@ public class GuideFragment extends AbstractMythFragment implements OnClickListen
 	private TextView mDateTextView;
 	
 	private Date date;
+	private String startDate;
 	
 	/* (non-Javadoc)
 	 * @see android.support.v4.app.ListFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle)
@@ -84,6 +88,14 @@ public class GuideFragment extends AbstractMythFragment implements OnClickListen
 		date = DateUtils.getEndOfDay( new Date() );
 		updateDateHeader();
 		
+		Calendar now = Calendar.getInstance();
+		now.setTime( new Date() );
+		
+		MythtvGuidePagerAdapter mAdapter = new MythtvGuidePagerAdapter( getActivity().getSupportFragmentManager() );
+		ViewPager mPager = (ViewPager) getActivity().findViewById( R.id.guide_pager );
+		mPager.setAdapter( mAdapter );
+		mPager.setCurrentItem( now.get( Calendar.HOUR_OF_DAY ) );
+
 		Log.v( TAG, "onActivityCreated : exit" );
 	}
 
@@ -118,6 +130,7 @@ public class GuideFragment extends AbstractMythFragment implements OnClickListen
 	
 	private void updateDateHeader() {
 		mDateTextView.setText( DateUtils.dateFormatter.format( date ) );
+		startDate = DateUtils.dateFormatter.format( date );
 		
 		Date today = new Date();
 		if( DateUtils.dateFormatter.format( today ).equals( DateUtils.dateFormatter.format( date ) ) ) {
@@ -136,15 +149,39 @@ public class GuideFragment extends AbstractMythFragment implements OnClickListen
 	
 	private class MythtvGuidePagerAdapter extends FragmentStatePagerAdapter {
 
-		private List<String> fragmentHeadings;
-		private List<Fragment> fragments;
+		private List<String> fragmentHeadings, fragmentLabels;
 		
-		public MythtvGuidePagerAdapter( FragmentManager fm, List<String> fragmentHeadings, List<Fragment> fragments ) {
+		public MythtvGuidePagerAdapter( FragmentManager fm ) {
 			super( fm );
+			Log.v( TAG, "initialize : exit" );
 			
-			this.fragmentHeadings = fragmentHeadings;
-			this.fragments = fragments;
+			fragmentHeadings = new ArrayList<String>(); fragmentLabels = new ArrayList<String>();
+			fragmentHeadings.add( "0" );	fragmentLabels.add( "12 AM" );
+			fragmentHeadings.add( "1" );	fragmentLabels.add( "1 AM" );
+			fragmentHeadings.add( "2" );	fragmentLabels.add( "2 AM" );
+			fragmentHeadings.add( "3" );	fragmentLabels.add( "3 AM" );
+			fragmentHeadings.add( "4" );	fragmentLabels.add( "4 AM" );
+			fragmentHeadings.add( "5" );	fragmentLabels.add( "5 AM" );
+			fragmentHeadings.add( "6" );	fragmentLabels.add( "6 AM" );
+			fragmentHeadings.add( "7" );	fragmentLabels.add( "7 AM" );
+			fragmentHeadings.add( "8" );	fragmentLabels.add( "8 AM" );
+			fragmentHeadings.add( "9" );	fragmentLabels.add( "9 AM" );
+			fragmentHeadings.add( "10" );	fragmentLabels.add( "10 AM" );
+			fragmentHeadings.add( "11" );	fragmentLabels.add( "11 AM" );
+			fragmentHeadings.add( "12" );	fragmentLabels.add( "12 PM" );
+			fragmentHeadings.add( "13" );	fragmentLabels.add( "1 PM" );
+			fragmentHeadings.add( "14" );	fragmentLabels.add( "2 PM" );
+			fragmentHeadings.add( "15" );	fragmentLabels.add( "3 PM" );
+			fragmentHeadings.add( "16" );	fragmentLabels.add( "4 PM" );
+			fragmentHeadings.add( "17" );	fragmentLabels.add( "5 PM" );
+			fragmentHeadings.add( "18" );	fragmentLabels.add( "6 PM" );
+			fragmentHeadings.add( "19" );	fragmentLabels.add( "7 PM" );
+			fragmentHeadings.add( "20" );	fragmentLabels.add( "8 PM" );
+			fragmentHeadings.add( "21" );	fragmentLabels.add( "9 PM" );
+			fragmentHeadings.add( "22" );	fragmentLabels.add( "10 PM" );
+			fragmentHeadings.add( "23" );	fragmentLabels.add( "11 PM" );
 			
+			Log.v( TAG, "initialize : exit" );
 		}
 
 		/* (non-Javadoc)
@@ -152,14 +189,14 @@ public class GuideFragment extends AbstractMythFragment implements OnClickListen
 		 */
 		@Override
 		public Fragment getItem( int position ) {
-			return fragments.get( position );
+			return GuidePagerFragment.newInstance( startDate, fragmentHeadings.get( position ) );
 		}
 
 		/* (non-Javadoc)
 		 * @see android.support.v4.view.PagerAdapter#getCount()
 		 */
 		public int getCount() {
-			return fragments.size();
+			return fragmentHeadings.size();
 		}
 
 		/* (non-Javadoc)
@@ -167,7 +204,7 @@ public class GuideFragment extends AbstractMythFragment implements OnClickListen
 		 */
 		@Override
 		public CharSequence getPageTitle( int position ) {
-			return fragmentHeadings.get( position );
+			return fragmentLabels.get( position );
 		}
 		
 	}

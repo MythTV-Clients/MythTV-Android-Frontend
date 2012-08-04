@@ -46,7 +46,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	private static final String TAG = DatabaseHelper.class.getSimpleName();
 	
 	private static final String DATABASE_NAME = "mythtvdb";
-	private static final int DATABASE_VERSION = 36;
+	private static final int DATABASE_VERSION = 37;
 
 	private SharedPreferences mythtvPreferences;
 	
@@ -98,8 +98,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			createPlaybackProfiles( db );
 		}
 
-		if( oldVersion < 36 ) {
-			Log.v( TAG, "onUpgrade : upgrading to db version 36" );
+		if( oldVersion < 37 ) {
+			Log.v( TAG, "onUpgrade : upgrading to db version 37" );
 
 			SharedPreferences.Editor editor = mythtvPreferences.edit();
 			editor.putBoolean( MainApplication.GUIDE_DATA_LOADED, false );
