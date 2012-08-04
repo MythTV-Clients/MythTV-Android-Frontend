@@ -19,12 +19,13 @@
  *
 -->
 
-<resources>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!-- Base application theme is the default theme. -->
     <style name="Theme" parent="android:style/Theme" />
     
     <style name="Theme.Mythtv" parent="android:style/Theme.Light">
+        <item name="android:fontFamily"></item>
     </style>
     
     <style name="DashboardButton">

@@ -57,16 +57,15 @@
             android:text="@string/guide_next" />
     </RelativeLayout>
 
-	<android.support.v4.view.ViewPager
+	<android.support.v4.view.ViewPager android:id="@+id/guide_pager"
    		android:layout_width="match_parent" 
-   		android:layout_height="match_parent" 
-   		android:id="@+id/dvr_guide_pager">
+   		android:layout_height="match_parent" >
     	
 		<android.support.v4.view.PagerTitleStrip android:id="@+id/pager_title_strip"
 	       	android:layout_width="match_parent"
     	   	android:layout_height="wrap_content"
        		android:layout_gravity="top"
-       		android:background="#33b5e5"
+       		android:background="@drawable/gradient_view_pager"
        		android:textColor="#fff"
        		android:paddingTop="4dp"
        		android:paddingBottom="4dp" />
