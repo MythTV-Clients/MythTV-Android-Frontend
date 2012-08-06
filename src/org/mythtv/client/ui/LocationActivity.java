@@ -131,6 +131,7 @@ public class LocationActivity extends AbstractMythtvFragmentActivity {
 	    MenuItem prefs = menu.add( Menu.NONE, EDIT_ID, Menu.NONE, "Prefs" );
 	    if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
 	    	prefs.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
+	    	prefs.setIcon( android.R.drawable.ic_menu_preferences );
 	    }
 	    
 		Log.d( TAG, "onCreateOptionsMenu : exit" );

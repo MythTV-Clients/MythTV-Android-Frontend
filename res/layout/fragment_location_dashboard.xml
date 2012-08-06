@@ -27,18 +27,28 @@
     <Button android:id="@+id/btn_home"
         style="@style/DashboardButton"
         android:text="@string/btn_home"
-        android:drawableTop="@drawable/location_btn_home" />
+        android:drawableTop="@drawable/location_btn_home"
+        android:contentDescription="@string/btn_home_ally"
+        android:focusable="true"
+        android:nextFocusDown="@+id/btn_away"
+        android:nextFocusRight="@+id/btn_away" />
     <Button android:id="@+id/btn_away"
         style="@style/DashboardButton"
         android:text="@string/btn_away"
-        android:drawableTop="@drawable/location_btn_away" />
+        android:drawableTop="@drawable/location_btn_away"
+        android:contentDescription="@string/btn_away_ally"
+        android:focusable="true"
+        android:nextFocusUp="@+id/btn_home"
+        android:nextFocusLeft="@+id/btn_home" />
     <Button 
         style="@style/DashboardButton"
         android:text=""
-        android:drawableTop="@drawable/blank_white" />
+        android:drawableTop="@drawable/blank_white"
+        android:focusable="false" />
     <Button 
         style="@style/DashboardButton"
         android:text=""
-        android:drawableTop="@drawable/blank_white" />
+        android:drawableTop="@drawable/blank_white"
+        android:focusable="false" />
     
 </org.mythtv.client.ui.widget.DashboardLayout>

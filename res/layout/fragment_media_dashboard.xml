@@ -28,17 +28,20 @@
         style="@style/DashboardButton"
         android:text="@string/btn_videos"
         android:textColor="@color/body_text_disabled"
-        android:drawableTop="@drawable/media_btn_videos" />
+        android:drawableTop="@drawable/media_btn_videos"
+        android:contentDescription="@string/btn_videos_ally" />
     <Button android:id="@+id/media_btn_music"
         style="@style/DashboardButton"
         android:text="@string/btn_music"
         android:textColor="@color/body_text_disabled"
-        android:drawableTop="@drawable/media_btn_music" />
+        android:drawableTop="@drawable/media_btn_music"
+        android:contentDescription="@string/btn_music_ally" />
     <Button android:id="@+id/media_btn_pictures"
         style="@style/DashboardButton"
         android:text="@string/btn_pictures"
         android:textColor="@color/body_text_disabled"
-        android:drawableTop="@drawable/media_btn_pictures" />
+        android:drawableTop="@drawable/media_btn_pictures"
+        android:contentDescription="@string/btn_pictures_ally" />
     <Button 
         style="@style/DashboardButton"
         android:text=""

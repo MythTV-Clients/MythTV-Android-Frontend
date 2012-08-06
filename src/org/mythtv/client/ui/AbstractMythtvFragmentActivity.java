@@ -85,7 +85,8 @@ public abstract class AbstractMythtvFragmentActivity extends FragmentActivity im
 
 	    MenuItem prefs = menu.add( Menu.NONE, ABOUT_ID, Menu.NONE, "ABOUT" );
 	    if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-	    	prefs.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
+	    	prefs.setShowAsAction( MenuItem.SHOW_AS_ACTION_NEVER );
+	    	prefs.setIcon( android.R.drawable.ic_menu_info_details );
 	    }
 	    
 		Log.v( TAG, "onCreateOptionsMenu : exit" );

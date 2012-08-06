@@ -19,9 +19,19 @@
  *
 -->
 
-<resources>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
 
 	<style name="Theme.Mythtv" parent="android:style/Theme.Holo.Light">
+	    <item name="android:actionBarStyle">@style/Theme.Mythtv.ActionBar</item>
+    </style>
+    
+	<style name="Theme.Mythtv.ActionBar" parent="@android:style/Widget.Holo.Light.ActionBar">
+        <item name="android:background">#2d3f44</item>
+        <item name="android:titleTextStyle">@style/Theme.Mythtv.ActionBar.Text</item>
+    </style>
+    
+	<style name="Theme.Mythtv.ActionBar.Text" parent="@android:style/TextAppearance">
+        <item name="android:textColor">@color/actionbar_text</item>
     </style>
     
 </resources>

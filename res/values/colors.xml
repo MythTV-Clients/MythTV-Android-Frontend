@@ -20,7 +20,7 @@
 -->
 
 <resources>
-    <color name="actionbar_text">#ff29549f</color>
+    <color name="actionbar_text">#ffffffff</color>
 
     <color name="body_text_1">#ff000000</color>
     <color name="body_text_2">#99000000</color>

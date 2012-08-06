@@ -25,7 +25,6 @@
     <style name="Theme" parent="android:style/Theme" />
     
     <style name="Theme.Mythtv" parent="android:style/Theme.Light">
-        <item name="android:fontFamily"></item>
     </style>
     
     <style name="DashboardButton">

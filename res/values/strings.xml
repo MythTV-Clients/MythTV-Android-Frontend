@@ -34,6 +34,7 @@
 	
     <!-- About -->
 	<string name="menu_about">About</string>
+	<string name="menu_about_ally">About</string>
 	<string name="about_title">About MythTV for Android</string>
 	
 	<!-- Preferences -->
@@ -125,7 +126,9 @@
 	
 	<!-- Location dashboard -->
 	<string name="btn_home">Home</string>
+	<string name="btn_home_ally">Use selected home profile</string>
 	<string name="btn_away">Away</string>
+	<string name="btn_away_ally">Use selected away profile</string>
 	<string name="location_alert_error_title">MythTV Master Backend not found!</string>
 	<string name="location_alert_error_message">A connection to the MythTV Master Backend could not be established.  Make sure you setup your Home or Away profiles on the Preferences screen.</string>
 	
@@ -137,10 +140,13 @@
     <!-- DVR Dashboard Buttons -->
     <string name="tab_dvr">DVR</string>
     <string name="btn_recordings">Recordings</string>
+    <string name="btn_recordings_ally">View current recordings</string>
     <string name="btn_upcoming">Upcoming</string>
-    <string name="btn_live">Live TV</string>
+    <string name="btn_upcoming_ally">View upcoming recordings</string>
     <string name="btn_guide">Guide</string>
+    <string name="btn_guide_ally">View program guide</string>
     <string name="btn_recording_rules">Recording Rules</string>
+    <string name="btn_recording_rules_ally">View recording rules, not implemented</string>
     
     <string name="btn_upcoming_dont_record">X</string>
     <string name="upcoming_today">Today</string>
@@ -153,8 +159,11 @@
     <!-- Media Dashboard -->
     <string name="tab_multimedia">Multimedia</string>
     <string name="btn_videos">Videos</string>
+    <string name="btn_videos_ally">View videos, not implemented</string>
     <string name="btn_music">Music</string>
+    <string name="btn_music_ally">Listen to music, not implemented</string>
     <string name="btn_pictures">Pictures</string>
+    <string name="btn_pictures_ally">View pictures, not implemented</string>
     
     <!-- Frontends Dashboard -->
  	<string name="frontends_title">Mythmote</string>
