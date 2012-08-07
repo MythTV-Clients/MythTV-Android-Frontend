@@ -20,10 +20,9 @@
 package org.mythtv.client.ui.dvr;
 
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
+import org.joda.time.DateTime;
 import org.mythtv.R;
 import org.mythtv.client.ui.AbstractMythFragment;
 import org.mythtv.service.util.DateUtils;
@@ -52,7 +51,7 @@ public class GuideFragment extends AbstractMythFragment implements OnClickListen
 	private Button mPreviousButton, mNextButton;
 	private TextView mDateTextView;
 	
-	private Date date;
+	private DateTime date;
 	private String startDate;
 	
 	/* (non-Javadoc)
@@ -85,16 +84,15 @@ public class GuideFragment extends AbstractMythFragment implements OnClickListen
 		Log.v( TAG, "onActivityCreated : enter" );
 		super.onActivityCreated( savedInstanceState );
 		
-		date = DateUtils.getEndOfDay( new Date() );
+		date = DateUtils.getEndOfDay( new DateTime() );
 		updateDateHeader();
 		
-		Calendar now = Calendar.getInstance();
-		now.setTime( new Date() );
+		DateTime now = new DateTime();
 		
 		MythtvGuidePagerAdapter mAdapter = new MythtvGuidePagerAdapter( getActivity().getSupportFragmentManager() );
 		ViewPager mPager = (ViewPager) getActivity().findViewById( R.id.guide_pager );
 		mPager.setAdapter( mAdapter );
-		mPager.setCurrentItem( now.get( Calendar.HOUR_OF_DAY ) );
+		mPager.setCurrentItem( now.getHourOfDay() );
 
 		Log.v( TAG, "onActivityCreated : exit" );
 	}
@@ -129,18 +127,18 @@ public class GuideFragment extends AbstractMythFragment implements OnClickListen
 	// internal helpers
 	
 	private void updateDateHeader() {
-		mDateTextView.setText( DateUtils.dateFormatter.format( date ) );
-		startDate = DateUtils.dateFormatter.format( date );
+		mDateTextView.setText( DateUtils.dateFormatter.print( date ) );
+		startDate = DateUtils.dateFormatter.print( date );
 		
-		Date today = new Date();
-		if( DateUtils.dateFormatter.format( today ).equals( DateUtils.dateFormatter.format( date ) ) ) {
+		DateTime today = new DateTime();
+		if( DateUtils.dateFormatter.print( today ).equals( DateUtils.dateFormatter.print( date ) ) ) {
 			mPreviousButton.setEnabled( false );
 		} else {
 			mPreviousButton.setEnabled( true );
 		}
 
-		Date end = DateUtils.getDaysFromToday( 12 );
-		if( DateUtils.dateFormatter.format( end ).equals( DateUtils.dateFormatter.format( date ) ) ) {
+		DateTime end = DateUtils.getDaysFromToday( 12 );
+		if( DateUtils.dateFormatter.print( end ).equals( DateUtils.dateFormatter.print( date ) ) ) {
 			mNextButton.setEnabled( false );
 		} else {
 			mNextButton.setEnabled( true );

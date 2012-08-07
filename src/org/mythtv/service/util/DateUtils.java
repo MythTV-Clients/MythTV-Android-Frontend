@@ -19,9 +19,11 @@
  */
 package org.mythtv.service.util;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.joda.time.Period;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 /**
  * @author Daniel Frey
@@ -29,128 +31,61 @@ import java.util.Date;
  */
 public class DateUtils {
 
-	public enum Meridiem {
-		AM,
-		PM
-	}
-	
-	public enum Hours {
-		ONE( "1:00" ),
-		TWO( "2:00" ),
-		THREE( "3:00" ),
-		FOUR( "4:00" ),
-		FIVE( "5:00" ),
-		SIX( "6:00" ),
-		SEVEN( "7:00" ),
-		EIGHT( "8:00" ),
-		NINE( "9:00" ),
-		TEN( "10:00" ),
-		ELEVEN( "11:00" ),
-		TWELVE( "12:00" );
-		
-		String display;
-		
-		Hours( String display ) {
-			this.display = display;
-		}
-		
-		String getDisplay() {
-			return display;
-		}
-		
-	}
-	
-	public static final SimpleDateFormat dateFormatter = new SimpleDateFormat( "yyyy-MM-dd" );
-	public static final SimpleDateFormat dateTimeFormatter = new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ss" );
-	public static final SimpleDateFormat timeFormatter = new SimpleDateFormat( "hh:mm a" );
-	public static final SimpleDateFormat hourFormatter = new SimpleDateFormat( "hh:'00' a" );
+	public static final DateTimeFormatter dateFormatter = DateTimeFormat.forPattern( "yyyy-MM-dd" );
+	public static final DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern( "yyyy-MM-dd'T'hh:mm:ss" );
+	public static final DateTimeFormatter timeFormatter = DateTimeFormat.forPattern( "hh:mm a" );
+	public static final DateTimeFormatter hourFormatter = DateTimeFormat.forPattern( "hh:'00' a" );
 
-	public static Date getEndOfDay( Date day ) {
-		return getEndOfDay( day, Calendar.getInstance() );
+	public static DateTime getEndOfDay( DateTime day ) {
+		return day.withTime( 23, 59, 59, 999 );		
 	}
 
-	public static Date getToday() {
+	public static DateTime getToday() {
 		
-		Date day = new Date();
+		DateTime day = new DateTime();
 		
-		Calendar today = Calendar.getInstance();
-		today.setTime( day );
-		
-		return getEndOfDay( today.getTime() );		
+		return getEndOfDay( day );		
 	}
 	
-	public static Date getDaysFromToday( int days ) {
+	public static DateTime getDaysFromToday( int days ) {
 		
-		Date day = new Date();
+		DateTime day = new DateTime();
+		day = day.plus( days );
 		
-		Calendar today = Calendar.getInstance();
-		today.setTime( day );
-		today.add( Calendar.DATE, days );
-		
-		return getEndOfDay( today.getTime() );		
+		return getEndOfDay( day );		
 	}
 
-	public static Date getYesterday() {
+	public static DateTime getYesterday() {
 		
-		Date day = new Date();
+		DateTime day = new DateTime();
 		
-		Calendar yesterday = Calendar.getInstance();
-		yesterday.setTime( day );
-		yesterday.add( Calendar.DATE, -1 );
-		
-		return getEndOfDay( yesterday.getTime() );		
+		return getPreviousDay( day );		
 	}
 	
-	public static Date getPreviousDay( Date day ) {
+	public static DateTime getPreviousDay( DateTime day ) {
 		
-		Calendar yesterday = Calendar.getInstance();
-		yesterday.setTime( day );
-		yesterday.add( Calendar.DATE, -1 );
+		day = day.minus( Period.days( 1 ) );
 		
-		return getEndOfDay( yesterday.getTime() );
+		return getEndOfDay( day );
 	}
 
-	public static Date getNextDay( Date day ) {
+	public static DateTime getNextDay( DateTime day ) {
 		
-		Calendar tomorrow = Calendar.getInstance();
-		tomorrow.setTime( day );
-		tomorrow.add( Calendar.DATE, 1 );
-		
-		return getEndOfDay( tomorrow.getTime() );
+		day = day.plus( Period.days( 1 ) );
+
+		return getEndOfDay( day );
 	}
 	
-	public static Date getNextDayAfterMythfilldatabase() {
+	public static DateTime getNextDayAfterMythfilldatabase() {
 		
-		Date day = new Date();
+		DateTime day = new DateTime();
+		day = day.plus( Period.days( 1 ) );
 		
-		Calendar today = Calendar.getInstance();
-		today.setTime( day );
-		
-		today.add( Calendar.DATE, 1 );
-		today.set( Calendar.HOUR, 4 );
-		today.set( Calendar.MINUTE, 0 );
-		today.set( Calendar.SECOND, 0 );
-		today.set( Calendar.MILLISECOND, 0 );
-		today.set( Calendar.AM_PM, Calendar.AM );
-		
-		return today.getTime();		
+		return day.withTime( 4, 0, 0, 0 );		
 	}
 	
-	// internal helpers
-	
-	private static Date getEndOfDay( Date day, Calendar cal ) {
-		
-		if( null == day ) {
-			day = new Date();
-		}
-		
-		cal.setTime( day );
-		cal.set( Calendar.HOUR_OF_DAY, cal.getMaximum( Calendar.HOUR_OF_DAY ) );
-		cal.set( Calendar.MINUTE, cal.getMaximum( Calendar.MINUTE ) );
-		cal.set( Calendar.SECOND, cal.getMaximum( Calendar.SECOND ) );
-		cal.set( Calendar.MILLISECOND, cal.getMaximum( Calendar.MILLISECOND ) );
-		
-		return cal.getTime();
+	public static DateTime convertUtc( DateTime day ) {
+		return day.withZone( DateTimeZone.UTC );
 	}
-	
+
 }

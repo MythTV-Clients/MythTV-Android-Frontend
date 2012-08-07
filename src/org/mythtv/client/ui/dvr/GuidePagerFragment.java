@@ -19,7 +19,6 @@
  */
 package org.mythtv.client.ui.dvr;
 
-import java.util.Calendar;
 import java.util.List;
 
 import org.joda.time.DateTime;
@@ -110,16 +109,14 @@ public class GuidePagerFragment extends MythtvListFragment {
 			int day = Integer.parseInt( startDate.substring( startDate.lastIndexOf( '-' ) + 1 ) );
 			int hour = Integer.parseInt( timeslot ) - 1;
 			
-			Calendar startTime = Calendar.getInstance();
-			startTime.set( year, month, day, hour, 0, 01 );
+			DateTime startTime = new DateTime( year, month + 1, day, hour, 0, 01 );
 
-			Calendar endTime = Calendar.getInstance();
-			endTime.set( startTime.get( Calendar.YEAR ), startTime.get( Calendar.MONTH ), startTime.get( Calendar.DATE ), startTime.get( Calendar.HOUR_OF_DAY ), 59, 59 );
+			DateTime endTime = new DateTime( year, month + 1, day, hour, 59, 59 );
 		
-			Log.i( TAG, "Loading Guide between " + DateUtils.dateTimeFormatter.format( startTime.getTime() ) + " and " + DateUtils.dateTimeFormatter.format( endTime.getTime() ) );
+			Log.i( TAG, "Loading Guide between " + DateUtils.dateTimeFormatter.print( startTime ) + " and " + DateUtils.dateTimeFormatter.print( endTime ) );
 			
 			if( null == channels ) {
-				new DownloadProgramGuideTask().execute( new DateTime( startTime.getTime() ), new DateTime( endTime.getTime() ) );
+				new DownloadProgramGuideTask().execute( startTime, endTime );
 			}
 			
 			Log.v( TAG, "GuideRowAdapter : exit" );
@@ -228,6 +225,7 @@ public class GuidePagerFragment extends MythtvListFragment {
 
 				DateTime startTime = params[ 0 ];
 				DateTime endTime = params[ 1 ];
+				Log.v( TAG, "GuideRowAdapter.DownloadProgramGuideTask.doInBackground : downloading program guide between " + DateUtils.dateTimeFormatter.print( startTime ) + " and "  + DateUtils.dateTimeFormatter.print( endTime ) );
 				
 				Log.v( TAG, "GuideRowAdapter.DownloadProgramGuideTask.doInBackground : exit" );
 				return ( (MainApplication) mContext.getApplicationContext() ).getMythServicesApi().guideOperations().getProgramGuide( startTime, endTime, 1, -1, Boolean.FALSE );
@@ -248,7 +246,7 @@ public class GuidePagerFragment extends MythtvListFragment {
 					notifyDataSetChanged();
 				}
 			
-				Log.v( TAG, "GuideRowAdapter.DownloadProgramGuideTask.onPostExecute : enter" );
+				Log.v( TAG, "GuideRowAdapter.DownloadProgramGuideTask.onPostExecute : exit" );
 			}
 			
 		}

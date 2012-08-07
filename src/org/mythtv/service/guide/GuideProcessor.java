@@ -19,8 +19,6 @@
  */
 package org.mythtv.service.guide;
 
-import java.util.Date;
-
 import org.joda.time.DateTime;
 import org.mythtv.client.MainApplication;
 import org.mythtv.db.dvr.ProgramConstants;
@@ -83,19 +81,19 @@ public class GuideProcessor extends AbstractMythtvProcessor {
 
 		getMainApplication().setDatabaseLoading( true );
 		
-		Date start = DateUtils.getYesterday();
-		Date end = DateUtils.getNextDay( start );
+		DateTime start = DateUtils.getYesterday();
+		DateTime end = DateUtils.getToday();
 		
 		String endDate = "";
 		ResponseEntity<ProgramGuideWrapper> entity = null;
 		for( int i = 0; i < 13; i++ ) {
-			endDate = DateUtils.dateFormatter.format( end );
-			Log.v( TAG, "getGuide : checking if guide data loaded for " + end );
+			endDate = DateUtils.dateFormatter.print( end );
+			Log.v( TAG, "getGuide : checking if guide data loaded for " + DateUtils.dateTimeFormatter.print( end ) );
 			
 			Cursor cursor = mContext.getContentResolver().query( ProgramConstants.CONTENT_URI, new String[] { ProgramConstants._ID }, ProgramConstants.FIELD_START_DATE + " = ? and " + ProgramConstants.FIELD_PROGRAM_TYPE + " = ?", new String[] { endDate, ProgramConstants.ProgramType.GUIDE.name() }, null );
 			if( cursor.getCount() == 0 ) {
 			
-				Log.v( TAG, "getGuide : loading data for date " + DateUtils.dateTimeFormatter.format( start ) + " thru "  + DateUtils.dateTimeFormatter.format( end ) );
+				Log.v( TAG, "getGuide : loading data for date " + DateUtils.dateTimeFormatter.print( start ) + " thru "  + DateUtils.dateTimeFormatter.print( end ) );
 
 				String message = "Retrieving Program Guide for " + endDate;
 				sendNotificationCallbackMessage( notifyCallback, message );
@@ -122,13 +120,13 @@ public class GuideProcessor extends AbstractMythtvProcessor {
 			cursor.close();
 			
 			start = DateUtils.getNextDay( start );
-			end = DateUtils.getNextDay( start );
+			end = DateUtils.getNextDay( end );
 		}
 		
 		getMainApplication().setDatabaseLoading( false );
 		
 		SharedPreferences.Editor editor = mythtvPreferences.edit();
-		editor.putLong( MainApplication.NEXT_GUIDE_DATA_LOAD, DateUtils.getNextDayAfterMythfilldatabase().getTime() );
+		editor.putLong( MainApplication.NEXT_GUIDE_DATA_LOAD, DateUtils.getNextDayAfterMythfilldatabase().getMillis() );
 		editor.commit();
 
 		if( null == entity ) {

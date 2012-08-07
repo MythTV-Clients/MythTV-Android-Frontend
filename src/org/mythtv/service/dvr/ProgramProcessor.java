@@ -20,7 +20,6 @@
 package org.mythtv.service.dvr;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 import org.mythtv.db.dvr.ProgramConstants;
@@ -66,9 +65,6 @@ public class ProgramProcessor extends AbstractMythtvProcessor {
 				Log.v( TAG, "updateProgramContentProvider : program=" + program.toString() );
 			}
 
-			Calendar startTime = Calendar.getInstance();
-			startTime.setTime( program.getStartTime().toDate() );
-			
 			ContentValues values = convertProgramToContentValues( program, programType );
 
 			String[] projection = new String[] { ProgramConstants._ID };
@@ -80,7 +76,7 @@ public class ProgramProcessor extends AbstractMythtvProcessor {
 				.append( ProgramConstants.FIELD_PROGRAM_ID ).append( " = ? and " )
 				.append( ProgramConstants.FIELD_PROGRAM_TYPE + " = ?" );
 			
-			String[] args = new String[] { "" + startTime.getTimeInMillis(), program.getTitle(), program.getSubTitle(), program.getProgramId(), programType.name() };
+			String[] args = new String[] { "" + program.getStartTime().getMillis(), program.getTitle(), program.getSubTitle(), program.getProgramId(), programType.name() };
 			
 			Cursor cursor = mContext.getContentResolver().query( ProgramConstants.CONTENT_URI, projection, sb.toString(), args, null );
 			if( cursor.moveToFirst() ) {
@@ -220,13 +216,7 @@ public class ProgramProcessor extends AbstractMythtvProcessor {
 	
 	private ContentValues convertProgramToContentValues( Program program, ProgramType programType ) {
 		
-		Calendar startTime = Calendar.getInstance();
-		startTime.setTime( program.getStartTime().toDate() );
-		
-		Calendar endTime = Calendar.getInstance();
-		endTime.setTime( program.getEndTime().toDate() );
-
-		long durationInMinutes = ( endTime.getTimeInMillis() / 60000 ) - ( startTime.getTimeInMillis() / 60000 );
+		long durationInMinutes = ( program.getEndTime().getMillis() / 60000 ) - ( program.getStartTime().getMillis() / 60000 );
 
 		// Removing Grammar Articles.  English only at this time, needs internationalization
 		String cleanTitle = ArticleCleaner.clean( program.getTitle() );
@@ -234,12 +224,12 @@ public class ProgramProcessor extends AbstractMythtvProcessor {
 		ContentValues values = new ContentValues();
 		values.put( ProgramConstants.FIELD_PROGRAM_TYPE, null != programType ? programType.name() : "" );
 		values.put( ProgramConstants.FIELD_PROGRAM_GROUP, cleanTitle );
-		values.put( ProgramConstants.FIELD_START_TIME, startTime.getTimeInMillis() );
-		values.put( ProgramConstants.FIELD_END_TIME, endTime.getTimeInMillis() );
+		values.put( ProgramConstants.FIELD_START_TIME, program.getStartTime().getMillis() );
+		values.put( ProgramConstants.FIELD_END_TIME, program.getEndTime().getMillis() );
 		values.put( ProgramConstants.FIELD_DURATION, durationInMinutes );
-		values.put( ProgramConstants.FIELD_START_DATE, DateUtils.dateFormatter.format( program.getStartTime() ) );
-		values.put( ProgramConstants.FIELD_TIMESLOT_HOUR, startTime.get( Calendar.HOUR_OF_DAY) );
-		values.put( ProgramConstants.FIELD_TIMESLOT_MINUTE, startTime.get( Calendar.MINUTE ) );
+		values.put( ProgramConstants.FIELD_START_DATE, DateUtils.dateFormatter.print( program.getStartTime() ) );
+		values.put( ProgramConstants.FIELD_TIMESLOT_HOUR, program.getStartTime().getHourOfDay() );
+		values.put( ProgramConstants.FIELD_TIMESLOT_MINUTE, program.getStartTime().getMinuteOfHour() );
 		values.put( ProgramConstants.FIELD_TITLE, null != program.getTitle() ? program.getTitle() : "" );
 		values.put( ProgramConstants.FIELD_SUB_TITLE, null != program.getSubTitle() ? program.getSubTitle() : "" );
 		values.put( ProgramConstants.FIELD_CATEGORY, null != program.getCategory() ? program.getCategory() : "" );
@@ -252,11 +242,11 @@ public class ProgramProcessor extends AbstractMythtvProcessor {
 		values.put( ProgramConstants.FIELD_PROGRAM_ID, null != program.getProgramId() ? program.getProgramId() : "" );
 		values.put( ProgramConstants.FIELD_STARS, program.getStars() );
 		values.put( ProgramConstants.FIELD_FILE_SIZE, null != program.getFileSize() ? program.getFileSize() : "" );
-		values.put( ProgramConstants.FIELD_LAST_MODIFIED, null != program.getLastModified() ? DateUtils.dateTimeFormatter.format( program.getLastModified() ) : "" );
+		values.put( ProgramConstants.FIELD_LAST_MODIFIED, null != program.getLastModified() ? DateUtils.dateTimeFormatter.print( program.getLastModified() ) : "" );
 		values.put( ProgramConstants.FIELD_PROGRAM_FLAGS, null != program.getProgramFlags() ? program.getProgramFlags() : "" );
 		values.put( ProgramConstants.FIELD_HOSTNAME, null != program.getHostname() ? program.getHostname() : "" );
 		values.put( ProgramConstants.FIELD_FILENAME, null != program.getFilename() ? program.getFilename() : "" );
-		values.put( ProgramConstants.FIELD_AIR_DATE, null != program.getAirDate() ? DateUtils.dateTimeFormatter.format( program.getAirDate() ) : "" );
+		values.put( ProgramConstants.FIELD_AIR_DATE, null != program.getAirDate() ? DateUtils.dateTimeFormatter.print( program.getAirDate() ) : "" );
 		values.put( ProgramConstants.FIELD_DESCRIPTION, null != program.getDescription() ? program.getDescription() : "" );
 		values.put( ProgramConstants.FIELD_INETREF, null != program.getInetref() ? program.getInetref() : "" );
 		values.put( ProgramConstants.FIELD_SEASON, null != program.getSeason() ? program.getSeason() : "" );

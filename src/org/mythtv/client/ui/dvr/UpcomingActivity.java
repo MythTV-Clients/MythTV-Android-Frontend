@@ -20,9 +20,9 @@
 package org.mythtv.client.ui.dvr;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
+import org.joda.time.DateTime;
 import org.mythtv.R;
 import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.service.dvr.DvrServiceHelper;
@@ -179,11 +179,11 @@ public class UpcomingActivity extends AbstractDvrActivity {
 			
 			fragmentHeadings = new ArrayList<String>();
 
-			Date day = DateUtils.getToday();
+			DateTime day = DateUtils.getToday();
 			
 			String formattedDay = null;
 			for( int i = 0; i < 12; i++ ) {
-				formattedDay = DateUtils.dateFormatter.format( day );
+				formattedDay = DateUtils.dateFormatter.print( day );
 				fragmentHeadings.add( formattedDay );
 				
 				day = DateUtils.getNextDay( day );

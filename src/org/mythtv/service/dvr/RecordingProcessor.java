@@ -19,8 +19,6 @@
  */
 package org.mythtv.service.dvr;
 
-import java.util.Calendar;
-
 import org.mythtv.db.dvr.RecordingConstants;
 import org.mythtv.service.AbstractMythtvProcessor;
 import org.mythtv.services.api.dvr.Recording;
@@ -48,7 +46,6 @@ public class RecordingProcessor extends AbstractMythtvProcessor {
 	}
 
 	public Long updateRecordingContentProvider( Recording recording, long programId ) {
-//		Log.v( TAG, "updateRecordingContentProvider : enter" );
 		
 		if( null != recording ) {
 			
@@ -58,17 +55,11 @@ public class RecordingProcessor extends AbstractMythtvProcessor {
 			
 			Long id = null;
 			
-			Calendar startTime = Calendar.getInstance();
-			startTime.setTime( recording.getStartTimestamp().toDate() );
-			
-			Calendar endTime = Calendar.getInstance();
-			endTime.setTime( recording.getEndTimestamp().toDate() );
-
 			ContentValues values = new ContentValues();
 			values.put( RecordingConstants.FIELD_STATUS, recording.getStatus() );
 			values.put( RecordingConstants.FIELD_PRIORITY, recording.getPriority() );
-			values.put( RecordingConstants.FIELD_START_TS, startTime.getTimeInMillis() );
-			values.put( RecordingConstants.FIELD_END_TS, endTime.getTimeInMillis() );
+			values.put( RecordingConstants.FIELD_START_TS, recording.getStartTimestamp().getMillis() );
+			values.put( RecordingConstants.FIELD_END_TS, recording.getEndTimestamp().getMillis() );
 			values.put( RecordingConstants.FIELD_RECORD_ID, recording.getRecordid() );
 			values.put( RecordingConstants.FIELD_REC_GROUP, null != recording.getRecordingGroup() ? recording.getRecordingGroup() : "" );
 			values.put( RecordingConstants.FIELD_STORAGE_GROUP, null != recording.getStorageGroup() ? recording.getStorageGroup() : "" );
@@ -90,7 +81,6 @@ public class RecordingProcessor extends AbstractMythtvProcessor {
 			}
 			cursor.close();
 			
-//			Log.v( TAG, "updateRecordingContentProvider : exit" );
 			return id;
 		}
 		
