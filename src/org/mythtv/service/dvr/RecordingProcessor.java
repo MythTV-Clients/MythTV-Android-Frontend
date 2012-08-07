@@ -59,10 +59,10 @@ public class RecordingProcessor extends AbstractMythtvProcessor {
 			Long id = null;
 			
 			Calendar startTime = Calendar.getInstance();
-			startTime.setTime( recording.getStartTimestamp() );
+			startTime.setTime( recording.getStartTimestamp().toDate() );
 			
 			Calendar endTime = Calendar.getInstance();
-			endTime.setTime( recording.getEndTimestamp() );
+			endTime.setTime( recording.getEndTimestamp().toDate() );
 
 			ContentValues values = new ContentValues();
 			values.put( RecordingConstants.FIELD_STATUS, recording.getStatus() );

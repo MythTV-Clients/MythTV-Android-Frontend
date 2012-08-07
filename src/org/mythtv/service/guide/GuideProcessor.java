@@ -21,6 +21,7 @@ package org.mythtv.service.guide;
 
 import java.util.Date;
 
+import org.joda.time.DateTime;
 import org.mythtv.client.MainApplication;
 import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.service.AbstractMythtvProcessor;
@@ -100,7 +101,7 @@ public class GuideProcessor extends AbstractMythtvProcessor {
 				sendNotificationCallbackMessage( notifyCallback, message );
 				mNotificationHelper.createNotification( "Mythtv for Android", message, NotificationType.UPLOAD );
 
-				entity = application.getMythServicesApi().guideOperations().getProgramGuideResponseEntity( start, end, 1, -1, Boolean.TRUE );
+				entity = application.getMythServicesApi().guideOperations().getProgramGuideResponseEntity( new DateTime( start ), new DateTime( end ), 1, -1, Boolean.TRUE );
 
 				switch( entity.getStatusCode() ) {
 					case OK :

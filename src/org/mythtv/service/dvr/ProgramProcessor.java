@@ -67,7 +67,7 @@ public class ProgramProcessor extends AbstractMythtvProcessor {
 			}
 
 			Calendar startTime = Calendar.getInstance();
-			startTime.setTime( program.getStartTime() );
+			startTime.setTime( program.getStartTime().toDate() );
 			
 			ContentValues values = convertProgramToContentValues( program, programType );
 
@@ -221,10 +221,10 @@ public class ProgramProcessor extends AbstractMythtvProcessor {
 	private ContentValues convertProgramToContentValues( Program program, ProgramType programType ) {
 		
 		Calendar startTime = Calendar.getInstance();
-		startTime.setTime( program.getStartTime() );
+		startTime.setTime( program.getStartTime().toDate() );
 		
 		Calendar endTime = Calendar.getInstance();
-		endTime.setTime( program.getEndTime() );
+		endTime.setTime( program.getEndTime().toDate() );
 
 		long durationInMinutes = ( endTime.getTimeInMillis() / 60000 ) - ( startTime.getTimeInMillis() / 60000 );
 

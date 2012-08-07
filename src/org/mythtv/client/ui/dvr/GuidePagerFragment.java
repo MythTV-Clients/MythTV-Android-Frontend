@@ -20,9 +20,9 @@
 package org.mythtv.client.ui.dvr;
 
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
+import org.joda.time.DateTime;
 import org.mythtv.R;
 import org.mythtv.client.MainApplication;
 import org.mythtv.client.ui.util.MythtvListFragment;
@@ -119,7 +119,7 @@ public class GuidePagerFragment extends MythtvListFragment {
 			Log.i( TAG, "Loading Guide between " + DateUtils.dateTimeFormatter.format( startTime.getTime() ) + " and " + DateUtils.dateTimeFormatter.format( endTime.getTime() ) );
 			
 			if( null == channels ) {
-				new DownloadProgramGuideTask().execute( startTime.getTime(), endTime.getTime() );
+				new DownloadProgramGuideTask().execute( new DateTime( startTime.getTime() ), new DateTime( endTime.getTime() ) );
 			}
 			
 			Log.v( TAG, "GuideRowAdapter : exit" );
@@ -220,16 +220,14 @@ public class GuidePagerFragment extends MythtvListFragment {
 
 		}
 		
-		private class DownloadProgramGuideTask extends AsyncTask<Date, Void, ProgramGuideWrapper> {
+		private class DownloadProgramGuideTask extends AsyncTask<DateTime, Void, ProgramGuideWrapper> {
 
 			@Override
-			protected ProgramGuideWrapper doInBackground( Date... params ) {
+			protected ProgramGuideWrapper doInBackground( DateTime... params ) {
 				Log.v( TAG, "GuideRowAdapter.DownloadProgramGuideTask.doInBackground : enter" );
 
-				Date startTime = params[ 0 ];
-				Date endTime = params[ 1 ];
-				
-				Log.v( TAG, "GuideRowAdapter.DownloadProgramGuideTask.doInBackground : startTime" + DateUtils.dateTimeFormatter.format( startTime.getTime() ) + ", endTime=" + DateUtils.dateTimeFormatter.format( endTime.getTime() )  );
+				DateTime startTime = params[ 0 ];
+				DateTime endTime = params[ 1 ];
 				
 				Log.v( TAG, "GuideRowAdapter.DownloadProgramGuideTask.doInBackground : exit" );
 				return ( (MainApplication) mContext.getApplicationContext() ).getMythServicesApi().guideOperations().getProgramGuide( startTime, endTime, 1, -1, Boolean.FALSE );
@@ -243,8 +241,6 @@ public class GuidePagerFragment extends MythtvListFragment {
 				Log.v( TAG, "GuideRowAdapter.DownloadProgramGuideTask.onPostExecute : enter" );
 
 				if( null != result && null != result.getProgramGuide() && !result.getProgramGuide().getChannels().isEmpty() ) {
-					Log.v( TAG, "GuideRowAdapter.DownloadProgramGuideTask.onPostExecute : " + DateUtils.dateTimeFormatter.format( result.getProgramGuide().getStartTime() ) + " endTime" + DateUtils.dateTimeFormatter.format( result.getProgramGuide().getStartTime() ));
-					
 					Log.v( TAG, "GuideRowAdapter.DownloadProgramGuideTask.onPostExecute : channels retrieved, updating adapter" );
 
 					channels = result.getProgramGuide().getChannels();
