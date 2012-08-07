@@ -104,14 +104,13 @@ public class GuidePagerFragment extends MythtvListFragment {
 			mContext = context;
 			mInflater = LayoutInflater.from( context );
 
-			int year = Integer.parseInt( startDate.substring( 0, startDate.indexOf( '-' ) ) );
-			int month = Integer.parseInt( startDate.substring( startDate.indexOf( '-' ) + 1, startDate.lastIndexOf( '-' ) ) ) - 1;
-			int day = Integer.parseInt( startDate.substring( startDate.lastIndexOf( '-' ) + 1 ) );
-			int hour = Integer.parseInt( timeslot ) - 1;
+			int hour = Integer.parseInt( timeslot );
 			
-			DateTime startTime = new DateTime( year, month + 1, day, hour, 0, 01 );
+			DateTime startTime = new DateTime( startDate );
+			startTime = startTime.withHourOfDay( hour ).withMinuteOfHour( 0 ).withSecondOfMinute( 01 );
 
-			DateTime endTime = new DateTime( year, month + 1, day, hour, 59, 59 );
+			DateTime endTime = new DateTime( startDate );
+			endTime = endTime.withHourOfDay( hour ).withMinuteOfHour( 59 ).withSecondOfMinute( 59 );
 		
 			Log.i( TAG, "Loading Guide between " + DateUtils.dateTimeFormatter.print( startTime ) + " and " + DateUtils.dateTimeFormatter.print( endTime ) );
 			

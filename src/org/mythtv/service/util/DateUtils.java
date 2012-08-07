@@ -32,7 +32,7 @@ import org.joda.time.format.DateTimeFormatter;
 public class DateUtils {
 
 	public static final DateTimeFormatter dateFormatter = DateTimeFormat.forPattern( "yyyy-MM-dd" );
-	public static final DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern( "yyyy-MM-dd'T'hh:mm:ss" );
+	public static final DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern( "yyyy-MM-dd'T'HH:mm:ss" );
 	public static final DateTimeFormatter timeFormatter = DateTimeFormat.forPattern( "hh:mm a" );
 	public static final DateTimeFormatter hourFormatter = DateTimeFormat.forPattern( "hh:'00' a" );
 
@@ -50,7 +50,7 @@ public class DateUtils {
 	public static DateTime getDaysFromToday( int days ) {
 		
 		DateTime day = new DateTime();
-		day = day.plus( days );
+		day = day.plus( Period.days( days ) );
 		
 		return getEndOfDay( day );		
 	}

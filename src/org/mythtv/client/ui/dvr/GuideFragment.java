@@ -87,13 +87,6 @@ public class GuideFragment extends AbstractMythFragment implements OnClickListen
 		date = DateUtils.getEndOfDay( new DateTime() );
 		updateDateHeader();
 		
-		DateTime now = new DateTime();
-		
-		MythtvGuidePagerAdapter mAdapter = new MythtvGuidePagerAdapter( getActivity().getSupportFragmentManager() );
-		ViewPager mPager = (ViewPager) getActivity().findViewById( R.id.guide_pager );
-		mPager.setAdapter( mAdapter );
-		mPager.setCurrentItem( now.getHourOfDay() );
-
 		Log.v( TAG, "onActivityCreated : exit" );
 	}
 
@@ -127,22 +120,34 @@ public class GuideFragment extends AbstractMythFragment implements OnClickListen
 	// internal helpers
 	
 	private void updateDateHeader() {
+		Log.v( TAG, "updateDateHeader : enter" );
+		
 		mDateTextView.setText( DateUtils.dateFormatter.print( date ) );
 		startDate = DateUtils.dateFormatter.print( date );
 		
 		DateTime today = new DateTime();
-		if( DateUtils.dateFormatter.print( today ).equals( DateUtils.dateFormatter.print( date ) ) ) {
+		Log.v( TAG, "updateDateHeader : today=" + DateUtils.dateTimeFormatter.print( today ) );
+		if( today.dayOfYear().equals( date.dayOfYear() ) ) {
 			mPreviousButton.setEnabled( false );
 		} else {
 			mPreviousButton.setEnabled( true );
 		}
 
 		DateTime end = DateUtils.getDaysFromToday( 12 );
-		if( DateUtils.dateFormatter.print( end ).equals( DateUtils.dateFormatter.print( date ) ) ) {
+		Log.v( TAG, "updateDateHeader : end=" + DateUtils.dateTimeFormatter.print( end ) );
+		if( end.dayOfYear().equals( date.dayOfYear() ) ) {
 			mNextButton.setEnabled( false );
 		} else {
 			mNextButton.setEnabled( true );
 		}
+
+		DateTime now = new DateTime();
+		MythtvGuidePagerAdapter mAdapter = new MythtvGuidePagerAdapter( getActivity().getSupportFragmentManager() );
+		ViewPager mPager = (ViewPager) getActivity().findViewById( R.id.guide_pager );
+		mPager.setAdapter( mAdapter );
+		mPager.setCurrentItem( now.getHourOfDay() );
+
+		Log.v( TAG, "updateDateHeader : exit" );
 	}
 	
 	private class MythtvGuidePagerAdapter extends FragmentStatePagerAdapter {
