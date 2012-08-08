@@ -19,6 +19,7 @@
  */
 package org.mythtv.client.ui.dvr;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.joda.time.DateTime;
@@ -240,7 +241,9 @@ public class GuidePagerFragment extends MythtvListFragment {
 				if( null != result && null != result.getProgramGuide() && !result.getProgramGuide().getChannels().isEmpty() ) {
 					Log.v( TAG, "GuideRowAdapter.DownloadProgramGuideTask.onPostExecute : channels retrieved, updating adapter" );
 
-					channels = result.getProgramGuide().getChannels();
+					List<ChannelInfo> channelInfos = result.getProgramGuide().getChannels();
+					Collections.sort( channelInfos );
+					channels = channelInfos;
 					
 					notifyDataSetChanged();
 				}
