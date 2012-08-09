@@ -202,8 +202,14 @@ public class GuidePagerFragment extends MythtvListFragment {
 					Log.v( TAG, "GuideRowAdapter.getView : setting programs" );
 
 					try {
+						StringBuilder ally = new StringBuilder();
+						ally.append( DateUtils.timeFormatter.print( channel.getPrograms().get( 0 ).getStartTime() ) ).append( " " );
+						ally.append( "Title: " ).append( channel.getPrograms().get( 0 ).getTitle() ).append( " " );
+						ally.append( "Description: " ).append( channel.getPrograms().get( 0 ).getSubTitle() );
+						
 						mHolder.category1.setBackgroundColor( mProgramHelper.getCategoryColor( channel.getPrograms().get( 0 ).getCategory() ) );
 						mHolder.timeSlot1.setText( channel.getPrograms().get( 0 ).getTitle() );
+						mHolder.timeSlot1.setContentDescription( ally );
 						mHolder.timeSlotDescription1.setText( channel.getPrograms().get( 0 ).getSubTitle() );
 					} catch( IndexOutOfBoundsException e ) {
 						mHolder.timeSlot1.setText( "empty" );
@@ -211,6 +217,12 @@ public class GuidePagerFragment extends MythtvListFragment {
 					}
 
 					try {
+						StringBuilder ally = new StringBuilder();
+						ally.append( DateUtils.timeFormatter.print( channel.getPrograms().get( 0 ).getStartTime() ) ).append( " " );
+						ally.append( "Title: " ).append( channel.getPrograms().get( 0 ).getTitle() ).append( " " );
+						mHolder.timeSlot2.setContentDescription( ally );
+						ally.append( "Description: " ).append( channel.getPrograms().get( 0 ).getSubTitle() );
+
 						mHolder.category2.setBackgroundColor( mProgramHelper.getCategoryColor( channel.getPrograms().get( 1 ).getCategory() ) );
 						mHolder.timeSlot2.setText( channel.getPrograms().get( 1 ).getTitle() );
 						mHolder.timeSlotDescription2.setText( channel.getPrograms().get( 1 ).getSubTitle() );
