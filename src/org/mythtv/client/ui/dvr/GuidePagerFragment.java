@@ -39,6 +39,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 /**
@@ -178,8 +179,10 @@ public class GuidePagerFragment extends MythtvListFragment {
 				mHolder.channel = (TextView) convertView.findViewById( R.id.guide_channel );
 				mHolder.category1 = (View) convertView.findViewById( R.id.guide_slot_1_category );
 				mHolder.timeSlot1 = (TextView) convertView.findViewById( R.id.guide_slot_1 );
+				mHolder.timeSlotContainer1 = (LinearLayout) convertView.findViewById(R.id.guide_container_slot_1);
 				mHolder.category2 = (View) convertView.findViewById( R.id.guide_slot_2_category );
 				mHolder.timeSlot2 = (TextView) convertView.findViewById( R.id.guide_slot_2 );
+				mHolder.timeSlotContainer2 = (LinearLayout) convertView.findViewById(R.id.guide_container_slot_2);
 				
 				convertView.setTag( mHolder );
 			} else { 
@@ -201,6 +204,8 @@ public class GuidePagerFragment extends MythtvListFragment {
 						mHolder.timeSlot1.setText( channel.getPrograms().get( 0 ).getTitle() );
 					} catch( IndexOutOfBoundsException e ) {
 						mHolder.timeSlot1.setText( "empty" );
+						mHolder.timeSlotContainer1.setVisibility(View.GONE);
+						
 					}
 
 					try {
@@ -208,6 +213,7 @@ public class GuidePagerFragment extends MythtvListFragment {
 						mHolder.timeSlot2.setText( channel.getPrograms().get( 1 ).getTitle() );
 					} catch( IndexOutOfBoundsException e ) {
 						mHolder.timeSlot2.setText( "empty" );
+						mHolder.timeSlotContainer2.setVisibility(View.GONE);
 					}
 				}
 			}
@@ -222,9 +228,11 @@ public class GuidePagerFragment extends MythtvListFragment {
 
 			View category1;
 			TextView timeSlot1;
+			LinearLayout timeSlotContainer1;
 
 			View category2;
 			TextView timeSlot2;
+			LinearLayout timeSlotContainer2;
 			
 			ViewHolder() { }
 
