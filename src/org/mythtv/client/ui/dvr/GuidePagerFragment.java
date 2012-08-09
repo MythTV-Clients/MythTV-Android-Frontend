@@ -26,6 +26,7 @@ import org.joda.time.DateTime;
 import org.mythtv.R;
 import org.mythtv.client.MainApplication;
 import org.mythtv.client.ui.util.MythtvListFragment;
+import org.mythtv.client.ui.util.ProgramHelper;
 import org.mythtv.service.util.DateUtils;
 import org.mythtv.services.api.channel.ChannelInfo;
 import org.mythtv.services.api.guide.ProgramGuideWrapper;
@@ -50,6 +51,8 @@ public class GuidePagerFragment extends MythtvListFragment {
 	
 	private GuideRowAdapter adapter;
 
+	private ProgramHelper mProgramHelper;
+
 	public static GuidePagerFragment newInstance( String startDate, String timeslot ) {
 		Log.v( TAG, "newInstance : enter" );
 		GuidePagerFragment fragment = new GuidePagerFragment();
@@ -73,6 +76,8 @@ public class GuidePagerFragment extends MythtvListFragment {
 		Log.v( TAG, "onActivityCreated : enter" );
 		super.onActivityCreated( savedInstanceState );
 
+		mProgramHelper = ProgramHelper.createInstance( getActivity() );
+		
 		setHasOptionsMenu( true );
 		
 		setRetainInstance( true );
@@ -171,7 +176,9 @@ public class GuidePagerFragment extends MythtvListFragment {
 				mHolder = new ViewHolder();
 				
 				mHolder.channel = (TextView) convertView.findViewById( R.id.guide_channel );
+				mHolder.category1 = (View) convertView.findViewById( R.id.guide_slot_1_category );
 				mHolder.timeSlot1 = (TextView) convertView.findViewById( R.id.guide_slot_1 );
+				mHolder.category2 = (View) convertView.findViewById( R.id.guide_slot_2_category );
 				mHolder.timeSlot2 = (TextView) convertView.findViewById( R.id.guide_slot_2 );
 				
 				convertView.setTag( mHolder );
@@ -190,12 +197,14 @@ public class GuidePagerFragment extends MythtvListFragment {
 					Log.v( TAG, "GuideRowAdapter.getView : setting programs" );
 
 					try {
+						mHolder.category1.setBackgroundColor( mProgramHelper.getCategoryColor( channel.getPrograms().get( 0 ).getCategory() ) );
 						mHolder.timeSlot1.setText( channel.getPrograms().get( 0 ).getTitle() );
 					} catch( IndexOutOfBoundsException e ) {
 						mHolder.timeSlot1.setText( "empty" );
 					}
 
 					try {
+						mHolder.category2.setBackgroundColor( mProgramHelper.getCategoryColor( channel.getPrograms().get( 1 ).getCategory() ) );
 						mHolder.timeSlot2.setText( channel.getPrograms().get( 1 ).getTitle() );
 					} catch( IndexOutOfBoundsException e ) {
 						mHolder.timeSlot2.setText( "empty" );
@@ -210,7 +219,11 @@ public class GuidePagerFragment extends MythtvListFragment {
 		private class ViewHolder {
 			
 			TextView channel;
+
+			View category1;
 			TextView timeSlot1;
+
+			View category2;
 			TextView timeSlot2;
 			
 			ViewHolder() { }
