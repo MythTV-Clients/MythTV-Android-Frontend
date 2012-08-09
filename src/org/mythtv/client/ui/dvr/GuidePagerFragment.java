@@ -177,12 +177,14 @@ public class GuidePagerFragment extends MythtvListFragment {
 				mHolder = new ViewHolder();
 				
 				mHolder.channel = (TextView) convertView.findViewById( R.id.guide_channel );
+				mHolder.timeSlotContainer1 = (LinearLayout) convertView.findViewById(R.id.guide_container_slot_1);
 				mHolder.category1 = (View) convertView.findViewById( R.id.guide_slot_1_category );
 				mHolder.timeSlot1 = (TextView) convertView.findViewById( R.id.guide_slot_1 );
-				mHolder.timeSlotContainer1 = (LinearLayout) convertView.findViewById(R.id.guide_container_slot_1);
+				mHolder.timeSlotDescription1 = (TextView) convertView.findViewById( R.id.guide_slot_1_description );
+				mHolder.timeSlotContainer2 = (LinearLayout) convertView.findViewById(R.id.guide_container_slot_2);
 				mHolder.category2 = (View) convertView.findViewById( R.id.guide_slot_2_category );
 				mHolder.timeSlot2 = (TextView) convertView.findViewById( R.id.guide_slot_2 );
-				mHolder.timeSlotContainer2 = (LinearLayout) convertView.findViewById(R.id.guide_container_slot_2);
+				mHolder.timeSlotDescription2 = (TextView) convertView.findViewById( R.id.guide_slot_2_description );
 				
 				convertView.setTag( mHolder );
 			} else { 
@@ -202,18 +204,19 @@ public class GuidePagerFragment extends MythtvListFragment {
 					try {
 						mHolder.category1.setBackgroundColor( mProgramHelper.getCategoryColor( channel.getPrograms().get( 0 ).getCategory() ) );
 						mHolder.timeSlot1.setText( channel.getPrograms().get( 0 ).getTitle() );
+						mHolder.timeSlotDescription1.setText( channel.getPrograms().get( 0 ).getSubTitle() );
 					} catch( IndexOutOfBoundsException e ) {
 						mHolder.timeSlot1.setText( "empty" );
-						mHolder.timeSlotContainer1.setVisibility(View.GONE);
-						
+						mHolder.timeSlotContainer1.setVisibility( View.GONE );
 					}
 
 					try {
 						mHolder.category2.setBackgroundColor( mProgramHelper.getCategoryColor( channel.getPrograms().get( 1 ).getCategory() ) );
 						mHolder.timeSlot2.setText( channel.getPrograms().get( 1 ).getTitle() );
+						mHolder.timeSlotDescription2.setText( channel.getPrograms().get( 1 ).getSubTitle() );
 					} catch( IndexOutOfBoundsException e ) {
 						mHolder.timeSlot2.setText( "empty" );
-						mHolder.timeSlotContainer2.setVisibility(View.GONE);
+						mHolder.timeSlotContainer2.setVisibility( View.GONE );
 					}
 				}
 			}
@@ -226,13 +229,15 @@ public class GuidePagerFragment extends MythtvListFragment {
 			
 			TextView channel;
 
+			LinearLayout timeSlotContainer1;
 			View category1;
 			TextView timeSlot1;
-			LinearLayout timeSlotContainer1;
+			TextView timeSlotDescription1;
 
+			LinearLayout timeSlotContainer2;
 			View category2;
 			TextView timeSlot2;
-			LinearLayout timeSlotContainer2;
+			TextView timeSlotDescription2;
 			
 			ViewHolder() { }
 

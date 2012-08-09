@@ -45,23 +45,34 @@
         	android:layout_height="fill_parent"
         	android:background="#ff0000" />
     
-			<RelativeLayout
-			    android:layout_width="fill_parent"
-			    android:layout_height="wrap_content"
-			    android:orientation="horizontal"
-		    	android:paddingLeft="8dp"
-		    	android:paddingRight="8dp" >
+		<LinearLayout
+		    android:layout_width="fill_parent"
+		    android:layout_height="wrap_content"
+		    android:orientation="vertical" >
 				    		    
-				<TextView
-					android:id="@+id/guide_slot_1"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:layout_alignParentLeft="true"
-					android:layout_centerVertical="true"
-					android:text="time slot 1"
-					android:textColor="@color/body_text_1" />
+			<TextView
+				android:id="@+id/guide_slot_1"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="time slot 1"
+				android:textSize="12dp"
+				android:textColor="@color/body_text_1"
+				android:ellipsize="end"
+		   		android:paddingLeft="8dp"
+		   		android:paddingRight="8dp" />
 						
-			</RelativeLayout>
+			<TextView
+				android:id="@+id/guide_slot_1_description"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="time slot 1 description"
+				android:textSize="9dp"
+				android:textColor="@color/body_text_1"
+				android:ellipsize="end"
+		   		android:paddingLeft="8dp"
+		   		android:paddingRight="8dp" />
+					
+		</LinearLayout>
 		
 	</LinearLayout>
 
@@ -78,23 +89,33 @@
         	android:layout_height="fill_parent"
         	android:background="#ff0000" />
     
-			<RelativeLayout
-			    android:layout_width="fill_parent"
-			    android:layout_height="wrap_content"
-			    android:orientation="horizontal"
-		    	android:paddingLeft="8dp"
-		    	android:paddingRight="8dp" >
+		<LinearLayout
+		    android:layout_width="fill_parent"
+		    android:layout_height="wrap_content"
+		    android:orientation="vertical" >
 				    		    
-				<TextView
-					android:id="@+id/guide_slot_2"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:layout_alignParentLeft="true"
-					android:layout_centerVertical="true"
-					android:text="time slot 2"
-					android:textColor="@color/body_text_1" />
+			<TextView
+				android:id="@+id/guide_slot_2"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="time slot 2"
+				android:textColor="@color/body_text_1"
+				android:ellipsize="end"
+		   		android:paddingLeft="8dp"
+		   		android:paddingRight="8dp" />
 						
-			</RelativeLayout>
+			<TextView
+				android:id="@+id/guide_slot_2_description"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="time slot 2 description"
+				android:textSize="9dp"
+				android:textColor="@color/body_text_1"
+				android:ellipsize="end"
+		   		android:paddingLeft="8dp"
+		   		android:paddingRight="8dp" />
+						
+		</LinearLayout>
 		
 	</LinearLayout>
 
