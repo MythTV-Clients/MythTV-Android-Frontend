@@ -100,21 +100,24 @@ public class GuideProcessor extends AbstractMythtvProcessor {
 				mNotificationHelper.createNotification( "Mythtv for Android", message, NotificationType.UPLOAD );
 
 				entity = application.getMythServicesApi().guideOperations().getProgramGuideResponseEntity( new DateTime( start ), new DateTime( end ), 1, -1, Boolean.TRUE );
+				if( null != entity ) {
+					switch( entity.getStatusCode() ) {
+						case OK :
+							mNotificationHelper.completed();
 
-				switch( entity.getStatusCode() ) {
-					case OK :
-						mNotificationHelper.completed();
+							message = "Loading Program Guide for " + endDate;
+							sendNotificationCallbackMessage( notifyCallback, message );
+							mNotificationHelper.createNotification( "Mythtv for Android", message, NotificationType.DOWNLOAD );
 
-						message = "Loading Program Guide for " + endDate;
-						sendNotificationCallbackMessage( notifyCallback, message );
-						mNotificationHelper.createNotification( "Mythtv for Android", message, NotificationType.DOWNLOAD );
-						
-						processProgramGuide( guideCallback, entity.getBody().getProgramGuide() );
-						mNotificationHelper.completed();
-						
-						break;
-					default :
-						break;
+							processProgramGuide( guideCallback, entity.getBody().getProgramGuide() );
+							mNotificationHelper.completed();
+
+							break;
+						default :
+							break;
+					}
+				} else {
+					mNotificationHelper.completed();
 				}
 			}
 			cursor.close();
