@@ -24,6 +24,7 @@ import org.mythtv.R;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -48,7 +49,7 @@ public class LocationDashboardFragment extends AbstractMythFragment {
 				if( null != getMainApplication().getSelectedHomeLocationProfile() ) {
 					getMainApplication().connectSelectedHomeLocationProfile();
 					
-					startActivity( new Intent( getActivity(), HomeActivity.class ) );
+					new CheckMythtvBackendConnectionTask().execute( "home" );
 				} else {
 					AlertDialog.Builder builder = new AlertDialog.Builder( getActivity() );
 					builder.setTitle( R.string.location_alert_error_title );
@@ -75,7 +76,7 @@ public class LocationDashboardFragment extends AbstractMythFragment {
 
 					getMainApplication().connectSelectedAwayLocationProfile();
 					
-					startActivity( new Intent( getActivity(), AwayActivity.class ) );
+					new CheckMythtvBackendConnectionTask().execute( "away" );
 				} else {
 					Log.v( TAG, "away.onClick : no away profile selected" );
 
@@ -98,4 +99,81 @@ public class LocationDashboardFragment extends AbstractMythFragment {
 		return root;
 	}
 
+	// internal helpers
+	
+	private void connectHomeLocation() {
+		startActivity( new Intent( getActivity(), HomeActivity.class ) );
+	}
+	
+	private void connectAwayLocation() {
+		startActivity( new Intent( getActivity(), AwayActivity.class ) );
+	}
+
+	private void showBackendConnectionFailedWarning() {
+		
+		AlertDialog.Builder builder = new AlertDialog.Builder( getActivity() );
+		builder.setTitle( R.string.location_alert_error_title );
+		builder.setNeutralButton( R.string.btn_ok, new DialogInterface.OnClickListener() {
+
+			public void onClick( DialogInterface dialog, int which ) { }
+			
+		});
+		builder.setMessage( R.string.location_alert_error_message_not_connected );
+		builder.show();
+
+	}
+	
+	private class CheckMythtvBackendConnectionTask extends AsyncTask<String, Void, String> {
+
+		private String connectedPofile;
+		
+		/* (non-Javadoc)
+		 * @see android.os.AsyncTask#doInBackground(Params[])
+		 */
+		@Override
+		protected String doInBackground( String... args ) {
+			Log.v( TAG, "CheckMythtvBackendConnectionTask.doInBackground : enter" );
+			
+			connectedPofile = args[ 0 ];
+			
+			try {
+				String hostname = getMainApplication().getMythServicesApi().mythOperations().getHostName();
+				
+				Log.v( TAG, "CheckMythtvBackendConnectionTask.doInBackground : exit" );
+				return hostname;
+			} catch( Exception e ) {
+				Log.w( TAG, "CheckMythtvBackendConnectionTask.doInBackground : error connecting to backend", e );
+				
+				return null;
+			}
+		}
+
+		/* (non-Javadoc)
+		 * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
+		 */
+		@Override
+		protected void onPostExecute( String result ) {
+			Log.v( TAG, "CheckMythtvBackendConnectionTask.onPostExecute : enter" );
+
+			if( null == result || "".equals( result ) ) {
+				Log.v( TAG, "CheckMythtvBackendConnectionTask.onPostExecute : mythtv master backend not found" );
+
+				showBackendConnectionFailedWarning();
+			
+			} else {
+				
+				if( connectedPofile.equals( "home" ) ) {
+					connectHomeLocation();
+				}
+
+				if( connectedPofile.equals( "away" ) ) {
+					connectAwayLocation();
+				}
+				
+			}
+			
+			Log.v( TAG, "CheckMythtvBackendConnectionTask.onPostExecute : exit" );
+		}
+		
+	}
 }

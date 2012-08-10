@@ -131,7 +131,8 @@
 	<string name="btn_away_ally">Use selected away profile</string>
 	<string name="location_alert_error_title">MythTV Master Backend not found!</string>
 	<string name="location_alert_error_message">A connection to the MythTV Master Backend could not be established.  Make sure you setup your Home or Away profiles on the Preferences screen.</string>
-	
+	<string name="location_alert_error_message_not_connected">The MythTV Master Backend could not be reached.  Please verify your location profile settings.</string>
+		
 	<string-array name="action_list">
         <item>DVR</item>
         <item>MythMote</item>
