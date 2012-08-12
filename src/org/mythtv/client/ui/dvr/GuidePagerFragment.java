@@ -29,17 +29,21 @@ import org.mythtv.client.ui.util.MythtvListFragment;
 import org.mythtv.client.ui.util.ProgramHelper;
 import org.mythtv.service.util.DateUtils;
 import org.mythtv.services.api.channel.ChannelInfo;
+import org.mythtv.services.api.dvr.Program;
 import org.mythtv.services.api.guide.ProgramGuideWrapper;
 
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.TextUtils.TruncateAt;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
+import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 
 /**
@@ -90,7 +94,8 @@ public class GuidePagerFragment extends MythtvListFragment {
 	    adapter = new GuideRowAdapter( getActivity().getApplicationContext(), startDate, timeslot );
 	    
 	    setListAdapter( adapter );
-		
+	    getListView().setFastScrollEnabled( true );
+	    
 		Log.v( TAG, "onActivityCreated : exit" );
 	}
 
@@ -166,70 +171,69 @@ public class GuidePagerFragment extends MythtvListFragment {
 		@Override
 		public View getView( int position, View convertView, ViewGroup parent ) {
 			Log.v( TAG, "GuideRowAdapter.getView : enter" );
-
-			ViewHolder mHolder;
+			Log.v( TAG, "GuideRowAdapter.getView : position=" + position );
 			
-			if( convertView == null ) {
-				Log.v( TAG, "GuideRowAdapter.getView : creating new view" );
-
-				convertView = mInflater.inflate( R.layout.guide_row, parent, false );
-				
-				mHolder = new ViewHolder();
-				
-				mHolder.channel = (TextView) convertView.findViewById( R.id.guide_channel );
-				mHolder.timeSlotContainer1 = (LinearLayout) convertView.findViewById(R.id.guide_container_slot_1);
-				mHolder.category1 = (View) convertView.findViewById( R.id.guide_slot_1_category );
-				mHolder.timeSlot1 = (TextView) convertView.findViewById( R.id.guide_slot_1 );
-				mHolder.timeSlotDescription1 = (TextView) convertView.findViewById( R.id.guide_slot_1_description );
-				mHolder.timeSlotContainer2 = (LinearLayout) convertView.findViewById(R.id.guide_container_slot_2);
-				mHolder.category2 = (View) convertView.findViewById( R.id.guide_slot_2_category );
-				mHolder.timeSlot2 = (TextView) convertView.findViewById( R.id.guide_slot_2 );
-				mHolder.timeSlotDescription2 = (TextView) convertView.findViewById( R.id.guide_slot_2_description );
-				
-				convertView.setTag( mHolder );
-			} else { 
-				Log.v( TAG, "GuideRowAdapter.getView : retrieving cached view" );
-
-				mHolder = (ViewHolder) convertView.getTag();
-			}
-
+			convertView = mInflater.inflate( R.layout.guide_row, parent, false );
+			ViewHolder mHolder = new ViewHolder();
+			
+			mHolder.timeSlotContainer = (LinearLayout) convertView.findViewById( R.id.guide_row );
+			mHolder.channel = (TextView) convertView.findViewById( R.id.guide_channel );
+			
+			int textColor = getResources().getColor( R.color.body_text_1 );
+			
 			ChannelInfo channel = getItem( position );
-			if( null != channel ) {
-				Log.v( TAG, "GuideRowAdapter.getView : channel retrieved" );
+			if( null != channel && !channel.getPrograms().isEmpty() ) {
+				Log.v( TAG, "GuideRowAdapter.getView : channel retrieved - " + channel.getChannelNumber() );
 
 				mHolder.channel.setText( channel.getChannelNumber() );
-				if( !channel.getPrograms().isEmpty() ) {
-					Log.v( TAG, "GuideRowAdapter.getView : setting programs" );
+				for( Program program : channel.getPrograms() ) {
+					Log.v( TAG, "GuideRowAdapter.getView : program iteration" );
 
-					try {
-						StringBuilder ally = new StringBuilder();
-						ally.append( DateUtils.timeFormatter.print( channel.getPrograms().get( 0 ).getStartTime() ) ).append( " " );
-						ally.append( "Title: " ).append( channel.getPrograms().get( 0 ).getTitle() ).append( " " );
-						ally.append( "Description: " ).append( channel.getPrograms().get( 0 ).getSubTitle() );
-						
-						mHolder.category1.setBackgroundColor( mProgramHelper.getCategoryColor( channel.getPrograms().get( 0 ).getCategory() ) );
-						mHolder.timeSlot1.setText( channel.getPrograms().get( 0 ).getTitle() );
-						mHolder.timeSlot1.setContentDescription( ally );
-						mHolder.timeSlotDescription1.setText( channel.getPrograms().get( 0 ).getSubTitle() );
-					} catch( IndexOutOfBoundsException e ) {
-						mHolder.timeSlot1.setText( "empty" );
-						mHolder.timeSlotContainer1.setVisibility( View.GONE );
-					}
+					StringBuilder ally = new StringBuilder();
+					ally.append( DateUtils.timeFormatter.print( program.getStartTime() ) ).append( " " );
+					ally.append( "Title: " ).append( program.getTitle() ).append( " " );
+					ally.append( "Description: " ).append( program.getSubTitle() );
 
-					try {
-						StringBuilder ally = new StringBuilder();
-						ally.append( DateUtils.timeFormatter.print( channel.getPrograms().get( 0 ).getStartTime() ) ).append( " " );
-						ally.append( "Title: " ).append( channel.getPrograms().get( 0 ).getTitle() ).append( " " );
-						mHolder.timeSlot2.setContentDescription( ally );
-						ally.append( "Description: " ).append( channel.getPrograms().get( 0 ).getSubTitle() );
+					LinearLayout timeslot = (LinearLayout) new LinearLayout( mContext ); 
+					timeslot.setLayoutParams( new LayoutParams( LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT ) ); 
+					timeslot.setOrientation( LinearLayout.HORIZONTAL );
+					timeslot.setWeightSum( .5f );
 
-						mHolder.category2.setBackgroundColor( mProgramHelper.getCategoryColor( channel.getPrograms().get( 1 ).getCategory() ) );
-						mHolder.timeSlot2.setText( channel.getPrograms().get( 1 ).getTitle() );
-						mHolder.timeSlotDescription2.setText( channel.getPrograms().get( 1 ).getSubTitle() );
-					} catch( IndexOutOfBoundsException e ) {
-						mHolder.timeSlot2.setText( "empty" );
-						mHolder.timeSlotContainer2.setVisibility( View.GONE );
-					}
+					View category = (View) new View( mContext );
+					category.setLayoutParams( new LayoutParams( 10, LayoutParams.MATCH_PARENT ) ); 
+					category.setBackgroundColor( mProgramHelper.getCategoryColor( program.getCategory() ) );
+					timeslot.addView( category );
+
+					LinearLayout details = (LinearLayout) new LinearLayout( mContext ); 
+					details.setLayoutParams( new LayoutParams( LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT ) );
+					details.setOrientation( LinearLayout.VERTICAL );
+
+					TextView title = (TextView) new TextView( mContext );
+					title.setLayoutParams( new LayoutParams( LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT ) ); 
+					title.setText( program.getTitle() );
+					title.setTextSize( TypedValue.COMPLEX_UNIT_DIP, 12.0f );
+					title.setTextColor( textColor );
+					title.setPadding( 8, 4, 8, 1 );
+					title.setEllipsize( TruncateAt.END );
+					title.setSingleLine( true );
+					title.setHorizontallyScrolling( true );
+					title.setContentDescription( ally );
+					details.addView( title );
+
+					TextView description = (TextView)  new TextView( mContext );
+					description.setLayoutParams( new LayoutParams( LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT ) ); 
+					description.setText( program.getSubTitle() );
+					description.setTextColor( textColor );
+					description.setTextSize( TypedValue.COMPLEX_UNIT_DIP, 9.0f );
+					description.setPadding( 8, 2, 8, 4 );
+					description.setEllipsize( TruncateAt.END );
+					description.setSingleLine( true );
+					description.setHorizontallyScrolling( true );
+					details.addView( description );
+
+					timeslot.addView( details );
+
+					mHolder.timeSlotContainer.addView( timeslot );
 				}
 			}
 			
@@ -239,17 +243,8 @@ public class GuidePagerFragment extends MythtvListFragment {
 
 		private class ViewHolder {
 			
+			LinearLayout timeSlotContainer;
 			TextView channel;
-
-			LinearLayout timeSlotContainer1;
-			View category1;
-			TextView timeSlot1;
-			TextView timeSlotDescription1;
-
-			LinearLayout timeSlotContainer2;
-			View category2;
-			TextView timeSlot2;
-			TextView timeSlotDescription2;
 			
 			ViewHolder() { }
 
