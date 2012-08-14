@@ -20,6 +20,7 @@
 package org.mythtv.client.ui.dvr;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import org.joda.time.DateTime;
@@ -107,6 +108,9 @@ public class GuidePagerFragment extends MythtvListFragment {
 		private LayoutInflater mInflater;
 
 		private List<ChannelInfo> channels;
+		private DateTime startTime;
+		private DateTime endTime;
+		private long timeSlotLengthMillis;
 		
 		public GuideRowAdapter( Context context, String startDate, String timeslot ) {
 			Log.v( TAG, "GuideRowAdapter : enter" );
@@ -118,12 +122,14 @@ public class GuidePagerFragment extends MythtvListFragment {
 
 			int hour = Integer.parseInt( timeslot );
 			
-			DateTime startTime = new DateTime( startDate );
+			startTime = new DateTime( startDate );
 			startTime = startTime.withHourOfDay( hour ).withMinuteOfHour( 0 ).withSecondOfMinute( 01 );
 
-			DateTime endTime = new DateTime( startDate );
+			endTime = new DateTime( startDate );
 			endTime = endTime.withHourOfDay( hour ).withMinuteOfHour( 59 ).withSecondOfMinute( 59 );
 		
+			timeSlotLengthMillis = endTime.getMillis() - startTime.getMillis(); 
+			
 			Log.i( TAG, "Loading Guide between " + DateUtils.dateTimeFormatter.print( startTime ) + " and " + DateUtils.dateTimeFormatter.print( endTime ) );
 			
 			if( null == channels ) {
@@ -184,19 +190,45 @@ public class GuidePagerFragment extends MythtvListFragment {
 			ChannelInfo channel = getItem( position );
 			if( null != channel && !channel.getPrograms().isEmpty() ) {
 				Log.v( TAG, "GuideRowAdapter.getView : channel retrieved - " + channel.getChannelNumber() );
+				
+				final List<Program> programs = channel.getPrograms();
+				
+				/*  *
+				 * !!!! TEMPORARY !!!!
+				 * 
+				 * I added this sorting to ChannelInfo.setPrograms() method.
+				 * After doing a git pull on the services api repo I can no longer
+				 * build the services jar. 
+				 * 
+				 *  Temporarily putting this here until I have the services api
+				 *  sorted out.
+				 *  */
+				Collections.sort(programs, new Comparator<Program>(){
+
+					@Override
+					public int compare(Program o1, Program o2) {
+						
+						if(o1.equals(o2)) return 0;
+						
+						if(o1.getStartTime().isAfter(o2.getStartTime()))
+							return 1;
+						else
+							return -1;
+						
+					}});
+				/*
+				 * !!!! END TEMPORARY !!!!
+				 */
 
 				mHolder.channel.setText( channel.getChannelNumber() );
-				for( Program program : channel.getPrograms() ) {
+				float weightSum = 0.0f;
+				for( Program program : programs ) {
 					Log.v( TAG, "GuideRowAdapter.getView : program iteration" );
-
-					StringBuilder ally = new StringBuilder();
-					ally.append( DateUtils.timeFormatter.print( program.getStartTime() ) ).append( " " );
-					ally.append( "Title: " ).append( program.getTitle() ).append( " " );
-					ally.append( "Description: " ).append( program.getSubTitle() );
 
 					LinearLayout timeslot = (LinearLayout) new LinearLayout( mContext ); 
 					LayoutParams lParams = new LayoutParams( LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT );
-					lParams.weight = 0.5f;
+					lParams.weight = getProgramDurationLayoutWeight(program);
+					weightSum += lParams.weight;
 					timeslot.setLayoutParams(lParams); 
 					timeslot.setOrientation( LinearLayout.HORIZONTAL );
 
@@ -218,7 +250,7 @@ public class GuidePagerFragment extends MythtvListFragment {
 					title.setEllipsize( TruncateAt.END );
 					title.setSingleLine( true );
 					title.setHorizontallyScrolling( true );
-					title.setContentDescription( ally );
+					title.setContentDescription( program.getTitle() );
 					details.addView( title );
 
 					TextView description = (TextView)  new TextView( mContext );
@@ -236,10 +268,61 @@ public class GuidePagerFragment extends MythtvListFragment {
 
 					mHolder.timeSlotContainer.addView( timeslot );
 				}
+				
+				mHolder.timeSlotContainer.setWeightSum(weightSum);
 			}
 			
 			Log.v( TAG, "GuideRowAdapter.getView : exit" );
 			return convertView;
+		}
+		
+		/**
+		 * Calculates the layout weight a program should have for the
+		 * current timeslot.
+		 * 
+		 * @author Thomas G. Kenny Jr
+		 * @param program
+		 * @return
+		 */
+		private float getProgramDurationLayoutWeight(Program program) {
+			
+			//get the program total duration in milliseconds
+			long programDurationMillis = program.getEndTime().getMillis() - program.getStartTime().getMillis();
+			
+			//ignore program duration before current timeslot
+			if(program.getStartTime().isBefore(startTime)){ 
+				programDurationMillis -= startTime.minus(program.getStartTime().getMillis()).getMillis();
+			}
+			
+			//ignore program duration after current time slot
+			if(program.getEndTime().isAfter(endTime)){
+				programDurationMillis -= program.getEndTime().minus(endTime.getMillis()).getMillis();
+			}
+			
+			// calculate percentage of timeslot milliseconds.
+			// Round to the nearest 100th.
+			// protect against divide by 0
+			float weight = timeSlotLengthMillis != 0 ? Math
+					.round(((float) programDurationMillis / (float) timeSlotLengthMillis) * 100.00f) / 100.00f
+					: 0;
+					
+			//if we got a weight <= 0 then set it to 1%.
+			weight = weight > 0 ? weight : 0.01f;
+			
+			//invert
+			weight = 1.0f - weight;
+			
+//			//debug
+//			Log.d(TAG, "Show Title: " + program.getTitle());
+//			Log.d(TAG, "timeslotlength: " + timeSlotLengthMillis);
+//			Log.d(TAG, "Show duration in current timeslot: " + programDurationMillis);
+//			Log.d(TAG, "P starttime: " + program.getStartTime().getMillis());
+//			Log.d(TAG, "P endtime: " + program.getEndTime().getMillis());
+//			Log.d(TAG, "P Diff: " + (program.getEndTime().getMillis() - program.getStartTime().getMillis()));
+//			Log.d(TAG, "Weight: " + weight);
+			
+			//done
+			return weight;
 		}
 
 		private class ViewHolder {
