@@ -195,9 +195,10 @@ public class GuidePagerFragment extends MythtvListFragment {
 					ally.append( "Description: " ).append( program.getSubTitle() );
 
 					LinearLayout timeslot = (LinearLayout) new LinearLayout( mContext ); 
-					timeslot.setLayoutParams( new LayoutParams( LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT ) ); 
+					LayoutParams lParams = new LayoutParams( LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT );
+					lParams.weight = 0.5f;
+					timeslot.setLayoutParams(lParams); 
 					timeslot.setOrientation( LinearLayout.HORIZONTAL );
-					timeslot.setWeightSum( .5f );
 
 					View category = (View) new View( mContext );
 					category.setLayoutParams( new LayoutParams( 10, LayoutParams.MATCH_PARENT ) ); 
