@@ -21,7 +21,11 @@ package org.mythtv.client.ui.frontends;
 
 import org.mythtv.R;
 
+import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
+import android.app.ActionBar;
 import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.util.Log;
@@ -58,6 +62,20 @@ public class MythmoteActivity extends AbstractFrontendsActivity {
 		}
 
 		Log.v( TAG, "onCreate : exit" );
+	}
+
+	@Override
+	@TargetApi( 11 )
+	protected void setupActionBar() {
+		super.setupActionBar();
+		Log.v( TAG, "MythmoteActivity.setupActionBar : enter" );
+
+		if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
+			ActionBar actionBar = getActionBar();
+			actionBar.setTitle(R.string.frontends_title);
+		}
+		
+		Log.v( TAG, "MythmoteActivity.setupActionBar : exit" );
 	}
 
 	@Override

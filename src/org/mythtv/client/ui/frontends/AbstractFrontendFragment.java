@@ -26,9 +26,11 @@ import org.mythtv.R;
 import org.mythtv.client.MainApplication;
 import org.mythtv.services.api.frontend.FrontendStatus;
 
+import android.app.AlertDialog;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 
 /**
  * @author pot8oe
@@ -36,6 +38,7 @@ import android.support.v4.app.Fragment;
  */
 public class AbstractFrontendFragment extends Fragment {
 	
+	private final static String TAG = "AbstractFrontendFragment";
 	private final static int STATUS_CHECK_INTERVAL_MS = 10000;
 	
 	protected static GetStatusTask sGetStatusTask;
@@ -51,22 +54,22 @@ public class AbstractFrontendFragment extends Fragment {
 			//kick it off with a status request
 			final FrontendsFragment frontends = (FrontendsFragment) getFragmentManager().findFragmentById( R.id.frontends_fragment );
 			final Frontend fe = frontends.getSelectedFrontend();
-			sGetStatusTask.execute(fe.getUrl());
+			//sGetStatusTask.execute(fe.getUrl());
 		}
 		
 		//create only one status timer
 		if(null == sStatusTimer){
 			sStatusTimer = new Timer();
-			sStatusTimer.schedule(new TimerTask(){
-
-				@Override
-				public void run() {
-					final FrontendsFragment frontends = (FrontendsFragment) getFragmentManager().findFragmentById( R.id.frontends_fragment );
-					final Frontend fe = frontends.getSelectedFrontend();
-					sGetStatusTask.execute(fe.getUrl());
-				}
-				
-			}, STATUS_CHECK_INTERVAL_MS, STATUS_CHECK_INTERVAL_MS);
+//			sStatusTimer.schedule(new TimerTask(){
+//
+//				@Override
+//				public void run() {
+//					final FrontendsFragment frontends = (FrontendsFragment) getFragmentManager().findFragmentById( R.id.frontends_fragment );
+//					final Frontend fe = frontends.getSelectedFrontend();
+//					sGetStatusTask.execute(fe.getUrl());
+//				}
+//				
+//			}, STATUS_CHECK_INTERVAL_MS, STATUS_CHECK_INTERVAL_MS);
 		}
 		
 		super.onCreate(savedInstanceState);
@@ -74,6 +77,20 @@ public class AbstractFrontendFragment extends Fragment {
 	
 	public MainApplication getApplicationContext() {
 		return (MainApplication) getActivity().getApplicationContext();
+	}
+	
+	private void showAlertDialog(final CharSequence title, final CharSequence message){
+		this.getActivity().runOnUiThread(new Runnable(){
+
+			@Override
+			public void run() {
+				AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+				builder.setTitle(title);
+				builder.setMessage(message);
+				builder.show();
+			}
+			
+		});
 	}
 
 	/**
@@ -88,7 +105,14 @@ public class AbstractFrontendFragment extends Fragment {
 		
 		@Override
 		protected Void doInBackground(String... params) {
-			status = getApplicationContext().getMythServicesApi().frontendOperations().getStatus(params[0]);
+
+			try {
+				status = getApplicationContext().getMythServicesApi()
+						.frontendOperations().getStatus(params[0]);
+			} catch (Exception e) {
+				Log.e(TAG, e.getMessage());
+				showAlertDialog("Get Status Error", e.getMessage());
+			}
 			return null;
 		}
 		
@@ -110,7 +134,14 @@ public class AbstractFrontendFragment extends Fragment {
 
 		@Override
 		protected Void doInBackground(String... params) {
-			getApplicationContext().getMythServicesApi().frontendOperations().sendMessage(params[0], params[1]);
+
+			try {
+				getApplicationContext().getMythServicesApi()
+						.frontendOperations().sendMessage(params[0], params[1]);
+			} catch (Exception e) {
+				Log.e(TAG, e.getMessage());
+				showAlertDialog("Send Message Error", e.getMessage());
+			}
 			return null;
 		}
 		
@@ -127,7 +158,16 @@ public class AbstractFrontendFragment extends Fragment {
 
 		@Override
 		protected Void doInBackground(String... params) {
-			getApplicationContext().getMythServicesApi().frontendOperations().sendAction(params[0], params[1], null, 0, 0);
+
+			try {
+				getApplicationContext().getMythServicesApi()
+						.frontendOperations()
+						.sendAction(params[0], params[1], null, 0, 0);
+			} catch (Exception e) {
+				Log.e(TAG, e.getMessage());
+				showAlertDialog("Send Action Error", e.getMessage());
+			}
+			
 			return null;
 		}
 		
