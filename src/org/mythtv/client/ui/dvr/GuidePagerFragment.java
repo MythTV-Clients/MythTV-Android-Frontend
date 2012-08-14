@@ -190,39 +190,10 @@ public class GuidePagerFragment extends MythtvListFragment {
 			ChannelInfo channel = getItem( position );
 			if( null != channel && !channel.getPrograms().isEmpty() ) {
 				Log.v( TAG, "GuideRowAdapter.getView : channel retrieved - " + channel.getChannelNumber() );
-				
-				final List<Program> programs = channel.getPrograms();
-				
-				/*  *
-				 * !!!! TEMPORARY !!!!
-				 * 
-				 * I added this sorting to ChannelInfo.setPrograms() method.
-				 * After doing a git pull on the services api repo I can no longer
-				 * build the services jar. 
-				 * 
-				 *  Temporarily putting this here until I have the services api
-				 *  sorted out.
-				 *  */
-				Collections.sort(programs, new Comparator<Program>(){
-
-					@Override
-					public int compare(Program o1, Program o2) {
-						
-						if(o1.equals(o2)) return 0;
-						
-						if(o1.getStartTime().isAfter(o2.getStartTime()))
-							return 1;
-						else
-							return -1;
-						
-					}});
-				/*
-				 * !!!! END TEMPORARY !!!!
-				 */
 
 				mHolder.channel.setText( channel.getChannelNumber() );
 				float weightSum = 0.0f;
-				for( Program program : programs ) {
+				for( Program program : channel.getPrograms() ) {
 					Log.v( TAG, "GuideRowAdapter.getView : program iteration" );
 
 					LinearLayout timeslot = (LinearLayout) new LinearLayout( mContext ); 
