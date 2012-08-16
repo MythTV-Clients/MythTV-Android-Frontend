@@ -224,7 +224,15 @@ public class GuidePagerFragment extends MythtvListFragment {
 					title.setContentDescription( program.getTitle() );
 					
 					if( null != program.getRecording() ) {
+						if( 4 == program.getRecording().getStatus() ) {
+							title.setTextColor( Color.BLUE );
+						}
+
 						if( -1 == program.getRecording().getStatus() ) {
+							title.setTextColor( Color.GREEN );
+						}
+
+						if( -2 == program.getRecording().getStatus() ) {
 							title.setTextColor( Color.RED );
 						}
 					}
