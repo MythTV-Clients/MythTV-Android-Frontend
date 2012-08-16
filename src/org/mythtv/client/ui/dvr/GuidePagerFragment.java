@@ -33,6 +33,7 @@ import org.mythtv.services.api.dvr.Program;
 import org.mythtv.services.api.guide.ProgramGuideWrapper;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils.TruncateAt;
@@ -221,6 +222,13 @@ public class GuidePagerFragment extends MythtvListFragment {
 					title.setSingleLine( true );
 					title.setHorizontallyScrolling( true );
 					title.setContentDescription( program.getTitle() );
+					
+					if( null != program.getRecording() ) {
+						if( -1 == program.getRecording().getStatus() ) {
+							title.setTextColor( Color.RED );
+						}
+					}
+					
 					details.addView( title );
 
 					TextView description = (TextView)  new TextView( mContext );
