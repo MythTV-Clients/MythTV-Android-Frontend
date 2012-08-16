@@ -30,6 +30,7 @@ import org.mythtv.R;
 import org.mythtv.client.ui.util.MythtvListFragment;
 import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.service.dvr.DvrServiceHelper;
+import org.mythtv.services.api.ETagInfo;
 
 import android.annotation.TargetApi;
 import android.content.BroadcastReceiver;
@@ -424,8 +425,8 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 
 			try {
 				Log.v( TAG, "doInBackground : lookup" );
-
-				byte[] bytes = getApplicationContext().getMythServicesApi().contentOperations().getRecordingArtwork( BANNER_TYPE, inetref, -1, -1, -1, null );
+				ETagInfo eTag = ETagInfo.createEmptyETag();
+				byte[] bytes = getApplicationContext().getMythServicesApi().contentOperations().getRecordingArtwork( BANNER_TYPE, inetref, -1, -1, -1, eTag );
 				bitmap = BitmapFactory.decodeByteArray( bytes, 0, bytes.length );
 			} catch( Exception e ) {
 				Log.v( TAG, "doInBackground : error" );

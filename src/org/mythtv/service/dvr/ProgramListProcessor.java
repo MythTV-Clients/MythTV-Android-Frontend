@@ -24,6 +24,7 @@ import org.mythtv.db.dvr.ProgramConstants.ProgramType;
 import org.mythtv.service.AbstractMythtvProcessor;
 import org.mythtv.service.util.NotificationHelper;
 import org.mythtv.service.util.NotificationHelper.NotificationType;
+import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.dvr.Program;
 import org.mythtv.services.api.dvr.ProgramList;
 import org.springframework.http.ResponseEntity;
@@ -71,8 +72,8 @@ public class ProgramListProcessor extends AbstractMythtvProcessor {
 
 		String message = "Retrieving Recorded Programs";
 		mNotificationHelper.createNotification( "Mythtv for Android", message, NotificationType.UPLOAD );
-		
-		ResponseEntity<ProgramList> entity = application.getMythServicesApi().dvrOperations().getRecordedListResponseEntity( null );
+		ETagInfo eTag = ETagInfo.createEmptyETag();
+		ResponseEntity<ProgramList> entity = application.getMythServicesApi().dvrOperations().getRecordedListResponseEntity( eTag );
 		if( Log.isLoggable( TAG, Log.INFO ) ) {
 			Log.i( TAG, "getRecordedList : entity status code = " + entity.getStatusCode().toString() );
 		}
@@ -84,6 +85,7 @@ public class ProgramListProcessor extends AbstractMythtvProcessor {
 				Log.v( TAG, "getRecordedList : updated=" + updated );
 
 				message = "Updating Recorded Programs";
+				
 				mNotificationHelper.createNotification( "Mythtv for Android", message, NotificationType.UPLOAD );
 				processProgramList( entity.getBody(), ProgramConstants.ProgramType.RECORDED );
 				break;
@@ -101,8 +103,8 @@ public class ProgramListProcessor extends AbstractMythtvProcessor {
 
 		String message = "Retrieving Upcoming Programs";
 		mNotificationHelper.createNotification( "Mythtv for Android", message, NotificationType.UPLOAD );
-
-		ResponseEntity<ProgramList> entity = application.getMythServicesApi().dvrOperations().getUpcomingListResponseEntity( null );
+		ETagInfo eTag = ETagInfo.createEmptyETag();
+		ResponseEntity<ProgramList> entity = application.getMythServicesApi().dvrOperations().getUpcomingListResponseEntity( eTag );
 		if( Log.isLoggable( TAG, Log.DEBUG ) ) {
 			Log.d( TAG, "getUpcomingList : entity status code = " + entity.getStatusCode().toString() );
 		}

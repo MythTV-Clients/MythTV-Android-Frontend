@@ -23,6 +23,7 @@ import java.util.Timer;
 
 import org.mythtv.R;
 import org.mythtv.client.MainApplication;
+import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.frontend.FrontendStatus;
 
 import android.app.AlertDialog;
@@ -106,8 +107,9 @@ public class AbstractFrontendFragment extends Fragment {
 		protected Void doInBackground(String... params) {
 
 			try {
+				ETagInfo eTag = ETagInfo.createEmptyETag();
 				status = getApplicationContext().getMythServicesApi()
-						.frontendOperations().getStatus( params[0], null );
+						.frontendOperations().getStatus( params[0], eTag );
 			} catch (Exception e) {
 				Log.e(TAG, e.getMessage());
 				showAlertDialog("Get Status Error", e.getMessage());

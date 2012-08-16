@@ -28,6 +28,7 @@ import org.mythtv.service.dvr.ProgramProcessor;
 import org.mythtv.service.util.DateUtils;
 import org.mythtv.service.util.NotificationHelper;
 import org.mythtv.service.util.NotificationHelper.NotificationType;
+import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.channel.ChannelInfo;
 import org.mythtv.services.api.guide.ProgramGuide;
 import org.mythtv.services.api.guide.ProgramGuideWrapper;
@@ -98,8 +99,8 @@ public class GuideProcessor extends AbstractMythtvProcessor {
 				String message = "Retrieving Program Guide for " + endDate;
 				sendNotificationCallbackMessage( notifyCallback, message );
 				mNotificationHelper.createNotification( "Mythtv for Android", message, NotificationType.UPLOAD );
-
-				entity = application.getMythServicesApi().guideOperations().getProgramGuideResponseEntity( new DateTime( start ), new DateTime( end ), 1, -1, Boolean.TRUE, null );
+				ETagInfo eTag = ETagInfo.createEmptyETag();
+				entity = application.getMythServicesApi().guideOperations().getProgramGuideResponseEntity( new DateTime( start ), new DateTime( end ), 1, -1, Boolean.TRUE, eTag );
 				if( null != entity ) {
 					switch( entity.getStatusCode() ) {
 						case OK :

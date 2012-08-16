@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.mythtv.client.MainApplication;
+import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.capture.CaptureCard;
 
 import android.content.Intent;
@@ -173,7 +174,8 @@ public class CaptureCardsListFragment extends ListFragment {
 				Log.v( TAG, "DownloadCaptureCardsTask.doInBackground : exit" );
 
 				MainApplication mainApplication = (MainApplication) getActivity().getApplicationContext();
-				return mainApplication.getMythServicesApi().captureOperations().getCaptureCardList( null );
+				ETagInfo eTag = ETagInfo.createEmptyETag();
+				return mainApplication.getMythServicesApi().captureOperations().getCaptureCardList( eTag );
 			} catch( Exception e ) {
 				Log.e( TAG, "DownloadCaptureCardsTask.doInBackground : error", e );
 			}
