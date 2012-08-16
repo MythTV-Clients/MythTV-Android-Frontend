@@ -425,7 +425,7 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 			try {
 				Log.v( TAG, "doInBackground : lookup" );
 
-				byte[] bytes = getApplicationContext().getMythServicesApi().contentOperations().getRecordingArtwork( BANNER_TYPE, inetref, -1, -1, -1 );
+				byte[] bytes = getApplicationContext().getMythServicesApi().contentOperations().getRecordingArtwork( BANNER_TYPE, inetref, -1, -1, -1, null );
 				bitmap = BitmapFactory.decodeByteArray( bytes, 0, bytes.length );
 			} catch( Exception e ) {
 				Log.v( TAG, "doInBackground : error" );

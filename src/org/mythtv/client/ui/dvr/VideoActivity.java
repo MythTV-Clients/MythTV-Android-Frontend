@@ -272,7 +272,7 @@ public class VideoActivity extends AbstractDvrActivity {
 				//while (lookup.getStatusInt() < 2 || lookup.getPercentComplete() < 1){
 				while (lookup.getStatusInt() < 2 || lookup.getCurrentSegment() <= 2){
 					Thread.sleep(5000);
-					lookup = getMainApplication().getMythServicesApi().contentOperations().getLiveStream(info.getId());
+					lookup = getMainApplication().getMythServicesApi().contentOperations().getLiveStream( info.getId(), null );
 				}
 			} catch( Exception e ) {
 				Log.v( TAG, "UpdateStreamInfoTask : error" );

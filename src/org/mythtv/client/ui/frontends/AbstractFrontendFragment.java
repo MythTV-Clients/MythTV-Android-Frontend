@@ -20,7 +20,6 @@
 package org.mythtv.client.ui.frontends;
 
 import java.util.Timer;
-import java.util.TimerTask;
 
 import org.mythtv.R;
 import org.mythtv.client.MainApplication;
@@ -108,7 +107,7 @@ public class AbstractFrontendFragment extends Fragment {
 
 			try {
 				status = getApplicationContext().getMythServicesApi()
-						.frontendOperations().getStatus(params[0]);
+						.frontendOperations().getStatus( params[0], null );
 			} catch (Exception e) {
 				Log.e(TAG, e.getMessage());
 				showAlertDialog("Get Status Error", e.getMessage());

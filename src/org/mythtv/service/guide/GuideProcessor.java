@@ -99,7 +99,7 @@ public class GuideProcessor extends AbstractMythtvProcessor {
 				sendNotificationCallbackMessage( notifyCallback, message );
 				mNotificationHelper.createNotification( "Mythtv for Android", message, NotificationType.UPLOAD );
 
-				entity = application.getMythServicesApi().guideOperations().getProgramGuideResponseEntity( new DateTime( start ), new DateTime( end ), 1, -1, Boolean.TRUE );
+				entity = application.getMythServicesApi().guideOperations().getProgramGuideResponseEntity( new DateTime( start ), new DateTime( end ), 1, -1, Boolean.TRUE, null );
 				if( null != entity ) {
 					switch( entity.getStatusCode() ) {
 						case OK :

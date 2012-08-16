@@ -20,7 +20,6 @@
 package org.mythtv.client.ui.dvr;
 
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import org.joda.time.DateTime;
@@ -316,7 +315,7 @@ public class GuidePagerFragment extends MythtvListFragment {
 				Log.v( TAG, "GuideRowAdapter.DownloadProgramGuideTask.doInBackground : downloading program guide between " + DateUtils.dateTimeFormatter.print( startTime ) + " and "  + DateUtils.dateTimeFormatter.print( endTime ) );
 				
 				Log.v( TAG, "GuideRowAdapter.DownloadProgramGuideTask.doInBackground : exit" );
-				return ( (MainApplication) mContext.getApplicationContext() ).getMythServicesApi().guideOperations().getProgramGuide( startTime, endTime, 1, -1, Boolean.FALSE );
+				return ( (MainApplication) mContext.getApplicationContext() ).getMythServicesApi().guideOperations().getProgramGuide( startTime, endTime, 1, -1, Boolean.FALSE, null );
 			}
 
 			/* (non-Javadoc)

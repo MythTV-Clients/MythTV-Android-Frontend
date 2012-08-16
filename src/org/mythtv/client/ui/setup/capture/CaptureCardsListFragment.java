@@ -173,7 +173,7 @@ public class CaptureCardsListFragment extends ListFragment {
 				Log.v( TAG, "DownloadCaptureCardsTask.doInBackground : exit" );
 
 				MainApplication mainApplication = (MainApplication) getActivity().getApplicationContext();
-				return mainApplication.getMythServicesApi().captureOperations().getCaptureCardList();
+				return mainApplication.getMythServicesApi().captureOperations().getCaptureCardList( null );
 			} catch( Exception e ) {
 				Log.e( TAG, "DownloadCaptureCardsTask.doInBackground : error", e );
 			}
