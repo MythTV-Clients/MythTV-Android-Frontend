@@ -28,6 +28,7 @@ package org.mythtv.client.ui.dvr;
 import org.mythtv.R;
 import org.mythtv.client.ui.preferences.PlaybackProfile;
 import org.mythtv.db.dvr.ProgramConstants;
+import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.content.LiveStreamInfo;
 
 import android.app.AlertDialog;
@@ -272,7 +273,8 @@ public class VideoActivity extends AbstractDvrActivity {
 				//while (lookup.getStatusInt() < 2 || lookup.getPercentComplete() < 1){
 				while (lookup.getStatusInt() < 2 || lookup.getCurrentSegment() <= 2){
 					Thread.sleep(5000);
-					lookup = getMainApplication().getMythServicesApi().contentOperations().getLiveStream( info.getId(), null );
+					ETagInfo eTag = ETagInfo.createEmptyETag();
+					lookup = getMainApplication().getMythServicesApi().contentOperations().getLiveStream( info.getId(), eTag );
 				}
 			} catch( Exception e ) {
 				Log.v( TAG, "UpdateStreamInfoTask : error" );
