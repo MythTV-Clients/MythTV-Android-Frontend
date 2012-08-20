@@ -24,7 +24,8 @@
 	<item 
 	    android:id="@+id/menu_frontends" 
 	    android:showAsAction="ifRoom" 
-	    android:title="@string/frontends_title" />
+	    android:title="@string/frontends_title"
+	    android:icon="@drawable/ic_menu_mythmote_default" />
     <item 
 	    android:id="@+id/menu_setup" 
 	    android:title="@string/menu_setup" />

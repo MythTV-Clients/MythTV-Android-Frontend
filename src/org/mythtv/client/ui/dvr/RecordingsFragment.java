@@ -206,6 +206,7 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 		super.onCreateOptionsMenu( menu, inflater );
 
 		MenuItem refresh = menu.add( Menu.NONE, REFRESH_ID, Menu.NONE, "Refresh" );
+		refresh.setIcon( R.drawable.ic_menu_refresh_default );
 	    if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
 	    	refresh.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
 	    }
