@@ -35,6 +35,7 @@ import org.mythtv.services.api.guide.ProgramGuideWrapper;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils.TruncateAt;
@@ -217,6 +218,7 @@ public class GuidePagerFragment extends MythtvListFragment {
 					title.setLayoutParams( new LayoutParams( LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT ) ); 
 					title.setText( program.getTitle() );
 					title.setTextSize( TypedValue.COMPLEX_UNIT_DIP, 12.0f );
+					title.setTypeface(Typeface.DEFAULT_BOLD);
 					title.setTextColor( textColor );
 					title.setPadding( 8, 4, 8, 1 );
 					title.setEllipsize( TruncateAt.END );
@@ -239,18 +241,35 @@ public class GuidePagerFragment extends MythtvListFragment {
 					}
 					
 					details.addView( title );
+					
+					
+					
+					TextView textViewTime = (TextView)  new TextView( mContext );
+					textViewTime.setLayoutParams( new LayoutParams( LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT ) ); 
+					textViewTime.setText( this.utcToLocal(program.getStartTime()).toString("hh:mm") + 
+							" - " + this.utcToLocal(program.getEndTime()).toString("hh:mm") );
+					textViewTime.setTextColor( textColor );
+					textViewTime.setTextSize( TypedValue.COMPLEX_UNIT_DIP, 10.0f );
+					textViewTime.setTypeface(Typeface.DEFAULT_BOLD);
+					textViewTime.setPadding( 8, 2, 8, 4 );
+					textViewTime.setEllipsize( TruncateAt.END );
+					textViewTime.setSingleLine( true );
+					textViewTime.setHorizontallyScrolling( true );
+					details.addView( textViewTime );
 
 					TextView description = (TextView)  new TextView( mContext );
 					description.setLayoutParams( new LayoutParams( LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT ) ); 
 					description.setText( program.getSubTitle() );
 					description.setTextColor( textColor );
-					description.setTextSize( TypedValue.COMPLEX_UNIT_DIP, 9.0f );
+					description.setTextSize( TypedValue.COMPLEX_UNIT_DIP, 10.0f );
+					description.setTypeface(Typeface.DEFAULT_BOLD);
 					description.setPadding( 8, 2, 8, 4 );
 					description.setEllipsize( TruncateAt.END );
 					description.setSingleLine( true );
 					description.setHorizontallyScrolling( true );
 					details.addView( description );
-
+					
+					
 					timeslot.addView( details );
 
 					mHolder.timeSlotContainer.addView( timeslot );
@@ -289,8 +308,8 @@ public class GuidePagerFragment extends MythtvListFragment {
 			// calculate percentage of timeslot milliseconds.
 			// Round to the nearest 100th.
 			// protect against divide by 0
-			float weight = timeSlotLengthMillis != 0 ? Math
-					.round(((float) programDurationMillis / (float) timeSlotLengthMillis) * 100.00f) / 100.00f
+			float weight = timeSlotLengthMillis != 0 ? 
+					Math.round(((float) programDurationMillis / (float) timeSlotLengthMillis) * 100.00f) / 100.00f
 					: 0;
 					
 			//if we got a weight <= 0 then set it to 1%.
@@ -310,6 +329,15 @@ public class GuidePagerFragment extends MythtvListFragment {
 			
 			//done
 			return weight;
+		}
+		
+		/**
+		 * Converts the given UTC DateTime to Local DateTime.
+		 * @param dt
+		 * @return
+		 */
+		private DateTime utcToLocal(DateTime dt){
+			return dt.toDateTime(DateTime.now().getZone());
 		}
 
 		private class ViewHolder {
