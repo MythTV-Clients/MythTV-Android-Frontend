@@ -86,7 +86,8 @@
 		<activity 
 			android:name=".client.ui.dvr.UpcomingActivity" />
 		<activity 
-			android:name=".client.ui.dvr.GuideActivity" />
+			android:name=".client.ui.dvr.GuideActivity"
+			android:configChanges="keyboard|keyboardHidden|orientation|screenSize" />
 										
 		<!-- Frontends Activities -->
 		<activity 
