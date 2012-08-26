@@ -216,14 +216,14 @@ public class RecordingRulesFragment extends MythtvListFragment {
 		@Override
 		public View getView( int position, View convertView, ViewGroup parent ) {
 
-			convertView = mInflater.inflate( R.layout.recording_rule_row, parent, false );
+			convertView = mInflater.inflate( R.layout.recording_rules_row, parent, false );
 			ViewHolder mHolder = new ViewHolder();
-			mHolder.detailRow = (LinearLayout) convertView.findViewById( R.id.recording_rule_detail_row );
-			mHolder.category = (View) convertView.findViewById( R.id.recording_rule_category );
-			mHolder.title = (TextView) convertView.findViewById( R.id.recording_rule_title );
-			mHolder.channel = (TextView) convertView.findViewById( R.id.recording_rule_channel );
-			mHolder.type = (TextView) convertView.findViewById( R.id.recording_rule_type );
-			mHolder.last = (TextView) convertView.findViewById( R.id.recording_rule_last );
+			mHolder.detailRow = (LinearLayout) convertView.findViewById( R.id.recording_rules_detail_row );
+			mHolder.category = (View) convertView.findViewById( R.id.recording_rules_category );
+			mHolder.title = (TextView) convertView.findViewById( R.id.recording_rules_title );
+			mHolder.channel = (TextView) convertView.findViewById( R.id.recording_rules_channel );
+			mHolder.type = (TextView) convertView.findViewById( R.id.recording_rules_type );
+			mHolder.last = (TextView) convertView.findViewById( R.id.recording_rules_last );
 			
 			RecRule rule = getItem( position );
 			

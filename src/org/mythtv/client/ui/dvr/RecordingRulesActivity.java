@@ -43,7 +43,7 @@ public class RecordingRulesActivity extends AbstractDvrActivity implements Recor
 		Log.v( TAG, "onCreate : enter" );
 		super.onCreate( savedInstanceState );
 
-		setContentView( R.layout.activity_dvr_recordings );
+		setContentView( R.layout.activity_dvr_recording_rules );
 
 		RecordingRulesFragment recordingRulesFragment = (RecordingRulesFragment) getSupportFragmentManager().findFragmentById( R.id.fragment_dvr_recording_rules );
 		recordingRulesFragment.setOnRecordingRuleListener( this );
@@ -60,15 +60,19 @@ public class RecordingRulesActivity extends AbstractDvrActivity implements Recor
 		
 		if( null != findViewById( R.id.fragment_dvr_recording_rule ) ) {
 			Log.v( TAG, "onRecordingRuleSelected : adding recording rule to pane" );
+
 			FragmentManager manager = getSupportFragmentManager();
 
 			RecordingRuleFragment recordingRuleFragment = (RecordingRuleFragment) manager.findFragmentById( R.id.fragment_dvr_recording_rule );
 			FragmentTransaction transaction = manager.beginTransaction();
 
 			if( null == recordingRuleFragment ) {
-				Log.v( TAG, "onRecordingRuleSelected : creating new programGroupFragment" );
-				recordingRuleFragment = new RecordingRuleFragment();
-			
+				Log.v( TAG, "onRecordingRuleSelected : creating new recordingRuleFragment" );
+				
+				Bundle args = new Bundle();
+				args.putInt( "RECORDING_RULE_ID", recordingRuleId );
+				recordingRuleFragment = RecordingRuleFragment.newInstance( args );
+				
 				transaction
 					.add( R.id.fragment_dvr_recording_rule, recordingRuleFragment )
 					.setTransition( FragmentTransaction.TRANSIT_FRAGMENT_OPEN )

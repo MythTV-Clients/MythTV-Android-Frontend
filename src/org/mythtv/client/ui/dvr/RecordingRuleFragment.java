@@ -5,18 +5,16 @@ package org.mythtv.client.ui.dvr;
 
 import org.mythtv.R;
 import org.mythtv.client.ui.AbstractMythFragment;
-import org.mythtv.service.util.NotificationHelper;
-import org.mythtv.service.util.NotificationHelper.NotificationType;
 import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.dvr.RecRule;
 
+import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.WebView.FindListener;
 import android.widget.TextView;
 
 /**
@@ -27,8 +25,16 @@ public class RecordingRuleFragment extends AbstractMythFragment {
 
 	private static final String TAG = RecordingRuleFragment.class.getSimpleName();
 	
-	private NotificationHelper mNotificationHelper;
-
+	public static RecordingRuleFragment newInstance( Bundle args ) {
+		return new RecordingRuleFragment( args );
+	}
+	
+	private RecordingRuleFragment( Bundle args ) {
+		setArguments( args );
+	}
+	
+	public RecordingRuleFragment() { }
+	
 	/* (non-Javadoc)
 	 * @see android.support.v4.app.Fragment#onCreate(android.os.Bundle)
 	 */
@@ -37,8 +43,15 @@ public class RecordingRuleFragment extends AbstractMythFragment {
 		Log.v( TAG, "onCreate : enter" );
 		super.onCreate( savedInstanceState );
 
-		mNotificationHelper = new NotificationHelper( getActivity() );
-
+		if( null == getActivity() ) {
+			Log.v( TAG, "onCreate : getActivity is null" );
+		}
+		
+		Bundle args = getArguments();
+		int recordingRuleId = args.getInt( "RECORDING_RULE_ID" );
+	
+		loadRecordingRule( recordingRuleId );
+		
 		Log.v( TAG, "onCreate : exit" );
 	}
 
@@ -51,15 +64,47 @@ public class RecordingRuleFragment extends AbstractMythFragment {
 
 		View v = inflater.inflate( R.layout.recording_rule, container, false );
 		
+		if( null == getActivity() ) {
+			Log.v( TAG, "onCreateView : getActivity is null" );
+		}
+		
 		Log.v( TAG, "onCreateView : exit" );
 		return v;
+	}
+
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
+	 */
+	@Override
+	public void onActivityCreated( Bundle savedInstanceState ) {
+		Log.v( TAG, "onActivityCreated : enter" );
+		super.onActivityCreated( savedInstanceState );
+
+		if( null == getActivity() ) {
+			Log.v( TAG, "onActivityCreated : getActivity is null" );
+		}
+		
+		Log.v( TAG, "onActivityCreated : exit" );
+	}
+
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.Fragment#onAttach(android.app.Activity)
+	 */
+	@Override
+	public void onAttach( Activity activity ) {
+		Log.v( TAG, "onAttach : enter" );
+		super.onAttach( activity );
+
+		Log.v( TAG, "onAttach : exit" );
 	}
 
 	public void loadRecordingRule( Integer recordingRuleId ) {
 		Log.v( TAG, "loadRecordingRule : enter" );
 
-		new DownloadRecordingRuleTask().execute( recordingRuleId );
-
+		if( null != getActivity() ) {
+			new DownloadRecordingRuleTask().execute( recordingRuleId );
+		}
+		
 		Log.v( TAG, "loadRecordingRule : exit" );
 	}
 	
@@ -85,9 +130,6 @@ public class RecordingRuleFragment extends AbstractMythFragment {
 			
 			Integer id = params[ 0 ];
 			
-			String message = "Retrieving Recording Rule " + id.toString();
-			mNotificationHelper.createNotification( "Mythtv for Android", message, NotificationType.UPLOAD );
-
 			ETagInfo etag = ETagInfo.createEmptyETag();
 			return getMainApplication().getMythServicesApi().dvrOperations().getRecordSchedule( id, etag );
 		}
@@ -97,8 +139,6 @@ public class RecordingRuleFragment extends AbstractMythFragment {
 		 */
 		@Override
 		protected void onPostExecute( RecRule result ) {
-			
-			mNotificationHelper.completed();
 			
 			if( null != result ) {
 				setupForm( result );
