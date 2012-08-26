@@ -7,6 +7,7 @@ import org.mythtv.R;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.util.Log;
 
 /**
  * @author Daniel Frey
@@ -14,6 +15,8 @@ import android.content.res.Resources;
  */
 public class ProgramHelper {
 
+	private static String TAG = ProgramHelper.class.getSimpleName();
+	
 	private static enum Category {
 		ACTION( "Action", mResources.getColor( R.color.program_category_Action ) ),
 		ADULT( "Adult", mResources.getColor( R.color.program_category_Adult ) ),
@@ -24,6 +27,7 @@ public class ProgramHelper {
 		COMEDY( "Comedy", mResources.getColor( R.color.program_category_Comedy ) ),
 		COOKING( "Cooking", mResources.getColor( R.color.program_category_Food ) ),
 		CRIME_MYSTERY( "Crime/Mystery", mResources.getColor( R.color.program_category_Crime_Mystery ) ),
+		CRIME_DRAMA( "Crime drama", mResources.getColor( R.color.program_category_Crime_Mystery ) ),
 		DOCUMENTARY( "Documentary", mResources.getColor( R.color.program_category_Documentary ) ),
 		DRAMA( "Drama", mResources.getColor( R.color.program_category_Drama ) ),
 		EDUCATIONAL( "Educational", mResources.getColor( R.color.program_category_Educational ) ),

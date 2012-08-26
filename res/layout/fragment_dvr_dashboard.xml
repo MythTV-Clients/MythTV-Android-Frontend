@@ -42,7 +42,6 @@
     <Button android:id="@+id/dvr_btn_recording_rules"
         style="@style/DashboardButton"
         android:text="@string/btn_recording_rules"
-        android:textColor="@color/body_text_disabled"
         android:drawableTop="@drawable/dvr_btn_recording_rules"
         android:contentDescription="@string/btn_recording_rules_ally" />
     

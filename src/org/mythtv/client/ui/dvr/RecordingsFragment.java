@@ -75,7 +75,6 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 	private ProgramListReceiver programListReceiver;
 
 	private DvrServiceHelper mDvrServiceHelper;
-//	private ProgressDialog mProgressDialog;
 
 	/* (non-Javadoc)
 	 * @see android.support.v4.app.LoaderManager.LoaderCallbacks#onCreateLoader(int, android.os.Bundle)
@@ -109,10 +108,6 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 		
 	    getListView().setFastScrollEnabled( true );
 
-//	    if( null != mProgressDialog ) {
-//	    	mProgressDialog.dismiss();
-//	    }
-	    
 		Log.v( TAG, "onLoadFinished : exit" );
 	}
 

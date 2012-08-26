@@ -88,7 +88,13 @@
 		<activity 
 			android:name=".client.ui.dvr.GuideActivity"
 			android:configChanges="keyboard|keyboardHidden|orientation|screenSize" />
-										
+		<activity 
+			android:name=".client.ui.dvr.RecordingRulesActivity"
+			android:configChanges="keyboard|keyboardHidden|orientation|screenSize" />
+		<activity 
+			android:name=".client.ui.dvr.RecordingRuleActivity"
+			android:configChanges="keyboard|keyboardHidden|orientation|screenSize" />
+														
 		<!-- Frontends Activities -->
 		<activity 
 			android:name=".client.ui.frontends.MythmoteActivity" />

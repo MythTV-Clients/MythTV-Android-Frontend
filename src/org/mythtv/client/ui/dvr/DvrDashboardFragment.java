@@ -101,7 +101,7 @@ public class DvrDashboardFragment extends AbstractMythFragment {
 		    		Toast toast = Toast.makeText( getActivity(), getActivity().getString( R.string.data_loading ), Toast.LENGTH_LONG );
 		    		toast.show();
 				} else {
-//					startActivity( new Intent( getActivity(), GuideActivity.class ) );
+					startActivity( new Intent( getActivity(), RecordingRulesActivity.class ) );
 				}
 
 				Log.v( TAG, "recording_rules.onClick : exit" );

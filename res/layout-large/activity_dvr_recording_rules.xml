@@ -19,9 +19,25 @@
  *
 -->
 
-<fragment xmlns:android="http://schemas.android.com/apk/res/android"
-  	class="org.mythtv.client.ui.dvr.RecordingRulesFragment"
-  	android:id="@+id/fragment_dvr_recording_rules"
-  	android:layout_width="match_parent"
-  	android:layout_height="match_parent"
-/>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:orientation="horizontal"
+  android:weightSum="100"
+>            
+  <fragment
+    class="org.mythtv.client.ui.dvr.RecordingRulesFragment"
+    android:id="@+id/fragment_dvr_recording_rules"
+    android:layout_width="0dip"
+    android:layout_height="match_parent"
+    android:layout_weight="40"
+  />
+  
+  <FrameLayout
+    android:id="@+id/fragment_dvr_recording_rule"
+    android:layout_width="0dip"
+    android:layout_height="match_parent"
+    android:layout_weight="60"
+  />
+  
+</LinearLayout>
