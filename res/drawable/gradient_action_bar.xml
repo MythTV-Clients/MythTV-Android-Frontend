@@ -19,19 +19,13 @@
  *
 -->
 
-<resources xmlns:android="http://schemas.android.com/apk/res/android">
+<shape xmlns:android="http://schemas.android.com/apk/res/android" 
+    android:shape="rectangle"
+    android:dither="true">
 
-	<style name="Theme.Mythtv" parent="android:style/Theme.Holo.Light">
-	    <item name="android:actionBarStyle">@style/Theme.Mythtv.ActionBar</item>
-    </style>
-    
-	<style name="Theme.Mythtv.ActionBar" parent="@android:style/Widget.Holo.Light.ActionBar">
-        <item name="android:background">@drawable/gradient_action_bar</item>
-        <item name="android:titleTextStyle">@style/Theme.Mythtv.ActionBar.Text</item>
-    </style>
-    
-	<style name="Theme.Mythtv.ActionBar.Text" parent="@android:style/TextAppearance">
-        <item name="android:textColor">@color/actionbar_text</item>
-    </style>
-    
-</resources>
+    <gradient
+    	android:startColor="#d1d1d1" 
+    	android:endColor="#c4c4c4"
+    	/>
+
+</shape>
