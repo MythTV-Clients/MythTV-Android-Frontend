@@ -109,7 +109,14 @@
 		<service android:name=".service.dvr.DvrService" />
 		
 		<service android:name=".service.guide.GuideService" />
-				
+		
+		<service android:name=".service.guide.ProgramGuideDownloadService">
+			<intent-filter>
+                <action
+                    android:name="org.mythtv.background.ACTION_DOWNLOAD" />
+            </intent-filter>
+        </service>
+						
 		<!-- MythTV Android Providers -->
 		<provider
             android:name=".provider.MythtvProvider"

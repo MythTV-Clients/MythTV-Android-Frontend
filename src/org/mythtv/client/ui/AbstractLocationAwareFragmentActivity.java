@@ -21,9 +21,9 @@ package org.mythtv.client.ui;
 
 import org.joda.time.DateTime;
 import org.mythtv.client.MainApplication;
-import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.service.guide.GuideService;
 import org.mythtv.service.guide.GuideServiceHelper;
+import org.mythtv.service.guide.ProgramGuideDownloadService;
 import org.mythtv.service.util.DateUtils;
 
 import android.app.AlertDialog;
@@ -33,7 +33,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
@@ -49,6 +48,7 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 
 	private SharedPreferences mythtvPreferences;
 	
+	private ProgramGuideDownloadReceiver programGuideDownloaderReceiver = new ProgramGuideDownloadReceiver();
 	private GuideReceiver guideReceiver;
 	private NotifyReceiver notifyReceiver;
 	
@@ -76,29 +76,46 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 		
 		setupActionBar();
 
-		isGuideDataLoaded = mythtvPreferences.getBoolean( MainApplication.GUIDE_DATA_LOADED, false );
-
-		if( !isGuideDataLoaded ) {
-			Log.v( TAG, "onCreate : guide data not loaded, checking database" );
-
-			Cursor cursor = getContentResolver().query( ProgramConstants.CONTENT_URI, new String[] { ProgramConstants._ID }, ProgramConstants.FIELD_PROGRAM_TYPE + " = ?", new String[] { ProgramConstants.ProgramType.GUIDE.name() }, null );
-			if( cursor.getCount() == 0 ) {
-				Log.v( TAG, "onCreate : guide data not loaded" );
-			
-				isGuideDataLoaded = false;
-			} else {
-				Log.v( TAG, "onCreate : guide data loaded" );
-
-				isGuideDataLoaded = true;
-
-				SharedPreferences.Editor editor = mythtvPreferences.edit();
-				editor.putBoolean( MainApplication.GUIDE_DATA_LOADED, isGuideDataLoaded );
-				editor.commit();
-			}
-			cursor.close();
-		}
+//		isGuideDataLoaded = mythtvPreferences.getBoolean( MainApplication.GUIDE_DATA_LOADED, false );
+//
+//		if( !isGuideDataLoaded ) {
+//			Log.v( TAG, "onCreate : guide data not loaded, checking database" );
+//
+//			Cursor cursor = getContentResolver().query( ProgramConstants.CONTENT_URI, new String[] { ProgramConstants._ID }, ProgramConstants.FIELD_PROGRAM_TYPE + " = ?", new String[] { ProgramConstants.ProgramType.GUIDE.name() }, null );
+//			if( cursor.getCount() == 0 ) {
+//				Log.v( TAG, "onCreate : guide data not loaded" );
+//			
+//				isGuideDataLoaded = false;
+//			} else {
+//				Log.v( TAG, "onCreate : guide data loaded" );
+//
+//				isGuideDataLoaded = true;
+//
+//				SharedPreferences.Editor editor = mythtvPreferences.edit();
+//				editor.putBoolean( MainApplication.GUIDE_DATA_LOADED, isGuideDataLoaded );
+//				editor.commit();
+//			}
+//			cursor.close();
+//		}
 		
 		Log.v( TAG, "onCreate : exit" );
+	}
+
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.FragmentActivity#onStart()
+	 */
+	@Override
+	protected void onStart() {
+		Log.v( TAG, "onStart : enter" );
+		super.onStart();
+
+		IntentFilter programGuideDownloadFilter = new IntentFilter();
+		programGuideDownloadFilter.addAction( ProgramGuideDownloadService.ACTION_PROGRESS );
+		programGuideDownloadFilter.addAction( ProgramGuideDownloadService.ACTION_COMPLETE );
+		programGuideDownloadFilter.setPriority( IntentFilter.SYSTEM_LOW_PRIORITY );
+	    registerReceiver( programGuideDownloaderReceiver, programGuideDownloadFilter );
+	    
+		Log.v( TAG, "onStart : exit" );
 	}
 
 	/* (non-Javadoc)
@@ -109,41 +126,63 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 		Log.v( TAG, "onResume : enter" );
 		super.onResume();
 
-		notifyReceiver = new NotifyReceiver();
-		registerReceiver( notifyReceiver, new IntentFilter( GuideService.BROADCAST_ACTION ) );
-
-		mGuideServiceHelper = GuideServiceHelper.getInstance( this );
-
-		IntentFilter guideFilter = new IntentFilter( GuideServiceHelper.GUIDE_RESULT );
-		guideFilter.setPriority( IntentFilter.SYSTEM_LOW_PRIORITY );
-        guideReceiver = new GuideReceiver();
-        registerReceiver( guideReceiver, guideFilter );
+//		notifyReceiver = new NotifyReceiver();
+//		registerReceiver( notifyReceiver, new IntentFilter( GuideService.BROADCAST_ACTION ) );
+//
+//		mGuideServiceHelper = GuideServiceHelper.getInstance( this );
+//
+//		IntentFilter guideFilter = new IntentFilter( GuideServiceHelper.GUIDE_RESULT );
+//		guideFilter.setPriority( IntentFilter.SYSTEM_LOW_PRIORITY );
+//      guideReceiver = new GuideReceiver();
+//      registerReceiver( guideReceiver, guideFilter );
         
-		isGuideDataLoaded = mythtvPreferences.getBoolean( MainApplication.GUIDE_DATA_LOADED, false );
-
-		if( !isGuideDataLoaded ) {
-			showGuideAlertDialog();
-        } else {
-        	if( !getMainApplication().isDatabaseLoading() ) {
-        		Log.v( TAG, "onResume : data is not currently loading" );
-        		
-        		long storedNext = mythtvPreferences.getLong( MainApplication.NEXT_GUIDE_DATA_LOAD, DateUtils.getYesterday().getMillis() );
-        		
-        		DateTime next = new DateTime( storedNext );
-        		
-        		DateTime now = new DateTime();
-        		
-        		if( now.isAfter( next ) ) {
-        			Log.v( TAG, "onResume : next program guide load date is passed" );
-
-        			mGuideServiceHelper.getGuideList();
-        		} else {
-        			Log.v( TAG, "onResume : next scheduled date is " + DateUtils.dateTimeFormatter.print( next ) );
-        		}
-        	}
-        }
+//		isGuideDataLoaded = mythtvPreferences.getBoolean( MainApplication.GUIDE_DATA_LOADED, false );
+//
+//		if( !isGuideDataLoaded ) {
+//			showGuideAlertDialog();
+//        } else {
+//        	if( !getMainApplication().isDatabaseLoading() ) {
+//        		Log.v( TAG, "onResume : data is not currently loading" );
+//        		
+//        		long storedNext = mythtvPreferences.getLong( MainApplication.NEXT_GUIDE_DATA_LOAD, DateUtils.getYesterday().getMillis() );
+//        		
+//        		DateTime next = new DateTime( storedNext );
+//        		
+//        		DateTime now = new DateTime();
+//        		
+//        		if( now.isAfter( next ) ) {
+//        			Log.v( TAG, "onResume : next program guide load date is passed" );
+//
+//        			mGuideServiceHelper.getGuideList();
+//        		} else {
+//        			Log.v( TAG, "onResume : next scheduled date is " + DateUtils.dateTimeFormatter.print( next ) );
+//        		}
+//        	}
+//        }
         
+		startService( new Intent( ProgramGuideDownloadService.ACTION_DOWNLOAD ) );
+		
 		Log.v( TAG, "onResume : exit" );
+	}
+
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.FragmentActivity#onStop()
+	 */
+	@Override
+	protected void onStop() {
+		Log.v( TAG, "onStop : enter" );
+		super.onStop();
+
+		// Unregister for broadcast
+		if( null != programGuideDownloaderReceiver ) {
+			try {
+				unregisterReceiver( programGuideDownloaderReceiver );
+			} catch( IllegalArgumentException e ) {
+				Log.e( TAG, "onStop : error", e );
+			}
+		}
+
+		Log.v( TAG, "onStop : exit" );
 	}
 
 	/* (non-Javadoc)
@@ -155,21 +194,21 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 		super.onPause();
 
 		// Unregister for broadcast
-		if( null != notifyReceiver ) {
-			try {
-				unregisterReceiver( notifyReceiver );
-			} catch( IllegalArgumentException e ) {
-				Log.e( TAG, e.getLocalizedMessage(), e );
-			}
-		}
-		
-		if( null != guideReceiver ) {
-			try {
-				unregisterReceiver( guideReceiver );
-			} catch( IllegalArgumentException e ) {
-				Log.e( TAG, e.getLocalizedMessage(), e );
-			}
-		}
+//		if( null != notifyReceiver ) {
+//			try {
+//				unregisterReceiver( notifyReceiver );
+//			} catch( IllegalArgumentException e ) {
+//				Log.e( TAG, e.getLocalizedMessage(), e );
+//			}
+//		}
+//		
+//		if( null != guideReceiver ) {
+//			try {
+//				unregisterReceiver( guideReceiver );
+//			} catch( IllegalArgumentException e ) {
+//				Log.e( TAG, e.getLocalizedMessage(), e );
+//			}
+//		}
 
 		Log.v( TAG, "onPause : exit" );
 	}
@@ -251,5 +290,24 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
         }
         
     };
+
+	private class ProgramGuideDownloadReceiver extends BroadcastReceiver {
+
+		@Override
+		public void onReceive( Context context, Intent intent ) {
+			Log.v( TAG, "ProgramGuideDownloadReceiver.onReceive : enter" );
+			
+	        if ( intent.getAction().equals( ProgramGuideDownloadService.ACTION_PROGRESS ) ) {
+	        	Log.i( TAG, "ProgramGuideDownloadReceiver.onReceive : progress=" + intent.getStringExtra( ProgramGuideDownloadService.EXTRA_PROGRESS ) );
+	        }
+	        
+	        if ( intent.getAction().equals( ProgramGuideDownloadService.ACTION_COMPLETE ) ) {
+	        	Log.i( TAG, "ProgramGuideDownloadReceiver.onReceive : complete=" + intent.getStringExtra( ProgramGuideDownloadService.EXTRA_COMPLETE ) );
+	        }
+
+	        Log.v( TAG, "ProgramGuideDownloadReceiver.onReceive : exit" );
+		}
+		
+	}
 
 }
