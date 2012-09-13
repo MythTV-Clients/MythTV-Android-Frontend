@@ -21,6 +21,8 @@ package org.mythtv.service.guide.cache;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
@@ -28,6 +30,8 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.joda.time.DateTime;
 import org.mythtv.service.guide.ProgramGuideDownloadService;
 import org.mythtv.service.util.FileHelper;
+import org.mythtv.services.api.channel.ChannelInfo;
+import org.mythtv.services.api.dvr.Program;
 import org.mythtv.services.api.guide.ProgramGuide;
 
 import android.content.Context;
@@ -90,7 +94,36 @@ public class ProgramGuideLruMemoryCache extends LruCache<DateTime, ProgramGuide>
 		}
 		
 		Log.v( TAG, "create : exit" );
-		return super.create( key );
+		return getDownloadingProgramGuide( key );
 	}
 
+	// internal helpers
+	
+	private static ProgramGuide getDownloadingProgramGuide( DateTime key ) {
+		
+		ProgramGuide guide = new ProgramGuide();
+		
+		List<ChannelInfo> channels = new ArrayList<ChannelInfo>();
+		ChannelInfo channel = new ChannelInfo();
+		channel.setChannelNumber( "" );
+		
+		List<Program> programs = new ArrayList<Program>();
+		Program program = new Program();
+		program.setStartTime( key );
+		program.setEndTime( key.withTime( key.getHourOfDay(), 59, 59, 999 ) );
+		program.setTitle( "Program Guide is currently downloading" );
+		program.setSubTitle( "Please try this timeslot again later." );
+		programs.add( program );
+		
+		channel.setPrograms( programs );
+		channels.add( channel );
+		
+		guide.setChannels( channels );
+		
+		Log.i( TAG, "getDownloadingProgramGuide : guide=" + guide.toString() );
+		
+		return guide;
+
+	}
+	
 }

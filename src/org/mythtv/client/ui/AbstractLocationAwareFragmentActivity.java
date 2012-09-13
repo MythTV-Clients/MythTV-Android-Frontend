@@ -19,12 +19,11 @@
  */
 package org.mythtv.client.ui;
 
-import org.joda.time.DateTime;
 import org.mythtv.client.MainApplication;
+import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.service.guide.GuideService;
 import org.mythtv.service.guide.GuideServiceHelper;
 import org.mythtv.service.guide.ProgramGuideDownloadService;
-import org.mythtv.service.util.DateUtils;
 
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
@@ -33,6 +32,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
@@ -81,8 +81,8 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 //		if( !isGuideDataLoaded ) {
 //			Log.v( TAG, "onCreate : guide data not loaded, checking database" );
 //
-//			Cursor cursor = getContentResolver().query( ProgramConstants.CONTENT_URI, new String[] { ProgramConstants._ID }, ProgramConstants.FIELD_PROGRAM_TYPE + " = ?", new String[] { ProgramConstants.ProgramType.GUIDE.name() }, null );
-//			if( cursor.getCount() == 0 ) {
+			Cursor cursor = getContentResolver().query( ProgramConstants.CONTENT_URI, new String[] { ProgramConstants._ID }, ProgramConstants.FIELD_PROGRAM_TYPE + " = ?", new String[] { ProgramConstants.ProgramType.GUIDE.name() }, null );
+			if( cursor.moveToFirst()) {
 //				Log.v( TAG, "onCreate : guide data not loaded" );
 //			
 //				isGuideDataLoaded = false;
@@ -94,8 +94,8 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 //				SharedPreferences.Editor editor = mythtvPreferences.edit();
 //				editor.putBoolean( MainApplication.GUIDE_DATA_LOADED, isGuideDataLoaded );
 //				editor.commit();
-//			}
-//			cursor.close();
+			}
+			cursor.close();
 //		}
 		
 		Log.v( TAG, "onCreate : exit" );
@@ -295,7 +295,7 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 
 		@Override
 		public void onReceive( Context context, Intent intent ) {
-			Log.v( TAG, "ProgramGuideDownloadReceiver.onReceive : enter" );
+//			Log.v( TAG, "ProgramGuideDownloadReceiver.onReceive : enter" );
 			
 	        if ( intent.getAction().equals( ProgramGuideDownloadService.ACTION_PROGRESS ) ) {
 	        	Log.i( TAG, "ProgramGuideDownloadReceiver.onReceive : progress=" + intent.getStringExtra( ProgramGuideDownloadService.EXTRA_PROGRESS ) );
@@ -305,7 +305,7 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 	        	Log.i( TAG, "ProgramGuideDownloadReceiver.onReceive : complete=" + intent.getStringExtra( ProgramGuideDownloadService.EXTRA_COMPLETE ) );
 	        }
 
-	        Log.v( TAG, "ProgramGuideDownloadReceiver.onReceive : exit" );
+//	        Log.v( TAG, "ProgramGuideDownloadReceiver.onReceive : exit" );
 		}
 		
 	}

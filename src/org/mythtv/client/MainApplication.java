@@ -203,7 +203,7 @@ public class MainApplication extends Application {
 	 * @return the masterBackend
 	 */
 	public String getMasterBackend() {
-		Log.v( TAG, "getMasterBackend : enter" );
+//		Log.v( TAG, "getMasterBackend : enter" );
 
 		if( null == masterBackend || "".equals( masterBackend ) ) {
 //			Log.v( TAG, "getMasterBackend : masterbackend not set, checking SharedPreferences" );
@@ -212,7 +212,7 @@ public class MainApplication extends Application {
 		}
 //		Log.v( TAG, "getMasterBackend : masterBackend=" + masterBackend );
 		
-		Log.v( TAG, "getMasterBackend : exit" );
+//		Log.v( TAG, "getMasterBackend : exit" );
 		return masterBackend;
 	}
 

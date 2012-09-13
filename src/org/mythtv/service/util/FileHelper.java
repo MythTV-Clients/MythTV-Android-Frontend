@@ -45,7 +45,7 @@ public class FileHelper {
 	}
 	
 	public File getProgramGuideDataDirectory() {
-		Log.v( TAG, "getProgramGuideDataDirectory : enter" );
+//		Log.v( TAG, "getProgramGuideDataDirectory : enter" );
 		
 		File cacheDir = getRootCacheDirectory();
 		if( null != cacheDir && cacheDir.exists() ) {
@@ -54,19 +54,19 @@ public class FileHelper {
 			programGuideDataDirectory.mkdir();
 			
 			if( programGuideDataDirectory.exists() ) {
-				Log.v( TAG, "getProgramGuideDataDirectory : exit" );
+//				Log.v( TAG, "getProgramGuideDataDirectory : exit" );
 
 				return programGuideDataDirectory;
 			}
 			
 		}
 		
-		Log.v( TAG, "getProgramGuideDataDirectory : exit, program guide data directory doesn't exit" );
+//		Log.v( TAG, "getProgramGuideDataDirectory : exit, program guide data directory doesn't exit" );
 		return null;
 	}
 	
 	public File getProgramGuideImagesDataDirectory() {
-		Log.v( TAG, "getProgramGuideImagesDataDirectory : enter" );
+//		Log.v( TAG, "getProgramGuideImagesDataDirectory : enter" );
 		
 		File programGuideDir = getProgramGuideDataDirectory();
 		if( null != programGuideDir && programGuideDir.exists() ) {
@@ -75,19 +75,19 @@ public class FileHelper {
 			programGuideImageDataDirectory.mkdir();
 			
 			if( programGuideImageDataDirectory.exists() ) {
-				Log.v( TAG, "getProgramGuideImageDataDirectory : exit" );
+//				Log.v( TAG, "getProgramGuideImageDataDirectory : exit" );
 
 				return programGuideImageDataDirectory;
 			}
 			
 		}
 		
-		Log.v( TAG, "getProgramGuideImageDataDirectory : exit, program guide image data directory doesn't exit" );
+//		Log.v( TAG, "getProgramGuideImageDataDirectory : exit, program guide image data directory doesn't exit" );
 		return null;
 	}
 	
 	public File getProgramDataDirectory() {
-		Log.v( TAG, "getProgramDataDirectory : enter" );
+//		Log.v( TAG, "getProgramDataDirectory : enter" );
 		
 		File cacheDir = getRootCacheDirectory();
 		if( null != cacheDir && cacheDir.exists() ) {
@@ -96,19 +96,19 @@ public class FileHelper {
 			programDataDirectory.mkdir();
 			
 			if( programDataDirectory.exists() ) {
-				Log.v( TAG, "getProgramDataDirectory : exit" );
+//				Log.v( TAG, "getProgramDataDirectory : exit" );
 
 				return programDataDirectory;
 			}
 			
 		}
 		
-		Log.v( TAG, "getProgramDataDirectory : exit, program data directory doesn't exit" );
+//		Log.v( TAG, "getProgramDataDirectory : exit, program data directory doesn't exit" );
 		return null;
 	}
 	
 	public File getProgramImagesDataDirectory() {
-		Log.v( TAG, "getProgramImagesDataDirectory : enter" );
+//		Log.v( TAG, "getProgramImagesDataDirectory : enter" );
 		
 		File programDir = getProgramDataDirectory();
 		if( null != programDir && programDir.exists() ) {
@@ -117,25 +117,25 @@ public class FileHelper {
 			programImageDataDirectory.mkdir();
 			
 			if( programImageDataDirectory.exists() ) {
-				Log.v( TAG, "getProgramImageDataDirectory : exit" );
+//				Log.v( TAG, "getProgramImageDataDirectory : exit" );
 
 				return programImageDataDirectory;
 			}
 			
 		}
 		
-		Log.v( TAG, "getProgramImageDataDirectory : exit, program image data directory doesn't exit" );
+//		Log.v( TAG, "getProgramImageDataDirectory : exit, program image data directory doesn't exit" );
 		return null;
 	}
 	
 	// internal helpers
 	
 	private File getRootCacheDirectory() {
-		Log.v( TAG, "getRootCacheDirectory : enter" );
+//		Log.v( TAG, "getRootCacheDirectory : enter" );
 		
 		File cacheDir = null;
         if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO ) {
-    		Log.v( TAG, "getRootCacheDirectory : exit, returning froyo+ cache directory" );
+//    		Log.v( TAG, "getRootCacheDirectory : exit, returning froyo+ cache directory" );
 
         	return mContext.getExternalCacheDir();
         
@@ -151,7 +151,7 @@ public class FileHelper {
         		cacheDir = new File( appRoot, "cache" );
         		cacheDir.mkdir();
         		if( cacheDir.exists() ) {
-        			Log.v( TAG, "getRootCacheDirectory : exit, returning pre-froyo cache directory" );
+//        			Log.v( TAG, "getRootCacheDirectory : exit, returning pre-froyo cache directory" );
 
         			return cacheDir;
         		}
@@ -160,7 +160,7 @@ public class FileHelper {
         	
         }
 		
-		Log.v( TAG, "getRootCacheDirectory : exit, cache directory does not exist" );
+//		Log.v( TAG, "getRootCacheDirectory : exit, cache directory does not exist" );
 		return null;
 	}
 

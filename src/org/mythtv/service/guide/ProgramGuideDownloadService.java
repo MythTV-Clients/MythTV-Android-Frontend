@@ -88,22 +88,22 @@ public class ProgramGuideDownloadService extends IntentService {
 	// internal helpers
 	
 	private void download( Intent intent ) {
-		Log.v( TAG, "download : enter" );
+//		Log.v( TAG, "download : enter" );
 		
 		mMainApplication = (MainApplication) ProgramGuideDownloadService.this.getApplicationContext();
 
 		DateTime start = new DateTime();
 		start = start.withTime( 0, 0, 0, 0 );
-		Log.d( TAG, "download : start="+ dateTimeFormatter.print( start ) );
+//		Log.d( TAG, "download : start="+ dateTimeFormatter.print( start ) );
 		
 		int currentHour = 0;
 		int currentDay = 0;
 		
 		for( currentDay = 0; currentDay < MAX_DAYS; currentDay++ ) {
-			Log.v( TAG, "download : currentDay=" + currentDay );
+//			Log.v( TAG, "download : currentDay=" + currentDay );
 			
 			for( currentHour = 0; currentHour < MAX_HOURS; currentHour++ ) {
-				Log.v( TAG, "download : currentHour=" + currentHour );
+//				Log.v( TAG, "download : currentHour=" + currentHour );
 				
 				File programGuideCache = mFileHelper.getProgramGuideDataDirectory();
 				if( programGuideCache.exists() ) {
@@ -115,7 +115,7 @@ public class ProgramGuideDownloadService extends IntentService {
 					File file = new File( programGuideCache, filename );
 					if( !file.exists() ) {
 						DateTime end = start.withTime( start.getHourOfDay(), 59, 59, 999 );
-						Log.d( TAG, "download : starting download for " + sStart + ", end time=" + dateTimeFormatter.print( end ) );
+						Log.i( TAG, "download : starting download for " + sStart + ", end time=" + dateTimeFormatter.print( end ) );
 						
 						ETagInfo etag = ETagInfo.createEmptyETag();
 						ProgramGuideWrapper programGuide = mMainApplication.getMythServicesApi().guideOperations().getProgramGuide( start, end, 1, -1, true, etag );
@@ -123,31 +123,27 @@ public class ProgramGuideDownloadService extends IntentService {
 							
 							try {
 								mapper.writeValue( file, programGuide.getProgramGuide() );
-								
-								progressIntent.putExtra( EXTRA_PROGRESS, "Downloaded file for " + sStart );
 							} catch( JsonGenerationException e ) {
 								Log.e( TAG, "download : JsonGenerationException - error downloading file for " + sStart, e );
 
-								progressIntent.putExtra( EXTRA_PROGRESS, "error downloading file for " + sStart );
+								progressIntent.putExtra( EXTRA_PROGRESS, "error downloading file for " + sStart + ": " + e.getLocalizedMessage() );
+						        sendBroadcast( progressIntent );
 							} catch( JsonMappingException e ) {
 								Log.e( TAG, "download : JsonMappingException - error downloading file for " + sStart, e );
 
-								progressIntent.putExtra( EXTRA_PROGRESS, "error downloading file for " + sStart );
+								progressIntent.putExtra( EXTRA_PROGRESS, "error downloading file for " + sStart + ": " + e.getLocalizedMessage() );
+						        sendBroadcast( progressIntent );
 							} catch( IOException e ) {
 								Log.e( TAG, "download : IOException - error downloading file for " + sStart, e );
 
-								progressIntent.putExtra( EXTRA_PROGRESS, "IOException - error downloading file for " + sStart );
+								progressIntent.putExtra( EXTRA_PROGRESS, "IOException - error downloading file for " + sStart + ": " + e.getLocalizedMessage() );
+						        sendBroadcast( progressIntent );
 							}
 							
 						}
 						
-					} else {
-						Log.d( TAG, "download : file already downloaded for " + sStart );
-
-						progressIntent.putExtra( EXTRA_PROGRESS, "File already downloaded file for " + sStart );
 					}
 					
-			        sendBroadcast( progressIntent );
 				}
 				
 				if( start.getHourOfDay() < MAX_HOURS - 1 ) {
@@ -163,7 +159,7 @@ public class ProgramGuideDownloadService extends IntentService {
 		completeIntent.putExtra( EXTRA_COMPLETE, "Program Guide Download Service Finished" );
 	    sendBroadcast( completeIntent );
 	    
-		Log.v( TAG, "download : exit" );
+//		Log.v( TAG, "download : exit" );
 	}
 	
 }

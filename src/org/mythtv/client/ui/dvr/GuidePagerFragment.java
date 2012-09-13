@@ -182,8 +182,7 @@ public class GuidePagerFragment extends MythtvListFragment {
 		 */
 		@Override
 		public View getView( int position, View convertView, ViewGroup parent ) {
-			Log.v( TAG, "GuideRowAdapter.getView : enter" );
-			Log.v( TAG, "GuideRowAdapter.getView : position=" + position );
+//			Log.v( TAG, "GuideRowAdapter.getView : enter" );
 			
 			convertView = mInflater.inflate( R.layout.guide_row, parent, false );
 			ViewHolder mHolder = new ViewHolder();
@@ -195,12 +194,12 @@ public class GuidePagerFragment extends MythtvListFragment {
 			
 			ChannelInfo channel = getItem( position );
 			if( null != channel && !channel.getPrograms().isEmpty() ) {
-				Log.v( TAG, "GuideRowAdapter.getView : channel retrieved - " + channel.getChannelNumber() );
+//				Log.v( TAG, "GuideRowAdapter.getView : channel retrieved - " + channel.getChannelNumber() );
 
 				mHolder.channel.setText( channel.getChannelNumber() );
 				float weightSum = 0.0f;
 				for( Program program : channel.getPrograms() ) {
-					Log.v( TAG, "GuideRowAdapter.getView : program iteration" );
+//					Log.v( TAG, "GuideRowAdapter.getView : program iteration" );
 
 					LinearLayout timeslot = (LinearLayout) new LinearLayout( mContext ); 
 					LayoutParams lParams = new LayoutParams( LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT );
@@ -245,13 +244,10 @@ public class GuidePagerFragment extends MythtvListFragment {
 					}
 					
 					details.addView( title );
-					
-					
-					
+				
 					TextView textViewTime = (TextView)  new TextView( mContext );
 					textViewTime.setLayoutParams( new LayoutParams( LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT ) ); 
-					textViewTime.setText( this.utcToLocal(program.getStartTime()).toString("hh:mm") + 
-							" - " + this.utcToLocal(program.getEndTime()).toString("hh:mm") );
+					textViewTime.setText( this.utcToLocal(program.getStartTime()).toString("hh:mm") + " - " + this.utcToLocal(program.getEndTime()).toString("hh:mm") );
 					textViewTime.setTextColor( textColor );
 					textViewTime.setTextSize( TypedValue.COMPLEX_UNIT_DIP, 10.0f );
 					textViewTime.setTypeface(Typeface.DEFAULT_BOLD);
@@ -272,8 +268,7 @@ public class GuidePagerFragment extends MythtvListFragment {
 					description.setSingleLine( true );
 					description.setHorizontallyScrolling( true );
 					details.addView( description );
-					
-					
+										
 					timeslot.addView( details );
 
 					mHolder.timeSlotContainer.addView( timeslot );
@@ -282,7 +277,7 @@ public class GuidePagerFragment extends MythtvListFragment {
 				mHolder.timeSlotContainer.setWeightSum(weightSum);
 			}
 			
-			Log.v( TAG, "GuideRowAdapter.getView : exit" );
+//			Log.v( TAG, "GuideRowAdapter.getView : exit" );
 			return convertView;
 		}
 		
