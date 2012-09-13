@@ -137,7 +137,7 @@ public class ProgramListProcessor extends AbstractMythtvProcessor {
 
 			Log.v( TAG, "processProgramList : " + programType.name() + ", count=" + programList.getPrograms().getPrograms().size() );
 
-			getMainApplication().setDatabaseLoading( true );
+//			getMainApplication().setDatabaseLoading( true );
 			
 			int size = programList.getPrograms().getPrograms().size();
 			int count = 0;
@@ -154,7 +154,7 @@ public class ProgramListProcessor extends AbstractMythtvProcessor {
 				mNotificationHelper.progressUpdate( percentage );
 			}
 
-			getMainApplication().setDatabaseLoading( false );
+//			getMainApplication().setDatabaseLoading( false );
 
 		}
 
@@ -170,11 +170,11 @@ public class ProgramListProcessor extends AbstractMythtvProcessor {
 
 			Log.v( TAG, "processProgramListBatch : " + programType.name() + ", count=" + programList.getPrograms().getPrograms().size() );
 
-			getMainApplication().setDatabaseLoading( true );
+//			getMainApplication().setDatabaseLoading( true );
 			
 			programProcessor.batchUpdateProgramContentProvider( programList.getPrograms().getPrograms(), programType );
 			
-			getMainApplication().setDatabaseLoading( false );
+//			getMainApplication().setDatabaseLoading( false );
 
 		}
 

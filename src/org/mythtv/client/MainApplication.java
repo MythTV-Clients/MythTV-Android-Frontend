@@ -50,7 +50,7 @@ public class MainApplication extends Application {
 
 	private MythServicesServiceProvider provider;
 	
-	private boolean databaseLoading;
+//	private boolean databaseLoading;
 	
 	private String location;
 	
@@ -293,16 +293,16 @@ public class MainApplication extends Application {
 	/**
 	 * @return the databaseLoading
 	 */
-	public boolean isDatabaseLoading() {
-		return databaseLoading;
-	}
+//	public boolean isDatabaseLoading() {
+//		return databaseLoading;
+//	}
 
 
 	/**
 	 * @param databaseLoading the databaseLoading to set
 	 */
-	public void setDatabaseLoading( boolean databaseLoading ) {
-		this.databaseLoading = databaseLoading;
-	}
+//	public void setDatabaseLoading( boolean databaseLoading ) {
+//		this.databaseLoading = databaseLoading;
+//	}
 
 }
