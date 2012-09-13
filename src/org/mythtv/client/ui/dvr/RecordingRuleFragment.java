@@ -48,9 +48,11 @@ public class RecordingRuleFragment extends AbstractMythFragment {
 		}
 		
 		Bundle args = getArguments();
-		int recordingRuleId = args.getInt( "RECORDING_RULE_ID" );
-	
-		loadRecordingRule( recordingRuleId );
+		
+		if(null!=args){
+			int recordingRuleId = args.getInt( "RECORDING_RULE_ID" );
+			loadRecordingRule( recordingRuleId );
+		}
 		
 		Log.v( TAG, "onCreate : exit" );
 	}
