@@ -93,15 +93,15 @@ public class MainApplication extends Application {
     // Public methods
     //***************************************
 	public MythServices getMythServicesApi() {
-		Log.v( TAG, "getMythServicesApi : enter" );
+//		Log.v( TAG, "getMythServicesApi : enter" );
 
 		if( null == provider ) {
-			Log.v( TAG, "getMythServicesApi : initializing MythServicesServiceProvider" );
+//			Log.v( TAG, "getMythServicesApi : initializing MythServicesServiceProvider" );
 
 			provider = new MythServicesServiceProvider( getMasterBackend() );
 		}
 		
-		Log.v( TAG, "getMythServicesApi : exit" );
+//		Log.v( TAG, "getMythServicesApi : exit" );
 		return provider.getApi();
 	}
 
@@ -109,8 +109,8 @@ public class MainApplication extends Application {
 	 * @return the selectedHomeLocationProfile
 	 */
 	public LocationProfile getSelectedHomeLocationProfile() {
-		Log.v( TAG, "getSelectedHomeLocationProfile : enter" );
-		Log.v( TAG, "getSelectedHomeLocationProfile : exit" );
+//		Log.v( TAG, "getSelectedHomeLocationProfile : enter" );
+//		Log.v( TAG, "getSelectedHomeLocationProfile : exit" );
 		return selectedHomeLocationProfile;
 	}
 
@@ -118,30 +118,30 @@ public class MainApplication extends Application {
 	 * @param selectedHomeLocationProfile the selectedHomeLocationProfile to set
 	 */
 	public void setSelectedHomeLocationProfile( LocationProfile selectedHomeLocationProfile ) {
-		Log.v( TAG, "setSelectedHomeLocationProfile : enter" );
+//		Log.v( TAG, "setSelectedHomeLocationProfile : enter" );
 
 		this.selectedHomeLocationProfile = selectedHomeLocationProfile;
 
-		Log.v( TAG, "setSelectedHomeLocationProfile : exit" );
+//		Log.v( TAG, "setSelectedHomeLocationProfile : exit" );
 	}
 
 	/**
 	 * 
 	 */
 	public void connectSelectedHomeLocationProfile() {
-		Log.v( TAG, "connectSelectedHomeLocationProfile : enter" );
+//		Log.v( TAG, "connectSelectedHomeLocationProfile : enter" );
 
 		setMasterBackend( getSelectedHomeLocationProfile().getUrl() );
 
-		Log.v( TAG, "connectSelectedHomeLocationProfile : exit" );
+//		Log.v( TAG, "connectSelectedHomeLocationProfile : exit" );
 	}
 	
 	/**
 	 * @return the selectedAwayLocationProfile
 	 */
 	public LocationProfile getSelectedAwayLocationProfile() {
-		Log.v( TAG, "getSelectedAwayLocationProfile : enter" );
-		Log.v( TAG, "getSelectedAwayLocationProfile : exit" );
+//		Log.v( TAG, "getSelectedAwayLocationProfile : enter" );
+//		Log.v( TAG, "getSelectedAwayLocationProfile : exit" );
 		return selectedAwayLocationProfile;
 	}
 
@@ -149,22 +149,22 @@ public class MainApplication extends Application {
 	 * @param selectedAwayLocationProfile the selectedAwayLocationProfile to set
 	 */
 	public void setSelectedAwayLocationProfile( LocationProfile selectedAwayLocationProfile ) {
-		Log.v( TAG, "setSelectedAwayLocationProfile : enter" );
+//		Log.v( TAG, "setSelectedAwayLocationProfile : enter" );
 		
 		this.selectedAwayLocationProfile = selectedAwayLocationProfile;
 
-		Log.v( TAG, "setSelectedAwayLocationProfile : exit" );
+//		Log.v( TAG, "setSelectedAwayLocationProfile : exit" );
 	}
 
 	/**
 	 * 
 	 */
 	public void connectSelectedAwayLocationProfile() {
-		Log.v( TAG, "connectSelectedAwayLocation : enter" );
+//		Log.v( TAG, "connectSelectedAwayLocation : enter" );
 		
 		setMasterBackend( getSelectedAwayLocationProfile().getUrl() );
 
-		Log.v( TAG, "connectSelectedAwayLocation : exit" );
+//		Log.v( TAG, "connectSelectedAwayLocation : exit" );
 	}
 	
 	/**
@@ -233,16 +233,16 @@ public class MainApplication extends Application {
 	}
 
 	public void clearMasterBackend() {
-		Log.v( TAG, "clearMasterBackend : enter" );
+//		Log.v( TAG, "clearMasterBackend : enter" );
 
-		Log.v( TAG, "clearMasterBackend : removing masterbackend in SharedPreferences" );
+//		Log.v( TAG, "clearMasterBackend : removing masterbackend in SharedPreferences" );
 		SharedPreferences.Editor editor = mythtvPreferences.edit();
 		editor.remove( MASTER_BACKEND );
 		editor.commit();
 
 		masterBackend = null;
 		
-		Log.v( TAG, "clearMasterBackend : enter" );
+//		Log.v( TAG, "clearMasterBackend : enter" );
 	}
 
 	/**
