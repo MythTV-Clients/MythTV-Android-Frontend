@@ -18,12 +18,12 @@
  * This software can be found at <https://github.com/MythTV-Android/mythtv-for-android/>
  *
 -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:orientation="vertical" >
+<!-- <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" -->
+<!--     android:layout_width="fill_parent" -->
+<!--     android:layout_height="fill_parent" -->
+<!--     android:orientation="vertical" > -->
     
-	<LinearLayout
+	<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     	android:id="@+id/recording_rules_detail_row"
     	android:layout_width="fill_parent"
     	android:layout_height="wrap_content"
@@ -85,4 +85,4 @@
 			
 	</LinearLayout>
 
-</LinearLayout>
+<!-- </LinearLayout> -->
