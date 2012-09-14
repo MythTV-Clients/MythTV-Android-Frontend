@@ -80,7 +80,7 @@ public class GuideProcessor extends AbstractMythtvProcessor {
 	public void getProgramGuide( GuideProcessorCallback guideCallback, NotifyCallback notifyCallback ) {
 		Log.v( TAG, "getGuide : enter" );
 
-		getMainApplication().setDatabaseLoading( true );
+//		getMainApplication().setDatabaseLoading( true );
 		
 		DateTime start = DateUtils.getYesterday();
 		DateTime end = DateUtils.getToday();
@@ -127,7 +127,7 @@ public class GuideProcessor extends AbstractMythtvProcessor {
 			end = DateUtils.getNextDay( end );
 		}
 		
-		getMainApplication().setDatabaseLoading( false );
+//		getMainApplication().setDatabaseLoading( false );
 		
 		SharedPreferences.Editor editor = mythtvPreferences.edit();
 		editor.putLong( MainApplication.NEXT_GUIDE_DATA_LOAD, DateUtils.getNextDayAfterMythfilldatabase().getMillis() );

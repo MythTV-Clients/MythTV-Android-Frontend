@@ -19,27 +19,24 @@
  */
 package org.mythtv.client.ui.dvr;
 
-import java.util.Collections;
 import java.util.List;
 
 import org.joda.time.DateTime;
 import org.mythtv.R;
-import org.mythtv.client.MainApplication;
 import org.mythtv.client.ui.util.MythtvListFragment;
 import org.mythtv.client.ui.util.ProgramHelper;
-import org.mythtv.service.util.DateUtils;
-import org.mythtv.services.api.ETagInfo;
+import org.mythtv.service.guide.cache.ProgramGuideLruMemoryCache;
 import org.mythtv.services.api.channel.ChannelInfo;
 import org.mythtv.services.api.dvr.Program;
-import org.mythtv.services.api.guide.ProgramGuideWrapper;
+import org.mythtv.services.api.guide.ProgramGuide;
 
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils.TruncateAt;
 import android.util.Log;
+import android.util.TimingLogger;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -61,21 +58,26 @@ public class GuidePagerFragment extends MythtvListFragment {
 
 	private ProgramHelper mProgramHelper;
 
-	public static GuidePagerFragment newInstance( String startDate, String timeslot ) {
+	private String startDate, timeslot;
+	private ProgramGuide programGuide;
+	
+	public static GuidePagerFragment newInstance( String startDate, String timeslot, ProgramGuide programGuide ) {
 		Log.v( TAG, "newInstance : enter" );
-		GuidePagerFragment fragment = new GuidePagerFragment();
-		
-		Log.v( TAG, "newInstance : startDate=" + startDate + ", timeslot=" + timeslot );
-		
-		Bundle args = new Bundle();
-		args.putString( "START_DATE", startDate );
-		args.putString( "TIMESLOT", timeslot );
-		fragment.setArguments( args );
 
+		Log.d( TAG, "newInstance : startDate=" + startDate + ", timeslot=" + timeslot );
+		
+		GuidePagerFragment fragment = new GuidePagerFragment( startDate, timeslot, programGuide );
+		
 		Log.v( TAG, "newInstance : exit" );
 		return fragment;
 	}
 
+	private GuidePagerFragment( String startDate, String timeslot, ProgramGuide programGuide ) {
+		this.startDate = startDate;
+		this.timeslot = timeslot;
+		this.programGuide = programGuide;
+	}
+	
 	/* (non-Javadoc)
 	 * @see android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
 	 */
@@ -90,11 +92,7 @@ public class GuidePagerFragment extends MythtvListFragment {
 		
 		setRetainInstance( true );
 
-		Bundle args = getArguments();
-		String startDate = args.getString( "START_DATE" );
-		String timeslot = args.getString( "TIMESLOT" );
-		
-	    adapter = new GuideRowAdapter( getActivity().getApplicationContext(), startDate, timeslot );
+	    adapter = new GuideRowAdapter( getActivity().getApplicationContext(), startDate, timeslot, programGuide );
 	    
 	    setListAdapter( adapter );
 	    getListView().setFastScrollEnabled( true );
@@ -114,7 +112,7 @@ public class GuidePagerFragment extends MythtvListFragment {
 		private DateTime endTime;
 		private long timeSlotLengthMillis;
 		
-		public GuideRowAdapter( Context context, String startDate, String timeslot ) {
+		public GuideRowAdapter( Context context, String startDate, String timeslot, ProgramGuide programGuide ) {
 			Log.v( TAG, "GuideRowAdapter : enter" );
 
 			Log.i( TAG, "GuideRowAdapter : startDate=" + startDate + ", timeslot=" + timeslot );
@@ -125,17 +123,25 @@ public class GuidePagerFragment extends MythtvListFragment {
 			int hour = Integer.parseInt( timeslot );
 			
 			startTime = new DateTime( startDate );
-			startTime = startTime.withHourOfDay( hour ).withMinuteOfHour( 0 ).withSecondOfMinute( 01 );
+			startTime = startTime.withTime( hour, 0, 0, 0 );
 
 			endTime = new DateTime( startDate );
-			endTime = endTime.withHourOfDay( hour ).withMinuteOfHour( 59 ).withSecondOfMinute( 59 );
+			endTime = endTime.withTime( hour, 59, 59, 999 );
 		
 			timeSlotLengthMillis = endTime.getMillis() - startTime.getMillis(); 
 			
-			Log.i( TAG, "Loading Guide between " + DateUtils.dateTimeFormatter.print( startTime ) + " and " + DateUtils.dateTimeFormatter.print( endTime ) );
-			
 			if( null == channels ) {
-				new DownloadProgramGuideTask().execute( startTime, endTime );
+				Log.v( TAG, "GuideRowAdapter : channels is null, loading program guide from cache" );
+				
+				if( null != programGuide ) {
+					Log.v( TAG, "GuideRowAdapter : program guide loaded from cache" );
+
+					channels = programGuide.getChannels();
+				} else {
+					Log.v( TAG, "GuideRowAdapter : program guide NOT loaded from cache" );
+
+					channels = ProgramGuideLruMemoryCache.getDownloadingProgramGuide( startTime ).getChannels();
+				}
 			}
 			
 			Log.v( TAG, "GuideRowAdapter : exit" );
@@ -178,25 +184,30 @@ public class GuidePagerFragment extends MythtvListFragment {
 		 */
 		@Override
 		public View getView( int position, View convertView, ViewGroup parent ) {
-			Log.v( TAG, "GuideRowAdapter.getView : enter" );
-			Log.v( TAG, "GuideRowAdapter.getView : position=" + position );
+//			Log.v( TAG, "GuideRowAdapter.getView : enter" );
+			
+			TimingLogger tl = new TimingLogger( TAG, "getView" );
 			
 			convertView = mInflater.inflate( R.layout.guide_row, parent, false );
 			ViewHolder mHolder = new ViewHolder();
 			
 			mHolder.timeSlotContainer = (LinearLayout) convertView.findViewById( R.id.guide_row );
 			mHolder.channel = (TextView) convertView.findViewById( R.id.guide_channel );
+			tl.addSplit( "load viewholder" );			
 			
 			int textColor = getResources().getColor( R.color.body_text_1 );
 			
 			ChannelInfo channel = getItem( position );
+			tl.addSplit( "get channel" );
 			if( null != channel && !channel.getPrograms().isEmpty() ) {
-				Log.v( TAG, "GuideRowAdapter.getView : channel retrieved - " + channel.getChannelNumber() );
+//				Log.v( TAG, "GuideRowAdapter.getView : channel retrieved - " + channel.getChannelNumber() );
 
 				mHolder.channel.setText( channel.getChannelNumber() );
+
+				int count = 0;
 				float weightSum = 0.0f;
 				for( Program program : channel.getPrograms() ) {
-					Log.v( TAG, "GuideRowAdapter.getView : program iteration" );
+//					Log.v( TAG, "GuideRowAdapter.getView : program iteration" );
 
 					LinearLayout timeslot = (LinearLayout) new LinearLayout( mContext ); 
 					LayoutParams lParams = new LayoutParams( LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT );
@@ -241,13 +252,10 @@ public class GuidePagerFragment extends MythtvListFragment {
 					}
 					
 					details.addView( title );
-					
-					
-					
+				
 					TextView textViewTime = (TextView)  new TextView( mContext );
 					textViewTime.setLayoutParams( new LayoutParams( LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT ) ); 
-					textViewTime.setText( this.utcToLocal(program.getStartTime()).toString("hh:mm") + 
-							" - " + this.utcToLocal(program.getEndTime()).toString("hh:mm") );
+					textViewTime.setText( this.utcToLocal(program.getStartTime()).toString("hh:mm") + " - " + this.utcToLocal(program.getEndTime()).toString("hh:mm") );
 					textViewTime.setTextColor( textColor );
 					textViewTime.setTextSize( TypedValue.COMPLEX_UNIT_DIP, 10.0f );
 					textViewTime.setTypeface(Typeface.DEFAULT_BOLD);
@@ -268,17 +276,22 @@ public class GuidePagerFragment extends MythtvListFragment {
 					description.setSingleLine( true );
 					description.setHorizontallyScrolling( true );
 					details.addView( description );
-					
-					
+										
 					timeslot.addView( details );
 
 					mHolder.timeSlotContainer.addView( timeslot );
+					
+					tl.addSplit( "program " + count );			
+
+					count++;
 				}
 				
 				mHolder.timeSlotContainer.setWeightSum(weightSum);
 			}
 			
-			Log.v( TAG, "GuideRowAdapter.getView : exit" );
+			tl.dumpToLog();			
+
+//			Log.v( TAG, "GuideRowAdapter.getView : exit" );
 			return convertView;
 		}
 		
@@ -349,43 +362,6 @@ public class GuidePagerFragment extends MythtvListFragment {
 
 		}
 		
-		private class DownloadProgramGuideTask extends AsyncTask<DateTime, Void, ProgramGuideWrapper> {
-
-			@Override
-			protected ProgramGuideWrapper doInBackground( DateTime... params ) {
-				Log.v( TAG, "GuideRowAdapter.DownloadProgramGuideTask.doInBackground : enter" );
-
-				DateTime startTime = params[ 0 ];
-				DateTime endTime = params[ 1 ];
-				Log.v( TAG, "GuideRowAdapter.DownloadProgramGuideTask.doInBackground : downloading program guide between " + DateUtils.dateTimeFormatter.print( startTime ) + " and "  + DateUtils.dateTimeFormatter.print( endTime ) );
-				
-				Log.v( TAG, "GuideRowAdapter.DownloadProgramGuideTask.doInBackground : exit" );
-				ETagInfo eTag = ETagInfo.createEmptyETag();
-				return ( (MainApplication) mContext.getApplicationContext() ).getMythServicesApi().guideOperations().getProgramGuide( startTime, endTime, 1, -1, Boolean.FALSE, eTag );
-			}
-
-			/* (non-Javadoc)
-			 * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
-			 */
-			@Override
-			protected void onPostExecute( ProgramGuideWrapper result ) {
-				Log.v( TAG, "GuideRowAdapter.DownloadProgramGuideTask.onPostExecute : enter" );
-
-				if( null != result && null != result.getProgramGuide() && !result.getProgramGuide().getChannels().isEmpty() ) {
-					Log.v( TAG, "GuideRowAdapter.DownloadProgramGuideTask.onPostExecute : channels retrieved, updating adapter" );
-
-					List<ChannelInfo> channelInfos = result.getProgramGuide().getChannels();
-					Collections.sort( channelInfos );
-					channels = channelInfos;
-					
-					notifyDataSetChanged();
-				}
-			
-				Log.v( TAG, "GuideRowAdapter.DownloadProgramGuideTask.onPostExecute : exit" );
-			}
-			
-		}
-
 	}
 	
 }

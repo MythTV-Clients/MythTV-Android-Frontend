@@ -19,20 +19,14 @@
  */
 package org.mythtv.client.ui;
 
-import org.joda.time.DateTime;
-import org.mythtv.client.MainApplication;
 import org.mythtv.db.dvr.ProgramConstants;
-import org.mythtv.service.guide.GuideService;
-import org.mythtv.service.guide.GuideServiceHelper;
-import org.mythtv.service.util.DateUtils;
+import org.mythtv.service.guide.ProgramGuideCleanupService;
+import org.mythtv.service.guide.ProgramGuideDownloadService;
 
-import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
@@ -47,14 +41,8 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 
 	protected static final String TAG = AbstractLocationAwareFragmentActivity.class.getSimpleName();
 
-	private SharedPreferences mythtvPreferences;
-	
-	private GuideReceiver guideReceiver;
-	private NotifyReceiver notifyReceiver;
-	
-	private GuideServiceHelper mGuideServiceHelper;
-	
-	private boolean isGuideDataLoaded;
+	private ProgramGuideDownloadReceiver programGuideDownloaderReceiver = new ProgramGuideDownloadReceiver();
+	private ProgramGuideCleanupReceiver programGuideCleanupReceiver = new ProgramGuideCleanupReceiver();
 	
 	// ***************************************
 	// FragmentActivity methods
@@ -72,33 +60,36 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 		
 		resources = getResources();
 
-		mythtvPreferences = getSharedPreferences( "MythtvPreferences", Context.MODE_PRIVATE );
-		
 		setupActionBar();
 
-		isGuideDataLoaded = mythtvPreferences.getBoolean( MainApplication.GUIDE_DATA_LOADED, false );
-
-		if( !isGuideDataLoaded ) {
-			Log.v( TAG, "onCreate : guide data not loaded, checking database" );
-
-			Cursor cursor = getContentResolver().query( ProgramConstants.CONTENT_URI, new String[] { ProgramConstants._ID }, ProgramConstants.FIELD_PROGRAM_TYPE + " = ?", new String[] { ProgramConstants.ProgramType.GUIDE.name() }, null );
-			if( cursor.getCount() == 0 ) {
-				Log.v( TAG, "onCreate : guide data not loaded" );
-			
-				isGuideDataLoaded = false;
-			} else {
-				Log.v( TAG, "onCreate : guide data loaded" );
-
-				isGuideDataLoaded = true;
-
-				SharedPreferences.Editor editor = mythtvPreferences.edit();
-				editor.putBoolean( MainApplication.GUIDE_DATA_LOADED, isGuideDataLoaded );
-				editor.commit();
-			}
-			cursor.close();
+		Cursor cursor = getContentResolver().query( ProgramConstants.CONTENT_URI, new String[] { ProgramConstants._ID }, ProgramConstants.FIELD_PROGRAM_TYPE + " = ?", new String[] { ProgramConstants.ProgramType.GUIDE.name() }, null );
+		if( cursor.moveToFirst()) {
 		}
+		cursor.close();
 		
 		Log.v( TAG, "onCreate : exit" );
+	}
+
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.FragmentActivity#onStart()
+	 */
+	@Override
+	protected void onStart() {
+		Log.v( TAG, "onStart : enter" );
+		super.onStart();
+
+		IntentFilter programGuideDownloadFilter = new IntentFilter();
+		programGuideDownloadFilter.addAction( ProgramGuideDownloadService.ACTION_PROGRESS );
+		programGuideDownloadFilter.addAction( ProgramGuideDownloadService.ACTION_COMPLETE );
+		programGuideDownloadFilter.setPriority( IntentFilter.SYSTEM_LOW_PRIORITY );
+	    registerReceiver( programGuideDownloaderReceiver, programGuideDownloadFilter );
+	    
+		IntentFilter programGuideCleanupFilter = new IntentFilter();
+		programGuideCleanupFilter.addAction( ProgramGuideCleanupService.ACTION_COMPLETE );
+		programGuideCleanupFilter.setPriority( IntentFilter.SYSTEM_LOW_PRIORITY );
+	    registerReceiver( programGuideCleanupReceiver, programGuideCleanupFilter );
+	    
+		Log.v( TAG, "onStart : exit" );
 	}
 
 	/* (non-Javadoc)
@@ -109,69 +100,38 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 		Log.v( TAG, "onResume : enter" );
 		super.onResume();
 
-		notifyReceiver = new NotifyReceiver();
-		registerReceiver( notifyReceiver, new IntentFilter( GuideService.BROADCAST_ACTION ) );
-
-		mGuideServiceHelper = GuideServiceHelper.getInstance( this );
-
-		IntentFilter guideFilter = new IntentFilter( GuideServiceHelper.GUIDE_RESULT );
-		guideFilter.setPriority( IntentFilter.SYSTEM_LOW_PRIORITY );
-        guideReceiver = new GuideReceiver();
-        registerReceiver( guideReceiver, guideFilter );
-        
-		isGuideDataLoaded = mythtvPreferences.getBoolean( MainApplication.GUIDE_DATA_LOADED, false );
-
-		if( !isGuideDataLoaded ) {
-			showGuideAlertDialog();
-        } else {
-        	if( !getMainApplication().isDatabaseLoading() ) {
-        		Log.v( TAG, "onResume : data is not currently loading" );
-        		
-        		long storedNext = mythtvPreferences.getLong( MainApplication.NEXT_GUIDE_DATA_LOAD, DateUtils.getYesterday().getMillis() );
-        		
-        		DateTime next = new DateTime( storedNext );
-        		
-        		DateTime now = new DateTime();
-        		
-        		if( now.isAfter( next ) ) {
-        			Log.v( TAG, "onResume : next program guide load date is passed" );
-
-        			mGuideServiceHelper.getGuideList();
-        		} else {
-        			Log.v( TAG, "onResume : next scheduled date is " + DateUtils.dateTimeFormatter.print( next ) );
-        		}
-        	}
-        }
-        
+		startService( new Intent( ProgramGuideCleanupService.ACTION_CLEANUP ) );
+		startService( new Intent( ProgramGuideDownloadService.ACTION_DOWNLOAD ) );
+		
 		Log.v( TAG, "onResume : exit" );
 	}
 
 	/* (non-Javadoc)
-	 * @see android.support.v4.app.FragmentActivity#onPause()
+	 * @see android.support.v4.app.FragmentActivity#onStop()
 	 */
 	@Override
-	protected void onPause() {
-		Log.v( TAG, "onPause : enter" );
-		super.onPause();
+	protected void onStop() {
+		Log.v( TAG, "onStop : enter" );
+		super.onStop();
 
 		// Unregister for broadcast
-		if( null != notifyReceiver ) {
+		if( null != programGuideDownloaderReceiver ) {
 			try {
-				unregisterReceiver( notifyReceiver );
+				unregisterReceiver( programGuideDownloaderReceiver );
 			} catch( IllegalArgumentException e ) {
-				Log.e( TAG, e.getLocalizedMessage(), e );
-			}
-		}
-		
-		if( null != guideReceiver ) {
-			try {
-				unregisterReceiver( guideReceiver );
-			} catch( IllegalArgumentException e ) {
-				Log.e( TAG, e.getLocalizedMessage(), e );
+				Log.e( TAG, "onStop : error", e );
 			}
 		}
 
-		Log.v( TAG, "onPause : exit" );
+		if( null != programGuideCleanupReceiver ) {
+			try {
+				unregisterReceiver( programGuideCleanupReceiver );
+			} catch( IllegalArgumentException e ) {
+				Log.e( TAG, "onStop : error", e );
+			}
+		}
+
+		Log.v( TAG, "onStop : exit" );
 	}
 
 	/*
@@ -198,58 +158,37 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 
 	// internal helpers
 
-	private void showGuideAlertDialog() {
-		AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder( this );
-
-		// set title
-		alertDialogBuilder.setTitle( "Mythtv for Android" );
-
-		// set dialog message
-		alertDialogBuilder
-		.setMessage( "Since this is the first time you have run Mythtv for Android, I need to download your program guide.  This process will take a long time as I need to download data for the next two weeks.  Subsequent updates will occur in the background, but for now, please be patient while I process data from your Mythtv backend. Your actions will be limited while downloading takes place." )
-		.setCancelable( true )
-		.setPositiveButton( "Close", new DialogInterface.OnClickListener() {
-			public void onClick( DialogInterface dialog,int id ) {
-				dialog.cancel();
-				
-	        	mGuideServiceHelper.getGuideList();
-	        	
-				SharedPreferences.Editor editor = mythtvPreferences.edit();
-				editor.putBoolean( MainApplication.GUIDE_DATA_LOADED, true );
-				editor.commit();
-			}
-		});
-
-		AlertDialog alertDialog = alertDialogBuilder.create();
-
-		alertDialog.show();
-	}
-	
-	private class GuideReceiver extends BroadcastReceiver {
+	private class ProgramGuideDownloadReceiver extends BroadcastReceiver {
 
 		@Override
 		public void onReceive( Context context, Intent intent ) {
-			Log.v( TAG, "GuideReceiver.onReceive : enter" );
 			
-			Log.v( TAG, "GuideReceiver.onReceive : exit" );
+	        if ( intent.getAction().equals( ProgramGuideDownloadService.ACTION_PROGRESS ) ) {
+	        	Log.i( TAG, "ProgramGuideDownloadReceiver.onReceive : progress=" + intent.getStringExtra( ProgramGuideDownloadService.EXTRA_PROGRESS ) );
+	        }
+	        
+	        if ( intent.getAction().equals( ProgramGuideDownloadService.ACTION_COMPLETE ) ) {
+	        	Log.i( TAG, "ProgramGuideDownloadReceiver.onReceive : complete=" + intent.getStringExtra( ProgramGuideDownloadService.EXTRA_COMPLETE ) );
+	        	
+	        	Toast.makeText( AbstractLocationAwareFragmentActivity.this, "Program Guide updated!", Toast.LENGTH_SHORT ).show();
+	        }
+
 		}
 		
 	}
-	
-    private class NotifyReceiver extends BroadcastReceiver {
-    	
-        @Override
-        public void onReceive( Context context, Intent intent ) {
-    		Log.d( TAG, "onReceive : enter" );
 
-    		String message = intent.getExtras().getString( GuideService.BROADCAST_ACTION );
-    		
-    		Toast toast = Toast.makeText( context, message, Toast.LENGTH_LONG );
-    		toast.show();
-    		
-    		Log.d( TAG, "onReceive : exit" );
-        }
-        
-    };
+	private class ProgramGuideCleanupReceiver extends BroadcastReceiver {
+
+		@Override
+		public void onReceive( Context context, Intent intent ) {
+			
+	        if ( intent.getAction().equals( ProgramGuideCleanupService.ACTION_COMPLETE ) ) {
+	        	Log.i( TAG, "ProgramGuideCleanupReceiver.onReceive : " + intent.getStringExtra( ProgramGuideCleanupService.EXTRA_COMPLETE ) );
+	        	Log.i( TAG, "ProgramGuideCleanupReceiver.onReceive : " + intent.getIntExtra( ProgramGuideCleanupService.EXTRA_COMPLETE_COUNT, 0 ) + " files cleaned up" );
+	        }
+	        
+		}
+		
+	}
 
 }
