@@ -1,5 +1,63 @@
 MythTV for Android
 
-Implementation of MythTV .25 Services API for Android.
+Implementation of MythTV .25+ Services API for Android.
+http://www.mythtv.org/wiki/Services_API
 
-moved to MythTV-Android organization.
+What is the Services API (from the above wiki link)
+========================
+
+The Services API is a new set of APIs (Application Programming Interfaces) taking the place of MythXML in MythTV versions .25 and later. It is an extremely featureful set of interfaces designed to allow one to configure MythTV, access MythTV content, control your DVR, use MythTV as a service in your own applications, and otherwise make MythTV accessible to any and everyone.
+The Services API uses regular HTTP POST and GET commands, and can return both JSON and XML output by setting the HTTP accepts header appropriately.
+The Services API is organized into services, which are logical groupings of APIs by their function and purpose. The individual methods contained in each service are documented on the service's wiki page.
+
+
+Build Environment
+=================
+For instructions on how setup the build environment for this application, please see the following:
+https://github.com/MythTV-Android/mythtv-for-android/wiki/Development-Environment-Setup
+
+
+Explaination of Android Permissions
+===================================
+
+- android.permission.INTERNET
+  Allows applications to open network sockets.
+  
+  	Required to allow the application to connect to the Mythtv Master backend.
+  	
+- android.permission.ACCESS_NETWORK_STATE
+  Allows applications to access information about networks
+
+  	Required to allow the application to connect to the Mythtv Master backend.
+  
+- android.permission.ACCESS_WIFI_STATE
+  Allows applications to access information about Wi-Fi networks
+
+  	Required to allow the application to connect to the Mythtv Master backend.
+  
+- android.permission.CHANGE_WIFI_MULTICAST_STATE
+  Allows applications to enter Wi-Fi Multicast mode
+
+  	Used by Mythmote WOL to allow waking up a frontend if it has been shut down (currently not implemented, but will be carried over from legacy standalone app).
+
+- android.permission.WRITE_EXTERNAL_STORAGE
+  Allows an application to write to external storage
+
+	Data such as that retrieved from the Mythtv Master backend or artwork images need to be stored in the applications cache area, usually on an external SD Card.
+
+- android.permission.READ_PHONE_STATE
+  Allows read only access to phone state.
+
+ 	Mythmote will READ your phone state when connected to a MythTV frontend and if a call comes in, will send Caller ID information the frontend to display in a popup.
+
+- android.permission.WAKE_LOCK
+  Allows using PowerManager WakeLocks to keep processor from sleeping or screen from dimming
+  
+  	Mythmote uses this to prevent you from having to continually power on the device in order to perform operations.  The device will dim the screen and wake up on a touch.
+  	
+
+Connecting to Mythtv Backend via SSH
+====================================
+If you want to use this app on a cellular network, take a look at these instructions for accessing the backend while not on the home wifi network:
+https://github.com/MythTV-Android/mythtv-for-android/wiki/Access-MythTV-Master-Backend-via-SSH
+
