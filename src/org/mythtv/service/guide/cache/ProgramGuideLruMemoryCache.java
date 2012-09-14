@@ -19,14 +19,14 @@
  */
 package org.mythtv.service.guide.cache;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.joda.time.DateTime;
 import org.mythtv.service.guide.ProgramGuideDownloadService;
 import org.mythtv.service.util.FileHelper;
@@ -38,6 +38,11 @@ import android.content.Context;
 import android.support.v4.util.LruCache;
 import android.util.Log;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.joda.JodaModule;
+
 /**
  * @author Daniel Frey
  *
@@ -47,7 +52,7 @@ public class ProgramGuideLruMemoryCache extends LruCache<DateTime, ProgramGuide>
 	private static final String TAG = ProgramGuideLruMemoryCache.class.getSimpleName();
 	
 	private final Context mContext;
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper;
 
     private FileHelper mFileHelper;
 	
@@ -57,6 +62,9 @@ public class ProgramGuideLruMemoryCache extends LruCache<DateTime, ProgramGuide>
 
 		mContext = context;
 		mFileHelper = new FileHelper( mContext );
+		
+		mapper = new ObjectMapper();
+		mapper.registerModule( new JodaModule() );
 		
 		Log.v( TAG, "initialize : exit" );
 	}
@@ -71,17 +79,17 @@ public class ProgramGuideLruMemoryCache extends LruCache<DateTime, ProgramGuide>
 		File programGuideCache = mFileHelper.getProgramGuideDataDirectory();
 		if( programGuideCache.exists() ) {
 
-			String sStart = ProgramGuideDownloadService.dateTimeFormatter.print( key );
+			String sStart = ProgramGuideDownloadService.fileDateTimeFormatter.print( key );
 			String filename = sStart + ProgramGuideDownloadService.FILENAME_EXT;
 			Log.v( TAG, "create : loading data from file " + filename );
 			
 			File file = new File( programGuideCache, filename );
-			Log.v( TAG, "create : file=" + file.getAbsolutePath() );
 			if( file.exists() ) {
 				Log.v( TAG, "create : file exists " + filename );
 				
 				try {
-					return mapper.readValue( file, ProgramGuide.class );
+					InputStream is = new BufferedInputStream( new FileInputStream( file ), 8192 );
+					return mapper.readValue( is, ProgramGuide.class );
 				} catch( JsonParseException e ) {
 					Log.e( TAG, "create : JsonParseException - error opening file " + filename, e );
 				} catch( JsonMappingException e ) {
@@ -94,12 +102,34 @@ public class ProgramGuideLruMemoryCache extends LruCache<DateTime, ProgramGuide>
 		}
 		
 		Log.v( TAG, "create : exit" );
-		return getDownloadingProgramGuide( key );
+		return super.create( key );
+	}
+
+	/* (non-Javadoc)
+	 * @see android.support.v4.util.LruCache#sizeOf(java.lang.Object, java.lang.Object)
+	 */
+	@Override
+	protected int sizeOf( DateTime key, ProgramGuide value ) {
+		
+		File programGuideCache = mFileHelper.getProgramGuideDataDirectory();
+		if( programGuideCache.exists() ) {
+
+			String sStart = ProgramGuideDownloadService.fileDateTimeFormatter.print( key );
+			String filename = sStart + ProgramGuideDownloadService.FILENAME_EXT;
+			
+			File file = new File( programGuideCache, filename );
+			if( file.exists() ) {
+				return (int) file.length();
+			}
+		
+		}
+
+		return super.sizeOf( key, value );    
 	}
 
 	// internal helpers
 	
-	private static ProgramGuide getDownloadingProgramGuide( DateTime key ) {
+	public static ProgramGuide getDownloadingProgramGuide( DateTime key ) {
 		
 		ProgramGuide guide = new ProgramGuide();
 		

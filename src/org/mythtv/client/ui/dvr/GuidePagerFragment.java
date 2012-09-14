@@ -36,6 +36,7 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.TextUtils.TruncateAt;
 import android.util.Log;
+import android.util.TimingLogger;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -55,25 +56,28 @@ public class GuidePagerFragment extends MythtvListFragment {
 	
 	private GuideRowAdapter adapter;
 
-	private ProgramGuideLruMemoryCache cache;
-	
 	private ProgramHelper mProgramHelper;
 
-	public static GuidePagerFragment newInstance( String startDate, String timeslot ) {
+	private String startDate, timeslot;
+	private ProgramGuide programGuide;
+	
+	public static GuidePagerFragment newInstance( String startDate, String timeslot, ProgramGuide programGuide ) {
 		Log.v( TAG, "newInstance : enter" );
-		GuidePagerFragment fragment = new GuidePagerFragment();
-		
-		Log.v( TAG, "newInstance : startDate=" + startDate + ", timeslot=" + timeslot );
-		
-		Bundle args = new Bundle();
-		args.putString( "START_DATE", startDate );
-		args.putString( "TIMESLOT", timeslot );
-		fragment.setArguments( args );
 
+		Log.d( TAG, "newInstance : startDate=" + startDate + ", timeslot=" + timeslot );
+		
+		GuidePagerFragment fragment = new GuidePagerFragment( startDate, timeslot, programGuide );
+		
 		Log.v( TAG, "newInstance : exit" );
 		return fragment;
 	}
 
+	private GuidePagerFragment( String startDate, String timeslot, ProgramGuide programGuide ) {
+		this.startDate = startDate;
+		this.timeslot = timeslot;
+		this.programGuide = programGuide;
+	}
+	
 	/* (non-Javadoc)
 	 * @see android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
 	 */
@@ -82,18 +86,13 @@ public class GuidePagerFragment extends MythtvListFragment {
 		Log.v( TAG, "onActivityCreated : enter" );
 		super.onActivityCreated( savedInstanceState );
 
-		cache = new ProgramGuideLruMemoryCache( getActivity() );
 		mProgramHelper = ProgramHelper.createInstance( getActivity() );
 		
 		setHasOptionsMenu( true );
 		
 		setRetainInstance( true );
 
-		Bundle args = getArguments();
-		String startDate = args.getString( "START_DATE" );
-		String timeslot = args.getString( "TIMESLOT" );
-		
-	    adapter = new GuideRowAdapter( getActivity().getApplicationContext(), startDate, timeslot );
+	    adapter = new GuideRowAdapter( getActivity().getApplicationContext(), startDate, timeslot, programGuide );
 	    
 	    setListAdapter( adapter );
 	    getListView().setFastScrollEnabled( true );
@@ -113,7 +112,7 @@ public class GuidePagerFragment extends MythtvListFragment {
 		private DateTime endTime;
 		private long timeSlotLengthMillis;
 		
-		public GuideRowAdapter( Context context, String startDate, String timeslot ) {
+		public GuideRowAdapter( Context context, String startDate, String timeslot, ProgramGuide programGuide ) {
 			Log.v( TAG, "GuideRowAdapter : enter" );
 
 			Log.i( TAG, "GuideRowAdapter : startDate=" + startDate + ", timeslot=" + timeslot );
@@ -134,11 +133,14 @@ public class GuidePagerFragment extends MythtvListFragment {
 			if( null == channels ) {
 				Log.v( TAG, "GuideRowAdapter : channels is null, loading program guide from cache" );
 				
-				ProgramGuide programGuide = cache.get( startTime );
 				if( null != programGuide ) {
 					Log.v( TAG, "GuideRowAdapter : program guide loaded from cache" );
 
 					channels = programGuide.getChannels();
+				} else {
+					Log.v( TAG, "GuideRowAdapter : program guide NOT loaded from cache" );
+
+					channels = ProgramGuideLruMemoryCache.getDownloadingProgramGuide( startTime ).getChannels();
 				}
 			}
 			
@@ -184,19 +186,25 @@ public class GuidePagerFragment extends MythtvListFragment {
 		public View getView( int position, View convertView, ViewGroup parent ) {
 //			Log.v( TAG, "GuideRowAdapter.getView : enter" );
 			
+			TimingLogger tl = new TimingLogger( TAG, "getView" );
+			
 			convertView = mInflater.inflate( R.layout.guide_row, parent, false );
 			ViewHolder mHolder = new ViewHolder();
 			
 			mHolder.timeSlotContainer = (LinearLayout) convertView.findViewById( R.id.guide_row );
 			mHolder.channel = (TextView) convertView.findViewById( R.id.guide_channel );
+			tl.addSplit( "load viewholder" );			
 			
 			int textColor = getResources().getColor( R.color.body_text_1 );
 			
 			ChannelInfo channel = getItem( position );
+			tl.addSplit( "get channel" );
 			if( null != channel && !channel.getPrograms().isEmpty() ) {
 //				Log.v( TAG, "GuideRowAdapter.getView : channel retrieved - " + channel.getChannelNumber() );
 
 				mHolder.channel.setText( channel.getChannelNumber() );
+
+				int count = 0;
 				float weightSum = 0.0f;
 				for( Program program : channel.getPrograms() ) {
 //					Log.v( TAG, "GuideRowAdapter.getView : program iteration" );
@@ -272,11 +280,17 @@ public class GuidePagerFragment extends MythtvListFragment {
 					timeslot.addView( details );
 
 					mHolder.timeSlotContainer.addView( timeslot );
+					
+					tl.addSplit( "program " + count );			
+
+					count++;
 				}
 				
 				mHolder.timeSlotContainer.setWeightSum(weightSum);
 			}
 			
+			tl.dumpToLog();			
+
 //			Log.v( TAG, "GuideRowAdapter.getView : exit" );
 			return convertView;
 		}

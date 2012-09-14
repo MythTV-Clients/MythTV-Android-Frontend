@@ -25,14 +25,22 @@ import java.util.List;
 import org.joda.time.DateTime;
 import org.mythtv.R;
 import org.mythtv.client.ui.AbstractMythFragment;
+import org.mythtv.service.guide.ProgramGuideDownloadService;
+import org.mythtv.service.guide.cache.ProgramGuideLruMemoryCache;
 import org.mythtv.service.util.DateUtils;
+import org.mythtv.services.api.guide.ProgramGuide;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
+import android.util.TimingLogger;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -54,6 +62,46 @@ public class GuideFragment extends AbstractMythFragment implements OnClickListen
 	private DateTime date;
 	private String startDate;
 	
+	private ProgramGuideDownloadReceiver programGuideDownloaderReceiver = new ProgramGuideDownloadReceiver();
+
+	private ProgramGuideLruMemoryCache cache;
+
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.Fragment#onStart()
+	 */
+	@Override
+	public void onStart() {
+		Log.v( TAG, "onStart : enter" );
+		super.onStart();
+
+		IntentFilter programGuideDownloadFilter = new IntentFilter();
+		programGuideDownloadFilter.addAction( ProgramGuideDownloadService.ACTION_PROGRESS );
+		programGuideDownloadFilter.setPriority( IntentFilter.SYSTEM_LOW_PRIORITY );
+	    getActivity().registerReceiver( programGuideDownloaderReceiver, programGuideDownloadFilter );
+	    
+		Log.v( TAG, "onStart : exit" );
+	}
+
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.Fragment#onStop()
+	 */
+	@Override
+	public void onStop() {
+		Log.v( TAG, "onStop : enter" );
+		super.onStop();
+
+		// Unregister for broadcast
+		if( null != programGuideDownloaderReceiver ) {
+			try {
+				getActivity().unregisterReceiver( programGuideDownloaderReceiver );
+			} catch( IllegalArgumentException e ) {
+				Log.e( TAG, "onStop : error", e );
+			}
+		}
+
+		Log.v( TAG, "onStop : exit" );
+	}
+
 	/* (non-Javadoc)
 	 * @see android.support.v4.app.ListFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle)
 	 */
@@ -84,6 +132,8 @@ public class GuideFragment extends AbstractMythFragment implements OnClickListen
 		Log.v( TAG, "onActivityCreated : enter" );
 		super.onActivityCreated( savedInstanceState );
 		
+		cache = new ProgramGuideLruMemoryCache( getActivity() );
+
 		date = DateUtils.getEndOfDay( new DateTime() );
 		updateDateHeader();
 		
@@ -192,7 +242,13 @@ public class GuideFragment extends AbstractMythFragment implements OnClickListen
 		 */
 		@Override
 		public Fragment getItem( int position ) {
-			return GuidePagerFragment.newInstance( startDate, fragmentHeadings.get( position ) );
+			TimingLogger tl = new TimingLogger( TAG, "Load ProgramGuide" );
+			
+			DateTime programGuideDate = date.withTime( Integer.parseInt( fragmentHeadings.get( position ) ), 0, 0, 0 );
+			ProgramGuide programGuide = cache.get( programGuideDate );
+			tl.addSplit( "ProgramGuide for " + DateUtils.dateFormatter.print( programGuideDate ) + " loaded" );
+			
+			return GuidePagerFragment.newInstance( startDate, fragmentHeadings.get( position ), programGuide );
 		}
 
 		/* (non-Javadoc)
@@ -208,6 +264,30 @@ public class GuideFragment extends AbstractMythFragment implements OnClickListen
 		@Override
 		public CharSequence getPageTitle( int position ) {
 			return fragmentLabels.get( position );
+		}
+		
+	}
+
+	private class ProgramGuideDownloadReceiver extends BroadcastReceiver {
+
+		@Override
+		public void onReceive( Context context, Intent intent ) {
+			
+	        if ( intent.getAction().equals( ProgramGuideDownloadService.ACTION_PROGRESS ) ) {
+
+	        	if( intent.hasExtra( ProgramGuideDownloadService.EXTRA_PROGRESS ) ) {
+		        	Log.d( TAG, "ProgramGuideDownloadReceiver.onReceive : progress=" + intent.getStringExtra( ProgramGuideDownloadService.EXTRA_PROGRESS ) );
+		        	
+		        	DateTime updated = new DateTime( intent.getStringExtra( ProgramGuideDownloadService.EXTRA_PROGRESS_DATE ) );
+		        	cache.remove( updated );
+	        	}
+	        	
+	        	if( intent.hasExtra( ProgramGuideDownloadService.EXTRA_PROGRESS_ERROR ) ) {
+		        	Log.e( TAG, "ProgramGuideDownloadReceiver.onReceive : progress error=" + intent.getStringExtra( ProgramGuideDownloadService.EXTRA_PROGRESS_ERROR ) );
+	        	}
+	        	
+	        }
+	        
 		}
 		
 	}
