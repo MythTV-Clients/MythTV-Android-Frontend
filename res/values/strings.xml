@@ -157,6 +157,16 @@
     <string name="guide_date">today</string>
     <string name="guide_next">NEXT</string>
     
+    <!-- Recording Rule -->
+    <string name="chkbox_rec_rule_active">Recording Rule Active</string>
+    <string name="chkbox_rec_rule_auto_comm_flag">Auto Commercial Flag</string>
+    <string name="chkbox_rec_rule_auto_transcode">Auto Transcode</string>
+    <string name="chkbox_rec_rule_auto_meta_lookup">Auto Meta Data Lookup</string>
+    <string name="chkbox_rec_rule_auto_usr_job1">Auto User Job 1</string>
+    <string name="chkbox_rec_rule_auto_usr_job2">Auto User Job 2</string>
+    <string name="chkbox_rec_rule_auto_usr_job3">Auto User Job 3</string>
+    <string name="chkbox_rec_rule_auto_usr_job4">Auto User Job 4</string>
+    
     <!-- Media Dashboard -->
     <string name="tab_multimedia">Multimedia</string>
     <string name="btn_videos">Videos</string>

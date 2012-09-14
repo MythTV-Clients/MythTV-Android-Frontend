@@ -6,16 +6,19 @@ package org.mythtv.client.ui.dvr;
 import org.mythtv.R;
 import org.mythtv.client.ui.AbstractMythFragment;
 import org.mythtv.client.ui.util.ProgramHelper;
+import org.mythtv.db.channel.ChannelConstants;
 import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.dvr.RecRule;
 
 import android.app.Activity;
+import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.TextView;
 
 /**
@@ -116,17 +119,21 @@ public class RecordingRuleFragment extends AbstractMythFragment {
 	private void setupForm( RecRule rule ) {
 		Log.v( TAG, "setupForm : enter" );
 		
-		View v = getActivity().findViewById(R.id.recording_rule_category_color);
-		v.setBackgroundColor(ProgramHelper.createInstance(getActivity().getApplicationContext()).getCategoryColor(rule.getCategory()));
+		View view;
+		CheckBox cBox;
+		TextView tView;
 		
-		TextView tView = (TextView) getActivity().findViewById( R.id.recording_rule_title );
+		view = getActivity().findViewById(R.id.recording_rule_category_color);
+		view.setBackgroundColor(ProgramHelper.createInstance(getActivity().getApplicationContext()).getCategoryColor(rule.getCategory()));
+		
+		tView = (TextView) getActivity().findViewById( R.id.recording_rule_title );
 		tView.setText( rule.getTitle() );
 		
-		tView = (TextView) getActivity().findViewById( R.id.recording_rule_sub_title );
-		tView.setText(rule.getSubTitle());
-		
-		tView = (TextView) getActivity().findViewById( R.id.recording_rule_description );
-		tView.setText(rule.getDescription());
+		if(null != rule.getSubTitle() && rule.getSubTitle() != ""){
+			tView = (TextView) getActivity().findViewById( R.id.recording_rule_sub_title );
+			tView.setText(rule.getSubTitle());
+			tView.setVisibility(View.VISIBLE);
+		}
 		
 		tView = (TextView) getActivity().findViewById( R.id.recording_rule_category );
 		tView.setText(rule.getCategory());
@@ -134,11 +141,42 @@ public class RecordingRuleFragment extends AbstractMythFragment {
 		tView = (TextView) getActivity().findViewById( R.id.recording_rule_type );
 		tView.setText(rule.getType());
 		
-		tView = (TextView) getActivity().findViewById( R.id.recording_rule_call_sign );
-		tView.setText(rule.getCallSign());
+		//grabbed channel resolving code from RecordingRulesFragment.java
+		// - should we move this to a utility?
+		// - slow
+		String channel = "[Any]";
+		Cursor cursor = this.getActivity().getContentResolver().query( ChannelConstants.CONTENT_URI, new String[] { ChannelConstants.FIELD_CHAN_NUM }, ChannelConstants.FIELD_CHAN_ID + " = ?", new String[] { "" + rule.getChanId() }, null );
+		if( cursor.moveToFirst() ) {
+			 channel = cursor.getString( cursor.getColumnIndexOrThrow( ChannelConstants.FIELD_CHAN_NUM ) );
+		}
+		cursor.close();
 		
+		tView = (TextView) getActivity().findViewById( R.id.recording_rule_channel );
+		tView.setText(channel);
 		
+		cBox = (CheckBox) getActivity().findViewById(R.id.recording_rule_checkBox_active);
+		cBox.setChecked(!rule.isInactive());
 		
+		cBox = (CheckBox) getActivity().findViewById(R.id.recording_rule_checkBox_auto_comm_flag);
+		cBox.setChecked(rule.isAutoCommflag());
+		
+		cBox = (CheckBox) getActivity().findViewById(R.id.recording_rule_checkBox_auto_transcode);
+		cBox.setChecked(rule.isAutoTranscode());
+		
+		cBox = (CheckBox) getActivity().findViewById(R.id.recording_rule_checkBox_auto_meta_lookup);
+		cBox.setChecked(rule.isAutoMetaLookup());
+		
+		cBox = (CheckBox) getActivity().findViewById(R.id.recording_rule_checkBox_auto_usr_job1);
+		cBox.setChecked(rule.isAutoUserJob1());
+		
+		cBox = (CheckBox) getActivity().findViewById(R.id.recording_rule_checkBox_auto_usr_job2);
+		cBox.setChecked(rule.isAutoUserJob2());
+		
+		cBox = (CheckBox) getActivity().findViewById(R.id.recording_rule_checkBox_auto_usr_job3);
+		cBox.setChecked(rule.isAutoUserJob3());
+		
+		cBox = (CheckBox) getActivity().findViewById(R.id.recording_rule_checkBox_auto_usr_job4);
+		cBox.setChecked(rule.isAutoUserJob4());
 		
 		Log.v( TAG, "setupForm : exit" );
 	}
