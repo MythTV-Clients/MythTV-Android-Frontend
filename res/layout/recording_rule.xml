@@ -20,13 +20,66 @@
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent">
+    android:layout_height="fill_parent"
+    android:orientation="vertical">
 
+    <LinearLayout
+        android:layout_width="wrap_content"
+    	android:layout_height="wrap_content"
+    	android:orientation="horizontal">
+        <View
+            android:id="@+id/recording_rule_category_color" 
+            android:layout_width="10dip"
+            android:layout_height="fill_parent"/>
+        <LinearLayout
+	        android:layout_width="wrap_content"
+	    	android:layout_height="wrap_content"
+	    	android:orientation="vertical">
+	        <TextView
+		  		android:id="@+id/recording_rule_title"
+		  		android:layout_width="fill_parent"
+		  		android:layout_height="wrap_content"
+		  		android:textColor="@color/body_text_1"
+		  		android:textAppearance="?android:attr/textAppearanceLarge" />
+	        
+	        <TextView
+		  		android:id="@+id/recording_rule_sub_title"
+		  		android:layout_width="fill_parent"
+		  		android:layout_height="wrap_content"
+		  		android:textColor="@color/body_text_1"
+		  		android:textAppearance="?android:attr/textAppearance" />
+        </LinearLayout>
+    </LinearLayout>
+    
+    
     <TextView
-  		android:id="@+id/recording_rule_title"
+  		android:id="@+id/recording_rule_description"
   		android:layout_width="fill_parent"
   		android:layout_height="wrap_content"
   		android:textColor="@color/body_text_1"
-  		android:textAppearance="?android:attr/textAppearanceLarge" />
+  		android:textAppearance="?android:attr/textAppearance" />
+    
+    <TextView
+  		android:id="@+id/recording_rule_category"
+  		android:layout_width="fill_parent"
+  		android:layout_height="wrap_content"
+  		android:textColor="@color/body_text_1"
+  		android:textAppearance="?android:attr/textAppearance" />
+    
+    <TextView
+  		android:id="@+id/recording_rule_type"
+  		android:layout_width="fill_parent"
+  		android:layout_height="wrap_content"
+  		android:textColor="@color/body_text_1"
+  		android:textAppearance="?android:attr/textAppearance" />
+    
+    <TextView
+  		android:id="@+id/recording_rule_call_sign"
+  		android:layout_width="fill_parent"
+  		android:layout_height="wrap_content"
+  		android:textColor="@color/body_text_1"
+  		android:textAppearance="?android:attr/textAppearance" />
+    
+
     
 </LinearLayout>

@@ -5,6 +5,7 @@ package org.mythtv.client.ui.dvr;
 
 import org.mythtv.R;
 import org.mythtv.client.ui.AbstractMythFragment;
+import org.mythtv.client.ui.util.ProgramHelper;
 import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.dvr.RecRule;
 
@@ -48,9 +49,11 @@ public class RecordingRuleFragment extends AbstractMythFragment {
 		}
 		
 		Bundle args = getArguments();
-		int recordingRuleId = args.getInt( "RECORDING_RULE_ID" );
-	
-		loadRecordingRule( recordingRuleId );
+		
+		if(null!=args){
+			int recordingRuleId = args.getInt( "RECORDING_RULE_ID" );
+			loadRecordingRule( recordingRuleId );
+		}
 		
 		Log.v( TAG, "onCreate : exit" );
 	}
@@ -113,9 +116,29 @@ public class RecordingRuleFragment extends AbstractMythFragment {
 	private void setupForm( RecRule rule ) {
 		Log.v( TAG, "setupForm : enter" );
 		
-		TextView title = (TextView) getActivity().findViewById( R.id.recording_rule_title );
+		View v = getActivity().findViewById(R.id.recording_rule_category_color);
+		v.setBackgroundColor(ProgramHelper.createInstance(getActivity().getApplicationContext()).getCategoryColor(rule.getCategory()));
 		
-		title.setText( rule.getTitle() );
+		TextView tView = (TextView) getActivity().findViewById( R.id.recording_rule_title );
+		tView.setText( rule.getTitle() );
+		
+		tView = (TextView) getActivity().findViewById( R.id.recording_rule_sub_title );
+		tView.setText(rule.getSubTitle());
+		
+		tView = (TextView) getActivity().findViewById( R.id.recording_rule_description );
+		tView.setText(rule.getDescription());
+		
+		tView = (TextView) getActivity().findViewById( R.id.recording_rule_category );
+		tView.setText(rule.getCategory());
+		
+		tView = (TextView) getActivity().findViewById( R.id.recording_rule_type );
+		tView.setText(rule.getType());
+		
+		tView = (TextView) getActivity().findViewById( R.id.recording_rule_call_sign );
+		tView.setText(rule.getCallSign());
+		
+		
+		
 		
 		Log.v( TAG, "setupForm : exit" );
 	}
