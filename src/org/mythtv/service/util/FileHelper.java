@@ -24,7 +24,6 @@ import java.io.File;
 import android.content.Context;
 import android.os.Build;
 import android.os.Environment;
-import android.util.Log;
 
 /**
  * @author Daniel Frey

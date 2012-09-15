@@ -108,7 +108,26 @@
 		<!-- MythTV Android Services -->
 		<service android:name=".service.dvr.DvrService" />
 		
-		<service android:name=".service.guide.GuideService" />
+		<service android:name=".service.dvr.RecordedDownloadService">
+			<intent-filter>
+                <action
+                    android:name="org.mythtv.background.recordedDownload.ACTION_DOWNLOAD" />
+            </intent-filter>
+        </service>
+		
+		<service android:name=".service.dvr.BannerDownloadService">
+			<intent-filter>
+                <action
+                    android:name="org.mythtv.background.bannerDownload.ACTION_DOWNLOAD" />
+            </intent-filter>
+        </service>
+		
+		<service android:name=".service.dvr.UpcomingDownloadService">
+			<intent-filter>
+                <action
+                    android:name="org.mythtv.background.upcomingDownload.ACTION_DOWNLOAD" />
+            </intent-filter>
+		</service>
 		
 		<service android:name=".service.guide.ProgramGuideDownloadService">
 			<intent-filter>

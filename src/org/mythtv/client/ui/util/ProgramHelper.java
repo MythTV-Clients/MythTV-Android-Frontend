@@ -7,7 +7,6 @@ import org.mythtv.R;
 
 import android.content.Context;
 import android.content.res.Resources;
-import android.util.Log;
 
 /**
  * @author Daniel Frey

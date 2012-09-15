@@ -21,7 +21,6 @@ package org.mythtv.client.ui.frontends;
 
 import org.mythtv.R;
 
-import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.content.Context;

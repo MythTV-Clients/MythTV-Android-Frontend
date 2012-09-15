@@ -1,0 +1,116 @@
+/**
+ *  This file is part of MythTV for Android
+ * 
+ *  MythTV for Android is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  MythTV for Android is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with MythTV for Android.  If not, see <http://www.gnu.org/licenses/>.
+ *   
+ * This software can be found at <https://github.com/MythTV-Android/mythtv-for-android/>
+ *
+ */
+package org.mythtv.service.dvr.cache;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+
+import org.mythtv.service.dvr.RecordedDownloadService;
+import org.mythtv.service.util.FileHelper;
+import org.mythtv.services.api.dvr.Programs;
+
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.support.v4.util.LruCache;
+import android.util.Log;
+
+/**
+ * @author Daniel Frey
+ *
+ */
+public class BannerLruMemoryCache extends LruCache<String, BitmapDrawable> {
+
+	private static final String TAG = BannerLruMemoryCache.class.getSimpleName();
+	
+	private final Context mContext;
+
+    private FileHelper mFileHelper;
+	
+	public BannerLruMemoryCache( Context context ) {
+		super( 12 * 1024 * 1024 );
+		Log.v( TAG, "initialize : enter" );
+
+		mContext = context;
+		mFileHelper = new FileHelper( mContext );
+		
+		Log.v( TAG, "initialize : exit" );
+	}
+
+	/* (non-Javadoc)
+	 * @see android.support.v4.util.LruCache#create(java.lang.Object)
+	 */
+	@Override
+	protected BitmapDrawable create( String key ) {
+		Log.v( TAG, "create : enter" );
+
+		File imageCache = mFileHelper.getProgramImagesDataDirectory();
+		if( imageCache.exists() ) {
+
+			File image = new File( imageCache, key );
+			if( image.exists() ) {
+				try {
+					InputStream is = new FileInputStream( image );
+					Bitmap bitmap = BitmapFactory.decodeStream( is );
+					return new BitmapDrawable( bitmap );
+				} catch( Exception e ) {
+					Log.e( TAG, "create : error reading file" );
+				}
+			}
+		}
+		
+		Log.v( TAG, "create : exit" );
+		return super.create( key );
+	}
+
+	/* (non-Javadoc)
+	 * @see android.support.v4.util.LruCache#sizeOf(java.lang.Object, java.lang.Object)
+	 */
+	@Override
+	protected int sizeOf( String key, BitmapDrawable value ) {
+		
+		File imageCache = mFileHelper.getProgramImagesDataDirectory();
+		if( imageCache.exists() ) {
+
+			File image = new File( imageCache, RecordedDownloadService.RECORDED_FILE );
+			if( image.exists() ) {
+				return (int) image.length();
+			}
+		
+		}
+
+		return super.sizeOf( key, value );    
+	}
+
+	// internal helpers
+	
+	public static Programs getDownloadingPrograms() {
+		
+		Programs programs = new Programs();
+		
+		Log.i( TAG, "getDownloadingPrograms : programs=" + programs.toString() );
+		
+		return programs;
+
+	}
+	
+}

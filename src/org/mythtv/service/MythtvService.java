@@ -19,9 +19,16 @@
  */
 package org.mythtv.service;
 
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+import org.mythtv.client.MainApplication;
+import org.mythtv.service.util.FileHelper;
+
 import android.app.IntentService;
 import android.content.Intent;
-import android.util.Log;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.joda.JodaModule;
 
 /**
  * @author Daniel Frey
@@ -40,11 +47,24 @@ public abstract class MythtvService extends IntentService {
 
 	public static final String SERVICE_CALLBACK = "org.mythtv.service.SERVICE_CALLBACK";
 	public static final String ORIGINAL_INTENT_EXTRA = "org.mythtv.service.ORIGINAL_INTENT_EXTRA";
+
+	public static final DateTimeFormatter fileDateTimeFormatter = DateTimeFormat.forPattern( "yyyy-MM-dd'T'HH-mm-ss" );
+
+	public static final String FILENAME_EXT = ".json";
+    
+	protected static ObjectMapper mObjectMapper;
+	protected FileHelper mFileHelper;
+    protected MainApplication mMainApplication;
 	
+
 	public MythtvService( String name ) {
 		super( name );
-		Log.v( TAG, "initialize : enter" );
-		Log.v( TAG, "initialize : exit" );
+		
+		mObjectMapper = new ObjectMapper();
+		mObjectMapper.registerModule( new JodaModule() );
+		
+		mFileHelper = new FileHelper( this );
+
 	}
 
 	/* (non-Javadoc)
@@ -52,11 +72,7 @@ public abstract class MythtvService extends IntentService {
 	 */
 	@Override
 	protected void onHandleIntent( Intent intent ) {
-		Log.v( TAG, "onHandleIntent : enter" );
-
-		// NO OP
-		
-		Log.v( TAG, "onHandleIntent : exit" );
+		mMainApplication = (MainApplication) MythtvService.this.getApplicationContext();
 	}
 
 }

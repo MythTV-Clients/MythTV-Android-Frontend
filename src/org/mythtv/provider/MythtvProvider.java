@@ -22,7 +22,6 @@ package org.mythtv.provider;
 import org.mythtv.db.DatabaseHelper;
 import org.mythtv.db.channel.ChannelConstants;
 import org.mythtv.db.dvr.ProgramConstants;
-//import org.mythtv.db.dvr.ProgramGroupConstants;
 import org.mythtv.db.dvr.RecordingConstants;
 
 import android.content.ContentUris;
@@ -34,6 +33,7 @@ import android.database.sqlite.SQLiteStatement;
 import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Log;
+//import org.mythtv.db.dvr.ProgramGroupConstants;
 
 /**
  * @author Daniel Frey

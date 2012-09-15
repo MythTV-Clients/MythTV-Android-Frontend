@@ -25,9 +25,9 @@ import java.util.List;
 import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.db.dvr.ProgramConstants.ProgramType;
 import org.mythtv.service.AbstractMythtvProcessor;
-import org.mythtv.service.util.ArticleCleaner;
 import org.mythtv.service.util.DateUtils;
 import org.mythtv.services.api.dvr.Program;
+import org.mythtv.services.utils.ArticleCleaner;
 
 import android.content.ContentUris;
 import android.content.ContentValues;

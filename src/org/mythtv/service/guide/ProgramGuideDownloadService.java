@@ -23,36 +23,28 @@ import java.io.File;
 import java.io.IOException;
 
 import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
-import org.mythtv.client.MainApplication;
-import org.mythtv.service.util.FileHelper;
+import org.mythtv.service.MythtvService;
+import org.mythtv.service.util.DateUtils;
 import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.guide.ProgramGuideWrapper;
 
-import android.app.IntentService;
 import android.content.Intent;
 import android.util.Log;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.joda.JodaModule;
 
 /**
  * @author Daniel Frey
  *
  */
-public class ProgramGuideDownloadService extends IntentService {
+public class ProgramGuideDownloadService extends MythtvService {
 
 	private static final String TAG = ProgramGuideDownloadService.class.getSimpleName();
 
 	private static final Integer MAX_DAYS = 12;
 	private static final Integer MAX_HOURS = 24;
 	
-	public static final String FILENAME_EXT = ".json";
-	public static final DateTimeFormatter validDateTimeFormatter = DateTimeFormat.forPattern( "yyyy-MM-dd'T'HH:mm:ss" );
-	public static final DateTimeFormatter fileDateTimeFormatter = DateTimeFormat.forPattern( "yyyy-MM-dd'T'HH-mm-ss" );
     public static final String ACTION_DOWNLOAD = "org.mythtv.background.programGuideDownload.ACTION_DOWNLOAD";
     public static final String ACTION_PROGRESS = "org.mythtv.background.programGuideDownload.ACTION_PROGRESS";
     public static final String ACTION_COMPLETE = "org.mythtv.background.programGuideDownload.ACTION_COMPLETE";
@@ -62,18 +54,8 @@ public class ProgramGuideDownloadService extends IntentService {
     public static final String EXTRA_PROGRESS_ERROR = "PROGRESS_ERROR";
     public static final String EXTRA_COMPLETE = "COMPLETE";
 
-    private static ObjectMapper mapper;
-    
-    private MainApplication mMainApplication;
-	private FileHelper mFileHelper;
-	
 	public ProgramGuideDownloadService() {
 		super( "ProgamGuideDownloadService" );
-		
-		mFileHelper = new FileHelper( this );
-		
-		mapper = new ObjectMapper();
-		mapper.registerModule( new JodaModule() );
 	}
 	
 	/* (non-Javadoc)
@@ -82,7 +64,8 @@ public class ProgramGuideDownloadService extends IntentService {
 	@Override
 	protected void onHandleIntent( Intent intent ) {
 		Log.d( TAG, "onHandleIntent : enter" );
-
+		super.onHandleIntent( intent );
+		
         if ( intent.getAction().equals( ACTION_DOWNLOAD ) ) {
     		Log.i( TAG, "onHandleIntent : DOWNLOAD action selected" );
 
@@ -97,10 +80,8 @@ public class ProgramGuideDownloadService extends IntentService {
 	private void download() {
 //		Log.v( TAG, "download : enter" );
 		
-		boolean newDateDownloaded = false;
+		boolean newDataDownloaded = false;
 		
-		mMainApplication = (MainApplication) ProgramGuideDownloadService.this.getApplicationContext();
-
 		DateTime start = new DateTime();
 		start = start.withTime( 0, 0, 0, 0 );
 //		Log.d( TAG, "download : start="+ dateTimeFormatter.print( start ) );
@@ -122,19 +103,19 @@ public class ProgramGuideDownloadService extends IntentService {
 					File file = new File( programGuideCache, filename );
 					if( !file.exists() ) {
 						DateTime end = start.withTime( start.getHourOfDay(), 59, 59, 999 );
-						Log.i( TAG, "download : starting download for " + validDateTimeFormatter.print( start ) + ", end time=" + validDateTimeFormatter.print( end ) );
+						Log.i( TAG, "download : starting download for " + DateUtils.dateTimeFormatter.print( start ) + ", end time=" + DateUtils.dateTimeFormatter.print( end ) );
 
 						ETagInfo etag = ETagInfo.createEmptyETag();
 						ProgramGuideWrapper programGuide = mMainApplication.getMythServicesApi().guideOperations().getProgramGuide( start, end, 1, -1, false, etag );
 						if( null != programGuide ) {
 
 							try {
-								mapper.writeValue( file, programGuide.getProgramGuide() );
+								mObjectMapper.writeValue( file, programGuide.getProgramGuide() );
 
-								newDateDownloaded = true;
+								newDataDownloaded = true;
 
 								progressIntent.putExtra( EXTRA_PROGRESS, "Completed downloading file for " + sStart );
-								progressIntent.putExtra( EXTRA_PROGRESS_DATE, validDateTimeFormatter.print( start ) );
+								progressIntent.putExtra( EXTRA_PROGRESS_DATE, DateUtils.dateTimeFormatter.print( start ) );
 							} catch( JsonGenerationException e ) {
 								Log.e( TAG, "download : JsonGenerationException - error downloading file for " + sStart, e );
 
@@ -166,7 +147,7 @@ public class ProgramGuideDownloadService extends IntentService {
 			start = start.plusDays( 1 );
 		}
 		
-		if( newDateDownloaded ) {
+		if( newDataDownloaded ) {
 			Intent completeIntent = new Intent( ACTION_COMPLETE );
 			completeIntent.putExtra( EXTRA_COMPLETE, "Program Guide Download Service Finished" );
 			sendBroadcast( completeIntent );

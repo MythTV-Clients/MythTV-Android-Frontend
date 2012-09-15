@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.joda.time.DateTime;
+import org.mythtv.service.MythtvService;
 import org.mythtv.service.guide.ProgramGuideDownloadService;
 import org.mythtv.service.util.FileHelper;
 import org.mythtv.services.api.channel.ChannelInfo;
@@ -79,8 +80,8 @@ public class ProgramGuideLruMemoryCache extends LruCache<DateTime, ProgramGuide>
 		File programGuideCache = mFileHelper.getProgramGuideDataDirectory();
 		if( programGuideCache.exists() ) {
 
-			String sStart = ProgramGuideDownloadService.fileDateTimeFormatter.print( key );
-			String filename = sStart + ProgramGuideDownloadService.FILENAME_EXT;
+			String sStart = MythtvService.fileDateTimeFormatter.print( key );
+			String filename = sStart + MythtvService.FILENAME_EXT;
 			Log.v( TAG, "create : loading data from file " + filename );
 			
 			File file = new File( programGuideCache, filename );

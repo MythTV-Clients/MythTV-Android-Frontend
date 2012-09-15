@@ -30,11 +30,10 @@ public class RecordingRuleFragment extends AbstractMythFragment {
 	private static final String TAG = RecordingRuleFragment.class.getSimpleName();
 	
 	public static RecordingRuleFragment newInstance( Bundle args ) {
-		return new RecordingRuleFragment( args );
-	}
-	
-	private RecordingRuleFragment( Bundle args ) {
-		setArguments( args );
+		RecordingRuleFragment fragment = new RecordingRuleFragment();
+		fragment.setArguments( args );
+		
+		return fragment;
 	}
 	
 	public RecordingRuleFragment() { }
