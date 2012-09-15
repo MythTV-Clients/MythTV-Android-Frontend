@@ -20,7 +20,6 @@
 package org.mythtv.client.ui.dvr;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -35,7 +34,6 @@ import org.mythtv.service.dvr.cache.BannerLruMemoryCache;
 import org.mythtv.service.dvr.cache.RecordedLruMemoryCache;
 import org.mythtv.service.guide.ProgramGuideDownloadService;
 import org.mythtv.service.util.FileHelper;
-import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.dvr.Program;
 import org.mythtv.services.api.dvr.Programs;
 import org.mythtv.services.utils.ArticleCleaner;
@@ -45,10 +43,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -296,6 +291,7 @@ public class RecordingsFragment extends MythtvListFragment { // implements Loade
 		/* (non-Javadoc)
 		 * @see android.widget.Adapter#getView(int, android.view.View, android.view.ViewGroup)
 		 */
+		@SuppressWarnings( "deprecation" )
 		@Override
 		public View getView( int position, View convertView, ViewGroup parent ) {
 			Log.v( TAG, "ProgramGroupRowAdapter.getView : enter" );
@@ -305,8 +301,6 @@ public class RecordingsFragment extends MythtvListFragment { // implements Loade
 			
 			mHolder.programGroupDetail = (LinearLayout) convertView.findViewById( R.id.program_group_detail );
 			mHolder.programGroup = (TextView) convertView.findViewById( R.id.program_group_row );
-			
-			int textColor = getResources().getColor( R.color.body_text_1 );
 			
 			Program program = programGroups.get( position );
 
@@ -341,78 +335,6 @@ public class RecordingsFragment extends MythtvListFragment { // implements Loade
 
 		}
 		
-	}
-
-	private class DownloadBannerImageTask extends AsyncTask<Object, Void, Bitmap> {
-
-		public static final String BANNERS_DIR = "Banners";
-
-		private static final String BANNER_TYPE = "Banner";
-		
-		private Exception e = null;
-
-		private String inetref;
-		
-		@Override
-		protected Bitmap doInBackground( Object... params ) {
-			Log.v( TAG, "doInBackground : enter" );
-
-			inetref = (String) params[ 0 ];
-			
-			Bitmap bitmap = null;
-
-			try {
-				Log.v( TAG, "doInBackground : lookup" );
-				ETagInfo eTag = ETagInfo.createEmptyETag();
-				byte[] bytes = getApplicationContext().getMythServicesApi().contentOperations().getRecordingArtwork( BANNER_TYPE, inetref, -1, -1, -1, eTag );
-				bitmap = BitmapFactory.decodeByteArray( bytes, 0, bytes.length );
-			} catch( Exception e ) {
-				Log.v( TAG, "doInBackground : error" );
-
-				this.e = e;
-			}
-
-			Log.v( TAG, "doInBackground : exit" );
-			return bitmap;
-		}
-
-		@Override
-		protected void onPostExecute( Bitmap result ) {
-			Log.v( TAG, "onPostExecute : enter" );
-
-			if( null == e ) {
-				Log.v( TAG, "onPostExecute : result size=" + result.getHeight() + "x" + result.getWidth() );
-
-		        try {
-		            File root = getActivity().getExternalCacheDir();
-		            
-		            File pictureDir = new File( root, BANNERS_DIR );
-		            pictureDir.mkdirs();
-		            
-		            File f = new File( pictureDir, inetref + ".png" );
-	                if( f.exists() ) {
-		                return;
-		            }
-		
-	                String name = f.getAbsolutePath();
-	                FileOutputStream fos = new FileOutputStream( name );
-	                result.compress( Bitmap.CompressFormat.PNG, 100, fos );
-	                fos.flush();
-	                fos.close();
-
-//					adapter.notifyDataSetChanged();
-	                
-		        } catch( Exception e ) {
-		        	Log.e( TAG, "error saving file", e );
-		        }
-		 
-			} else {
-				Log.e( TAG, "error getting program group banner", e );
-			}
-
-			Log.v( TAG, "onPostExecute : exit" );
-		}
-
 	}
 
 	private class RecordedDownloadReceiver extends BroadcastReceiver {
