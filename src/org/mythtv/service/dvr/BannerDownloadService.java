@@ -21,6 +21,7 @@ package org.mythtv.service.dvr;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 
 import org.mythtv.service.MythtvService;
 import org.mythtv.services.api.ETagInfo;
@@ -40,6 +41,7 @@ public class BannerDownloadService extends MythtvService {
 
 	public static final String BANNER_INETREF = "INETREF";
 	public static final String BANNER_FILE_EXT = ".png";
+	public static final String BANNER_FILE_NA_EXT = ".na";
 	
     public static final String ACTION_DOWNLOAD = "org.mythtv.background.bannerDownload.ACTION_DOWNLOAD";
     public static final String ACTION_COMPLETE = "org.mythtv.background.bannerDownload.ACTION_COMPLETE";
@@ -80,9 +82,15 @@ public class BannerDownloadService extends MythtvService {
 		
 		File imageCache = mFileHelper.getProgramImagesDataDirectory();
 		if( imageCache.exists() ) {
-			
+
+			boolean imageNotAvailable = false;
+			File checkImageNA = new File( imageCache, inetref + BANNER_FILE_NA_EXT );
+			if( checkImageNA.exists() ) {
+				imageNotAvailable = true;
+			}
+
 			File image = new File( imageCache, inetref + BANNER_FILE_EXT );
-			if( !image.exists() ) {
+			if( !image.exists() && !imageNotAvailable ) {
 				
 				try {
 					ETagInfo eTag = ETagInfo.createEmptyETag();
@@ -98,7 +106,16 @@ public class BannerDownloadService extends MythtvService {
 	                newDataDownloaded = true;
 					filename = image.getName();
 				} catch( Exception e ) {
-					Log.e( TAG, "download : error", e );
+					Log.e( TAG, "download : error creating image file", e );
+
+					File imageNA = new File( imageCache, inetref + BANNER_FILE_NA_EXT );
+					if( !imageNA.exists() ) {
+						try {
+							imageNA.createNewFile();
+						} catch( IOException e1 ) {
+							Log.e( TAG, "download : error creating image na file", e1 );
+						}
+					}
 				}
 
 			}

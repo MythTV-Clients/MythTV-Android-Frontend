@@ -28,6 +28,7 @@ import java.util.TreeMap;
 
 import org.mythtv.R;
 import org.mythtv.client.ui.util.MythtvListFragment;
+import org.mythtv.client.ui.util.ProgramHelper;
 import org.mythtv.service.dvr.BannerDownloadService;
 import org.mythtv.service.dvr.RecordedDownloadService;
 import org.mythtv.service.dvr.cache.BannerLruMemoryCache;
@@ -75,6 +76,7 @@ public class RecordingsFragment extends MythtvListFragment { // implements Loade
 	private BannerDownloadReceiver bannerDownloadReceiver;
 
 	private FileHelper mFileHelper;
+	private ProgramHelper mProgramHelper;
 
 	private RecordedLruMemoryCache cache;
 	private BannerLruMemoryCache imageCache;
@@ -91,6 +93,7 @@ public class RecordingsFragment extends MythtvListFragment { // implements Loade
 		super.onActivityCreated( savedInstanceState );
 
 		mFileHelper = new FileHelper( getActivity() );
+		mProgramHelper = ProgramHelper.createInstance( getActivity() );
 
 		cache = new RecordedLruMemoryCache( getActivity() );
 		imageCache = new BannerLruMemoryCache( getActivity() );
@@ -263,7 +266,6 @@ public class RecordingsFragment extends MythtvListFragment { // implements Loade
 		Collections.sort( sorted );
 		
 		programGroups = sorted;
-		Log.d( TAG, "loadData : programGroups=" + programGroups );
 
 	    adapter = new ProgramGroupRowAdapter( getActivity(), programGroups );
 	    setListAdapter( adapter );
@@ -296,15 +298,27 @@ public class RecordingsFragment extends MythtvListFragment { // implements Loade
 		public View getView( int position, View convertView, ViewGroup parent ) {
 			Log.v( TAG, "ProgramGroupRowAdapter.getView : enter" );
 			
-			convertView = mInflater.inflate( R.layout.program_group_row, parent, false );
-			ViewHolder mHolder = new ViewHolder();
+			View v = convertView;
+			ViewHolder mHolder;
 			
-			mHolder.programGroupDetail = (LinearLayout) convertView.findViewById( R.id.program_group_detail );
-			mHolder.programGroup = (TextView) convertView.findViewById( R.id.program_group_row );
-			
+			if( null == v ) {
+				v = mInflater.inflate( R.layout.program_group_row, parent, false );
+				
+				mHolder = new ViewHolder();				
+				mHolder.programGroupDetail = (LinearLayout) v.findViewById( R.id.program_group_detail );
+				mHolder.category = (View) v.findViewById( R.id.program_group_category );
+				mHolder.programGroup = (TextView) v.findViewById( R.id.program_group_row );
+				
+				v.setTag( mHolder );
+			} else {
+				mHolder = (ViewHolder) v.getTag();
+			}
+						
 			Program program = programGroups.get( position );
 
 			mHolder.programGroup.setText( program.getTitle() );
+			mHolder.category.setBackgroundColor( mProgramHelper.getCategoryColor( program.getCategory() ) );
+			
 			BitmapDrawable banner = imageCache.get( program.getInetref() + BannerDownloadService.BANNER_FILE_EXT );
 			if( null != banner ) {
 				Log.v( TAG, "getView : loading banner from adapter cache" );
@@ -323,20 +337,21 @@ public class RecordingsFragment extends MythtvListFragment { // implements Loade
 			}
 
 			Log.v( TAG, "ProgramGroupRowAdapter.getView : exit" );
-			return convertView;
-		}
-		
-		private class ViewHolder {
-			
-			LinearLayout programGroupDetail;
-			TextView programGroup;
-			
-			ViewHolder() { }
-
+			return v;
 		}
 		
 	}
 
+	private static class ViewHolder {
+		
+		LinearLayout programGroupDetail;
+		View category;
+		TextView programGroup;
+		
+		ViewHolder() { }
+
+	}
+	
 	private class RecordedDownloadReceiver extends BroadcastReceiver {
 
 		@Override
