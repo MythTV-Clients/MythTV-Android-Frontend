@@ -24,8 +24,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.mythtv.service.dvr.ProgramGroupRecordedDownloadService;
 import org.mythtv.service.util.FileHelper;
+import org.mythtv.services.api.dvr.Program;
 import org.mythtv.services.api.dvr.Programs;
 
 import android.content.Context;
@@ -41,16 +45,16 @@ import com.fasterxml.jackson.datatype.joda.JodaModule;
  * @author Daniel Frey
  *
  */
-public class RecordedLruMemoryCache extends LruCache<String, Programs> {
+public class ProgramGroupLruMemoryCache extends LruCache<String, Programs> {
 
-	private static final String TAG = RecordedLruMemoryCache.class.getSimpleName();
+	private static final String TAG = ProgramGroupLruMemoryCache.class.getSimpleName();
 	
 	private final Context mContext;
     private final ObjectMapper mapper;
 
     private FileHelper mFileHelper;
 	
-	public RecordedLruMemoryCache( Context context ) {
+	public ProgramGroupLruMemoryCache( Context context ) {
 		super( 12 * 1024 * 1024 );
 		Log.v( TAG, "initialize : enter" );
 
@@ -73,7 +77,7 @@ public class RecordedLruMemoryCache extends LruCache<String, Programs> {
 		File programCache = mFileHelper.getProgramDataDirectory();
 		if( programCache.exists() ) {
 
-			File file = new File( programCache, key );
+			File file = new File( programCache, key + ProgramGroupRecordedDownloadService.RECORDED_FILE );
 			if( file.exists() ) {
 				Log.v( TAG, "create : recorded file exists" );
 				
@@ -104,7 +108,7 @@ public class RecordedLruMemoryCache extends LruCache<String, Programs> {
 		File programCache = mFileHelper.getProgramDataDirectory();
 		if( programCache.exists() ) {
 
-			File file = new File( programCache, key );
+			File file = new File( programCache, key + ProgramGroupRecordedDownloadService.RECORDED_FILE );
 			if( file.exists() ) {
 				return (int) file.length();
 			}
@@ -116,9 +120,16 @@ public class RecordedLruMemoryCache extends LruCache<String, Programs> {
 
 	// internal helpers
 	
-	public static Programs getDownloadingPrograms() {
-		
+	public static Programs getDownloadingPrograms( String title ) {
+			
 		Programs programs = new Programs();
+		
+		List<Program> programList = new ArrayList<Program>();
+		Program program = new Program();
+		program.setTitle( title + " is currently downloading" );
+		program.setSubTitle( "Please try again later." );
+		programList.add( program );
+		programs.setPrograms( programList );
 		
 		Log.i( TAG, "getDownloadingPrograms : programs=" + programs.toString() );
 		

@@ -22,7 +22,6 @@ package org.mythtv.service.dvr;
 import java.io.File;
 import java.io.IOException;
 
-import org.joda.time.DateTime;
 import org.mythtv.service.MythtvService;
 import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.dvr.ProgramList;
@@ -76,13 +75,7 @@ public class RecordedDownloadService extends MythtvService {
 	// internal helpers
 	
 	private void download() {
-//		Log.v( TAG, "download : enter" );
-		
-		boolean newDataDownloaded = false;
-		
-		DateTime start = new DateTime();
-		start = start.withTime( 0, 0, 0, 0 );
-//		Log.d( TAG, "download : start="+ dateTimeFormatter.print( start ) );
+		Log.v( TAG, "download : enter" );
 		
 		File programCache = mFileHelper.getProgramDataDirectory();
 		if( programCache.exists() ) {
@@ -100,34 +93,30 @@ public class RecordedDownloadService extends MythtvService {
 			try {
 				mObjectMapper.writeValue( new File( programCache, RECORDED_FILE ), programList.getPrograms() );
 
-				newDataDownloaded = true;
-
+				Log.i( TAG, "download : downloaded 'recorded'" );
+				progressIntent.putExtra( EXTRA_PROGRESS, "downloaded 'recorded'" );
 			} catch( JsonGenerationException e ) {
 				Log.e( TAG, "download : JsonGenerationException - error downloading file for 'recorded'", e );
 
 				progressIntent.putExtra( EXTRA_PROGRESS_ERROR, "error downloading file for 'recorded': " + e.getLocalizedMessage() );
-				sendBroadcast( progressIntent );
 			} catch( JsonMappingException e ) {
 				Log.e( TAG, "download : JsonGenerationException - error downloading file for 'recorded'", e );
 
 				progressIntent.putExtra( EXTRA_PROGRESS_ERROR, "error downloading file for 'recorded': " + e.getLocalizedMessage() );
-				sendBroadcast( progressIntent );
 			} catch( IOException e ) {
 				Log.e( TAG, "download : JsonGenerationException - error downloading file for 'recorded'", e );
 
 				progressIntent.putExtra( EXTRA_PROGRESS_ERROR, "IOException - error downloading file for 'recorded': " + e.getLocalizedMessage() );
-				sendBroadcast( progressIntent );
 			}
 
+			sendBroadcast( progressIntent );
 		}
 		
-		if( newDataDownloaded ) {
-			Intent completeIntent = new Intent( ACTION_COMPLETE );
-			completeIntent.putExtra( EXTRA_COMPLETE, "Recorded Programs Download Service Finished" );
-			sendBroadcast( completeIntent );
-		}
+		Intent completeIntent = new Intent( ACTION_COMPLETE );
+		completeIntent.putExtra( EXTRA_COMPLETE, "Recorded Programs Download Service Finished" );
+		sendBroadcast( completeIntent );
 		
-//		Log.v( TAG, "download : exit" );
+		Log.v( TAG, "download : exit" );
 	}
 	
 }

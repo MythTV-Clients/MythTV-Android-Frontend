@@ -110,8 +110,14 @@
 		
 		<service android:name=".service.dvr.RecordedDownloadService">
 			<intent-filter>
+                <action android:name="org.mythtv.background.recordedDownload.ACTION_DOWNLOAD" />
+            </intent-filter>
+        </service>
+		
+		<service android:name=".service.dvr.ProgramGroupRecordedDownloadService">
+			<intent-filter>
                 <action
-                    android:name="org.mythtv.background.recordedDownload.ACTION_DOWNLOAD" />
+                    android:name="org.mythtv.background.programGroupRecordedDownload.ACTION_DOWNLOAD" />
             </intent-filter>
         </service>
 		

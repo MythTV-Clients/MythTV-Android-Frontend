@@ -53,6 +53,7 @@ public class ProgramGuideDownloadService extends MythtvService {
     public static final String EXTRA_PROGRESS_DATE = "PROGRESS_DATE";
     public static final String EXTRA_PROGRESS_ERROR = "PROGRESS_ERROR";
     public static final String EXTRA_COMPLETE = "COMPLETE";
+    public static final String EXTRA_COMPLETE_DOWNLOADED = "COMPLETE_DOWNLOADED";
 
 	public ProgramGuideDownloadService() {
 		super( "ProgamGuideDownloadService" );
@@ -84,7 +85,6 @@ public class ProgramGuideDownloadService extends MythtvService {
 		
 		DateTime start = new DateTime();
 		start = start.withTime( 0, 0, 0, 0 );
-//		Log.d( TAG, "download : start="+ dateTimeFormatter.print( start ) );
 		
 		int currentHour = 0;
 		int currentDay = 0;
@@ -147,11 +147,10 @@ public class ProgramGuideDownloadService extends MythtvService {
 			start = start.plusDays( 1 );
 		}
 		
-		if( newDataDownloaded ) {
-			Intent completeIntent = new Intent( ACTION_COMPLETE );
-			completeIntent.putExtra( EXTRA_COMPLETE, "Program Guide Download Service Finished" );
-			sendBroadcast( completeIntent );
-		}
+		Intent completeIntent = new Intent( ACTION_COMPLETE );
+		completeIntent.putExtra( EXTRA_COMPLETE, "Program Guide Download Service Finished" );
+		completeIntent.putExtra( EXTRA_COMPLETE_DOWNLOADED, newDataDownloaded );
+		sendBroadcast( completeIntent );
 		
 //		Log.v( TAG, "download : exit" );
 	}

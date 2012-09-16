@@ -30,10 +30,10 @@ import org.mythtv.R;
 import org.mythtv.client.ui.util.MythtvListFragment;
 import org.mythtv.client.ui.util.ProgramHelper;
 import org.mythtv.service.dvr.BannerDownloadService;
+import org.mythtv.service.dvr.ProgramGroupRecordedDownloadService;
 import org.mythtv.service.dvr.RecordedDownloadService;
 import org.mythtv.service.dvr.cache.BannerLruMemoryCache;
 import org.mythtv.service.dvr.cache.RecordedLruMemoryCache;
-import org.mythtv.service.guide.ProgramGuideDownloadService;
 import org.mythtv.service.util.FileHelper;
 import org.mythtv.services.api.dvr.Program;
 import org.mythtv.services.api.dvr.Programs;
@@ -64,7 +64,7 @@ import android.widget.Toast;
  * @author Daniel Frey
  * 
  */
-public class RecordingsFragment extends MythtvListFragment { // implements LoaderManager.LoaderCallbacks<Cursor> {
+public class RecordingsFragment extends MythtvListFragment {
 
 	private static final String TAG = RecordingsFragment.class.getSimpleName();
 	private static final int REFRESH_ID = Menu.FIRST + 2;
@@ -72,11 +72,12 @@ public class RecordingsFragment extends MythtvListFragment { // implements Loade
 	private OnProgramGroupListener listener = null;
 	private ProgramGroupRowAdapter adapter;
 	
-	private RecordedDownloadReceiver recordedDownloadReceiver;
-	private BannerDownloadReceiver bannerDownloadReceiver;
+	private RecordedDownloadReceiver recordedDownloadReceiver = new RecordedDownloadReceiver();
+	private ProgramGroupRecordedDownloadReceiver programGroupRecordedDownloadReceiver = new ProgramGroupRecordedDownloadReceiver();
+	private BannerDownloadReceiver bannerDownloadReceiver = new BannerDownloadReceiver();
 
-	private FileHelper mFileHelper;
-	private ProgramHelper mProgramHelper;
+	private static FileHelper mFileHelper;
+	private static ProgramHelper mProgramHelper;
 
 	private RecordedLruMemoryCache cache;
 	private BannerLruMemoryCache imageCache;
@@ -111,29 +112,32 @@ public class RecordingsFragment extends MythtvListFragment { // implements Loade
 	public void onStart() {
 		Log.v( TAG, "onStart : enter" );
 		super.onStart();
-	    
+
 		IntentFilter recordedDownloadFilter = new IntentFilter( RecordedDownloadService.ACTION_DOWNLOAD );
 		recordedDownloadFilter.addAction( RecordedDownloadService.ACTION_PROGRESS );
 		recordedDownloadFilter.addAction( RecordedDownloadService.ACTION_COMPLETE );
-		recordedDownloadFilter.setPriority( IntentFilter.SYSTEM_LOW_PRIORITY );
         getActivity().registerReceiver( recordedDownloadReceiver, recordedDownloadFilter );
+
+		IntentFilter programGroupRecordedDownloadFilter = new IntentFilter( ProgramGroupRecordedDownloadService.ACTION_DOWNLOAD );
+		programGroupRecordedDownloadFilter.addAction( ProgramGroupRecordedDownloadService.ACTION_PROGRESS );
+		programGroupRecordedDownloadFilter.addAction( ProgramGroupRecordedDownloadService.ACTION_COMPLETE );
+        getActivity().registerReceiver( programGroupRecordedDownloadReceiver, programGroupRecordedDownloadFilter );
 
 		IntentFilter bannerDownloadFilter = new IntentFilter( BannerDownloadService.ACTION_DOWNLOAD );
 		bannerDownloadFilter.addAction( BannerDownloadService.ACTION_COMPLETE );
-		bannerDownloadFilter.setPriority( IntentFilter.SYSTEM_LOW_PRIORITY );
         getActivity().registerReceiver( bannerDownloadReceiver, bannerDownloadFilter );
 
-        Log.v( TAG, "onStart : exit" );
+		Log.v( TAG, "onStart : enter" );
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see android.support.v4.app.Fragment#onResume()
 	 */
 	@Override
 	public void onResume() {
 		Log.v( TAG, "onResume : enter" );
-		super.onResume();
-
+		super.onStart();
+	    
 		File programCache = mFileHelper.getProgramDataDirectory();
 		if( programCache.exists() ) {
 
@@ -146,9 +150,9 @@ public class RecordingsFragment extends MythtvListFragment { // implements Loade
 
 		}
 		
-		Log.v( TAG, "onResume : exit" );
+        Log.v( TAG, "onResume : exit" );
 	}
-
+	
 	/* (non-Javadoc)
 	 * @see android.support.v4.app.Fragment#onStop()
 	 */
@@ -162,6 +166,15 @@ public class RecordingsFragment extends MythtvListFragment { // implements Loade
 			try {
 				getActivity().unregisterReceiver( recordedDownloadReceiver );
 				recordedDownloadReceiver = null;
+			} catch( IllegalArgumentException e ) {
+				Log.e( TAG, e.getLocalizedMessage(), e );
+			}
+		}
+
+		if( null != programGroupRecordedDownloadReceiver ) {
+			try {
+				getActivity().unregisterReceiver( programGroupRecordedDownloadReceiver );
+				programGroupRecordedDownloadReceiver = null;
 			} catch( IllegalArgumentException e ) {
 				Log.e( TAG, e.getLocalizedMessage(), e );
 			}
@@ -208,7 +221,7 @@ public class RecordingsFragment extends MythtvListFragment { // implements Loade
 		case REFRESH_ID:
 			Log.d( TAG, "onOptionsItemSelected : refresh selected" );
 
-			loadData();
+			getActivity().startService( new Intent( RecordedDownloadService.ACTION_DOWNLOAD ) );
 		    
 	        return true;
 		}
@@ -356,18 +369,40 @@ public class RecordingsFragment extends MythtvListFragment { // implements Loade
 
 		@Override
 		public void onReceive( Context context, Intent intent ) {
+        	Log.i( TAG, "RecordedDownloadReceiver.onReceive : enter" );
 			
 	        if ( intent.getAction().equals( RecordedDownloadService.ACTION_PROGRESS ) ) {
-	        	Log.i( TAG, "RecordedDownloadReceiver.onReceive : progress=" + intent.getStringExtra( ProgramGuideDownloadService.EXTRA_PROGRESS ) );
+	        	Log.i( TAG, "RecordedDownloadReceiver.onReceive : progress=" + intent.getStringExtra( RecordedDownloadService.EXTRA_PROGRESS ) );
 	        }
 	        
 	        if ( intent.getAction().equals( RecordedDownloadService.ACTION_COMPLETE ) ) {
-	        	Log.i( TAG, "RecordedDownloadReceiver.onReceive : complete=" + intent.getStringExtra( ProgramGuideDownloadService.EXTRA_COMPLETE ) );
+	        	Log.i( TAG, "RecordedDownloadReceiver.onReceive : complete=" + intent.getStringExtra( RecordedDownloadService.EXTRA_COMPLETE ) );
 	        	
 	        	Toast.makeText( getActivity(), "Recorded Programs updated!", Toast.LENGTH_SHORT ).show();
 	        	
+	        	getActivity().startService( new Intent( ProgramGroupRecordedDownloadService.ACTION_DOWNLOAD ) );
+	        	
 	        	cache.remove( RecordedDownloadService.RECORDED_FILE );
 	        	loadData();
+	        }
+
+        	Log.i( TAG, "RecordedDownloadReceiver.onReceive : exit" );
+		}
+		
+	}
+
+	private class ProgramGroupRecordedDownloadReceiver extends BroadcastReceiver {
+
+		@Override
+		public void onReceive( Context context, Intent intent ) {
+			
+	        if ( intent.getAction().equals( RecordedDownloadService.ACTION_PROGRESS ) ) {
+	        	Log.i( TAG, "ProgramGroupRecordedDownloadReceiver.onReceive : progress=" + intent.getStringExtra( ProgramGroupRecordedDownloadService.EXTRA_PROGRESS ) );
+	        }
+	        
+	        if ( intent.getAction().equals( RecordedDownloadService.ACTION_COMPLETE ) ) {
+	        	Log.i( TAG, "ProgramGroupRecordedDownloadReceiver.onReceive : complete=" + intent.getStringExtra( ProgramGroupRecordedDownloadService.EXTRA_COMPLETE ) );
+	        	
 	        }
 
 		}

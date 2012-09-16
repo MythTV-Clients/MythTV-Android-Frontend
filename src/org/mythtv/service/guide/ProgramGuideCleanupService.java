@@ -76,7 +76,6 @@ public class ProgramGuideCleanupService extends MythtvService {
 		if( programGuideCache.exists() ) {
 
 			for( String filename : programGuideCache.list() ) {
-				Log.v( TAG, "cleanup : filename=" + filename );
 				DateTime file = new DateTime( filename.subSequence( 0, filename.indexOf( 'T' ) ) );
 				
 				if( file.isBefore( today ) ) {

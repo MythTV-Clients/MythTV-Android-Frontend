@@ -109,7 +109,7 @@ public class UpcomingActivity extends AbstractDvrActivity {
 		mDvrServiceHelper = DvrServiceHelper.getInstance( this );
 
 		IntentFilter upcomingFilter = new IntentFilter( DvrServiceHelper.UPCOMING_RESULT );
-		upcomingFilter.setPriority( IntentFilter.SYSTEM_LOW_PRIORITY );
+//		upcomingFilter.setPriority( IntentFilter.SYSTEM_LOW_PRIORITY );
         upcomingReceiver = new UpcomingReceiver();
         registerReceiver( upcomingReceiver, upcomingFilter );
 
