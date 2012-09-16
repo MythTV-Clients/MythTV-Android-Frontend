@@ -19,7 +19,6 @@
  */
 package org.mythtv.client.ui;
 
-import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.service.guide.ProgramGuideCleanupService;
 import org.mythtv.service.guide.ProgramGuideDownloadService;
 
@@ -27,7 +26,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
@@ -62,11 +60,6 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 
 		setupActionBar();
 
-		Cursor cursor = getContentResolver().query( ProgramConstants.CONTENT_URI, new String[] { ProgramConstants._ID }, ProgramConstants.FIELD_PROGRAM_TYPE + " = ?", new String[] { ProgramConstants.ProgramType.GUIDE.name() }, null );
-		if( cursor.moveToFirst()) {
-		}
-		cursor.close();
-		
 		Log.v( TAG, "onCreate : exit" );
 	}
 
@@ -81,12 +74,10 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 		IntentFilter programGuideDownloadFilter = new IntentFilter();
 		programGuideDownloadFilter.addAction( ProgramGuideDownloadService.ACTION_PROGRESS );
 		programGuideDownloadFilter.addAction( ProgramGuideDownloadService.ACTION_COMPLETE );
-		programGuideDownloadFilter.setPriority( IntentFilter.SYSTEM_LOW_PRIORITY );
 	    registerReceiver( programGuideDownloaderReceiver, programGuideDownloadFilter );
 	    
 		IntentFilter programGuideCleanupFilter = new IntentFilter();
 		programGuideCleanupFilter.addAction( ProgramGuideCleanupService.ACTION_COMPLETE );
-		programGuideCleanupFilter.setPriority( IntentFilter.SYSTEM_LOW_PRIORITY );
 	    registerReceiver( programGuideCleanupReceiver, programGuideCleanupFilter );
 	    
 		Log.v( TAG, "onStart : exit" );
@@ -118,6 +109,7 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 		if( null != programGuideDownloaderReceiver ) {
 			try {
 				unregisterReceiver( programGuideDownloaderReceiver );
+				programGuideDownloaderReceiver = null;
 			} catch( IllegalArgumentException e ) {
 				Log.e( TAG, "onStop : error", e );
 			}
@@ -126,6 +118,7 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 		if( null != programGuideCleanupReceiver ) {
 			try {
 				unregisterReceiver( programGuideCleanupReceiver );
+				programGuideCleanupReceiver = null;
 			} catch( IllegalArgumentException e ) {
 				Log.e( TAG, "onStop : error", e );
 			}
@@ -168,9 +161,11 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 	        }
 	        
 	        if ( intent.getAction().equals( ProgramGuideDownloadService.ACTION_COMPLETE ) ) {
-	        	Log.i( TAG, "ProgramGuideDownloadReceiver.onReceive : complete=" + intent.getStringExtra( ProgramGuideDownloadService.EXTRA_COMPLETE ) );
+	        	Log.i( TAG, "ProgramGuideDownloadReceiver.onReceive : " + intent.getStringExtra( ProgramGuideDownloadService.EXTRA_COMPLETE ) );
 	        	
-	        	Toast.makeText( AbstractLocationAwareFragmentActivity.this, "Program Guide updated!", Toast.LENGTH_SHORT ).show();
+	        	if( intent.getBooleanExtra( ProgramGuideDownloadService.EXTRA_COMPLETE_DOWNLOADED, Boolean.FALSE ) ) {
+	        		Toast.makeText( AbstractLocationAwareFragmentActivity.this, "Program Guide updated!", Toast.LENGTH_SHORT ).show();
+	        	}
 	        }
 
 		}

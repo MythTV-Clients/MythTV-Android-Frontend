@@ -17,7 +17,7 @@
  * This software can be found at <https://github.com/MythTV-Android/mythtv-for-android/>
  *
  */
-package org.mythtv.service.guide.cache;
+package org.mythtv.service.dvr.cache;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -27,13 +27,10 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.joda.time.DateTime;
-import org.mythtv.service.MythtvService;
-import org.mythtv.service.guide.ProgramGuideDownloadService;
+import org.mythtv.service.dvr.ProgramGroupRecordedDownloadService;
 import org.mythtv.service.util.FileHelper;
-import org.mythtv.services.api.channel.ChannelInfo;
 import org.mythtv.services.api.dvr.Program;
-import org.mythtv.services.api.guide.ProgramGuide;
+import org.mythtv.services.api.dvr.Programs;
 
 import android.content.Context;
 import android.support.v4.util.LruCache;
@@ -48,16 +45,16 @@ import com.fasterxml.jackson.datatype.joda.JodaModule;
  * @author Daniel Frey
  *
  */
-public class ProgramGuideLruMemoryCache extends LruCache<DateTime, ProgramGuide> {
+public class ProgramGroupLruMemoryCache extends LruCache<String, Programs> {
 
-	private static final String TAG = ProgramGuideLruMemoryCache.class.getSimpleName();
+	private static final String TAG = ProgramGroupLruMemoryCache.class.getSimpleName();
 	
 	private final Context mContext;
     private final ObjectMapper mapper;
 
     private FileHelper mFileHelper;
 	
-	public ProgramGuideLruMemoryCache( Context context ) {
+	public ProgramGroupLruMemoryCache( Context context ) {
 		super( 12 * 1024 * 1024 );
 		Log.v( TAG, "initialize : enter" );
 
@@ -74,29 +71,25 @@ public class ProgramGuideLruMemoryCache extends LruCache<DateTime, ProgramGuide>
 	 * @see android.support.v4.util.LruCache#create(java.lang.Object)
 	 */
 	@Override
-	protected ProgramGuide create( DateTime key ) {
+	protected Programs create( String key ) {
 		Log.v( TAG, "create : enter" );
 
-		File programGuideCache = mFileHelper.getProgramGuideDataDirectory();
-		if( programGuideCache.exists() ) {
+		File programCache = mFileHelper.getProgramDataDirectory();
+		if( programCache.exists() ) {
 
-			String sStart = MythtvService.fileDateTimeFormatter.print( key );
-			String filename = sStart + MythtvService.FILENAME_EXT;
-			Log.v( TAG, "create : loading data from file " + filename );
-			
-			File file = new File( programGuideCache, filename );
+			File file = new File( programCache, key + ProgramGroupRecordedDownloadService.RECORDED_FILE );
 			if( file.exists() ) {
-				Log.v( TAG, "create : file exists " + filename );
+				Log.v( TAG, "create : recorded file exists" );
 				
 				try {
 					InputStream is = new BufferedInputStream( new FileInputStream( file ), 8192 );
-					return mapper.readValue( is, ProgramGuide.class );
+					return mapper.readValue( is, Programs.class );
 				} catch( JsonParseException e ) {
-					Log.e( TAG, "create : JsonParseException - error opening file " + filename, e );
+					Log.e( TAG, "create : JsonParseException - error opening file 'recorded'", e );
 				} catch( JsonMappingException e ) {
-					Log.e( TAG, "create : JsonMappingException - error opening file " + filename, e );
+					Log.e( TAG, "create : JsonMappingException - error opening file 'recorded'", e );
 				} catch( IOException e ) {
-					Log.e( TAG, "create : IOException - error opening file " + filename, e );
+					Log.e( TAG, "create : IOException - error opening file 'recorded'", e );
 				}
 			}
 		
@@ -110,15 +103,12 @@ public class ProgramGuideLruMemoryCache extends LruCache<DateTime, ProgramGuide>
 	 * @see android.support.v4.util.LruCache#sizeOf(java.lang.Object, java.lang.Object)
 	 */
 	@Override
-	protected int sizeOf( DateTime key, ProgramGuide value ) {
+	protected int sizeOf( String key, Programs value ) {
 		
-		File programGuideCache = mFileHelper.getProgramGuideDataDirectory();
-		if( programGuideCache.exists() ) {
+		File programCache = mFileHelper.getProgramDataDirectory();
+		if( programCache.exists() ) {
 
-			String sStart = ProgramGuideDownloadService.fileDateTimeFormatter.print( key );
-			String filename = sStart + ProgramGuideDownloadService.FILENAME_EXT;
-			
-			File file = new File( programGuideCache, filename );
+			File file = new File( programCache, key + ProgramGroupRecordedDownloadService.RECORDED_FILE );
 			if( file.exists() ) {
 				return (int) file.length();
 			}
@@ -130,30 +120,20 @@ public class ProgramGuideLruMemoryCache extends LruCache<DateTime, ProgramGuide>
 
 	// internal helpers
 	
-	public static ProgramGuide getDownloadingProgramGuide( DateTime key ) {
+	public static Programs getDownloadingPrograms( String title ) {
+			
+		Programs programs = new Programs();
 		
-		ProgramGuide guide = new ProgramGuide();
-		
-		List<ChannelInfo> channels = new ArrayList<ChannelInfo>();
-		ChannelInfo channel = new ChannelInfo();
-		channel.setChannelNumber( "" );
-		
-		List<Program> programs = new ArrayList<Program>();
+		List<Program> programList = new ArrayList<Program>();
 		Program program = new Program();
-		program.setStartTime( key );
-		program.setEndTime( key.withTime( key.getHourOfDay(), 59, 59, 999 ) );
-		program.setTitle( "Program Guide is currently downloading" );
-		program.setSubTitle( "Please try this timeslot again later." );
-		programs.add( program );
+		program.setTitle( title + " is currently downloading" );
+		program.setSubTitle( "Please try again later." );
+		programList.add( program );
+		programs.setPrograms( programList );
 		
-		channel.setPrograms( programs );
-		channels.add( channel );
+		Log.i( TAG, "getDownloadingPrograms : programs=" + programs.toString() );
 		
-		guide.setChannels( channels );
-		
-		Log.i( TAG, "getDownloadingProgramGuide : guide=" + guide.toString() );
-		
-		return guide;
+		return programs;
 
 	}
 	

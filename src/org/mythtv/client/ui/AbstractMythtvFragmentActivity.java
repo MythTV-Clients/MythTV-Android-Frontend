@@ -20,14 +20,9 @@
 package org.mythtv.client.ui;
 
 import org.mythtv.client.MainApplication;
-import org.mythtv.service.guide.ProgramGuideDownloadService;
 
 import android.annotation.TargetApi;
 import android.app.ActionBar;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.res.Resources;
 import android.os.Build;
 import android.os.Bundle;
@@ -38,7 +33,6 @@ import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 /**
  * @author Daniel Frey
@@ -52,8 +46,6 @@ public abstract class AbstractMythtvFragmentActivity extends FragmentActivity im
 
 	protected Resources resources;
 
-	private ProgramGuideDownloadReceiver programGuideDownloaderReceiver = new ProgramGuideDownloadReceiver();
-	
 	//***************************************
     // MythActivity methods
     //***************************************
@@ -77,43 +69,6 @@ public abstract class AbstractMythtvFragmentActivity extends FragmentActivity im
 		resources = getResources();
 		
 		Log.v( TAG, "onCreate : exit" );
-	}
-
-	/* (non-Javadoc)
-	 * @see android.support.v4.app.FragmentActivity#onStart()
-	 */
-	@Override
-	protected void onStart() {
-		Log.v( TAG, "onStart : enter" );
-		super.onStart();
-
-		IntentFilter programGuideDownloadFilter = new IntentFilter();
-		programGuideDownloadFilter.addAction( ProgramGuideDownloadService.ACTION_PROGRESS );
-		programGuideDownloadFilter.addAction( ProgramGuideDownloadService.ACTION_COMPLETE );
-		programGuideDownloadFilter.setPriority( IntentFilter.SYSTEM_LOW_PRIORITY );
-	    registerReceiver( programGuideDownloaderReceiver, programGuideDownloadFilter );
-	    
-		Log.v( TAG, "onStart : exit" );
-	}
-
-	/* (non-Javadoc)
-	 * @see android.support.v4.app.FragmentActivity#onStop()
-	 */
-	@Override
-	protected void onStop() {
-		Log.v( TAG, "onStop : enter" );
-		super.onStop();
-
-		// Unregister for broadcast
-		if( null != programGuideDownloaderReceiver ) {
-			try {
-				unregisterReceiver( programGuideDownloaderReceiver );
-			} catch( IllegalArgumentException e ) {
-				Log.e( TAG, "onStop : error", e );
-			}
-		}
-
-		Log.v( TAG, "onStop : exit" );
 	}
 
 	/* (non-Javadoc)
@@ -174,25 +129,6 @@ public abstract class AbstractMythtvFragmentActivity extends FragmentActivity im
 		}
 		
 		Log.v( TAG, "setupActionBar : exit" );
-	}
-
-	private class ProgramGuideDownloadReceiver extends BroadcastReceiver {
-
-		@Override
-		public void onReceive( Context context, Intent intent ) {
-			
-	        if ( intent.getAction().equals( ProgramGuideDownloadService.ACTION_PROGRESS ) ) {
-	        	Log.i( TAG, "ProgramGuideDownloadReceiver.onReceive : progress=" + intent.getStringExtra( ProgramGuideDownloadService.EXTRA_PROGRESS ) );
-	        }
-	        
-	        if ( intent.getAction().equals( ProgramGuideDownloadService.ACTION_COMPLETE ) ) {
-	        	Log.i( TAG, "ProgramGuideDownloadReceiver.onReceive : complete=" + intent.getStringExtra( ProgramGuideDownloadService.EXTRA_COMPLETE ) );
-	        	
-	        	Toast.makeText( AbstractMythtvFragmentActivity.this, "Program Guide updated!", Toast.LENGTH_SHORT ).show();
-	        }
-
-		}
-		
 	}
 
 }

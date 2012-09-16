@@ -25,17 +25,19 @@ package org.mythtv.client.ui.dvr;
 //import io.vov.vitamio.widget.MediaController;
 //import io.vov.vitamio.widget.VideoView;
 
+import org.joda.time.DateTime;
 import org.mythtv.R;
 import org.mythtv.client.ui.preferences.PlaybackProfile;
-import org.mythtv.db.dvr.ProgramConstants;
+import org.mythtv.service.dvr.cache.ProgramGroupLruMemoryCache;
+import org.mythtv.service.util.DateUtils;
 import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.content.LiveStreamInfo;
+import org.mythtv.services.api.dvr.Program;
+import org.mythtv.services.api.dvr.Programs;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.ContentUris;
 import android.content.Intent;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -49,13 +51,17 @@ public class VideoActivity extends AbstractDvrActivity {
 
 	private static final String TAG = VideoActivity.class.getSimpleName();
 
-	public static final String EXTRA_PROGRAM_KEY = "org.mythtv.client.ui.dvr.programGroup.EXTRA_PROGRAM_KEY";
+	public static final String EXTRA_PROGRAM_CHANNEL_ID = "org.mythtv.client.ui.dvr.programGroup.EXTRA_PROGRAM_CHANNEL_ID";
+	public static final String EXTRA_PROGRAM_START_TIME = "org.mythtv.client.ui.dvr.programGroup.EXTRA_PROGRAM_START_TIME";
+	public static final String EXTRA_PROGRAM_CLEANED_TITLE = "org.mythtv.client.ui.dvr.programGroup.EXTRA_PROGRAM_CLEANED_TITLE";
 	
 	private LiveStreamInfo info = null;
 	private ProgressDialog progressDialog;
 	private Boolean firstrun = true;
 	private PlaybackProfile selectedPlaybackProfile;
-	
+
+	private ProgramGroupLruMemoryCache cache;
+
 	// ***************************************
 	// Activity methods
 	// ***************************************
@@ -74,23 +80,35 @@ public class VideoActivity extends AbstractDvrActivity {
 	    
 	    setupActionBar();
 	    
-	    progressDialog = ProgressDialog.show( this, "Please wait...", "Retrieving video...", true, true );
+		cache = new ProgramGroupLruMemoryCache( this );
 
-	    long id = getIntent().getExtras().getLong( EXTRA_PROGRAM_KEY );
+		progressDialog = ProgressDialog.show( this, "Please wait...", "Retrieving video...", true, true );
+
+	    String channelId = getIntent().getStringExtra( EXTRA_PROGRAM_CHANNEL_ID);
+	    String startTime = getIntent().getStringExtra( EXTRA_PROGRAM_START_TIME );
+	    String cleaned = getIntent().getStringExtra( EXTRA_PROGRAM_CLEANED_TITLE );
 	    
-	    String[] projection = new String[] { ProgramConstants.FIELD_FILENAME, ProgramConstants.FIELD_HOSTNAME };
+		Log.v( TAG, "onCreate : channelId=" + channelId + ", startTime=" + startTime + ", cleaned=" + cleaned );
 	    
-	    Cursor cursor = getContentResolver().query( ContentUris.withAppendedId( ProgramConstants.CONTENT_URI, id ) , projection, null, null, null );
-	    if( cursor.moveToFirst() ) {
-	        String filename = cursor.getString( cursor.getColumnIndexOrThrow( ProgramConstants.FIELD_FILENAME ) );
-	        String hostname = cursor.getString( cursor.getColumnIndexOrThrow( ProgramConstants.FIELD_HOSTNAME ) );
+	    Program selected = null;
+		Programs programs = cache.get( cleaned );
+	    for( Program program : programs.getPrograms() ) {
+			Log.v( TAG, "onCreate : program iteration" );
 
-			Log.v( TAG, "onCreate : filename=" + filename );
-			Log.v( TAG, "onCreate : hostname=" + hostname );
-
-	    	new CreateStreamTask().execute( filename, hostname );
+			Log.v( TAG, "onCreate : program.channelId=" + program.getChannelInfo().getChannelId() + ", startTime=" + program.getStartTime() );
+			if( channelId.equals( program.getChannelInfo().getChannelId() ) && startTime.equals( DateUtils.dateTimeFormatter.print( program.getStartTime() ) ) ) {
+	    		selected = program;
+	    		
+				Log.v( TAG, "onCreate : program selected" );
+	    		break;
+	    	}
 	    }
-	    cursor.close();
+	    
+	    if( null != selected ) {
+			Log.v( TAG, "onCreate : filename=" + selected.getFilename() + ", hostname=" + selected.getHostname() );
+
+	    	new CreateStreamTask().execute( selected.getFilename(), selected.getHostname() );
+	    }
 	    
 		Log.v( TAG, "onCreate : exit" );
 	}

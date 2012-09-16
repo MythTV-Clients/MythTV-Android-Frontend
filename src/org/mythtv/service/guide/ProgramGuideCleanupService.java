@@ -22,43 +22,27 @@ package org.mythtv.service.guide;
 import java.io.File;
 
 import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
-import org.mythtv.service.util.FileHelper;
+import org.mythtv.service.MythtvService;
 
-import android.app.IntentService;
 import android.content.Intent;
 import android.util.Log;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.joda.JodaModule;
 
 /**
  * @author Daniel Frey
  *
  */
-public class ProgramGuideCleanupService extends IntentService {
+public class ProgramGuideCleanupService extends MythtvService {
 
 	private static final String TAG = ProgramGuideCleanupService.class.getSimpleName();
 
-	public static final DateTimeFormatter fileDateTimeFormatter = DateTimeFormat.forPattern( "yyyy-MM-dd'T'HH-mm-ss" );
     public static final String ACTION_CLEANUP = "org.mythtv.background.programGuideCleanup.ACTION_CLEANUP";
     public static final String ACTION_COMPLETE = "org.mythtv.background.programGuideCleanup.ACTION_COMPLETE";
 
     public static final String EXTRA_COMPLETE = "COMPLETE";
     public static final String EXTRA_COMPLETE_COUNT = "COMPLETE_COUNT";
 
-    private static ObjectMapper mapper;
-    
-	private FileHelper mFileHelper;
-	
 	public ProgramGuideCleanupService() {
 		super( "ProgamGuideDownloadService" );
-		
-		mFileHelper = new FileHelper( this );
-		
-		mapper = new ObjectMapper();
-		mapper.registerModule( new JodaModule() );
 	}
 	
 	/* (non-Javadoc)
@@ -92,7 +76,6 @@ public class ProgramGuideCleanupService extends IntentService {
 		if( programGuideCache.exists() ) {
 
 			for( String filename : programGuideCache.list() ) {
-				Log.v( TAG, "cleanup : filename=" + filename );
 				DateTime file = new DateTime( filename.subSequence( 0, filename.indexOf( 'T' ) ) );
 				
 				if( file.isBefore( today ) ) {

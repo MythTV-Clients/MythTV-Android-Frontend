@@ -83,14 +83,10 @@ public class AwayActivity extends AbstractLocationAwareFragmentActivity {
 
 		@Override
 		public Fragment getItem( int position ) {
-			Log.v( TAG, "getItem : enter" );
-			Log.v( TAG, "getItem : exit" );
 			return fragments.get( position );
 		}
 
 		public int getCount() {
-			Log.v( TAG, "getCount : enter" );
-			Log.v( TAG, "getCount : exit" );
 			return fragments.size();
 		}
 
@@ -99,20 +95,16 @@ public class AwayActivity extends AbstractLocationAwareFragmentActivity {
 		 */
 		@Override
 		public CharSequence getPageTitle( int position ) {
-			Log.v( TAG, "getPageTitle : enter" );
 
 			switch( position ) {
 			case 0:
-				Log.v( TAG, "getPageTitle : dvr page" );
 
 				return resources.getString( R.string.tab_dvr );
 			case 1:
-				Log.v( TAG, "getPageTitle : media page" );
 
 				return resources.getString( R.string.tab_multimedia );
 			}
 
-			Log.v( TAG, "getPageTitle : exit" );
 			return super.getPageTitle( position );
 		}
 
