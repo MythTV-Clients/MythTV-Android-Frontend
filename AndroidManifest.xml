@@ -114,6 +114,12 @@
             </intent-filter>
         </service>
 		
+		<service android:name=".service.dvr.RecordedCleanupService" android:process=":recordedCleanup">
+			<intent-filter>
+                <action android:name="org.mythtv.background.recordedCleanup.ACTION_CLEANUP" />
+            </intent-filter>
+        </service>
+		
 		<service android:name=".service.dvr.ProgramGroupRecordedDownloadService" android:process=":programGroupRecorded">
 			<intent-filter>
                 <action

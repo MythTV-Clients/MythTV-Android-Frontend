@@ -19,6 +19,7 @@
  */
 package org.mythtv.client.ui;
 
+import org.mythtv.service.dvr.RecordedCleanupService;
 import org.mythtv.service.guide.ProgramGuideCleanupService;
 import org.mythtv.service.guide.ProgramGuideDownloadService;
 
@@ -41,6 +42,7 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 
 	private ProgramGuideDownloadReceiver programGuideDownloaderReceiver = new ProgramGuideDownloadReceiver();
 	private ProgramGuideCleanupReceiver programGuideCleanupReceiver = new ProgramGuideCleanupReceiver();
+	private RecordedCleanupReceiver recordedCleanupReceiver = new RecordedCleanupReceiver();
 	
 	// ***************************************
 	// FragmentActivity methods
@@ -80,6 +82,10 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 		programGuideCleanupFilter.addAction( ProgramGuideCleanupService.ACTION_COMPLETE );
 	    registerReceiver( programGuideCleanupReceiver, programGuideCleanupFilter );
 	    
+		IntentFilter recordedCleanupFilter = new IntentFilter();
+		recordedCleanupFilter.addAction( RecordedCleanupService.ACTION_COMPLETE );
+	    registerReceiver( recordedCleanupReceiver, recordedCleanupFilter );
+	    
 		Log.v( TAG, "onStart : exit" );
 	}
 
@@ -92,6 +98,7 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 		super.onResume();
 
 		startService( new Intent( ProgramGuideCleanupService.ACTION_CLEANUP ) );
+		startService( new Intent( RecordedCleanupService.ACTION_CLEANUP ) );
 		startService( new Intent( ProgramGuideDownloadService.ACTION_DOWNLOAD ) );
 		
 		Log.v( TAG, "onResume : exit" );
@@ -119,6 +126,15 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 			try {
 				unregisterReceiver( programGuideCleanupReceiver );
 				programGuideCleanupReceiver = null;
+			} catch( IllegalArgumentException e ) {
+				Log.e( TAG, "onStop : error", e );
+			}
+		}
+
+		if( null != recordedCleanupReceiver ) {
+			try {
+				unregisterReceiver( recordedCleanupReceiver );
+				recordedCleanupReceiver = null;
 			} catch( IllegalArgumentException e ) {
 				Log.e( TAG, "onStop : error", e );
 			}
@@ -180,6 +196,20 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 	        if ( intent.getAction().equals( ProgramGuideCleanupService.ACTION_COMPLETE ) ) {
 	        	Log.i( TAG, "ProgramGuideCleanupReceiver.onReceive : " + intent.getStringExtra( ProgramGuideCleanupService.EXTRA_COMPLETE ) );
 	        	Log.i( TAG, "ProgramGuideCleanupReceiver.onReceive : " + intent.getIntExtra( ProgramGuideCleanupService.EXTRA_COMPLETE_COUNT, 0 ) + " files cleaned up" );
+	        }
+	        
+		}
+		
+	}
+
+	private class RecordedCleanupReceiver extends BroadcastReceiver {
+
+		@Override
+		public void onReceive( Context context, Intent intent ) {
+			
+	        if ( intent.getAction().equals( RecordedCleanupService.ACTION_COMPLETE ) ) {
+	        	Log.i( TAG, "RecordedCleanupReceiver.onReceive : " + intent.getStringExtra( RecordedCleanupService.EXTRA_COMPLETE ) );
+	        	Log.i( TAG, "RecordedCleanupReceiver.onReceive : " + intent.getIntExtra( RecordedCleanupService.EXTRA_COMPLETE_COUNT, 0 ) + " files cleaned up" );
 	        }
 	        
 		}

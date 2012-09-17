@@ -23,9 +23,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.joda.time.DateTime;
 import org.mythtv.service.MythtvService;
 import org.mythtv.service.dvr.cache.RecordedLruMemoryCache;
+import org.mythtv.service.util.UrlUtils;
 import org.mythtv.services.api.dvr.Program;
 import org.mythtv.services.api.dvr.Programs;
 
@@ -83,23 +83,33 @@ public class RecordedCleanupService extends MythtvService {
 			List<String> programGroups = new ArrayList<String>();
 			Programs programs = cache.get( RecordedDownloadService.RECORDED_FILE );
 			for( Program program : programs.getPrograms() ) {
-				if( !programGroups.contains( program.getTitle() ) ) {
-					programGroups.add( program.getTitle() );
+				
+				String title = UrlUtils.encodeUrl( program.getTitle() );
+				
+				if( !programGroups.contains( title ) ) {
+					programGroups.add( title );
 				}
 			}
 			
 			for( String filename : programCache.list() ) {
-
-				String programGroup = filename.substring( 0, filename.indexOf( ProgramGroupRecordedDownloadService.RECORDED_FILE ) );
+//				Log.v( TAG, "cleanup : filename=" + filename );
 				
-				if( !programGroups.contains( programGroup ) ) {
+				if( !filename.equals( RecordedDownloadService.RECORDED_FILE ) ) {
 					File deleted = new File( programCache, filename );
-					
-					if( deleted.delete() ) {
-						count++;
+
+					if( !deleted.isDirectory() ) {
+
+						String programGroup = filename.substring( 0, filename.indexOf( ProgramGroupRecordedDownloadService.RECORDED_FILE ) );
+						if( !programGroups.contains( programGroup ) ) {
+
+							if( deleted.delete() ) {
+								count++;
+
+//								Log.v( TAG, "cleanup : deleted filename=" + filename );
+							}
+						}
 					}
 				}
-
 			}
 		
 		}
