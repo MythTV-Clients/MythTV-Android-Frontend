@@ -76,8 +76,9 @@ public class RecordingRulesFragment extends MythtvListFragment {
 		@Override
 		public void onCheckedChanged(CompoundButton buttonView,
 				boolean isChecked) {
-			int ruleId = (Integer)buttonView.getTag();
-			new SetRuleActiveStateTask().execute(isChecked?1:0, ruleId);
+			RecRule rule = (RecRule)buttonView.getTag();
+			rule.setInactive(!isChecked);
+			new SetRuleActiveStateTask().execute(isChecked?1:0, rule.getId());
 		}
 		
 	};
@@ -275,7 +276,7 @@ public class RecordingRulesFragment extends MythtvListFragment {
 			mHolder.type.setText( rule.getType() );
 			mHolder.last.setText( formatter.print( rule.getLastRecorded() ) );
 			mHolder.active.setChecked(!rule.isInactive());
-			mHolder.active.setTag(rule.getId());
+			mHolder.active.setTag(rule);
 			mHolder.active.setOnCheckedChangeListener(sRuleCheckChangeListener);
 			
 			return convertView;
