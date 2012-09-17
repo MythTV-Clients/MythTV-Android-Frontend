@@ -89,13 +89,11 @@ public class ProgramGuideDownloadService extends MythtvService {
 		if( programGuideCache.exists() ) {
 
 			for( int currentHour = 0; currentHour < MAX_HOURS; currentHour++ ) {
-				Log.v( TAG, "download : currentHour=" + currentHour );
 
 				Intent progressIntent = new Intent( ACTION_PROGRESS );
 
 				String sStart = fileDateTimeFormatter.print( start );
 				String filename = sStart + FILENAME_EXT;
-				Log.v( TAG, "download : filename=" + filename );
 				File file = new File( programGuideCache, filename );
 				if( !file.exists() ) {
 					DateTime end = new DateTime( start );

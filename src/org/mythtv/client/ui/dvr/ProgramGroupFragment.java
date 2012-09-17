@@ -26,6 +26,7 @@ import org.mythtv.client.ui.util.MythtvListFragment;
 import org.mythtv.client.ui.util.ProgramHelper;
 import org.mythtv.service.dvr.cache.ProgramGroupLruMemoryCache;
 import org.mythtv.service.util.DateUtils;
+import org.mythtv.service.util.UrlUtils;
 import org.mythtv.services.api.dvr.Program;
 import org.mythtv.services.api.dvr.Programs;
 
@@ -86,7 +87,7 @@ public class ProgramGroupFragment extends MythtvListFragment {
 	public void loadPrograms( String title ) {
 		Log.i( TAG, "loadPrograms : enter" );
 
-		String cleaned = getCleanedTitle( title );
+		String cleaned = UrlUtils.encodeUrl( title );
 		
 		programs = cache.get( cleaned );
 		if( null == programs || null == programs.getPrograms() || programs.getPrograms().isEmpty() ) {
@@ -112,7 +113,7 @@ public class ProgramGroupFragment extends MythtvListFragment {
 		Intent i = new Intent( getActivity(), VideoActivity.class );
 		i.putExtra( VideoActivity.EXTRA_PROGRAM_CHANNEL_ID, program.getChannelInfo().getChannelId() );
 		i.putExtra( VideoActivity.EXTRA_PROGRAM_START_TIME, DateUtils.dateTimeFormatter.print( program.getStartTime() ) );
-		i.putExtra( VideoActivity.EXTRA_PROGRAM_CLEANED_TITLE, getCleanedTitle( program.getTitle() ) );
+		i.putExtra( VideoActivity.EXTRA_PROGRAM_CLEANED_TITLE, UrlUtils.encodeUrl( program.getTitle() ) );
 		startActivity( i );
 
 		Log.v( TAG, "onListItemClick : exit" );
@@ -177,16 +178,6 @@ public class ProgramGroupFragment extends MythtvListFragment {
 		
 		ViewHolder() { }
 
-	}
-	
-	private String getCleanedTitle( String title ) {
-		
-		title = title.replace( ':', '_' );
-		title = title.replace( '/', '_' );
-		title = title.replace( '\\', '_' );
-		title = title.replace( '!', '_' );
-
-		return title;
 	}
 	
 }
