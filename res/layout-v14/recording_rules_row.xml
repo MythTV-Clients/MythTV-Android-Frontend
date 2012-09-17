@@ -69,8 +69,8 @@
                 android:layout_centerInParent="false"
                 android:textColor="@color/body_text_1" />
             
-            <CheckBox
-                android:id="@+id/recording_rules_checkbox_active"
+            <Switch
+                android:id="@+id/recording_rules_switch_active"
                 android:focusable="false"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -82,7 +82,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
-                android:layout_below="@id/recording_rules_checkbox_active"
+                android:layout_below="@id/recording_rules_switch_active"
                 android:layout_centerInParent="false"
                 android:textColor="@color/body_text_1" />
 

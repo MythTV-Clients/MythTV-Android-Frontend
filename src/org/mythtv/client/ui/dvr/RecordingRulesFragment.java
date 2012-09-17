@@ -48,6 +48,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -65,6 +67,21 @@ public class RecordingRulesFragment extends MythtvListFragment {
 	private RecordingRuleAdapter adapter;
 
 	private MainApplication mainApplication;
+	
+	/**
+	 * OnCheckChangeListener to control rule's active state
+	 */
+	private OnCheckedChangeListener sRuleCheckChangeListener = new OnCheckedChangeListener(){
+
+		@Override
+		public void onCheckedChanged(CompoundButton buttonView,
+				boolean isChecked) {
+			RecRule rule = (RecRule)buttonView.getTag();
+			rule.setInactive(!isChecked);
+			new SetRuleActiveStateTask().execute(isChecked?1:0, rule.getId());
+		}
+		
+	};
 
 	/* (non-Javadoc)
 	 * @see android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
@@ -149,6 +166,19 @@ public class RecordingRulesFragment extends MythtvListFragment {
 	public interface OnRecordingRuleListener {
 		void onRecordingRuleSelected( Integer recordingRuleId );
 	}
+	
+	private class SetRuleActiveStateTask extends AsyncTask<Integer, Void, Void>
+	{	
+		@Override
+		protected Void doInBackground(Integer... params) {
+			if(params[0] > 0){
+				mainApplication.getMythServicesApi().dvrOperations().enableRecordingSchedule(params[1]);
+			}else{
+				mainApplication.getMythServicesApi().dvrOperations().disableRecordingSchedule(params[1]);
+			}
+			return null;
+		}	
+	}
 
 	// internal helpers
 	
@@ -225,6 +255,12 @@ public class RecordingRulesFragment extends MythtvListFragment {
 			mHolder.type = (TextView) convertView.findViewById( R.id.recording_rules_type );
 			mHolder.last = (TextView) convertView.findViewById( R.id.recording_rules_last );
 			
+			if(android.os.Build.VERSION.SDK_INT >= 14 ){
+				mHolder.active = (CompoundButton)convertView.findViewById(R.id.recording_rules_switch_active);
+			} else {
+				mHolder.active = (CompoundButton)convertView.findViewById(R.id.recording_rules_checkbox_active);
+			}
+			
 			RecRule rule = getItem( position );
 			
 			String channel = "[Any]";
@@ -239,6 +275,9 @@ public class RecordingRulesFragment extends MythtvListFragment {
 			mHolder.channel.setText( channel );
 			mHolder.type.setText( rule.getType() );
 			mHolder.last.setText( formatter.print( rule.getLastRecorded() ) );
+			mHolder.active.setChecked(!rule.isInactive());
+			mHolder.active.setTag(rule);
+			mHolder.active.setOnCheckedChangeListener(sRuleCheckChangeListener);
 			
 			return convertView;
 		}
@@ -252,6 +291,7 @@ public class RecordingRulesFragment extends MythtvListFragment {
 			TextView channel;
 			TextView type;
 			TextView last;
+			CompoundButton active;
 			
 			ViewHolder() { }
 
