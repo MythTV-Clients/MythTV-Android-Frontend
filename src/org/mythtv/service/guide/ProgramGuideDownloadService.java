@@ -42,8 +42,7 @@ public class ProgramGuideDownloadService extends MythtvService {
 
 	private static final String TAG = ProgramGuideDownloadService.class.getSimpleName();
 
-	private static final Integer MAX_DAYS = 12;
-	private static final Integer MAX_HOURS = 24;
+	private static final Integer MAX_HOURS = 288;
 	
     public static final String ACTION_DOWNLOAD = "org.mythtv.background.programGuideDownload.ACTION_DOWNLOAD";
     public static final String ACTION_PROGRESS = "org.mythtv.background.programGuideDownload.ACTION_PROGRESS";
@@ -86,65 +85,55 @@ public class ProgramGuideDownloadService extends MythtvService {
 		DateTime start = new DateTime();
 		start = start.withTime( 0, 0, 0, 0 );
 		
-		int currentHour = 0;
-		int currentDay = 0;
-		
 		File programGuideCache = mFileHelper.getProgramGuideDataDirectory();
 		if( programGuideCache.exists() ) {
 
-			for( currentDay = 0; currentDay < MAX_DAYS; currentDay++ ) {
+			for( int currentHour = 0; currentHour < MAX_HOURS; currentHour++ ) {
 
-				for( currentHour = 0; currentHour < MAX_HOURS; currentHour++ ) {
+				Intent progressIntent = new Intent( ACTION_PROGRESS );
 
-					Intent progressIntent = new Intent( ACTION_PROGRESS );
+				String sStart = fileDateTimeFormatter.print( start );
+				String filename = sStart + FILENAME_EXT;
+				File file = new File( programGuideCache, filename );
+				if( !file.exists() ) {
+					DateTime end = new DateTime( start );
+					end.withTime( start.getHourOfDay(), 59, 59, 999 );
+					Log.i( TAG, "download : starting download for " + DateUtils.dateTimeFormatter.print( start ) + ", end time=" + DateUtils.dateTimeFormatter.print( end ) );
 
-					String sStart = fileDateTimeFormatter.print( start );
-					String filename = sStart + FILENAME_EXT;
-					File file = new File( programGuideCache, filename );
-					if( !file.exists() ) {
-						DateTime end = start.withTime( start.getHourOfDay(), 59, 59, 999 );
-						Log.i( TAG, "download : starting download for " + DateUtils.dateTimeFormatter.print( start ) + ", end time=" + DateUtils.dateTimeFormatter.print( end ) );
+					ETagInfo etag = ETagInfo.createEmptyETag();
+					ProgramGuideWrapper programGuide = mMainApplication.getMythServicesApi().guideOperations().getProgramGuide( start, end, 1, -1, false, etag );
+					if( null != programGuide ) {
 
-						ETagInfo etag = ETagInfo.createEmptyETag();
-						ProgramGuideWrapper programGuide = mMainApplication.getMythServicesApi().guideOperations().getProgramGuide( start, end, 1, -1, false, etag );
-						if( null != programGuide ) {
+						try {
+							mObjectMapper.writeValue( file, programGuide.getProgramGuide() );
 
-							try {
-								mObjectMapper.writeValue( file, programGuide.getProgramGuide() );
+							newDataDownloaded = true;
 
-								newDataDownloaded = true;
+							progressIntent.putExtra( EXTRA_PROGRESS, "Completed downloading file for " + sStart );
+							progressIntent.putExtra( EXTRA_PROGRESS_DATE, DateUtils.dateTimeFormatter.print( start ) );
+						} catch( JsonGenerationException e ) {
+							Log.e( TAG, "download : JsonGenerationException - error downloading file for " + sStart, e );
 
-								progressIntent.putExtra( EXTRA_PROGRESS, "Completed downloading file for " + sStart );
-								progressIntent.putExtra( EXTRA_PROGRESS_DATE, DateUtils.dateTimeFormatter.print( start ) );
-							} catch( JsonGenerationException e ) {
-								Log.e( TAG, "download : JsonGenerationException - error downloading file for " + sStart, e );
+							progressIntent.putExtra( EXTRA_PROGRESS_ERROR, "error downloading file for " + sStart + ": " + e.getLocalizedMessage() );
+						} catch( JsonMappingException e ) {
+							Log.e( TAG, "download : JsonMappingException - error downloading file for " + sStart, e );
 
-								progressIntent.putExtra( EXTRA_PROGRESS_ERROR, "error downloading file for " + sStart + ": " + e.getLocalizedMessage() );
-							} catch( JsonMappingException e ) {
-								Log.e( TAG, "download : JsonMappingException - error downloading file for " + sStart, e );
+							progressIntent.putExtra( EXTRA_PROGRESS_ERROR, "error downloading file for " + sStart + ": " + e.getLocalizedMessage() );
+						} catch( IOException e ) {
+							Log.e( TAG, "download : IOException - error downloading file for " + sStart, e );
 
-								progressIntent.putExtra( EXTRA_PROGRESS_ERROR, "error downloading file for " + sStart + ": " + e.getLocalizedMessage() );
-							} catch( IOException e ) {
-								Log.e( TAG, "download : IOException - error downloading file for " + sStart, e );
-
-								progressIntent.putExtra( EXTRA_PROGRESS_ERROR, "IOException - error downloading file for " + sStart + ": " + e.getLocalizedMessage() );
-							}
-
-							sendBroadcast( progressIntent );
-
+							progressIntent.putExtra( EXTRA_PROGRESS_ERROR, "IOException - error downloading file for " + sStart + ": " + e.getLocalizedMessage() );
 						}
+
+						sendBroadcast( progressIntent );
 
 					}
 
 				}
 
-				if( start.getHourOfDay() < MAX_HOURS - 1 ) {
-					start = start.plusHours( 1 );
-				}
+				start = start.plusHours( 1 );
 			}
 
-			start = start.withTime( 0, 0, 0, 0 );
-			start = start.plusDays( 1 );
 		}
 		
 		Intent completeIntent = new Intent( ACTION_COMPLETE );

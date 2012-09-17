@@ -108,41 +108,41 @@
 		<!-- MythTV Android Services -->
 		<service android:name=".service.dvr.DvrService" />
 		
-		<service android:name=".service.dvr.RecordedDownloadService">
+		<service android:name=".service.dvr.RecordedDownloadService" android:process=":recorded">
 			<intent-filter>
                 <action android:name="org.mythtv.background.recordedDownload.ACTION_DOWNLOAD" />
             </intent-filter>
         </service>
 		
-		<service android:name=".service.dvr.ProgramGroupRecordedDownloadService">
+		<service android:name=".service.dvr.ProgramGroupRecordedDownloadService" android:process=":programGroupRecorded">
 			<intent-filter>
                 <action
                     android:name="org.mythtv.background.programGroupRecordedDownload.ACTION_DOWNLOAD" />
             </intent-filter>
         </service>
 		
-		<service android:name=".service.dvr.BannerDownloadService">
+		<service android:name=".service.dvr.BannerDownloadService" android:process=":banner">
 			<intent-filter>
                 <action
                     android:name="org.mythtv.background.bannerDownload.ACTION_DOWNLOAD" />
             </intent-filter>
         </service>
 		
-		<service android:name=".service.dvr.UpcomingDownloadService">
+		<service android:name=".service.dvr.UpcomingDownloadService" android:process=":upcoming">
 			<intent-filter>
                 <action
                     android:name="org.mythtv.background.upcomingDownload.ACTION_DOWNLOAD" />
             </intent-filter>
 		</service>
 		
-		<service android:name=".service.guide.ProgramGuideDownloadService">
+		<service android:name=".service.guide.ProgramGuideDownloadService" android:process=":programGuide">
 			<intent-filter>
                 <action
                     android:name="org.mythtv.background.programGuideDownload.ACTION_DOWNLOAD" />
             </intent-filter>
         </service>
 		
-		<service android:name=".service.guide.ProgramGuideCleanupService">
+		<service android:name=".service.guide.ProgramGuideCleanupService" android:process=":programGuideCleanup">
 			<intent-filter>
                 <action
                     android:name="org.mythtv.background.programGuideCleanup.ACTION_CLEANUP" />

@@ -27,6 +27,7 @@ import java.util.List;
 import org.joda.time.DateTime;
 import org.mythtv.service.MythtvService;
 import org.mythtv.service.dvr.cache.RecordedLruMemoryCache;
+import org.mythtv.service.util.UrlUtils;
 import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.dvr.Program;
 import org.mythtv.services.api.dvr.ProgramList;
@@ -107,10 +108,7 @@ public class ProgramGroupRecordedDownloadService extends MythtvService {
 			Intent progressIntent = new Intent( ACTION_PROGRESS );
 
 			for( String title : programGroups ) {
-				title = title.replace( ':', '_' );
-				title = title.replace( '/', '_' );
-				title = title.replace( '\\', '_' );
-				title = title.replace( '!', '_' );
+				title = UrlUtils.encodeUrl( title );
 				
 				ETagInfo etag = ETagInfo.createEmptyETag();
 				ProgramList programList = mMainApplication.getMythServicesApi().dvrOperations().getFiltererRecordedList( true, 1, 999, title, null, null, etag );
