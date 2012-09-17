@@ -71,6 +71,7 @@
             
             <CheckBox
                 android:id="@+id/recording_rules_checkbox_active"
+                android:focusable="false"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
