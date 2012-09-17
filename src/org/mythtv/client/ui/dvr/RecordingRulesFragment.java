@@ -49,6 +49,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -66,6 +67,20 @@ public class RecordingRulesFragment extends MythtvListFragment {
 	private RecordingRuleAdapter adapter;
 
 	private MainApplication mainApplication;
+	
+	/**
+	 * OnCheckChangeListener to control rule's active state
+	 */
+	private OnCheckedChangeListener sRuleCheckChangeListener = new OnCheckedChangeListener(){
+
+		@Override
+		public void onCheckedChanged(CompoundButton buttonView,
+				boolean isChecked) {
+			int ruleId = (Integer)buttonView.getTag();
+			new SetRuleActiveStateTask().execute(isChecked?1:0, ruleId);
+		}
+		
+	};
 
 	/* (non-Javadoc)
 	 * @see android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
@@ -149,6 +164,19 @@ public class RecordingRulesFragment extends MythtvListFragment {
 
 	public interface OnRecordingRuleListener {
 		void onRecordingRuleSelected( Integer recordingRuleId );
+	}
+	
+	private class SetRuleActiveStateTask extends AsyncTask<Integer, Void, Void>
+	{	
+		@Override
+		protected Void doInBackground(Integer... params) {
+			if(params[0] > 0){
+				mainApplication.getMythServicesApi().dvrOperations().enableRecordingSchedule(params[1]);
+			}else{
+				mainApplication.getMythServicesApi().dvrOperations().disableRecordingSchedule(params[1]);
+			}
+			return null;
+		}	
 	}
 
 	// internal helpers
@@ -247,6 +275,8 @@ public class RecordingRulesFragment extends MythtvListFragment {
 			mHolder.type.setText( rule.getType() );
 			mHolder.last.setText( formatter.print( rule.getLastRecorded() ) );
 			mHolder.active.setChecked(!rule.isInactive());
+			mHolder.active.setTag(rule.getId());
+			mHolder.active.setOnCheckedChangeListener(sRuleCheckChangeListener);
 			
 			return convertView;
 		}
