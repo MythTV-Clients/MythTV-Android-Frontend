@@ -170,8 +170,8 @@ public class VideoActivity extends AbstractDvrActivity {
 	    // Section 3 of 4
 	    Intent tostart = new Intent( Intent.ACTION_VIEW );
 //	    tostart.setDataAndType( Uri.parse(url), "application/x-mpegurl" );
-	    tostart.setDataAndType( Uri.parse(url), "application/vnd.apple.mpegurl" );
-//	    tostart.setDataAndType( Uri.parse(url), "video/*" );
+//	    tostart.setDataAndType( Uri.parse(url), "application/vnd.apple.mpegurl" );
+	    tostart.setDataAndType( Uri.parse(url), "video/*" );
 
 	    startActivity( tostart );
 	    
