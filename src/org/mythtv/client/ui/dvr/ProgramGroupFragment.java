@@ -110,6 +110,9 @@ public class ProgramGroupFragment extends MythtvListFragment {
 	    
 		Program program = programs.getPrograms().get( position );
 		
+		//leave if we did not get anything useful
+		if(null == program || null == program.getChannelInfo()) return;
+		
 		Intent i = new Intent( getActivity(), VideoActivity.class );
 		i.putExtra( VideoActivity.EXTRA_PROGRAM_CHANNEL_ID, program.getChannelInfo().getChannelId() );
 		i.putExtra( VideoActivity.EXTRA_PROGRAM_START_TIME, DateUtils.dateTimeFormatter.print( program.getStartTime() ) );
