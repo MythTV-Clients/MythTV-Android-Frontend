@@ -132,6 +132,11 @@ public class FileHelper {
 	private File getRootCacheDirectory() {
 //		Log.v( TAG, "getRootCacheDirectory : enter" );
 		
+		String state = Environment.getExternalStorageState();
+		if( !Environment.MEDIA_MOUNTED.equals( state ) ) {
+			return null;
+		}
+		
 		File cacheDir = null;
         if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO ) {
 //    		Log.v( TAG, "getRootCacheDirectory : exit, returning froyo+ cache directory" );

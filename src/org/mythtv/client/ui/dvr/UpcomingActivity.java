@@ -44,6 +44,7 @@ import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 /**
  * @author Daniel Frey
@@ -211,6 +212,14 @@ public class UpcomingActivity extends AbstractDvrActivity {
 		}
 
 		/* (non-Javadoc)
+		 * @see android.support.v4.view.PagerAdapter#getItemPosition(java.lang.Object)
+		 */
+		@Override
+		public int getItemPosition( Object object ) {
+			return POSITION_NONE;
+		}
+
+		/* (non-Javadoc)
 		 * @see android.support.v4.view.PagerAdapter#getCount()
 		 */
 		public int getCount() {
@@ -248,7 +257,8 @@ public class UpcomingActivity extends AbstractDvrActivity {
 	        if ( intent.getAction().equals( UpcomingDownloadService.ACTION_COMPLETE ) ) {
 	        	Log.i( TAG, "UpcomingDownloadReceiver.onReceive : " + intent.getStringExtra( UpcomingDownloadService.EXTRA_COMPLETE ) );
 	        	
-	        	//cache.evictAll();
+	        	Toast.makeText( UpcomingActivity.this, "Upcoming Programs updated!", Toast.LENGTH_SHORT ).show();
+
 	        	mAdapter.notifyDataSetChanged();
 	        }
 	        

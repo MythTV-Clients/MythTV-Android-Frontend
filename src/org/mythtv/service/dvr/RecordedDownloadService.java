@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 
 import org.mythtv.service.MythtvService;
+import org.mythtv.service.dvr.cache.RecordedLruMemoryCache;
 import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.dvr.ProgramList;
 
@@ -51,8 +52,12 @@ public class RecordedDownloadService extends MythtvService {
     public static final String EXTRA_PROGRESS_ERROR = "PROGRESS_ERROR";
     public static final String EXTRA_COMPLETE = "COMPLETE";
 
+	private RecordedLruMemoryCache cache;
+
 	public RecordedDownloadService() {
 		super( "RecordedDownloadService" );
+
+		cache = new RecordedLruMemoryCache( this );
 	}
 	
 	/* (non-Javadoc)
@@ -93,6 +98,11 @@ public class RecordedDownloadService extends MythtvService {
 			try {
 				mObjectMapper.writeValue( new File( programCache, RECORDED_FILE ), programList.getPrograms() );
 
+				synchronized( cache ) {
+					cache.remove( RECORDED_FILE );
+					cache.put( RECORDED_FILE, programList.getPrograms() );
+				}
+				
 				Log.i( TAG, "download : downloaded 'recorded'" );
 				progressIntent.putExtra( EXTRA_PROGRESS, "downloaded 'recorded'" );
 			} catch( JsonGenerationException e ) {

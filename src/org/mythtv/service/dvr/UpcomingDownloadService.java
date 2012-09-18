@@ -115,11 +115,11 @@ public class UpcomingDownloadService extends MythtvService {
 					
 				};
 				for( String filename : programCache.list( filter ) ) {
-					Log.v( TAG, "download : filename=" + filename );
+//					Log.v( TAG, "download : filename=" + filename );
 					
 					File deleted = new File( programCache, filename );
 					if( deleted.delete() ) {
-						Log.v( TAG, "download : deleted filename=" + filename );
+//						Log.v( TAG, "download : deleted filename=" + filename );
 					}
 				}
 			}
@@ -160,8 +160,10 @@ public class UpcomingDownloadService extends MythtvService {
 //					Log.v( TAG, "download : writing file " + key + UPCOMING_FILE_EXT );
 					mObjectMapper.writeValue( new File( programCache, key + UPCOMING_FILE_EXT ), upcomingPrograms );
 
-					cache.remove( key );
-					cache.put( key, upcomingPrograms );
+					synchronized( cache ) {
+						cache.remove( key );
+						cache.put( key, upcomingPrograms );
+					}
 					
 				}
 				

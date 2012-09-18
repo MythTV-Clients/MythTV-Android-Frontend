@@ -83,38 +83,39 @@ public class RecordedCleanupService extends MythtvService {
 
 			List<String> programGroups = new ArrayList<String>();
 			Programs programs = cache.get( RecordedDownloadService.RECORDED_FILE );
-			for( Program program : programs.getPrograms() ) {
-				
-				String title = UrlUtils.encodeUrl( program.getTitle() );
-				
-				if( !programGroups.contains( title ) ) {
-					programGroups.add( title );
+			if( null != programs ) {
+				for( Program program : programs.getPrograms() ) {
+
+					String title = UrlUtils.encodeUrl( program.getTitle() );
+
+					if( !programGroups.contains( title ) ) {
+						programGroups.add( title );
+					}
 				}
-			}
-			
-			FilenameFilter filter = new FilenameFilter() {
 
-				@Override
-				public boolean accept( File dir, String filename ) {
-					return filename.endsWith( ProgramGroupRecordedDownloadService.RECORDED_FILE );
-				}
-				
-			};
-			for( String filename : programCache.list( filter ) ) {
-//				Log.v( TAG, "cleanup : filename=" + filename );
-				
-				File deleted = new File( programCache, filename );
-				String programGroup = filename.substring( 0, filename.indexOf( ProgramGroupRecordedDownloadService.RECORDED_FILE ) );
-				if( !programGroups.contains( programGroup ) ) {
+				FilenameFilter filter = new FilenameFilter() {
 
-					if( deleted.delete() ) {
-						count++;
+					@Override
+					public boolean accept( File dir, String filename ) {
+						return filename.endsWith( ProgramGroupRecordedDownloadService.RECORDED_FILE );
+					}
 
-//						Log.v( TAG, "cleanup : deleted filename=" + filename );
+				};
+				for( String filename : programCache.list( filter ) ) {
+//					Log.v( TAG, "cleanup : filename=" + filename );
+
+					File deleted = new File( programCache, filename );
+					String programGroup = filename.substring( 0, filename.indexOf( ProgramGroupRecordedDownloadService.RECORDED_FILE ) );
+					if( !programGroups.contains( programGroup ) ) {
+
+						if( deleted.delete() ) {
+							count++;
+
+//							Log.v( TAG, "cleanup : deleted filename=" + filename );
+						}
 					}
 				}
 			}
-		
 		}
 
 		Intent completeIntent = new Intent( ACTION_COMPLETE );
