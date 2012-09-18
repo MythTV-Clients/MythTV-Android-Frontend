@@ -97,7 +97,7 @@ public class ProgramGuideDownloadService extends MythtvService {
 				File file = new File( programGuideCache, filename );
 				if( !file.exists() ) {
 					DateTime end = new DateTime( start );
-					end.withTime( start.getHourOfDay(), 59, 59, 999 );
+					end = end.withTime( start.getHourOfDay(), 59, 59, 999 );
 					Log.i( TAG, "download : starting download for " + DateUtils.dateTimeFormatter.print( start ) + ", end time=" + DateUtils.dateTimeFormatter.print( end ) );
 
 					ETagInfo etag = ETagInfo.createEmptyETag();
