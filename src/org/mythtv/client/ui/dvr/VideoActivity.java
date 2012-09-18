@@ -169,7 +169,10 @@ public class VideoActivity extends AbstractDvrActivity {
 	    // Disable this code to use vitamio: http://vov.io/vitamio/
 	    // Section 3 of 4
 	    Intent tostart = new Intent( Intent.ACTION_VIEW );
-	    tostart.setDataAndType( Uri.parse(url), "application/x-mpegurl" );
+//	    tostart.setDataAndType( Uri.parse(url), "application/x-mpegurl" );
+	    tostart.setDataAndType( Uri.parse(url), "application/vnd.apple.mpegurl" );
+//	    tostart.setDataAndType( Uri.parse(url), "video/*" );
+
 	    startActivity( tostart );
 	    
 	    
