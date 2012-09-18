@@ -20,6 +20,7 @@
 package org.mythtv.service.dvr;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -91,23 +92,25 @@ public class RecordedCleanupService extends MythtvService {
 				}
 			}
 			
-			for( String filename : programCache.list() ) {
+			FilenameFilter filter = new FilenameFilter() {
+
+				@Override
+				public boolean accept( File dir, String filename ) {
+					return filename.endsWith( ProgramGroupRecordedDownloadService.RECORDED_FILE );
+				}
+				
+			};
+			for( String filename : programCache.list( filter ) ) {
 //				Log.v( TAG, "cleanup : filename=" + filename );
 				
-				if( !filename.equals( RecordedDownloadService.RECORDED_FILE ) ) {
-					File deleted = new File( programCache, filename );
+				File deleted = new File( programCache, filename );
+				String programGroup = filename.substring( 0, filename.indexOf( ProgramGroupRecordedDownloadService.RECORDED_FILE ) );
+				if( !programGroups.contains( programGroup ) ) {
 
-					if( !deleted.isDirectory() ) {
+					if( deleted.delete() ) {
+						count++;
 
-						String programGroup = filename.substring( 0, filename.indexOf( ProgramGroupRecordedDownloadService.RECORDED_FILE ) );
-						if( !programGroups.contains( programGroup ) ) {
-
-							if( deleted.delete() ) {
-								count++;
-
-//								Log.v( TAG, "cleanup : deleted filename=" + filename );
-							}
-						}
+//						Log.v( TAG, "cleanup : deleted filename=" + filename );
 					}
 				}
 			}

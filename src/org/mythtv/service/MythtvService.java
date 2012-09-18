@@ -19,6 +19,9 @@
  */
 package org.mythtv.service;
 
+import java.util.TimeZone;
+
+import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.mythtv.client.MainApplication;
@@ -40,6 +43,8 @@ public abstract class MythtvService extends IntentService {
 	
 	public static enum Method { GET, POST, PUT, DELETE };
 
+	public static final DateTimeZone zone = DateTimeZone.forID( TimeZone.getDefault().getID() );
+	
 	protected static final int REQUEST_INVALID = -1;
 
 	public static final String METHOD_EXTRA = "org.mythtv.service.METHOD_EXTRA";

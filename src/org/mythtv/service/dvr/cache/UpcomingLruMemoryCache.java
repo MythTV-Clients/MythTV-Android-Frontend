@@ -27,6 +27,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.joda.time.DateTime;
 import org.mythtv.service.util.FileHelper;
 import org.mythtv.services.api.dvr.Program;
 import org.mythtv.services.api.dvr.Programs;
@@ -44,16 +45,16 @@ import com.fasterxml.jackson.datatype.joda.JodaModule;
  * @author Daniel Frey
  *
  */
-public class RecordedLruMemoryCache extends LruCache<String, Programs> {
+public class UpcomingLruMemoryCache extends LruCache<String, Programs> {
 
-	private static final String TAG = RecordedLruMemoryCache.class.getSimpleName();
+	private static final String TAG = UpcomingLruMemoryCache.class.getSimpleName();
 	
 	private final Context mContext;
     private final ObjectMapper mapper;
 
     private FileHelper mFileHelper;
 	
-	public RecordedLruMemoryCache( Context context ) {
+	public UpcomingLruMemoryCache( Context context ) {
 		super( 12 * 1024 * 1024 );
 		Log.v( TAG, "initialize : enter" );
 
@@ -119,14 +120,17 @@ public class RecordedLruMemoryCache extends LruCache<String, Programs> {
 
 	// internal helpers
 	
-	public static Programs getDownloadingPrograms() {
+	public static Programs getEmptyPrograms() {
 		
 		Programs programs = new Programs();
 		
 		List<Program> programList = new ArrayList<Program>();
 		Program program = new Program();
-		program.setTitle( "Recordings are currently downloading." );
-		program.setSubTitle( "Please try again later." );
+		program.setTitle( "No Upcoming Recordings available." );
+		program.setSubTitle( "" );
+		program.setStartTime( new DateTime() );
+		program.setEndTime( new DateTime() );
+		program.setCategory( "" );
 		programList.add( program );
 		programs.setPrograms( programList );
 		

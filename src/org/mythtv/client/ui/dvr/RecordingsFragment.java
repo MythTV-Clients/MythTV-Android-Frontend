@@ -306,7 +306,6 @@ public class RecordingsFragment extends MythtvListFragment {
 		/* (non-Javadoc)
 		 * @see android.widget.Adapter#getView(int, android.view.View, android.view.ViewGroup)
 		 */
-		@SuppressWarnings( "deprecation" )
 		@Override
 		public View getView( int position, View convertView, ViewGroup parent ) {
 			Log.v( TAG, "ProgramGroupRowAdapter.getView : enter" );

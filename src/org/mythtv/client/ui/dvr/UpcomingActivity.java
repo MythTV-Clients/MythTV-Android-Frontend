@@ -24,16 +24,17 @@ import java.util.List;
 
 import org.joda.time.DateTime;
 import org.mythtv.R;
-import org.mythtv.db.dvr.ProgramConstants;
-import org.mythtv.service.dvr.DvrServiceHelper;
+import org.mythtv.service.dvr.UpcomingDownloadService;
+import org.mythtv.service.dvr.cache.UpcomingLruMemoryCache;
 import org.mythtv.service.util.DateUtils;
+import org.mythtv.services.api.dvr.Program;
+import org.mythtv.services.api.dvr.Programs;
 
 import android.annotation.TargetApi;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -53,10 +54,12 @@ public class UpcomingActivity extends AbstractDvrActivity {
 	private static final String TAG = UpcomingActivity.class.getSimpleName();
 	private static final int REFRESH_ID = Menu.FIRST + 2;
 
-	private UpcomingReceiver upcomingReceiver;
+	private UpcomingDownloadReceiver upcomingDownloadReceiver = new UpcomingDownloadReceiver();
 
-	private DvrServiceHelper mDvrServiceHelper;
-
+	private MythtvUpcomingPagerAdapter mAdapter;
+	
+	private UpcomingLruMemoryCache cache;
+	
 	/* (non-Javadoc)
 	 * @see android.support.v4.app.FragmentActivity#onCreate(android.os.Bundle)
 	 */
@@ -67,9 +70,11 @@ public class UpcomingActivity extends AbstractDvrActivity {
 
 		setContentView( R.layout.activity_dvr_upcoming );
 
+		cache = new UpcomingLruMemoryCache( this );
+		
 		setupActionBar();
 
-		MythtvUpcomingPagerAdapter mAdapter = new MythtvUpcomingPagerAdapter( getSupportFragmentManager() );
+		mAdapter = new MythtvUpcomingPagerAdapter( getSupportFragmentManager() );
 		ViewPager mPager = (ViewPager) findViewById( R.id.dvr_upcoming_pager );
 		mPager.setAdapter( mAdapter );
 		mPager.setCurrentItem( 0 );
@@ -78,51 +83,41 @@ public class UpcomingActivity extends AbstractDvrActivity {
 	}
 
 	/* (non-Javadoc)
-	 * @see android.support.v4.app.FragmentActivity#onPause()
+	 * @see android.support.v4.app.FragmentActivity#onStart()
 	 */
 	@Override
-	public void onPause() {
-		Log.v( TAG, "onPause : enter" );
-		super.onPause();
+	protected void onStart() {
+		Log.v( TAG, "onStart : enter" );
+		super.onStart();
 
-		// Unregister for broadcast
-		if( null != upcomingReceiver ) {
-			try {
-				unregisterReceiver( upcomingReceiver );
-				upcomingReceiver = null;
-			} catch( IllegalArgumentException e ) {
-				Log.e( TAG, e.getLocalizedMessage(), e );
-			}
-		}
-		
-		Log.v( TAG, "onPause : exit" );
+		IntentFilter upcomingDownloadFilter = new IntentFilter();
+		upcomingDownloadFilter.addAction( UpcomingDownloadService.ACTION_PROGRESS );
+		upcomingDownloadFilter.addAction( UpcomingDownloadService.ACTION_COMPLETE );
+	    registerReceiver( upcomingDownloadReceiver, upcomingDownloadFilter );
+
+	    Log.v( TAG, "onStart : exit" );
 	}
 
 	/* (non-Javadoc)
-	 * @see android.support.v4.app.FragmentActivity#onResume()
+	 * @see android.support.v4.app.FragmentActivity#onStop()
 	 */
 	@Override
-	public void onResume() {
-		Log.v( TAG, "onResume : enter" );
-		super.onResume();
-	    
-		mDvrServiceHelper = DvrServiceHelper.getInstance( this );
+	protected void onStop() {
+		Log.v( TAG, "onStop : enter" );
+		super.onStop();
 
-		IntentFilter upcomingFilter = new IntentFilter( DvrServiceHelper.UPCOMING_RESULT );
-//		upcomingFilter.setPriority( IntentFilter.SYSTEM_LOW_PRIORITY );
-        upcomingReceiver = new UpcomingReceiver();
-        registerReceiver( upcomingReceiver, upcomingFilter );
-
-		Cursor upcomingCursor = getContentResolver().query( ProgramConstants.CONTENT_URI, new String[] { ProgramConstants._ID }, ProgramConstants.FIELD_PROGRAM_TYPE + " = ?", new String[] { ProgramConstants.ProgramType.UPCOMING.name() }, null );
-		Log.v( TAG, "onResume : upcoming count=" + upcomingCursor.getCount() );
-		if( upcomingCursor.getCount() == 0 ) {
-			loadData();
+		if( null != upcomingDownloadReceiver ) {
+			try {
+				unregisterReceiver( upcomingDownloadReceiver );
+				upcomingDownloadReceiver = null;
+			} catch( IllegalArgumentException e ) {
+				Log.e( TAG, "onStop : error", e );
+			}
 		}
-        upcomingCursor.close();
-        
-		Log.v( TAG, "onResume : exit" );
+
+		Log.v( TAG, "onStop : exit" );
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.mythtv.client.ui.AbstractMythtvFragmentActivity#onCreateOptionsMenu(android.view.Menu)
 	 */
@@ -166,7 +161,7 @@ public class UpcomingActivity extends AbstractDvrActivity {
 	private void loadData() {
 		Log.v( TAG, "loadData : enter" );
 		
-		mDvrServiceHelper.getUpcomingList();
+		startService( new Intent( UpcomingDownloadService.ACTION_DOWNLOAD ) );
 		
 		Log.v( TAG, "loadData : exit" );
 	}
@@ -197,7 +192,22 @@ public class UpcomingActivity extends AbstractDvrActivity {
 		 */
 		@Override
 		public Fragment getItem( int position ) {
-			return UpcomingFragment.newInstance( fragmentHeadings.get( position ) );
+			Programs programs = cache.get( fragmentHeadings.get( position ) + UpcomingDownloadService.UPCOMING_FILE_EXT );
+			DateTime now = new DateTime();
+			List<Program> programList = new ArrayList<Program>();
+			
+			if( null != programs ) {
+				for( Program program : programs.getPrograms() ) {
+					if( now.isBefore( program.getEndTime() ) ) {
+						programList.add( program );
+					}
+				}
+			} else {
+				programs = UpcomingLruMemoryCache.getEmptyPrograms();
+				programList = programs.getPrograms();
+			}
+			
+			return UpcomingFragment.newInstance( programList );
 		}
 
 		/* (non-Javadoc)
@@ -226,13 +236,22 @@ public class UpcomingActivity extends AbstractDvrActivity {
 		
 	}
 
-	private class UpcomingReceiver extends BroadcastReceiver {
+	private class UpcomingDownloadReceiver extends BroadcastReceiver {
 
 		@Override
 		public void onReceive( Context context, Intent intent ) {
-			Log.v( TAG, "UpcomingReceiver.onReceive : enter" );
 			
-			Log.v( TAG, "UpcomingReceiver.onReceive : exit" );
+	        if ( intent.getAction().equals( UpcomingDownloadService.ACTION_PROGRESS ) ) {
+	        	Log.i( TAG, "UpcomingDownloadReceiver.onReceive : " + intent.getStringExtra( UpcomingDownloadService.EXTRA_PROGRESS ) );
+	        }
+	        
+	        if ( intent.getAction().equals( UpcomingDownloadService.ACTION_COMPLETE ) ) {
+	        	Log.i( TAG, "UpcomingDownloadReceiver.onReceive : " + intent.getStringExtra( UpcomingDownloadService.EXTRA_COMPLETE ) );
+	        	
+	        	//cache.evictAll();
+	        	mAdapter.notifyDataSetChanged();
+	        }
+	        
 		}
 		
 	}
