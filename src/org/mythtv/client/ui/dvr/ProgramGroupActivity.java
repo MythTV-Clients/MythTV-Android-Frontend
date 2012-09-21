@@ -20,6 +20,9 @@
 package org.mythtv.client.ui.dvr;
 
 import org.mythtv.R;
+import org.mythtv.service.dvr.cache.ProgramGroupLruMemoryCache;
+import org.mythtv.service.util.UrlUtils;
+import org.mythtv.services.api.dvr.Programs;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -39,6 +42,8 @@ public class ProgramGroupActivity extends AbstractDvrActivity {
 
 	private ProgramGroupFragment programGroupFragment = null;
 
+	private ProgramGroupLruMemoryCache cache;
+
 	// ***************************************
 	// Activity methods
 	// ***************************************
@@ -53,13 +58,21 @@ public class ProgramGroupActivity extends AbstractDvrActivity {
 		Log.v( TAG, "onCreate : enter" );
 		super.onCreate( savedInstanceState );
 
+		cache = new ProgramGroupLruMemoryCache( this );
+
 		Bundle extras = getIntent().getExtras(); 
 		String name = extras.getString( EXTRA_PROGRAM_GROUP_KEY );
-		
+		String cleaned = UrlUtils.encodeUrl( name );
+
+		Programs programs = cache.get( cleaned );
+		if( null == programs || null == programs.getPrograms() || programs.getPrograms().isEmpty() ) {
+			programs = ProgramGroupLruMemoryCache.getDownloadingPrograms( name );
+		}
+
 		setContentView( R.layout.fragment_dvr_program_group );
 
 		programGroupFragment = (ProgramGroupFragment) getSupportFragmentManager().findFragmentById( R.id.fragment_dvr_program_group );
-		programGroupFragment.loadPrograms( name );
+		programGroupFragment.loadPrograms( programs );
 		
 		Log.v( TAG, "onCreate : exit" );
 	}

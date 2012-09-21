@@ -24,7 +24,6 @@ import java.util.List;
 import org.mythtv.R;
 import org.mythtv.client.ui.util.MythtvListFragment;
 import org.mythtv.client.ui.util.ProgramHelper;
-import org.mythtv.service.dvr.cache.ProgramGroupLruMemoryCache;
 import org.mythtv.service.util.DateUtils;
 import org.mythtv.service.util.UrlUtils;
 import org.mythtv.services.api.dvr.Program;
@@ -55,8 +54,6 @@ public class ProgramGroupFragment extends MythtvListFragment {
 	
 	private static ProgramHelper mProgramHelper; 
 	
-	private ProgramGroupLruMemoryCache cache;
-	
 	private Programs programs;
 	
 	public ProgramGroupFragment() { }
@@ -69,8 +66,6 @@ public class ProgramGroupFragment extends MythtvListFragment {
 		Log.v( TAG, "onCreate : enter" );
 		super.onCreate( savedInstanceState );
 
-		cache = new ProgramGroupLruMemoryCache( getActivity() );
-		
 		Log.v( TAG, "onCreate : exit" );
 	}
 
@@ -84,15 +79,8 @@ public class ProgramGroupFragment extends MythtvListFragment {
 		Log.i( TAG, "onActivityCreated : exit" );
 	}
 
-	public void loadPrograms( String title ) {
+	public void loadPrograms( Programs programs ) {
 		Log.i( TAG, "loadPrograms : enter" );
-
-		String cleaned = UrlUtils.encodeUrl( title );
-		
-		programs = cache.get( cleaned );
-		if( null == programs || null == programs.getPrograms() || programs.getPrograms().isEmpty() ) {
-			programs = ProgramGroupLruMemoryCache.getDownloadingPrograms( title );
-		}
 		
 		adapter = new ProgramGroupRowAdapter( getActivity(), programs.getPrograms() );
 	    setListAdapter( adapter );

@@ -20,6 +20,9 @@
 package org.mythtv.client.ui.dvr;
 
 import org.mythtv.R;
+import org.mythtv.service.dvr.cache.ProgramGroupLruMemoryCache;
+import org.mythtv.service.util.UrlUtils;
+import org.mythtv.services.api.dvr.Programs;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -35,10 +38,14 @@ public class RecordingsActivity extends AbstractDvrActivity implements Recording
 
 	private static final String TAG = RecordingsActivity.class.getSimpleName();
 	
+	private ProgramGroupLruMemoryCache cache;
+
 	@Override
 	public void onCreate( Bundle savedInstanceState ) {
 		Log.v( TAG, "onCreate : enter" );
 		super.onCreate( savedInstanceState );
+
+		cache = new ProgramGroupLruMemoryCache( this );
 
 		setContentView( R.layout.activity_dvr_recordings );
 
@@ -55,6 +62,13 @@ public class RecordingsActivity extends AbstractDvrActivity implements Recording
 			Log.v( TAG, "onProgramGroupSelected : adding program group to pane" );
 			FragmentManager manager = getSupportFragmentManager();
 
+			String cleaned = UrlUtils.encodeUrl( programGroup );
+
+			Programs programs = cache.get( cleaned );
+			if( null == programs || null == programs.getPrograms() || programs.getPrograms().isEmpty() ) {
+				programs = ProgramGroupLruMemoryCache.getDownloadingPrograms( programGroup );
+			}
+
 			ProgramGroupFragment programGroupFragment = (ProgramGroupFragment) manager.findFragmentById( R.id.fragment_dvr_program_group );
 			FragmentTransaction transaction = manager.beginTransaction();
 
@@ -70,7 +84,7 @@ public class RecordingsActivity extends AbstractDvrActivity implements Recording
 			}
 			
 			Log.v( TAG, "onProgramGroupSelected : setting program group to display" );
-			programGroupFragment.loadPrograms( programGroup );
+			programGroupFragment.loadPrograms( programs );
 		} else {
 			Log.v( TAG, "onProgramGroupSelected : starting program group activity" );
 
