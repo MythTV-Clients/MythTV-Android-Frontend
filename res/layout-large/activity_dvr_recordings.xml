@@ -28,7 +28,7 @@
   <fragment
     class="org.mythtv.client.ui.dvr.RecordingsFragment"
     android:id="@+id/fragment_dvr_program_groups"
-    android:layout_width="0dip"
+    android:layout_width="758px"
     android:layout_height="match_parent"
     android:layout_weight="40"
   />

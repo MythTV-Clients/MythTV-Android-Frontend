@@ -68,7 +68,8 @@ public class RecordingsActivity extends AbstractDvrActivity implements Recording
 			if( null == programs || null == programs.getPrograms() || programs.getPrograms().isEmpty() ) {
 				programs = ProgramGroupLruMemoryCache.getDownloadingPrograms( programGroup );
 			}
-
+			Log.d( TAG, "onProgramGroupSelected : programs=" + programs.toString() );
+			
 			ProgramGroupFragment programGroupFragment = (ProgramGroupFragment) manager.findFragmentById( R.id.fragment_dvr_program_group );
 			FragmentTransaction transaction = manager.beginTransaction();
 
@@ -84,7 +85,7 @@ public class RecordingsActivity extends AbstractDvrActivity implements Recording
 			}
 			
 			Log.v( TAG, "onProgramGroupSelected : setting program group to display" );
-			programGroupFragment.loadPrograms( programs );
+			programGroupFragment.loadPrograms( this, programs );
 		} else {
 			Log.v( TAG, "onProgramGroupSelected : starting program group activity" );
 

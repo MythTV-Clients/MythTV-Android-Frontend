@@ -65,14 +65,16 @@ public class ProgramGroupActivity extends AbstractDvrActivity {
 		String cleaned = UrlUtils.encodeUrl( name );
 
 		Programs programs = cache.get( cleaned );
-		if( null == programs || null == programs.getPrograms() || programs.getPrograms().isEmpty() ) {
+		if( null == programs || ( null == programs.getPrograms() || programs.getPrograms().isEmpty() ) ) {
 			programs = ProgramGroupLruMemoryCache.getDownloadingPrograms( name );
 		}
 
+		Log.v( TAG, "onCreate : programs=" + programs.toString() );
+		
 		setContentView( R.layout.fragment_dvr_program_group );
 
 		programGroupFragment = (ProgramGroupFragment) getSupportFragmentManager().findFragmentById( R.id.fragment_dvr_program_group );
-		programGroupFragment.loadPrograms( programs );
+		programGroupFragment.loadPrograms( this, programs );
 		
 		Log.v( TAG, "onCreate : exit" );
 	}

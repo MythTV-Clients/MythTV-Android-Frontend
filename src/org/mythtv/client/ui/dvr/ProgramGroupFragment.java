@@ -58,17 +58,6 @@ public class ProgramGroupFragment extends MythtvListFragment {
 	
 	public ProgramGroupFragment() { }
 	
-	/* (non-Javadoc)
-	 * @see android.support.v4.app.Fragment#onCreate(android.os.Bundle)
-	 */
-	@Override
-	public void onCreate( Bundle savedInstanceState ) {
-		Log.v( TAG, "onCreate : enter" );
-		super.onCreate( savedInstanceState );
-
-		Log.v( TAG, "onCreate : exit" );
-	}
-
 	@Override
 	public void onActivityCreated( Bundle savedInstanceState ) {
 		Log.i( TAG, "onActivityCreated : enter" );
@@ -79,10 +68,12 @@ public class ProgramGroupFragment extends MythtvListFragment {
 		Log.i( TAG, "onActivityCreated : exit" );
 	}
 
-	public void loadPrograms( Programs programs ) {
+	public void loadPrograms( Context context, Programs programs ) {
 		Log.i( TAG, "loadPrograms : enter" );
 		
-		adapter = new ProgramGroupRowAdapter( getActivity(), programs.getPrograms() );
+		this.programs = programs;
+		
+		adapter = new ProgramGroupRowAdapter( context, programs.getPrograms() );
 	    setListAdapter( adapter );
 
 		Log.i( TAG, "loadPrograms : exit" );

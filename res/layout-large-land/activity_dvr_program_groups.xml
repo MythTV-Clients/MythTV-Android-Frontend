@@ -26,7 +26,7 @@
     <fragment android:name="org.mythtv.client.ui.dvr.ProgramGroupsListFragment"
         android:id="@+id/dvr_fragment_program_groups"
         android:layout_weight="30"
-        android:layout_width="0px"
+        android:layout_width="758px"
         android:layout_height="match_parent" />
 
     <FrameLayout 
