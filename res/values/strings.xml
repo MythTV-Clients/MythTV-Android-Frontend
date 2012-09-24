@@ -22,7 +22,7 @@
 <resources>
 
     <string name="hello">Hello World!</string>
-    <string name="app_name">MythTV for Android</string>
+    <string name="app_name">MythTV Android Frontend</string>
 
     <string name="item_network_title">Searching network for MythTV&#8230;</string>
 	<string name="item_network_caption">Make sure you are on the same network as your MythTV Master Backend</string>
