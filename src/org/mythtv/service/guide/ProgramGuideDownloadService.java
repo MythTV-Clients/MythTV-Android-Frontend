@@ -23,11 +23,16 @@ import java.io.File;
 import java.io.IOException;
 
 import org.joda.time.DateTime;
+import org.mythtv.R;
 import org.mythtv.service.MythtvService;
 import org.mythtv.service.util.DateUtils;
 import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.guide.ProgramGuideWrapper;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
@@ -54,6 +59,9 @@ public class ProgramGuideDownloadService extends MythtvService {
     public static final String EXTRA_COMPLETE = "COMPLETE";
     public static final String EXTRA_COMPLETE_DOWNLOADED = "COMPLETE_DOWNLOADED";
 
+	private NotificationManager mNotificationManager;
+	private int notificationId;
+	
 	public ProgramGuideDownloadService() {
 		super( "ProgamGuideDownloadService" );
 	}
@@ -66,6 +74,8 @@ public class ProgramGuideDownloadService extends MythtvService {
 		Log.d( TAG, "onHandleIntent : enter" );
 		super.onHandleIntent( intent );
 		
+		mNotificationManager = (NotificationManager) getSystemService( Context.NOTIFICATION_SERVICE );
+
         if ( intent.getAction().equals( ACTION_DOWNLOAD ) ) {
     		Log.i( TAG, "onHandleIntent : DOWNLOAD action selected" );
 
@@ -82,8 +92,10 @@ public class ProgramGuideDownloadService extends MythtvService {
 		
 		boolean newDataDownloaded = false;
 		
+		sendNotification();
+		
 		DateTime start = new DateTime();
-		start = start.withTime( 0, 0, 0, 0 );
+		start = start.withTime( 0, 0, 0, 001 );
 		
 		File programGuideCache = mFileHelper.getProgramGuideDataDirectory();
 		if( programGuideCache.exists() ) {
@@ -136,6 +148,8 @@ public class ProgramGuideDownloadService extends MythtvService {
 
 		}
 		
+		completed();
+		
 		Intent completeIntent = new Intent( ACTION_COMPLETE );
 		completeIntent.putExtra( EXTRA_COMPLETE, "Program Guide Download Service Finished" );
 		completeIntent.putExtra( EXTRA_COMPLETE_DOWNLOADED, newDataDownloaded );
@@ -144,4 +158,29 @@ public class ProgramGuideDownloadService extends MythtvService {
 //		Log.v( TAG, "download : exit" );
 	}
 	
+	// internal helpers
+	
+	@SuppressWarnings( "deprecation" )
+	private void sendNotification() {
+
+		long when = System.currentTimeMillis();
+		notificationId = (int) when;
+		
+        Notification mNotification = new Notification( android.R.drawable.stat_notify_sync, getResources().getString( R.string.notification_sync_program_guide ), when );
+
+        Intent notificationIntent = new Intent();
+        PendingIntent mContentIntent = PendingIntent.getActivity( this, 0, notificationIntent, 0 );
+
+        mNotification.setLatestEventInfo( this, getResources().getString( R.string.app_name ), getResources().getString( R.string.notification_sync_program_guide ), mContentIntent );
+
+        mNotification.flags = Notification.FLAG_ONGOING_EVENT;
+
+        mNotificationManager.notify( notificationId, mNotification );
+	
+	}
+	
+    public void completed()    {
+        mNotificationManager.cancel( notificationId );
+    }
+
 }

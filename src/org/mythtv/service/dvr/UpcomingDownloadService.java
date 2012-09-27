@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.joda.time.DateTime;
+import org.mythtv.R;
 import org.mythtv.service.MythtvService;
 import org.mythtv.service.dvr.cache.UpcomingLruMemoryCache;
 import org.mythtv.service.util.DateUtils;
@@ -36,6 +37,10 @@ import org.mythtv.services.api.dvr.Program;
 import org.mythtv.services.api.dvr.ProgramList;
 import org.mythtv.services.api.dvr.Programs;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
@@ -58,16 +63,15 @@ public class UpcomingDownloadService extends MythtvService {
     public static final String ACTION_COMPLETE = "org.mythtv.background.upcomingDownload.ACTION_COMPLETE";
 
     public static final String EXTRA_PROGRESS = "PROGRESS";
-    public static final String EXTRA_PROGRESS_DATE = "PROGRESS_DATE";
+    public static final String EXTRA_PROGRESS_FILENAME = "PROGRESS_FILENAME";
     public static final String EXTRA_PROGRESS_ERROR = "PROGRESS_ERROR";
     public static final String EXTRA_COMPLETE = "COMPLETE";
 
-	private UpcomingLruMemoryCache cache;
+	private NotificationManager mNotificationManager;
+	private int notificationId;
 
 	public UpcomingDownloadService() {
 		super( "UpcomingDownloadService" );
-
-		cache = new UpcomingLruMemoryCache( this );
 	}
 	
 	/* (non-Javadoc)
@@ -78,7 +82,9 @@ public class UpcomingDownloadService extends MythtvService {
 		Log.d( TAG, "onHandleIntent : enter" );
 		super.onHandleIntent( intent );
 		
-        if ( intent.getAction().equals( ACTION_DOWNLOAD ) ) {
+		mNotificationManager = (NotificationManager) getSystemService( Context.NOTIFICATION_SERVICE );
+
+		if ( intent.getAction().equals( ACTION_DOWNLOAD ) ) {
     		Log.i( TAG, "onHandleIntent : DOWNLOAD action selected" );
 
     		download();
@@ -93,6 +99,8 @@ public class UpcomingDownloadService extends MythtvService {
 //		Log.v( TAG, "download : enter" );
 		
 		boolean newDataDownloaded = false;
+		
+		sendNotification();
 		
 		File programCache = mFileHelper.getProgramDataDirectory();
 		if( programCache.exists() ) {
@@ -160,11 +168,7 @@ public class UpcomingDownloadService extends MythtvService {
 //					Log.v( TAG, "download : writing file " + key + UPCOMING_FILE_EXT );
 					mObjectMapper.writeValue( new File( programCache, key + UPCOMING_FILE_EXT ), upcomingPrograms );
 
-					synchronized( cache ) {
-						cache.remove( key );
-						cache.put( key, upcomingPrograms );
-					}
-					
+					progressIntent.putExtra( EXTRA_PROGRESS_FILENAME, key + UPCOMING_FILE_EXT );
 				}
 				
 				newDataDownloaded = true;
@@ -173,20 +177,20 @@ public class UpcomingDownloadService extends MythtvService {
 				Log.e( TAG, "download : JsonGenerationException - error downloading file for 'upcoming'", e );
 
 				progressIntent.putExtra( EXTRA_PROGRESS_ERROR, "error downloading file for 'upcoming': " + e.getLocalizedMessage() );
-				sendBroadcast( progressIntent );
 			} catch( JsonMappingException e ) {
 				Log.e( TAG, "download : JsonGenerationException - error downloading file for 'upcoming'", e );
 
 				progressIntent.putExtra( EXTRA_PROGRESS_ERROR, "error downloading file for 'upcoming': " + e.getLocalizedMessage() );
-				sendBroadcast( progressIntent );
 			} catch( IOException e ) {
 				Log.e( TAG, "download : JsonGenerationException - error downloading file for 'upcoming'", e );
 
 				progressIntent.putExtra( EXTRA_PROGRESS_ERROR, "IOException - error downloading file for 'upcoming': " + e.getLocalizedMessage() );
-				sendBroadcast( progressIntent );
 			}
 
+			sendBroadcast( progressIntent );
 		}
+		
+		completed();
 		
 		if( newDataDownloaded ) {
 			Intent completeIntent = new Intent( ACTION_COMPLETE );
@@ -197,4 +201,29 @@ public class UpcomingDownloadService extends MythtvService {
 //		Log.v( TAG, "download : exit" );
 	}
 	
+	// internal helpers
+	
+	@SuppressWarnings( "deprecation" )
+	private void sendNotification() {
+
+		long when = System.currentTimeMillis();
+		notificationId = (int) when;
+		
+        Notification mNotification = new Notification( android.R.drawable.stat_notify_sync, getResources().getString( R.string.notification_sync_upcoming ), when );
+
+        Intent notificationIntent = new Intent();
+        PendingIntent mContentIntent = PendingIntent.getActivity( this, 0, notificationIntent, 0 );
+
+        mNotification.setLatestEventInfo( this, getResources().getString( R.string.app_name ), getResources().getString( R.string.notification_sync_upcoming ), mContentIntent );
+
+        mNotification.flags = Notification.FLAG_ONGOING_EVENT;
+
+        mNotificationManager.notify( notificationId, mNotification );
+	
+	}
+	
+    public void completed()    {
+        mNotificationManager.cancel( notificationId );
+    }
+
 }

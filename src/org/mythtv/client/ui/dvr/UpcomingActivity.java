@@ -252,6 +252,13 @@ public class UpcomingActivity extends AbstractDvrActivity {
 			
 	        if ( intent.getAction().equals( UpcomingDownloadService.ACTION_PROGRESS ) ) {
 	        	Log.i( TAG, "UpcomingDownloadReceiver.onReceive : " + intent.getStringExtra( UpcomingDownloadService.EXTRA_PROGRESS ) );
+	        	
+	        	String filename = intent.getStringExtra( UpcomingDownloadService.EXTRA_PROGRESS_FILENAME );
+	        	if( null != filename && !"".equals( filename ) ) {
+	        		Log.d( TAG, "UpcomingDownloadReceiver.onReceive : removing from cache" + filename );
+	        		
+	        		cache.remove( filename );
+	        	}
 	        }
 	        
 	        if ( intent.getAction().equals( UpcomingDownloadService.ACTION_COMPLETE ) ) {

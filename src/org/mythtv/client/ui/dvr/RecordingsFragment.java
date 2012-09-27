@@ -264,14 +264,22 @@ public class RecordingsFragment extends MythtvListFragment {
 	private void loadData() {
 		Log.v( TAG, "loadData : enter" );
 		
+		if( null != adapter ) {
+			adapter.clear();
+		}
+		
 		Programs programs = cache.get( RecordedDownloadService.RECORDED_FILE );
 		
 		Map<String, Program> filtered = new TreeMap<String, Program>();
 		for( Program program : programs.getPrograms() ) {
-			String cleanedTitle = ArticleCleaner.clean( program.getTitle() );
 			
-			if( !filtered.containsKey( cleanedTitle ) ) {
-				filtered.put( cleanedTitle, program );
+			if( null != program.getRecording() && !"LiveTV".equalsIgnoreCase( program.getRecording().getStorageGroup() ) ) {
+			
+				String cleanedTitle = ArticleCleaner.clean( program.getTitle() );
+
+				if( !filtered.containsKey( cleanedTitle ) ) {
+					filtered.put( cleanedTitle, program );
+				}
 			}
 		}
 		
@@ -417,7 +425,7 @@ public class RecordingsFragment extends MythtvListFragment {
 	        	Log.i( TAG, "BannerDownloadReceiver.onReceive : complete=" + intent.getStringExtra( BannerDownloadService.EXTRA_COMPLETE ) );
 	        	
 	        	imageCache.remove( intent.getStringExtra( BannerDownloadService.EXTRA_COMPLETE_FILENAME ) );
-	        	adapter.notifyDataSetChanged();
+	        	//adapter.notifyDataSetChanged();
 	        }
 
 		}

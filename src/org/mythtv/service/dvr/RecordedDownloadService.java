@@ -22,11 +22,15 @@ package org.mythtv.service.dvr;
 import java.io.File;
 import java.io.IOException;
 
+import org.mythtv.R;
 import org.mythtv.service.MythtvService;
-import org.mythtv.service.dvr.cache.RecordedLruMemoryCache;
 import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.dvr.ProgramList;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
@@ -52,12 +56,11 @@ public class RecordedDownloadService extends MythtvService {
     public static final String EXTRA_PROGRESS_ERROR = "PROGRESS_ERROR";
     public static final String EXTRA_COMPLETE = "COMPLETE";
 
-	private RecordedLruMemoryCache cache;
-
+	private NotificationManager mNotificationManager;
+	private int notificationId;
+	
 	public RecordedDownloadService() {
 		super( "RecordedDownloadService" );
-
-		cache = new RecordedLruMemoryCache( this );
 	}
 	
 	/* (non-Javadoc)
@@ -68,7 +71,9 @@ public class RecordedDownloadService extends MythtvService {
 		Log.d( TAG, "onHandleIntent : enter" );
 		super.onHandleIntent( intent );
 		
-        if ( intent.getAction().equals( ACTION_DOWNLOAD ) ) {
+		mNotificationManager = (NotificationManager) getSystemService( Context.NOTIFICATION_SERVICE );
+
+		if ( intent.getAction().equals( ACTION_DOWNLOAD ) ) {
     		Log.i( TAG, "onHandleIntent : DOWNLOAD action selected" );
 
     		download();
@@ -81,6 +86,8 @@ public class RecordedDownloadService extends MythtvService {
 	
 	private void download() {
 		Log.v( TAG, "download : enter" );
+		
+		sendNotification();
 		
 		File programCache = mFileHelper.getProgramDataDirectory();
 		if( programCache.exists() ) {
@@ -98,11 +105,6 @@ public class RecordedDownloadService extends MythtvService {
 			try {
 				mObjectMapper.writeValue( new File( programCache, RECORDED_FILE ), programList.getPrograms() );
 
-				synchronized( cache ) {
-					cache.remove( RECORDED_FILE );
-					cache.put( RECORDED_FILE, programList.getPrograms() );
-				}
-				
 				Log.i( TAG, "download : downloaded 'recorded'" );
 				progressIntent.putExtra( EXTRA_PROGRESS, "downloaded 'recorded'" );
 			} catch( JsonGenerationException e ) {
@@ -122,6 +124,8 @@ public class RecordedDownloadService extends MythtvService {
 			sendBroadcast( progressIntent );
 		}
 		
+		completed();
+		
 		Intent completeIntent = new Intent( ACTION_COMPLETE );
 		completeIntent.putExtra( EXTRA_COMPLETE, "Recorded Programs Download Service Finished" );
 		sendBroadcast( completeIntent );
@@ -129,4 +133,29 @@ public class RecordedDownloadService extends MythtvService {
 		Log.v( TAG, "download : exit" );
 	}
 	
+	// internal helpers
+	
+	@SuppressWarnings( "deprecation" )
+	private void sendNotification() {
+
+		long when = System.currentTimeMillis();
+		notificationId = (int) when;
+		
+        Notification mNotification = new Notification( android.R.drawable.stat_notify_sync, getResources().getString( R.string.notification_sync_recordings ), when );
+
+        Intent notificationIntent = new Intent();
+        PendingIntent mContentIntent = PendingIntent.getActivity( this, 0, notificationIntent, 0 );
+
+        mNotification.setLatestEventInfo( this, getResources().getString( R.string.app_name ), getResources().getString( R.string.notification_sync_recordings ), mContentIntent );
+
+        mNotification.flags = Notification.FLAG_ONGOING_EVENT;
+
+        mNotificationManager.notify( notificationId, mNotification );
+	
+	}
+	
+    public void completed()    {
+        mNotificationManager.cancel( notificationId );
+    }
+
 }

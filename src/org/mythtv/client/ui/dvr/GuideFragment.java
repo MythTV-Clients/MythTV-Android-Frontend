@@ -76,7 +76,6 @@ public class GuideFragment extends AbstractMythFragment implements OnClickListen
 
 		IntentFilter programGuideDownloadFilter = new IntentFilter();
 		programGuideDownloadFilter.addAction( ProgramGuideDownloadService.ACTION_PROGRESS );
-//		programGuideDownloadFilter.setPriority( IntentFilter.SYSTEM_LOW_PRIORITY );
 	    getActivity().registerReceiver( programGuideDownloaderReceiver, programGuideDownloadFilter );
 	    
 		Log.v( TAG, "onStart : exit" );
