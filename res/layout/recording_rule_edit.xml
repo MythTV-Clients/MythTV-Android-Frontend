@@ -93,4 +93,70 @@
         
     </LinearLayout>
     
+    
+    
+    <CheckBox
+        android:id="@+id/recording_rule_checkBox_active"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="10dip"
+        android:paddingBottom="10dip"
+        android:text="@string/chkbox_rec_rule_active" />
+
+    <CheckBox
+        android:id="@+id/recording_rule_checkBox_auto_comm_flag"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="10dip"
+        android:paddingBottom="10dip"
+        android:text="@string/chkbox_rec_rule_auto_comm_flag" />
+
+    <CheckBox
+        android:id="@+id/recording_rule_checkBox_auto_transcode"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="10dip"
+        android:paddingBottom="10dip"
+        android:text="@string/chkbox_rec_rule_auto_transcode" />
+
+    <CheckBox
+        android:id="@+id/recording_rule_checkBox_auto_meta_lookup"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="10dip"
+        android:paddingBottom="10dip"
+        android:text="@string/chkbox_rec_rule_auto_meta_lookup" />
+
+    <CheckBox
+        android:id="@+id/recording_rule_checkBox_auto_usr_job1"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="10dip"
+        android:paddingBottom="10dip"
+        android:text="@string/chkbox_rec_rule_auto_usr_job1" />
+
+    <CheckBox
+        android:id="@+id/recording_rule_checkBox_auto_usr_job2"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="10dip"
+        android:paddingBottom="10dip"
+        android:text="@string/chkbox_rec_rule_auto_usr_job2" />
+
+    <CheckBox
+        android:id="@+id/recording_rule_checkBox_auto_usr_job3"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="10dip"
+        android:paddingBottom="10dip"
+        android:text="@string/chkbox_rec_rule_auto_usr_job3" />
+
+    <CheckBox
+        android:id="@+id/recording_rule_checkBox_auto_usr_job4"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="10dip"
+        android:paddingBottom="10dip"
+        android:text="@string/chkbox_rec_rule_auto_usr_job4" />
+    
 </LinearLayout>

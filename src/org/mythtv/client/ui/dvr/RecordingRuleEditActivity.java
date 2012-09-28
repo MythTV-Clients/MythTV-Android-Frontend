@@ -21,26 +21,22 @@ package org.mythtv.client.ui.dvr;
 
 import org.mythtv.R;
 
-import android.annotation.TargetApi;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
 
 /**
  * @author Daniel Frey
  * 
  */
-public class RecordingRuleActivity extends AbstractDvrActivity {
+public class RecordingRuleEditActivity extends AbstractDvrActivity {
 
-	private static final String TAG = RecordingRuleActivity.class.getSimpleName();
-	private static final int EDIT_ID = Menu.FIRST + 2;
-	
-	public static final String EXTRA_RECORDING_RULE_KEY = "org.mythtv.client.ui.dvr.recordingRule.EXTRA_RECORDING_RULE_KEY";
+	private static final String TAG = RecordingRuleEditActivity.class.getSimpleName();
 
-	private RecordingRuleFragment recordingRuleFragment = null;
+	public static final String EXTRA_RECORDING_RULE_EDIT_KEY = "org.mythtv.client.ui.dvr.recordingRule.EXTRA_RECORDING_RULE_EDIT_KEY";
+
+	private RecordingRuleEditFragment recordingRuleFragment = null;
 
 	private Integer recordingRuleId;
 	
@@ -59,32 +55,14 @@ public class RecordingRuleActivity extends AbstractDvrActivity {
 		super.onCreate( savedInstanceState );
 
 		Bundle extras = getIntent().getExtras(); 
-		recordingRuleId = extras.getInt( EXTRA_RECORDING_RULE_KEY );
+		recordingRuleId = extras.getInt( EXTRA_RECORDING_RULE_EDIT_KEY );
 		
-		setContentView( R.layout.fragment_dvr_recording_rule );
+		setContentView( R.layout.fragment_dvr_recording_rule_edit );
 
-		recordingRuleFragment = (RecordingRuleFragment) getSupportFragmentManager().findFragmentById( R.id.fragment_dvr_recording_rule );
+		recordingRuleFragment = (RecordingRuleEditFragment) getSupportFragmentManager().findFragmentById( R.id.fragment_dvr_recording_rule_edit );
 		recordingRuleFragment.loadRecordingRule( recordingRuleId );
 		
 		Log.v( TAG, "onCreate : exit" );
-	}
-
-	/* (non-Javadoc)
-	 * @see org.mythtv.client.ui.AbstractMythtvFragmentActivity#onCreateOptionsMenu(android.view.Menu)
-	 */
-	@Override
-	@TargetApi( 11 )
-	public boolean onCreateOptionsMenu( Menu menu ) {
-		Log.v( TAG, "onCreateOptionsMenu : enter" );
-		
-	    MenuItem edit = menu.add( Menu.NONE, EDIT_ID, Menu.NONE, "EDIT" );
-	    if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-	    	edit.setShowAsAction( MenuItem.SHOW_AS_ACTION_ALWAYS );
-	    	edit.setIcon( android.R.drawable.ic_menu_edit );
-	    }
-		
-		Log.v( TAG, "onCreateOptionsMenu : exit" );
-		return super.onCreateOptionsMenu( menu );
 	}
 
 	/* (non-Javadoc)
@@ -94,21 +72,14 @@ public class RecordingRuleActivity extends AbstractDvrActivity {
 	public boolean onOptionsItemSelected( MenuItem item ) {
 		Log.v( TAG, "onOptionsItemSelected : enter" );
 
-		Intent intent = null;
-		
 		switch( item.getItemId() ) {
 			case android.R.id.home:
 				// app icon in action bar clicked; go home
-				intent = new Intent( this, RecordingRulesActivity.class );
+				Intent intent = new Intent( this, RecordingRuleActivity.class );
+				intent.putExtra( RecordingRuleActivity.EXTRA_RECORDING_RULE_KEY, recordingRuleId );
 				intent.addFlags( Intent.FLAG_ACTIVITY_CLEAR_TOP );
 				startActivity( intent );
 
-				return true;
-			case EDIT_ID:
-				intent = new Intent( this, RecordingRuleEditActivity.class );
-				intent.putExtra( RecordingRuleEditActivity.EXTRA_RECORDING_RULE_EDIT_KEY, recordingRuleId );
-				startActivity( intent );
-				
 				return true;
 		}
 

@@ -17,26 +17,27 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.TextView;
 
 /**
  * @author Daniel Frey
  *
  */
-public class RecordingRuleFragment extends AbstractMythFragment {
+public class RecordingRuleEditFragment extends AbstractMythFragment {
 
-	private static final String TAG = RecordingRuleFragment.class.getSimpleName();
+	private static final String TAG = RecordingRuleEditFragment.class.getSimpleName();
 	
 	private ProgramHelper mProgramHelper;
 	
-	public static RecordingRuleFragment newInstance( Bundle args ) {
-		RecordingRuleFragment fragment = new RecordingRuleFragment();
+	public static RecordingRuleEditFragment newInstance( Bundle args ) {
+		RecordingRuleEditFragment fragment = new RecordingRuleEditFragment();
 		fragment.setArguments( args );
 		
 		return fragment;
 	}
 	
-	public RecordingRuleFragment() { }
+	public RecordingRuleEditFragment() { }
 	
 	/* (non-Javadoc)
 	 * @see android.support.v4.app.Fragment#onCreate(android.os.Bundle)
@@ -47,7 +48,7 @@ public class RecordingRuleFragment extends AbstractMythFragment {
 		super.onCreate( savedInstanceState );
 
 		Bundle args = getArguments();
-		if( null != args ){
+		if( null != args ) {
 			int recordingRuleId = args.getInt( "RECORDING_RULE_ID" );
 			loadRecordingRule( recordingRuleId );
 		}
@@ -62,7 +63,7 @@ public class RecordingRuleFragment extends AbstractMythFragment {
 	public View onCreateView( LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState ) {
 		Log.v( TAG, "onCreateView : enter" );
 
-		View v = inflater.inflate( R.layout.recording_rule, container, false );
+		View v = inflater.inflate( R.layout.recording_rule_edit, container, false );
 		
 		Log.v( TAG, "onCreateView : exit" );
 		return v;
@@ -93,13 +94,14 @@ public class RecordingRuleFragment extends AbstractMythFragment {
 	
 	// internal helpers
 
-	private void setup( RecRule rule ) {
-		Log.v( TAG, "setup : enter" );
+	private void setupForm( RecRule rule ) {
+		Log.v( TAG, "setupForm : enter" );
 		
 		View view;
+		CheckBox cBox;
 		TextView tView;
 		
-		view = getActivity().findViewById( R.id.recording_rule_category_color) ;
+		view = getActivity().findViewById( R.id.recording_rule_category_color );
 		view.setBackgroundColor( mProgramHelper.getCategoryColor( rule.getCategory() ) );
 		
 		tView = (TextView) getActivity().findViewById( R.id.recording_rule_title );
@@ -112,10 +114,10 @@ public class RecordingRuleFragment extends AbstractMythFragment {
 		}
 		
 		tView = (TextView) getActivity().findViewById( R.id.recording_rule_category );
-		tView.setText(rule.getCategory());
+		tView.setText( rule.getCategory() );
 		
 		tView = (TextView) getActivity().findViewById( R.id.recording_rule_type );
-		tView.setText(rule.getType());
+		tView.setText( rule.getType() );
 		
 		//grabbed channel resolving code from RecordingRulesFragment.java
 		// - should we move this to a utility?
@@ -130,7 +132,31 @@ public class RecordingRuleFragment extends AbstractMythFragment {
 		tView = (TextView) getActivity().findViewById( R.id.recording_rule_channel );
 		tView.setText( channel );
 		
-		Log.v( TAG, "setup : exit" );
+		cBox = (CheckBox) getActivity().findViewById( R.id.recording_rule_checkBox_active );
+		cBox.setChecked( !rule.isInactive() );
+		
+		cBox = (CheckBox) getActivity().findViewById( R.id.recording_rule_checkBox_auto_comm_flag );
+		cBox.setChecked( rule.isAutoCommflag() );
+		
+		cBox = (CheckBox) getActivity().findViewById( R.id.recording_rule_checkBox_auto_transcode );
+		cBox.setChecked( rule.isAutoTranscode() );
+		
+		cBox = (CheckBox) getActivity().findViewById( R.id.recording_rule_checkBox_auto_meta_lookup );
+		cBox.setChecked( rule.isAutoMetaLookup() );
+		
+		cBox = (CheckBox) getActivity().findViewById( R.id.recording_rule_checkBox_auto_usr_job1 );
+		cBox.setChecked( rule.isAutoUserJob1() );
+		
+		cBox = (CheckBox) getActivity().findViewById( R.id.recording_rule_checkBox_auto_usr_job2 );
+		cBox.setChecked( rule.isAutoUserJob2() );
+		
+		cBox = (CheckBox) getActivity().findViewById( R.id.recording_rule_checkBox_auto_usr_job3 );
+		cBox.setChecked( rule.isAutoUserJob3() );
+		
+		cBox = (CheckBox) getActivity().findViewById( R.id.recording_rule_checkBox_auto_usr_job4 );
+		cBox.setChecked( rule.isAutoUserJob4() );
+		
+		Log.v( TAG, "setupForm : exit" );
 	}
 	
 	private class DownloadRecordingRuleTask extends AsyncTask<Integer, Void, RecRule> {
@@ -154,7 +180,7 @@ public class RecordingRuleFragment extends AbstractMythFragment {
 		protected void onPostExecute( RecRule result ) {
 			
 			if( null != result ) {
-				setup( result );
+				setupForm( result );
 			}
 		}
 		
