@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.mythtv</groupId>
+    <artifactId>mythtv-for-android</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>apk</packaging>
+    <name>MythTV</name>
+
+    <properties>
+        <google.android-version>4.1.1.4</google.android-version>
+        <google.android.support-version>r7</google.android.support-version>
+        <mythtv.service.api-version>0.0.10-SNAPSHOT</mythtv.service.api-version>
+        <jdmns-version>3.4.1</jdmns-version>
+    </properties>
+
+    <url>https://github.com/MythTV-Android/mythtv-for-android</url>
+    <description>MythTV for Android</description>
+    <scm>
+            <url>https://github.com/MythTV-Android/mythtv-for-android</url>
+    </scm>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.google.android</groupId>
+            <artifactId>android</artifactId>
+            <version>${google.android-version}</version>
+            <scope>provided</scope>
+          </dependency>
+        <dependency>
+        	<groupId>com.google.android</groupId>
+        	<artifactId>support-v4</artifactId>
+        	<version>${google.android.support-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mythtv.android</groupId>
+             <artifactId>mythtv-service-api</artifactId>
+             <version>${mythtv.service.api-version}</version>
+        </dependency>
+        <dependency>
+        	<groupId>javax.jmdns</groupId>
+        	<artifactId>jmdns</artifactId>
+        	<version>${jdmns-version}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <finalName>${project.artifactId}</finalName>
+        <sourceDirectory>src</sourceDirectory>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>com.jayway.maven.plugins.android.generation2</groupId>
+                    <artifactId>android-maven-plugin</artifactId>
+                    <version>3.3.2</version>
+                    <extensions>true</extensions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+        <plugins>
+            <plugin>
+                <groupId>com.jayway.maven.plugins.android.generation2</groupId>
+                <artifactId>android-maven-plugin</artifactId>
+                <configuration>
+                    <nativeLibrariesDirectory>${project.basedir}/src/main/native</nativeLibrariesDirectory>
+                    <undeployBeforeDeploy>true</undeployBeforeDeploy>
+                    <manifest>
+                        <debuggable>true</debuggable>
+                    </manifest>
+                    <proguard>
+                        <skip>true</skip>
+                    </proguard>
+                    <sdk>
+                        <!-- platform or api level (api level 4 = platform 1.6)-->
+                        <path>${env.ANDROID_HOME}</path>
+                        <platform>16</platform>
+                    </sdk>
+                </configuration>
+                <extensions>true</extensions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
