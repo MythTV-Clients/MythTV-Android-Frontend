@@ -10,8 +10,11 @@
     <properties>
         <google.android-version>4.1.1.4</google.android-version>
         <google.android.support-version>r7</google.android.support-version>
-        <mythtv.service.api-version>0.0.10-SNAPSHOT</mythtv.service.api-version>
+        <org.springframework.android-version>1.0.0.RELEASE</org.springframework.android-version>
         <jdmns-version>3.4.1</jdmns-version>
+        <joda-time-version>2.1</joda-time-version>
+        <org.joda.joda-convert-version>1.2</org.joda.joda-convert-version>
+        <mythtv.service.api-version>0.0.10-SNAPSHOT</mythtv.service.api-version>
     </properties>
 
     <url>https://github.com/MythTV-Android/mythtv-for-android</url>
@@ -21,32 +24,61 @@
     </scm>
 
     <dependencies>
+        
         <dependency>
             <groupId>com.google.android</groupId>
             <artifactId>android</artifactId>
             <version>${google.android-version}</version>
             <scope>provided</scope>
-          </dependency>
+        </dependency>
+        
         <dependency>
         	<groupId>com.google.android</groupId>
         	<artifactId>support-v4</artifactId>
         	<version>${google.android.support-version}</version>
         </dependency>
+        
+ 		<!-- Spring Android -->
         <dependency>
-            <groupId>org.mythtv.android</groupId>
-             <artifactId>mythtv-service-api</artifactId>
-             <version>${mythtv.service.api-version}</version>
-        </dependency>
+    		<groupId>org.springframework.android</groupId>
+    		<artifactId>spring-android-rest-template</artifactId>
+    		<version>${org.springframework.android-version}</version>
+		</dependency> 
+
+ 		<!-- Jmdns -->
         <dependency>
         	<groupId>javax.jmdns</groupId>
         	<artifactId>jmdns</artifactId>
         	<version>${jdmns-version}</version>
         </dependency>
-    </dependencies>
+    
+ 		<!-- Joda Time -->
+		<dependency>
+			<groupId>joda-time</groupId>
+			<artifactId>joda-time</artifactId>
+			<version>${joda-time-version}</version>
+		</dependency>
+        
+		<dependency>
+			<groupId>org.joda</groupId>
+			<artifactId>joda-convert</artifactId>
+			<version>${org.joda.joda-convert-version}</version>
+		</dependency>
+        
+		<!-- MythTV Services Api -->
+		<dependency>
+            <groupId>org.mythtv.android</groupId>
+             <artifactId>mythtv-service-api</artifactId>
+             <version>${mythtv.service.api-version}</version>
+        </dependency>
+    
+	</dependencies>
 
     <build>
         <finalName>${project.artifactId}</finalName>
+        
         <sourceDirectory>src</sourceDirectory>
+        
         <pluginManagement>
             <plugins>
                 <plugin>
@@ -57,27 +89,47 @@
                 </plugin>
             </plugins>
         </pluginManagement>
+        
         <plugins>
+        
             <plugin>
                 <groupId>com.jayway.maven.plugins.android.generation2</groupId>
                 <artifactId>android-maven-plugin</artifactId>
                 <configuration>
-                    <nativeLibrariesDirectory>${project.basedir}/src/main/native</nativeLibrariesDirectory>
-                    <undeployBeforeDeploy>true</undeployBeforeDeploy>
-                    <manifest>
-                        <debuggable>true</debuggable>
-                    </manifest>
-                    <proguard>
-                        <skip>true</skip>
-                    </proguard>
                     <sdk>
                         <!-- platform or api level (api level 4 = platform 1.6)-->
                         <path>${env.ANDROID_HOME}</path>
                         <platform>16</platform>
                     </sdk>
                 </configuration>
-                <extensions>true</extensions>
             </plugin>
+        
         </plugins>
+    
     </build>
+    
+    <repositories>
+
+		<!-- Project (local) Repository -->
+		<repository>
+		    <id>libs</id>
+		    <name>libs</name>
+		    <releases>
+		        <enabled>true</enabled>
+		        <checksumPolicy>ignore</checksumPolicy>
+		    </releases>
+		    <snapshots>
+		        <enabled>false</enabled>
+		    </snapshots>
+		    <url>file://${project.basedir}/libs</url>
+		</repository>
+        
+		<repository>
+    		<id>springsource-repo</id>
+    		<name>SpringSource Repository</name>
+    		<url>http://repo.springsource.org/release</url>
+		</repository>
+    
+    </repositories>
+
 </project>

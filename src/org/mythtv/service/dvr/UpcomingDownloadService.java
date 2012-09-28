@@ -30,7 +30,6 @@ import java.util.TreeMap;
 import org.joda.time.DateTime;
 import org.mythtv.R;
 import org.mythtv.service.MythtvService;
-import org.mythtv.service.dvr.cache.UpcomingLruMemoryCache;
 import org.mythtv.service.util.DateUtils;
 import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.dvr.Program;
@@ -116,7 +115,6 @@ public class UpcomingDownloadService extends MythtvService {
 				
 				FilenameFilter filter = new FilenameFilter() {
 
-					@Override
 					public boolean accept( File dir, String filename ) {
 						return filename.endsWith( UPCOMING_FILE_EXT );
 					}
