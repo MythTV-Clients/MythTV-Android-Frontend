@@ -1,3 +1,7 @@
-/target
-/bin
-/gen
+target
+bin
+gen
+libs
+.settings
+.classpath
+.project
