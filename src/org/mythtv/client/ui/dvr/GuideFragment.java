@@ -241,30 +241,7 @@ public class GuideFragment extends AbstractMythFragment implements OnClickListen
 
             if (is24h) {
 
-                fragmentLabels.add( "0" );
-                fragmentLabels.add( "1" );
-                fragmentLabels.add( "2" );
-                fragmentLabels.add( "3" );
-                fragmentLabels.add( "4" );
-                fragmentLabels.add( "5" );
-                fragmentLabels.add( "6" );
-                fragmentLabels.add( "7" );
-                fragmentLabels.add( "8" );
-                fragmentLabels.add( "9" );
-                fragmentLabels.add( "10" );
-                fragmentLabels.add( "11" );
-                fragmentLabels.add( "12" );
-                fragmentLabels.add( "13" );
-                fragmentLabels.add( "14" );
-                fragmentLabels.add( "15" );
-                fragmentLabels.add( "16" );
-                fragmentLabels.add( "17" );
-                fragmentLabels.add( "18" );
-                fragmentLabels.add( "19" );
-                fragmentLabels.add( "20" );
-                fragmentLabels.add( "21" );
-                fragmentLabels.add( "22" );
-                fragmentLabels.add( "23" );
+                fragmentLabels = fragmentHeadings;
             } else {
 
                 fragmentLabels.add( "12 AM" );
