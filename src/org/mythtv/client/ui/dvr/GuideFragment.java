@@ -22,6 +22,7 @@ package org.mythtv.client.ui.dvr;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.text.format.DateFormat;
 import org.joda.time.DateTime;
 import org.mythtv.R;
 import org.mythtv.client.ui.AbstractMythFragment;
@@ -206,34 +207,93 @@ public class GuideFragment extends AbstractMythFragment implements OnClickListen
 		public MythtvGuidePagerAdapter( FragmentManager fm ) {
 			super( fm );
 			Log.v( TAG, "initialize : exit" );
-			
-			fragmentHeadings = new ArrayList<String>(); fragmentLabels = new ArrayList<String>();
-			fragmentHeadings.add( "0" );	fragmentLabels.add( "12 AM" );
-			fragmentHeadings.add( "1" );	fragmentLabels.add( "1 AM" );
-			fragmentHeadings.add( "2" );	fragmentLabels.add( "2 AM" );
-			fragmentHeadings.add( "3" );	fragmentLabels.add( "3 AM" );
-			fragmentHeadings.add( "4" );	fragmentLabels.add( "4 AM" );
-			fragmentHeadings.add( "5" );	fragmentLabels.add( "5 AM" );
-			fragmentHeadings.add( "6" );	fragmentLabels.add( "6 AM" );
-			fragmentHeadings.add( "7" );	fragmentLabels.add( "7 AM" );
-			fragmentHeadings.add( "8" );	fragmentLabels.add( "8 AM" );
-			fragmentHeadings.add( "9" );	fragmentLabels.add( "9 AM" );
-			fragmentHeadings.add( "10" );	fragmentLabels.add( "10 AM" );
-			fragmentHeadings.add( "11" );	fragmentLabels.add( "11 AM" );
-			fragmentHeadings.add( "12" );	fragmentLabels.add( "12 PM" );
-			fragmentHeadings.add( "13" );	fragmentLabels.add( "1 PM" );
-			fragmentHeadings.add( "14" );	fragmentLabels.add( "2 PM" );
-			fragmentHeadings.add( "15" );	fragmentLabels.add( "3 PM" );
-			fragmentHeadings.add( "16" );	fragmentLabels.add( "4 PM" );
-			fragmentHeadings.add( "17" );	fragmentLabels.add( "5 PM" );
-			fragmentHeadings.add( "18" );	fragmentLabels.add( "6 PM" );
-			fragmentHeadings.add( "19" );	fragmentLabels.add( "7 PM" );
-			fragmentHeadings.add( "20" );	fragmentLabels.add( "8 PM" );
-			fragmentHeadings.add( "21" );	fragmentLabels.add( "9 PM" );
-			fragmentHeadings.add( "22" );	fragmentLabels.add( "10 PM" );
-			fragmentHeadings.add( "23" );	fragmentLabels.add( "11 PM" );
-			
-			Log.v( TAG, "initialize : exit" );
+
+			fragmentHeadings = new ArrayList<String>();
+			fragmentHeadings.add( "0" );
+			fragmentHeadings.add( "1" );
+			fragmentHeadings.add( "2" );
+			fragmentHeadings.add( "3" );
+			fragmentHeadings.add( "4" );
+			fragmentHeadings.add( "5" );
+			fragmentHeadings.add( "6" );
+			fragmentHeadings.add( "7" );
+			fragmentHeadings.add( "8" );
+			fragmentHeadings.add( "9" );
+			fragmentHeadings.add( "10" );
+			fragmentHeadings.add( "11" );
+			fragmentHeadings.add( "12" );
+			fragmentHeadings.add( "13" );
+			fragmentHeadings.add( "14" );
+			fragmentHeadings.add( "15" );
+			fragmentHeadings.add( "16" );
+			fragmentHeadings.add( "17" );
+			fragmentHeadings.add( "18" );
+			fragmentHeadings.add( "19" );
+			fragmentHeadings.add( "20" );
+			fragmentHeadings.add( "21" );
+			fragmentHeadings.add( "22" );
+			fragmentHeadings.add( "23" );
+
+
+            String clockType = android.provider.Settings.System.getString(getActivity().getApplicationContext().getContentResolver(), android.provider.Settings.System.TIME_12_24);
+            boolean is24h = !(clockType == null || clockType.equals("12"));
+            fragmentLabels = new ArrayList<String>();
+
+            if (is24h) {
+
+                fragmentLabels.add( "0" );
+                fragmentLabels.add( "1" );
+                fragmentLabels.add( "2" );
+                fragmentLabels.add( "3" );
+                fragmentLabels.add( "4" );
+                fragmentLabels.add( "5" );
+                fragmentLabels.add( "6" );
+                fragmentLabels.add( "7" );
+                fragmentLabels.add( "8" );
+                fragmentLabels.add( "9" );
+                fragmentLabels.add( "10" );
+                fragmentLabels.add( "11" );
+                fragmentLabels.add( "12" );
+                fragmentLabels.add( "13" );
+                fragmentLabels.add( "14" );
+                fragmentLabels.add( "15" );
+                fragmentLabels.add( "16" );
+                fragmentLabels.add( "17" );
+                fragmentLabels.add( "18" );
+                fragmentLabels.add( "19" );
+                fragmentLabels.add( "20" );
+                fragmentLabels.add( "21" );
+                fragmentLabels.add( "22" );
+                fragmentLabels.add( "23" );
+            } else {
+
+                fragmentLabels.add( "12 AM" );
+                fragmentLabels.add( "1 AM" );
+                fragmentLabels.add( "2 AM" );
+                fragmentLabels.add( "3 AM" );
+                fragmentLabels.add( "4 AM" );
+                fragmentLabels.add( "5 AM" );
+                fragmentLabels.add( "6 AM" );
+                fragmentLabels.add( "7 AM" );
+                fragmentLabels.add( "8 AM" );
+                fragmentLabels.add( "9 AM" );
+                fragmentLabels.add( "10 AM" );
+                fragmentLabels.add( "11 AM" );
+                fragmentLabels.add( "12 PM" );
+                fragmentLabels.add( "1 PM" );
+                fragmentLabels.add( "2 PM" );
+                fragmentLabels.add( "3 PM" );
+                fragmentLabels.add( "4 PM" );
+                fragmentLabels.add( "5 PM" );
+                fragmentLabels.add( "6 PM" );
+                fragmentLabels.add( "7 PM" );
+                fragmentLabels.add( "8 PM" );
+                fragmentLabels.add( "9 PM" );
+                fragmentLabels.add( "10 PM" );
+                fragmentLabels.add( "11 PM" );
+            }
+
+            Log.v( TAG, "initialize : exit" );
 		}
 
 		/* (non-Javadoc)
@@ -242,11 +302,11 @@ public class GuideFragment extends AbstractMythFragment implements OnClickListen
 		@Override
 		public Fragment getItem( int position ) {
 			TimingLogger tl = new TimingLogger( TAG, "Load ProgramGuide" );
-			
+
 			DateTime programGuideDate = date.withTime( Integer.parseInt( fragmentHeadings.get( position ) ), 0, 0, 0 );
 			ProgramGuide programGuide = cache.get( programGuideDate );
 			tl.addSplit( "ProgramGuide for " + DateUtils.dateFormatter.print( programGuideDate ) + " loaded" );
-			
+
 			return GuidePagerFragment.newInstance( startDate, fragmentHeadings.get( position ), programGuide );
 		}
 
