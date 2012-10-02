@@ -25,15 +25,17 @@ package org.mythtv.client.ui.dvr;
 //import io.vov.vitamio.widget.MediaController;
 //import io.vov.vitamio.widget.VideoView;
 
-import org.joda.time.DateTime;
 import org.mythtv.R;
 import org.mythtv.client.ui.preferences.PlaybackProfile;
 import org.mythtv.service.dvr.cache.ProgramGroupLruMemoryCache;
 import org.mythtv.service.util.DateUtils;
 import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.content.LiveStreamInfo;
+import org.mythtv.services.api.content.LiveStreamInfoWrapper;
 import org.mythtv.services.api.dvr.Program;
 import org.mythtv.services.api.dvr.Programs;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -55,7 +57,7 @@ public class VideoActivity extends AbstractDvrActivity {
 	public static final String EXTRA_PROGRAM_START_TIME = "org.mythtv.client.ui.dvr.programGroup.EXTRA_PROGRAM_START_TIME";
 	public static final String EXTRA_PROGRAM_CLEANED_TITLE = "org.mythtv.client.ui.dvr.programGroup.EXTRA_PROGRAM_CLEANED_TITLE";
 	
-	private LiveStreamInfo info = null;
+	private ResponseEntity<LiveStreamInfoWrapper> info = null;
 	private ProgressDialog progressDialog;
 	private Boolean firstrun = true;
 	private PlaybackProfile selectedPlaybackProfile;
@@ -152,7 +154,7 @@ public class VideoActivity extends AbstractDvrActivity {
 		
 		String temp = getMainApplication().getMasterBackend();
 		temp = temp.replaceAll( "/$", "" );
-		String url = temp + info.getRelativeUrl();
+		String url = temp + info.getBody().getLiveStreamInfo().getRelativeUrl();
 	    Log.v( TAG, "URL: " + url );
 	    
 	    // Enable this code to use vitamio: http://vov.io/vitamio/
@@ -194,7 +196,7 @@ public class VideoActivity extends AbstractDvrActivity {
 				.show();
 	}
 	
-	public void setLiveStreamInfo( LiveStreamInfo info ) {
+	public void setLiveStreamInfo( ResponseEntity<LiveStreamInfoWrapper> info ) {
 		Log.v( TAG, "setLiveStreamInfo : enter" );
 
 		this.info = info;
@@ -204,11 +206,11 @@ public class VideoActivity extends AbstractDvrActivity {
 		Log.v( TAG, "setLiveStreamInfo : exit" );
 	}
 	
-	public void checkLiveStreamInfo( LiveStreamInfo info ){
+	public void checkLiveStreamInfo( ResponseEntity<LiveStreamInfoWrapper> info ){
 		Log.v( TAG, "checkLiveStreamInfo : enter" );
 
 		//if(info.getStatusInt() < 2 || info.getPercentComplete() < 1){
-		if( info.getStatusInt() < 2 || info.getCurrentSegment() <= 2 ) {
+		if( info.getBody().getLiveStreamInfo().getStatusInt() < 2 || info.getBody().getLiveStreamInfo().getCurrentSegment() <= 2 ) {
 			new UpdateStreamInfoTask().execute();
 		} else {
 			startVideo();
@@ -218,15 +220,15 @@ public class VideoActivity extends AbstractDvrActivity {
 	}
 	
 	
-	private class CreateStreamTask extends AsyncTask<String, Void, LiveStreamInfo> {
+	private class CreateStreamTask extends AsyncTask<String, Void, ResponseEntity<LiveStreamInfoWrapper>> {
 
 		private Exception e = null;
 
 		@Override
-		protected LiveStreamInfo doInBackground( String... params ) {
+		protected ResponseEntity<LiveStreamInfoWrapper> doInBackground( String... params ) {
 			Log.v( TAG, "CreateStreamTask : enter" );
 
-			LiveStreamInfo lookup = null;
+			ResponseEntity<LiveStreamInfoWrapper> lookup = null;
 
 			try {
 				Log.v( TAG, "CreateStreamTask : api" );
@@ -249,9 +251,9 @@ public class VideoActivity extends AbstractDvrActivity {
 				//			-1, -1, -1, -1, -1, -1);
 				
 				lookup = getMainApplication().getMythServicesApi().contentOperations().
-						addLiveStream(null, params[ 0 ], params[ 1 ], -1, -1,
+						addLiveStream( null, params[ 0 ], params[ 1 ], -1, -1,
 								selectedPlaybackProfile.getHeight(), selectedPlaybackProfile.getVideoBitrate(), 
-								selectedPlaybackProfile.getAudioBitrate(), selectedPlaybackProfile.getAudioSampleRate());
+								selectedPlaybackProfile.getAudioBitrate(), selectedPlaybackProfile.getAudioSampleRate() );
 			} catch( Exception e ) {
 				Log.v( TAG, "CreateStreamTask : error" );
 
@@ -263,11 +265,15 @@ public class VideoActivity extends AbstractDvrActivity {
 		}
 
 		@Override
-		protected void onPostExecute( LiveStreamInfo result ) {
+		protected void onPostExecute( ResponseEntity<LiveStreamInfoWrapper> result ) {
 			Log.v( TAG, "CreateStreamTask onPostExecute : enter" );
 
 			if( null == e ) {
-				setLiveStreamInfo( result );
+				
+				if( result.getStatusCode().equals( HttpStatus.OK ) ) {
+					setLiveStreamInfo( result );
+				}
+			
 			} else {
 				Log.e( TAG, "error creating live stream", e );
 				exceptionDialolg( e );
@@ -277,25 +283,25 @@ public class VideoActivity extends AbstractDvrActivity {
 		}
 	}
 	
-	private class UpdateStreamInfoTask extends AsyncTask<Void, Void, LiveStreamInfo> {
+	private class UpdateStreamInfoTask extends AsyncTask<Void, Void, ResponseEntity<LiveStreamInfoWrapper>> {
 
 		private Exception e = null;
 
 		@Override
-		protected LiveStreamInfo doInBackground( Void... params ) {
+		protected ResponseEntity<LiveStreamInfoWrapper> doInBackground( Void... params ) {
 			Log.v( TAG, "UpdateStreamInfoTask : enter" );
 
-			LiveStreamInfo lookup = null;
+			ResponseEntity<LiveStreamInfoWrapper> lookup = null;
 
 			try {
 				Log.v( TAG, "UpdateStreamInfoTask : api" );
 				lookup = info;
 				
 				//while (lookup.getStatusInt() < 2 || lookup.getPercentComplete() < 1){
-				while (lookup.getStatusInt() < 2 || lookup.getCurrentSegment() <= 2){
-					Thread.sleep(5000);
+				while( lookup.getBody().getLiveStreamInfo().getStatusInt() < 2 || lookup.getBody().getLiveStreamInfo().getCurrentSegment() <= 2 ) {
+					Thread.sleep( 5000 );
 					ETagInfo eTag = ETagInfo.createEmptyETag();
-					lookup = getMainApplication().getMythServicesApi().contentOperations().getLiveStream( info.getId(), eTag );
+					lookup = getMainApplication().getMythServicesApi().contentOperations().getLiveStream( info.getBody().getLiveStreamInfo().getId(), eTag );
 				}
 			} catch( Exception e ) {
 				Log.v( TAG, "UpdateStreamInfoTask : error" );
@@ -308,11 +314,13 @@ public class VideoActivity extends AbstractDvrActivity {
 		}
 
 		@Override
-		protected void onPostExecute( LiveStreamInfo result ) {
+		protected void onPostExecute( ResponseEntity<LiveStreamInfoWrapper> result ) {
 			Log.v( TAG, "UpdateStreamInfoTask onPostExecute : enter" );
 
 			if( null == e ) {
-				setLiveStreamInfo( result );
+				if( result.getStatusCode().equals( HttpStatus.OK ) ) {
+					setLiveStreamInfo( result );
+				}
 			} else {
 				Log.e( TAG, "error updating live stream", e );
 				exceptionDialolg( e );
@@ -334,7 +342,7 @@ public class VideoActivity extends AbstractDvrActivity {
 
 			try {
 				Log.v( TAG, "RemoveStreamTask : api" );
-				getMainApplication().getMythServicesApi().contentOperations().removeLiveStream(info.getId());
+				getMainApplication().getMythServicesApi().contentOperations().removeLiveStream( info.getBody().getLiveStreamInfo().getId() );
 			} catch( Exception e ) {
 				Log.v( TAG, "RemoveStreamTask : error" );
 

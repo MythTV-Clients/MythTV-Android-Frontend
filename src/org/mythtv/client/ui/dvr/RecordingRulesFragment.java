@@ -33,6 +33,9 @@ import org.mythtv.service.util.NotificationHelper;
 import org.mythtv.service.util.NotificationHelper.NotificationType;
 import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.dvr.RecRule;
+import org.mythtv.services.api.dvr.RecRuleList;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -297,13 +300,13 @@ public class RecordingRulesFragment extends MythtvListFragment {
 
 		}
 
-		private class DownloadRecordingRulesTask extends AsyncTask<Void, Void, List<RecRule>> {
+		private class DownloadRecordingRulesTask extends AsyncTask<Void, Void, ResponseEntity<RecRuleList>> {
 
 			/* (non-Javadoc)
 			 * @see android.os.AsyncTask#doInBackground(Params[])
 			 */
 			@Override
-			protected List<RecRule> doInBackground( Void... params ) {
+			protected ResponseEntity<RecRuleList> doInBackground( Void... params ) {
 				
 				String message = "Retrieving Recording Rules";
 				mNotificationHelper.createNotification( "Mythtv for Android", message, NotificationType.UPLOAD );
@@ -316,15 +319,20 @@ public class RecordingRulesFragment extends MythtvListFragment {
 			 * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
 			 */
 			@Override
-			protected void onPostExecute( List<RecRule> result ) {
+			protected void onPostExecute( ResponseEntity<RecRuleList> result ) {
 				
 				mNotificationHelper.completed();
 				
-				if( null != result && !result.isEmpty() ) {
-					rules = result;
+				if( null != result ) {
 					
-					notifyDataSetChanged();
+					if( result.getStatusCode().equals( HttpStatus.OK ) ) {
+						rules = result.getBody().getRecRules().getRecRules();
+					
+						notifyDataSetChanged();
+					}
+					
 				}
+				
 			}
 			
 		}

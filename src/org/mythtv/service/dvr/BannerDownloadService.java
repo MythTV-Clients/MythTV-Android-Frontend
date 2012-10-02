@@ -25,6 +25,8 @@ import java.io.IOException;
 
 import org.mythtv.service.MythtvService;
 import org.mythtv.services.api.ETagInfo;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -94,17 +96,20 @@ public class BannerDownloadService extends MythtvService {
 				
 				try {
 					ETagInfo eTag = ETagInfo.createEmptyETag();
-					byte[] bytes = mMainApplication.getMythServicesApi().contentOperations().getRecordingArtwork( "Banner", inetref, -1, -1, -1, eTag );
-					Bitmap bitmap = BitmapFactory.decodeByteArray( bytes, 0, bytes.length );
+					ResponseEntity<byte[]> responseEntity = mMainApplication.getMythServicesApi().contentOperations().getRecordingArtwork( "Banner", inetref, -1, -1, -1, eTag );
+					if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
+						byte[] bytes = responseEntity.getBody();
+						Bitmap bitmap = BitmapFactory.decodeByteArray( bytes, 0, bytes.length );
 
-	                String name = image.getAbsolutePath();
-	                FileOutputStream fos = new FileOutputStream( name );
-	                bitmap.compress( Bitmap.CompressFormat.PNG, 100, fos );
-	                fos.flush();
-	                fos.close();
+						String name = image.getAbsolutePath();
+						FileOutputStream fos = new FileOutputStream( name );
+						bitmap.compress( Bitmap.CompressFormat.PNG, 100, fos );
+						fos.flush();
+						fos.close();
 
-	                newDataDownloaded = true;
-					filename = image.getName();
+						newDataDownloaded = true;
+						filename = image.getName();
+					}
 				} catch( Exception e ) {
 					Log.e( TAG, "download : error creating image file", e );
 

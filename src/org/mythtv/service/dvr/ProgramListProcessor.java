@@ -73,7 +73,7 @@ public class ProgramListProcessor extends AbstractMythtvProcessor {
 		String message = "Retrieving Recorded Programs";
 		mNotificationHelper.createNotification( "Mythtv for Android", message, NotificationType.UPLOAD );
 		ETagInfo eTag = ETagInfo.createEmptyETag();
-		ResponseEntity<ProgramList> entity = application.getMythServicesApi().dvrOperations().getRecordedListResponseEntity( eTag );
+		ResponseEntity<ProgramList> entity = application.getMythServicesApi().dvrOperations().getRecordedList( eTag );
 		if( Log.isLoggable( TAG, Log.INFO ) ) {
 			Log.i( TAG, "getRecordedList : entity status code = " + entity.getStatusCode().toString() );
 		}
@@ -104,7 +104,7 @@ public class ProgramListProcessor extends AbstractMythtvProcessor {
 		String message = "Retrieving Upcoming Programs";
 		mNotificationHelper.createNotification( "Mythtv for Android", message, NotificationType.UPLOAD );
 		ETagInfo eTag = ETagInfo.createEmptyETag();
-		ResponseEntity<ProgramList> entity = application.getMythServicesApi().dvrOperations().getUpcomingListResponseEntity( eTag );
+		ResponseEntity<ProgramList> entity = application.getMythServicesApi().dvrOperations().getUpcomingList( -1, -1, Boolean.FALSE, eTag );
 		if( Log.isLoggable( TAG, Log.DEBUG ) ) {
 			Log.d( TAG, "getUpcomingList : entity status code = " + entity.getStatusCode().toString() );
 		}
