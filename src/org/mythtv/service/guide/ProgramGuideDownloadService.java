@@ -28,6 +28,8 @@ import org.mythtv.service.MythtvService;
 import org.mythtv.service.util.DateUtils;
 import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.guide.ProgramGuideWrapper;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -102,8 +104,6 @@ public class ProgramGuideDownloadService extends MythtvService {
 
 			for( int currentHour = 0; currentHour < MAX_HOURS; currentHour++ ) {
 
-				Intent progressIntent = new Intent( ACTION_PROGRESS );
-
 				String sStart = fileDateTimeFormatter.print( start );
 				String filename = sStart + FILENAME_EXT;
 				File file = new File( programGuideCache, filename );
@@ -113,31 +113,39 @@ public class ProgramGuideDownloadService extends MythtvService {
 					Log.i( TAG, "download : starting download for " + DateUtils.dateTimeFormatter.print( start ) + ", end time=" + DateUtils.dateTimeFormatter.print( end ) );
 
 					ETagInfo etag = ETagInfo.createEmptyETag();
-					ProgramGuideWrapper programGuide = mMainApplication.getMythServicesApi().guideOperations().getProgramGuide( start, end, 1, -1, false, etag );
-					if( null != programGuide ) {
+					ResponseEntity<ProgramGuideWrapper> responseEntity = mMainApplication.getMythServicesApi().guideOperations().getProgramGuide( start, end, 1, -1, false, etag );
+					if( null != responseEntity ) {
 
-						try {
-							mObjectMapper.writeValue( file, programGuide.getProgramGuide() );
+						if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
 
-							newDataDownloaded = true;
+							Intent progressIntent = new Intent( ACTION_PROGRESS );
 
-							progressIntent.putExtra( EXTRA_PROGRESS, "Completed downloading file for " + sStart );
-							progressIntent.putExtra( EXTRA_PROGRESS_DATE, DateUtils.dateTimeFormatter.print( start ) );
-						} catch( JsonGenerationException e ) {
-							Log.e( TAG, "download : JsonGenerationException - error downloading file for " + sStart, e );
+							try {
+								ProgramGuideWrapper programGuide = responseEntity.getBody();
+								
+								mObjectMapper.writeValue( file, programGuide.getProgramGuide() );
 
-							progressIntent.putExtra( EXTRA_PROGRESS_ERROR, "error downloading file for " + sStart + ": " + e.getLocalizedMessage() );
-						} catch( JsonMappingException e ) {
-							Log.e( TAG, "download : JsonMappingException - error downloading file for " + sStart, e );
+								newDataDownloaded = true;
 
-							progressIntent.putExtra( EXTRA_PROGRESS_ERROR, "error downloading file for " + sStart + ": " + e.getLocalizedMessage() );
-						} catch( IOException e ) {
-							Log.e( TAG, "download : IOException - error downloading file for " + sStart, e );
+								progressIntent.putExtra( EXTRA_PROGRESS, "Completed downloading file for " + sStart );
+								progressIntent.putExtra( EXTRA_PROGRESS_DATE, DateUtils.dateTimeFormatter.print( start ) );
+							} catch( JsonGenerationException e ) {
+								Log.e( TAG, "download : JsonGenerationException - error downloading file for " + sStart, e );
 
-							progressIntent.putExtra( EXTRA_PROGRESS_ERROR, "IOException - error downloading file for " + sStart + ": " + e.getLocalizedMessage() );
+								progressIntent.putExtra( EXTRA_PROGRESS_ERROR, "error downloading file for " + sStart + ": " + e.getLocalizedMessage() );
+							} catch( JsonMappingException e ) {
+								Log.e( TAG, "download : JsonMappingException - error downloading file for " + sStart, e );
+
+								progressIntent.putExtra( EXTRA_PROGRESS_ERROR, "error downloading file for " + sStart + ": " + e.getLocalizedMessage() );
+							} catch( IOException e ) {
+								Log.e( TAG, "download : IOException - error downloading file for " + sStart, e );
+
+								progressIntent.putExtra( EXTRA_PROGRESS_ERROR, "IOException - error downloading file for " + sStart + ": " + e.getLocalizedMessage() );
+							}
+
+							sendBroadcast( progressIntent );
+
 						}
-
-						sendBroadcast( progressIntent );
 
 					}
 
