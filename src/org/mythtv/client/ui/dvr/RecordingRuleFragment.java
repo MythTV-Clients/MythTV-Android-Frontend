@@ -9,6 +9,9 @@ import org.mythtv.client.ui.util.ProgramHelper;
 import org.mythtv.db.channel.ChannelConstants;
 import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.dvr.RecRule;
+import org.mythtv.services.api.dvr.RecRuleWrapper;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import android.database.Cursor;
 import android.os.AsyncTask;
@@ -133,13 +136,13 @@ public class RecordingRuleFragment extends AbstractMythFragment {
 		Log.v( TAG, "setup : exit" );
 	}
 	
-	private class DownloadRecordingRuleTask extends AsyncTask<Integer, Void, RecRule> {
+	private class DownloadRecordingRuleTask extends AsyncTask<Integer, Void, ResponseEntity<RecRuleWrapper>> {
 
 		/* (non-Javadoc)
 		 * @see android.os.AsyncTask#doInBackground(Params[])
 		 */
 		@Override
-		protected RecRule doInBackground( Integer... params ) {
+		protected ResponseEntity<RecRuleWrapper> doInBackground( Integer... params ) {
 			
 			Integer id = params[ 0 ];
 			
@@ -151,11 +154,16 @@ public class RecordingRuleFragment extends AbstractMythFragment {
 		 * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
 		 */
 		@Override
-		protected void onPostExecute( RecRule result ) {
+		protected void onPostExecute( ResponseEntity<RecRuleWrapper> result ) {
 			
 			if( null != result ) {
-				setup( result );
+				
+				if( result.getStatusCode().equals( HttpStatus.OK ) ) {
+					setup( result.getBody().getRecRule() );
+				}
+				
 			}
+			
 		}
 		
 	}

@@ -35,6 +35,8 @@ import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.dvr.Program;
 import org.mythtv.services.api.dvr.ProgramList;
 import org.mythtv.services.api.dvr.Programs;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -107,85 +109,93 @@ public class UpcomingDownloadService extends MythtvService {
 			Intent progressIntent = new Intent( ACTION_PROGRESS );
 
 			ETagInfo etag = ETagInfo.createEmptyETag();
-			ProgramList programList = mMainApplication.getMythServicesApi().dvrOperations().getUpcomingList( -1, -1, false, etag );
-			
-			File existing = new File( programCache, UPCOMING_FILE );
-			if( existing.exists() ) {
-				existing.delete();
+			ResponseEntity<ProgramList> responseEntity = mMainApplication.getMythServicesApi().dvrOperations().getUpcomingList( -1, -1, false, etag );
+			if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
 				
-				FilenameFilter filter = new FilenameFilter() {
+				File existing = new File( programCache, UPCOMING_FILE );
+				if( existing.exists() ) {
+					existing.delete();
+					
+					FilenameFilter filter = new FilenameFilter() {
 
-					public boolean accept( File dir, String filename ) {
-						return filename.endsWith( UPCOMING_FILE_EXT );
+						public boolean accept( File dir, String filename ) {
+							return filename.endsWith( UPCOMING_FILE_EXT );
+						}
+						
+					};
+					
+					for( String filename : programCache.list( filter ) ) {
+//						Log.v( TAG, "download : filename=" + filename );
+						
+						File deleted = new File( programCache, filename );
+						if( deleted.delete() ) {
+//							Log.v( TAG, "download : deleted filename=" + filename );
+						}
 					}
 					
-				};
-				for( String filename : programCache.list( filter ) ) {
-//					Log.v( TAG, "download : filename=" + filename );
-					
-					File deleted = new File( programCache, filename );
-					if( deleted.delete() ) {
-//						Log.v( TAG, "download : deleted filename=" + filename );
-					}
 				}
+
+				try {
+					ProgramList programList = responseEntity.getBody();
+							
+					mObjectMapper.writeValue( new File( programCache, UPCOMING_FILE ), programList.getPrograms() );
+
+					Map<DateTime, Programs> upcomingDates = new TreeMap<DateTime, Programs>();
+					for( Program program : programList.getPrograms().getPrograms() ) {
+//						Log.v( TAG, "download : upcoming program iteration" );
+						
+						program.setStartTime( program.getStartTime().withZone( zone ) );
+						program.setEndTime( program.getEndTime().withZone( zone ) );
+						
+						DateTime date = program.getStartTime().withTime( 0, 0, 0, 0 ).withZone( zone );
+						if( upcomingDates.containsKey( date ) ) {
+//							Log.v( TAG, "download : adding program to EXISTING " + DateUtils.dateFormatter.print( date ) );
+													
+							upcomingDates.get( date ).getPrograms().add( program );
+						} else {
+//							Log.v( TAG, "download : adding program to NEW " + DateUtils.dateFormatter.print( date ) );
+							Programs datePrograms = new Programs();
+							
+							List<Program> dateProgramList = new ArrayList<Program>();
+							dateProgramList.add( program );
+							datePrograms.setPrograms( dateProgramList );
+							
+							upcomingDates.put( date, datePrograms );
+						}
+						
+					}
+					
+					for( DateTime date : upcomingDates.keySet() ) {
+						Programs upcomingPrograms = upcomingDates.get( date );
+						
+						String key = DateUtils.dateFormatter.print( date );
+						
+//						Log.v( TAG, "download : writing file " + key + UPCOMING_FILE_EXT );
+						mObjectMapper.writeValue( new File( programCache, key + UPCOMING_FILE_EXT ), upcomingPrograms );
+
+						progressIntent.putExtra( EXTRA_PROGRESS_FILENAME, key + UPCOMING_FILE_EXT );
+					}
+					
+					newDataDownloaded = true;
+
+				} catch( JsonGenerationException e ) {
+					Log.e( TAG, "download : JsonGenerationException - error downloading file for 'upcoming'", e );
+
+					progressIntent.putExtra( EXTRA_PROGRESS_ERROR, "error downloading file for 'upcoming': " + e.getLocalizedMessage() );
+				} catch( JsonMappingException e ) {
+					Log.e( TAG, "download : JsonGenerationException - error downloading file for 'upcoming'", e );
+
+					progressIntent.putExtra( EXTRA_PROGRESS_ERROR, "error downloading file for 'upcoming': " + e.getLocalizedMessage() );
+				} catch( IOException e ) {
+					Log.e( TAG, "download : JsonGenerationException - error downloading file for 'upcoming'", e );
+
+					progressIntent.putExtra( EXTRA_PROGRESS_ERROR, "IOException - error downloading file for 'upcoming': " + e.getLocalizedMessage() );
+				}
+
+				sendBroadcast( progressIntent );
+
 			}
 
-			try {
-				mObjectMapper.writeValue( new File( programCache, UPCOMING_FILE ), programList.getPrograms() );
-
-				Map<DateTime, Programs> upcomingDates = new TreeMap<DateTime, Programs>();
-				for( Program program : programList.getPrograms().getPrograms() ) {
-//					Log.v( TAG, "download : upcoming program iteration" );
-					
-					program.setStartTime( program.getStartTime().withZone( zone ) );
-					program.setEndTime( program.getEndTime().withZone( zone ) );
-					
-					DateTime date = program.getStartTime().withTime( 0, 0, 0, 0 ).withZone( zone );
-					if( upcomingDates.containsKey( date ) ) {
-//						Log.v( TAG, "download : adding program to EXISTING " + DateUtils.dateFormatter.print( date ) );
-												
-						upcomingDates.get( date ).getPrograms().add( program );
-					} else {
-//						Log.v( TAG, "download : adding program to NEW " + DateUtils.dateFormatter.print( date ) );
-						Programs datePrograms = new Programs();
-						
-						List<Program> dateProgramList = new ArrayList<Program>();
-						dateProgramList.add( program );
-						datePrograms.setPrograms( dateProgramList );
-						
-						upcomingDates.put( date, datePrograms );
-					}
-					
-				}
-				
-				for( DateTime date : upcomingDates.keySet() ) {
-					Programs upcomingPrograms = upcomingDates.get( date );
-					
-					String key = DateUtils.dateFormatter.print( date );
-					
-//					Log.v( TAG, "download : writing file " + key + UPCOMING_FILE_EXT );
-					mObjectMapper.writeValue( new File( programCache, key + UPCOMING_FILE_EXT ), upcomingPrograms );
-
-					progressIntent.putExtra( EXTRA_PROGRESS_FILENAME, key + UPCOMING_FILE_EXT );
-				}
-				
-				newDataDownloaded = true;
-
-			} catch( JsonGenerationException e ) {
-				Log.e( TAG, "download : JsonGenerationException - error downloading file for 'upcoming'", e );
-
-				progressIntent.putExtra( EXTRA_PROGRESS_ERROR, "error downloading file for 'upcoming': " + e.getLocalizedMessage() );
-			} catch( JsonMappingException e ) {
-				Log.e( TAG, "download : JsonGenerationException - error downloading file for 'upcoming'", e );
-
-				progressIntent.putExtra( EXTRA_PROGRESS_ERROR, "error downloading file for 'upcoming': " + e.getLocalizedMessage() );
-			} catch( IOException e ) {
-				Log.e( TAG, "download : JsonGenerationException - error downloading file for 'upcoming'", e );
-
-				progressIntent.putExtra( EXTRA_PROGRESS_ERROR, "IOException - error downloading file for 'upcoming': " + e.getLocalizedMessage() );
-			}
-
-			sendBroadcast( progressIntent );
 		}
 		
 		completed();

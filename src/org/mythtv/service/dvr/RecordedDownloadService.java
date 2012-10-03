@@ -26,6 +26,8 @@ import org.mythtv.R;
 import org.mythtv.service.MythtvService;
 import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.dvr.ProgramList;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -92,36 +94,41 @@ public class RecordedDownloadService extends MythtvService {
 		File programCache = mFileHelper.getProgramDataDirectory();
 		if( programCache.exists() ) {
 			
-			Intent progressIntent = new Intent( ACTION_PROGRESS );
-
 			ETagInfo etag = ETagInfo.createEmptyETag();
-			ProgramList programList = mMainApplication.getMythServicesApi().dvrOperations().getRecordedList( etag );
+			ResponseEntity<ProgramList> responseEntity = mMainApplication.getMythServicesApi().dvrOperations().getRecordedList( etag );
+			if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
+
+				Intent progressIntent = new Intent( ACTION_PROGRESS );
+
+				File existing = new File( programCache, RECORDED_FILE );
+				if( existing.exists() ) {
+					existing.delete();
+				}
+
+				try {
+					ProgramList programList = responseEntity.getBody();
+					mObjectMapper.writeValue( new File( programCache, RECORDED_FILE ), programList.getPrograms() );
+
+					Log.i( TAG, "download : downloaded 'recorded'" );
+					progressIntent.putExtra( EXTRA_PROGRESS, "downloaded 'recorded'" );
+				} catch( JsonGenerationException e ) {
+					Log.e( TAG, "download : JsonGenerationException - error downloading file for 'recorded'", e );
+
+					progressIntent.putExtra( EXTRA_PROGRESS_ERROR, "error downloading file for 'recorded': " + e.getLocalizedMessage() );
+				} catch( JsonMappingException e ) {
+					Log.e( TAG, "download : JsonGenerationException - error downloading file for 'recorded'", e );
+
+					progressIntent.putExtra( EXTRA_PROGRESS_ERROR, "error downloading file for 'recorded': " + e.getLocalizedMessage() );
+				} catch( IOException e ) {
+					Log.e( TAG, "download : JsonGenerationException - error downloading file for 'recorded'", e );
+
+					progressIntent.putExtra( EXTRA_PROGRESS_ERROR, "IOException - error downloading file for 'recorded': " + e.getLocalizedMessage() );
+				}
+
+				sendBroadcast( progressIntent );
+
+			}
 			
-			File existing = new File( programCache, RECORDED_FILE );
-			if( existing.exists() ) {
-				existing.delete();
-			}
-
-			try {
-				mObjectMapper.writeValue( new File( programCache, RECORDED_FILE ), programList.getPrograms() );
-
-				Log.i( TAG, "download : downloaded 'recorded'" );
-				progressIntent.putExtra( EXTRA_PROGRESS, "downloaded 'recorded'" );
-			} catch( JsonGenerationException e ) {
-				Log.e( TAG, "download : JsonGenerationException - error downloading file for 'recorded'", e );
-
-				progressIntent.putExtra( EXTRA_PROGRESS_ERROR, "error downloading file for 'recorded': " + e.getLocalizedMessage() );
-			} catch( JsonMappingException e ) {
-				Log.e( TAG, "download : JsonGenerationException - error downloading file for 'recorded'", e );
-
-				progressIntent.putExtra( EXTRA_PROGRESS_ERROR, "error downloading file for 'recorded': " + e.getLocalizedMessage() );
-			} catch( IOException e ) {
-				Log.e( TAG, "download : JsonGenerationException - error downloading file for 'recorded'", e );
-
-				progressIntent.putExtra( EXTRA_PROGRESS_ERROR, "IOException - error downloading file for 'recorded': " + e.getLocalizedMessage() );
-			}
-
-			sendBroadcast( progressIntent );
 		}
 		
 		completed();

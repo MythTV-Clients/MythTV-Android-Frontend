@@ -25,6 +25,8 @@ import org.mythtv.R;
 import org.mythtv.client.MainApplication;
 import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.frontend.FrontendStatus;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import android.app.AlertDialog;
 import android.os.AsyncTask;
@@ -34,147 +36,149 @@ import android.util.Log;
 
 /**
  * @author pot8oe
- *
+ * 
  */
 public class AbstractFrontendFragment extends Fragment {
-	
+
 	private final static String TAG = "AbstractFrontendFragment";
 	private final static int STATUS_CHECK_INTERVAL_MS = 10000;
-	
+
 	protected static GetStatusTask sGetStatusTask;
 	protected static Timer sStatusTimer;
-	
+
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		
-		//create only one get status task
-		if(null == sGetStatusTask) {
+	public void onCreate( Bundle savedInstanceState ) {
+
+		// create only one get status task
+		if( null == sGetStatusTask ) {
 			sGetStatusTask = new GetStatusTask();
-			
-			//kick it off with a status request
-			final FrontendsFragment frontends = (FrontendsFragment) getFragmentManager().findFragmentById( R.id.frontends_fragment );
+
+			// kick it off with a status request
+			final FrontendsFragment frontends = (FrontendsFragment) getFragmentManager().findFragmentById(
+					R.id.frontends_fragment );
 			final Frontend fe = frontends.getSelectedFrontend();
-			//sGetStatusTask.execute(fe.getUrl());
+			// sGetStatusTask.execute(fe.getUrl());
 		}
-		
-		//create only one status timer
-		if(null == sStatusTimer){
+
+		// create only one status timer
+		if( null == sStatusTimer ) {
 			sStatusTimer = new Timer();
-//			sStatusTimer.schedule(new TimerTask(){
-//
-//				@Override
-//				public void run() {
-//					final FrontendsFragment frontends = (FrontendsFragment) getFragmentManager().findFragmentById( R.id.frontends_fragment );
-//					final Frontend fe = frontends.getSelectedFrontend();
-//					sGetStatusTask.execute(fe.getUrl());
-//				}
-//				
-//			}, STATUS_CHECK_INTERVAL_MS, STATUS_CHECK_INTERVAL_MS);
+			// sStatusTimer.schedule(new TimerTask(){
+			//
+			// @Override
+			// public void run() {
+			// final FrontendsFragment frontends = (FrontendsFragment)
+			// getFragmentManager().findFragmentById( R.id.frontends_fragment );
+			// final Frontend fe = frontends.getSelectedFrontend();
+			// sGetStatusTask.execute(fe.getUrl());
+			// }
+			//
+			// }, STATUS_CHECK_INTERVAL_MS, STATUS_CHECK_INTERVAL_MS);
 		}
-		
-		super.onCreate(savedInstanceState);
+
+		super.onCreate( savedInstanceState );
 	}
-	
+
 	public MainApplication getApplicationContext() {
 		return (MainApplication) getActivity().getApplicationContext();
 	}
-	
-	private void showAlertDialog(final CharSequence title, final CharSequence message){
-		this.getActivity().runOnUiThread(new Runnable(){
+
+	private void showAlertDialog( final CharSequence title, final CharSequence message ) {
+		this.getActivity().runOnUiThread( new Runnable() {
 
 			@Override
 			public void run() {
-				AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-				builder.setTitle(title);
-				builder.setMessage(message);
+				AlertDialog.Builder builder = new AlertDialog.Builder( getActivity() );
+				builder.setTitle( title );
+				builder.setMessage( message );
 				builder.show();
 			}
-			
-		});
+
+		} );
 	}
 
 	/**
-	 * When calling execute there must be 1 paramter:
-	 * Frontend URL
+	 * When calling execute there must be 1 paramter: Frontend URL
+	 * 
 	 * @author pot8oe
-	 *
+	 * 
 	 */
-	protected class GetStatusTask extends AsyncTask<String, Void, Void> {
+	protected class GetStatusTask extends AsyncTask<String, Void, ResponseEntity<FrontendStatus>> {
 
-		FrontendStatus status;
-		
 		@Override
-		protected Void doInBackground(String... params) {
+		protected ResponseEntity<FrontendStatus> doInBackground( String... params ) {
 
 			try {
 				ETagInfo eTag = ETagInfo.createEmptyETag();
-				status = getApplicationContext().getMythServicesApi()
-						.frontendOperations().getStatus( params[0], eTag );
-			} catch (Exception e) {
-				Log.e(TAG, e.getMessage());
-				showAlertDialog("Get Status Error", e.getMessage());
+				return getApplicationContext().getMythServicesApi().frontendOperations()
+						.getStatus( params[ 0 ], eTag );
+			} catch( Exception e ) {
+				Log.e( TAG, e.getMessage() );
+				showAlertDialog( "Get Status Error", e.getMessage() );
 			}
 			return null;
 		}
-		
-		
-		public FrontendStatus getFrontendStatus()
-		{
-			return status;
+
+		/* (non-Javadoc)
+		 * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
+		 */
+		@Override
+		protected void onPostExecute( ResponseEntity<FrontendStatus> result ) {
+			super.onPostExecute( result );
+			
+			if( result.getStatusCode().equals( HttpStatus.OK ) ) {
+				
+			}
+			
 		}
+
 	}
-	
+
 	/**
-	 * When calling execute there must be 2 paramters.
-	 * Frontend URL
-	 * Message
+	 * When calling execute there must be 2 paramters. Frontend URL Message
+	 * 
 	 * @author pot8oe
-	 *
+	 * 
 	 */
 	protected class SendMessageTask extends AsyncTask<String, Void, Void> {
 
 		@Override
-		protected Void doInBackground(String... params) {
+		protected Void doInBackground( String... params ) {
 
 			try {
-				getApplicationContext().getMythServicesApi()
-						.frontendOperations().sendMessage(params[0], params[1]);
-			} catch (Exception e) {
-				Log.e(TAG, e.getMessage());
-				showAlertDialog("Send Message Error", e.getMessage());
+				getApplicationContext().getMythServicesApi().frontendOperations()
+						.sendMessage( params[ 0 ], params[ 1 ] );
+			} catch( Exception e ) {
+				Log.e( TAG, e.getMessage() );
+				showAlertDialog( "Send Message Error", e.getMessage() );
 			}
 			return null;
 		}
-		
+
 	}
-	
+
 	/**
-	 * When calling execute there must be 2 paramters.
-	 * Frontend URL
-	 * Command
+	 * When calling execute there must be 2 paramters. Frontend URL Command
+	 * 
 	 * @author pot8oe
-	 *
+	 * 
 	 */
 	protected class SendActionTask extends AsyncTask<String, Void, Void> {
 
 		@Override
-		protected Void doInBackground(String... params) {
+		protected Void doInBackground( String... params ) {
 
 			try {
-				getApplicationContext().getMythServicesApi()
-						.frontendOperations()
-						.sendAction(params[0], params[1], null, 0, 0);
-			} catch (Exception e) {
-				Log.e(TAG, e.getMessage());
-				showAlertDialog("Send Action Error", e.getMessage());
+				getApplicationContext().getMythServicesApi().frontendOperations()
+						.sendAction( params[ 0 ], params[ 1 ], null, 0, 0 );
+			} catch( Exception e ) {
+				Log.e( TAG, e.getMessage() );
+				showAlertDialog( "Send Action Error", e.getMessage() );
 			}
-			
+
 			return null;
 		}
-		
+
 	}
-	
-	
-	
-	
+
 }

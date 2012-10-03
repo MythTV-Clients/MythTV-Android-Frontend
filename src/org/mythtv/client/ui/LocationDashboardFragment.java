@@ -20,6 +20,8 @@
 package org.mythtv.client.ui;
 
 import org.mythtv.R;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -123,7 +125,7 @@ public class LocationDashboardFragment extends AbstractMythFragment {
 
 	}
 	
-	private class CheckMythtvBackendConnectionTask extends AsyncTask<String, Void, String> {
+	private class CheckMythtvBackendConnectionTask extends AsyncTask<String, Void, ResponseEntity<String>> {
 
 		private String connectedPofile;
 		
@@ -131,16 +133,14 @@ public class LocationDashboardFragment extends AbstractMythFragment {
 		 * @see android.os.AsyncTask#doInBackground(Params[])
 		 */
 		@Override
-		protected String doInBackground( String... args ) {
+		protected ResponseEntity<String> doInBackground( String... args ) {
 			Log.v( TAG, "CheckMythtvBackendConnectionTask.doInBackground : enter" );
 			
 			connectedPofile = args[ 0 ];
 			
 			try {
-				String hostname = getMainApplication().getMythServicesApi().mythOperations().getHostName();
-				
 				Log.v( TAG, "CheckMythtvBackendConnectionTask.doInBackground : exit" );
-				return hostname;
+				return getMainApplication().getMythServicesApi().mythOperations().getHostName();
 			} catch( Exception e ) {
 				Log.w( TAG, "CheckMythtvBackendConnectionTask.doInBackground : error connecting to backend", e );
 				
@@ -152,24 +152,46 @@ public class LocationDashboardFragment extends AbstractMythFragment {
 		 * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
 		 */
 		@Override
-		protected void onPostExecute( String result ) {
+		protected void onPostExecute( ResponseEntity<String> result ) {
 			Log.v( TAG, "CheckMythtvBackendConnectionTask.onPostExecute : enter" );
 
-			if( null == result || "".equals( result ) ) {
+			if( null != result ) {
+				
+				if( result.getStatusCode().equals( HttpStatus.OK ) ) {
+					
+					String hostname = result.getBody();
+					if( null != hostname && !"".equals( hostname ) ) {
+
+						if( connectedPofile.equals( "home" ) ) {
+							connectHomeLocation();
+						}
+
+						if( connectedPofile.equals( "away" ) ) {
+							connectAwayLocation();
+						}
+						
+					} else {
+					
+						Log.v( TAG, "CheckMythtvBackendConnectionTask.onPostExecute : mythtv master backend not found" );
+
+						showBackendConnectionFailedWarning();
+					
+					}
+			
+				} else {
+
+					Log.v( TAG, "CheckMythtvBackendConnectionTask.onPostExecute : mythtv master backend not found" );
+
+					showBackendConnectionFailedWarning();
+				
+				}
+				
+			} else {
+
 				Log.v( TAG, "CheckMythtvBackendConnectionTask.onPostExecute : mythtv master backend not found" );
 
 				showBackendConnectionFailedWarning();
-			
-			} else {
-				
-				if( connectedPofile.equals( "home" ) ) {
-					connectHomeLocation();
-				}
 
-				if( connectedPofile.equals( "away" ) ) {
-					connectAwayLocation();
-				}
-				
 			}
 			
 			Log.v( TAG, "CheckMythtvBackendConnectionTask.onPostExecute : exit" );

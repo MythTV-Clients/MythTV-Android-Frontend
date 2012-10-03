@@ -28,6 +28,8 @@ import java.util.TreeMap;
 import org.mythtv.client.MainApplication;
 import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.capture.CaptureCard;
+import org.mythtv.services.api.capture.CaptureCardList;
+import org.springframework.http.ResponseEntity;
 
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -164,10 +166,10 @@ public class CaptureCardsListFragment extends ListFragment {
 	// ***************************************
 	// Private classes
 	// ***************************************
-	private class DownloadCaptureCardsTask extends AsyncTask<Void, Void, List<CaptureCard>> {
+	private class DownloadCaptureCardsTask extends AsyncTask<Void, Void, ResponseEntity<CaptureCardList>> {
 
 		@Override
-		protected List<CaptureCard> doInBackground( Void... params ) {
+		protected ResponseEntity<CaptureCardList> doInBackground( Void... params ) {
 			Log.v( TAG, "DownloadCaptureCardsTask.doInBackground : enter" );
 
 			try {
@@ -185,12 +187,12 @@ public class CaptureCardsListFragment extends ListFragment {
 		}
 
 		@Override
-		protected void onPostExecute( List<CaptureCard> result ) {
+		protected void onPostExecute( ResponseEntity<CaptureCardList> result ) {
 			Log.v( TAG, "DownloadCaptureCardsTask.onPostExecute : enter" );
 
 			List<String> sortedCaptureCards = new ArrayList<String>();
 			Map<String,List<CaptureCard>> sortedResult = new TreeMap<String, List<CaptureCard>>();
-			for( CaptureCard captureCard : result ) {
+			for( CaptureCard captureCard : result.getBody().getCaptureCards().getCaptureCards() ) {
 				String device = captureCard.getVideoDevice();
 				
 				if( sortedResult.containsKey( device ) ) {
