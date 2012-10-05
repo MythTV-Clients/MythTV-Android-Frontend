@@ -64,7 +64,6 @@ import android.widget.TextView;
 public class RecordingRulesFragment extends MythtvListFragment {
 
 	private static final String TAG = RecordingRulesFragment.class.getSimpleName();
-	private static final int REFRESH_ID = Menu.FIRST + 2;
 
 	private OnRecordingRuleListener listener = null;
 	private RecordingRuleAdapter adapter;
@@ -116,7 +115,7 @@ public class RecordingRulesFragment extends MythtvListFragment {
 		Log.v( TAG, "onCreateOptionsMenu : enter" );
 		super.onCreateOptionsMenu( menu, inflater );
 
-		MenuItem refresh = menu.add( Menu.NONE, REFRESH_ID, Menu.NONE, "Refresh" );
+		MenuItem refresh = menu.add( Menu.NONE, RecordingRulesActivity.REFRESH_ID, Menu.NONE, "Refresh" );
 		refresh.setIcon( R.drawable.ic_menu_refresh_default );
 	    if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
 	    	refresh.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
@@ -133,7 +132,7 @@ public class RecordingRulesFragment extends MythtvListFragment {
 		Log.v( TAG, "onOptionsItemSelected : enter" );
 		
 		switch( item.getItemId() ) {
-		case REFRESH_ID:
+		case RecordingRulesActivity.REFRESH_ID:
 			Log.d( TAG, "onOptionsItemSelected : refresh selected" );
 
 	        return true;

@@ -13,11 +13,17 @@ import org.mythtv.services.api.dvr.RecRuleWrapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import android.annotation.TargetApi;
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -31,6 +37,7 @@ public class RecordingRuleFragment extends AbstractMythFragment {
 	private static final String TAG = RecordingRuleFragment.class.getSimpleName();
 	
 	private ProgramHelper mProgramHelper;
+	private Integer mRecordingRuleId;
 	
 	public static RecordingRuleFragment newInstance( Bundle args ) {
 		RecordingRuleFragment fragment = new RecordingRuleFragment();
@@ -48,6 +55,9 @@ public class RecordingRuleFragment extends AbstractMythFragment {
 	public void onCreate( Bundle savedInstanceState ) {
 		Log.v( TAG, "onCreate : enter" );
 		super.onCreate( savedInstanceState );
+		
+		//we have an option menu
+		this.setHasOptionsMenu(true);
 
 		Bundle args = getArguments();
 		if( null != args ){
@@ -86,6 +96,8 @@ public class RecordingRuleFragment extends AbstractMythFragment {
 
 	public void loadRecordingRule( Integer recordingRuleId ) {
 		Log.v( TAG, "loadRecordingRule : enter" );
+		
+		mRecordingRuleId = recordingRuleId;
 
 		if( null != getActivity() ) {
 			new DownloadRecordingRuleTask().execute( recordingRuleId );
@@ -134,6 +146,52 @@ public class RecordingRuleFragment extends AbstractMythFragment {
 		tView.setText( channel );
 		
 		Log.v( TAG, "setup : exit" );
+	}
+	
+	@Override
+	@TargetApi( 11 )
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		
+		Log.v( TAG, "onCreateOptionsMenu : enter" );
+		
+	    MenuItem edit = menu.add( Menu.NONE, RecordingRulesActivity.EDIT_ID, Menu.NONE, "EDIT" );
+	    if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
+	    	edit.setShowAsAction( MenuItem.SHOW_AS_ACTION_ALWAYS );
+	    	edit.setIcon( android.R.drawable.ic_menu_edit );
+	    }
+		
+		Log.v( TAG, "onCreateOptionsMenu : exit" );
+		
+		super.onCreateOptionsMenu(menu, inflater);
+	}
+	
+	/* (non-Javadoc)
+	 * @see android.app.Activity#onOptionsItemSelected(android.view.MenuItem)
+	 */
+	@Override
+	public boolean onOptionsItemSelected( MenuItem item ) {
+		Log.v( TAG, "onOptionsItemSelected : enter" );
+
+		Intent intent = null;
+		
+		switch( item.getItemId() ) {
+			case android.R.id.home:
+				// app icon in action bar clicked; go home
+				intent = new Intent( this.getActivity(), RecordingRulesActivity.class );
+				intent.addFlags( Intent.FLAG_ACTIVITY_CLEAR_TOP );
+				startActivity( intent );
+
+				return true;
+			case RecordingRulesActivity.EDIT_ID:
+				intent = new Intent( this.getActivity(), RecordingRuleEditActivity.class );
+				intent.putExtra( RecordingRuleEditActivity.EXTRA_RECORDING_RULE_EDIT_KEY, mRecordingRuleId );
+				startActivity( intent );
+				
+				return true;
+		}
+
+		Log.v( TAG, "onOptionsItemSelected : exit" );
+		return super.onOptionsItemSelected( item );
 	}
 	
 	private class DownloadRecordingRuleTask extends AsyncTask<Integer, Void, ResponseEntity<RecRuleWrapper>> {

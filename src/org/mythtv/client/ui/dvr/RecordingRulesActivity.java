@@ -26,6 +26,7 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
+import android.view.Menu;
 
 /**
  * @author Daniel Frey
@@ -34,6 +35,10 @@ import android.util.Log;
 public class RecordingRulesActivity extends AbstractDvrActivity implements RecordingRulesFragment.OnRecordingRuleListener {
 
 	private static final String TAG = RecordingRulesActivity.class.getSimpleName();
+	
+	//Menu item IDs used in child fragments. Put them here to help avoid ID collisions
+	public static final int REFRESH_ID = Menu.FIRST + 2;
+	public static final int EDIT_ID = Menu.FIRST + 3;
 
 	/* (non-Javadoc)
 	 * @see org.mythtv.client.ui.dvr.AbstractDvrActivity#onCreate(android.os.Bundle)

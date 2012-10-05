@@ -68,52 +68,5 @@ public class RecordingRuleActivity extends AbstractDvrActivity {
 		
 		Log.v( TAG, "onCreate : exit" );
 	}
-
-	/* (non-Javadoc)
-	 * @see org.mythtv.client.ui.AbstractMythtvFragmentActivity#onCreateOptionsMenu(android.view.Menu)
-	 */
-	@Override
-	@TargetApi( 11 )
-	public boolean onCreateOptionsMenu( Menu menu ) {
-		Log.v( TAG, "onCreateOptionsMenu : enter" );
-		
-	    MenuItem edit = menu.add( Menu.NONE, EDIT_ID, Menu.NONE, "EDIT" );
-	    if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-	    	edit.setShowAsAction( MenuItem.SHOW_AS_ACTION_ALWAYS );
-	    	edit.setIcon( android.R.drawable.ic_menu_edit );
-	    }
-		
-		Log.v( TAG, "onCreateOptionsMenu : exit" );
-		return super.onCreateOptionsMenu( menu );
-	}
-
-	/* (non-Javadoc)
-	 * @see android.app.Activity#onOptionsItemSelected(android.view.MenuItem)
-	 */
-	@Override
-	public boolean onOptionsItemSelected( MenuItem item ) {
-		Log.v( TAG, "onOptionsItemSelected : enter" );
-
-		Intent intent = null;
-		
-		switch( item.getItemId() ) {
-			case android.R.id.home:
-				// app icon in action bar clicked; go home
-				intent = new Intent( this, RecordingRulesActivity.class );
-				intent.addFlags( Intent.FLAG_ACTIVITY_CLEAR_TOP );
-				startActivity( intent );
-
-				return true;
-			case EDIT_ID:
-				intent = new Intent( this, RecordingRuleEditActivity.class );
-				intent.putExtra( RecordingRuleEditActivity.EXTRA_RECORDING_RULE_EDIT_KEY, recordingRuleId );
-				startActivity( intent );
-				
-				return true;
-		}
-
-		Log.v( TAG, "onOptionsItemSelected : exit" );
-		return super.onOptionsItemSelected( item );
-	}
 	
 }
