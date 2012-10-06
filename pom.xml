@@ -122,7 +122,7 @@
     <repositories>
 
 		<!-- Project (local) Repository -->
-		<repository>
+		<!-- repository>
 		    <id>libs</id>
 		    <name>libs</name>
 		    <releases>
@@ -133,7 +133,7 @@
 		        <enabled>false</enabled>
 		    </snapshots>
 		    <url>file://${project.basedir}/libs</url>
-		</repository>
+		</repository -->
         
 		<repository>
     		<id>springsource-repo</id>
