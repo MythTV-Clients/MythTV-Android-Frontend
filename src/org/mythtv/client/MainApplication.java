@@ -24,6 +24,7 @@ import java.util.Map;
 
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.preferences.PlaybackProfile;
+import org.mythtv.db.MythtvDatabaseManager;
 import org.mythtv.services.api.MythServices;
 import org.mythtv.services.api.capture.CaptureCard;
 import org.mythtv.services.connect.MythServicesServiceProvider;
@@ -50,15 +51,7 @@ public class MainApplication extends Application {
 
 	private MythServicesServiceProvider provider;
 	
-//	private boolean databaseLoading;
-	
 	private String location;
-	
-	private LocationProfile selectedHomeLocationProfile;
-	private LocationProfile selectedAwayLocationProfile;
-	
-	private PlaybackProfile selectedHomePlaybackProfile;
-	private PlaybackProfile selectedAwayPlaybackProfile;
 	
 	private String masterBackend;
 	
@@ -93,15 +86,10 @@ public class MainApplication extends Application {
     // Public methods
     //***************************************
 	public MythServices getMythServicesApi() {
-//		Log.v( TAG, "getMythServicesApi : enter" );
-
 		if( null == provider ) {
-//			Log.v( TAG, "getMythServicesApi : initializing MythServicesServiceProvider" );
-
 			provider = new MythServicesServiceProvider( getMasterBackend() );
 		}
 		
-//		Log.v( TAG, "getMythServicesApi : exit" );
 		return provider.getApi();
 	}
 
@@ -109,93 +97,46 @@ public class MainApplication extends Application {
 	 * @return the selectedHomeLocationProfile
 	 */
 	public LocationProfile getSelectedHomeLocationProfile() {
-//		Log.v( TAG, "getSelectedHomeLocationProfile : enter" );
-//		Log.v( TAG, "getSelectedHomeLocationProfile : exit" );
-		return selectedHomeLocationProfile;
-	}
-
-	/**
-	 * @param selectedHomeLocationProfile the selectedHomeLocationProfile to set
-	 */
-	public void setSelectedHomeLocationProfile( LocationProfile selectedHomeLocationProfile ) {
-//		Log.v( TAG, "setSelectedHomeLocationProfile : enter" );
-
-		this.selectedHomeLocationProfile = selectedHomeLocationProfile;
-
-//		Log.v( TAG, "setSelectedHomeLocationProfile : exit" );
+		MythtvDatabaseManager db = new MythtvDatabaseManager( this );
+		return db.fetchSelectedHomeLocationProfile();
 	}
 
 	/**
 	 * 
 	 */
 	public void connectSelectedHomeLocationProfile() {
-//		Log.v( TAG, "connectSelectedHomeLocationProfile : enter" );
-
 		setMasterBackend( getSelectedHomeLocationProfile().getUrl() );
-
-//		Log.v( TAG, "connectSelectedHomeLocationProfile : exit" );
 	}
 	
 	/**
 	 * @return the selectedAwayLocationProfile
 	 */
 	public LocationProfile getSelectedAwayLocationProfile() {
-//		Log.v( TAG, "getSelectedAwayLocationProfile : enter" );
-//		Log.v( TAG, "getSelectedAwayLocationProfile : exit" );
-		return selectedAwayLocationProfile;
-	}
-
-	/**
-	 * @param selectedAwayLocationProfile the selectedAwayLocationProfile to set
-	 */
-	public void setSelectedAwayLocationProfile( LocationProfile selectedAwayLocationProfile ) {
-//		Log.v( TAG, "setSelectedAwayLocationProfile : enter" );
-		
-		this.selectedAwayLocationProfile = selectedAwayLocationProfile;
-
-//		Log.v( TAG, "setSelectedAwayLocationProfile : exit" );
+		MythtvDatabaseManager db = new MythtvDatabaseManager( this );
+		return db.fetchSelectedAwayLocationProfile();
 	}
 
 	/**
 	 * 
 	 */
 	public void connectSelectedAwayLocationProfile() {
-//		Log.v( TAG, "connectSelectedAwayLocation : enter" );
-		
 		setMasterBackend( getSelectedAwayLocationProfile().getUrl() );
-
-//		Log.v( TAG, "connectSelectedAwayLocation : exit" );
 	}
 	
 	/**
 	 * @return the selectedHomePlaybackProfile
 	 */
 	public PlaybackProfile getSelectedHomePlaybackProfile() {
-		return selectedHomePlaybackProfile;
+		MythtvDatabaseManager db = new MythtvDatabaseManager( this );
+		return db.fetchSelectedHomePlaybackProfile();
 	}
-
-
-	/**
-	 * @param selectedHomePlaybackProfile the selectedHomePlaybackProfile to set
-	 */
-	public void setSelectedHomePlaybackProfile( PlaybackProfile selectedHomePlaybackProfile ) {
-		this.selectedHomePlaybackProfile = selectedHomePlaybackProfile;
-	}
-
 
 	/**
 	 * @return the selectedAwayPlaybackProfile
 	 */
 	public PlaybackProfile getSelectedAwayPlaybackProfile() {
-		return selectedAwayPlaybackProfile;
-	}
-
-
-	/**
-	 * @param selectedAwayPlaybackProfile the selectedAwayPlaybackProfile to set
-	 */
-	public void setSelectedAwayPlaybackProfile( PlaybackProfile selectedAwayPlaybackProfile ) {
-		this.selectedAwayPlaybackProfile = selectedAwayPlaybackProfile;
+		MythtvDatabaseManager db = new MythtvDatabaseManager( this );
+		return db.fetchSelectedAwayPlaybackProfile();
 	}
 
 
@@ -203,16 +144,10 @@ public class MainApplication extends Application {
 	 * @return the masterBackend
 	 */
 	public String getMasterBackend() {
-//		Log.v( TAG, "getMasterBackend : enter" );
-
 		if( null == masterBackend || "".equals( masterBackend ) ) {
-//			Log.v( TAG, "getMasterBackend : masterbackend not set, checking SharedPreferences" );
-
 			masterBackend = mythtvPreferences.getString( MASTER_BACKEND, null );
 		}
-//		Log.v( TAG, "getMasterBackend : masterBackend=" + masterBackend );
 		
-//		Log.v( TAG, "getMasterBackend : exit" );
 		return masterBackend;
 	}
 
@@ -233,16 +168,11 @@ public class MainApplication extends Application {
 	}
 
 	public void clearMasterBackend() {
-//		Log.v( TAG, "clearMasterBackend : enter" );
-
-//		Log.v( TAG, "clearMasterBackend : removing masterbackend in SharedPreferences" );
 		SharedPreferences.Editor editor = mythtvPreferences.edit();
 		editor.remove( MASTER_BACKEND );
 		editor.commit();
 
 		masterBackend = null;
-		
-//		Log.v( TAG, "clearMasterBackend : enter" );
 	}
 
 	/**
@@ -252,14 +182,12 @@ public class MainApplication extends Application {
 		return location;
 	}
 
-
 	/**
 	 * @param location the location to set
 	 */
 	public void setLocation( String location ) {
 		this.location = location;
 	}
-
 
 	/**
 	 * @return the captureCards
@@ -288,21 +216,5 @@ public class MainApplication extends Application {
 	public void setCurrentCaptureCards( Map<String, List<CaptureCard>> currentCaptureCards ) {
 		this.currentCaptureCards = currentCaptureCards;
 	}
-
-
-	/**
-	 * @return the databaseLoading
-	 */
-//	public boolean isDatabaseLoading() {
-//		return databaseLoading;
-//	}
-
-
-	/**
-	 * @param databaseLoading the databaseLoading to set
-	 */
-//	public void setDatabaseLoading( boolean databaseLoading ) {
-//		this.databaseLoading = databaseLoading;
-//	}
 
 }
