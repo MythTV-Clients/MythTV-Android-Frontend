@@ -115,26 +115,44 @@
                 </configuration>
             </plugin>
         
+        	<plugin>
+            	<groupId>com.mycila.maven-license-plugin</groupId>
+            	<artifactId>maven-license-plugin</artifactId>
+            	<configuration>
+                	<basedir>${basedir}</basedir>
+                	<header>${basedir}/header/header.txt</header>
+                	<quiet>false</quiet>
+                	<failIfMissing>true</failIfMissing>
+                	<aggregate>false</aggregate>
+                	<includes>
+                    	<include>src/**</include>
+                    	<include>res/**</include>
+                	</includes>
+                	<excludes>
+                    	<exclude>target/**</exclude>
+                    	<exclude>gen/**</exclude>
+                    	<exclude>bin/**</exclude>
+                    	<exclude>header/**</exclude>
+                    </excludes>
+                	<useDefaultExcludes>true</useDefaultExcludes>
+                	<useDefaultMapping>true</useDefaultMapping>
+                	<encoding>UTF-8</encoding>
+            	</configuration>
+            	<executions>
+                	<execution>
+                    	<goals>
+                        	<goal>check</goal>
+                    	</goals>
+                	</execution>
+            	</executions>
+        	</plugin>
+        
         </plugins>
     
     </build>
     
     <repositories>
 
-		<!-- Project (local) Repository -->
-		<!-- repository>
-		    <id>libs</id>
-		    <name>libs</name>
-		    <releases>
-		        <enabled>true</enabled>
-		        <checksumPolicy>ignore</checksumPolicy>
-		    </releases>
-		    <snapshots>
-		        <enabled>false</enabled>
-		    </snapshots>
-		    <url>file://${project.basedir}/libs</url>
-		</repository -->
-        
 		<repository>
     		<id>springsource-repo</id>
     		<name>SpringSource Repository</name>
