@@ -39,6 +39,7 @@ import org.springframework.http.ResponseEntity;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -52,7 +53,6 @@ import android.util.Log;
 public class VideoActivity extends AbstractDvrActivity {
 
 	private static final String TAG = VideoActivity.class.getSimpleName();
-
 	public static final String EXTRA_PROGRAM_CHANNEL_ID = "org.mythtv.client.ui.dvr.programGroup.EXTRA_PROGRAM_CHANNEL_ID";
 	public static final String EXTRA_PROGRAM_START_TIME = "org.mythtv.client.ui.dvr.programGroup.EXTRA_PROGRAM_START_TIME";
 	public static final String EXTRA_PROGRAM_CLEANED_TITLE = "org.mythtv.client.ui.dvr.programGroup.EXTRA_PROGRAM_CLEANED_TITLE";
@@ -63,6 +63,7 @@ public class VideoActivity extends AbstractDvrActivity {
 	private PlaybackProfile selectedPlaybackProfile;
 
 	private ProgramGroupLruMemoryCache cache;
+    private Program selected = null;
 
 	// ***************************************
 	// Activity methods
@@ -92,7 +93,6 @@ public class VideoActivity extends AbstractDvrActivity {
 	    
 		Log.v( TAG, "onCreate : channelId=" + channelId + ", startTime=" + startTime + ", cleaned=" + cleaned );
 	    
-	    Program selected = null;
 		Programs programs = cache.get( cleaned );
 	    for( Program program : programs.getPrograms() ) {
 			Log.v( TAG, "onCreate : program iteration" );
@@ -116,6 +116,17 @@ public class VideoActivity extends AbstractDvrActivity {
 	}
 	
 	/* (non-Javadoc)
+	 * @see android.support.v4.app.FragmentActivity#onStart()
+	 */
+	@Override
+	protected void onStart() {
+		Log.v( TAG, "onStart : enter" );
+		super.onStart();
+
+		Log.v( TAG, "onStart : exit" );
+	}
+
+	/* (non-Javadoc)
 	 * @see android.app.Activity#onResume()
 	 */
 	@Override
@@ -134,6 +145,28 @@ public class VideoActivity extends AbstractDvrActivity {
 		Log.v( TAG, "onResume : exit" );
 	}
 	
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.FragmentActivity#onPause()
+	 */
+	@Override
+	protected void onPause() {
+		Log.v( TAG, "onPause : enter" );
+		super.onPause();
+	
+		Log.v( TAG, "onPause : exit" );
+	}
+
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.FragmentActivity#onStop()
+	 */
+	@Override
+	protected void onStop() {
+		Log.v( TAG, "onStop : enter" );
+		super.onStop();
+
+		Log.v( TAG, "onStop : exit" );
+	}
+
 	/* (non-Javadoc)
 	 * @see android.app.Activity#onDestroy()
 	 */
@@ -171,12 +204,12 @@ public class VideoActivity extends AbstractDvrActivity {
 	    // Disable this code to use vitamio: http://vov.io/vitamio/
 	    // Section 3 of 4
 	    Intent tostart = new Intent( Intent.ACTION_VIEW );
+//	    tostart.setFlags( Intent.FLAG_ACTIVITY_NEW_TASK );
 //	    tostart.setDataAndType( Uri.parse(url), "application/x-mpegurl" );
 //	    tostart.setDataAndType( Uri.parse(url), "application/vnd.apple.mpegurl" );
-	    tostart.setDataAndType( Uri.parse(url), "video/*" );
+	    tostart.setDataAndType( Uri.parse( url ), "video/*" );
 
-	    startActivity( tostart );
-	    
+        startActivity( Intent.createChooser( tostart, "Play Recording" ) );
 	    
 	    // Enable this code to use vitamio: http://vov.io/vitamio/
 	    // Section 4 of 4
