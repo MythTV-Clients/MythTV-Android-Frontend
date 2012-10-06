@@ -137,6 +137,13 @@
             </intent-filter>
         </service>
 		
+		<service android:name=".service.dvr.BannerCleanupService" android:process=":bannerCleanup">
+			<intent-filter>
+                <action
+                    android:name="org.mythtv.background.bannerCleanup.ACTION_CLEANUP" />
+            </intent-filter>
+        </service>
+		
 		<service android:name=".service.dvr.UpcomingDownloadService" android:process=":upcoming">
 			<intent-filter>
                 <action
