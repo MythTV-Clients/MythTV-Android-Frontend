@@ -22,7 +22,6 @@ package org.mythtv.client.ui.dvr;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.text.format.DateFormat;
 import org.joda.time.DateTime;
 import org.mythtv.R;
 import org.mythtv.client.ui.AbstractMythFragment;

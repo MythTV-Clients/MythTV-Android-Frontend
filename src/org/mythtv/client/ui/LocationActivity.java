@@ -20,11 +20,8 @@
 package org.mythtv.client.ui;
 
 import org.mythtv.R;
-import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.preferences.MythtvPreferenceActivity;
 import org.mythtv.client.ui.preferences.MythtvPreferenceActivityHC;
-import org.mythtv.client.ui.preferences.PlaybackProfile;
-import org.mythtv.db.MythtvDatabaseManager;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -71,23 +68,7 @@ public class LocationActivity extends AbstractMythtvFragmentActivity {
 	    Log.d( TAG, "onResume : enter" );
 	    super.onResume();
 	    
-		MythtvDatabaseManager db = new MythtvDatabaseManager( this );
-		
 		ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService( Context.CONNECTIVITY_SERVICE );
-
-		LocationProfile selectedAwayLocationProfile = db.fetchSelectedAwayLocationProfile();
-		if( null != selectedAwayLocationProfile ) {
-			Log.v( TAG, "onResume : setting selected Away Location Profile" );
-			
-			getMainApplication().setSelectedAwayLocationProfile( selectedAwayLocationProfile );
-		}
-
-		PlaybackProfile selectedAwayPlaybackProfile = db.fetchSelectedAwayPlaybackProfile();
-		if( null != selectedAwayPlaybackProfile ) {
-			Log.v( TAG, "onResume : setting selected Away Playback Profile" );
-			
-			getMainApplication().setSelectedAwayPlaybackProfile( selectedAwayPlaybackProfile );
-		}
 
 		//wifi
 		State wifi = connectivityManager.getNetworkInfo( 1 ).getState();
@@ -97,19 +78,6 @@ public class LocationActivity extends AbstractMythtvFragmentActivity {
 			home.setEnabled( true );
 			home.setVisibility( View.VISIBLE );
 			
-			LocationProfile selectedHomeLocationProfile = db.fetchSelectedHomeLocationProfile();
-			if( null != selectedHomeLocationProfile ) {
-				Log.v( TAG, "onResume : setting selected Home Location Profile" );
-				
-				getMainApplication().setSelectedHomeLocationProfile( selectedHomeLocationProfile );
-			}
-
-			PlaybackProfile selectedHomePlaybackProfile = db.fetchSelectedHomePlaybackProfile();
-			if( null != selectedHomePlaybackProfile ) {
-				Log.v( TAG, "onResume : setting selected Home Playback Profile" );
-				
-				getMainApplication().setSelectedHomePlaybackProfile( selectedHomePlaybackProfile );
-			}
 		} else {
 			Log.d( TAG, "onResume : disabling home" );
 
