@@ -18,17 +18,6 @@
  */
 package org.mythtv.client.ui.dvr;
 
-import java.util.List;
-
-import org.joda.time.DateTime;
-import org.mythtv.R;
-import org.mythtv.client.ui.util.MythtvListFragment;
-import org.mythtv.client.ui.util.ProgramHelper;
-import org.mythtv.service.guide.cache.ProgramGuideLruMemoryCache;
-import org.mythtv.services.api.channel.ChannelInfo;
-import org.mythtv.services.api.dvr.Program;
-import org.mythtv.services.api.guide.ProgramGuide;
-
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -44,6 +33,16 @@ import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
+import org.joda.time.DateTime;
+import org.mythtv.R;
+import org.mythtv.client.ui.util.MythtvListFragment;
+import org.mythtv.client.ui.util.ProgramHelper;
+import org.mythtv.service.guide.cache.ProgramGuideLruMemoryCache;
+import org.mythtv.services.api.channel.ChannelInfo;
+import org.mythtv.services.api.dvr.Program;
+import org.mythtv.services.api.guide.ProgramGuide;
+
+import java.util.List;
 
 /**
  * @author Daniel Frey
@@ -203,6 +202,10 @@ public class GuidePagerFragment extends MythtvListFragment {
 
 				mHolder.channel.setText( channel.getChannelNumber() );
 
+                String clockFormat = "hh:mm";
+                String clockType = android.provider.Settings.System.getString(getActivity().getApplicationContext().getContentResolver(), android.provider.Settings.System.TIME_12_24);
+                if(clockType != null && clockType.equals("24")) clockFormat = "HH:mm";
+
 				int count = 0;
 				float weightSum = 0.0f;
 				for( Program program : channel.getPrograms() ) {
@@ -254,7 +257,7 @@ public class GuidePagerFragment extends MythtvListFragment {
 				
 					TextView textViewTime = (TextView)  new TextView( mContext );
 					textViewTime.setLayoutParams( new LayoutParams( LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT ) ); 
-					textViewTime.setText( this.utcToLocal(program.getStartTime()).toString("hh:mm") + " - " + this.utcToLocal(program.getEndTime()).toString("hh:mm") );
+					textViewTime.setText( this.utcToLocal(program.getStartTime()).toString(clockFormat) + " - " + this.utcToLocal(program.getEndTime()).toString(clockFormat) );
 					textViewTime.setTextColor( textColor );
 					textViewTime.setTextSize( TypedValue.COMPLEX_UNIT_DIP, 10.0f );
 					textViewTime.setTypeface(Typeface.DEFAULT_BOLD);
