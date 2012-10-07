@@ -57,7 +57,9 @@ public class MainApplication extends Application {
 	private List<String> captureCards;
 	private Map<String,List<CaptureCard>> currentCaptureCards;
 	
-	//***************************************
+    private String clockType = "12h";
+
+    //***************************************
     // Application methods
     //***************************************
 
@@ -72,6 +74,9 @@ public class MainApplication extends Application {
 		
 		mythtvPreferences = getSharedPreferences( "MythtvPreferences", Context.MODE_PRIVATE );
 		
+        String systemClock = android.provider.Settings.System.getString(getApplicationContext().getContentResolver(), android.provider.Settings.System.TIME_12_24);
+        if(systemClock != null) this.clockType = systemClock;
+
 		Log.v( TAG, "onCreate : exit" );
 	}
 
@@ -216,4 +221,17 @@ public class MainApplication extends Application {
 		this.currentCaptureCards = currentCaptureCards;
 	}
 
+    /**
+     * @return the current clockType
+     */
+    public String getClockType() {
+        return clockType;
+    }
+
+    /**
+     * @param clockType the current clockType to set
+     */
+    public void setClockType(String clockType) {
+        this.clockType = clockType;
+    }
 }
