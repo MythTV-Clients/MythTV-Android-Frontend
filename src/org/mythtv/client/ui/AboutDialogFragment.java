@@ -1,32 +1,34 @@
 /**
- *  This file is part of MythTV for Android
- * 
- *  MythTV for Android is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
+ * This file is part of MythTV Android Frontend
  *
- *  MythTV for Android is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * MythTV Android Frontend is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *  You should have received a copy of the GNU General Public License
- *  along with MythTV for Android.  If not, see <http://www.gnu.org/licenses/>.
- *   
- * This software can be found at <https://github.com/MythTV-Android/mythtv-for-android/>
+ * MythTV Android Frontend is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
+ * You should have received a copy of the GNU General Public License
+ * along with MythTV Android Frontend.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * This software can be found at <https://github.com/MythTV-Clients/MythTV-Android-Frontend/>
  */
 package org.mythtv.client.ui;
 
 import org.mythtv.R;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 /**
  * @author Daniel Frey
@@ -63,10 +65,48 @@ public class AboutDialogFragment extends DialogFragment {
 
 		View v = inflater.inflate( R.layout.fragment_about, container, false );
 		
+		TextView url1 = (TextView) v.findViewById( R.id.about_url1 );
+		url1.setOnClickListener( new View.OnClickListener() {
+			
+			@Override
+			public void onClick( View v ) {
+				
+				Intent intent = new Intent( Intent.ACTION_VIEW );
+				intent.setData( Uri.parse( "https://github.com/MythTV-Clients/MythTV-Android-Frontend" ) );
+				startActivity( intent );
+				
+			}
+		});
+		
+		TextView url2 = (TextView) v.findViewById( R.id.about_url2 );
+		url2.setOnClickListener( new View.OnClickListener() {
+			
+			@Override
+			public void onClick( View v ) {
+				
+				Intent intent = new Intent( Intent.ACTION_VIEW );
+				intent.setData( Uri.parse( "http://mythtv.org" ) );
+				startActivity( intent );
+				
+			}
+		});
+
+		TextView url3 = (TextView) v.findViewById( R.id.about_url3 );
+		url3.setOnClickListener( new View.OnClickListener() {
+			
+			@Override
+			public void onClick( View v ) {
+				
+				Intent intent = new Intent( Intent.ACTION_VIEW );
+				intent.setData( Uri.parse( "http://c9studio.com" ) );
+				startActivity( intent );
+				
+			}
+		});
+		
 		getDialog().setTitle( getResources().getString( R.string.about_title ) );
 		getDialog().setCancelable( true );
 		getDialog().setCanceledOnTouchOutside( true );
-		
 		
 		Log.v( TAG, "onCreateView : exit" );
 		return v;

@@ -1,4 +1,4 @@
-MythTV for Android
+MythTV Android Frontend
 
 Implementation of MythTV .25+ Services API for Android.
 http://www.mythtv.org/wiki/Services_API
@@ -14,7 +14,7 @@ The Services API is organized into services, which are logical groupings of APIs
 Build Environment
 =================
 For instructions on how setup the build environment for this application, please see the following:
-https://github.com/MythTV-Android/mythtv-for-android/wiki/Development-Environment-Setup
+https://github.com/MythTV-Clients/MythTV-Android-Frontend/wiki/Development-Environment-Setup
 
 
 Explaination of Android Permissions
@@ -59,7 +59,7 @@ Explaination of Android Permissions
 Connecting to Mythtv Backend via SSH
 ====================================
 If you want to use this app on a cellular network, take a look at these instructions for accessing the backend while not on the home wifi network:
-https://github.com/MythTV-Android/mythtv-for-android/wiki/Access-MythTV-Master-Backend-via-SSH
+https://github.com/MythTV-Clients/MythTV-Android-Frontend/wiki/Access-MythTV-Master-Backend-via-SSH
 
 
 Mythtv for Android and Zeroconf
