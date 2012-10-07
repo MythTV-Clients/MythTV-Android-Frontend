@@ -99,7 +99,7 @@ public class ProgramGuideDownloadService extends MythtvService {
 		start = start.withTime( 0, 0, 0, 001 );
 		
 		File programGuideCache = mFileHelper.getProgramGuideDataDirectory();
-		if( programGuideCache.exists() ) {
+		if( null != programGuideCache && programGuideCache.exists() ) {
 
 			for( int currentHour = 0; currentHour < MAX_HOURS; currentHour++ ) {
 
