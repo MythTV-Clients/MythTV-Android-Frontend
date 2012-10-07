@@ -107,11 +107,11 @@ public class HomeActivity extends AbstractLocationAwareFragmentActivity {
 
 			startActivity( new Intent( this, MythmoteActivity.class ) );
 			return true;
-		case R.id.menu_setup:
-			Log.d( TAG, "onOptionsItemSelected : setup selected" );
-
-			startActivity( new Intent( this, SetupActivity.class ) );
-			return true;
+//		case R.id.menu_setup:
+//			Log.d( TAG, "onOptionsItemSelected : setup selected" );
+//
+//			startActivity( new Intent( this, SetupActivity.class ) );
+//			return true;
 		case R.id.menu_about:
 			Log.d( TAG, "onOptionsItemSelected : about selected" );
 
