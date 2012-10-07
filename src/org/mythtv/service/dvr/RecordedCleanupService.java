@@ -78,7 +78,7 @@ public class RecordedCleanupService extends MythtvService {
 		int count = 0;
 		
 		File programCache = mFileHelper.getProgramDataDirectory();
-		if( programCache.exists() ) {
+		if( null != programCache && programCache.exists() ) {
 
 			List<String> programGroups = new ArrayList<String>();
 			Programs programs = cache.get( RecordedDownloadService.RECORDED_FILE );
