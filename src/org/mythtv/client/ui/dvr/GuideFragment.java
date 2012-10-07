@@ -23,6 +23,7 @@ import java.util.List;
 
 import org.joda.time.DateTime;
 import org.mythtv.R;
+import org.mythtv.client.MainApplication;
 import org.mythtv.client.ui.AbstractMythFragment;
 import org.mythtv.service.guide.ProgramGuideDownloadService;
 import org.mythtv.service.guide.cache.ProgramGuideLruMemoryCache;
@@ -60,7 +61,9 @@ public class GuideFragment extends AbstractMythFragment implements OnClickListen
 	
 	private DateTime date;
 	private String startDate;
-	
+
+    private MainApplication mainApplication;
+
 	private ProgramGuideDownloadReceiver programGuideDownloaderReceiver = new ProgramGuideDownloadReceiver();
 
 	private ProgramGuideLruMemoryCache cache;
@@ -130,6 +133,8 @@ public class GuideFragment extends AbstractMythFragment implements OnClickListen
 		Log.v( TAG, "onActivityCreated : enter" );
 		super.onActivityCreated( savedInstanceState );
 		
+        mainApplication = (MainApplication) getActivity().getApplicationContext();
+
 		cache = new ProgramGuideLruMemoryCache( getActivity() );
 
 		date = DateUtils.getEndOfDay( new DateTime() );
@@ -232,12 +237,9 @@ public class GuideFragment extends AbstractMythFragment implements OnClickListen
 			fragmentHeadings.add( "22" );
 			fragmentHeadings.add( "23" );
 
-
-            String clockType = android.provider.Settings.System.getString(getActivity().getApplicationContext().getContentResolver(), android.provider.Settings.System.TIME_12_24);
-            boolean is24h = !(clockType == null || clockType.equals("12"));
             fragmentLabels = new ArrayList<String>();
 
-            if (is24h) {
+            if (mainApplication.getClockType() != null && mainApplication.getClockType().equals("24")) {
 
                 fragmentLabels = fragmentHeadings;
             } else {

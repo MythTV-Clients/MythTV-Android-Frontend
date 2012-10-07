@@ -35,6 +35,7 @@ import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 import org.joda.time.DateTime;
 import org.mythtv.R;
+import org.mythtv.client.MainApplication;
 import org.mythtv.client.ui.util.MythtvListFragment;
 import org.mythtv.client.ui.util.ProgramHelper;
 import org.mythtv.service.guide.cache.ProgramGuideLruMemoryCache;
@@ -55,6 +56,8 @@ public class GuidePagerFragment extends MythtvListFragment {
 	private GuideRowAdapter adapter;
 
 	private ProgramHelper mProgramHelper;
+
+    private MainApplication mainApplication;
 
 	private String startDate, timeslot;
 	private ProgramGuide programGuide;
@@ -84,7 +87,8 @@ public class GuidePagerFragment extends MythtvListFragment {
 		Log.v( TAG, "onActivityCreated : enter" );
 		super.onActivityCreated( savedInstanceState );
 
-		mProgramHelper = ProgramHelper.createInstance( getActivity() );
+        mainApplication = (MainApplication) getActivity().getApplicationContext();
+        mProgramHelper = ProgramHelper.createInstance( getActivity() );
 		
 		setHasOptionsMenu( true );
 		
@@ -203,8 +207,9 @@ public class GuidePagerFragment extends MythtvListFragment {
 				mHolder.channel.setText( channel.getChannelNumber() );
 
                 String clockFormat = "hh:mm";
-                String clockType = android.provider.Settings.System.getString(getActivity().getApplicationContext().getContentResolver(), android.provider.Settings.System.TIME_12_24);
-                if(clockType != null && clockType.equals("24")) clockFormat = "HH:mm";
+                if (mainApplication.getClockType() != null && mainApplication.getClockType().equals("24")) {
+                    clockFormat = "HH:mm";
+                }
 
 				int count = 0;
 				float weightSum = 0.0f;
