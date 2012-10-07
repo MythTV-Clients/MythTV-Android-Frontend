@@ -21,6 +21,7 @@ package org.mythtv.client.ui.dvr;
 import java.util.List;
 
 import org.mythtv.R;
+import org.mythtv.client.MainApplication;
 import org.mythtv.client.ui.util.MythtvListFragment;
 import org.mythtv.client.ui.util.ProgramHelper;
 import org.mythtv.service.MythtvService;
@@ -49,6 +50,8 @@ public class UpcomingFragment extends MythtvListFragment {
 
 	private ProgramHelper mProgramHelper;
 
+    private MainApplication mainApplication;
+
 	private List<Program> programs;
 	
 	public static UpcomingFragment newInstance( List<Program> programs ) {
@@ -67,6 +70,8 @@ public class UpcomingFragment extends MythtvListFragment {
 		Log.v( TAG, "onActivityCreated : enter" );
 
 		super.onActivityCreated( savedInstanceState );
+
+        mainApplication = (MainApplication) getActivity().getApplicationContext();
 
 		mProgramHelper = ProgramHelper.createInstance( getActivity() );
 		
@@ -132,7 +137,11 @@ public class UpcomingFragment extends MythtvListFragment {
 			mHolder.title.setText( program.getTitle() );
 			mHolder.subTitle.setText( program.getSubTitle() );
 			mHolder.channel.setText( null != program.getChannelInfo() ? program.getChannelInfo().getChannelNumber() : "" );
-			mHolder.startTime.setText( DateUtils.timeFormatter.print( program.getStartTime().withZone( MythtvService.zone) ) );
+            if (mainApplication.getClockType() != null && mainApplication.getClockType().equals("24")) {
+                mHolder.startTime.setText( DateUtils.timeFormatter24.print( program.getStartTime().withZone( MythtvService.zone) ) );
+            } else {
+                mHolder.startTime.setText( DateUtils.timeFormatter.print( program.getStartTime().withZone( MythtvService.zone) ) );
+            }
 			mHolder.duration.setText( durationInMinutes > 1 ? durationInMinutes + " minutes" : "" );
 
 			return v;
