@@ -219,7 +219,7 @@ public class VideoActivity extends AbstractDvrActivity {
 	}
 	
 	private void exceptionDialolg( Throwable t ) {
-		AlertDialog.Builder builder = new AlertDialog.Builder( this );
+		AlertDialog.Builder builder = new AlertDialog.Builder( VideoActivity.this );
 
 		builder
 			.setTitle( R.string.exception )
