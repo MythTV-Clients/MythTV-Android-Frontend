@@ -73,6 +73,8 @@ public class FrontendsFragment extends AbstractFrontendFragment implements Servi
 	private static final String MYTHTV_FRONTEND_TYPE = "_mythfrontend._tcp.local.";
 	private static final String HOSTNAME = "mythandroid";
 
+	private Context mContext;
+	
 	// public FrontendsFragment() {
 	// this( false );
 	// }
@@ -144,20 +146,15 @@ public class FrontendsFragment extends AbstractFrontendFragment implements Servi
 		Log.v(TAG, "onResume : exit");
 	}
 
-	// @Override
-	// public void onActivityCreated( Bundle state ) {
-	// Log.v( TAG, "onActivityCreated : enter" );
-	//
-	// super.onActivityCreated( state );
-	//
-	// restoreState( state );
-	//
-	// if( persistentSelection ) {
-	// enablePersistentSelection();
-	// }
-	//
-	// Log.v( TAG, "onActivityCreated : exit" );
-	// }
+	@Override
+	public void onActivityCreated( Bundle state ) {
+		Log.v( TAG, "onActivityCreated : enter" );
+		super.onActivityCreated( state );
+
+		mContext = getActivity();
+		
+		Log.v( TAG, "onActivityCreated : exit" );
+	}
 
 
 	// public void setOnFrontendListener( OnFrontendListener listener ) {
@@ -293,43 +290,40 @@ public class FrontendsFragment extends AbstractFrontendFragment implements Servi
 		private Exception e = null;
 
 		@Override
-		protected Void doInBackground(Void... params) {
-			Log.v(TAG, "doInBackground : enter");
+		protected Void doInBackground( Void... params ) {
+			Log.v( TAG, "doInBackground : enter" );
 
 			try {
-				Log.v(TAG, "doInBackground : startProbe");
+				Log.v(TAG, "doInBackground : startProbe" );
 
 				startProbe();
-			} catch (Exception e) {
-				Log.v(TAG, "doInBackground : error");
+			} catch( Exception e ) {
+				Log.v( TAG, "doInBackground : error" );
 
 				this.e = e;
 			}
 
-			Log.v(TAG, "doInBackground : exit");
+			Log.v( TAG, "doInBackground : exit" );
 			return null;
 		}
 
 		@Override
-		protected void onPostExecute(Void result) {
-			Log.v(TAG, "onPostExecute : enter");
+		protected void onPostExecute( Void result ) {
+			Log.v( TAG, "onPostExecute : enter" );
 
-			if (null != e) {
-				Log.e(TAG, "error getting programs", e);
-				AlertDialog.Builder builder = new AlertDialog.Builder(
-						getActivity());
-				builder.setTitle(getActivity().getString(
-						R.string.frontends_scan_error_title));
-				builder.setNeutralButton(R.string.btn_ok,
-						new DialogInterface.OnClickListener() {
+			if( null != e ) {
+				Log.e( TAG, "error getting programs", e );
+				
+				AlertDialog.Builder builder = new AlertDialog.Builder( mContext );
+				builder.setTitle( getActivity().getString( R.string.frontends_scan_error_title ) );
+				builder.setNeutralButton( R.string.btn_ok, new DialogInterface.OnClickListener() {
 
-							public void onClick(DialogInterface dialog,
-									int which) {
-							}
+					public void onClick( DialogInterface dialog, int which ) {
+					
+					}
 
-						});
-				builder.setMessage(getActivity().getString(
-						R.string.frontends_scan_error_message));
+				});
+				builder.setMessage( getActivity().getString( R.string.frontends_scan_error_message ) );
 				builder.show();
 			}
 
