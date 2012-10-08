@@ -18,6 +18,18 @@
  */
 package org.mythtv.client.ui.dvr;
 
+import java.util.List;
+
+import org.joda.time.DateTime;
+import org.mythtv.R;
+import org.mythtv.client.MainApplication;
+import org.mythtv.client.ui.util.MythtvListFragment;
+import org.mythtv.client.ui.util.ProgramHelper;
+import org.mythtv.service.guide.cache.ProgramGuideLruMemoryCache;
+import org.mythtv.services.api.channel.ChannelInfo;
+import org.mythtv.services.api.dvr.Program;
+import org.mythtv.services.api.guide.ProgramGuide;
+
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -33,17 +45,6 @@ import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
-import org.joda.time.DateTime;
-import org.mythtv.R;
-import org.mythtv.client.MainApplication;
-import org.mythtv.client.ui.util.MythtvListFragment;
-import org.mythtv.client.ui.util.ProgramHelper;
-import org.mythtv.service.guide.cache.ProgramGuideLruMemoryCache;
-import org.mythtv.services.api.channel.ChannelInfo;
-import org.mythtv.services.api.dvr.Program;
-import org.mythtv.services.api.guide.ProgramGuide;
-
-import java.util.List;
 
 /**
  * @author Daniel Frey

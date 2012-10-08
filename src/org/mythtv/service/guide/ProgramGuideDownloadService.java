@@ -20,12 +20,16 @@ package org.mythtv.service.guide;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import org.joda.time.DateTime;
 import org.mythtv.R;
 import org.mythtv.service.MythtvService;
 import org.mythtv.service.util.DateUtils;
 import org.mythtv.services.api.ETagInfo;
+import org.mythtv.services.api.channel.ChannelInfo;
 import org.mythtv.services.api.guide.ProgramGuideWrapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -112,7 +116,7 @@ public class ProgramGuideDownloadService extends MythtvService {
 					Log.i( TAG, "download : starting download for " + DateUtils.dateTimeFormatter.print( start ) + ", end time=" + DateUtils.dateTimeFormatter.print( end ) );
 
 					ETagInfo etag = ETagInfo.createEmptyETag();
-					ResponseEntity<ProgramGuideWrapper> responseEntity = mMainApplication.getMythServicesApi().guideOperations().getProgramGuide( start, end, 1, -1, false, etag );
+					ResponseEntity<ProgramGuideWrapper> responseEntity = mMainApplication.getMythServicesApi().guideOperations().getProgramGuide( start, end, 1, -1, true, etag );
 					if( null != responseEntity ) {
 
 						if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
@@ -121,6 +125,23 @@ public class ProgramGuideDownloadService extends MythtvService {
 
 							try {
 								ProgramGuideWrapper programGuide = responseEntity.getBody();
+								
+								List<String> callsigns = new ArrayList<String>();
+								List<ChannelInfo> channels = new ArrayList<ChannelInfo>();
+								for( ChannelInfo channel : programGuide.getProgramGuide().getChannels() ) {
+									if( channel.isVisable() ) {
+										if( !callsigns.contains( channel.getCallSign() ) ) {
+											channels.add( channel );
+											
+											callsigns.add( channel.getCallSign() );
+										}
+									}
+								}
+								if( null != channels && !channels.isEmpty() ) {
+									Collections.sort( channels );
+								}
+								
+								programGuide.getProgramGuide().setChannels( channels );
 								
 								mObjectMapper.writeValue( file, programGuide.getProgramGuide() );
 
