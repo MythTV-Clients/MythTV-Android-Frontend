@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.mythtv</groupId>
-    <artifactId>mythtv-for-android</artifactId>
+    <groupId>org.mythtv.android</groupId>
+    <artifactId>mythtv-android-frontend</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>apk</packaging>
-    <name>MythTV</name>
+    <name>MythTV Android Frontend</name>
 
     <properties>
         <java-version>1.6</java-version>
@@ -18,10 +18,10 @@
         <mythtv.service.api-version>0.0.13</mythtv.service.api-version>
     </properties>
 
-    <url>https://github.com/MythTV-Android/mythtv-for-android</url>
+    <url>https://github.com/MythTV-Clients/mythtv-for-android</url>
     <description>MythTV for Android</description>
     <scm>
-            <url>https://github.com/MythTV-Android/mythtv-for-android</url>
+            <url>https://github.com/MythTV-Clients/mythtv-for-android</url>
     </scm>
 
     <dependencies>
