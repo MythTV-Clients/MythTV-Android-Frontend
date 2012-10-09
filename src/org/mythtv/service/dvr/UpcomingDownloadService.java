@@ -21,6 +21,7 @@ package org.mythtv.service.dvr;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -54,6 +55,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 public class UpcomingDownloadService extends MythtvService {
 
 	private static final String TAG = UpcomingDownloadService.class.getSimpleName();
+	private static final DecimalFormat formatter = new DecimalFormat( "###" );
 
 	public static final String UPCOMING_FILE = "upcoming.json";
 	public static final String UPCOMING_FILE_EXT = "-upcoming.json";
@@ -68,8 +70,13 @@ public class UpcomingDownloadService extends MythtvService {
     public static final String EXTRA_COMPLETE = "COMPLETE";
 
 	private NotificationManager mNotificationManager;
+	private Notification mNotification = null;
+	private PendingIntent mContentIntent = null;
 	private int notificationId;
 
+	
+	private File programCache = null;
+	
 	public UpcomingDownloadService() {
 		super( "UpcomingDownloadService" );
 	}
@@ -82,12 +89,44 @@ public class UpcomingDownloadService extends MythtvService {
 		Log.d( TAG, "onHandleIntent : enter" );
 		super.onHandleIntent( intent );
 		
+		programCache = mFileHelper.getProgramDataDirectory();
+		if( null == programCache || !programCache.exists() ) {
+			Intent completeIntent = new Intent( ACTION_COMPLETE );
+			completeIntent.putExtra( EXTRA_COMPLETE, "Program Cache location can not be found" );
+			sendBroadcast( completeIntent );
+
+			Log.d( TAG, "onHandleIntent : exit, programCache does not exist" );
+			return;
+		}
+		
 		mNotificationManager = (NotificationManager) getSystemService( Context.NOTIFICATION_SERVICE );
 
 		if ( intent.getAction().equals( ACTION_DOWNLOAD ) ) {
     		Log.i( TAG, "onHandleIntent : DOWNLOAD action selected" );
 
-    		download();
+    		try {
+    			sendNotification();
+
+    			Programs programs = download();
+    			if( null != programs ) {
+    				cleanup();
+    				
+    				process( programs );
+    			}
+			} catch( JsonGenerationException e ) {
+				Log.e( TAG, "onHandleIntent : error generating json", e );
+			} catch( JsonMappingException e ) {
+				Log.e( TAG, "onHandleIntent : error mapping json", e );
+			} catch( IOException e ) {
+				Log.e( TAG, "onHandleIntent : error handling files", e );
+			} finally {
+    			completed();
+
+    			Intent completeIntent = new Intent( ACTION_COMPLETE );
+    			completeIntent.putExtra( EXTRA_COMPLETE, "Upcoming Programs Download Service Finished" );
+    			sendBroadcast( completeIntent );
+    		}
+    		
         }
 		
 		Log.d( TAG, "onHandleIntent : exit" );
@@ -95,123 +134,99 @@ public class UpcomingDownloadService extends MythtvService {
 
 	// internal helpers
 	
-	private void download() {
-		//Log.v( TAG, "download : enter" );
+	private Programs download() {
+		Log.v( TAG, "download : enter" );
 		
-		boolean newDataDownloaded = false;
+		ETagInfo etag = ETagInfo.createEmptyETag();
+		ResponseEntity<ProgramList> responseEntity = mMainApplication.getMythServicesApi().dvrOperations().getUpcomingList( -1, -1, false, etag );
+		if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
+
+			try {
+				ProgramList programList = responseEntity.getBody();
+				return programList.getPrograms();
+			} catch( Exception e ) {
+				Log.e( TAG, "download : error downloading upcoming program list" );
+			}
+		}
 		
-		try {
-			sendNotification();
+		Log.v( TAG, "download : exit" );
+		return null;
+	}
 
-			File programCache = mFileHelper.getProgramDataDirectory();
-			if( null != programCache && programCache.exists() ) {
+	private void cleanup() throws IOException {
+		Log.v( TAG, "cleanup : enter" );
+		
+		File existing = new File( programCache, UPCOMING_FILE );
+		if( null != existing && existing.exists() ) {
+			existing.delete();
+			Log.v( TAG, "cleanup : deleted filename=" + UPCOMING_FILE );
+			
+			FilenameFilter filter = new FilenameFilter() {
 
-				Intent progressIntent = new Intent( ACTION_PROGRESS );
-
-				ETagInfo etag = ETagInfo.createEmptyETag();
-				ResponseEntity<ProgramList> responseEntity = mMainApplication.getMythServicesApi().dvrOperations().getUpcomingList( -1, -1, false, etag );
-				if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
-
-					File existing = new File( programCache, UPCOMING_FILE );
-					if( existing.exists() ) {
-						existing.delete();
-
-						FilenameFilter filter = new FilenameFilter() {
-
-							public boolean accept( File dir, String filename ) {
-								return filename.endsWith( UPCOMING_FILE_EXT );
-							}
-
-						};
-
-						for( String filename : programCache.list( filter ) ) {
-							//						Log.v( TAG, "download : filename=" + filename );
-
-							File deleted = new File( programCache, filename );
-							if( deleted.delete() ) {
-								//							Log.v( TAG, "download : deleted filename=" + filename );
-							}
-						}
-
-					}
-
-					try {
-						ProgramList programList = responseEntity.getBody();
-
-						mObjectMapper.writeValue( new File( programCache, UPCOMING_FILE ), programList.getPrograms() );
-
-						Map<DateTime, Programs> upcomingDates = new TreeMap<DateTime, Programs>();
-						for( Program program : programList.getPrograms().getPrograms() ) {
-							//Log.v( TAG, "download : upcoming program iteration" );
-
-							program.setStartTime( program.getStartTime().withZone( zone ) );
-							program.setEndTime( program.getEndTime().withZone( zone ) );
-
-							DateTime date = program.getStartTime().withTime( 0, 0, 0, 0 ).withZone( zone );
-							if( upcomingDates.containsKey( date ) ) {
-								//Log.v( TAG, "download : adding program to EXISTING " + DateUtils.dateFormatter.print( date ) );
-
-								upcomingDates.get( date ).getPrograms().add( program );
-							} else {
-								//Log.v( TAG, "download : adding program to NEW " + DateUtils.dateFormatter.print( date ) );
-								Programs datePrograms = new Programs();
-
-								List<Program> dateProgramList = new ArrayList<Program>();
-								dateProgramList.add( program );
-								datePrograms.setPrograms( dateProgramList );
-
-								upcomingDates.put( date, datePrograms );
-							}
-
-						}
-
-						for( DateTime date : upcomingDates.keySet() ) {
-							Programs upcomingPrograms = upcomingDates.get( date );
-
-							String key = DateUtils.dateFormatter.print( date );
-
-							//						Log.v( TAG, "download : writing file " + key + UPCOMING_FILE_EXT );
-							mObjectMapper.writeValue( new File( programCache, key + UPCOMING_FILE_EXT ), upcomingPrograms );
-
-							progressIntent.putExtra( EXTRA_PROGRESS_FILENAME, key + UPCOMING_FILE_EXT );
-						}
-
-						newDataDownloaded = true;
-
-					} catch( JsonGenerationException e ) {
-						Log.e( TAG, "download : JsonGenerationException - error downloading file for 'upcoming'", e );
-
-						progressIntent.putExtra( EXTRA_PROGRESS_ERROR, "error downloading file for 'upcoming': " + e.getLocalizedMessage() );
-					} catch( JsonMappingException e ) {
-						Log.e( TAG, "download : JsonGenerationException - error downloading file for 'upcoming'", e );
-
-						progressIntent.putExtra( EXTRA_PROGRESS_ERROR, "error downloading file for 'upcoming': " + e.getLocalizedMessage() );
-					} catch( IOException e ) {
-						Log.e( TAG, "download : JsonGenerationException - error downloading file for 'upcoming'", e );
-
-						progressIntent.putExtra( EXTRA_PROGRESS_ERROR, "IOException - error downloading file for 'upcoming': " + e.getLocalizedMessage() );
-					}
-
-					sendBroadcast( progressIntent );
-
+				public boolean accept( File dir, String filename ) {
+					return filename.endsWith( UPCOMING_FILE_EXT );
 				}
 
+			};
+
+			for( String filename : programCache.list( filter ) ) {
+
+				File deleted = new File( programCache, filename );
+				if( deleted.delete() ) {
+					Log.v( TAG, "cleanup : deleted filename=" + filename );
+				}
 			}
-		} catch( Exception e ) {
-			Log.e( TAG, "download : error", e );
-		} finally {
-			completed();
+
 		}
-		
-		if( newDataDownloaded ) {
-			Intent completeIntent = new Intent( ACTION_COMPLETE );
-			completeIntent.putExtra( EXTRA_COMPLETE, "Upcoming Programs Download Service Finished" );
-			sendBroadcast( completeIntent );
-		}
-		
-		//Log.v( TAG, "download : exit" );
+
+		Log.v( TAG, "cleanup : exit" );
 	}
 	
+	private void process( Programs programs ) throws JsonGenerationException, JsonMappingException, IOException {
+		Log.v( TAG, "process : enter" );
+		
+		mObjectMapper.writeValue( new File( programCache, UPCOMING_FILE ), programs );
+
+		Map<DateTime, Programs> upcomingDates = new TreeMap<DateTime, Programs>();
+		for( Program program : programs.getPrograms() ) {
+			//Log.v( TAG, "download : upcoming program iteration" );
+
+			program.setStartTime( program.getStartTime().withZone( zone ) );
+			program.setEndTime( program.getEndTime().withZone( zone ) );
+
+			DateTime date = program.getStartTime().withTime( 0, 0, 0, 0 ).withZone( zone );
+			if( upcomingDates.containsKey( date ) ) {
+				//Log.v( TAG, "download : adding program to EXISTING " + DateUtils.dateFormatter.print( date ) );
+
+				upcomingDates.get( date ).getPrograms().add( program );
+			} else {
+				//Log.v( TAG, "download : adding program to NEW " + DateUtils.dateFormatter.print( date ) );
+				Programs datePrograms = new Programs();
+
+				List<Program> dateProgramList = new ArrayList<Program>();
+				dateProgramList.add( program );
+				datePrograms.setPrograms( dateProgramList );
+
+				upcomingDates.put( date, datePrograms );
+			}
+
+		}
+
+		int count = 1;
+		for( DateTime date : upcomingDates.keySet() ) {
+			Programs upcomingPrograms = upcomingDates.get( date );
+
+			String key = DateUtils.dateFormatter.print( date );
+
+			mObjectMapper.writeValue( new File( programCache, key + UPCOMING_FILE_EXT ), upcomingPrograms );
+			
+			double percentage = ( (float) count / (float) programs.getPrograms().size() ) * 100;
+			progressUpdate( percentage );
+		}
+
+		Log.v( TAG, "process : exit" );
+	}
+
 	// internal helpers
 	
 	@SuppressWarnings( "deprecation" )
@@ -220,10 +235,10 @@ public class UpcomingDownloadService extends MythtvService {
 		long when = System.currentTimeMillis();
 		notificationId = (int) when;
 		
-        Notification mNotification = new Notification( android.R.drawable.stat_notify_sync, getResources().getString( R.string.notification_sync_upcoming ), when );
+        mNotification = new Notification( android.R.drawable.stat_notify_sync, getResources().getString( R.string.notification_sync_upcoming ), when );
 
         Intent notificationIntent = new Intent();
-        PendingIntent mContentIntent = PendingIntent.getActivity( this, 0, notificationIntent, 0 );
+        mContentIntent = PendingIntent.getActivity( this, 0, notificationIntent, 0 );
 
         mNotification.setLatestEventInfo( this, getResources().getString( R.string.app_name ), getResources().getString( R.string.notification_sync_upcoming ), mContentIntent );
 
@@ -233,6 +248,15 @@ public class UpcomingDownloadService extends MythtvService {
 	
 	}
 	
+    @SuppressWarnings( "deprecation" )
+	public void progressUpdate( double percentageComplete ) {
+
+    	CharSequence contentText = formatter.format( percentageComplete ) + "% complete";
+
+    	mNotification.setLatestEventInfo( this, getResources().getString( R.string.notification_sync_upcoming ), contentText, mContentIntent );
+    	mNotificationManager.notify( notificationId, mNotification );
+    }
+
     public void completed()    {
     	
     	if( null != mNotificationManager ) {
