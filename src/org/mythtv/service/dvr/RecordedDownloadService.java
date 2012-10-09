@@ -88,50 +88,54 @@ public class RecordedDownloadService extends MythtvService {
 	private void download() {
 		Log.v( TAG, "download : enter" );
 		
-		sendNotification();
-		
-		File programCache = mFileHelper.getProgramDataDirectory();
-		if( programCache.exists() ) {
-			
-			ETagInfo etag = ETagInfo.createEmptyETag();
-			ResponseEntity<ProgramList> responseEntity = mMainApplication.getMythServicesApi().dvrOperations().getRecordedList( etag );
-			if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
+		try {
+			sendNotification();
 
-				Intent progressIntent = new Intent( ACTION_PROGRESS );
+			File programCache = mFileHelper.getProgramDataDirectory();
+			if( null != programCache && programCache.exists() ) {
 
-				File existing = new File( programCache, RECORDED_FILE );
-				if( existing.exists() ) {
-					existing.delete();
+				ETagInfo etag = ETagInfo.createEmptyETag();
+				ResponseEntity<ProgramList> responseEntity = mMainApplication.getMythServicesApi().dvrOperations().getRecordedList( etag );
+				if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
+
+					Intent progressIntent = new Intent( ACTION_PROGRESS );
+
+					File existing = new File( programCache, RECORDED_FILE );
+					if( existing.exists() ) {
+						existing.delete();
+					}
+
+					try {
+						ProgramList programList = responseEntity.getBody();
+						mObjectMapper.writeValue( new File( programCache, RECORDED_FILE ), programList.getPrograms() );
+
+						Log.i( TAG, "download : downloaded 'recorded'" );
+						progressIntent.putExtra( EXTRA_PROGRESS, "downloaded 'recorded'" );
+					} catch( JsonGenerationException e ) {
+						Log.e( TAG, "download : JsonGenerationException - error downloading file for 'recorded'", e );
+
+						progressIntent.putExtra( EXTRA_PROGRESS_ERROR, "error downloading file for 'recorded': " + e.getLocalizedMessage() );
+					} catch( JsonMappingException e ) {
+						Log.e( TAG, "download : JsonGenerationException - error downloading file for 'recorded'", e );
+
+						progressIntent.putExtra( EXTRA_PROGRESS_ERROR, "error downloading file for 'recorded': " + e.getLocalizedMessage() );
+					} catch( IOException e ) {
+						Log.e( TAG, "download : JsonGenerationException - error downloading file for 'recorded'", e );
+
+						progressIntent.putExtra( EXTRA_PROGRESS_ERROR, "IOException - error downloading file for 'recorded': " + e.getLocalizedMessage() );
+					}
+
+					sendBroadcast( progressIntent );
+
 				}
-
-				try {
-					ProgramList programList = responseEntity.getBody();
-					mObjectMapper.writeValue( new File( programCache, RECORDED_FILE ), programList.getPrograms() );
-
-					Log.i( TAG, "download : downloaded 'recorded'" );
-					progressIntent.putExtra( EXTRA_PROGRESS, "downloaded 'recorded'" );
-				} catch( JsonGenerationException e ) {
-					Log.e( TAG, "download : JsonGenerationException - error downloading file for 'recorded'", e );
-
-					progressIntent.putExtra( EXTRA_PROGRESS_ERROR, "error downloading file for 'recorded': " + e.getLocalizedMessage() );
-				} catch( JsonMappingException e ) {
-					Log.e( TAG, "download : JsonGenerationException - error downloading file for 'recorded'", e );
-
-					progressIntent.putExtra( EXTRA_PROGRESS_ERROR, "error downloading file for 'recorded': " + e.getLocalizedMessage() );
-				} catch( IOException e ) {
-					Log.e( TAG, "download : JsonGenerationException - error downloading file for 'recorded'", e );
-
-					progressIntent.putExtra( EXTRA_PROGRESS_ERROR, "IOException - error downloading file for 'recorded': " + e.getLocalizedMessage() );
-				}
-
-				sendBroadcast( progressIntent );
 
 			}
-			
+		} catch( Exception e ) {
+			Log.e( TAG, "download : error", e );
+		} finally {
+			completed();
 		}
-		
-		completed();
-		
+
 		Intent completeIntent = new Intent( ACTION_COMPLETE );
 		completeIntent.putExtra( EXTRA_COMPLETE, "Recorded Programs Download Service Finished" );
 		sendBroadcast( completeIntent );
@@ -161,7 +165,11 @@ public class RecordedDownloadService extends MythtvService {
 	}
 	
     public void completed()    {
-        mNotificationManager.cancel( notificationId );
+        
+    	if( null != mNotificationManager ) {
+        	mNotificationManager.cancel( notificationId );
+    	}
+    
     }
 
 }

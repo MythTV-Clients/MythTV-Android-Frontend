@@ -20,6 +20,7 @@ package org.mythtv.service.guide;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -51,8 +52,9 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 public class ProgramGuideDownloadService extends MythtvService {
 
 	private static final String TAG = ProgramGuideDownloadService.class.getSimpleName();
+	private static final DecimalFormat formatter = new DecimalFormat( "###" );
 
-	private static final Integer MAX_HOURS = 288;
+	public static final Integer MAX_HOURS = 288;
 	
     public static final String ACTION_DOWNLOAD = "org.mythtv.background.programGuideDownload.ACTION_DOWNLOAD";
     public static final String ACTION_PROGRESS = "org.mythtv.background.programGuideDownload.ACTION_PROGRESS";
@@ -65,6 +67,8 @@ public class ProgramGuideDownloadService extends MythtvService {
     public static final String EXTRA_COMPLETE_DOWNLOADED = "COMPLETE_DOWNLOADED";
 
 	private NotificationManager mNotificationManager;
+	private Notification mNotification = null;
+	private PendingIntent mContentIntent = null;
 	private int notificationId;
 	
 	public ProgramGuideDownloadService() {
@@ -97,86 +101,93 @@ public class ProgramGuideDownloadService extends MythtvService {
 		
 		boolean newDataDownloaded = false;
 		
-		sendNotification();
-		
-		DateTime start = new DateTime();
-		start = start.withTime( 0, 0, 0, 001 );
-		
-		File programGuideCache = mFileHelper.getProgramGuideDataDirectory();
-		if( null != programGuideCache && programGuideCache.exists() ) {
+		try {
+			sendNotification();
 
-			for( int currentHour = 0; currentHour < MAX_HOURS; currentHour++ ) {
+			DateTime start = new DateTime();
+			start = start.withTime( 0, 0, 0, 001 );
 
-				String sStart = fileDateTimeFormatter.print( start );
-				String filename = sStart + FILENAME_EXT;
-				File file = new File( programGuideCache, filename );
-				if( !file.exists() ) {
-					DateTime end = new DateTime( start );
-					end = end.withTime( start.getHourOfDay(), 59, 59, 999 );
-					Log.i( TAG, "download : starting download for " + DateUtils.dateTimeFormatter.print( start ) + ", end time=" + DateUtils.dateTimeFormatter.print( end ) );
+			File programGuideCache = mFileHelper.getProgramGuideDataDirectory();
+			if( null != programGuideCache && programGuideCache.exists() ) {
 
-					ETagInfo etag = ETagInfo.createEmptyETag();
-					ResponseEntity<ProgramGuideWrapper> responseEntity = mMainApplication.getMythServicesApi().guideOperations().getProgramGuide( start, end, 1, -1, true, etag );
-					if( null != responseEntity ) {
+				for( int currentHour = 0; currentHour < MAX_HOURS; currentHour++ ) {
 
-						if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
+					String sStart = fileDateTimeFormatter.print( start );
+					String filename = sStart + FILENAME_EXT;
+					File file = new File( programGuideCache, filename );
+					if( !file.exists() ) {
+						DateTime end = new DateTime( start );
+						end = end.withTime( start.getHourOfDay(), 59, 59, 999 );
+						Log.i( TAG, "download : starting download for " + DateUtils.dateTimeFormatter.print( start ) + ", end time=" + DateUtils.dateTimeFormatter.print( end ) );
 
-							Intent progressIntent = new Intent( ACTION_PROGRESS );
+						ETagInfo etag = ETagInfo.createEmptyETag();
+						ResponseEntity<ProgramGuideWrapper> responseEntity = mMainApplication.getMythServicesApi().guideOperations().getProgramGuide( start, end, 1, -1, true, etag );
+						if( null != responseEntity ) {
 
-							try {
-								ProgramGuideWrapper programGuide = responseEntity.getBody();
-								
-								List<String> callsigns = new ArrayList<String>();
-								List<ChannelInfo> channels = new ArrayList<ChannelInfo>();
-								for( ChannelInfo channel : programGuide.getProgramGuide().getChannels() ) {
-									if( channel.isVisable() ) {
-										if( !callsigns.contains( channel.getCallSign() ) ) {
-											channels.add( channel );
-											
-											callsigns.add( channel.getCallSign() );
+							if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
+
+								Intent progressIntent = new Intent( ACTION_PROGRESS );
+
+								try {
+									ProgramGuideWrapper programGuide = responseEntity.getBody();
+
+									List<String> callsigns = new ArrayList<String>();
+									List<ChannelInfo> channels = new ArrayList<ChannelInfo>();
+									for( ChannelInfo channel : programGuide.getProgramGuide().getChannels() ) {
+										if( channel.isVisable() ) {
+											if( !callsigns.contains( channel.getCallSign() ) ) {
+												channels.add( channel );
+
+												callsigns.add( channel.getCallSign() );
+											}
 										}
 									}
+									if( null != channels && !channels.isEmpty() ) {
+										Collections.sort( channels );
+									}
+
+									programGuide.getProgramGuide().setChannels( channels );
+
+									mObjectMapper.writeValue( file, programGuide.getProgramGuide() );
+
+									newDataDownloaded = true;
+
+									progressIntent.putExtra( EXTRA_PROGRESS, "Completed downloading file for " + sStart );
+									progressIntent.putExtra( EXTRA_PROGRESS_DATE, DateUtils.dateTimeFormatter.print( start ) );
+								} catch( JsonGenerationException e ) {
+									Log.e( TAG, "download : JsonGenerationException - error downloading file for " + sStart, e );
+
+									progressIntent.putExtra( EXTRA_PROGRESS_ERROR, "error downloading file for " + sStart + ": " + e.getLocalizedMessage() );
+								} catch( JsonMappingException e ) {
+									Log.e( TAG, "download : JsonMappingException - error downloading file for " + sStart, e );
+
+									progressIntent.putExtra( EXTRA_PROGRESS_ERROR, "error downloading file for " + sStart + ": " + e.getLocalizedMessage() );
+								} catch( IOException e ) {
+									Log.e( TAG, "download : IOException - error downloading file for " + sStart, e );
+
+									progressIntent.putExtra( EXTRA_PROGRESS_ERROR, "IOException - error downloading file for " + sStart + ": " + e.getLocalizedMessage() );
 								}
-								if( null != channels && !channels.isEmpty() ) {
-									Collections.sort( channels );
-								}
-								
-								programGuide.getProgramGuide().setChannels( channels );
-								
-								mObjectMapper.writeValue( file, programGuide.getProgramGuide() );
 
-								newDataDownloaded = true;
+								sendBroadcast( progressIntent );
 
-								progressIntent.putExtra( EXTRA_PROGRESS, "Completed downloading file for " + sStart );
-								progressIntent.putExtra( EXTRA_PROGRESS_DATE, DateUtils.dateTimeFormatter.print( start ) );
-							} catch( JsonGenerationException e ) {
-								Log.e( TAG, "download : JsonGenerationException - error downloading file for " + sStart, e );
-
-								progressIntent.putExtra( EXTRA_PROGRESS_ERROR, "error downloading file for " + sStart + ": " + e.getLocalizedMessage() );
-							} catch( JsonMappingException e ) {
-								Log.e( TAG, "download : JsonMappingException - error downloading file for " + sStart, e );
-
-								progressIntent.putExtra( EXTRA_PROGRESS_ERROR, "error downloading file for " + sStart + ": " + e.getLocalizedMessage() );
-							} catch( IOException e ) {
-								Log.e( TAG, "download : IOException - error downloading file for " + sStart, e );
-
-								progressIntent.putExtra( EXTRA_PROGRESS_ERROR, "IOException - error downloading file for " + sStart + ": " + e.getLocalizedMessage() );
 							}
-
-							sendBroadcast( progressIntent );
 
 						}
 
 					}
 
+					start = start.plusHours( 1 );
+					
+					double percentage = ( (float) currentHour / (float) MAX_HOURS ) * 100;
+					progressUpdate( percentage );
 				}
 
-				start = start.plusHours( 1 );
 			}
-
+		} catch( Exception e ) {
+			Log.e( TAG, "download : error", e );
+		} finally {
+			completed();
 		}
-		
-		completed();
 		
 		Intent completeIntent = new Intent( ACTION_COMPLETE );
 		completeIntent.putExtra( EXTRA_COMPLETE, "Program Guide Download Service Finished" );
@@ -194,10 +205,10 @@ public class ProgramGuideDownloadService extends MythtvService {
 		long when = System.currentTimeMillis();
 		notificationId = (int) when;
 		
-        Notification mNotification = new Notification( android.R.drawable.stat_notify_sync, getResources().getString( R.string.notification_sync_program_guide ), when );
+        mNotification = new Notification( android.R.drawable.stat_notify_sync, getResources().getString( R.string.notification_sync_program_guide ), when );
 
         Intent notificationIntent = new Intent();
-        PendingIntent mContentIntent = PendingIntent.getActivity( this, 0, notificationIntent, 0 );
+        mContentIntent = PendingIntent.getActivity( this, 0, notificationIntent, 0 );
 
         mNotification.setLatestEventInfo( this, getResources().getString( R.string.app_name ), getResources().getString( R.string.notification_sync_program_guide ), mContentIntent );
 
@@ -207,8 +218,19 @@ public class ProgramGuideDownloadService extends MythtvService {
 	
 	}
 	
+    @SuppressWarnings( "deprecation" )
+	public void progressUpdate( double percentageComplete ) {
+
+    	CharSequence contentText = formatter.format( percentageComplete ) + "% complete";
+
+    	mNotification.setLatestEventInfo( this, getResources().getString( R.string.notification_sync_program_guide ), contentText, mContentIntent );
+    	mNotificationManager.notify( notificationId, mNotification );
+    }
+
     public void completed()    {
-        mNotificationManager.cancel( notificationId );
+    	
+   		mNotificationManager.cancel( notificationId );
+    	
     }
 
 }

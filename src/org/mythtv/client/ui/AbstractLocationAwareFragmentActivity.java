@@ -29,11 +29,14 @@ import org.mythtv.service.dvr.UpcomingDownloadService;
 import org.mythtv.service.guide.ProgramGuideCleanupService;
 import org.mythtv.service.guide.ProgramGuideDownloadService;
 import org.mythtv.service.util.FileHelper;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
@@ -131,45 +134,7 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 		Log.v( TAG, "onResume : enter" );
 		super.onResume();
 
-		startService( new Intent( ProgramGuideCleanupService.ACTION_CLEANUP ) );
-		startService( new Intent( RecordedCleanupService.ACTION_CLEANUP ) );
-		startService( new Intent( ProgramGuideDownloadService.ACTION_DOWNLOAD ) );
-
-		File programCache = mFileHelper.getProgramDataDirectory();
-		if( programCache.exists() ) {
-			
-			File upcoming = new File( programCache, UpcomingDownloadService.UPCOMING_FILE );
-			if( upcoming.exists() ) {
-
-				DateTime today = new DateTime().withTime( 0, 0, 0, 0 );
-				DateTime lastModified = new DateTime( upcoming.lastModified() );
-				
-				if( lastModified.isBefore( today ) ) {
-					startService( new Intent( UpcomingDownloadService.ACTION_DOWNLOAD ) );
-					startService( new Intent( BannerCleanupService.ACTION_CLEANUP ) );
-				} else {
-					Log.i( TAG, "onResume : not time to update 'upcoming' episodes" );
-				}
-			} else {
-				startService( new Intent( UpcomingDownloadService.ACTION_DOWNLOAD ) );
-			}
-			
-			File recorded = new File( programCache, RecordedDownloadService.RECORDED_FILE );
-			if( recorded.exists() ) {
-
-				DateTime lastHour = new DateTime().minusHours( 1 );
-				DateTime lastModified = new DateTime( recorded.lastModified() );
-				
-				if( lastModified.isBefore( lastHour ) ) {
-					startService( new Intent( RecordedDownloadService.ACTION_DOWNLOAD ) );
-				} else {
-					Log.i( TAG, "onResume : not time to update 'recorded' episodes" );
-				}
-			} else {
-				startService( new Intent( RecordedDownloadService.ACTION_DOWNLOAD ) );
-			}
-
-		}
+		new CheckMythtvBackendConnectionTask().execute();
 		
 		Log.v( TAG, "onResume : exit" );
 	}
@@ -273,6 +238,61 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 
 	// internal helpers
 
+	private void startServices() {
+		Log.v( TAG, "startServices : enter" );
+
+		startService( new Intent( ProgramGuideCleanupService.ACTION_CLEANUP ) );
+		startService( new Intent( RecordedCleanupService.ACTION_CLEANUP ) );
+
+		
+		File programGuideCache = mFileHelper.getProgramGuideDataDirectory();
+		if( null != programGuideCache && programGuideCache.exists() ) {
+			
+			if( programGuideCache.list().length < ProgramGuideDownloadService.MAX_HOURS ) {
+				startService( new Intent( ProgramGuideDownloadService.ACTION_DOWNLOAD ) );
+			}
+			
+		}
+		
+		File programCache = mFileHelper.getProgramDataDirectory();
+		if( null != programCache && programCache.exists() ) {
+			
+			File upcoming = new File( programCache, UpcomingDownloadService.UPCOMING_FILE );
+			if( upcoming.exists() ) {
+
+				DateTime today = new DateTime().withTime( 0, 0, 0, 0 );
+				DateTime lastModified = new DateTime( upcoming.lastModified() );
+				
+				if( lastModified.isBefore( today ) ) {
+					startService( new Intent( UpcomingDownloadService.ACTION_DOWNLOAD ) );
+					startService( new Intent( BannerCleanupService.ACTION_CLEANUP ) );
+				} else {
+					Log.i( TAG, "onResume : not time to update 'upcoming' episodes" );
+				}
+			} else {
+				startService( new Intent( UpcomingDownloadService.ACTION_DOWNLOAD ) );
+			}
+			
+			File recorded = new File( programCache, RecordedDownloadService.RECORDED_FILE );
+			if( recorded.exists() ) {
+
+				DateTime lastHour = new DateTime().minusHours( 1 );
+				DateTime lastModified = new DateTime( recorded.lastModified() );
+				
+				if( lastModified.isBefore( lastHour ) ) {
+					startService( new Intent( RecordedDownloadService.ACTION_DOWNLOAD ) );
+				} else {
+					Log.i( TAG, "onResume : not time to update 'recorded' episodes" );
+				}
+			} else {
+				startService( new Intent( RecordedDownloadService.ACTION_DOWNLOAD ) );
+			}
+
+		}
+
+		Log.v( TAG, "startServices : exit" );
+	}
+	
 	private class ProgramGuideDownloadReceiver extends BroadcastReceiver {
 
 		@Override
@@ -390,6 +410,52 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 	        	Log.i( TAG, "BannerCleanupReceiver.onReceive : " + intent.getIntExtra( BannerCleanupService.EXTRA_COMPLETE_COUNT, 0 ) + " banners cleaned up" );
 	        }
 	        
+		}
+		
+	}
+
+	private class CheckMythtvBackendConnectionTask extends AsyncTask<Void, Void, ResponseEntity<String>> {
+
+		/* (non-Javadoc)
+		 * @see android.os.AsyncTask#doInBackground(Params[])
+		 */
+		@Override
+		protected ResponseEntity<String> doInBackground( Void... args ) {
+			Log.v( TAG, "CheckMythtvBackendConnectionTask.doInBackground : enter" );
+			
+			try {
+				Log.v( TAG, "CheckMythtvBackendConnectionTask.doInBackground : exit" );
+				return getMainApplication().getMythServicesApi().mythOperations().getHostName();
+			} catch( Exception e ) {
+				Log.w( TAG, "CheckMythtvBackendConnectionTask.doInBackground : error connecting to backend", e );
+				
+				return null;
+			}
+		}
+
+		/* (non-Javadoc)
+		 * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
+		 */
+		@Override
+		protected void onPostExecute( ResponseEntity<String> result ) {
+			Log.v( TAG, "CheckMythtvBackendConnectionTask.onPostExecute : enter" );
+
+			if( null != result ) {
+				
+				if( result.getStatusCode().equals( HttpStatus.OK ) ) {
+					
+					String hostname = result.getBody();
+					if( null != hostname && !"".equals( hostname ) ) {
+
+						startServices();
+						
+					}
+			
+				}
+				
+			}
+			
+			Log.v( TAG, "CheckMythtvBackendConnectionTask.onPostExecute : exit" );
 		}
 		
 	}

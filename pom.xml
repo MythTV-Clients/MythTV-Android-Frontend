@@ -15,7 +15,7 @@
         <jdmns-version>3.4.1</jdmns-version>
         <joda-time-version>2.1</joda-time-version>
         <org.joda.joda-convert-version>1.2</org.joda.joda-convert-version>
-        <mythtv.service.api-version>0.0.13</mythtv.service.api-version>
+        <mythtv.service.api-version>0.0.14-SNAPSHOT</mythtv.service.api-version>
     </properties>
 
     <url>https://github.com/MythTV-Clients/mythtv-for-android</url>
