@@ -19,6 +19,9 @@
 package org.mythtv.service.guide;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import org.joda.time.DateTime;
 import org.mythtv.service.MythtvService;
@@ -70,21 +73,27 @@ public class ProgramGuideCleanupService extends MythtvService {
 		DateTime today = new DateTime();
 		today = today.minusDays( 1 );
 		today = today.withTime( 23, 59, 59, 999 );
-
+		Log.v( TAG, "cleanup : today=" + today.toString() );
+		
 		File programGuideCache = mFileHelper.getProgramGuideDataDirectory();
-		if( programGuideCache.exists() ) {
-
-			for( String filename : programGuideCache.list() ) {
-				DateTime file = new DateTime( filename.subSequence( 0, filename.indexOf( 'T' ) ) );
+		if( null != programGuideCache && programGuideCache.exists() ) {
+			Log.v( TAG, "cleanup : found program guide cache" );
+			
+			List<String> filenames = Arrays.asList( programGuideCache.list() );
+			Collections.sort( filenames );
+			for( String filename : filenames ) {
+				Log.v( TAG, "cleanup : filename=" + filename );
+				DateTime file = new DateTime( filename.substring( 0, filename.indexOf( 'T' ) ) );
+				Log.v( TAG, "cleanup : file=" + file.toString() );
 				
 				if( file.isBefore( today ) ) {
 					File deleted = new File( programGuideCache, filename );
 					
 					if( deleted.delete() ) {
+						Log.v( TAG, "cleanup : deleted filename '" + filename + "'" );
+						
 						count++;
 					}
-				} else {
-					break;
 				}
 			}
 		}
