@@ -21,15 +21,22 @@ package org.mythtv.client.ui;
 import org.mythtv.R;
 import org.mythtv.client.ui.preferences.MythtvPreferenceActivity;
 import org.mythtv.client.ui.preferences.MythtvPreferenceActivityHC;
+import org.mythtv.service.UpgradeCleanupService;
 
 import android.annotation.TargetApi;
+import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo.State;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -44,8 +51,12 @@ public class LocationActivity extends AbstractMythtvFragmentActivity {
 	private static final String TAG = LocationActivity.class.getSimpleName();
 	private static final int EDIT_ID = Menu.FIRST + 2;
 
-	private Button home;
+	private UpgradeCleanupReceiver upgradeCleanupReceiver = new UpgradeCleanupReceiver();
 	
+	private Button home, away;
+	
+	private ProgressDialog mProgressDialog;
+
 	@Override
 	protected void onCreate( Bundle savedInstanceState ) {
 		Log.d( TAG, "onCreate : enter" );
@@ -55,8 +66,27 @@ public class LocationActivity extends AbstractMythtvFragmentActivity {
 		setContentView( R.layout.activity_location );
 		
 		home = (Button) findViewById( R.id.btn_home );
+		away = (Button) findViewById( R.id.btn_away );
+		
+		mProgressDialog = new ProgressDialog( this );
 		
 		Log.d( TAG, "onCreate : exit" );
+	}
+
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.FragmentActivity#onStart()
+	 */
+	@Override
+	protected void onStart() {
+		Log.d( TAG, "onStart : enter" );
+		super.onStart();
+
+		IntentFilter upgradeCleanupFilter = new IntentFilter( UpgradeCleanupService.ACTION_PROGRAM_GUIDE_CLEANUP );
+		upgradeCleanupFilter.addAction( UpgradeCleanupService.ACTION_PROGRESS );
+		upgradeCleanupFilter.addAction( UpgradeCleanupService.ACTION_COMPLETE );
+        registerReceiver( upgradeCleanupReceiver, upgradeCleanupFilter );
+
+		Log.d( TAG, "onStart : exit" );
 	}
 
 	/* (non-Javadoc)
@@ -67,26 +97,38 @@ public class LocationActivity extends AbstractMythtvFragmentActivity {
 	    Log.d( TAG, "onResume : enter" );
 	    super.onResume();
 	    
-		ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService( Context.CONNECTIVITY_SERVICE );
+		home.setEnabled( false );
+		home.setVisibility( View.VISIBLE );
+		
+		away.setEnabled( false );
+		away.setVisibility( View.VISIBLE );
 
-		//wifi
-		State wifi = connectivityManager.getNetworkInfo( 1 ).getState();
-		if( wifi == State.CONNECTED || wifi == State.CONNECTING ) {
-			Log.d( TAG, "onResume : enabling home" );
-
-			home.setEnabled( true );
-			home.setVisibility( View.VISIBLE );
-			
-		} else {
-			Log.d( TAG, "onResume : disabling home" );
-
-			home.setEnabled( false );
-			home.setVisibility( View.GONE );
-		}
+		startService( new Intent( UpgradeCleanupService.ACTION_PROGRAM_GUIDE_CLEANUP ) );
 		
 	    Log.d( TAG, "onResume : exit" );
 	}
 	
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.FragmentActivity#onStop()
+	 */
+	@Override
+	protected void onStop() {
+		Log.d( TAG, "onStop : enter" );
+		super.onStop();
+
+		// Unregister for broadcast
+		if( null != upgradeCleanupReceiver ) {
+			try {
+				unregisterReceiver( upgradeCleanupReceiver );
+				upgradeCleanupReceiver = null;
+			} catch( IllegalArgumentException e ) {
+				Log.e( TAG, e.getLocalizedMessage(), e );
+			}
+		}
+
+		Log.d( TAG, "onStop : exit" );
+	}
+
 	/* (non-Javadoc)
 	 * @see android.app.Activity#onCreateOptionsMenu(android.view.Menu)
 	 */
@@ -127,6 +169,77 @@ public class LocationActivity extends AbstractMythtvFragmentActivity {
 
 		Log.d( TAG, "onOptionsItemSelected : exit" );
 		return super.onOptionsItemSelected( item );
+	}
+
+	// internal helpers
+	
+	private void setupButtons() {
+		Log.v( TAG, "setupButtons : enter" );
+		
+		ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService( Context.CONNECTIVITY_SERVICE );
+
+		//wifi
+		State wifi = connectivityManager.getNetworkInfo( 1 ).getState();
+		if( wifi == State.CONNECTED || wifi == State.CONNECTING ) {
+			Log.d( TAG, "onResume : enabling home" );
+
+			home.setEnabled( true );
+			home.setVisibility( View.VISIBLE );
+			
+		} else {
+			Log.d( TAG, "onResume : disabling home" );
+
+			home.setEnabled( false );
+			home.setVisibility( View.GONE );
+		}
+
+		away.setEnabled( true );
+		away.setVisibility( View.VISIBLE );
+
+		Log.v( TAG, "setupButtons : exit" );
+	}
+	
+	private class UpgradeCleanupReceiver extends BroadcastReceiver {
+
+		@Override
+		public void onReceive( Context context, Intent intent ) {
+			
+	        if ( intent.getAction().equals( UpgradeCleanupService.ACTION_PROGRESS ) ) {
+	        	Log.i( TAG, "UpgradeCleanupReceiver.onReceive : progess=" + intent.getStringExtra( UpgradeCleanupService.EXTRA_PROGESS ) );
+	        	
+	        	// add processing dialog here
+	    		mProgressDialog = ProgressDialog.show( LocationActivity.this, "Please wait...", "Upgrading...", true );
+	    		mProgressDialog.getWindow().setGravity( Gravity.TOP );
+	    		mProgressDialog.setCancelable( true );
+	    		mProgressDialog.setOnCancelListener( new OnCancelListener() {
+
+	    			@Override
+	    			public void onCancel( DialogInterface dialogInterface ) {
+	    			}
+
+	    		});
+
+	        	
+	        }
+
+	        if ( intent.getAction().equals( UpgradeCleanupService.ACTION_COMPLETE ) ) {
+	        	Log.i( TAG, "UpgradeCleanupReceiver.onReceive : complete=" + intent.getStringExtra( UpgradeCleanupService.EXTRA_COMPLETE ) );
+	        	
+	        	if( null != intent.getStringExtra( UpgradeCleanupService.EXTRA_COMPLETE ) && !"".equals( intent.getStringExtra( UpgradeCleanupService.EXTRA_COMPLETE ) ) ) {
+
+	        		// remove processing dialog here
+	        	    if( mProgressDialog!=null ) {
+	        			mProgressDialog.dismiss();
+	        			mProgressDialog = null;
+	        		}
+
+	        	}
+
+	        	setupButtons();
+	        }
+
+		}
+		
 	}
 
 }

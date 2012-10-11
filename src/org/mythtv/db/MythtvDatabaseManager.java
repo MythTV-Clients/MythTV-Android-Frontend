@@ -398,6 +398,34 @@ public class MythtvDatabaseManager {
 		return fetchSelectedPlaybackProfileByType( LocationType.AWAY );
 	}
 
+	public Boolean fetchCleanupProgramGuide() {
+		Log.v( TAG, "fetchCleanupProgramGuide : enter" );
+		Log.v( TAG, "fetchCleanupProgramGuide : exit" );
+		return fetchCleanupValueByKey( "CLEANUP_PROGRAM_GUIDE" );
+	}
+
+	public Boolean fetchCleanupPrograms() {
+		Log.v( TAG, "fetchCleanupPrograms : enter" );
+		Log.v( TAG, "fetchCleanupPrograms : exit" );
+		return fetchCleanupValueByKey( "CLEANUP_PROGRAMS" );
+	}
+
+	public boolean updateCleanup( String key ) {
+		Log.v( TAG, "updateCleanup : enter" );
+
+		open();
+
+		ContentValues args = new ContentValues();
+		args.put( "VALUE", "false" );
+
+		int rows = db.update( "CLEANUP", args, "KEY=?", new String[] { key } );
+	
+		close();
+
+		Log.v( TAG, "updateCleanup : exit" );
+		return rows > 0;
+	}
+
 	// internal helpers
 
 	/**
@@ -655,6 +683,41 @@ public class MythtvDatabaseManager {
 		
 		Log.v( TAG, "fetchSelectedPlaybackProfileByType : exit" );
 		return profile;
+	}
+
+	private Boolean fetchCleanupValueByKey( String key ) {
+		Log.v( TAG, "fetchCleanupValueByKey : enter" );
+		
+		open();
+		
+		Boolean value = Boolean.FALSE;
+		
+		try {
+			Cursor cursor = db.query( 
+						"CLEANUP", 
+						new String[] { _ID, "KEY", "VALUE" }, 
+						"KEY=?", 
+						new String[] { key }, 
+						null, null, null 
+					  );
+			
+			if( cursor.getCount() == 1 && cursor.moveToFirst() ) {
+				Log.v( TAG, "fetchCleanupValueByKey : cleanup key found" );
+
+				String sValue = cursor.getString( 2 );
+				value = Boolean.valueOf( sValue );
+			}
+			
+			cursor.close();
+			
+		} catch( SQLException e ) {
+			Log.e( TAG, "fetchCleanupValueByKey : error", e );
+		} finally {
+			close();
+		}
+		
+		Log.v( TAG, "fetchCleanupValueByKey : exit" );
+		return value;
 	}
 
 }

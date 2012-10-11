@@ -111,6 +111,13 @@
 		<!-- MythTV Android Services -->
 		<service android:name=".service.dvr.DvrService" />
 		
+		<service android:name=".service.UpgradeCleanupService" android:process=":upgrade">
+			<intent-filter>
+                <action android:name="org.mythtv.background.upgradeCleanup.PROGRAM_GUIDE_CLEANUP" />
+                <action android:name="org.mythtv.background.upgradeCleanup.PROGRAMS_CLEANUP" />
+            </intent-filter>
+        </service>
+		
 		<service android:name=".service.dvr.RecordedDownloadService" android:process=":recorded">
 			<intent-filter>
                 <action android:name="org.mythtv.background.recordedDownload.ACTION_DOWNLOAD" />
