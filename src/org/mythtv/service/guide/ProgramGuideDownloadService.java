@@ -31,6 +31,7 @@ import org.mythtv.service.MythtvService;
 import org.mythtv.service.util.DateUtils;
 import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.channel.ChannelInfo;
+import org.mythtv.services.api.guide.ProgramGuide;
 import org.mythtv.services.api.guide.ProgramGuideWrapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -71,6 +72,8 @@ public class ProgramGuideDownloadService extends MythtvService {
 	private PendingIntent mContentIntent = null;
 	private int notificationId;
 	
+	private File programGuideCache = null;
+	
 	public ProgramGuideDownloadService() {
 		super( "ProgamGuideDownloadService" );
 	}
@@ -83,12 +86,72 @@ public class ProgramGuideDownloadService extends MythtvService {
 		Log.d( TAG, "onHandleIntent : enter" );
 		super.onHandleIntent( intent );
 		
+		programGuideCache = mFileHelper.getProgramGuideDataDirectory();
+		if( null == programGuideCache || !programGuideCache.exists() ) {
+			Intent completeIntent = new Intent( ACTION_COMPLETE );
+			completeIntent.putExtra( EXTRA_COMPLETE, "Program Guide Cache location can not be found" );
+			sendBroadcast( completeIntent );
+
+			Log.d( TAG, "onHandleIntent : exit, programCache does not exist" );
+			return;
+		}
+
+		ResponseEntity<String> hostname = mMainApplication.getMythServicesApi().mythOperations().getHostName();
+		if( null == hostname || "".equals( hostname ) ) {
+			Intent completeIntent = new Intent( ACTION_COMPLETE );
+			completeIntent.putExtra( EXTRA_COMPLETE, "Master Backend unreachable" );
+			sendBroadcast( completeIntent );
+
+			Log.d( TAG, "onHandleIntent : exit, Master Backend unreachable" );
+			return;
+		}
+		
 		mNotificationManager = (NotificationManager) getSystemService( Context.NOTIFICATION_SERVICE );
 
         if ( intent.getAction().equals( ACTION_DOWNLOAD ) ) {
     		Log.i( TAG, "onHandleIntent : DOWNLOAD action selected" );
 
-    		download();
+    		boolean newDataDownloaded = false;
+
+    		try {
+    			sendNotification();
+
+    			DateTime start = new DateTime();
+    			start = start.withTime( 0, 0, 0, 001 );
+
+   				for( int currentHour = 0; currentHour < MAX_HOURS; currentHour++ ) {
+
+   					File file = new File( programGuideCache, DateUtils.fileDateTimeFormatter.print( start ) + FILENAME_EXT );
+    				if( !file.exists() ) {
+
+    					ProgramGuide programGuide = download( start );
+    		    		if( null != programGuide ) {
+    		    				
+    						newDataDownloaded = process( file, programGuide );
+    					}
+    					
+    				}
+    				
+					start = start.plusHours( 1 );
+					
+					double percentage = ( (float) currentHour / (float) MAX_HOURS ) * 100;
+					progressUpdate( percentage );
+    			}
+			} catch( JsonGenerationException e ) {
+				Log.e( TAG, "onHandleIntent : error generating json", e );
+			} catch( JsonMappingException e ) {
+				Log.e( TAG, "onHandleIntent : error mapping json", e );
+			} catch( IOException e ) {
+				Log.e( TAG, "onHandleIntent : error handling files", e );
+			} finally {
+    			completed();
+
+    			Intent completeIntent = new Intent( ACTION_COMPLETE );
+    			completeIntent.putExtra( EXTRA_COMPLETE, "Program Guide Download Service Finished" );
+    			completeIntent.putExtra( EXTRA_COMPLETE_DOWNLOADED, newDataDownloaded );
+    			sendBroadcast( completeIntent );
+    		}
+
         }
 		
 		Log.d( TAG, "onHandleIntent : exit" );
@@ -96,108 +159,58 @@ public class ProgramGuideDownloadService extends MythtvService {
 
 	// internal helpers
 	
-	private void download() {
-//		Log.v( TAG, "download : enter" );
+	private ProgramGuide download( DateTime start ) {
+		Log.v( TAG, "download : enter" );
 		
-		boolean newDataDownloaded = false;
-		
+		DateTime end = new DateTime( start );
+		end = end.withTime( start.getHourOfDay(), 59, 59, 999 );
+		Log.i( TAG, "download : starting download for " + DateUtils.dateTimeFormatter.print( start ) + ", end time=" + DateUtils.dateTimeFormatter.print( end ) );
+
+		ETagInfo etag = ETagInfo.createEmptyETag();
+		ResponseEntity<ProgramGuideWrapper> responseEntity = mMainApplication.getMythServicesApi().guideOperations().getProgramGuide( start, end, 1, -1, true, etag );
+
 		try {
-			sendNotification();
 
-			DateTime start = new DateTime();
-			start = start.withTime( 0, 0, 0, 001 );
-
-			File programGuideCache = mFileHelper.getProgramGuideDataDirectory();
-			if( null != programGuideCache && programGuideCache.exists() ) {
-
-				for( int currentHour = 0; currentHour < MAX_HOURS; currentHour++ ) {
-
-					String sStart = fileDateTimeFormatter.print( start );
-					String filename = sStart + FILENAME_EXT;
-					File file = new File( programGuideCache, filename );
-					if( !file.exists() ) {
-						DateTime end = new DateTime( start );
-						end = end.withTime( start.getHourOfDay(), 59, 59, 999 );
-						Log.i( TAG, "download : starting download for " + DateUtils.dateTimeFormatter.print( start ) + ", end time=" + DateUtils.dateTimeFormatter.print( end ) );
-
-						ETagInfo etag = ETagInfo.createEmptyETag();
-						ResponseEntity<ProgramGuideWrapper> responseEntity = mMainApplication.getMythServicesApi().guideOperations().getProgramGuide( start, end, 1, -1, true, etag );
-						if( null != responseEntity ) {
-
-							if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
-
-								Intent progressIntent = new Intent( ACTION_PROGRESS );
-
-								try {
-									ProgramGuideWrapper programGuide = responseEntity.getBody();
-
-									List<String> callsigns = new ArrayList<String>();
-									List<ChannelInfo> channels = new ArrayList<ChannelInfo>();
-									for( ChannelInfo channel : programGuide.getProgramGuide().getChannels() ) {
-										if( channel.isVisable() ) {
-											if( !callsigns.contains( channel.getCallSign() ) ) {
-												channels.add( channel );
-
-												callsigns.add( channel.getCallSign() );
-											}
-										}
-									}
-									if( null != channels && !channels.isEmpty() ) {
-										Collections.sort( channels );
-									}
-
-									programGuide.getProgramGuide().setChannels( channels );
-
-									mObjectMapper.writeValue( file, programGuide.getProgramGuide() );
-
-									newDataDownloaded = true;
-
-									progressIntent.putExtra( EXTRA_PROGRESS, "Completed downloading file for " + sStart );
-									progressIntent.putExtra( EXTRA_PROGRESS_DATE, DateUtils.dateTimeFormatter.print( start ) );
-								} catch( JsonGenerationException e ) {
-									Log.e( TAG, "download : JsonGenerationException - error downloading file for " + sStart, e );
-
-									progressIntent.putExtra( EXTRA_PROGRESS_ERROR, "error downloading file for " + sStart + ": " + e.getLocalizedMessage() );
-								} catch( JsonMappingException e ) {
-									Log.e( TAG, "download : JsonMappingException - error downloading file for " + sStart, e );
-
-									progressIntent.putExtra( EXTRA_PROGRESS_ERROR, "error downloading file for " + sStart + ": " + e.getLocalizedMessage() );
-								} catch( IOException e ) {
-									Log.e( TAG, "download : IOException - error downloading file for " + sStart, e );
-
-									progressIntent.putExtra( EXTRA_PROGRESS_ERROR, "IOException - error downloading file for " + sStart + ": " + e.getLocalizedMessage() );
-								}
-
-								sendBroadcast( progressIntent );
-
-							}
-
-						}
-
-					}
-
-					start = start.plusHours( 1 );
+			if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
+				ProgramGuideWrapper programGuide = responseEntity.getBody();
 					
-					double percentage = ( (float) currentHour / (float) MAX_HOURS ) * 100;
-					progressUpdate( percentage );
-				}
-
+				Log.v( TAG, "download : exit" );
+				return programGuide.getProgramGuide();
 			}
+			
 		} catch( Exception e ) {
-			Log.e( TAG, "download : error", e );
-		} finally {
-			completed();
+			Log.e( TAG, "download : error downloading program guide" );
 		}
-		
-		Intent completeIntent = new Intent( ACTION_COMPLETE );
-		completeIntent.putExtra( EXTRA_COMPLETE, "Program Guide Download Service Finished" );
-		completeIntent.putExtra( EXTRA_COMPLETE_DOWNLOADED, newDataDownloaded );
-		sendBroadcast( completeIntent );
-		
-//		Log.v( TAG, "download : exit" );
+			
+		Log.v( TAG, "download : exit" );
+		return null;
 	}
 	
-	// internal helpers
+	private boolean process( File file, ProgramGuide programGuide ) throws JsonGenerationException, JsonMappingException, IOException {
+		Log.v( TAG, "process : enter" );
+		
+		List<String> callsigns = new ArrayList<String>();
+		List<ChannelInfo> channels = new ArrayList<ChannelInfo>();
+		for( ChannelInfo channel : programGuide.getChannels() ) {
+			if( channel.isVisable() ) {
+				if( !callsigns.contains( channel.getCallSign() ) ) {
+					channels.add( channel );
+
+					callsigns.add( channel.getCallSign() );
+				}
+			}
+		}
+		if( null != channels && !channels.isEmpty() ) {
+			Collections.sort( channels );
+		}
+
+		programGuide.setChannels( channels );
+
+		mMainApplication.getObjectMapper().writeValue( file, programGuide );
+		
+		Log.v( TAG, "process : exit" );
+		return true;
+	}
 	
 	@SuppressWarnings( "deprecation" )
 	private void sendNotification() {
@@ -228,8 +241,10 @@ public class ProgramGuideDownloadService extends MythtvService {
     }
 
     public void completed()    {
-    	
-   		mNotificationManager.cancel( notificationId );
+
+    	if( null != mNotificationManager ) {
+    		mNotificationManager.cancel( notificationId );
+    	}
     	
     }
 

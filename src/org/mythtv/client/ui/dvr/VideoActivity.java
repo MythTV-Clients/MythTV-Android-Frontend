@@ -260,6 +260,11 @@ public class VideoActivity extends AbstractDvrActivity {
 		protected ResponseEntity<LiveStreamInfoWrapper> doInBackground( String... params ) {
 			Log.v( TAG, "CreateStreamTask : enter" );
 
+			ResponseEntity<String> hostname = getMainApplication().getMythServicesApi().mythOperations().getHostName();
+			if( null == hostname || "".equals( hostname ) ) {
+				return null;
+			}
+
 			ResponseEntity<LiveStreamInfoWrapper> lookup = null;
 
 			try {
@@ -301,11 +306,11 @@ public class VideoActivity extends AbstractDvrActivity {
 			Log.v( TAG, "CreateStreamTask onPostExecute : enter" );
 
 			if( null == e ) {
-				
-				if( result.getStatusCode().equals( HttpStatus.OK ) ) {
-					setLiveStreamInfo( result );
+				if( null != result ) {
+					if( result.getStatusCode().equals( HttpStatus.OK ) ) {
+						setLiveStreamInfo( result );
+					}
 				}
-			
 			} else {
 				Log.e( TAG, "error creating live stream", e );
 				exceptionDialolg( e );
@@ -322,6 +327,11 @@ public class VideoActivity extends AbstractDvrActivity {
 		@Override
 		protected ResponseEntity<LiveStreamInfoWrapper> doInBackground( Void... params ) {
 			Log.v( TAG, "UpdateStreamInfoTask : enter" );
+
+			ResponseEntity<String> hostname = getMainApplication().getMythServicesApi().mythOperations().getHostName();
+			if( null == hostname || "".equals( hostname ) ) {
+				return null;
+			}
 
 			ResponseEntity<LiveStreamInfoWrapper> lookup = null;
 
@@ -350,8 +360,10 @@ public class VideoActivity extends AbstractDvrActivity {
 			Log.v( TAG, "UpdateStreamInfoTask onPostExecute : enter" );
 
 			if( null == e ) {
-				if( result.getStatusCode().equals( HttpStatus.OK ) ) {
-					setLiveStreamInfo( result );
+				if( null != result ) {
+					if( result.getStatusCode().equals( HttpStatus.OK ) ) {
+						setLiveStreamInfo( result );
+					}
 				}
 			} else {
 				Log.e( TAG, "error updating live stream", e );
@@ -369,6 +381,11 @@ public class VideoActivity extends AbstractDvrActivity {
 		@Override
 		protected LiveStreamInfo doInBackground( Void... params ) {
 			Log.v( TAG, "RemoveStreamTask : enter" );
+
+			ResponseEntity<String> hostname = getMainApplication().getMythServicesApi().mythOperations().getHostName();
+			if( null == hostname || "".equals( hostname ) ) {
+				return null;
+			}
 
 			LiveStreamInfo lookup = null;
 

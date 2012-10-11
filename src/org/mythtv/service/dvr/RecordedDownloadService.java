@@ -25,6 +25,7 @@ import org.mythtv.R;
 import org.mythtv.service.MythtvService;
 import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.dvr.ProgramList;
+import org.mythtv.services.api.dvr.Programs;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -60,6 +61,8 @@ public class RecordedDownloadService extends MythtvService {
 	private NotificationManager mNotificationManager;
 	private int notificationId;
 	
+	private File programCache = null;
+
 	public RecordedDownloadService() {
 		super( "RecordedDownloadService" );
 	}
@@ -72,12 +75,54 @@ public class RecordedDownloadService extends MythtvService {
 		Log.d( TAG, "onHandleIntent : enter" );
 		super.onHandleIntent( intent );
 		
+		programCache = mFileHelper.getProgramDataDirectory();
+		if( null == programCache || !programCache.exists() ) {
+			Intent completeIntent = new Intent( ACTION_COMPLETE );
+			completeIntent.putExtra( EXTRA_COMPLETE, "Program Cache location can not be found" );
+			sendBroadcast( completeIntent );
+
+			Log.d( TAG, "onHandleIntent : exit, programCache does not exist" );
+			return;
+		}
+
+		ResponseEntity<String> hostname = mMainApplication.getMythServicesApi().mythOperations().getHostName();
+		if( null == hostname || "".equals( hostname ) ) {
+			Intent completeIntent = new Intent( ACTION_COMPLETE );
+			completeIntent.putExtra( EXTRA_COMPLETE, "Master Backend unreachable" );
+			sendBroadcast( completeIntent );
+
+			Log.d( TAG, "onHandleIntent : exit, Master Backend unreachable" );
+			return;
+		}
+		
 		mNotificationManager = (NotificationManager) getSystemService( Context.NOTIFICATION_SERVICE );
 
 		if ( intent.getAction().equals( ACTION_DOWNLOAD ) ) {
     		Log.i( TAG, "onHandleIntent : DOWNLOAD action selected" );
 
-    		download();
+    		try {
+    			sendNotification();
+
+    			Programs programs = download();
+    			if( null != programs ) {
+    				cleanup();
+    				
+    				process( programs );
+    			}
+			} catch( JsonGenerationException e ) {
+				Log.e( TAG, "onHandleIntent : error generating json", e );
+			} catch( JsonMappingException e ) {
+				Log.e( TAG, "onHandleIntent : error mapping json", e );
+			} catch( IOException e ) {
+				Log.e( TAG, "onHandleIntent : error handling files", e );
+			} finally {
+    			completed();
+
+    			Intent completeIntent = new Intent( ACTION_COMPLETE );
+    			completeIntent.putExtra( EXTRA_COMPLETE, "Recorded Programs Download Service Finished" );
+    			sendBroadcast( completeIntent );
+    		}
+    		
         }
 		
 		Log.d( TAG, "onHandleIntent : exit" );
@@ -85,64 +130,48 @@ public class RecordedDownloadService extends MythtvService {
 
 	// internal helpers
 	
-	private void download() {
+	private Programs download() {
 		Log.v( TAG, "download : enter" );
 		
+		ETagInfo etag = ETagInfo.createEmptyETag();
+		ResponseEntity<ProgramList> responseEntity = mMainApplication.getMythServicesApi().dvrOperations().getRecordedList( etag );
+
 		try {
-			sendNotification();
-
-			File programCache = mFileHelper.getProgramDataDirectory();
-			if( null != programCache && programCache.exists() ) {
-
-				ETagInfo etag = ETagInfo.createEmptyETag();
-				ResponseEntity<ProgramList> responseEntity = mMainApplication.getMythServicesApi().dvrOperations().getRecordedList( etag );
-				if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
-
-					Intent progressIntent = new Intent( ACTION_PROGRESS );
-
-					File existing = new File( programCache, RECORDED_FILE );
-					if( existing.exists() ) {
-						existing.delete();
-					}
-
-					try {
-						ProgramList programList = responseEntity.getBody();
-						mObjectMapper.writeValue( new File( programCache, RECORDED_FILE ), programList.getPrograms() );
-
-						Log.i( TAG, "download : downloaded 'recorded'" );
-						progressIntent.putExtra( EXTRA_PROGRESS, "downloaded 'recorded'" );
-					} catch( JsonGenerationException e ) {
-						Log.e( TAG, "download : JsonGenerationException - error downloading file for 'recorded'", e );
-
-						progressIntent.putExtra( EXTRA_PROGRESS_ERROR, "error downloading file for 'recorded': " + e.getLocalizedMessage() );
-					} catch( JsonMappingException e ) {
-						Log.e( TAG, "download : JsonGenerationException - error downloading file for 'recorded'", e );
-
-						progressIntent.putExtra( EXTRA_PROGRESS_ERROR, "error downloading file for 'recorded': " + e.getLocalizedMessage() );
-					} catch( IOException e ) {
-						Log.e( TAG, "download : JsonGenerationException - error downloading file for 'recorded'", e );
-
-						progressIntent.putExtra( EXTRA_PROGRESS_ERROR, "IOException - error downloading file for 'recorded': " + e.getLocalizedMessage() );
-					}
-
-					sendBroadcast( progressIntent );
-
-				}
-
+		
+			if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
+				ProgramList programList = responseEntity.getBody();
+				
+				Log.v( TAG, "download : exit" );
+				return programList.getPrograms();
 			}
-		} catch( Exception e ) {
-			Log.e( TAG, "download : error", e );
-		} finally {
-			completed();
-		}
 
-		Intent completeIntent = new Intent( ACTION_COMPLETE );
-		completeIntent.putExtra( EXTRA_COMPLETE, "Recorded Programs Download Service Finished" );
-		sendBroadcast( completeIntent );
+		} catch( Exception e ) {
+			Log.e( TAG, "download : error downloading upcoming program list" );
+		}
 		
 		Log.v( TAG, "download : exit" );
+		return null;
 	}
-	
+
+	private void cleanup() throws IOException {
+		Log.v( TAG, "cleanup : enter" );
+		
+		File existing = new File( programCache, RECORDED_FILE );
+		if( existing.exists() ) {
+			existing.delete();
+		}
+
+		Log.v( TAG, "cleanup : exit" );
+	}
+
+	private void process( Programs programs ) throws JsonGenerationException, JsonMappingException, IOException {
+		Log.v( TAG, "process : enter" );
+		
+		mMainApplication.getObjectMapper().writeValue( new File( programCache, RECORDED_FILE ), programs );
+
+		Log.v( TAG, "process : exit" );
+	}
+
 	// internal helpers
 	
 	@SuppressWarnings( "deprecation" )

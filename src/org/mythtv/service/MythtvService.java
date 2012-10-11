@@ -18,19 +18,11 @@
  */
 package org.mythtv.service;
 
-import java.util.TimeZone;
-
-import org.joda.time.DateTimeZone;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import org.mythtv.client.MainApplication;
 import org.mythtv.service.util.FileHelper;
 
 import android.app.IntentService;
 import android.content.Intent;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.joda.JodaModule;
 
 /**
  * @author Daniel Frey
@@ -42,8 +34,6 @@ public abstract class MythtvService extends IntentService {
 	
 	public static enum Method { GET, POST, PUT, DELETE };
 
-	public static final DateTimeZone zone = DateTimeZone.forID( TimeZone.getDefault().getID() );
-	
 	protected static final int REQUEST_INVALID = -1;
 
 	public static final String METHOD_EXTRA = "org.mythtv.service.METHOD_EXTRA";
@@ -52,20 +42,14 @@ public abstract class MythtvService extends IntentService {
 	public static final String SERVICE_CALLBACK = "org.mythtv.service.SERVICE_CALLBACK";
 	public static final String ORIGINAL_INTENT_EXTRA = "org.mythtv.service.ORIGINAL_INTENT_EXTRA";
 
-	public static final DateTimeFormatter fileDateTimeFormatter = DateTimeFormat.forPattern( "yyyy-MM-dd'T'HH-mm-ss" );
-
 	public static final String FILENAME_EXT = ".json";
     
-	protected static ObjectMapper mObjectMapper;
 	protected FileHelper mFileHelper;
     protected MainApplication mMainApplication;
 	
 
 	public MythtvService( String name ) {
 		super( name );
-		
-		mObjectMapper = new ObjectMapper();
-		mObjectMapper.registerModule( new JodaModule() );
 		
 		mFileHelper = new FileHelper( this );
 

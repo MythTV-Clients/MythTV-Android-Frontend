@@ -188,6 +188,11 @@ public class RecordingRuleEditFragment extends AbstractMythFragment {
 		@Override
 		protected ResponseEntity<RecRuleWrapper> doInBackground( Integer... params ) {
 			
+			ResponseEntity<String> hostname = getMainApplication().getMythServicesApi().mythOperations().getHostName();
+			if( null == hostname || "".equals( hostname ) ) {
+				return null;
+			}
+
 			Integer id = params[ 0 ];
 			
 			ETagInfo etag = ETagInfo.createEmptyETag();

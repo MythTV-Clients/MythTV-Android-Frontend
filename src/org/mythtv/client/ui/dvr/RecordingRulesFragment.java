@@ -309,6 +309,11 @@ public class RecordingRulesFragment extends MythtvListFragment {
 				String message = "Retrieving Recording Rules";
 				mNotificationHelper.createNotification( "Mythtv for Android", message, NotificationType.UPLOAD );
 
+				ResponseEntity<String> hostname = mainApplication.getMythServicesApi().mythOperations().getHostName();
+				if( null == hostname || "".equals( hostname ) ) {
+					return null;
+				}
+
 				ETagInfo etag = ETagInfo.createEmptyETag();
 				return mainApplication.getMythServicesApi().dvrOperations().getRecordScheduleList( -1, -1, etag );
 			}

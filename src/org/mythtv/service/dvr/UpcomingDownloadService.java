@@ -25,9 +25,11 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 import java.util.TreeMap;
 
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.mythtv.R;
 import org.mythtv.service.MythtvService;
 import org.mythtv.service.util.DateUtils;
@@ -73,7 +75,6 @@ public class UpcomingDownloadService extends MythtvService {
 	private Notification mNotification = null;
 	private PendingIntent mContentIntent = null;
 	private int notificationId;
-
 	
 	private File programCache = null;
 	
@@ -93,6 +94,16 @@ public class UpcomingDownloadService extends MythtvService {
 		if( null == programCache || !programCache.exists() ) {
 			Intent completeIntent = new Intent( ACTION_COMPLETE );
 			completeIntent.putExtra( EXTRA_COMPLETE, "Program Cache location can not be found" );
+			sendBroadcast( completeIntent );
+
+			Log.d( TAG, "onHandleIntent : exit, programCache does not exist" );
+			return;
+		}
+
+		ResponseEntity<String> hostname = mMainApplication.getMythServicesApi().mythOperations().getHostName();
+		if( null == hostname || "".equals( hostname ) ) {
+			Intent completeIntent = new Intent( ACTION_COMPLETE );
+			completeIntent.putExtra( EXTRA_COMPLETE, "Master Backend unreachable" );
 			sendBroadcast( completeIntent );
 
 			Log.d( TAG, "onHandleIntent : exit, programCache does not exist" );
@@ -185,16 +196,16 @@ public class UpcomingDownloadService extends MythtvService {
 	private void process( Programs programs ) throws JsonGenerationException, JsonMappingException, IOException {
 		Log.v( TAG, "process : enter" );
 		
-		mObjectMapper.writeValue( new File( programCache, UPCOMING_FILE ), programs );
+		mMainApplication.getObjectMapper().writeValue( new File( programCache, UPCOMING_FILE ), programs );
 
 		Map<DateTime, Programs> upcomingDates = new TreeMap<DateTime, Programs>();
 		for( Program program : programs.getPrograms() ) {
 			//Log.v( TAG, "download : upcoming program iteration" );
 
-			program.setStartTime( program.getStartTime().withZone( zone ) );
-			program.setEndTime( program.getEndTime().withZone( zone ) );
+			program.setStartTime( program.getStartTime().withZone( DateTimeZone.forID( TimeZone.getDefault().getID() ) ) );
+			program.setEndTime( program.getEndTime().withZone( DateTimeZone.forID( TimeZone.getDefault().getID() ) ) );
 
-			DateTime date = program.getStartTime().withTime( 0, 0, 0, 0 ).withZone( zone );
+			DateTime date = program.getStartTime().withTime( 0, 0, 0, 0 ).withZone( DateTimeZone.forID( TimeZone.getDefault().getID() ) );
 			if( upcomingDates.containsKey( date ) ) {
 				//Log.v( TAG, "download : adding program to EXISTING " + DateUtils.dateFormatter.print( date ) );
 
@@ -218,7 +229,7 @@ public class UpcomingDownloadService extends MythtvService {
 
 			String key = DateUtils.dateFormatter.print( date );
 
-			mObjectMapper.writeValue( new File( programCache, key + UPCOMING_FILE_EXT ), upcomingPrograms );
+			mMainApplication.getObjectMapper().writeValue( new File( programCache, key + UPCOMING_FILE_EXT ), upcomingPrograms );
 			
 			double percentage = ( (float) count / (float) programs.getPrograms().size() ) * 100;
 			progressUpdate( percentage );

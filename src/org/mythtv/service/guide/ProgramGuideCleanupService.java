@@ -63,7 +63,7 @@ public class ProgramGuideCleanupService extends MythtvService {
 	// internal helpers
 	
 	private void cleanup() {
-//		Log.v( TAG, "cleanup : enter" );
+		Log.v( TAG, "cleanup : enter" );
 		
 		int count = 0;
 		
@@ -94,7 +94,7 @@ public class ProgramGuideCleanupService extends MythtvService {
 		completeIntent.putExtra( EXTRA_COMPLETE_COUNT, count );
 		sendBroadcast( completeIntent );
 		
-//		Log.v( TAG, "cleanup : exit" );
+		Log.v( TAG, "cleanup : exit" );
 	}
 	
 }

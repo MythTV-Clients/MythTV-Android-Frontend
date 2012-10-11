@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="http://maven.apache.org/POM/4.0.0"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd" >
+
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.mythtv.android</groupId>
     <artifactId>mythtv-android-frontend</artifactId>
@@ -80,17 +83,6 @@
         
         <sourceDirectory>src</sourceDirectory>
         
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>com.jayway.maven.plugins.android.generation2</groupId>
-                    <artifactId>android-maven-plugin</artifactId>
-                    <version>3.3.2</version>
-                    <extensions>true</extensions>
-                </plugin>
-            </plugins>
-        </pluginManagement>
-        
         <plugins>
         
 			<plugin>
@@ -106,6 +98,7 @@
             <plugin>
                 <groupId>com.jayway.maven.plugins.android.generation2</groupId>
                 <artifactId>android-maven-plugin</artifactId>
+                <version>3.3.2</version>
                 <configuration>
                     <sdk>
                         <!-- platform or api level (api level 4 = platform 1.6)-->
@@ -113,11 +106,13 @@
                         <platform>16</platform>
                     </sdk>
                 </configuration>
+                <extensions>true</extensions>
             </plugin>
         
         	<plugin>
             	<groupId>com.mycila.maven-license-plugin</groupId>
             	<artifactId>maven-license-plugin</artifactId>
+            	<version>1.10.b1</version>
             	<configuration>
                 	<basedir>${basedir}</basedir>
                 	<header>${basedir}/header/header.txt</header>
@@ -152,14 +147,4 @@
     
     </build>
     
-    <repositories>
-
-		<repository>
-    		<id>springsource-repo</id>
-    		<name>SpringSource Repository</name>
-    		<url>http://repo.springsource.org/release</url>
-		</repository>
-    
-    </repositories>
-
 </project>

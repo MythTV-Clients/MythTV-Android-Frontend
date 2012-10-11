@@ -19,12 +19,13 @@
 package org.mythtv.client.ui.dvr;
 
 import java.util.List;
+import java.util.TimeZone;
 
+import org.joda.time.DateTimeZone;
 import org.mythtv.R;
 import org.mythtv.client.MainApplication;
 import org.mythtv.client.ui.util.MythtvListFragment;
 import org.mythtv.client.ui.util.ProgramHelper;
-import org.mythtv.service.MythtvService;
 import org.mythtv.service.util.DateUtils;
 import org.mythtv.services.api.dvr.Program;
 
@@ -138,9 +139,9 @@ public class UpcomingFragment extends MythtvListFragment {
 			mHolder.subTitle.setText( program.getSubTitle() );
 			mHolder.channel.setText( null != program.getChannelInfo() ? program.getChannelInfo().getChannelNumber() : "" );
             if (mainApplication.getClockType() != null && mainApplication.getClockType().equals("24")) {
-                mHolder.startTime.setText( DateUtils.timeFormatter24.print( program.getStartTime().withZone( MythtvService.zone) ) );
+                mHolder.startTime.setText( DateUtils.timeFormatter24.print( program.getStartTime().withZone( DateTimeZone.forID( TimeZone.getDefault().getID() ) ) ) );
             } else {
-                mHolder.startTime.setText( DateUtils.timeFormatter.print( program.getStartTime().withZone( MythtvService.zone) ) );
+                mHolder.startTime.setText( DateUtils.timeFormatter.print( program.getStartTime().withZone( DateTimeZone.forID( TimeZone.getDefault().getID() ) ) ) );
             }
 			mHolder.duration.setText( durationInMinutes > 1 ? durationInMinutes + " minutes" : "" );
 

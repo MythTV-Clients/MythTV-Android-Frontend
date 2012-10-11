@@ -24,9 +24,13 @@ import java.util.Map;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.preferences.PlaybackProfile;
 import org.mythtv.db.MythtvDatabaseManager;
+import org.mythtv.service.util.FileHelper;
 import org.mythtv.services.api.MythServices;
 import org.mythtv.services.api.capture.CaptureCard;
 import org.mythtv.services.connect.MythServicesServiceProvider;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.joda.JodaModule;
 
 import android.app.Application;
 import android.content.Context;
@@ -59,6 +63,8 @@ public class MainApplication extends Application {
 	
     private String clockType = "12h";
 
+	protected ObjectMapper mObjectMapper;
+
     //***************************************
     // Application methods
     //***************************************
@@ -76,6 +82,9 @@ public class MainApplication extends Application {
 		
         String systemClock = android.provider.Settings.System.getString(getApplicationContext().getContentResolver(), android.provider.Settings.System.TIME_12_24);
         if(systemClock != null) this.clockType = systemClock;
+
+		mObjectMapper = new ObjectMapper();
+		mObjectMapper.registerModule( new JodaModule() );
 
 		Log.v( TAG, "onCreate : exit" );
 	}
@@ -95,6 +104,13 @@ public class MainApplication extends Application {
 		}
 		
 		return provider.getApi();
+	}
+
+	/**
+	 * @return the mObjectMapper
+	 */
+	public ObjectMapper getObjectMapper() {
+		return mObjectMapper;
 	}
 
 	/**

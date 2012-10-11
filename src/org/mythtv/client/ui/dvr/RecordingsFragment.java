@@ -18,7 +18,11 @@
  */
 package org.mythtv.client.ui.dvr;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -32,7 +36,6 @@ import org.mythtv.service.dvr.BannerDownloadService;
 import org.mythtv.service.dvr.ProgramGroupRecordedDownloadService;
 import org.mythtv.service.dvr.RecordedDownloadService;
 import org.mythtv.service.dvr.cache.BannerLruMemoryCache;
-import org.mythtv.service.dvr.cache.RecordedLruMemoryCache;
 import org.mythtv.service.util.FileHelper;
 import org.mythtv.services.api.dvr.Program;
 import org.mythtv.services.api.dvr.Programs;
@@ -59,6 +62,11 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.joda.JodaModule;
+
 /**
  * @author Daniel Frey
  * 
@@ -78,7 +86,8 @@ public class RecordingsFragment extends MythtvListFragment {
 	private static FileHelper mFileHelper;
 	private static ProgramHelper mProgramHelper;
 
-	private RecordedLruMemoryCache cache;
+    private final ObjectMapper mapper = new ObjectMapper();
+
 	private BannerLruMemoryCache imageCache;
 
 	private List<Program> programGroups = new ArrayList<Program>();
@@ -95,11 +104,12 @@ public class RecordingsFragment extends MythtvListFragment {
 		mFileHelper = new FileHelper( getActivity() );
 		mProgramHelper = ProgramHelper.createInstance( getActivity() );
 
-		cache = new RecordedLruMemoryCache( getActivity() );
 		imageCache = new BannerLruMemoryCache( getActivity() );
 
 		setHasOptionsMenu( true );
 		setRetainInstance( true );
+
+		mapper.registerModule( new JodaModule() );
 
 		Log.v( TAG, "onActivityCreated : exit" );
 	}
@@ -118,7 +128,6 @@ public class RecordingsFragment extends MythtvListFragment {
         getActivity().registerReceiver( recordedDownloadReceiver, recordedDownloadFilter );
 
 		IntentFilter programGroupRecordedDownloadFilter = new IntentFilter( ProgramGroupRecordedDownloadService.ACTION_DOWNLOAD );
-		programGroupRecordedDownloadFilter.addAction( ProgramGroupRecordedDownloadService.ACTION_PROGRESS );
 		programGroupRecordedDownloadFilter.addAction( ProgramGroupRecordedDownloadService.ACTION_COMPLETE );
         getActivity().registerReceiver( programGroupRecordedDownloadReceiver, programGroupRecordedDownloadFilter );
 
@@ -267,28 +276,49 @@ public class RecordingsFragment extends MythtvListFragment {
 			adapter.clear();
 		}
 		
-		Programs programs = cache.get( RecordedDownloadService.RECORDED_FILE );
-		
-		Map<String, Program> filtered = new TreeMap<String, Program>();
-		for( Program program : programs.getPrograms() ) {
-			
-			if( null != program.getRecording() && !"LiveTV".equalsIgnoreCase( program.getRecording().getStorageGroup() ) ) {
-			
-				String cleanedTitle = ArticleCleaner.clean( program.getTitle() );
+		File programCache = mFileHelper.getProgramDataDirectory();
+		if( null != programCache && programCache.exists() ) {
 
-				if( !filtered.containsKey( cleanedTitle ) ) {
-					filtered.put( cleanedTitle, program );
+			File file = new File( programCache, RecordedDownloadService.RECORDED_FILE );
+			if( file.exists() ) {
+				Log.v( TAG, "create : recorded file exists" );
+				
+				try {
+					InputStream is = new BufferedInputStream( new FileInputStream( file ), 8192 );
+					Programs programs = mapper.readValue( is, Programs.class );
+
+					Map<String, Program> filtered = new TreeMap<String, Program>();
+					for( Program program : programs.getPrograms() ) {
+						
+						if( null != program.getRecording() && !"LiveTV".equalsIgnoreCase( program.getRecording().getStorageGroup() ) ) {
+						
+							String cleanedTitle = ArticleCleaner.clean( program.getTitle() );
+
+							if( !filtered.containsKey( cleanedTitle ) ) {
+								filtered.put( cleanedTitle, program );
+							}
+						}
+					}
+					
+					List<Program> sorted = new ArrayList<Program>( filtered.values() );
+					Collections.sort( sorted );
+					
+					programGroups = sorted;
+
+				    adapter = new ProgramGroupRowAdapter( getActivity(), programGroups );
+				    setListAdapter( adapter );
+					
+				} catch( JsonParseException e ) {
+					Log.e( TAG, "create : JsonParseException - error opening file 'recorded'", e );
+				} catch( JsonMappingException e ) {
+					Log.e( TAG, "create : JsonMappingException - error opening file 'recorded'", e );
+				} catch( IOException e ) {
+					Log.e( TAG, "create : IOException - error opening file 'recorded'", e );
 				}
-			}
-		}
-		
-		List<Program> sorted = new ArrayList<Program>( filtered.values() );
-		Collections.sort( sorted );
-		
-		programGroups = sorted;
 
-	    adapter = new ProgramGroupRowAdapter( getActivity(), programGroups );
-	    setListAdapter( adapter );
+			}
+		
+		}
 		
 		Log.v( TAG, "loadData : exit" );
 	}
@@ -313,6 +343,7 @@ public class RecordingsFragment extends MythtvListFragment {
 		/* (non-Javadoc)
 		 * @see android.widget.Adapter#getView(int, android.view.View, android.view.ViewGroup)
 		 */
+		@SuppressWarnings( "deprecation" )
 		@Override
 		public View getView( int position, View convertView, ViewGroup parent ) {
 			Log.v( TAG, "ProgramGroupRowAdapter.getView : enter" );
@@ -388,7 +419,6 @@ public class RecordingsFragment extends MythtvListFragment {
 	        	
 	        	getActivity().startService( new Intent( ProgramGroupRecordedDownloadService.ACTION_DOWNLOAD ) );
 	        	
-	        	cache.remove( RecordedDownloadService.RECORDED_FILE );
 	        	loadData();
 	        }
 
@@ -423,8 +453,9 @@ public class RecordingsFragment extends MythtvListFragment {
 	        if ( intent.getAction().equals( BannerDownloadService.ACTION_COMPLETE ) ) {
 	        	Log.i( TAG, "BannerDownloadReceiver.onReceive : complete=" + intent.getStringExtra( BannerDownloadService.EXTRA_COMPLETE ) );
 	        	
-	        	imageCache.remove( intent.getStringExtra( BannerDownloadService.EXTRA_COMPLETE_FILENAME ) );
-	        	//adapter.notifyDataSetChanged();
+	        	if( null != intent.getStringExtra( BannerDownloadService.EXTRA_COMPLETE_FILENAME ) && !"".equals( intent.getStringExtra( BannerDownloadService.EXTRA_COMPLETE_FILENAME ) ) ) {
+	        		imageCache.remove( intent.getStringExtra( BannerDownloadService.EXTRA_COMPLETE_FILENAME ) );
+	        	}
 	        }
 
 		}
