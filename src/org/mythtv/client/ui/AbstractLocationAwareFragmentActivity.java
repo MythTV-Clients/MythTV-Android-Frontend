@@ -32,6 +32,8 @@ import org.mythtv.service.util.FileHelper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import android.app.ActivityManager;
+import android.app.ActivityManager.RunningServiceInfo;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -240,7 +242,9 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 	private void startServices() {
 		Log.v( TAG, "startServices : enter" );
 
-		startService( new Intent( ProgramGuideCleanupService.ACTION_CLEANUP ) );
+		if( !ProgramGuideDownloadServiceRunning() ) {
+			startService( new Intent( ProgramGuideCleanupService.ACTION_CLEANUP ) );
+		}
 		
 		File programCache = mFileHelper.getProgramDataDirectory();
 		if( null != programCache && programCache.exists() ) {
@@ -459,6 +463,25 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 			Log.v( TAG, "CheckMythtvBackendConnectionTask.onPostExecute : exit" );
 		}
 		
+	}
+
+	private boolean ProgramGuideDownloadServiceRunning() {
+		Log.v( TAG, "ProgramGuideDownloadServiceRunning : enter" );
+
+		ActivityManager manager = (ActivityManager) getSystemService( Context.ACTIVITY_SERVICE );
+
+		for( RunningServiceInfo service : manager.getRunningServices( Integer.MAX_VALUE ) ) {
+//			Log.v( TAG, "ProgramGuideDownloadServiceRunning : service=" + service.service.getClassName() );
+
+			if( "org.mythtv.service.guide.ProgramGuideDownloadService".equals( service.service.getClassName() ) ) {
+
+				Log.v( TAG, "ProgramGuideDownloadServiceRunning : exit, ProgramGuideDownloadService is running" );
+				return true;
+			}
+		}
+
+		Log.v( TAG, "ProgramGuideDownloadServiceRunning : exit, ProgramGuideDownloadService is NOT running" );
+		return false;
 	}
 
 }

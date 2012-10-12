@@ -71,10 +71,12 @@
 								
 		<!-- Main Dashboard -->
 		<activity 
-			android:name=".client.ui.HomeActivity" />
+			android:name=".client.ui.HomeActivity"
+			android:configChanges="keyboard|keyboardHidden|orientation|screenSize" />
 		<activity 
-			android:name=".client.ui.AwayActivity" />
-		
+			android:name=".client.ui.AwayActivity"
+			android:configChanges="keyboard|keyboardHidden|orientation|screenSize" />
+				
 		<!-- DVR Activities -->
 		<activity 
 			android:name=".client.ui.dvr.ProgramGroupActivity" />
