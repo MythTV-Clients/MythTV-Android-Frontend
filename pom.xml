@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.mythtv.android</groupId>
     <artifactId>mythtv-android-frontend</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.1-SNAPSHOT</version>
     <packaging>apk</packaging>
     <name>MythTV Android Frontend</name>
 
@@ -24,7 +24,9 @@
     <url>https://github.com/MythTV-Clients/mythtv-for-android</url>
     <description>MythTV for Android</description>
     <scm>
-            <url>https://github.com/MythTV-Clients/mythtv-for-android</url>
+    	<connection>scm:git:git@github.com:MythTV-Clients/MythTV-Android-Frontend.git</connection>
+    	<developerConnection>scm:git:git@github.com:MythTV-Clients/MythTV-Android-Frontend.git</developerConnection>
+        <url>https://github.com/MythTV-Clients/MythTV-Android-Frontend</url>
     </scm>
 
     <dependencies>
