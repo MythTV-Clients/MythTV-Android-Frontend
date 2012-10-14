@@ -22,9 +22,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 
-import org.mythtv.service.dvr.RecordedDownloadService;
+import org.mythtv.service.dvr.BannerDownloadService;
 import org.mythtv.service.util.FileHelper;
-import org.mythtv.services.api.dvr.Programs;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -58,14 +57,15 @@ public class BannerLruMemoryCache extends LruCache<String, BitmapDrawable> {
 	/* (non-Javadoc)
 	 * @see android.support.v4.util.LruCache#create(java.lang.Object)
 	 */
+	@SuppressWarnings( "deprecation" )
 	@Override
 	protected BitmapDrawable create( String key ) {
 		Log.v( TAG, "create : enter" );
 
-		File imageCache = mFileHelper.getProgramImagesDataDirectory();
+		File imageCache = mFileHelper.getProgramGroupDirectory( key );
 		if( imageCache.exists() ) {
 
-			File image = new File( imageCache, key );
+			File image = new File( imageCache, BannerDownloadService.BANNER_FILE );
 			if( image.exists() ) {
 				try {
 					InputStream is = new FileInputStream( image );
@@ -87,12 +87,17 @@ public class BannerLruMemoryCache extends LruCache<String, BitmapDrawable> {
 	@Override
 	protected int sizeOf( String key, BitmapDrawable value ) {
 		
-		File imageCache = mFileHelper.getProgramImagesDataDirectory();
-		if( imageCache.exists() ) {
+		File programGroupDirectory = mFileHelper.getProgramGroupDirectory( key );
+		if( programGroupDirectory.exists() ) {
 
-			File image = new File( imageCache, RecordedDownloadService.RECORDED_FILE );
+			File image = new File( programGroupDirectory, BannerDownloadService.BANNER_FILE );
 			if( image.exists() ) {
 				return (int) image.length();
+			}
+		
+			File imageNa = new File( programGroupDirectory, BannerDownloadService.BANNER_FILE_NA );
+			if( imageNa.exists() ) {
+				return 0;
 			}
 		
 		}
@@ -100,16 +105,4 @@ public class BannerLruMemoryCache extends LruCache<String, BitmapDrawable> {
 		return super.sizeOf( key, value );    
 	}
 
-	// internal helpers
-	
-	public static Programs getDownloadingPrograms() {
-		
-		Programs programs = new Programs();
-		
-		Log.i( TAG, "getDownloadingPrograms : programs=" + programs.toString() );
-		
-		return programs;
-
-	}
-	
 }

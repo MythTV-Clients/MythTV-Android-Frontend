@@ -18,8 +18,15 @@
  */
 package org.mythtv.client.ui.dvr;
 
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+
 import org.mythtv.R;
-import org.mythtv.service.dvr.cache.ProgramGroupLruMemoryCache;
+import org.mythtv.service.dvr.ProgramGroupRecordedDownloadService;
 import org.mythtv.service.util.UrlUtils;
 import org.mythtv.services.api.dvr.Programs;
 
@@ -27,6 +34,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
+
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 
 /**
  * @author Daniel Frey
@@ -40,8 +50,6 @@ public class ProgramGroupActivity extends AbstractDvrActivity {
 	public static final String EXTRA_PROGRAM_GROUP_KEY = "org.mythtv.client.ui.dvr.programGroup.EXTRA_PROGRAM_GROUP_KEY";
 
 	private ProgramGroupFragment programGroupFragment = null;
-
-	private ProgramGroupLruMemoryCache cache;
 
 	// ***************************************
 	// Activity methods
@@ -57,15 +65,35 @@ public class ProgramGroupActivity extends AbstractDvrActivity {
 		Log.v( TAG, "onCreate : enter" );
 		super.onCreate( savedInstanceState );
 
-		cache = new ProgramGroupLruMemoryCache( this );
-
 		Bundle extras = getIntent().getExtras(); 
-		String name = extras.getString( EXTRA_PROGRAM_GROUP_KEY );
-		String cleaned = UrlUtils.encodeUrl( name );
+		String programGroup = extras.getString( EXTRA_PROGRAM_GROUP_KEY );
 
-		Programs programs = cache.get( cleaned );
-		if( null == programs || ( null == programs.getPrograms() || programs.getPrograms().isEmpty() ) ) {
-			programs = ProgramGroupLruMemoryCache.getDownloadingPrograms( name );
+		String encodedTitle = UrlUtils.encodeUrl( programGroup );
+
+		File programGroupDirectory = mFileHelper.getProgramGroupDirectory( programGroup );
+		File programGroupJson = new File( programGroupDirectory, encodedTitle + ProgramGroupRecordedDownloadService.RECORDED_FILE );
+
+		Programs programs = null; 
+		InputStream is = null;
+		try {
+			is = new BufferedInputStream( new FileInputStream( programGroupJson ), 8192 );
+			programs = getMainApplication().getObjectMapper().readValue( is, Programs.class );
+		} catch( FileNotFoundException e ) {
+			Log.e( TAG, "onProgramGroupSelected : error, json could not be found", e );
+
+			programs = RecordingsActivity.getDownloadingPrograms( programGroup );
+		} catch( JsonParseException e ) {
+			Log.e( TAG, "onProgramGroupSelected : error, json could not be parsed", e );
+
+			programs = RecordingsActivity.getDownloadingPrograms( programGroup );
+		} catch( JsonMappingException e ) {
+			Log.e( TAG, "onProgramGroupSelected : error, json could not be mapped", e );
+			programs = RecordingsActivity.getDownloadingPrograms( programGroup );
+
+		} catch( IOException e ) {
+			Log.e( TAG, "onProgramGroupSelected : error, io exception reading file", e );
+
+			programs = RecordingsActivity.getDownloadingPrograms( programGroup );
 		}
 
 		Log.v( TAG, "onCreate : programs=" + programs.toString() );

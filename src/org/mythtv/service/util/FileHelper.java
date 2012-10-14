@@ -30,10 +30,13 @@ import android.os.Environment;
  */
 public class FileHelper {
 
-	private static final String TAG = FileHelper.class.getSimpleName();
+//	private static final String TAG = FileHelper.class.getSimpleName();
 	
 	private static final String PROGRAM_GUIDE_DATA = "programGuide";
 	private static final String PROGRAM_DATA = "program";
+	private static final String PROGRAM_RECORDED_DATA = "recorded";
+	private static final String PROGRAM_UPCOMING_DATA = "upcoming";
+	private static final String PROGRAM_GROUPS_DATA = "groups";
 	private static final String IMAGE_DATA = "images";
 	
 	private Context mContext;
@@ -105,27 +108,92 @@ public class FileHelper {
 		return null;
 	}
 	
-	public File getProgramImagesDataDirectory() {
-//		Log.v( TAG, "getProgramImagesDataDirectory : enter" );
+	public File getProgramUpcomingDataDirectory() {
+//		Log.v( TAG, "getProgramUpcomingDataDirectory : enter" );
 		
 		File programDir = getProgramDataDirectory();
 		if( null != programDir && programDir.exists() ) {
 			
-			File programImageDataDirectory = new File( programDir, IMAGE_DATA );
-			programImageDataDirectory.mkdir();
+			File programUpcomingDataDirectory = new File( programDir, PROGRAM_UPCOMING_DATA );
+			programUpcomingDataDirectory.mkdir();
 			
-			if( programImageDataDirectory.exists() ) {
-//				Log.v( TAG, "getProgramImageDataDirectory : exit" );
+			if( programUpcomingDataDirectory.exists() ) {
+//				Log.v( TAG, "getProgramUpcomingDataDirectory : exit" );
 
-				return programImageDataDirectory;
+				return programUpcomingDataDirectory;
 			}
 			
 		}
 		
-//		Log.v( TAG, "getProgramImageDataDirectory : exit, program image data directory doesn't exit" );
+//		Log.v( TAG, "getProgramUpcomingDataDirectory : exit, program upcoming data directory doesn't exit" );
 		return null;
 	}
 	
+	public File getProgramRecordedDataDirectory() {
+//		Log.v( TAG, "getProgramRecordedDataDirectory : enter" );
+		
+		File programDir = getProgramDataDirectory();
+		if( null != programDir && programDir.exists() ) {
+			
+			File programRecordedDataDirectory = new File( programDir, PROGRAM_RECORDED_DATA );
+			programRecordedDataDirectory.mkdir();
+			
+			if( programRecordedDataDirectory.exists() ) {
+//				Log.v( TAG, "getProgramRecordedDataDirectory : exit" );
+
+				return programRecordedDataDirectory;
+			}
+			
+		}
+		
+//		Log.v( TAG, "getProgramRecordedDataDirectory : exit, program recorded data directory doesn't exit" );
+		return null;
+	}
+
+	public File getProgramGroupsDataDirectory() {
+//		Log.v( TAG, "getProgramGroupsDataDirectory : enter" );
+		
+		File programDir = getProgramDataDirectory();
+		if( null != programDir && programDir.exists() ) {
+			
+			File programGroupsDataDirectory = new File( programDir, PROGRAM_GROUPS_DATA );
+			programGroupsDataDirectory.mkdir();
+			
+			if( programGroupsDataDirectory.exists() ) {
+//				Log.v( TAG, "getProgramGroupsDataDirectory : exit" );
+
+				return programGroupsDataDirectory;
+			}
+			
+		}
+		
+//		Log.v( TAG, "getProgramGroupsDataDirectory : exit, program groups data directory doesn't exit" );
+		return null;
+	}
+
+	public File getProgramGroupDirectory( String title ) {
+//		Log.v( TAG, "getProgramGroupDirectory : enter" );
+		
+		String encodedTitle = UrlUtils.encodeUrl( title );
+		
+		File programGroupsDataDir = getProgramGroupsDataDirectory();
+		if( null != programGroupsDataDir && programGroupsDataDir.exists() ) {
+			
+			File programGroupDirectory = new File( programGroupsDataDir, encodedTitle );
+			programGroupDirectory.mkdir();
+			
+			if( programGroupDirectory.exists() ) {
+//				Log.v( TAG, "getProgramGroupDirectory : exit" );
+
+				return programGroupDirectory;
+			}
+			
+		}
+		
+//		Log.v( TAG, "getProgramGroupDirectory : exit, program group directory doesn't exit" );
+		return null;
+	}
+
 	// internal helpers
 	
 	private File getRootCacheDirectory() {

@@ -94,7 +94,7 @@ public class ProgramGroupFragment extends MythtvListFragment {
 		Intent i = new Intent( getActivity(), VideoActivity.class );
 		i.putExtra( VideoActivity.EXTRA_PROGRAM_CHANNEL_ID, program.getChannelInfo().getChannelId() );
 		i.putExtra( VideoActivity.EXTRA_PROGRAM_START_TIME, DateUtils.dateTimeFormatter.print( program.getStartTime() ) );
-		i.putExtra( VideoActivity.EXTRA_PROGRAM_CLEANED_TITLE, UrlUtils.encodeUrl( program.getTitle() ) );
+		i.putExtra( VideoActivity.EXTRA_PROGRAM_GROUP, program.getTitle() );
 		startActivity( i );
 
 		Log.v( TAG, "onListItemClick : exit" );

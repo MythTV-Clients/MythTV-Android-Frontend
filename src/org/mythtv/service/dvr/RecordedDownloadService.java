@@ -21,6 +21,7 @@ package org.mythtv.service.dvr;
 import java.io.File;
 import java.io.IOException;
 
+import org.apache.commons.io.FileUtils;
 import org.mythtv.R;
 import org.mythtv.service.MythtvService;
 import org.mythtv.services.api.ETagInfo;
@@ -61,7 +62,7 @@ public class RecordedDownloadService extends MythtvService {
 	private NotificationManager mNotificationManager;
 	private int notificationId;
 	
-	private File programCache = null;
+	private File recordedDirectory = null;
 
 	public RecordedDownloadService() {
 		super( "RecordedDownloadService" );
@@ -75,10 +76,10 @@ public class RecordedDownloadService extends MythtvService {
 		Log.d( TAG, "onHandleIntent : enter" );
 		super.onHandleIntent( intent );
 		
-		programCache = mFileHelper.getProgramDataDirectory();
-		if( null == programCache || !programCache.exists() ) {
+		recordedDirectory = mFileHelper.getProgramRecordedDataDirectory();
+		if( null == recordedDirectory || !recordedDirectory.exists() ) {
 			Intent completeIntent = new Intent( ACTION_COMPLETE );
-			completeIntent.putExtra( EXTRA_COMPLETE, "Program Cache location can not be found" );
+			completeIntent.putExtra( EXTRA_COMPLETE, "Program Recorded location can not be found" );
 			sendBroadcast( completeIntent );
 
 			Log.d( TAG, "onHandleIntent : exit, programCache does not exist" );
@@ -156,10 +157,7 @@ public class RecordedDownloadService extends MythtvService {
 	private void cleanup() throws IOException {
 		Log.v( TAG, "cleanup : enter" );
 		
-		File existing = new File( programCache, RECORDED_FILE );
-		if( existing.exists() ) {
-			existing.delete();
-		}
+		FileUtils.cleanDirectory( recordedDirectory );
 
 		Log.v( TAG, "cleanup : exit" );
 	}
@@ -167,7 +165,7 @@ public class RecordedDownloadService extends MythtvService {
 	private void process( Programs programs ) throws JsonGenerationException, JsonMappingException, IOException {
 		Log.v( TAG, "process : enter" );
 		
-		mMainApplication.getObjectMapper().writeValue( new File( programCache, RECORDED_FILE ), programs );
+		mMainApplication.getObjectMapper().writeValue( new File( recordedDirectory, RECORDED_FILE ), programs );
 
 		Log.v( TAG, "process : exit" );
 	}

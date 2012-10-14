@@ -21,6 +21,7 @@ package org.mythtv.client.ui.dvr;
 import org.mythtv.client.ui.AbstractMythtvFragmentActivity;
 import org.mythtv.client.ui.AwayActivity;
 import org.mythtv.client.ui.HomeActivity;
+import org.mythtv.service.util.FileHelper;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -36,6 +37,8 @@ public abstract class AbstractDvrActivity extends AbstractMythtvFragmentActivity
 
 	protected static final String TAG = AbstractDvrActivity.class.getSimpleName();
 
+	protected FileHelper mFileHelper = null;
+	
 	/* (non-Javadoc)
 	 * @see android.support.v4.app.FragmentActivity#onCreate(android.os.Bundle)
 	 */
@@ -45,6 +48,8 @@ public abstract class AbstractDvrActivity extends AbstractMythtvFragmentActivity
 		super.onCreate( savedInstanceState );
 
 		setupActionBar();
+
+		mFileHelper = new FileHelper( this );
 		
 		Log.v( TAG, "onCreate : exit" );
 	}

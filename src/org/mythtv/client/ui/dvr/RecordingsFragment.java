@@ -86,8 +86,6 @@ public class RecordingsFragment extends MythtvListFragment {
 	private static FileHelper mFileHelper;
 	private static ProgramHelper mProgramHelper;
 
-    private final ObjectMapper mapper = new ObjectMapper();
-
 	private BannerLruMemoryCache imageCache;
 
 	private List<Program> programGroups = new ArrayList<Program>();
@@ -108,8 +106,6 @@ public class RecordingsFragment extends MythtvListFragment {
 
 		setHasOptionsMenu( true );
 		setRetainInstance( true );
-
-		mapper.registerModule( new JodaModule() );
 
 		Log.v( TAG, "onActivityCreated : exit" );
 	}
@@ -146,10 +142,10 @@ public class RecordingsFragment extends MythtvListFragment {
 		Log.v( TAG, "onResume : enter" );
 		super.onStart();
 	    
-		File programCache = mFileHelper.getProgramDataDirectory();
-		if( programCache.exists() ) {
+		File recordedDirectory = mFileHelper.getProgramRecordedDataDirectory();
+		if( recordedDirectory.exists() ) {
 
-			File existing = new File( programCache, RecordedDownloadService.RECORDED_FILE );
+			File existing = new File( recordedDirectory, RecordedDownloadService.RECORDED_FILE );
 			if( !existing.exists() ) {
 				getActivity().startService( new Intent( RecordedDownloadService.ACTION_DOWNLOAD ) );
 			} else {
@@ -276,16 +272,16 @@ public class RecordingsFragment extends MythtvListFragment {
 			adapter.clear();
 		}
 		
-		File programCache = mFileHelper.getProgramDataDirectory();
-		if( null != programCache && programCache.exists() ) {
+		File recordedDirectory = mFileHelper.getProgramRecordedDataDirectory();
+		if( null != recordedDirectory && recordedDirectory.exists() ) {
 
-			File file = new File( programCache, RecordedDownloadService.RECORDED_FILE );
+			File file = new File( recordedDirectory, RecordedDownloadService.RECORDED_FILE );
 			if( file.exists() ) {
 				Log.v( TAG, "create : recorded file exists" );
 				
 				try {
 					InputStream is = new BufferedInputStream( new FileInputStream( file ), 8192 );
-					Programs programs = mapper.readValue( is, Programs.class );
+					Programs programs = getMainApplication().getObjectMapper().readValue( is, Programs.class );
 
 					Map<String, Program> filtered = new TreeMap<String, Program>();
 					for( Program program : programs.getPrograms() ) {
@@ -369,7 +365,7 @@ public class RecordingsFragment extends MythtvListFragment {
 			mHolder.programGroup.setText( program.getTitle() );
 			mHolder.category.setBackgroundColor( mProgramHelper.getCategoryColor( program.getCategory() ) );
 			
-			BitmapDrawable banner = imageCache.get( program.getInetref() + BannerDownloadService.BANNER_FILE_EXT );
+			BitmapDrawable banner = imageCache.get( program.getTitle() );
 			if( null != banner ) {
 				Log.v( TAG, "getView : loading banner from adapter cache" );
 					
@@ -383,6 +379,7 @@ public class RecordingsFragment extends MythtvListFragment {
 				
 				Intent downloadIntent = new Intent( BannerDownloadService.ACTION_DOWNLOAD );
 				downloadIntent.putExtra( BannerDownloadService.BANNER_INETREF, program.getInetref() );
+				downloadIntent.putExtra( BannerDownloadService.BANNER_TITLE, program.getTitle() );
 				getActivity().startService( downloadIntent );
 			}
 

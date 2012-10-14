@@ -19,7 +19,6 @@
 package org.mythtv.service.dvr;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -28,6 +27,7 @@ import java.util.Map;
 import java.util.TimeZone;
 import java.util.TreeMap;
 
+import org.apache.commons.io.FileUtils;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.mythtv.R;
@@ -76,7 +76,7 @@ public class UpcomingDownloadService extends MythtvService {
 	private PendingIntent mContentIntent = null;
 	private int notificationId;
 	
-	private File programCache = null;
+	private File upcomingDirectory = null;
 	
 	public UpcomingDownloadService() {
 		super( "UpcomingDownloadService" );
@@ -90,13 +90,13 @@ public class UpcomingDownloadService extends MythtvService {
 		Log.d( TAG, "onHandleIntent : enter" );
 		super.onHandleIntent( intent );
 		
-		programCache = mFileHelper.getProgramDataDirectory();
-		if( null == programCache || !programCache.exists() ) {
+		upcomingDirectory = mFileHelper.getProgramUpcomingDataDirectory();
+		if( null == upcomingDirectory || !upcomingDirectory.exists() ) {
 			Intent completeIntent = new Intent( ACTION_COMPLETE );
-			completeIntent.putExtra( EXTRA_COMPLETE, "Program Cache location can not be found" );
+			completeIntent.putExtra( EXTRA_COMPLETE, "Program Upcoming location can not be found" );
 			sendBroadcast( completeIntent );
 
-			Log.d( TAG, "onHandleIntent : exit, programCache does not exist" );
+			Log.d( TAG, "onHandleIntent : exit, upcomingDirectory does not exist" );
 			return;
 		}
 
@@ -167,28 +167,7 @@ public class UpcomingDownloadService extends MythtvService {
 	private void cleanup() throws IOException {
 		Log.v( TAG, "cleanup : enter" );
 		
-		File existing = new File( programCache, UPCOMING_FILE );
-		if( null != existing && existing.exists() ) {
-			existing.delete();
-			Log.v( TAG, "cleanup : deleted filename=" + UPCOMING_FILE );
-			
-			FilenameFilter filter = new FilenameFilter() {
-
-				public boolean accept( File dir, String filename ) {
-					return filename.endsWith( UPCOMING_FILE_EXT );
-				}
-
-			};
-
-			for( String filename : programCache.list( filter ) ) {
-
-				File deleted = new File( programCache, filename );
-				if( deleted.delete() ) {
-					Log.v( TAG, "cleanup : deleted filename=" + filename );
-				}
-			}
-
-		}
+		FileUtils.cleanDirectory( upcomingDirectory );
 
 		Log.v( TAG, "cleanup : exit" );
 	}
@@ -196,7 +175,7 @@ public class UpcomingDownloadService extends MythtvService {
 	private void process( Programs programs ) throws JsonGenerationException, JsonMappingException, IOException {
 		Log.v( TAG, "process : enter" );
 		
-		mMainApplication.getObjectMapper().writeValue( new File( programCache, UPCOMING_FILE ), programs );
+		mMainApplication.getObjectMapper().writeValue( new File( upcomingDirectory, UPCOMING_FILE ), programs );
 
 		Map<DateTime, Programs> upcomingDates = new TreeMap<DateTime, Programs>();
 		for( Program program : programs.getPrograms() ) {
@@ -229,7 +208,7 @@ public class UpcomingDownloadService extends MythtvService {
 
 			String key = DateUtils.dateFormatter.print( date );
 
-			mMainApplication.getObjectMapper().writeValue( new File( programCache, key + UPCOMING_FILE_EXT ), upcomingPrograms );
+			mMainApplication.getObjectMapper().writeValue( new File( upcomingDirectory, key + UPCOMING_FILE_EXT ), upcomingPrograms );
 			
 			double percentage = ( (float) count / (float) programs.getPrograms().size() ) * 100;
 			progressUpdate( percentage );

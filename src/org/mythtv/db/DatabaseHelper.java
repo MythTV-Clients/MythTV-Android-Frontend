@@ -43,7 +43,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	private static final String TAG = DatabaseHelper.class.getSimpleName();
 	
 	private static final String DATABASE_NAME = "mythtvdb";
-	private static final int DATABASE_VERSION = 38;
+	private static final int DATABASE_VERSION = 41;
 
 	public DatabaseHelper( Context context ) {
 		super( context, DATABASE_NAME, null, DATABASE_VERSION );
@@ -79,15 +79,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			createPlaybackProfiles( db );
 		}
 
-		if( oldVersion < 38 ) {
+		if( oldVersion < 41 ) {
 			Log.v( TAG, "onUpgrade : upgrading to db version 38" );
 
-			dropProgram( db );
-			dropRecording( db );
-			dropChannel( db );
-			dropArtwork( db );
-			dropProgramArtworks( db );
-			
+			dropCleanup( db );
 			createCleanup( db );
 		}
 
@@ -96,6 +91,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 	// internal helpers
 	
+	private void dropCleanup( SQLiteDatabase db ) {
+		Log.v( TAG, "dropCleanup : enter" );
+		
+		db.execSQL( "DROP TABLE IF EXISTS CLEANUP" );
+		
+		Log.v( TAG, "dropCleanup : exit" );
+	}
+
 	private void createCleanup( SQLiteDatabase db ) {
 		Log.v( TAG, "createCleanup : enter" );
 		
@@ -113,12 +116,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 		ContentValues values = new ContentValues();
 		values.put( "KEY", "CLEANUP_PROGRAM_GUIDE" );
-		values.put( "VALUE", "TRUE" );
+		values.put( "VALUE", "FALSE" );
 		db.insert( "CLEANUP", null, values );
 
 		values = new ContentValues();
 		values.put( "KEY", "CLEANUP_PROGRAMS" );
-		values.put( "VALUE", "FALSE" );
+		values.put( "VALUE", "TRUE" );
 		db.insert( "CLEANUP", null, values );
 		
 		Log.v( TAG, "createCleanup : exit" );

@@ -38,7 +38,7 @@ public class MythtvListFragment extends ListFragment {
 		l.setItemChecked( position, true );
 	}
 
-	public MainApplication getApplicationContext() {
+	public MainApplication getMainApplication() {
 		return (MainApplication) getActivity().getApplicationContext();
 	}
 

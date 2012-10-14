@@ -18,14 +18,17 @@
  */
 package org.mythtv.service.dvr;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.joda.time.DateTime;
 import org.mythtv.service.MythtvService;
-import org.mythtv.service.dvr.cache.RecordedLruMemoryCache;
 import org.mythtv.service.util.UrlUtils;
 import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.dvr.Program;
@@ -38,6 +41,7 @@ import android.content.Intent;
 import android.util.Log;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 
 /**
@@ -48,7 +52,7 @@ public class ProgramGroupRecordedDownloadService extends MythtvService {
 
 	private static final String TAG = ProgramGroupRecordedDownloadService.class.getSimpleName();
 
-	public static final String RECORDED_FILE = "-recorded.json";
+	public static final String RECORDED_FILE = ".json";
 	
     public static final String ACTION_DOWNLOAD = "org.mythtv.background.programGroupRecordedDownload.ACTION_DOWNLOAD";
     public static final String ACTION_COMPLETE = "org.mythtv.background.programGroupRecordedDownload.ACTION_COMPLETE";
@@ -58,13 +62,11 @@ public class ProgramGroupRecordedDownloadService extends MythtvService {
     public static final String EXTRA_PROGRESS_ERROR = "PROGRESS_ERROR";
     public static final String EXTRA_COMPLETE = "COMPLETE";
 
-    private RecordedLruMemoryCache cache;
-    private File programCache = null;
+    private File recordedDirectory = null;
+    private File programGroupsDirectory = null;
     
 	public ProgramGroupRecordedDownloadService() {
 		super( "ProgramGroupRecordedDownloadService" );
-		
-		cache = new RecordedLruMemoryCache( this );
 	}
 	
 	/* (non-Javadoc)
@@ -75,13 +77,23 @@ public class ProgramGroupRecordedDownloadService extends MythtvService {
 		Log.d( TAG, "onHandleIntent : enter" );
 		super.onHandleIntent( intent );
 		
-		programCache = mFileHelper.getProgramDataDirectory();
-		if( null == programCache || !programCache.exists() ) {
+		recordedDirectory = mFileHelper.getProgramRecordedDataDirectory();
+		if( null == recordedDirectory || !recordedDirectory.exists() ) {
 			Intent completeIntent = new Intent( ACTION_COMPLETE );
-			completeIntent.putExtra( EXTRA_COMPLETE, "Program Cache location can not be found" );
+			completeIntent.putExtra( EXTRA_COMPLETE, "Program Recorded location can not be found" );
 			sendBroadcast( completeIntent );
 
-			Log.d( TAG, "onHandleIntent : exit, programCache does not exist" );
+			Log.d( TAG, "onHandleIntent : exit, recordedDirectory does not exist" );
+			return;
+		}
+
+		programGroupsDirectory = mFileHelper.getProgramGroupsDataDirectory();
+		if( null == programGroupsDirectory || !programGroupsDirectory.exists() ) {
+			Intent completeIntent = new Intent( ACTION_COMPLETE );
+			completeIntent.putExtra( EXTRA_COMPLETE, "Program Groups location can not be found" );
+			sendBroadcast( completeIntent );
+
+			Log.d( TAG, "onHandleIntent : exit, programGroupsDirectory does not exist" );
 			return;
 		}
 
@@ -120,11 +132,12 @@ public class ProgramGroupRecordedDownloadService extends MythtvService {
 
 	// internal helpers
 
-	private List<String> parseProgramGroups() {
+	private List<String> parseProgramGroups() throws JsonParseException, JsonMappingException, IOException {
 		Log.v( TAG, "parseProgramGroups : enter" );
 		
 		List<String> programGroups = new ArrayList<String>();
-		Programs programs = cache.get( RecordedDownloadService.RECORDED_FILE );
+		InputStream is = new BufferedInputStream( new FileInputStream( new File( recordedDirectory, RecordedDownloadService.RECORDED_FILE ) ), 8192 );
+		Programs programs = mMainApplication.getObjectMapper().readValue( is, Programs.class );
 		if( null != programs ) {
 			for( Program program : programs.getPrograms() ) {
 				if( !programGroups.contains( program.getTitle() ) ) {
@@ -144,19 +157,19 @@ public class ProgramGroupRecordedDownloadService extends MythtvService {
 		start = start.withTime( 0, 0, 0, 0 );
 		
 		for( String title : programGroups ) {
-			title = UrlUtils.encodeUrl( title );
+			String encodedTitle = UrlUtils.encodeUrl( title );
 					
 			ETagInfo etag = ETagInfo.createEmptyETag();
-			ResponseEntity<ProgramList> responseEntity = mMainApplication.getMythServicesApi().dvrOperations().getFiltererRecordedList( true, 1, 999, title, null, null, etag );
+			ResponseEntity<ProgramList> responseEntity = mMainApplication.getMythServicesApi().dvrOperations().getFiltererRecordedList( true, 1, 999, encodedTitle, null, null, etag );
 			if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
 						
-				File existing = new File( programCache, title + RECORDED_FILE );
+				File existing = mFileHelper.getProgramGroupDirectory( title );
 				if( existing.exists() ) {
-					existing.delete();
+					FileUtils.cleanDirectory( existing );
 				}
 
 				ProgramList programList = responseEntity.getBody();
-				mMainApplication.getObjectMapper().writeValue( new File( programCache, title + RECORDED_FILE ), programList.getPrograms() );
+				mMainApplication.getObjectMapper().writeValue( new File( existing, UrlUtils.encodeUrl( title ) + RECORDED_FILE ), programList.getPrograms() );
 
 			}
 				

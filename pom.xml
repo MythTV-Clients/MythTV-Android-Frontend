@@ -16,6 +16,7 @@
         <jdmns-version>3.4.1</jdmns-version>
         <joda-time-version>2.1</joda-time-version>
         <org.joda.joda-convert-version>1.2</org.joda.joda-convert-version>
+        <commons-io-version>1.3.2</commons-io-version>
         <mythtv.service.api-version>0.0.15</mythtv.service.api-version>
     </properties>
 
@@ -67,6 +68,13 @@
 			<groupId>org.joda</groupId>
 			<artifactId>joda-convert</artifactId>
 			<version>${org.joda.joda-convert-version}</version>
+		</dependency>
+        
+		<!-- Apache Commons IO -->
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>${commons-io-version}</version>
 		</dependency>
         
 		<!-- MythTV Services Api -->

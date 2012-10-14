@@ -18,25 +18,15 @@
  */
 package org.mythtv.service.dvr;
 
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FilenameFilter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.mythtv.service.MythtvService;
-import org.mythtv.service.util.UrlUtils;
-import org.mythtv.services.api.dvr.Program;
-import org.mythtv.services.api.dvr.Programs;
 
 import android.content.Intent;
 import android.util.Log;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 
@@ -52,16 +42,12 @@ public class RecordedCleanupService extends MythtvService {
     public static final String ACTION_COMPLETE = "org.mythtv.background.recordedCleanup.ACTION_COMPLETE";
 
     public static final String EXTRA_COMPLETE = "COMPLETE";
-    public static final String EXTRA_COMPLETE_COUNT = "COMPLETE_COUNT";
 
     private final ObjectMapper mapper = new ObjectMapper();
 
-//    private RecordedLruMemoryCache cache;
-
     public RecordedCleanupService() {
-		super( "ProgamGuideDownloadService" );
+		super( "RecordedCleanupService" );
 		
-//		cache = new RecordedLruMemoryCache( this );
 		mapper.registerModule( new JodaModule() );
 
 	}
@@ -76,78 +62,31 @@ public class RecordedCleanupService extends MythtvService {
         if ( intent.getAction().equals( ACTION_CLEANUP ) ) {
     		Log.i( TAG, "onHandleIntent : CLEANUP action selected" );
 
-    		cleanup();
+    		try {
+				cleanup();
+			} catch( IOException e ) {
+				Log.e( TAG, "onHandleIntent : error", e );
+			}
         }
+		
+		Intent completeIntent = new Intent( ACTION_COMPLETE );
+		completeIntent.putExtra( EXTRA_COMPLETE, "Program Cleanup Service Finished" );
+		sendBroadcast( completeIntent );
 		
 		Log.d( TAG, "onHandleIntent : exit" );
 	}
 
 	// internal helpers
 	
-	private void cleanup() {
+	private void cleanup() throws IOException {
 		Log.v( TAG, "cleanup : enter" );
 		
-		int count = 0;
-		
-		File programCache = mFileHelper.getProgramDataDirectory();
-		if( null != programCache && programCache.exists() ) {
+		File recordedDirectory = mFileHelper.getProgramRecordedDataDirectory();
+		if( null != recordedDirectory && recordedDirectory.exists() ) {
 
-			File file = new File( programCache, RecordedDownloadService.RECORDED_FILE );
-			if( file.exists() ) {
-				try {
-					InputStream is = new BufferedInputStream( new FileInputStream( file ), 8192 );
-					Programs programs = mapper.readValue( is, Programs.class );
+			FileUtils.cleanDirectory( recordedDirectory );
 
-					List<String> programGroups = new ArrayList<String>();
-					if( null != programs ) {
-						for( Program program : programs.getPrograms() ) {
-
-							String title = UrlUtils.encodeUrl( program.getTitle() );
-
-							if( !programGroups.contains( title ) ) {
-								programGroups.add( title );
-							}
-						}
-
-						FilenameFilter filter = new FilenameFilter() {
-
-							@Override
-							public boolean accept( File dir, String filename ) {
-								return filename.endsWith( ProgramGroupRecordedDownloadService.RECORDED_FILE );
-							}
-
-						};
-						for( String filename : programCache.list( filter ) ) {
-
-							File deleted = new File( programCache, filename );
-							String programGroup = filename.substring( 0, filename.indexOf( ProgramGroupRecordedDownloadService.RECORDED_FILE ) );
-							if( !programGroups.contains( programGroup ) ) {
-
-								if( deleted.delete() ) {
-									count++;
-
-									Log.v( TAG, "cleanup : deleted filename=" + filename );
-								}
-							}
-						}
-					}
-
-				} catch( JsonParseException e ) {
-					Log.e( TAG, "create : JsonParseException - error opening file 'recorded'", e );
-				} catch( JsonMappingException e ) {
-					Log.e( TAG, "create : JsonMappingException - error opening file 'recorded'", e );
-				} catch( IOException e ) {
-					Log.e( TAG, "create : IOException - error opening file 'recorded'", e );
-				}
-				
-			}
-			
 		}
-
-		Intent completeIntent = new Intent( ACTION_COMPLETE );
-		completeIntent.putExtra( EXTRA_COMPLETE, "Program Cleanup Service Finished" );
-		completeIntent.putExtra( EXTRA_COMPLETE_COUNT, count );
-		sendBroadcast( completeIntent );
 		
 		Log.v( TAG, "cleanup : exit" );
 	}

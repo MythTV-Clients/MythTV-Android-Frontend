@@ -246,40 +246,35 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 			startService( new Intent( ProgramGuideCleanupService.ACTION_CLEANUP ) );
 		}
 		
-		File programCache = mFileHelper.getProgramDataDirectory();
-		if( null != programCache && programCache.exists() ) {
-			
-			File upcoming = new File( programCache, UpcomingDownloadService.UPCOMING_FILE );
-			if( upcoming.exists() ) {
+		File upcoming = new File( mFileHelper.getProgramUpcomingDataDirectory(), UpcomingDownloadService.UPCOMING_FILE );
+		if( upcoming.exists() ) {
 
-				DateTime today = new DateTime().withTime( 0, 0, 0, 0 );
-				DateTime lastModified = new DateTime( upcoming.lastModified() );
+			DateTime today = new DateTime().withTime( 0, 0, 0, 0 );
+			DateTime lastModified = new DateTime( upcoming.lastModified() );
 				
-				if( lastModified.isBefore( today ) ) {
-					startService( new Intent( UpcomingDownloadService.ACTION_DOWNLOAD ) );
-					startService( new Intent( BannerCleanupService.ACTION_CLEANUP ) );
-				} else {
-					Log.i( TAG, "onResume : not time to update 'upcoming' episodes" );
-				}
-			} else {
+			if( lastModified.isBefore( today ) ) {
 				startService( new Intent( UpcomingDownloadService.ACTION_DOWNLOAD ) );
-			}
-			
-			File recorded = new File( programCache, RecordedDownloadService.RECORDED_FILE );
-			if( recorded.exists() ) {
-
-				DateTime lastHour = new DateTime().minusHours( 1 );
-				DateTime lastModified = new DateTime( recorded.lastModified() );
-				
-				if( lastModified.isBefore( lastHour ) ) {
-					startService( new Intent( RecordedCleanupService.ACTION_CLEANUP ) );
-				} else {
-					Log.i( TAG, "onResume : not time to update 'recorded' episodes" );
-				}
+				startService( new Intent( BannerCleanupService.ACTION_CLEANUP ) );
 			} else {
-				startService( new Intent( RecordedDownloadService.ACTION_DOWNLOAD ) );
+				Log.i( TAG, "onResume : not time to update 'upcoming' episodes" );
 			}
+		} else {
+			startService( new Intent( UpcomingDownloadService.ACTION_DOWNLOAD ) );
+		}
+			
+		File recorded = new File( mFileHelper.getProgramRecordedDataDirectory(), RecordedDownloadService.RECORDED_FILE );
+		if( recorded.exists() ) {
 
+			DateTime lastHour = new DateTime().minusHours( 1 );
+			DateTime lastModified = new DateTime( recorded.lastModified() );
+				
+			if( lastModified.isBefore( lastHour ) ) {
+				startService( new Intent( RecordedCleanupService.ACTION_CLEANUP ) );
+			} else {
+				Log.i( TAG, "onResume : not time to update 'recorded' episodes" );
+			}
+		} else {
+			startService( new Intent( RecordedDownloadService.ACTION_DOWNLOAD ) );
 		}
 
 		Log.v( TAG, "startServices : exit" );
@@ -338,7 +333,6 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 			
 	        if ( intent.getAction().equals( RecordedCleanupService.ACTION_COMPLETE ) ) {
 	        	Log.i( TAG, "RecordedCleanupReceiver.onReceive : " + intent.getStringExtra( RecordedCleanupService.EXTRA_COMPLETE ) );
-	        	Log.i( TAG, "RecordedCleanupReceiver.onReceive : " + intent.getIntExtra( RecordedCleanupService.EXTRA_COMPLETE_COUNT, 0 ) + " files cleaned up" );
 
 				startService( new Intent( RecordedDownloadService.ACTION_DOWNLOAD ) );
 	        }

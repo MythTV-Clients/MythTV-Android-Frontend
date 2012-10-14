@@ -24,10 +24,18 @@ package org.mythtv.client.ui.dvr;
 //import io.vov.vitamio.widget.MediaController;
 //import io.vov.vitamio.widget.VideoView;
 
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+
 import org.mythtv.R;
 import org.mythtv.client.ui.preferences.PlaybackProfile;
-import org.mythtv.service.dvr.cache.ProgramGroupLruMemoryCache;
+import org.mythtv.service.dvr.ProgramGroupRecordedDownloadService;
 import org.mythtv.service.util.DateUtils;
+import org.mythtv.service.util.UrlUtils;
 import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.content.LiveStreamInfo;
 import org.mythtv.services.api.content.LiveStreamInfoWrapper;
@@ -38,12 +46,14 @@ import org.springframework.http.ResponseEntity;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 
 /**
  * @author John Baab
@@ -54,14 +64,13 @@ public class VideoActivity extends AbstractDvrActivity {
 	private static final String TAG = VideoActivity.class.getSimpleName();
 	public static final String EXTRA_PROGRAM_CHANNEL_ID = "org.mythtv.client.ui.dvr.programGroup.EXTRA_PROGRAM_CHANNEL_ID";
 	public static final String EXTRA_PROGRAM_START_TIME = "org.mythtv.client.ui.dvr.programGroup.EXTRA_PROGRAM_START_TIME";
-	public static final String EXTRA_PROGRAM_CLEANED_TITLE = "org.mythtv.client.ui.dvr.programGroup.EXTRA_PROGRAM_CLEANED_TITLE";
+	public static final String EXTRA_PROGRAM_GROUP = "org.mythtv.client.ui.dvr.programGroup.EXTRA_PROGRAM_GROUP";
 	
 	private ResponseEntity<LiveStreamInfoWrapper> info = null;
 	private ProgressDialog progressDialog;
 	private Boolean firstrun = true;
 	private PlaybackProfile selectedPlaybackProfile;
 
-	private ProgramGroupLruMemoryCache cache;
     private Program selected = null;
 
 	// ***************************************
@@ -82,17 +91,31 @@ public class VideoActivity extends AbstractDvrActivity {
 	    
 	    setupActionBar();
 	    
-		cache = new ProgramGroupLruMemoryCache( this );
-
 		progressDialog = ProgressDialog.show( this, "Please wait...", "Retrieving video...", true, true );
 
 	    String channelId = getIntent().getStringExtra( EXTRA_PROGRAM_CHANNEL_ID);
 	    String startTime = getIntent().getStringExtra( EXTRA_PROGRAM_START_TIME );
-	    String cleaned = getIntent().getStringExtra( EXTRA_PROGRAM_CLEANED_TITLE );
+	    String programGroup = getIntent().getStringExtra( EXTRA_PROGRAM_GROUP );
 	    
-		Log.v( TAG, "onCreate : channelId=" + channelId + ", startTime=" + startTime + ", cleaned=" + cleaned );
+		Log.v( TAG, "onCreate : channelId=" + channelId + ", startTime=" + startTime + ", programGroup=" + programGroup );
 	    
-		Programs programs = cache.get( cleaned );
+		File programGroupDirectory = mFileHelper.getProgramGroupDirectory( programGroup );
+		File programGroupJson = new File( programGroupDirectory, UrlUtils.encodeUrl( programGroup ) + ProgramGroupRecordedDownloadService.RECORDED_FILE );
+
+		Programs programs = null; 
+		InputStream is = null;
+		try {
+			is = new BufferedInputStream( new FileInputStream( programGroupJson ), 8192 );
+			programs = getMainApplication().getObjectMapper().readValue( is, Programs.class );
+		} catch( FileNotFoundException e ) {
+			Log.e( TAG, "onProgramGroupSelected : error, json could not be found", e );
+		} catch( JsonParseException e ) {
+			Log.e( TAG, "onProgramGroupSelected : error, json could not be parsed", e );
+		} catch( JsonMappingException e ) {
+			Log.e( TAG, "onProgramGroupSelected : error, json could not be mapped", e );
+		} catch( IOException e ) {
+			Log.e( TAG, "onProgramGroupSelected : error, io exception reading file", e );
+		}
 	    for( Program program : programs.getPrograms() ) {
 			Log.v( TAG, "onCreate : program iteration" );
 

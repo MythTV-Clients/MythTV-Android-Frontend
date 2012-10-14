@@ -103,7 +103,7 @@ public class LocationActivity extends AbstractMythtvFragmentActivity {
 		away.setEnabled( false );
 		away.setVisibility( View.VISIBLE );
 
-		startService( new Intent( UpgradeCleanupService.ACTION_PROGRAM_GUIDE_CLEANUP ) );
+		startService( new Intent( UpgradeCleanupService.ACTION_PROGRAMS_CLEANUP ) );
 		
 	    Log.d( TAG, "onResume : exit" );
 	}

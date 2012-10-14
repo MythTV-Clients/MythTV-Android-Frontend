@@ -19,7 +19,6 @@
 package org.mythtv.service.dvr;
 
 import java.io.File;
-import java.io.FilenameFilter;
 
 import org.mythtv.service.MythtvService;
 
@@ -40,6 +39,8 @@ public class BannerCleanupService extends MythtvService {
     public static final String EXTRA_COMPLETE = "COMPLETE";
     public static final String EXTRA_COMPLETE_COUNT = "COMPLETE_COUNT";
 
+    private File programGroupsDirectory = null;
+
     public BannerCleanupService() {
 		super( "BannerCleanupService" );
 	}
@@ -50,6 +51,16 @@ public class BannerCleanupService extends MythtvService {
 	@Override
 	protected void onHandleIntent( Intent intent ) {
 		Log.d( TAG, "onHandleIntent : enter" );
+
+		programGroupsDirectory = mFileHelper.getProgramGroupsDataDirectory();
+		if( null == programGroupsDirectory || !programGroupsDirectory.exists() ) {
+			Intent completeIntent = new Intent( ACTION_COMPLETE );
+			completeIntent.putExtra( EXTRA_COMPLETE, "Program Groups location can not be found" );
+			sendBroadcast( completeIntent );
+
+			Log.d( TAG, "onHandleIntent : exit, programGroupsDirectory does not exist" );
+			return;
+		}
 
         if ( intent.getAction().equals( ACTION_CLEANUP ) ) {
     		Log.i( TAG, "onHandleIntent : CLEANUP action selected" );
@@ -66,31 +77,20 @@ public class BannerCleanupService extends MythtvService {
 		Log.v( TAG, "cleanup : enter" );
 		
 		int count = 0;
-		
-		File imageCache = mFileHelper.getProgramImagesDataDirectory();
-		if( imageCache.exists() ) {
+		for( String programGroup : programGroupsDirectory.list() ) {
+			File programGroupDirectory = mFileHelper.getProgramGroupDirectory( programGroup );
+			if( programGroupDirectory.exists() ) {
 
-			FilenameFilter filter = new FilenameFilter() {
-
-				@Override
-				public boolean accept( File dir, String filename ) {
-					return filename.endsWith( BannerDownloadService.BANNER_FILE_NA_EXT );
-				}
-
-			};
-			for( String filename : imageCache.list( filter ) ) {
-				Log.v( TAG, "cleanup : filename=" + filename );
-
-				File deleted = new File( imageCache, filename );
+				File deleted = new File( programGroupDirectory, BannerDownloadService.BANNER_FILE_NA );
 				if( deleted.delete() ) {
+					Log.v( TAG, "cleanup : deleted '" + BannerDownloadService.BANNER_FILE_NA + "' in program group '" + programGroup + "'" );
+					
 					count++;
-
 				}
-		
+
 			}
-
 		}
-
+		
 		Intent completeIntent = new Intent( ACTION_COMPLETE );
 		completeIntent.putExtra( EXTRA_COMPLETE, "Banner Cleanup Service Finished" );
 		completeIntent.putExtra( EXTRA_COMPLETE_COUNT, count );

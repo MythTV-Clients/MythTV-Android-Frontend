@@ -73,10 +73,10 @@ public class UpcomingLruMemoryCache extends LruCache<String, Programs> {
 	protected Programs create( String key ) {
 		Log.v( TAG, "create : enter" );
 
-		File programCache = mFileHelper.getProgramDataDirectory();
-		if( programCache.exists() ) {
+		File upcomingDirectory = mFileHelper.getProgramUpcomingDataDirectory();
+		if( upcomingDirectory.exists() ) {
 
-			File file = new File( programCache, key );
+			File file = new File( upcomingDirectory, key );
 			if( file.exists() ) {
 				Log.v( TAG, "create : recorded file exists" );
 				
@@ -104,10 +104,10 @@ public class UpcomingLruMemoryCache extends LruCache<String, Programs> {
 	@Override
 	protected int sizeOf( String key, Programs value ) {
 		
-		File programCache = mFileHelper.getProgramDataDirectory();
-		if( programCache.exists() ) {
+		File upcomingDirectory = mFileHelper.getProgramUpcomingDataDirectory();
+		if( upcomingDirectory.exists() ) {
 
-			File file = new File( programCache, key );
+			File file = new File( upcomingDirectory, key );
 			if( file.exists() ) {
 				return (int) file.length();
 			}

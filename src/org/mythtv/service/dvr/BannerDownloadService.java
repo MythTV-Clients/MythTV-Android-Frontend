@@ -41,8 +41,9 @@ public class BannerDownloadService extends MythtvService {
 	private static final String TAG = BannerDownloadService.class.getSimpleName();
 
 	public static final String BANNER_INETREF = "INETREF";
-	public static final String BANNER_FILE_EXT = ".png";
-	public static final String BANNER_FILE_NA_EXT = ".na";
+	public static final String BANNER_TITLE = "TITLE";
+	public static final String BANNER_FILE = "banner.png";
+	public static final String BANNER_FILE_NA = "banner.na";
 	
     public static final String ACTION_DOWNLOAD = "org.mythtv.background.bannerDownload.ACTION_DOWNLOAD";
     public static final String ACTION_COMPLETE = "org.mythtv.background.bannerDownload.ACTION_COMPLETE";
@@ -50,7 +51,7 @@ public class BannerDownloadService extends MythtvService {
     public static final String EXTRA_COMPLETE = "COMPLETE";
     public static final String EXTRA_COMPLETE_FILENAME = "COMPLETE_FILENAME";
 
-	private File imageCache = null;
+	private File programGroupsDirectory = null;
 
 	public BannerDownloadService() {
 		super( "BannerDownloadService" );
@@ -64,13 +65,13 @@ public class BannerDownloadService extends MythtvService {
 		Log.d( TAG, "onHandleIntent : enter" );
 		super.onHandleIntent( intent );
 		
-		imageCache = mFileHelper.getProgramImagesDataDirectory();
-		if( null == imageCache || !imageCache.exists() ) {
+		programGroupsDirectory = mFileHelper.getProgramGroupsDataDirectory();
+		if( null == programGroupsDirectory || !programGroupsDirectory.exists() ) {
 			Intent completeIntent = new Intent( ACTION_COMPLETE );
-			completeIntent.putExtra( EXTRA_COMPLETE, "Program Image Cache location can not be found" );
+			completeIntent.putExtra( EXTRA_COMPLETE, "Program group location can not be found" );
 			sendBroadcast( completeIntent );
 
-			Log.d( TAG, "onHandleIntent : exit, imageCache does not exist" );
+			Log.d( TAG, "onHandleIntent : exit, programGroupsDirectory does not exist" );
 			return;
 		}
 
@@ -109,16 +110,19 @@ public class BannerDownloadService extends MythtvService {
 		Log.v( TAG, "download : enter" );
 		
 		String inetref = intent.getStringExtra( BANNER_INETREF );
+		String title = intent.getStringExtra( BANNER_TITLE );
 		
-		boolean imageNotAvailable = false;
-		File checkImageNA = new File( imageCache, inetref + BANNER_FILE_NA_EXT );
+		File programGroupDirectory = mFileHelper.getProgramGroupDirectory( title );
+		
+		boolean bannerNotAvailable = false;
+		File checkImageNA = new File( programGroupDirectory, BANNER_FILE_NA );
 		if( checkImageNA.exists() ) {
-			imageNotAvailable = true;
+			bannerNotAvailable = true;
 		}
 
 		String filename = "";
-		File image = new File( imageCache, inetref + BANNER_FILE_EXT );
-		if( !image.exists() && !imageNotAvailable ) {
+		File banner = new File( programGroupDirectory, BANNER_FILE );
+		if( !banner.exists() && !bannerNotAvailable ) {
 				
 			try {
 				ETagInfo eTag = ETagInfo.createEmptyETag();
@@ -127,23 +131,23 @@ public class BannerDownloadService extends MythtvService {
 					byte[] bytes = responseEntity.getBody();
 					Bitmap bitmap = BitmapFactory.decodeByteArray( bytes, 0, bytes.length );
 
-					String name = image.getAbsolutePath();
+					String name = banner.getAbsolutePath();
 					FileOutputStream fos = new FileOutputStream( name );
 					bitmap.compress( Bitmap.CompressFormat.PNG, 100, fos );
 					fos.flush();
 					fos.close();
 					
-					filename = image.getName();
+					filename = BANNER_FILE;
 				}
 			} catch( Exception e ) {
 				Log.e( TAG, "download : error creating image file", e );
 
-				File imageNA = new File( imageCache, inetref + BANNER_FILE_NA_EXT );
-				if( !imageNA.exists() ) {
+				File bannerNA = new File( programGroupDirectory, BANNER_FILE_NA );
+				if( !bannerNA.exists() ) {
 					try {
-						imageNA.createNewFile();
+						bannerNA.createNewFile();
 						
-						filename = imageNA.getName();
+						filename = BANNER_FILE_NA;
 					} catch( IOException e1 ) {
 						Log.e( TAG, "download : error creating image na file", e1 );
 						

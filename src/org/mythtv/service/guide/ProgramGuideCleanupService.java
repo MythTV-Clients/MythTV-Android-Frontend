@@ -82,9 +82,7 @@ public class ProgramGuideCleanupService extends MythtvService {
 			List<String> filenames = Arrays.asList( programGuideCache.list() );
 			Collections.sort( filenames );
 			for( String filename : filenames ) {
-				Log.v( TAG, "cleanup : filename=" + filename );
 				DateTime file = new DateTime( filename.substring( 0, filename.indexOf( 'T' ) ) );
-				Log.v( TAG, "cleanup : file=" + file.toString() );
 				
 				if( file.isBefore( today ) ) {
 					File deleted = new File( programGuideCache, filename );
