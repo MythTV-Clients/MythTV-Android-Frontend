@@ -175,10 +175,10 @@
 		</service>
 			
 		<!-- MythTV Android Providers -->
-		<provider
+		<!-- provider
             android:name=".provider.MythtvProvider"
             android:authorities="org.mythtv.provider.MythtvProvider"
-            android:exported="false" />
+            android:exported="false" / -->
         		
 	</application>
 
