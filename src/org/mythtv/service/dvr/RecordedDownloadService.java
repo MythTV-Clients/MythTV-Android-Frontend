@@ -20,11 +20,14 @@ package org.mythtv.service.dvr;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.mythtv.R;
 import org.mythtv.service.MythtvService;
 import org.mythtv.services.api.ETagInfo;
+import org.mythtv.services.api.dvr.Program;
 import org.mythtv.services.api.dvr.ProgramList;
 import org.mythtv.services.api.dvr.Programs;
 import org.springframework.http.HttpStatus;
@@ -165,6 +168,16 @@ public class RecordedDownloadService extends MythtvService {
 
 	private void process( Programs programs ) throws JsonGenerationException, JsonMappingException, IOException {
 		Log.v( TAG, "process : enter" );
+		
+		List<Program> filteredPrograms = new ArrayList<Program>();
+		if( null != programs ) {
+			for( Program program : programs.getPrograms() ) {
+				if( !program.getRecording().getRecordingGroup().equalsIgnoreCase( "livetv" ) ) {
+					filteredPrograms.add( program );
+				}
+			}
+		}
+		programs.setPrograms( filteredPrograms );
 		
 		mMainApplication.getObjectMapper().writeValue( new File( recordedDirectory, RECORDED_FILE ), programs );
 
