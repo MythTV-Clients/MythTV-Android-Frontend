@@ -18,14 +18,26 @@
  */
 package org.mythtv.service.dvr;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.mythtv.service.MythtvService;
+import org.mythtv.service.util.UrlUtils;
 import org.mythtv.services.api.ETagInfo;
+import org.mythtv.services.api.dvr.Program;
+import org.mythtv.services.api.dvr.Programs;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -88,15 +100,13 @@ public class BannerDownloadService extends MythtvService {
 		if ( intent.getAction().equals( ACTION_DOWNLOAD ) ) {
     		Log.i( TAG, "onHandleIntent : DOWNLOAD action selected" );
 
-    		String filename = "";
     		try {
-    			filename = download( intent );
+    			download( intent );
     		} catch( Exception e ) {
     			Log.e( TAG, "onHandleIntent : error", e );
     		} finally {
     			Intent completeIntent = new Intent( ACTION_COMPLETE );
     			completeIntent.putExtra( EXTRA_COMPLETE, "Banner Download Service Finished" );
-    			completeIntent.putExtra( EXTRA_COMPLETE_FILENAME, filename );
     			sendBroadcast( completeIntent );
     		}
 		}
@@ -106,11 +116,12 @@ public class BannerDownloadService extends MythtvService {
 
 	// internal helpers
 	
-	private String download( Intent intent ) throws Exception {
+	private void download( Intent intent ) throws Exception {
 		Log.v( TAG, "download : enter" );
 		
 		String inetref = intent.getStringExtra( BANNER_INETREF );
 		String title = intent.getStringExtra( BANNER_TITLE );
+		String encodedTitle = UrlUtils.encodeUrl( title );
 		
 		File programGroupDirectory = mFileHelper.getProgramGroupDirectory( title );
 
@@ -118,7 +129,7 @@ public class BannerDownloadService extends MythtvService {
 		if( bannerExists.exists() ) {
 			Log.v( TAG, "download : exit, banner exists" );
 			
-			return BANNER_FILE;
+			return;
 		}
 		
 		boolean bannerNotAvailable = false;
@@ -127,46 +138,74 @@ public class BannerDownloadService extends MythtvService {
 			bannerNotAvailable = true;
 		}
 
-		String filename = "";
-		File banner = new File( programGroupDirectory, BANNER_FILE );
-		if( !banner.exists() && !bannerNotAvailable ) {
-				
-			try {
-				ETagInfo eTag = ETagInfo.createEmptyETag();
-				ResponseEntity<byte[]> responseEntity = mMainApplication.getMythServicesApi().contentOperations().getRecordingArtwork( "Banner", inetref, -1, -1, -1, eTag );
-				if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
-					byte[] bytes = responseEntity.getBody();
-					Bitmap bitmap = BitmapFactory.decodeByteArray( bytes, 0, bytes.length );
+		File programGroupJson = new File( programGroupDirectory, encodedTitle + ProgramGroupRecordedDownloadService.RECORDED_FILE );
 
-					String name = banner.getAbsolutePath();
-					FileOutputStream fos = new FileOutputStream( name );
-					bitmap.compress( Bitmap.CompressFormat.PNG, 100, fos );
-					fos.flush();
-					fos.close();
-					
-					filename = BANNER_FILE;
-				}
-			} catch( Exception e ) {
-				Log.e( TAG, "download : error creating image file", e );
+		Programs programs = null; 
+		InputStream is = null;
+		try {
+			is = new BufferedInputStream( new FileInputStream( programGroupJson ), 8192 );
+			programs = mMainApplication.getObjectMapper().readValue( is, Programs.class );
+		} catch( FileNotFoundException e ) {
+			Log.e( TAG, "onProgramGroupSelected : error, json could not be found", e );
+		} catch( JsonParseException e ) {
+			Log.e( TAG, "onProgramGroupSelected : error, json could not be parsed", e );
+		} catch( JsonMappingException e ) {
+			Log.e( TAG, "onProgramGroupSelected : error, json could not be mapped", e );
+		} catch( IOException e ) {
+			Log.e( TAG, "onProgramGroupSelected : error, io exception reading file", e );
+		}
 
-				File bannerNA = new File( programGroupDirectory, BANNER_FILE_NA );
-				if( !bannerNA.exists() ) {
-					try {
-						bannerNA.createNewFile();
-						
-						filename = BANNER_FILE_NA;
-					} catch( IOException e1 ) {
-						Log.e( TAG, "download : error creating image na file", e1 );
-						
-						throw new Exception( e1 );
+		Map<Integer, String> coverarts = new HashMap<Integer, String>();
+		coverarts.put( -1, "" );
+		
+		if( null != programs ) {
+			for( Program program : programs.getPrograms() ) {
+				if( null != program.getSeason() && !"".equals( program.getSeason() ) ) {
+					int season = Integer.parseInt( program.getSeason() );
+					if( season > 0 && !coverarts.containsKey( season ) ) {
+						coverarts.put( season, "s" + season + "_" );
 					}
 				}
 			}
+		}
 
+		for( int season : coverarts.keySet() ) {
+			String filename = coverarts.get( season );
+			
+			File banner = new File( programGroupDirectory, filename + BANNER_FILE );
+			if( !banner.exists() && !bannerNotAvailable ) {
+					
+				try {
+					ETagInfo eTag = ETagInfo.createEmptyETag();
+					ResponseEntity<byte[]> responseEntity = mMainApplication.getMythServicesApi().contentOperations().getRecordingArtwork( "Banner", inetref, season, -1, -1, eTag );
+					if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
+						byte[] bytes = responseEntity.getBody();
+						Bitmap bitmap = BitmapFactory.decodeByteArray( bytes, 0, bytes.length );
+
+						String name = banner.getAbsolutePath();
+						FileOutputStream fos = new FileOutputStream( name );
+						bitmap.compress( Bitmap.CompressFormat.PNG, 100, fos );
+						fos.flush();
+						fos.close();
+					}
+				} catch( Exception e ) {
+					Log.e( TAG, "download : error creating image file", e );
+
+					File bannerNA = new File( programGroupDirectory, filename + BANNER_FILE_NA );
+					if( !bannerNA.exists() ) {
+						try {
+							bannerNA.createNewFile();
+						} catch( IOException e1 ) {
+							Log.e( TAG, "download : error creating image na file", e1 );
+							
+							throw new Exception( e1 );
+						}
+					}
+				}
+			}
 		}
 
 		Log.v( TAG, "download : exit" );
-		return filename;
 	}
 	
 }

@@ -158,10 +158,13 @@ public class CoverartDownloadService extends MythtvService {
 		Map<Integer, String> coverarts = new HashMap<Integer, String>();
 		coverarts.put( -1, "" );
 		
-		for( Program program : programs.getPrograms() ) {
-			if( null != program.getSeason() && !"".equals( program.getSeason() ) ) {
-				if( Integer.parseInt( program.getSeason() ) > 0 ) {
-					coverarts.put( Integer.parseInt( program.getSeason() ), "s" + program.getSeason() + "_" );
+		if( null != programs ) {
+			for( Program program : programs.getPrograms() ) {
+				if( null != program.getSeason() && !"".equals( program.getSeason() ) ) {
+					int season = Integer.parseInt( program.getSeason() );
+					if( season > 0 && !coverarts.containsKey( season ) ) {
+						coverarts.put( season, "s" + season + "_" );
+					}
 				}
 			}
 		}
