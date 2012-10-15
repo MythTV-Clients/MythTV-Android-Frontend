@@ -62,10 +62,10 @@ public class BannerLruMemoryCache extends LruCache<String, BitmapDrawable> {
 	protected BitmapDrawable create( String key ) {
 		Log.v( TAG, "create : enter" );
 
-		File imageCache = mFileHelper.getProgramGroupDirectory( key );
-		if( imageCache.exists() ) {
+		File programGroupDirectory = mFileHelper.getProgramGroupDirectory( key );
+		if( programGroupDirectory.exists() ) {
 
-			File image = new File( imageCache, BannerDownloadService.BANNER_FILE );
+			File image = new File( programGroupDirectory, BannerDownloadService.BANNER_FILE );
 			if( image.exists() ) {
 				try {
 					InputStream is = new FileInputStream( image );
