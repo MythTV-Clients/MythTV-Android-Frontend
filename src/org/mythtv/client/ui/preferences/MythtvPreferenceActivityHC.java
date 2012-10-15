@@ -30,12 +30,12 @@ import javax.jmdns.ServiceEvent;
 import javax.jmdns.ServiceListener;
 
 import org.mythtv.R;
-import org.mythtv.client.ui.LocationActivity;
 import org.mythtv.client.ui.preferences.LocationProfile.LocationType;
 import org.mythtv.db.MythtvDatabaseManager;
 import org.mythtv.db.preferences.LocationProfileConstants;
 import org.mythtv.db.preferences.PlaybackProfileConstants;
 
+import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -59,6 +59,7 @@ import android.view.MenuItem;
  * @author John Baab
  *
  */
+@TargetApi( 11 )
 public class MythtvPreferenceActivityHC extends PreferenceActivity {
 
 	private static final String TAG = MythtvPreferenceActivityHC.class.getSimpleName();
@@ -100,10 +101,11 @@ public class MythtvPreferenceActivityHC extends PreferenceActivity {
 
 		switch( item.getItemId() ) {
 			case android.R.id.home:
-				// app icon in action bar clicked; go home
-				Intent intent = new Intent( this, LocationActivity.class );
-				intent.addFlags( Intent.FLAG_ACTIVITY_CLEAR_TOP );
-				startActivity( intent );
+				finish();
+//				// app icon in action bar clicked; go home
+//				Intent intent = new Intent( this, LocationActivity.class );
+//				intent.addFlags( Intent.FLAG_ACTIVITY_CLEAR_TOP );
+//				startActivity( intent );
 				return true;
 		}
 
