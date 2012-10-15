@@ -158,7 +158,8 @@ public class RecordedDownloadService extends MythtvService {
 		Log.v( TAG, "cleanup : enter" );
 		
 		FileUtils.cleanDirectory( recordedDirectory );
-
+		FileUtils.cleanDirectory( mFileHelper.getProgramGroupsDataDirectory() );
+		
 		Log.v( TAG, "cleanup : exit" );
 	}
 

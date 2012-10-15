@@ -33,6 +33,7 @@ import org.mythtv.R;
 import org.mythtv.client.ui.util.MythtvListFragment;
 import org.mythtv.client.ui.util.ProgramHelper;
 import org.mythtv.service.dvr.BannerDownloadService;
+import org.mythtv.service.dvr.CoverartDownloadService;
 import org.mythtv.service.dvr.ProgramGroupRecordedDownloadService;
 import org.mythtv.service.dvr.RecordedDownloadService;
 import org.mythtv.service.dvr.cache.BannerLruMemoryCache;
@@ -64,8 +65,6 @@ import android.widget.Toast;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.joda.JodaModule;
 
 /**
  * @author Daniel Frey
@@ -82,6 +81,7 @@ public class RecordingsFragment extends MythtvListFragment {
 	private RecordedDownloadReceiver recordedDownloadReceiver = new RecordedDownloadReceiver();
 	private ProgramGroupRecordedDownloadReceiver programGroupRecordedDownloadReceiver = new ProgramGroupRecordedDownloadReceiver();
 	private BannerDownloadReceiver bannerDownloadReceiver = new BannerDownloadReceiver();
+	private CoverartDownloadReceiver coverartDownloadReceiver = new CoverartDownloadReceiver();
 
 	private static FileHelper mFileHelper;
 	private static ProgramHelper mProgramHelper;
@@ -130,6 +130,10 @@ public class RecordingsFragment extends MythtvListFragment {
 		IntentFilter bannerDownloadFilter = new IntentFilter( BannerDownloadService.ACTION_DOWNLOAD );
 		bannerDownloadFilter.addAction( BannerDownloadService.ACTION_COMPLETE );
         getActivity().registerReceiver( bannerDownloadReceiver, bannerDownloadFilter );
+
+		IntentFilter coverartDownloadFilter = new IntentFilter( CoverartDownloadService.ACTION_DOWNLOAD );
+		coverartDownloadFilter.addAction( CoverartDownloadService.ACTION_COMPLETE );
+        getActivity().registerReceiver( coverartDownloadReceiver, coverartDownloadFilter );
 
 		Log.v( TAG, "onStart : enter" );
 	}
@@ -188,6 +192,15 @@ public class RecordingsFragment extends MythtvListFragment {
 			try {
 				getActivity().unregisterReceiver( bannerDownloadReceiver );
 				bannerDownloadReceiver = null;
+			} catch( IllegalArgumentException e ) {
+				Log.e( TAG, e.getLocalizedMessage(), e );
+			}
+		}
+
+		if( null != coverartDownloadReceiver ) {
+			try {
+				getActivity().unregisterReceiver( coverartDownloadReceiver );
+				coverartDownloadReceiver = null;
 			} catch( IllegalArgumentException e ) {
 				Log.e( TAG, e.getLocalizedMessage(), e );
 			}
@@ -267,10 +280,6 @@ public class RecordingsFragment extends MythtvListFragment {
 	
 	private void loadData() {
 		Log.v( TAG, "loadData : enter" );
-		
-		if( null != adapter ) {
-			adapter.clear();
-		}
 		
 		File recordedDirectory = mFileHelper.getProgramRecordedDataDirectory();
 		if( null != recordedDirectory && recordedDirectory.exists() ) {
@@ -377,10 +386,15 @@ public class RecordingsFragment extends MythtvListFragment {
 				mHolder.programGroupDetail.setBackgroundDrawable( null );
 				mHolder.programGroup.setVisibility( View.VISIBLE );
 				
-				Intent downloadIntent = new Intent( BannerDownloadService.ACTION_DOWNLOAD );
-				downloadIntent.putExtra( BannerDownloadService.BANNER_INETREF, program.getInetref() );
-				downloadIntent.putExtra( BannerDownloadService.BANNER_TITLE, program.getTitle() );
-				getActivity().startService( downloadIntent );
+				Intent downloadBannerIntent = new Intent( BannerDownloadService.ACTION_DOWNLOAD );
+				downloadBannerIntent.putExtra( BannerDownloadService.BANNER_INETREF, program.getInetref() );
+				downloadBannerIntent.putExtra( BannerDownloadService.BANNER_TITLE, program.getTitle() );
+				getActivity().startService( downloadBannerIntent );
+
+				Intent downloadCoverartIntent = new Intent( CoverartDownloadService.ACTION_DOWNLOAD );
+				downloadCoverartIntent.putExtra( CoverartDownloadService.COVERART_INETREF, program.getInetref() );
+				downloadCoverartIntent.putExtra( CoverartDownloadService.COVERART_TITLE, program.getTitle() );
+				getActivity().startService( downloadCoverartIntent );
 			}
 
 			Log.v( TAG, "ProgramGroupRowAdapter.getView : exit" );
@@ -412,6 +426,10 @@ public class RecordingsFragment extends MythtvListFragment {
 	        if ( intent.getAction().equals( RecordedDownloadService.ACTION_COMPLETE ) ) {
 	        	Log.i( TAG, "RecordedDownloadReceiver.onReceive : complete=" + intent.getStringExtra( RecordedDownloadService.EXTRA_COMPLETE ) );
 	        	
+	        	if( null != adapter ) {
+	        		adapter.clear();
+	        	}
+
 	        	Toast.makeText( getActivity(), "Recorded Programs updated!", Toast.LENGTH_SHORT ).show();
 	        	
 	        	getActivity().startService( new Intent( ProgramGroupRecordedDownloadService.ACTION_DOWNLOAD ) );
@@ -453,6 +471,24 @@ public class RecordingsFragment extends MythtvListFragment {
 	        	if( null != intent.getStringExtra( BannerDownloadService.EXTRA_COMPLETE_FILENAME ) && !"".equals( intent.getStringExtra( BannerDownloadService.EXTRA_COMPLETE_FILENAME ) ) ) {
 	        		imageCache.remove( intent.getStringExtra( BannerDownloadService.EXTRA_COMPLETE_FILENAME ) );
 	        	}
+	        	
+	        }
+
+		}
+		
+	}
+
+	private class CoverartDownloadReceiver extends BroadcastReceiver {
+
+		@Override
+		public void onReceive( Context context, Intent intent ) {
+			
+	        if ( intent.getAction().equals( CoverartDownloadService.ACTION_COMPLETE ) ) {
+	        	Log.i( TAG, "CoverartDownloadReceiver.onReceive : complete=" + intent.getStringExtra( CoverartDownloadService.EXTRA_COMPLETE ) );
+	        	
+//	        	if( null != intent.getStringExtra( BannerDownloadService.EXTRA_COMPLETE_FILENAME ) && !"".equals( intent.getStringExtra( BannerDownloadService.EXTRA_COMPLETE_FILENAME ) ) ) {
+//	        		imageCache.remove( intent.getStringExtra( BannerDownloadService.EXTRA_COMPLETE_FILENAME ) );
+//	        	}
 	        }
 
 		}

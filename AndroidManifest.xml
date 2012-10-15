@@ -146,6 +146,13 @@
             </intent-filter>
         </service>
 		
+		<service android:name=".service.dvr.CoverartDownloadService" android:process=":coverart">
+			<intent-filter>
+                <action
+                    android:name="org.mythtv.background.coverartDownload.ACTION_DOWNLOAD" />
+            </intent-filter>
+        </service>
+		
 		<service android:name=".service.dvr.BannerCleanupService" android:process=":bannerCleanup">
 			<intent-filter>
                 <action

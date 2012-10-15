@@ -24,7 +24,6 @@ import org.mythtv.R;
 import org.mythtv.client.ui.util.MythtvListFragment;
 import org.mythtv.client.ui.util.ProgramHelper;
 import org.mythtv.service.util.DateUtils;
-import org.mythtv.service.util.UrlUtils;
 import org.mythtv.services.api.dvr.Program;
 import org.mythtv.services.api.dvr.Programs;
 

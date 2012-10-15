@@ -113,6 +113,13 @@ public class BannerDownloadService extends MythtvService {
 		String title = intent.getStringExtra( BANNER_TITLE );
 		
 		File programGroupDirectory = mFileHelper.getProgramGroupDirectory( title );
+
+		File bannerExists = new File( programGroupDirectory, BANNER_FILE );
+		if( bannerExists.exists() ) {
+			Log.v( TAG, "download : exit, banner exists" );
+			
+			return BANNER_FILE;
+		}
 		
 		boolean bannerNotAvailable = false;
 		File checkImageNA = new File( programGroupDirectory, BANNER_FILE_NA );
