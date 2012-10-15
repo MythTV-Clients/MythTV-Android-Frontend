@@ -65,6 +65,8 @@ public class ProgramGroupActivity extends AbstractDvrActivity {
 		Log.v( TAG, "onCreate : enter" );
 		super.onCreate( savedInstanceState );
 
+		setContentView( R.layout.activity_dvr_program_group );
+
 		Bundle extras = getIntent().getExtras(); 
 		String programGroup = extras.getString( EXTRA_PROGRAM_GROUP_KEY );
 
@@ -98,8 +100,6 @@ public class ProgramGroupActivity extends AbstractDvrActivity {
 
 		Log.v( TAG, "onCreate : programs=" + programs.toString() );
 		
-		setContentView( R.layout.fragment_dvr_program_group );
-
 		programGroupFragment = (ProgramGroupFragment) getSupportFragmentManager().findFragmentById( R.id.fragment_dvr_program_group );
 		programGroupFragment.loadPrograms( this, programs );
 		
