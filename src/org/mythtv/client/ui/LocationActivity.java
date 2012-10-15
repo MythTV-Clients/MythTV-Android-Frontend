@@ -27,8 +27,6 @@ import android.annotation.TargetApi;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
@@ -81,7 +79,7 @@ public class LocationActivity extends AbstractMythtvFragmentActivity {
 		Log.d( TAG, "onStart : enter" );
 		super.onStart();
 
-		IntentFilter upgradeCleanupFilter = new IntentFilter( UpgradeCleanupService.ACTION_PROGRAM_GUIDE_CLEANUP );
+		IntentFilter upgradeCleanupFilter = new IntentFilter( UpgradeCleanupService.ACTION_PROGRAMS_CLEANUP );
 		upgradeCleanupFilter.addAction( UpgradeCleanupService.ACTION_PROGRESS );
 		upgradeCleanupFilter.addAction( UpgradeCleanupService.ACTION_COMPLETE );
         registerReceiver( upgradeCleanupReceiver, upgradeCleanupFilter );
@@ -104,6 +102,8 @@ public class LocationActivity extends AbstractMythtvFragmentActivity {
 		away.setVisibility( View.VISIBLE );
 
 		startService( new Intent( UpgradeCleanupService.ACTION_PROGRAMS_CLEANUP ) );
+		
+		setupButtons();
 		
 	    Log.d( TAG, "onResume : exit" );
 	}
@@ -210,15 +210,7 @@ public class LocationActivity extends AbstractMythtvFragmentActivity {
 	        	// add processing dialog here
 	    		mProgressDialog = ProgressDialog.show( LocationActivity.this, "Please wait...", "Upgrading...", true );
 	    		mProgressDialog.getWindow().setGravity( Gravity.TOP );
-	    		mProgressDialog.setCancelable( true );
-	    		mProgressDialog.setOnCancelListener( new OnCancelListener() {
-
-	    			@Override
-	    			public void onCancel( DialogInterface dialogInterface ) {
-	    			}
-
-	    		});
-
+	    		mProgressDialog.setCancelable( false );
 	        	
 	        }
 
