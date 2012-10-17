@@ -265,11 +265,11 @@ public class RecordingRulesFragment extends MythtvListFragment {
 			RecRule rule = getItem( position );
 			
 			String channel = "[Any]";
-			Cursor cursor = mContext.getContentResolver().query( ChannelConstants.CONTENT_URI, new String[] { ChannelConstants.FIELD_CHAN_NUM }, ChannelConstants.FIELD_CHAN_ID + " = ?", new String[] { "" + rule.getChanId() }, null );
-			if( cursor.moveToFirst() ) {
-				 channel = cursor.getString( cursor.getColumnIndexOrThrow( ChannelConstants.FIELD_CHAN_NUM ) );
-			}
-			cursor.close();
+			//Cursor cursor = mContext.getContentResolver().query( ChannelConstants.CONTENT_URI, new String[] { ChannelConstants.FIELD_CHAN_NUM }, ChannelConstants.FIELD_CHAN_ID + " = ?", new String[] { "" + rule.getChanId() }, null );
+			//if( cursor.moveToFirst() ) {
+			//	 channel = cursor.getString( cursor.getColumnIndexOrThrow( ChannelConstants.FIELD_CHAN_NUM ) );
+			//}
+			//cursor.close();
 
 			mHolder.category.setBackgroundColor( mProgramHelper.getCategoryColor( rule.getCategory() ) );
 			mHolder.title.setText( rule.getTitle() );
