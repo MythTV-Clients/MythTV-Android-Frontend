@@ -311,20 +311,22 @@ public class FrontendsFragment extends AbstractFrontendFragment implements Servi
 		protected void onPostExecute( Void result ) {
 			Log.v( TAG, "onPostExecute : enter" );
 
-			if( null != e ) {
+			if( null != e && null != mContext) {
 				Log.e( TAG, "error getting programs", e );
 				
 				AlertDialog.Builder builder = new AlertDialog.Builder( mContext );
-				builder.setTitle( getActivity().getString( R.string.frontends_scan_error_title ) );
-				builder.setNeutralButton( R.string.btn_ok, new DialogInterface.OnClickListener() {
+				if (null != builder) {
+					builder.setTitle(mContext.getString(R.string.frontends_scan_error_title));
+					builder.setNeutralButton(R.string.btn_ok, new DialogInterface.OnClickListener() {
 
-					public void onClick( DialogInterface dialog, int which ) {
-					
-					}
+								public void onClick(DialogInterface dialog, int which) {
 
-				});
-				builder.setMessage( getActivity().getString( R.string.frontends_scan_error_message ) );
-				builder.show();
+								}
+
+							});
+					builder.setMessage(mContext.getString(R.string.frontends_scan_error_message));
+					builder.show();
+				}
 			}
 
 			Log.v(TAG, "onPostExecute : exit");
