@@ -18,29 +18,16 @@
  */
 package org.mythtv.client.ui.dvr;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.mythtv.R;
-import org.mythtv.service.dvr.ProgramGroupRecordedDownloadService;
-import org.mythtv.service.util.UrlUtils;
-import org.mythtv.services.api.dvr.Program;
-import org.mythtv.services.api.dvr.Programs;
+import org.mythtv.db.dvr.ProgramConstants;
 
+import android.content.ContentUris;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
-
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 
 /**
  * @author Daniel Frey
@@ -50,6 +37,8 @@ public class RecordingsActivity extends AbstractDvrActivity implements Recording
 
 	private static final String TAG = RecordingsActivity.class.getSimpleName();
 	
+	private boolean mUseMultiplePanes;
+
 	@Override
 	public void onCreate( Bundle savedInstanceState ) {
 		Log.v( TAG, "onCreate : enter" );
@@ -60,60 +49,58 @@ public class RecordingsActivity extends AbstractDvrActivity implements Recording
 		RecordingsFragment recordingsFragment = (RecordingsFragment) getSupportFragmentManager().findFragmentById( R.id.fragment_dvr_program_groups );
 		recordingsFragment.setOnProgramGroupListener( this );
 
+		mUseMultiplePanes = ( null != findViewById( R.id.fragment_dvr_program_group ) );
+
 		Log.v( TAG, "onCreate : exit" );
 	}
 
-	public void onProgramGroupSelected( String programGroup ) {
+	public void onProgramGroupSelected( Long recordedId ) {
 		Log.d( TAG, "onProgramGroupSelected : enter" );
 		
+		String programGroup = "";
+		
+		Cursor cursor = getContentResolver().query( ContentUris.withAppendedId( ProgramConstants.CONTENT_URI_RECORDED, recordedId ), new String[] { ProgramConstants.FIELD_PROGRAM_GROUP }, null, null, null );
+		if( cursor.moveToFirst() ) {
+	        programGroup = cursor.getString( cursor.getColumnIndexOrThrow( ProgramConstants.FIELD_PROGRAM_GROUP ) );
+	        
+	        Log.d( TAG, "onProgramGroupSelected : programGroup=" + programGroup );
+		}
+		cursor.close();
+		
+		if( null == programGroup || "".equals( programGroup ) ) {
+			Log.d( TAG, "onProgramGroupSelected : exit, programGroups is empty" );
+
+			return;
+		}
+		
 		if( null != findViewById( R.id.fragment_dvr_program_group ) ) {
-			Log.v( TAG, "onProgramGroupSelected : adding program group to pane '" + programGroup + "'" );
 			FragmentManager manager = getSupportFragmentManager();
 
-			String encodedTitle = UrlUtils.encodeUrl( programGroup );
-
-			File programGroupDirectory = mFileHelper.getProgramGroupDirectory( programGroup );
-			File programGroupJson = new File( programGroupDirectory, encodedTitle + ProgramGroupRecordedDownloadService.RECORDED_FILE );
-
-			Programs programs = null; 
-			InputStream is = null;
-			try {
-				is = new BufferedInputStream( new FileInputStream( programGroupJson ), 8192 );
-				programs = getMainApplication().getObjectMapper().readValue( is, Programs.class );
-			} catch( FileNotFoundException e ) {
-				Log.e( TAG, "onProgramGroupSelected : error, json could not be found", e );
-
-				programs = getDownloadingPrograms( programGroup );
-			} catch( JsonParseException e ) {
-				Log.e( TAG, "onProgramGroupSelected : error, json could not be parsed", e );
-
-				programs = getDownloadingPrograms( programGroup );
-			} catch( JsonMappingException e ) {
-				Log.e( TAG, "onProgramGroupSelected : error, json could not be mapped", e );
-				programs = getDownloadingPrograms( programGroup );
-
-			} catch( IOException e ) {
-				Log.e( TAG, "onProgramGroupSelected : error, io exception reading file", e );
-
-				programs = getDownloadingPrograms( programGroup );
-			}
-
 			ProgramGroupFragment programGroupFragment = (ProgramGroupFragment) manager.findFragmentById( R.id.fragment_dvr_program_group );
-			FragmentTransaction transaction = manager.beginTransaction();
-
-			if( null == programGroupFragment ) {
+			final boolean programGroupAdded = ( programGroupFragment != null );
+			if( programGroupAdded ) {
+				if( null != programGroupFragment.getSelectedProgramGroup() && programGroupFragment.getSelectedProgramGroup().equals( programGroup ) ) {
+					return;
+				}
+				
+				programGroupFragment.loadProgramGroup( programGroup );
+			} else {
 				Log.v( TAG, "onProgramGroupSelected : creating new programGroupFragment" );
+				FragmentTransaction transaction = manager.beginTransaction();
 				programGroupFragment = new ProgramGroupFragment();
 
-				transaction
-				.add( R.id.fragment_dvr_program_group, programGroupFragment )
-				.setTransition( FragmentTransaction.TRANSIT_FRAGMENT_OPEN )
-				.addToBackStack( null )
-				.commit();
-			}
+				if( mUseMultiplePanes ) {
+					transaction.add( R.id.fragment_dvr_program_group, programGroupFragment );
+				} else {
+					transaction.replace( R.id.fragment_dvr_program_group, programGroupFragment );
+					transaction.addToBackStack( null );
+				}
+				transaction.setTransition( FragmentTransaction.TRANSIT_FRAGMENT_OPEN );
+				transaction.commit();
 
-			Log.v( TAG, "onProgramGroupSelected : setting program group to display" );
-			programGroupFragment.loadPrograms( this, programs );
+				Log.v( TAG, "onProgramGroupSelected : setting program group to display" );
+				programGroupFragment.loadProgramGroup( programGroup );
+			}
 		} else {
 			Log.v( TAG, "onProgramGroupSelected : starting program group activity" );
 
@@ -123,23 +110,6 @@ public class RecordingsActivity extends AbstractDvrActivity implements Recording
 		}
 
 		Log.d( TAG, "onProgramGroupSelected : exit" );
-	}
-
-	public static Programs getDownloadingPrograms( String title ) {
-		
-		Programs programs = new Programs();
-		
-		List<Program> programList = new ArrayList<Program>();
-		Program program = new Program();
-		program.setTitle( title + " is currently downloading" );
-		program.setSubTitle( "Please try again later." );
-		programList.add( program );
-		programs.setPrograms( programList );
-		
-		Log.i( TAG, "getDownloadingPrograms : programs=" + programs.toString() );
-		
-		return programs;
-
 	}
 
 }

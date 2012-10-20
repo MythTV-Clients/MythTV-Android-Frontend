@@ -18,31 +18,22 @@
  */
 package org.mythtv.service.dvr;
 
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
 
+import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.service.MythtvService;
-import org.mythtv.service.util.UrlUtils;
 import org.mythtv.services.api.ETagInfo;
-import org.mythtv.services.api.dvr.Program;
-import org.mythtv.services.api.dvr.Programs;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import android.content.ContentUris;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
-
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 
 /**
  * @author Daniel Frey
@@ -52,8 +43,7 @@ public class CoverartDownloadService extends MythtvService {
 
 	private static final String TAG = CoverartDownloadService.class.getSimpleName();
 
-	public static final String COVERART_INETREF = "INETREF";
-	public static final String COVERART_TITLE = "TITLE";
+	public static final String COVERART_RECORDED_ID = "RECORDED_ID";
 	public static final String COVERART_FILE = "coverart.png";
 	public static final String COVERART_FILE_NA = "coverart.na";
 	
@@ -119,65 +109,34 @@ public class CoverartDownloadService extends MythtvService {
 	private void download( Intent intent ) throws Exception {
 		Log.v( TAG, "download : enter" );
 		
-		String inetref = intent.getStringExtra( COVERART_INETREF );
-		String title = intent.getStringExtra( COVERART_TITLE );
-		String encodedTitle = UrlUtils.encodeUrl( title );
+		Long recordedId  = intent.getLongExtra( COVERART_RECORDED_ID, -1L );
 		
-		File programGroupDirectory = mFileHelper.getProgramGroupDirectory( title );
+		Cursor cursor = getContentResolver().query( ContentUris.withAppendedId( ProgramConstants.CONTENT_URI_RECORDED, recordedId ), null, null, null, null );
+		if( cursor.moveToFirst() ) {
+	        String title = cursor.getString( cursor.getColumnIndexOrThrow( ProgramConstants.FIELD_TITLE ) );
+	        String inetref = cursor.getString( cursor.getColumnIndexOrThrow( ProgramConstants.FIELD_INETREF ) );
 
-		File coverartExists = new File( programGroupDirectory, COVERART_FILE );
-		if( coverartExists.exists() ) {
-			Log.v( TAG, "download : exit, coverart exists" );
-			
-			return;
-		}
-		
-		boolean coverartNotAvailable = false;
-		File checkImageNA = new File( programGroupDirectory, COVERART_FILE_NA );
-		if( checkImageNA.exists() ) {
-			coverartNotAvailable = true;
-		}
+			File programGroupDirectory = mFileHelper.getProgramGroupDirectory( title );
 
-		File programGroupJson = new File( programGroupDirectory, encodedTitle + ProgramGroupRecordedDownloadService.RECORDED_FILE );
-
-		Programs programs = null; 
-		InputStream is = null;
-		try {
-			is = new BufferedInputStream( new FileInputStream( programGroupJson ), 8192 );
-			programs = mMainApplication.getObjectMapper().readValue( is, Programs.class );
-		} catch( FileNotFoundException e ) {
-			Log.e( TAG, "onProgramGroupSelected : error, json could not be found", e );
-		} catch( JsonParseException e ) {
-			Log.e( TAG, "onProgramGroupSelected : error, json could not be parsed", e );
-		} catch( JsonMappingException e ) {
-			Log.e( TAG, "onProgramGroupSelected : error, json could not be mapped", e );
-		} catch( IOException e ) {
-			Log.e( TAG, "onProgramGroupSelected : error, io exception reading file", e );
-		}
-
-		Map<Integer, String> coverarts = new HashMap<Integer, String>();
-		coverarts.put( -1, "" );
-		
-		if( null != programs ) {
-			for( Program program : programs.getPrograms() ) {
-				if( null != program.getSeason() && !"".equals( program.getSeason() ) ) {
-					int season = Integer.parseInt( program.getSeason() );
-					if( season > 0 && !coverarts.containsKey( season ) ) {
-						coverarts.put( season, "s" + season + "_" );
-					}
-				}
+			File coverartExists = new File( programGroupDirectory, COVERART_FILE );
+			if( coverartExists.exists() ) {
+				Log.v( TAG, "download : exit, coverart exists" );
+				
+				return;
 			}
-		}
-		
-		for( int season : coverarts.keySet() ) {
-			String filename = coverarts.get( season );
 			
-			File coverart = new File( programGroupDirectory, filename + COVERART_FILE );
+			boolean coverartNotAvailable = false;
+			File checkImageNA = new File( programGroupDirectory, COVERART_FILE_NA );
+			if( checkImageNA.exists() ) {
+				coverartNotAvailable = true;
+			}
+
+			File coverart = new File( programGroupDirectory, COVERART_FILE );
 			if( !coverart.exists() && !coverartNotAvailable ) {
 					
 				try {
 					ETagInfo eTag = ETagInfo.createEmptyETag();
-					ResponseEntity<byte[]> responseEntity = mMainApplication.getMythServicesApi().contentOperations().getRecordingArtwork( "Coverart", inetref, season, -1, -1, eTag );
+					ResponseEntity<byte[]> responseEntity = mMainApplication.getMythServicesApi().contentOperations().getRecordingArtwork( "Coverart", inetref, -1, -1, -1, eTag );
 					if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
 						byte[] bytes = responseEntity.getBody();
 						Bitmap bitmap = BitmapFactory.decodeByteArray( bytes, 0, bytes.length );
@@ -193,7 +152,7 @@ public class CoverartDownloadService extends MythtvService {
 				} catch( Exception e ) {
 					Log.e( TAG, "download : error creating image file", e );
 
-					File bannerNA = new File( programGroupDirectory, filename + COVERART_FILE_NA );
+					File bannerNA = new File( programGroupDirectory, COVERART_FILE_NA );
 					if( !bannerNA.exists() ) {
 						try {
 							bannerNA.createNewFile();
@@ -204,10 +163,10 @@ public class CoverartDownloadService extends MythtvService {
 						}
 					}
 				}
-
 			}
 		}
-
+		cursor.close();
+		
 		Log.v( TAG, "download : exit" );
 	}
 	

@@ -24,36 +24,25 @@ package org.mythtv.client.ui.dvr;
 //import io.vov.vitamio.widget.MediaController;
 //import io.vov.vitamio.widget.VideoView;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-
 import org.mythtv.R;
 import org.mythtv.client.ui.preferences.PlaybackProfile;
-import org.mythtv.service.dvr.ProgramGroupRecordedDownloadService;
-import org.mythtv.service.util.DateUtils;
-import org.mythtv.service.util.UrlUtils;
+import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.content.LiveStreamInfo;
 import org.mythtv.services.api.content.LiveStreamInfoWrapper;
 import org.mythtv.services.api.dvr.Program;
-import org.mythtv.services.api.dvr.Programs;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.ContentUris;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
-
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 
 /**
  * @author John Baab
@@ -62,16 +51,12 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 public class VideoActivity extends AbstractDvrActivity {
 
 	private static final String TAG = VideoActivity.class.getSimpleName();
-	public static final String EXTRA_PROGRAM_CHANNEL_ID = "org.mythtv.client.ui.dvr.programGroup.EXTRA_PROGRAM_CHANNEL_ID";
-	public static final String EXTRA_PROGRAM_START_TIME = "org.mythtv.client.ui.dvr.programGroup.EXTRA_PROGRAM_START_TIME";
-	public static final String EXTRA_PROGRAM_GROUP = "org.mythtv.client.ui.dvr.programGroup.EXTRA_PROGRAM_GROUP";
+	public static final String EXTRA_PROGRAM_KEY = "org.mythtv.client.ui.dvr.programGroup.EXTRA_PROGRAM_KEY";
 	
 	private ResponseEntity<LiveStreamInfoWrapper> info = null;
 	private ProgressDialog progressDialog;
 	private Boolean firstrun = true;
 	private PlaybackProfile selectedPlaybackProfile;
-
-    private Program selected = null;
 
 	// ***************************************
 	// Activity methods
@@ -93,45 +78,17 @@ public class VideoActivity extends AbstractDvrActivity {
 	    
 		progressDialog = ProgressDialog.show( this, "Please wait...", "Retrieving video...", true, true );
 
-	    String channelId = getIntent().getStringExtra( EXTRA_PROGRAM_CHANNEL_ID);
-	    String startTime = getIntent().getStringExtra( EXTRA_PROGRAM_START_TIME );
-	    String programGroup = getIntent().getStringExtra( EXTRA_PROGRAM_GROUP );
-	    
-		Log.v( TAG, "onCreate : channelId=" + channelId + ", startTime=" + startTime + ", programGroup=" + programGroup );
-	    
-		File programGroupDirectory = mFileHelper.getProgramGroupDirectory( programGroup );
-		File programGroupJson = new File( programGroupDirectory, UrlUtils.encodeUrl( programGroup ) + ProgramGroupRecordedDownloadService.RECORDED_FILE );
+	    Long recordedId = getIntent().getLongExtra( EXTRA_PROGRAM_KEY, -1 );
 
-		Programs programs = null; 
-		InputStream is = null;
-		try {
-			is = new BufferedInputStream( new FileInputStream( programGroupJson ), 8192 );
-			programs = getMainApplication().getObjectMapper().readValue( is, Programs.class );
-		} catch( FileNotFoundException e ) {
-			Log.e( TAG, "onProgramGroupSelected : error, json could not be found", e );
-		} catch( JsonParseException e ) {
-			Log.e( TAG, "onProgramGroupSelected : error, json could not be parsed", e );
-		} catch( JsonMappingException e ) {
-			Log.e( TAG, "onProgramGroupSelected : error, json could not be mapped", e );
-		} catch( IOException e ) {
-			Log.e( TAG, "onProgramGroupSelected : error, io exception reading file", e );
-		}
-	    for( Program program : programs.getPrograms() ) {
-			Log.v( TAG, "onCreate : program iteration" );
+	    if( null != recordedId ) {
+	    	Cursor cursor = getContentResolver().query( ContentUris.withAppendedId( ProgramConstants.CONTENT_URI_RECORDED, recordedId ), new String[] { ProgramConstants.FIELD_FILENAME, ProgramConstants.FIELD_HOSTNAME }, null, null, null );
+	    	if( cursor.moveToFirst() ) {
+	    		String filename = cursor.getString( cursor.getColumnIndexOrThrow( ProgramConstants.FIELD_FILENAME ) );
+	    		String hostname = cursor.getString( cursor.getColumnIndexOrThrow( ProgramConstants.FIELD_HOSTNAME ) );
 
-			Log.v( TAG, "onCreate : program.channelId=" + program.getChannelInfo().getChannelId() + ", startTime=" + program.getStartTime() );
-			if( channelId.equals( program.getChannelInfo().getChannelId() ) && startTime.equals( DateUtils.dateTimeFormatter.print( program.getStartTime() ) ) ) {
-	    		selected = program;
-	    		
-				Log.v( TAG, "onCreate : program selected" );
-	    		break;
+	    		new CreateStreamTask().execute( filename, hostname );
 	    	}
-	    }
-	    
-	    if( null != selected ) {
-			Log.v( TAG, "onCreate : filename=" + selected.getFilename() + ", hostname=" + selected.getHostname() );
-
-	    	new CreateStreamTask().execute( selected.getFilename(), selected.getHostname() );
+	    	cursor.close();
 	    }
 	    
 		Log.v( TAG, "onCreate : exit" );

@@ -21,9 +21,6 @@ package org.mythtv.client.ui;
 import java.io.File;
 
 import org.joda.time.DateTime;
-import org.mythtv.service.dvr.BannerCleanupService;
-import org.mythtv.service.dvr.ProgramGroupRecordedDownloadService;
-import org.mythtv.service.dvr.RecordedCleanupService;
 import org.mythtv.service.dvr.RecordedDownloadService;
 import org.mythtv.service.dvr.UpcomingDownloadService;
 import org.mythtv.service.guide.ProgramGuideCleanupService;
@@ -56,11 +53,8 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 
 	private ProgramGuideDownloadReceiver programGuideDownloadReceiver = new ProgramGuideDownloadReceiver();
 	private ProgramGuideCleanupReceiver programGuideCleanupReceiver = new ProgramGuideCleanupReceiver();
-	private RecordedCleanupReceiver recordedCleanupReceiver = new RecordedCleanupReceiver();
 	private RecordedDownloadReceiver recordedDownloadReceiver = new RecordedDownloadReceiver();
-	private ProgramGroupRecordedDownloadReceiver programGroupRecordedDownloadReceiver = new ProgramGroupRecordedDownloadReceiver();
 	private UpcomingDownloadReceiver upcomingDownloadReceiver = new UpcomingDownloadReceiver();
-	private BannerCleanupReceiver bannerCleanupReceiver = new BannerCleanupReceiver();
 	
 	// ***************************************
 	// FragmentActivity methods
@@ -102,28 +96,16 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 		programGuideDownloadFilter.addAction( ProgramGuideDownloadService.ACTION_COMPLETE );
 	    registerReceiver( programGuideDownloadReceiver, programGuideDownloadFilter );
 	    
-		IntentFilter recordedCleanupFilter = new IntentFilter();
-		recordedCleanupFilter.addAction( RecordedCleanupService.ACTION_COMPLETE );
-	    registerReceiver( recordedCleanupReceiver, recordedCleanupFilter );
-	    
 		IntentFilter recordedDownloadFilter = new IntentFilter( RecordedDownloadService.ACTION_DOWNLOAD );
 		recordedDownloadFilter.addAction( RecordedDownloadService.ACTION_PROGRESS );
 		recordedDownloadFilter.addAction( RecordedDownloadService.ACTION_COMPLETE );
         registerReceiver( recordedDownloadReceiver, recordedDownloadFilter );
-
-		IntentFilter programGroupRecordedDownloadFilter = new IntentFilter( ProgramGroupRecordedDownloadService.ACTION_DOWNLOAD );
-		programGroupRecordedDownloadFilter.addAction( ProgramGroupRecordedDownloadService.ACTION_COMPLETE );
-        registerReceiver( programGroupRecordedDownloadReceiver, programGroupRecordedDownloadFilter );
 
         IntentFilter upcomingDownloadFilter = new IntentFilter();
 		upcomingDownloadFilter.addAction( UpcomingDownloadService.ACTION_PROGRESS );
 		upcomingDownloadFilter.addAction( UpcomingDownloadService.ACTION_COMPLETE );
 	    registerReceiver( upcomingDownloadReceiver, upcomingDownloadFilter );
 
-		IntentFilter bannerCleanupFilter = new IntentFilter();
-		bannerCleanupFilter.addAction( BannerCleanupService.ACTION_COMPLETE );
-	    registerReceiver( bannerCleanupReceiver, bannerCleanupFilter );
-	    
 	    Log.v( TAG, "onStart : exit" );
 	}
 
@@ -167,15 +149,6 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 			}
 		}
 
-		if( null != recordedCleanupReceiver ) {
-			try {
-				unregisterReceiver( recordedCleanupReceiver );
-				recordedCleanupReceiver = null;
-			} catch( IllegalArgumentException e ) {
-				Log.e( TAG, "onStop : error", e );
-			}
-		}
-
 		if( null != recordedDownloadReceiver ) {
 			try {
 				unregisterReceiver( recordedDownloadReceiver );
@@ -185,28 +158,10 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 			}
 		}
 
-		if( null != programGroupRecordedDownloadReceiver ) {
-			try {
-				unregisterReceiver( programGroupRecordedDownloadReceiver );
-				programGroupRecordedDownloadReceiver = null;
-			} catch( IllegalArgumentException e ) {
-				Log.e( TAG, e.getLocalizedMessage(), e );
-			}
-		}
-
 		if( null != upcomingDownloadReceiver ) {
 			try {
 				unregisterReceiver( upcomingDownloadReceiver );
 				upcomingDownloadReceiver = null;
-			} catch( IllegalArgumentException e ) {
-				Log.e( TAG, "onStop : error", e );
-			}
-		}
-
-		if( null != bannerCleanupReceiver ) {
-			try {
-				unregisterReceiver( bannerCleanupReceiver );
-				bannerCleanupReceiver = null;
 			} catch( IllegalArgumentException e ) {
 				Log.e( TAG, "onStop : error", e );
 			}
@@ -254,7 +209,6 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 				
 			if( lastModified.isBefore( today ) ) {
 				startService( new Intent( UpcomingDownloadService.ACTION_DOWNLOAD ) );
-				startService( new Intent( BannerCleanupService.ACTION_CLEANUP ) );
 			} else {
 				Log.i( TAG, "onResume : not time to update 'upcoming' episodes" );
 			}
@@ -269,7 +223,7 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 			DateTime lastModified = new DateTime( recorded.lastModified() );
 				
 			if( lastModified.isBefore( lastHour ) ) {
-				startService( new Intent( RecordedCleanupService.ACTION_CLEANUP ) );
+				startService( new Intent( RecordedDownloadService.ACTION_DOWNLOAD ) );
 			} else {
 				Log.i( TAG, "onResume : not time to update 'recorded' episodes" );
 			}
@@ -326,21 +280,6 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 		
 	}
 
-	private class RecordedCleanupReceiver extends BroadcastReceiver {
-
-		@Override
-		public void onReceive( Context context, Intent intent ) {
-			
-	        if ( intent.getAction().equals( RecordedCleanupService.ACTION_COMPLETE ) ) {
-	        	Log.i( TAG, "RecordedCleanupReceiver.onReceive : " + intent.getStringExtra( RecordedCleanupService.EXTRA_COMPLETE ) );
-
-				startService( new Intent( RecordedDownloadService.ACTION_DOWNLOAD ) );
-	        }
-	        
-		}
-		
-	}
-
 	private class UpcomingDownloadReceiver extends BroadcastReceiver {
 
 		@Override
@@ -372,43 +311,9 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 	        	Log.i( TAG, "RecordedDownloadReceiver.onReceive : complete=" + intent.getStringExtra( RecordedDownloadService.EXTRA_COMPLETE ) );
 	        	
 	        	Toast.makeText( AbstractLocationAwareFragmentActivity.this, "Recorded Programs updated!", Toast.LENGTH_SHORT ).show();
-	        	
-	        	startService( new Intent( ProgramGroupRecordedDownloadService.ACTION_DOWNLOAD ) );
 	        }
 
         	Log.i( TAG, "RecordedDownloadReceiver.onReceive : exit" );
-		}
-		
-	}
-
-	private class ProgramGroupRecordedDownloadReceiver extends BroadcastReceiver {
-
-		@Override
-		public void onReceive( Context context, Intent intent ) {
-			
-	        if ( intent.getAction().equals( RecordedDownloadService.ACTION_PROGRESS ) ) {
-	        	Log.i( TAG, "ProgramGroupRecordedDownloadReceiver.onReceive : progress=" + intent.getStringExtra( ProgramGroupRecordedDownloadService.EXTRA_PROGRESS ) );
-	        }
-	        
-	        if ( intent.getAction().equals( RecordedDownloadService.ACTION_COMPLETE ) ) {
-	        	Log.i( TAG, "ProgramGroupRecordedDownloadReceiver.onReceive : complete=" + intent.getStringExtra( ProgramGroupRecordedDownloadService.EXTRA_COMPLETE ) );
-	        	
-	        }
-
-		}
-		
-	}
-
-	private class BannerCleanupReceiver extends BroadcastReceiver {
-
-		@Override
-		public void onReceive( Context context, Intent intent ) {
-			
-	        if ( intent.getAction().equals( BannerCleanupService.ACTION_COMPLETE ) ) {
-	        	Log.i( TAG, "BannerCleanupReceiver.onReceive : " + intent.getStringExtra( BannerCleanupService.EXTRA_COMPLETE ) );
-	        	Log.i( TAG, "BannerCleanupReceiver.onReceive : " + intent.getIntExtra( BannerCleanupService.EXTRA_COMPLETE_COUNT, 0 ) + " banners cleaned up" );
-	        }
-	        
 		}
 		
 	}

@@ -43,7 +43,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	private static final String TAG = DatabaseHelper.class.getSimpleName();
 	
 	private static final String DATABASE_NAME = "mythtvdb";
-	private static final int DATABASE_VERSION = 41;
+	private static final int DATABASE_VERSION = 43;
 
 	public DatabaseHelper( Context context ) {
 		super( context, DATABASE_NAME, null, DATABASE_VERSION );
@@ -62,6 +62,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		dropPlaybackProfiles( db );
 		createPlaybackProfiles( db );
 		
+		dropProgram( db, ProgramConstants.TABLE_NAME_RECORDED );
+		createProgram( db, ProgramConstants.TABLE_NAME_RECORDED );
+		
 		Log.v( TAG, "onCreate : exit" );
 	}
 
@@ -79,11 +82,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			createPlaybackProfiles( db );
 		}
 
-		if( oldVersion < 41 ) {
-			Log.v( TAG, "onUpgrade : upgrading to db version 38" );
+		if( oldVersion < 43 ) {
+			Log.v( TAG, "onUpgrade : upgrading to db version 43" );
 
-			dropCleanup( db );
-			createCleanup( db );
+			dropProgram( db, ProgramConstants.TABLE_NAME_RECORDED );
+			createProgram( db, ProgramConstants.TABLE_NAME_RECORDED );
 		}
 
 		Log.v( TAG, "onUpgrade : exit" );
@@ -320,58 +323,70 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		Log.v( TAG, "dropPlaybackProfiles : exit" );
 	}
 	
-//	private void createProgram( SQLiteDatabase db ) {
-//		Log.v( TAG, "createProgram : enter" );
-//		
-//		StringBuilder sqlBuilder = new StringBuilder();
-//		sqlBuilder.append( "CREATE TABLE " + ProgramConstants.TABLE_NAME + " (" );
-//		sqlBuilder.append( _ID ).append( " " ).append( ProgramConstants.FIELD_ID_DATA_TYPE ).append( " " ).append( ProgramConstants.FIELD_ID_PRIMARY_KEY ).append( ", " );
-//		sqlBuilder.append( ProgramConstants.FIELD_PROGRAM_TYPE ).append( " " ).append( ProgramConstants.FIELD_PROGRAM_TYPE_DATA_TYPE ).append( ", " );
-//		sqlBuilder.append( ProgramConstants.FIELD_PROGRAM_GROUP ).append( " " ).append( ProgramConstants.FIELD_PROGRAM_GROUP_DATA_TYPE ).append( ", " );
-//		sqlBuilder.append( ProgramConstants.FIELD_START_TIME ).append( " " ).append( ProgramConstants.FIELD_START_TIME_DATA_TYPE ).append( ", " );
-//		sqlBuilder.append( ProgramConstants.FIELD_END_TIME ).append( " " ).append( ProgramConstants.FIELD_END_TIME_DATA_TYPE ).append( ", " );
-//		sqlBuilder.append( ProgramConstants.FIELD_DURATION ).append( " " ).append( ProgramConstants.FIELD_DURATION_DATA_TYPE ).append( ", " );
-//		sqlBuilder.append( ProgramConstants.FIELD_START_DATE ).append( " " ).append( ProgramConstants.FIELD_START_DATE_DATA_TYPE ).append( ", " );
-//		sqlBuilder.append( ProgramConstants.FIELD_TIMESLOT_HOUR ).append( " " ).append( ProgramConstants.FIELD_TIMESLOT_HOUR_DATA_TYPE ).append( ", " );
-//		sqlBuilder.append( ProgramConstants.FIELD_TIMESLOT_MINUTE ).append( " " ).append( ProgramConstants.FIELD_TIMESLOT_MINUTE_DATA_TYPE ).append( ", " );
-//		sqlBuilder.append( ProgramConstants.FIELD_TITLE ).append( " " ).append( ProgramConstants.FIELD_TITLE_DATA_TYPE ).append( ", " );
-//		sqlBuilder.append( ProgramConstants.FIELD_SUB_TITLE ).append( " " ).append( ProgramConstants.FIELD_SUB_TITLE_DATA_TYPE ).append( ", " );
-//		sqlBuilder.append( ProgramConstants.FIELD_CATEGORY ).append( " " ).append( ProgramConstants.FIELD_CATEGORY_DATA_TYPE ).append( ", " );
-//		sqlBuilder.append( ProgramConstants.FIELD_CATEGORY_TYPE ).append( " " ).append( ProgramConstants.FIELD_CATEGORY_TYPE_DATA_TYPE ).append( ", " );
-//		sqlBuilder.append( ProgramConstants.FIELD_REPEAT ).append( " " ).append( ProgramConstants.FIELD_REPEAT_DATA_TYPE ).append( " default " ).append( ProgramConstants.FIELD_REPEAT_DEFAULT ).append( ", " );
-//		sqlBuilder.append( ProgramConstants.FIELD_VIDEO_PROPS ).append( " " ).append( ProgramConstants.FIELD_VIDEO_PROPS_DATA_TYPE ).append( ", " );
-//		sqlBuilder.append( ProgramConstants.FIELD_AUDIO_PROPS ).append( " " ).append( ProgramConstants.FIELD_AUDIO_PROPS_DATA_TYPE ).append( ", " );
-//		sqlBuilder.append( ProgramConstants.FIELD_SUB_PROPS ).append( " " ).append( ProgramConstants.FIELD_SUB_PROPS_DATA_TYPE ).append( ", " );
-//		sqlBuilder.append( ProgramConstants.FIELD_SERIES_ID ).append( " " ).append( ProgramConstants.FIELD_SERIES_ID_DATA_TYPE ).append( ", " );
-//		sqlBuilder.append( ProgramConstants.FIELD_PROGRAM_ID ).append( " " ).append( ProgramConstants.FIELD_PROGRAM_ID_DATA_TYPE ).append( ", " );
-//		sqlBuilder.append( ProgramConstants.FIELD_STARS ).append( " " ).append( ProgramConstants.FIELD_STARS_DATA_TYPE ).append( ", " );
-//		sqlBuilder.append( ProgramConstants.FIELD_FILE_SIZE ).append( " " ).append( ProgramConstants.FIELD_FILE_SIZE_DATA_TYPE ).append( ", " );
-//		sqlBuilder.append( ProgramConstants.FIELD_LAST_MODIFIED ).append( " " ).append( ProgramConstants.FIELD_LAST_MODIFIED_DATA_TYPE ).append( ", " );
-//		sqlBuilder.append( ProgramConstants.FIELD_PROGRAM_FLAGS ).append( " " ).append( ProgramConstants.FIELD_PROGRAM_FLAGS_DATA_TYPE ).append( ", " );
-//		sqlBuilder.append( ProgramConstants.FIELD_HOSTNAME ).append( " " ).append( ProgramConstants.FIELD_HOSTNAME_DATA_TYPE ).append( ", " );
-//		sqlBuilder.append( ProgramConstants.FIELD_FILENAME ).append( " " ).append( ProgramConstants.FIELD_FILENAME_DATA_TYPE ).append( ", " );
-//		sqlBuilder.append( ProgramConstants.FIELD_AIR_DATE ).append( " " ).append( ProgramConstants.FIELD_AIR_DATE_DATA_TYPE ).append( ", " );
-//		sqlBuilder.append( ProgramConstants.FIELD_DESCRIPTION ).append( " " ).append( ProgramConstants.FIELD_DESCRIPTION_DATA_TYPE ).append( ", " );
-//		sqlBuilder.append( ProgramConstants.FIELD_INETREF ).append( " " ).append( ProgramConstants.FIELD_INETREF_DATA_TYPE ).append( ", " );
-//		sqlBuilder.append( ProgramConstants.FIELD_SEASON ).append( " " ).append( ProgramConstants.FIELD_SEASON_DATA_TYPE ).append( ", " );
-//		sqlBuilder.append( ProgramConstants.FIELD_EPISODE ).append( " " ).append( ProgramConstants.FIELD_EPISODE_DATA_TYPE ).append( ", " );
-//		sqlBuilder.append( ProgramConstants.FIELD_CHANNEL_NUMBER ).append( " " ).append( ProgramConstants.FIELD_CHANNEL_NUMBER_DATA_TYPE );
-//		sqlBuilder.append( ");" );
-//		String sql = sqlBuilder.toString();
-//		if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
-//			Log.v( TAG, "createProgram : sql=" + sql );
-//		}
-//		db.execSQL( sql );
-//	
-//		db.execSQL( "CREATE INDEX program_group_idx ON " + ProgramConstants.TABLE_NAME + " (" + ProgramConstants.FIELD_PROGRAM_GROUP + "," + ProgramConstants.FIELD_PROGRAM_TYPE + ")" );
-//		
-//		Log.v( TAG, "createProgram : exit" );
-//	}
+	private void createProgram( SQLiteDatabase db, String tableName ) {
+		Log.v( TAG, "createProgram : enter" );
+		
+		StringBuilder sqlBuilder = new StringBuilder();
+		sqlBuilder.append( "CREATE TABLE " + tableName + " (" );
+		sqlBuilder.append( _ID ).append( " " ).append( ProgramConstants.FIELD_ID_DATA_TYPE ).append( " " ).append( ProgramConstants.FIELD_ID_PRIMARY_KEY ).append( ", " );
+		sqlBuilder.append( ProgramConstants.FIELD_PROGRAM_GROUP ).append( " " ).append( ProgramConstants.FIELD_PROGRAM_GROUP_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ProgramConstants.FIELD_START_TIME ).append( " " ).append( ProgramConstants.FIELD_START_TIME_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ProgramConstants.FIELD_END_TIME ).append( " " ).append( ProgramConstants.FIELD_END_TIME_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ProgramConstants.FIELD_DURATION ).append( " " ).append( ProgramConstants.FIELD_DURATION_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ProgramConstants.FIELD_START_DATE ).append( " " ).append( ProgramConstants.FIELD_START_DATE_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ProgramConstants.FIELD_TIMESLOT_HOUR ).append( " " ).append( ProgramConstants.FIELD_TIMESLOT_HOUR_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ProgramConstants.FIELD_TIMESLOT_MINUTE ).append( " " ).append( ProgramConstants.FIELD_TIMESLOT_MINUTE_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ProgramConstants.FIELD_TITLE ).append( " " ).append( ProgramConstants.FIELD_TITLE_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ProgramConstants.FIELD_SUB_TITLE ).append( " " ).append( ProgramConstants.FIELD_SUB_TITLE_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ProgramConstants.FIELD_CATEGORY ).append( " " ).append( ProgramConstants.FIELD_CATEGORY_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ProgramConstants.FIELD_CATEGORY_TYPE ).append( " " ).append( ProgramConstants.FIELD_CATEGORY_TYPE_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ProgramConstants.FIELD_REPEAT ).append( " " ).append( ProgramConstants.FIELD_REPEAT_DATA_TYPE ).append( " default " ).append( ProgramConstants.FIELD_REPEAT_DEFAULT ).append( ", " );
+		sqlBuilder.append( ProgramConstants.FIELD_VIDEO_PROPS ).append( " " ).append( ProgramConstants.FIELD_VIDEO_PROPS_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ProgramConstants.FIELD_AUDIO_PROPS ).append( " " ).append( ProgramConstants.FIELD_AUDIO_PROPS_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ProgramConstants.FIELD_SUB_PROPS ).append( " " ).append( ProgramConstants.FIELD_SUB_PROPS_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ProgramConstants.FIELD_SERIES_ID ).append( " " ).append( ProgramConstants.FIELD_SERIES_ID_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ProgramConstants.FIELD_PROGRAM_ID ).append( " " ).append( ProgramConstants.FIELD_PROGRAM_ID_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ProgramConstants.FIELD_STARS ).append( " " ).append( ProgramConstants.FIELD_STARS_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ProgramConstants.FIELD_FILE_SIZE ).append( " " ).append( ProgramConstants.FIELD_FILE_SIZE_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ProgramConstants.FIELD_LAST_MODIFIED ).append( " " ).append( ProgramConstants.FIELD_LAST_MODIFIED_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ProgramConstants.FIELD_PROGRAM_FLAGS ).append( " " ).append( ProgramConstants.FIELD_PROGRAM_FLAGS_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ProgramConstants.FIELD_HOSTNAME ).append( " " ).append( ProgramConstants.FIELD_HOSTNAME_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ProgramConstants.FIELD_FILENAME ).append( " " ).append( ProgramConstants.FIELD_FILENAME_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ProgramConstants.FIELD_AIR_DATE ).append( " " ).append( ProgramConstants.FIELD_AIR_DATE_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ProgramConstants.FIELD_DESCRIPTION ).append( " " ).append( ProgramConstants.FIELD_DESCRIPTION_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ProgramConstants.FIELD_INETREF ).append( " " ).append( ProgramConstants.FIELD_INETREF_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ProgramConstants.FIELD_SEASON ).append( " " ).append( ProgramConstants.FIELD_SEASON_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ProgramConstants.FIELD_EPISODE ).append( " " ).append( ProgramConstants.FIELD_EPISODE_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ProgramConstants.FIELD_CHANNEL_NUMBER ).append( " " ).append( ProgramConstants.FIELD_CHANNEL_NUMBER_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ProgramConstants.FIELD_STATUS ).append( " " ).append( ProgramConstants.FIELD_STATUS_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ProgramConstants.FIELD_PRIORITY ).append( " " ).append( ProgramConstants.FIELD_PRIORITY_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ProgramConstants.FIELD_START_TS ).append( " " ).append( ProgramConstants.FIELD_START_TS_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ProgramConstants.FIELD_END_TS ).append( " " ).append( ProgramConstants.FIELD_END_TS_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ProgramConstants.FIELD_RECORD_ID ).append( " " ).append( ProgramConstants.FIELD_RECORD_ID_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ProgramConstants.FIELD_REC_GROUP ).append( " " ).append( ProgramConstants.FIELD_REC_GROUP_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ProgramConstants.FIELD_PLAY_GROUP ).append( " " ).append( ProgramConstants.FIELD_PLAY_GROUP_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ProgramConstants.FIELD_STORAGE_GROUP ).append( " " ).append( ProgramConstants.FIELD_STORAGE_GROUP_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ProgramConstants.FIELD_REC_TYPE ).append( " " ).append( ProgramConstants.FIELD_REC_TYPE_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ProgramConstants.FIELD_DUP_IN_TYPE ).append( " " ).append( ProgramConstants.FIELD_DUP_IN_TYPE_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ProgramConstants.FIELD_DUP_METHOD ).append( " " ).append( ProgramConstants.FIELD_DUP_METHOD_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ProgramConstants.FIELD_ENCODER_ID ).append( " " ).append( ProgramConstants.FIELD_ENCODER_ID_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ProgramConstants.FIELD_PROFILE ).append( " " ).append( ProgramConstants.FIELD_PROFILE_DATA_TYPE );
+		sqlBuilder.append( ");" );
+		String sql = sqlBuilder.toString();
+		if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
+			Log.v( TAG, "createProgram : sql=" + sql );
+		}
+		db.execSQL( sql );
 	
-	private void dropProgram( SQLiteDatabase db ) {
+//		db.execSQL( "CREATE INDEX program_group_idx ON " + tableName + " (" + ProgramConstants.FIELD_PROGRAM_GROUP + "," + ProgramConstants.FIELD_PROGRAM_TYPE + ")" );
+		
+		Log.v( TAG, "createProgram : exit" );
+	}
+	
+	private void dropProgram( SQLiteDatabase db, String tableName ) {
 		Log.v( TAG, "dropProgram : enter" );
 		
-		db.execSQL( "DROP TABLE IF EXISTS " + ProgramConstants.TABLE_NAME );
+		db.execSQL( "DROP TABLE IF EXISTS " + tableName );
 		
 		Log.v( TAG, "dropProgram : exit" );
 	}

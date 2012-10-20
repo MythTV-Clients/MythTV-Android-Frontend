@@ -32,6 +32,7 @@ public class DateUtils {
 
 	public static final DateTimeFormatter dateFormatter = DateTimeFormat.forPattern( "yyyy-MM-dd" );
 	public static final DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern( "yyyy-MM-dd'T'HH:mm:ss" );
+	public static final DateTimeFormatter dateTimeFormatterPretty = DateTimeFormat.forPattern( "yyyy-MM-dd hh:mm a" );
 	public static final DateTimeFormatter timeFormatter = DateTimeFormat.forPattern( "hh:mm a" );
     public static final DateTimeFormatter timeFormatter24 = DateTimeFormat.forPattern( "HH:mm" );
 	public static final DateTimeFormatter hourFormatter = DateTimeFormat.forPattern( "hh:'00' a" );

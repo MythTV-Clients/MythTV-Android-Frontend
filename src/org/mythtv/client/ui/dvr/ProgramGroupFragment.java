@@ -18,23 +18,26 @@
  */
 package org.mythtv.client.ui.dvr;
 
-import java.util.List;
-
+import org.joda.time.DateTime;
 import org.mythtv.R;
 import org.mythtv.client.ui.util.MythtvListFragment;
 import org.mythtv.client.ui.util.ProgramHelper;
+import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.service.util.DateUtils;
-import org.mythtv.services.api.dvr.Program;
-import org.mythtv.services.api.dvr.Programs;
 
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
+import android.support.v4.widget.CursorAdapter;
+import android.support.v4.widget.SimpleCursorAdapter;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -44,18 +47,58 @@ import android.widget.TextView;
  * @author John Baab
  * 
  */
-public class ProgramGroupFragment extends MythtvListFragment {
+public class ProgramGroupFragment extends MythtvListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
 	private static final String TAG = ProgramGroupFragment.class.getSimpleName();
-
-	private ProgramGroupRowAdapter adapter;
+	
+	private String programGroup;
+	
+	private ProgramCursorAdapter mAdapter;
 	
 	private static ProgramHelper mProgramHelper; 
 	
-	private Programs programs;
-	
 	public ProgramGroupFragment() { }
 	
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.LoaderManager.LoaderCallbacks#onCreateLoader(int, android.os.Bundle)
+	 */
+	@Override
+	public Loader<Cursor> onCreateLoader( int id, Bundle args ) {
+		Log.v( TAG, "onCreateLoader : enter" );
+		
+		String[] projection = { ProgramConstants._ID, ProgramConstants.FIELD_TITLE, ProgramConstants.FIELD_SUB_TITLE, ProgramConstants.FIELD_CATEGORY, ProgramConstants.FIELD_START_TIME };
+		String[] selectionArgs = { ( null == programGroup ? "" : programGroup ) };
+		 
+	    CursorLoader cursorLoader = new CursorLoader( getActivity(), ProgramConstants.CONTENT_URI_RECORDED, projection, ProgramConstants.FIELD_PROGRAM_GROUP + " = ?", selectionArgs, ProgramConstants.FIELD_SEASON + " DESC ," + ProgramConstants.FIELD_EPISODE + " DESC" );
+	    
+	    Log.v( TAG, "onCreateLoader : exit" );
+		return cursorLoader;
+	}
+
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.LoaderManager.LoaderCallbacks#onLoadFinished(android.support.v4.content.Loader, java.lang.Object)
+	 */
+	@Override
+	public void onLoadFinished( Loader<Cursor> loader, Cursor cursor ) {
+		Log.v( TAG, "onLoadFinished : enter" );
+		
+		mAdapter.swapCursor( cursor );
+		
+		Log.v( TAG, "onLoadFinished : exit" );
+	}
+
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.LoaderManager.LoaderCallbacks#onLoaderReset(android.support.v4.content.Loader)
+	 */
+	@Override
+	public void onLoaderReset( Loader<Cursor> loader ) {
+		Log.v( TAG, "onLoaderReset : enter" );
+		
+		mAdapter.swapCursor( null );
+				
+		Log.v( TAG, "onLoaderReset : exit" );
+	}
+
 	@Override
 	public void onActivityCreated( Bundle savedInstanceState ) {
 		Log.i( TAG, "onActivityCreated : enter" );
@@ -63,66 +106,65 @@ public class ProgramGroupFragment extends MythtvListFragment {
 	    
 		mProgramHelper = ProgramHelper.createInstance( getActivity() );
 		
-		Log.i( TAG, "onActivityCreated : exit" );
+	    mAdapter = new ProgramCursorAdapter(
+	            getActivity().getApplicationContext(), R.layout.program_row,
+	            null, new String[] { ProgramConstants.FIELD_SUB_TITLE }, new int[] { R.id.program_sub_title },
+	            CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER );
+
+	    setListAdapter( mAdapter );
+
+	    getLoaderManager().initLoader( 0, null, this );
+
+	    Log.i( TAG, "onActivityCreated : exit" );
 	}
 
-	public void loadPrograms( Context context, Programs programs ) {
-		Log.i( TAG, "loadPrograms : enter" );
-		
-		this.programs = programs;
-		
-		adapter = new ProgramGroupRowAdapter( context, programs.getPrograms() );
-	    setListAdapter( adapter );
-
-		Log.i( TAG, "loadPrograms : exit" );
-	}
-	
 	@Override
 	public void onListItemClick( ListView l, View v, int position, long id ) {
 		Log.v( TAG, "onListItemClick : enter" );
-
 		super.onListItemClick( l, v, position, id );
 		
 		Log.v (TAG, "onListItemClick : position=" + position + ", id=" + id );
 	    
-		Program program = programs.getPrograms().get( position );
-		
-		//leave if we did not get anything useful
-		if(null == program || null == program.getChannelInfo()) return;
-		
 		Intent i = new Intent( getActivity(), VideoActivity.class );
-		i.putExtra( VideoActivity.EXTRA_PROGRAM_CHANNEL_ID, program.getChannelInfo().getChannelId() );
-		i.putExtra( VideoActivity.EXTRA_PROGRAM_START_TIME, DateUtils.dateTimeFormatter.print( program.getStartTime() ) );
-		i.putExtra( VideoActivity.EXTRA_PROGRAM_GROUP, program.getTitle() );
+		i.putExtra( VideoActivity.EXTRA_PROGRAM_KEY, id );
 		startActivity( i );
 
 		Log.v( TAG, "onListItemClick : exit" );
 	}
 	
-	private class ProgramGroupRowAdapter extends ArrayAdapter<Program> {
+	public String getSelectedProgramGroup() {
+		return programGroup;
+	}
+	
+	public void loadProgramGroup( String programGroup ) {
+		Log.v( TAG, "loadProgramGroup : enter" );
+		
+		Log.v( TAG, "loadProgramGroup : programGroup=" + programGroup );
+
+		this.programGroup = programGroup;
+		
+	    getLoaderManager().restartLoader( 0, null, this );
+
+		Log.v( TAG, "loadProgramGroup : exit" );
+	}
+	
+	// internal helpers
+	
+	private class ProgramCursorAdapter extends SimpleCursorAdapter {
 
 		private LayoutInflater mInflater;
-
-		private List<Program> programGroups;
 		
-		public ProgramGroupRowAdapter( Context context, List<Program> programGroups ) {
-			super( context, R.id.program_group_row, programGroups );
-			Log.v( TAG, "ProgramGroupRowAdapter : enter" );
-
+		public ProgramCursorAdapter( Context context, int layout, Cursor c, String[] from, int[] to, int flags ) {
+			super( context, layout, c, from, to, flags );
+		
+			mContext = context;
 			mInflater = LayoutInflater.from( context );
-
-			this.programGroups = programGroups;
-			
-			Log.v( TAG, "ProgramGroupRowAdapter : exit" );
 		}
 
-		/* (non-Javadoc)
-		 * @see android.widget.Adapter#getView(int, android.view.View, android.view.ViewGroup)
-		 */
 		@Override
 		public View getView( int position, View convertView, ViewGroup parent ) {
-			Log.v( TAG, "ProgramGroupRowAdapter.getView : enter" );
-			
+			Log.v( TAG, "getView : enter" );
+
 			View v = convertView;
 			ViewHolder mHolder;
 			
@@ -139,15 +181,21 @@ public class ProgramGroupFragment extends MythtvListFragment {
 				mHolder = (ViewHolder) v.getTag();
 			}
 						
-			Program program = programGroups.get( position );
+			getCursor().moveToPosition( position );
 
-			mHolder.subTitle.setText( !"".equals( program.getSubTitle() ) ? program.getSubTitle() : program.getTitle() );
-			mHolder.category.setBackgroundColor( mProgramHelper.getCategoryColor( program.getCategory() ) );
-			
-			Log.v( TAG, "ProgramGroupRowAdapter.getView : exit" );
+			Long id = getCursor().getLong( getCursor().getColumnIndexOrThrow( ProgramConstants._ID ) );
+	        String title = getCursor().getString( getCursor().getColumnIndexOrThrow( ProgramConstants.FIELD_TITLE ) );
+	        String subTitle = getCursor().getString( getCursor().getColumnIndexOrThrow( ProgramConstants.FIELD_SUB_TITLE ) );
+	        String category = getCursor().getString( getCursor().getColumnIndexOrThrow( ProgramConstants.FIELD_CATEGORY ) );
+			Long startTime = getCursor().getLong( getCursor().getColumnIndexOrThrow( ProgramConstants.FIELD_START_TIME ) );
+	        Log.v( TAG, "getView : id=" + id + ", title=" + title + ", subTitle=" + subTitle );
+
+	        mHolder.subTitle.setText( !"".equals( subTitle ) ? subTitle : DateUtils.dateTimeFormatterPretty.print( new DateTime( startTime ) ) );
+			mHolder.category.setBackgroundColor( mProgramHelper.getCategoryColor( category ) );
+
 			return v;
 		}
-		
+
 	}
 
 	private static class ViewHolder {

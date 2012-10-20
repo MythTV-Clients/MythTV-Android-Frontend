@@ -18,28 +18,19 @@
  */
 package org.mythtv.service.dvr;
 
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
 
+import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.service.MythtvService;
-import org.mythtv.service.util.UrlUtils;
 import org.mythtv.services.api.ETagInfo;
-import org.mythtv.services.api.dvr.Program;
-import org.mythtv.services.api.dvr.Programs;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-
+import android.content.ContentUris;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
@@ -52,8 +43,7 @@ public class BannerDownloadService extends MythtvService {
 
 	private static final String TAG = BannerDownloadService.class.getSimpleName();
 
-	public static final String BANNER_INETREF = "INETREF";
-	public static final String BANNER_TITLE = "TITLE";
+	public static final String BANNER_RECORDED_ID = "RECORDED_ID";
 	public static final String BANNER_FILE = "banner.png";
 	public static final String BANNER_FILE_NA = "banner.na";
 	
@@ -119,65 +109,34 @@ public class BannerDownloadService extends MythtvService {
 	private void download( Intent intent ) throws Exception {
 		Log.v( TAG, "download : enter" );
 		
-		String inetref = intent.getStringExtra( BANNER_INETREF );
-		String title = intent.getStringExtra( BANNER_TITLE );
-		String encodedTitle = UrlUtils.encodeUrl( title );
+		Long recordedId  = intent.getLongExtra( BANNER_RECORDED_ID, -1L );
 		
-		File programGroupDirectory = mFileHelper.getProgramGroupDirectory( title );
+		Cursor cursor = getContentResolver().query( ContentUris.withAppendedId( ProgramConstants.CONTENT_URI_RECORDED, recordedId ), null, null, null, null );
+		if( cursor.moveToFirst() ) {
+	        String title = cursor.getString( cursor.getColumnIndexOrThrow( ProgramConstants.FIELD_TITLE ) );
+	        String inetref = cursor.getString( cursor.getColumnIndexOrThrow( ProgramConstants.FIELD_INETREF ) );
 
-		File bannerExists = new File( programGroupDirectory, BANNER_FILE );
-		if( bannerExists.exists() ) {
-			Log.v( TAG, "download : exit, banner exists" );
-			
-			return;
-		}
-		
-		boolean bannerNotAvailable = false;
-		File checkImageNA = new File( programGroupDirectory, BANNER_FILE_NA );
-		if( checkImageNA.exists() ) {
-			bannerNotAvailable = true;
-		}
+			File programGroupDirectory = mFileHelper.getProgramGroupDirectory( title );
 
-		File programGroupJson = new File( programGroupDirectory, encodedTitle + ProgramGroupRecordedDownloadService.RECORDED_FILE );
-
-		Programs programs = null; 
-		InputStream is = null;
-		try {
-			is = new BufferedInputStream( new FileInputStream( programGroupJson ), 8192 );
-			programs = mMainApplication.getObjectMapper().readValue( is, Programs.class );
-		} catch( FileNotFoundException e ) {
-			Log.e( TAG, "onProgramGroupSelected : error, json could not be found", e );
-		} catch( JsonParseException e ) {
-			Log.e( TAG, "onProgramGroupSelected : error, json could not be parsed", e );
-		} catch( JsonMappingException e ) {
-			Log.e( TAG, "onProgramGroupSelected : error, json could not be mapped", e );
-		} catch( IOException e ) {
-			Log.e( TAG, "onProgramGroupSelected : error, io exception reading file", e );
-		}
-
-		Map<Integer, String> coverarts = new HashMap<Integer, String>();
-		coverarts.put( -1, "" );
-		
-		if( null != programs ) {
-			for( Program program : programs.getPrograms() ) {
-				if( null != program.getSeason() && !"".equals( program.getSeason() ) ) {
-					int season = Integer.parseInt( program.getSeason() );
-					if( season > 0 && !coverarts.containsKey( season ) ) {
-						coverarts.put( season, "s" + season + "_" );
-					}
-				}
+			File bannerExists = new File( programGroupDirectory, BANNER_FILE );
+			if( bannerExists.exists() ) {
+				Log.v( TAG, "download : exit, banner exists" );
+				
+				return;
 			}
-		}
-
-		for( int season : coverarts.keySet() ) {
-			String filename = coverarts.get( season );
 			
-			File banner = new File( programGroupDirectory, filename + BANNER_FILE );
+			boolean bannerNotAvailable = false;
+			File checkImageNA = new File( programGroupDirectory, BANNER_FILE_NA );
+			if( checkImageNA.exists() ) {
+				bannerNotAvailable = true;
+			}
+
+			File banner = new File( programGroupDirectory, BANNER_FILE );
 			if( !banner.exists() && !bannerNotAvailable ) {
 					
 				try {
 					ETagInfo eTag = ETagInfo.createEmptyETag();
-					ResponseEntity<byte[]> responseEntity = mMainApplication.getMythServicesApi().contentOperations().getRecordingArtwork( "Banner", inetref, season, -1, -1, eTag );
+					ResponseEntity<byte[]> responseEntity = mMainApplication.getMythServicesApi().contentOperations().getRecordingArtwork( "Banner", inetref, -1, -1, -1, eTag );
 					if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
 						byte[] bytes = responseEntity.getBody();
 						Bitmap bitmap = BitmapFactory.decodeByteArray( bytes, 0, bytes.length );
@@ -187,11 +146,13 @@ public class BannerDownloadService extends MythtvService {
 						bitmap.compress( Bitmap.CompressFormat.PNG, 100, fos );
 						fos.flush();
 						fos.close();
+
+						Log.i( TAG, "download : banner image retreived:" + banner.getAbsolutePath() );
 					}
 				} catch( Exception e ) {
 					Log.e( TAG, "download : error creating image file", e );
 
-					File bannerNA = new File( programGroupDirectory, filename + BANNER_FILE_NA );
+					File bannerNA = new File( programGroupDirectory, BANNER_FILE_NA );
 					if( !bannerNA.exists() ) {
 						try {
 							bannerNA.createNewFile();
@@ -204,7 +165,8 @@ public class BannerDownloadService extends MythtvService {
 				}
 			}
 		}
-
+		cursor.close();
+		
 		Log.v( TAG, "download : exit" );
 	}
 	

@@ -21,11 +21,15 @@ package org.mythtv.service.dvr;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.mythtv.R;
+import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.service.MythtvService;
+import org.mythtv.service.util.UrlUtils;
 import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.dvr.Program;
 import org.mythtv.services.api.dvr.ProgramList;
@@ -36,8 +40,10 @@ import org.springframework.http.ResponseEntity;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.util.Log;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
@@ -66,7 +72,8 @@ public class RecordedDownloadService extends MythtvService {
 	private int notificationId;
 	
 	private File recordedDirectory = null;
-
+	private RecordedProcessor mRecordedProcessor;
+	
 	public RecordedDownloadService() {
 		super( "RecordedDownloadService" );
 	}
@@ -79,6 +86,8 @@ public class RecordedDownloadService extends MythtvService {
 		Log.d( TAG, "onHandleIntent : enter" );
 		super.onHandleIntent( intent );
 		
+		mRecordedProcessor = new RecordedProcessor( this );
+
 		recordedDirectory = mFileHelper.getProgramRecordedDataDirectory();
 		if( null == recordedDirectory || !recordedDirectory.exists() ) {
 			Intent completeIntent = new Intent( ACTION_COMPLETE );
@@ -112,6 +121,10 @@ public class RecordedDownloadService extends MythtvService {
     				cleanup();
     				
     				process( programs );
+    				
+    				cleanupRecordedArtwork( programs );
+    				
+    				downloadBanners();
     			}
 			} catch( JsonGenerationException e ) {
 				Log.e( TAG, "onHandleIntent : error generating json", e );
@@ -161,7 +174,7 @@ public class RecordedDownloadService extends MythtvService {
 		Log.v( TAG, "cleanup : enter" );
 		
 		FileUtils.cleanDirectory( recordedDirectory );
-		FileUtils.cleanDirectory( mFileHelper.getProgramGroupsDataDirectory() );
+//		FileUtils.cleanDirectory( mFileHelper.getProgramGroupsDataDirectory() );
 		
 		Log.v( TAG, "cleanup : exit" );
 	}
@@ -181,10 +194,78 @@ public class RecordedDownloadService extends MythtvService {
 		
 		mMainApplication.getObjectMapper().writeValue( new File( recordedDirectory, RECORDED_FILE ), programs );
 
+		int programsAdded = mRecordedProcessor.processPrograms( programs );
+		Log.v( TAG, "process : programsAdded=" + programsAdded );
+		
 		Log.v( TAG, "process : exit" );
 	}
 
 	// internal helpers
+	
+	private void cleanupRecordedArtwork( Programs programs ) throws IOException {
+		Log.v( TAG, "cleanupRecordedArtwork : enter" );
+		
+		Map<String, Boolean> directories = new HashMap<String, Boolean>();
+		
+		Log.v( TAG, "cleanupRecordedArtwork : Existing Artwork Directories" );
+		File programGroupsDirectory = mFileHelper.getProgramGroupsDataDirectory();
+		if( null != programGroupsDirectory && programGroupsDirectory.exists() ) {
+			Log.v( TAG, "cleanupRecordedArtwork : programGroups exists" );
+
+			for( String directory : programGroupsDirectory.list() ) {
+				Log.v( TAG, "cleanupRecordedArtwork : directory=" + directory );
+				
+				if( !directories.containsKey( directories ) ) {
+					directories.put( directory, Boolean.FALSE );
+				}
+			}
+		}
+		
+		for( Program program : programs.getPrograms() ) {
+			String encodedTitle = UrlUtils.encodeUrl( program.getTitle() );
+			if( directories.containsKey( encodedTitle ) && !directories.get( encodedTitle ).booleanValue() ) {
+				directories.put( encodedTitle, Boolean.TRUE );
+				
+				Log.v( TAG, "cleanupRecordedArtwork : marking directory '" + encodedTitle + "' to be saved" );
+			}
+		}
+		
+		for( String directory : directories.keySet() ) {
+			if( !directories.get( directory ).booleanValue() ) {
+				FileUtils.cleanDirectory( mFileHelper.getProgramGroupDirectory( directory ) );
+
+				Log.v( TAG, "cleanupRecordedArtwork : deleted artwork directory '" + directory + "'" );
+			}
+		}
+		
+		Log.v( TAG, "cleanupRecordedArtwork : exit" );
+	}
+	
+	private void downloadBanners() {
+		Log.v( TAG, "downloadBanners : enter" );
+		
+		Cursor cursor = getContentResolver().query( ProgramConstants.CONTENT_URI_RECORDED, new String[] { ProgramConstants._ID, ProgramConstants.FIELD_TITLE }, null, null, null );
+		while( cursor.moveToNext() ) {
+			Long id = cursor.getLong( cursor.getColumnIndexOrThrow( ProgramConstants._ID ) );
+	        String title = cursor.getString( cursor.getColumnIndexOrThrow( ProgramConstants.FIELD_TITLE ) );
+
+			File programGroupDirectory = mFileHelper.getProgramGroupDirectory( title );
+			if( null != programGroupDirectory && programGroupDirectory.exists() ) {
+					
+				File banner = new File( programGroupDirectory, BannerDownloadService.BANNER_FILE );
+				if( !banner.exists() ) {
+					Intent downloadBannerIntent = new Intent( BannerDownloadService.ACTION_DOWNLOAD );
+					downloadBannerIntent.putExtra( BannerDownloadService.BANNER_RECORDED_ID, id );
+					startService( downloadBannerIntent );
+				}
+					
+			}
+
+		}
+		cursor.close();
+		
+		Log.v( TAG, "downloadBanners : exit" );
+	}
 	
 	@SuppressWarnings( "deprecation" )
 	private void sendNotification() {

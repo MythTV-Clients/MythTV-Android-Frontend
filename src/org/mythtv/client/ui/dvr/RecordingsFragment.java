@@ -18,38 +18,31 @@
  */
 package org.mythtv.client.ui.dvr;
 
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 
 import org.mythtv.R;
 import org.mythtv.client.ui.util.MythtvListFragment;
 import org.mythtv.client.ui.util.ProgramHelper;
+import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.service.dvr.BannerDownloadService;
-import org.mythtv.service.dvr.CoverartDownloadService;
-import org.mythtv.service.dvr.ProgramGroupRecordedDownloadService;
 import org.mythtv.service.dvr.RecordedDownloadService;
 import org.mythtv.service.dvr.cache.BannerLruMemoryCache;
 import org.mythtv.service.util.FileHelper;
-import org.mythtv.services.api.dvr.Program;
-import org.mythtv.services.api.dvr.Programs;
-import org.mythtv.services.utils.ArticleCleaner;
 
 import android.annotation.TargetApi;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.Cursor;
 import android.graphics.drawable.BitmapDrawable;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
+import android.support.v4.widget.CursorAdapter;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -57,39 +50,81 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-
 /**
  * @author Daniel Frey
  * 
  */
-public class RecordingsFragment extends MythtvListFragment {
+public class RecordingsFragment extends MythtvListFragment implements LoaderManager.LoaderCallbacks<Cursor>  {
 
 	private static final String TAG = RecordingsFragment.class.getSimpleName();
 	private static final int REFRESH_ID = Menu.FIRST + 2;
 
 	private OnProgramGroupListener listener = null;
-	private ProgramGroupRowAdapter adapter;
+	private ProgramGroupCursorAdapter adapter;
 	
 	private RecordedDownloadReceiver recordedDownloadReceiver = new RecordedDownloadReceiver();
-	private ProgramGroupRecordedDownloadReceiver programGroupRecordedDownloadReceiver = new ProgramGroupRecordedDownloadReceiver();
 	private BannerDownloadReceiver bannerDownloadReceiver = new BannerDownloadReceiver();
-	private CoverartDownloadReceiver coverartDownloadReceiver = new CoverartDownloadReceiver();
+//	private CoverartDownloadReceiver coverartDownloadReceiver = new CoverartDownloadReceiver();
 
 	private static FileHelper mFileHelper;
 	private static ProgramHelper mProgramHelper;
 
 	private BannerLruMemoryCache imageCache;
 
-	private List<Program> programGroups = new ArrayList<Program>();
-	
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.LoaderManager.LoaderCallbacks#onCreateLoader(int, android.os.Bundle)
+	 */
+	@Override
+	public Loader<Cursor> onCreateLoader( int id, Bundle args ) {
+		Log.v( TAG, "onCreateLoader : enter" );
+		
+		String[] projection = { ProgramConstants._ID, ProgramConstants.FIELD_TITLE, ProgramConstants.FIELD_PROGRAM_GROUP, ProgramConstants.FIELD_INETREF, ProgramConstants.FIELD_CATEGORY };
+		
+		String selection = null;
+		
+		String[] selectionArgs = null;
+		
+		String sortOrder = ProgramConstants.FIELD_PROGRAM_GROUP;
+		
+	    CursorLoader cursorLoader = new CursorLoader( getActivity(), Uri.withAppendedPath( ProgramConstants.CONTENT_URI_RECORDED, "programGroups" ), projection, selection, selectionArgs, sortOrder );
+		
+	    Log.v( TAG, "onCreateLoader : exit" );
+		return cursorLoader;
+	}
+
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.LoaderManager.LoaderCallbacks#onLoadFinished(android.support.v4.content.Loader, java.lang.Object)
+	 */
+	@Override
+	public void onLoadFinished( Loader<Cursor> loader, Cursor cursor ) {
+		Log.v( TAG, "onLoadFinished : enter" );
+		
+		adapter.swapCursor( cursor );
+		
+	    getListView().setFastScrollEnabled( true );
+
+		Log.v( TAG, "onLoadFinished : exit" );
+	}
+
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.LoaderManager.LoaderCallbacks#onLoaderReset(android.support.v4.content.Loader)
+	 */
+	@Override
+	public void onLoaderReset( Loader<Cursor> loader ) {
+		Log.v( TAG, "onLoaderReset : enter" );
+		
+		adapter.swapCursor( null );
+		
+		restartLoader();
+		
+		Log.v( TAG, "onLoaderReset : exit" );
+	}
+
 	/* (non-Javadoc)
 	 * @see android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
 	 */
@@ -107,6 +142,12 @@ public class RecordingsFragment extends MythtvListFragment {
 		setHasOptionsMenu( true );
 		setRetainInstance( true );
 
+	    adapter = new ProgramGroupCursorAdapter( getActivity().getApplicationContext() );
+	    
+	    setListAdapter( adapter );
+
+		getLoaderManager().initLoader( 0, null, this );
+		 
 		Log.v( TAG, "onActivityCreated : exit" );
 	}
 
@@ -123,17 +164,13 @@ public class RecordingsFragment extends MythtvListFragment {
 		recordedDownloadFilter.addAction( RecordedDownloadService.ACTION_COMPLETE );
         getActivity().registerReceiver( recordedDownloadReceiver, recordedDownloadFilter );
 
-		IntentFilter programGroupRecordedDownloadFilter = new IntentFilter( ProgramGroupRecordedDownloadService.ACTION_DOWNLOAD );
-		programGroupRecordedDownloadFilter.addAction( ProgramGroupRecordedDownloadService.ACTION_COMPLETE );
-        getActivity().registerReceiver( programGroupRecordedDownloadReceiver, programGroupRecordedDownloadFilter );
-
 		IntentFilter bannerDownloadFilter = new IntentFilter( BannerDownloadService.ACTION_DOWNLOAD );
 		bannerDownloadFilter.addAction( BannerDownloadService.ACTION_COMPLETE );
         getActivity().registerReceiver( bannerDownloadReceiver, bannerDownloadFilter );
 
-		IntentFilter coverartDownloadFilter = new IntentFilter( CoverartDownloadService.ACTION_DOWNLOAD );
-		coverartDownloadFilter.addAction( CoverartDownloadService.ACTION_COMPLETE );
-        getActivity().registerReceiver( coverartDownloadReceiver, coverartDownloadFilter );
+//		IntentFilter coverartDownloadFilter = new IntentFilter( CoverartDownloadService.ACTION_DOWNLOAD );
+//		coverartDownloadFilter.addAction( CoverartDownloadService.ACTION_COMPLETE );
+//        getActivity().registerReceiver( coverartDownloadReceiver, coverartDownloadFilter );
 
 		Log.v( TAG, "onStart : enter" );
 	}
@@ -152,8 +189,6 @@ public class RecordingsFragment extends MythtvListFragment {
 			File existing = new File( recordedDirectory, RecordedDownloadService.RECORDED_FILE );
 			if( !existing.exists() ) {
 				getActivity().startService( new Intent( RecordedDownloadService.ACTION_DOWNLOAD ) );
-			} else {
-				loadData();
 			}
 
 		}
@@ -179,15 +214,6 @@ public class RecordingsFragment extends MythtvListFragment {
 			}
 		}
 
-		if( null != programGroupRecordedDownloadReceiver ) {
-			try {
-				getActivity().unregisterReceiver( programGroupRecordedDownloadReceiver );
-				programGroupRecordedDownloadReceiver = null;
-			} catch( IllegalArgumentException e ) {
-				Log.e( TAG, e.getLocalizedMessage(), e );
-			}
-		}
-
 		if( null != bannerDownloadReceiver ) {
 			try {
 				getActivity().unregisterReceiver( bannerDownloadReceiver );
@@ -197,14 +223,14 @@ public class RecordingsFragment extends MythtvListFragment {
 			}
 		}
 
-		if( null != coverartDownloadReceiver ) {
-			try {
-				getActivity().unregisterReceiver( coverartDownloadReceiver );
-				coverartDownloadReceiver = null;
-			} catch( IllegalArgumentException e ) {
-				Log.e( TAG, e.getLocalizedMessage(), e );
-			}
-		}
+//		if( null != coverartDownloadReceiver ) {
+//			try {
+//				getActivity().unregisterReceiver( coverartDownloadReceiver );
+//				coverartDownloadReceiver = null;
+//			} catch( IllegalArgumentException e ) {
+//				Log.e( TAG, e.getLocalizedMessage(), e );
+//			}
+//		}
 
 		Log.v( TAG, "onStop : exit" );
 	}
@@ -257,9 +283,7 @@ public class RecordingsFragment extends MythtvListFragment {
 		super.onListItemClick( l, v, position, id );
 		Log.v( TAG, "onListItemClick : position=" + position + ", id=" + id + ", tag=" + v.getTag() );
 
-		TextView programGroup = (TextView) v.findViewById( R.id.program_group_row );
-		
-		listener.onProgramGroupSelected( programGroup.getText().toString() );
+		listener.onProgramGroupSelected( id );
 		
 		Log.v( TAG, "onListItemClick : exit" );
 	}
@@ -273,134 +297,85 @@ public class RecordingsFragment extends MythtvListFragment {
 	}
 
 	public interface OnProgramGroupListener {
-		void onProgramGroupSelected( String programGroup );
+		void onProgramGroupSelected( Long recordedId );
 	}
 
 	// internal helpers
 	
-	private void loadData() {
-		Log.v( TAG, "loadData : enter" );
+	private void restartLoader() {
+		Log.v( TAG, "restartLoader : enter" );
 		
-		File recordedDirectory = mFileHelper.getProgramRecordedDataDirectory();
-		if( null != recordedDirectory && recordedDirectory.exists() ) {
+		getLoaderManager().restartLoader( 0, null, this );
 
-			File file = new File( recordedDirectory, RecordedDownloadService.RECORDED_FILE );
-			if( file.exists() ) {
-				Log.v( TAG, "create : recorded file exists" );
-				
-				try {
-					InputStream is = new BufferedInputStream( new FileInputStream( file ), 8192 );
-					Programs programs = getMainApplication().getObjectMapper().readValue( is, Programs.class );
-
-					Map<String, Program> filtered = new TreeMap<String, Program>();
-					for( Program program : programs.getPrograms() ) {
-						
-						if( null != program.getRecording() && !"LiveTV".equalsIgnoreCase( program.getRecording().getStorageGroup() ) ) {
-						
-							String cleanedTitle = ArticleCleaner.clean( program.getTitle() );
-
-							if( !filtered.containsKey( cleanedTitle ) ) {
-								filtered.put( cleanedTitle, program );
-							}
-						}
-					}
-					
-					List<Program> sorted = new ArrayList<Program>( filtered.values() );
-					Collections.sort( sorted );
-					
-					programGroups = sorted;
-
-				    adapter = new ProgramGroupRowAdapter( getActivity(), programGroups );
-				    setListAdapter( adapter );
-					
-				} catch( JsonParseException e ) {
-					Log.e( TAG, "create : JsonParseException - error opening file 'recorded'", e );
-				} catch( JsonMappingException e ) {
-					Log.e( TAG, "create : JsonMappingException - error opening file 'recorded'", e );
-				} catch( IOException e ) {
-					Log.e( TAG, "create : IOException - error opening file 'recorded'", e );
-				}
-
-			}
-		
-		}
-		
-		Log.v( TAG, "loadData : exit" );
+		Log.v( TAG, "restartLoader : exit" );
 	}
-	
-	private class ProgramGroupRowAdapter extends ArrayAdapter<Program> {
+
+	private class ProgramGroupCursorAdapter extends CursorAdapter {
 
 		private LayoutInflater mInflater;
 
-		private List<Program> programGroups;
-		
-		public ProgramGroupRowAdapter( Context context, List<Program> programGroups ) {
-			super( context, R.id.program_group_row, programGroups );
-			Log.v( TAG, "ProgramGroupRowAdapter : enter" );
-
-			mInflater = LayoutInflater.from( context );
-
-			this.programGroups = programGroups;
+		public ProgramGroupCursorAdapter( Context context ) {
+			super( context, null, false );
 			
-			Log.v( TAG, "ProgramGroupRowAdapter : exit" );
+			mInflater = LayoutInflater.from( context );
 		}
 
 		/* (non-Javadoc)
-		 * @see android.widget.Adapter#getView(int, android.view.View, android.view.ViewGroup)
+		 * @see android.support.v4.widget.CursorAdapter#newView(android.content.Context, android.database.Cursor, android.view.ViewGroup)
+		 */
+		@Override
+		public View newView( Context context, Cursor cursor, ViewGroup parent ) {
+			//Log.v( TAG, "newView : enter" );
+
+	        View view = mInflater.inflate( R.layout.program_group_row, parent, false );
+			
+			ViewHolder refHolder = new ViewHolder();
+			refHolder.programGroupDetail = (LinearLayout) view.findViewById( R.id.program_group_detail );
+			refHolder.category = (View) view.findViewById( R.id.program_group_category );
+			refHolder.programGroup = (TextView) view.findViewById( R.id.program_group_row );
+			
+			view.setTag( refHolder );
+			
+			//Log.v( TAG, "newView : exit" );
+			return view;
+		}
+
+		/* (non-Javadoc)
+		 * @see android.support.v4.widget.CursorAdapter#bindView(android.view.View, android.content.Context, android.database.Cursor)
 		 */
 		@SuppressWarnings( "deprecation" )
 		@Override
-		public View getView( int position, View convertView, ViewGroup parent ) {
-			Log.v( TAG, "ProgramGroupRowAdapter.getView : enter" );
-			
-			View v = convertView;
-			ViewHolder mHolder;
-			
-			if( null == v ) {
-				v = mInflater.inflate( R.layout.program_group_row, parent, false );
-				
-				mHolder = new ViewHolder();				
-				mHolder.programGroupDetail = (LinearLayout) v.findViewById( R.id.program_group_detail );
-				mHolder.category = (View) v.findViewById( R.id.program_group_category );
-				mHolder.programGroup = (TextView) v.findViewById( R.id.program_group_row );
-				
-				v.setTag( mHolder );
-			} else {
-				mHolder = (ViewHolder) v.getTag();
-			}
-						
-			Program program = programGroups.get( position );
+		public void bindView( View view, Context context, Cursor cursor ) {
 
-			mHolder.programGroup.setText( program.getTitle() );
-			mHolder.category.setBackgroundColor( mProgramHelper.getCategoryColor( program.getCategory() ) );
+	        Long id = cursor.getLong( cursor.getColumnIndexOrThrow( ProgramConstants._ID ) );
+	        String title = cursor.getString( cursor.getColumnIndexOrThrow( ProgramConstants.FIELD_TITLE ) );
+	        String category = cursor.getString( cursor.getColumnIndexOrThrow( ProgramConstants.FIELD_CATEGORY ) );
+	        //Log.v( TAG, "bindView : id=" + id + ",title=" + title + ", category=" + category );
+
+	        ViewHolder mHolder = (ViewHolder) view.getTag();
 			
-			BitmapDrawable banner = imageCache.get( program.getTitle() );
+			mHolder.programGroup.setText( title );
+			mHolder.category.setBackgroundColor( mProgramHelper.getCategoryColor( category ) );
+
+			BitmapDrawable banner = imageCache.get( title );
 			if( null != banner ) {
-				Log.v( TAG, "getView : loading banner from adapter cache" );
-					
 				mHolder.programGroupDetail.setBackgroundDrawable( banner );
 				mHolder.programGroup.setVisibility( View.INVISIBLE );
 			} else {
-				Log.v( TAG, "getView : banner not found in adapter cache" );
-
 				mHolder.programGroupDetail.setBackgroundDrawable( null );
 				mHolder.programGroup.setVisibility( View.VISIBLE );
 				
-				Intent downloadBannerIntent = new Intent( BannerDownloadService.ACTION_DOWNLOAD );
-				downloadBannerIntent.putExtra( BannerDownloadService.BANNER_INETREF, program.getInetref() );
-				downloadBannerIntent.putExtra( BannerDownloadService.BANNER_TITLE, program.getTitle() );
-				getActivity().startService( downloadBannerIntent );
+//				Intent downloadBannerIntent = new Intent( BannerDownloadService.ACTION_DOWNLOAD );
+//				downloadBannerIntent.putExtra( BannerDownloadService.BANNER_RECORDED_ID, id );
+//				getActivity().startService( downloadBannerIntent );
 
-				Intent downloadCoverartIntent = new Intent( CoverartDownloadService.ACTION_DOWNLOAD );
-				downloadCoverartIntent.putExtra( CoverartDownloadService.COVERART_INETREF, program.getInetref() );
-				downloadCoverartIntent.putExtra( CoverartDownloadService.COVERART_TITLE, program.getTitle() );
-				getActivity().startService( downloadCoverartIntent );
+//				Intent downloadCoverartIntent = new Intent( CoverartDownloadService.ACTION_DOWNLOAD );
+//				downloadCoverartIntent.putExtra( CoverartDownloadService.COVERART_RECORDED_ID, id );
+//				getActivity().startService( downloadCoverartIntent );
 			}
-
-			Log.v( TAG, "ProgramGroupRowAdapter.getView : exit" );
-			return v;
+			
 		}
-		
+
 	}
 
 	private static class ViewHolder {
@@ -426,36 +401,11 @@ public class RecordingsFragment extends MythtvListFragment {
 	        if ( intent.getAction().equals( RecordedDownloadService.ACTION_COMPLETE ) ) {
 	        	Log.i( TAG, "RecordedDownloadReceiver.onReceive : complete=" + intent.getStringExtra( RecordedDownloadService.EXTRA_COMPLETE ) );
 	        	
-	        	if( null != adapter ) {
-	        		adapter.clear();
-	        	}
-
 	        	Toast.makeText( getActivity(), "Recorded Programs updated!", Toast.LENGTH_SHORT ).show();
 	        	
-	        	getActivity().startService( new Intent( ProgramGroupRecordedDownloadService.ACTION_DOWNLOAD ) );
-	        	
-	        	loadData();
 	        }
 
         	Log.i( TAG, "RecordedDownloadReceiver.onReceive : exit" );
-		}
-		
-	}
-
-	private class ProgramGroupRecordedDownloadReceiver extends BroadcastReceiver {
-
-		@Override
-		public void onReceive( Context context, Intent intent ) {
-			
-	        if ( intent.getAction().equals( RecordedDownloadService.ACTION_PROGRESS ) ) {
-	        	Log.i( TAG, "ProgramGroupRecordedDownloadReceiver.onReceive : progress=" + intent.getStringExtra( ProgramGroupRecordedDownloadService.EXTRA_PROGRESS ) );
-	        }
-	        
-	        if ( intent.getAction().equals( RecordedDownloadService.ACTION_COMPLETE ) ) {
-	        	Log.i( TAG, "ProgramGroupRecordedDownloadReceiver.onReceive : complete=" + intent.getStringExtra( ProgramGroupRecordedDownloadService.EXTRA_COMPLETE ) );
-	        	
-	        }
-
 		}
 		
 	}
@@ -471,28 +421,25 @@ public class RecordingsFragment extends MythtvListFragment {
 	        	if( null != intent.getStringExtra( BannerDownloadService.EXTRA_COMPLETE_FILENAME ) && !"".equals( intent.getStringExtra( BannerDownloadService.EXTRA_COMPLETE_FILENAME ) ) ) {
 	        		imageCache.remove( intent.getStringExtra( BannerDownloadService.EXTRA_COMPLETE_FILENAME ) );
 	        	}
-	        	
+
+	        	adapter.notifyDataSetChanged();
 	        }
 
 		}
 		
 	}
 
-	private class CoverartDownloadReceiver extends BroadcastReceiver {
-
-		@Override
-		public void onReceive( Context context, Intent intent ) {
-			
-	        if ( intent.getAction().equals( CoverartDownloadService.ACTION_COMPLETE ) ) {
-	        	Log.i( TAG, "CoverartDownloadReceiver.onReceive : complete=" + intent.getStringExtra( CoverartDownloadService.EXTRA_COMPLETE ) );
-	        	
-//	        	if( null != intent.getStringExtra( BannerDownloadService.EXTRA_COMPLETE_FILENAME ) && !"".equals( intent.getStringExtra( BannerDownloadService.EXTRA_COMPLETE_FILENAME ) ) ) {
-//	        		imageCache.remove( intent.getStringExtra( BannerDownloadService.EXTRA_COMPLETE_FILENAME ) );
-//	        	}
-	        }
-
-		}
-		
-	}
+//	private class CoverartDownloadReceiver extends BroadcastReceiver {
+//
+//		@Override
+//		public void onReceive( Context context, Intent intent ) {
+//			
+//	        if ( intent.getAction().equals( CoverartDownloadService.ACTION_COMPLETE ) ) {
+//	        	Log.i( TAG, "CoverartDownloadReceiver.onReceive : complete=" + intent.getStringExtra( CoverartDownloadService.EXTRA_COMPLETE ) );
+//	        }
+//
+//		}
+//		
+//	}
 
 }
