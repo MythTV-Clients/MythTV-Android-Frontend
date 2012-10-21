@@ -36,9 +36,13 @@ import android.util.Log;
 public class RecordingsActivity extends AbstractDvrActivity implements RecordingsFragment.OnProgramGroupListener {
 
 	private static final String TAG = RecordingsActivity.class.getSimpleName();
+	private static final String PROGRAM_GROUP_LIST_TAG = "PROGRAM_GROUP_LIST_TAG";
 	
 	private boolean mUseMultiplePanes;
 
+	private RecordingsFragment recordingsFragment;
+	private ProgramGroupFragment programGroupFragment;
+	
 	@Override
 	public void onCreate( Bundle savedInstanceState ) {
 		Log.v( TAG, "onCreate : enter" );
@@ -46,11 +50,15 @@ public class RecordingsActivity extends AbstractDvrActivity implements Recording
 
 		setContentView( R.layout.activity_dvr_recordings );
 
-		RecordingsFragment recordingsFragment = (RecordingsFragment) getSupportFragmentManager().findFragmentById( R.id.fragment_dvr_program_groups );
+		recordingsFragment = (RecordingsFragment) getSupportFragmentManager().findFragmentById( R.id.fragment_dvr_program_groups );
 		recordingsFragment.setOnProgramGroupListener( this );
 
 		mUseMultiplePanes = ( null != findViewById( R.id.fragment_dvr_program_group ) );
 
+		if( mUseMultiplePanes ) {
+			programGroupFragment = (ProgramGroupFragment) getSupportFragmentManager().findFragmentById( R.id.fragment_dvr_program_group );
+		}
+		
 		Log.v( TAG, "onCreate : exit" );
 	}
 
@@ -76,7 +84,6 @@ public class RecordingsActivity extends AbstractDvrActivity implements Recording
 		if( null != findViewById( R.id.fragment_dvr_program_group ) ) {
 			FragmentManager manager = getSupportFragmentManager();
 
-			ProgramGroupFragment programGroupFragment = (ProgramGroupFragment) manager.findFragmentById( R.id.fragment_dvr_program_group );
 			final boolean programGroupAdded = ( programGroupFragment != null );
 			if( programGroupAdded ) {
 				if( null != programGroupFragment.getSelectedProgramGroup() && programGroupFragment.getSelectedProgramGroup().equals( programGroup ) ) {
@@ -90,9 +97,13 @@ public class RecordingsActivity extends AbstractDvrActivity implements Recording
 				programGroupFragment = new ProgramGroupFragment();
 
 				if( mUseMultiplePanes ) {
-					transaction.add( R.id.fragment_dvr_program_group, programGroupFragment );
+					Log.v( TAG, "onProgramGroupSelected : adding to multipane" );
+
+					transaction.add( R.id.fragment_dvr_program_group, programGroupFragment, PROGRAM_GROUP_LIST_TAG );
 				} else {
-					transaction.replace( R.id.fragment_dvr_program_group, programGroupFragment );
+					Log.v( TAG, "onProgramGroupSelected : replacing fragment" );
+
+					transaction.replace( R.id.fragment_dvr_program_group, programGroupFragment, PROGRAM_GROUP_LIST_TAG );
 					transaction.addToBackStack( null );
 				}
 				transaction.setTransition( FragmentTransaction.TRANSIT_FRAGMENT_OPEN );

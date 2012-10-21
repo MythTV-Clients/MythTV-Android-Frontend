@@ -99,6 +99,17 @@ public class ProgramGroupFragment extends MythtvListFragment implements LoaderMa
 		Log.v( TAG, "onLoaderReset : exit" );
 	}
 
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.ListFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle)
+	 */
+	@Override
+	public View onCreateView( LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState ) {
+		Log.i( TAG, "onCreateView : enter" );
+
+		Log.i( TAG, "onCreateView : exit" );
+		return super.onCreateView( inflater, container, savedInstanceState );
+	}
+
 	@Override
 	public void onActivityCreated( Bundle savedInstanceState ) {
 		Log.i( TAG, "onActivityCreated : enter" );
@@ -142,7 +153,7 @@ public class ProgramGroupFragment extends MythtvListFragment implements LoaderMa
 		Log.v( TAG, "loadProgramGroup : programGroup=" + programGroup );
 
 		this.programGroup = programGroup;
-		
+
 	    getLoaderManager().restartLoader( 0, null, this );
 
 		Log.v( TAG, "loadProgramGroup : exit" );
@@ -150,7 +161,7 @@ public class ProgramGroupFragment extends MythtvListFragment implements LoaderMa
 	
 	// internal helpers
 	
-	private class ProgramCursorAdapter extends SimpleCursorAdapter {
+	private static class ProgramCursorAdapter extends SimpleCursorAdapter {
 
 		private LayoutInflater mInflater;
 		

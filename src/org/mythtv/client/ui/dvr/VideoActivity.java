@@ -30,7 +30,6 @@ import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.content.LiveStreamInfo;
 import org.mythtv.services.api.content.LiveStreamInfoWrapper;
-import org.mythtv.services.api.dvr.Program;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 

@@ -43,7 +43,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	private static final String TAG = DatabaseHelper.class.getSimpleName();
 	
 	private static final String DATABASE_NAME = "mythtvdb";
-	private static final int DATABASE_VERSION = 43;
+	private static final int DATABASE_VERSION = 44;
 
 	public DatabaseHelper( Context context ) {
 		super( context, DATABASE_NAME, null, DATABASE_VERSION );
@@ -65,6 +65,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		dropProgram( db, ProgramConstants.TABLE_NAME_RECORDED );
 		createProgram( db, ProgramConstants.TABLE_NAME_RECORDED );
 		
+		dropCleanup( db );
+		createCleanup( db );
+		
 		Log.v( TAG, "onCreate : exit" );
 	}
 
@@ -82,11 +85,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			createPlaybackProfiles( db );
 		}
 
-		if( oldVersion < 43 ) {
-			Log.v( TAG, "onUpgrade : upgrading to db version 43" );
+		if( oldVersion < 44 ) {
+			Log.v( TAG, "onUpgrade : upgrading to db version 44" );
 
 			dropProgram( db, ProgramConstants.TABLE_NAME_RECORDED );
 			createProgram( db, ProgramConstants.TABLE_NAME_RECORDED );
+			
+			dropCleanup( db );
+			createCleanup( db );
 		}
 
 		Log.v( TAG, "onUpgrade : exit" );
