@@ -69,4 +69,4 @@ that the avahi-daemon is running.  You can manually add your backend machines, b
 the MythMote functionality, follow your distro's instructions on installing and enabling the avahi-daemon.  Once installed and running, the app will be able to not only
 auto-discover your frontends, but also your backend.
 
-  
+Additionally, MythTV must be compiled with libdns-sd enabled. To verify that it is, type mythfrontend --version. The string: using_libdns_sd must appear in the output.
