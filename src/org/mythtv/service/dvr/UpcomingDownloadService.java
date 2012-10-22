@@ -21,20 +21,11 @@ package org.mythtv.service.dvr;
 import java.io.File;
 import java.io.IOException;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.TimeZone;
-import java.util.TreeMap;
 
 import org.apache.commons.io.FileUtils;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.mythtv.R;
 import org.mythtv.service.MythtvService;
-import org.mythtv.service.util.DateUtils;
 import org.mythtv.services.api.ETagInfo;
-import org.mythtv.services.api.dvr.Program;
 import org.mythtv.services.api.dvr.ProgramList;
 import org.mythtv.services.api.dvr.Programs;
 import org.springframework.http.HttpStatus;
@@ -179,43 +170,6 @@ public class UpcomingDownloadService extends MythtvService {
 		Log.v( TAG, "process : enter" );
 		
 		mMainApplication.getObjectMapper().writeValue( new File( upcomingDirectory, UPCOMING_FILE ), programs );
-
-		Map<DateTime, Programs> upcomingDates = new TreeMap<DateTime, Programs>();
-		for( Program program : programs.getPrograms() ) {
-			//Log.v( TAG, "download : upcoming program iteration" );
-
-			program.setStartTime( program.getStartTime().withZone( DateTimeZone.forID( TimeZone.getDefault().getID() ) ) );
-			program.setEndTime( program.getEndTime().withZone( DateTimeZone.forID( TimeZone.getDefault().getID() ) ) );
-
-			DateTime date = program.getStartTime().withTime( 0, 0, 0, 0 ).withZone( DateTimeZone.forID( TimeZone.getDefault().getID() ) );
-			if( upcomingDates.containsKey( date ) ) {
-				//Log.v( TAG, "download : adding program to EXISTING " + DateUtils.dateFormatter.print( date ) );
-
-				upcomingDates.get( date ).getPrograms().add( program );
-			} else {
-				//Log.v( TAG, "download : adding program to NEW " + DateUtils.dateFormatter.print( date ) );
-				Programs datePrograms = new Programs();
-
-				List<Program> dateProgramList = new ArrayList<Program>();
-				dateProgramList.add( program );
-				datePrograms.setPrograms( dateProgramList );
-
-				upcomingDates.put( date, datePrograms );
-			}
-
-		}
-
-		int count = 1;
-		for( DateTime date : upcomingDates.keySet() ) {
-			Programs upcomingPrograms = upcomingDates.get( date );
-
-			String key = DateUtils.dateFormatter.print( date );
-
-			mMainApplication.getObjectMapper().writeValue( new File( upcomingDirectory, key + UPCOMING_FILE_EXT ), upcomingPrograms );
-			
-			double percentage = ( (float) count / (float) programs.getPrograms().size() ) * 100;
-			progressUpdate( percentage );
-		}
 
 		int programsAdded = mUpcomingProcessor.processPrograms( programs );
 		Log.v( TAG, "process : programsAdded=" + programsAdded );

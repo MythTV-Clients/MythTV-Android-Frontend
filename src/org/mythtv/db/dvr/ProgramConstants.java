@@ -29,8 +29,6 @@ import android.provider.BaseColumns;
  */
 public class ProgramConstants implements BaseColumns {
 
-	public enum ProgramType { RECORDED, UPCOMING, GUIDE, PREVIOUSLY_RECORDED };
-	
 	public static final String TABLE_NAME_PROGRAM = "program";
 	public static final String TABLE_NAME_RECORDED = "recorded";
 	public static final String TABLE_NAME_UPCOMING = "upcoming";
