@@ -185,7 +185,13 @@ public class UpcomingActivity extends AbstractDvrActivity {
 		 */
 		@Override
 		public Fragment getItem( int position ) {
-			return UpcomingFragment.newInstance( fragmentHeadings.get( position ) );
+			Log.v( TAG, "getItem : enter" );
+			
+			Log.d( TAG, "getItem : fragmentHeading=" + fragmentHeadings.get( position ) );
+			UpcomingFragment upcomingFragment = UpcomingFragment.newInstance( fragmentHeadings.get( position ) ); 
+			
+			Log.v( TAG, "getItem : exit" );
+			return upcomingFragment;
 		}
 
 		/* (non-Javadoc)

@@ -3,6 +3,7 @@
  */
 package org.mythtv.service.dvr;
 
+import org.joda.time.DateTime;
 import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.service.AbstractMythtvProcessor;
 import org.mythtv.service.util.DateUtils;
@@ -43,6 +44,20 @@ public class UpcomingProcessor extends AbstractMythtvProcessor {
 			ContentValues[] contentValuesArray = convertProgramsToContentValuesArray( programs );
 			result = mContext.getContentResolver().bulkInsert( ProgramConstants.CONTENT_URI_UPCOMING, contentValuesArray );
 			Log.v( TAG, "processPrograms : programs added=" + result );
+			
+//			Cursor cursor = mContext.getContentResolver().query( ProgramConstants.CONTENT_URI_UPCOMING, null, null, null, ProgramConstants.FIELD_START_TIME );
+//			while( cursor.moveToNext() ) {
+//				long lStartTime = cursor.getLong( cursor.getColumnIndex( ProgramConstants.FIELD_START_TIME ) );
+//				int iDuration = cursor.getInt( cursor.getColumnIndex( ProgramConstants.FIELD_DURATION ) );
+//				String sTitle = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_TITLE ) );
+//				String sStartDate = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_START_DATE ) );
+//				String sSubTitle = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_SUB_TITLE ) );
+//				String sCategory = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_CATEGORY ) );
+//				String sChannelNumber = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_CHANNEL_NUMBER ) );
+//				
+//				Log.v( TAG, "processPrograms : Title=" + sTitle + ", channel=" + sChannelNumber + ", startDate=" + sStartDate + ", startTime=" + DateUtils.dateTimeFormatter.print( new DateTime( lStartTime ) ) );
+//			}
+			
 		}
 		
 		Log.v( TAG, "processPrograms : exit" );
@@ -79,14 +94,17 @@ public class UpcomingProcessor extends AbstractMythtvProcessor {
 		// Removing Grammar Articles.  English only at this time, needs internationalization
 		String cleanTitle = ArticleCleaner.clean( program.getTitle() );
 
+		DateTime startTime = new DateTime( program.getStartTime().getMillis() );
+		DateTime endTime = new DateTime( program.getEndTime().getMillis() );
+		
 		ContentValues values = new ContentValues();
 		values.put( ProgramConstants.FIELD_PROGRAM_GROUP, cleanTitle );
-		values.put( ProgramConstants.FIELD_START_TIME, program.getStartTime().getMillis() );
-		values.put( ProgramConstants.FIELD_END_TIME, program.getEndTime().getMillis() );
+		values.put( ProgramConstants.FIELD_START_TIME, startTime.getMillis() );
+		values.put( ProgramConstants.FIELD_END_TIME, endTime.getMillis() );
 		values.put( ProgramConstants.FIELD_DURATION, durationInMinutes );
-		values.put( ProgramConstants.FIELD_START_DATE, DateUtils.dateFormatter.print( program.getStartTime() ) );
-		values.put( ProgramConstants.FIELD_TIMESLOT_HOUR, program.getStartTime().getHourOfDay() );
-		values.put( ProgramConstants.FIELD_TIMESLOT_MINUTE, program.getStartTime().getMinuteOfHour() );
+		values.put( ProgramConstants.FIELD_START_DATE, DateUtils.dateFormatter.print( startTime ) );
+		values.put( ProgramConstants.FIELD_TIMESLOT_HOUR, startTime.getHourOfDay() );
+		values.put( ProgramConstants.FIELD_TIMESLOT_MINUTE, startTime.getMinuteOfHour() );
 		values.put( ProgramConstants.FIELD_TITLE, null != program.getTitle() ? program.getTitle() : "" );
 		values.put( ProgramConstants.FIELD_SUB_TITLE, null != program.getSubTitle() ? program.getSubTitle() : "" );
 		values.put( ProgramConstants.FIELD_CATEGORY, null != program.getCategory() ? program.getCategory() : "" );
