@@ -77,7 +77,8 @@ public class UpcomingDownloadService extends MythtvService {
 	private int notificationId;
 	
 	private File upcomingDirectory = null;
-	
+	private UpcomingProcessor mUpcomingProcessor;
+
 	public UpcomingDownloadService() {
 		super( "UpcomingDownloadService" );
 	}
@@ -90,6 +91,8 @@ public class UpcomingDownloadService extends MythtvService {
 		Log.d( TAG, "onHandleIntent : enter" );
 		super.onHandleIntent( intent );
 		
+		mUpcomingProcessor = new UpcomingProcessor( this );
+
 		upcomingDirectory = mFileHelper.getProgramUpcomingDataDirectory();
 		if( null == upcomingDirectory || !upcomingDirectory.exists() ) {
 			Intent completeIntent = new Intent( ACTION_COMPLETE );
@@ -213,6 +216,9 @@ public class UpcomingDownloadService extends MythtvService {
 			double percentage = ( (float) count / (float) programs.getPrograms().size() ) * 100;
 			progressUpdate( percentage );
 		}
+
+		int programsAdded = mUpcomingProcessor.processPrograms( programs );
+		Log.v( TAG, "process : programsAdded=" + programsAdded );
 
 		Log.v( TAG, "process : exit" );
 	}

@@ -24,10 +24,7 @@ import java.util.List;
 import org.joda.time.DateTime;
 import org.mythtv.R;
 import org.mythtv.service.dvr.UpcomingDownloadService;
-import org.mythtv.service.dvr.cache.UpcomingLruMemoryCache;
 import org.mythtv.service.util.DateUtils;
-import org.mythtv.services.api.dvr.Program;
-import org.mythtv.services.api.dvr.Programs;
 
 import android.annotation.TargetApi;
 import android.content.BroadcastReceiver;
@@ -58,8 +55,6 @@ public class UpcomingActivity extends AbstractDvrActivity {
 
 	private MythtvUpcomingPagerAdapter mAdapter;
 	
-	private UpcomingLruMemoryCache cache;
-	
 	/* (non-Javadoc)
 	 * @see android.support.v4.app.FragmentActivity#onCreate(android.os.Bundle)
 	 */
@@ -70,8 +65,6 @@ public class UpcomingActivity extends AbstractDvrActivity {
 
 		setContentView( R.layout.activity_dvr_upcoming );
 
-		cache = new UpcomingLruMemoryCache( this );
-		
 		setupActionBar();
 
 		mAdapter = new MythtvUpcomingPagerAdapter( getSupportFragmentManager() );
@@ -178,7 +171,7 @@ public class UpcomingActivity extends AbstractDvrActivity {
 			DateTime day = DateUtils.getToday();
 			
 			String formattedDay = null;
-			for( int i = 0; i < 12; i++ ) {
+			for( int i = 0; i < 13; i++ ) {
 				formattedDay = DateUtils.dateFormatter.print( day );
 				fragmentHeadings.add( formattedDay );
 				
@@ -192,22 +185,7 @@ public class UpcomingActivity extends AbstractDvrActivity {
 		 */
 		@Override
 		public Fragment getItem( int position ) {
-			Programs programs = cache.get( fragmentHeadings.get( position ) + UpcomingDownloadService.UPCOMING_FILE_EXT );
-			DateTime now = new DateTime();
-			List<Program> programList = new ArrayList<Program>();
-			
-			if( null != programs ) {
-				for( Program program : programs.getPrograms() ) {
-					if( now.isBefore( program.getEndTime() ) ) {
-						programList.add( program );
-					}
-				}
-			} else {
-				programs = UpcomingLruMemoryCache.getEmptyPrograms();
-				programList = programs.getPrograms();
-			}
-			
-			return UpcomingFragment.newInstance( programList );
+			return UpcomingFragment.newInstance( fragmentHeadings.get( position ) );
 		}
 
 		/* (non-Javadoc)
@@ -255,8 +233,6 @@ public class UpcomingActivity extends AbstractDvrActivity {
 	        	String filename = intent.getStringExtra( UpcomingDownloadService.EXTRA_PROGRESS_FILENAME );
 	        	if( null != filename && !"".equals( filename ) ) {
 	        		Log.d( TAG, "UpcomingDownloadReceiver.onReceive : removing from cache" + filename );
-	        		
-	        		cache.remove( filename );
 	        	}
 	        }
 	        
