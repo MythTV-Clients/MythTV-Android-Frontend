@@ -38,12 +38,6 @@ public abstract class AbstractMythtvProcessor {
 		application = (MainApplication) context.getApplicationContext();
 	}
 
-	public interface NotifyCallback {
-
-		void notify( String message );
-		
-	}
-
 	public MainApplication getMainApplication() {
 		return application;
 	}
