@@ -57,6 +57,12 @@ public class RecordingsActivity extends AbstractDvrActivity implements Recording
 
 		if( mUseMultiplePanes ) {
 			programGroupFragment = (ProgramGroupFragment) getSupportFragmentManager().findFragmentById( R.id.fragment_dvr_program_group );
+			
+			Cursor cursor = getContentResolver().query( ProgramConstants.CONTENT_URI_RECORDED, new String[] { ProgramConstants._ID }, null, null, ProgramConstants.FIELD_PROGRAM_GROUP );
+			if( cursor.moveToFirst() ) {
+				Long id = cursor.getLong( cursor.getColumnIndexOrThrow( ProgramConstants._ID ) );
+				onProgramGroupSelected( id );
+			}
 		}
 		
 		Log.v( TAG, "onCreate : exit" );

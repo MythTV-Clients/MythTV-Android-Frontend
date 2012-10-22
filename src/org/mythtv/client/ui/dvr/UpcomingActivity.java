@@ -245,9 +245,13 @@ public class UpcomingActivity extends AbstractDvrActivity {
 	        if ( intent.getAction().equals( UpcomingDownloadService.ACTION_COMPLETE ) ) {
 	        	Log.i( TAG, "UpcomingDownloadReceiver.onReceive : " + intent.getStringExtra( UpcomingDownloadService.EXTRA_COMPLETE ) );
 	        	
-	        	Toast.makeText( UpcomingActivity.this, "Upcoming Programs updated!", Toast.LENGTH_SHORT ).show();
+	        	if( intent.getExtras().containsKey( UpcomingDownloadService.EXTRA_COMPLETE_UPTODATE ) ) {
+	        		Toast.makeText( UpcomingActivity.this, "Upcoming Programs are up to date!", Toast.LENGTH_SHORT ).show();
+	        	} else {
+	        		Toast.makeText( UpcomingActivity.this, "Upcoming Programs updated!", Toast.LENGTH_SHORT ).show();
 
-	        	mAdapter.notifyDataSetChanged();
+	        		mAdapter.notifyDataSetChanged();
+	        	}
 	        }
 	        
 		}

@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import org.mythtv.db.DatabaseHelper;
 import org.mythtv.db.channel.ChannelConstants;
 import org.mythtv.db.dvr.ProgramConstants;
+import org.mythtv.db.http.EtagConstants;
 
 import android.content.ContentProviderOperation;
 import android.content.ContentProviderResult;
@@ -67,6 +68,12 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 	private static final int CHANNELS 					= 200;
 	private static final int CHANNEL_ID 				= 201;
 
+	private static final String ETAG_CONTENT_TYPE = "vnd.mythtv.cursor.dir/org.mythtv.etag";
+	private static final String ETAG_CONTENT_ITEM_TYPE = "vnd.mythtv.cursor.item/org.mythtv.etag";
+	private static final int ETAGS 					= 1000;
+	private static final int ETAG_ID 				= 1001;
+	private static final int ETAG_ENDPOINT	 		= 1002;
+
 	static {
 		URI_MATCHER = new UriMatcher( UriMatcher.NO_MATCH );
 		URI_MATCHER.addURI( AUTHORITY, ProgramConstants.TABLE_NAME_RECORDED, RECORDED );
@@ -77,6 +84,9 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 		URI_MATCHER.addURI( AUTHORITY, ProgramConstants.TABLE_NAME_UPCOMING + "/startDate", UPCOMING_START_DATE );
 		URI_MATCHER.addURI( AUTHORITY, ChannelConstants.TABLE_NAME, CHANNELS );
 		URI_MATCHER.addURI( AUTHORITY, ChannelConstants.TABLE_NAME + "/#", CHANNEL_ID );
+		URI_MATCHER.addURI( AUTHORITY, EtagConstants.TABLE_NAME, ETAGS );
+		URI_MATCHER.addURI( AUTHORITY, EtagConstants.TABLE_NAME + "/#", ETAG_ID );
+		URI_MATCHER.addURI( AUTHORITY, EtagConstants.TABLE_NAME + "/endpoint", ETAG_ENDPOINT );
 	}
 
 	private DatabaseHelper database = null;
@@ -123,6 +133,15 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 			case CHANNEL_ID:
 				return CHANNEL_CONTENT_ITEM_TYPE;
 			
+			case ETAGS:
+				return ETAG_CONTENT_TYPE;
+			
+			case ETAG_ID:
+				return ETAG_CONTENT_ITEM_TYPE;
+			
+			case ETAG_ENDPOINT:
+				return ETAG_CONTENT_ITEM_TYPE;
+			
 			default:
 				throw new IllegalArgumentException( "Unknown URI " + uri );
 		}
@@ -165,6 +184,15 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 						+ Long.toString( ContentUris.parseId( uri ) )
 						+ ( !TextUtils.isEmpty( selection ) ? " AND (" + selection + ')' : "" ), selectionArgs );
 		
+			case ETAGS:
+				return db.delete( EtagConstants.TABLE_NAME, selection, selectionArgs );
+		
+			case ETAG_ID:
+				return db.delete( EtagConstants.TABLE_NAME, EtagConstants._ID
+						+ "="
+						+ Long.toString( ContentUris.parseId( uri ) )
+						+ ( !TextUtils.isEmpty( selection ) ? " AND (" + selection + ')' : "" ), selectionArgs );
+		
 			default:
 				throw new IllegalArgumentException( "Unknown URI " + uri );
 		}
@@ -198,6 +226,13 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 	
 			case CHANNELS:
 				newUri = ContentUris.withAppendedId( ChannelConstants.CONTENT_URI, db.insertOrThrow( ChannelConstants.TABLE_NAME, null, values ) );
+				
+				getContext().getContentResolver().notifyChange( newUri, null );
+				
+				return newUri;
+	
+			case ETAGS:
+				newUri = ContentUris.withAppendedId( EtagConstants.CONTENT_URI, db.insertOrThrow( EtagConstants.TABLE_NAME, null, values ) );
 				
 				getContext().getContentResolver().notifyChange( newUri, null );
 				
@@ -273,8 +308,29 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				cursor = db.query( ChannelConstants.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder );
 				cursor.setNotificationUri( getContext().getContentResolver(), uri );
 				
-				return null;
+				return cursor;
 	
+			case ETAGS:
+				
+				cursor = db.query( EtagConstants.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder );
+				cursor.setNotificationUri( getContext().getContentResolver(), uri );
+				
+				return cursor;
+	
+			case ETAG_ID:
+				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
+
+				cursor = db.query( EtagConstants.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder );
+				cursor.setNotificationUri( getContext().getContentResolver(), uri );
+				
+				return cursor;
+	
+			case ETAG_ENDPOINT:
+				cursor = db.query( EtagConstants.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder );
+				cursor.setNotificationUri( getContext().getContentResolver(), uri );
+				
+				return cursor;
+
 			default:
 				throw new IllegalArgumentException( "Unknown URI " + uri );
 		}
@@ -335,6 +391,22 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
 
 				affected = db.update( ChannelConstants.TABLE_NAME, values, selection , selectionArgs );
+
+				getContext().getContentResolver().notifyChange( uri, null );
+				
+				return affected;
+
+			case ETAGS:
+				affected = db.update( EtagConstants.TABLE_NAME, values, selection , selectionArgs );
+				
+				getContext().getContentResolver().notifyChange( uri, null );
+				
+				return affected;
+
+			case ETAG_ID:
+				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
+
+				affected = db.update( EtagConstants.TABLE_NAME, values, selection , selectionArgs );
 
 				getContext().getContentResolver().notifyChange( uri, null );
 				

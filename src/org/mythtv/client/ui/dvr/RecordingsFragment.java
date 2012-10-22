@@ -69,7 +69,6 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 	
 	private RecordedDownloadReceiver recordedDownloadReceiver = new RecordedDownloadReceiver();
 	private BannerDownloadReceiver bannerDownloadReceiver = new BannerDownloadReceiver();
-//	private CoverartDownloadReceiver coverartDownloadReceiver = new CoverartDownloadReceiver();
 
 	private static FileHelper mFileHelper;
 	private static ProgramHelper mProgramHelper;
@@ -168,10 +167,6 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 		bannerDownloadFilter.addAction( BannerDownloadService.ACTION_COMPLETE );
         getActivity().registerReceiver( bannerDownloadReceiver, bannerDownloadFilter );
 
-//		IntentFilter coverartDownloadFilter = new IntentFilter( CoverartDownloadService.ACTION_DOWNLOAD );
-//		coverartDownloadFilter.addAction( CoverartDownloadService.ACTION_COMPLETE );
-//        getActivity().registerReceiver( coverartDownloadReceiver, coverartDownloadFilter );
-
 		Log.v( TAG, "onStart : enter" );
 	}
 
@@ -222,15 +217,6 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 				Log.e( TAG, e.getLocalizedMessage(), e );
 			}
 		}
-
-//		if( null != coverartDownloadReceiver ) {
-//			try {
-//				getActivity().unregisterReceiver( coverartDownloadReceiver );
-//				coverartDownloadReceiver = null;
-//			} catch( IllegalArgumentException e ) {
-//				Log.e( TAG, e.getLocalizedMessage(), e );
-//			}
-//		}
 
 		Log.v( TAG, "onStop : exit" );
 	}
@@ -347,7 +333,6 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 		@Override
 		public void bindView( View view, Context context, Cursor cursor ) {
 
-	        Long id = cursor.getLong( cursor.getColumnIndexOrThrow( ProgramConstants._ID ) );
 	        String title = cursor.getString( cursor.getColumnIndexOrThrow( ProgramConstants.FIELD_TITLE ) );
 	        String category = cursor.getString( cursor.getColumnIndexOrThrow( ProgramConstants.FIELD_CATEGORY ) );
 	        //Log.v( TAG, "bindView : id=" + id + ",title=" + title + ", category=" + category );
@@ -364,14 +349,6 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 			} else {
 				mHolder.programGroupDetail.setBackgroundDrawable( null );
 				mHolder.programGroup.setVisibility( View.VISIBLE );
-				
-//				Intent downloadBannerIntent = new Intent( BannerDownloadService.ACTION_DOWNLOAD );
-//				downloadBannerIntent.putExtra( BannerDownloadService.BANNER_RECORDED_ID, id );
-//				getActivity().startService( downloadBannerIntent );
-
-//				Intent downloadCoverartIntent = new Intent( CoverartDownloadService.ACTION_DOWNLOAD );
-//				downloadCoverartIntent.putExtra( CoverartDownloadService.COVERART_RECORDED_ID, id );
-//				getActivity().startService( downloadCoverartIntent );
 			}
 			
 		}
@@ -401,7 +378,13 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 	        if ( intent.getAction().equals( RecordedDownloadService.ACTION_COMPLETE ) ) {
 	        	Log.i( TAG, "RecordedDownloadReceiver.onReceive : complete=" + intent.getStringExtra( RecordedDownloadService.EXTRA_COMPLETE ) );
 	        	
-	        	Toast.makeText( getActivity(), "Recorded Programs updated!", Toast.LENGTH_SHORT ).show();
+	        	if( intent.getExtras().containsKey( RecordedDownloadService.EXTRA_COMPLETE_UPTODATE ) ) {
+	        		Toast.makeText( getActivity(), "Recorded Program are up to date!", Toast.LENGTH_SHORT ).show();
+	        	} else {
+	        		Toast.makeText( getActivity(), "Recorded Programs updated!", Toast.LENGTH_SHORT ).show();
+	        		
+	        		adapter.notifyDataSetChanged();
+	        	}
 	        	
 	        }
 
@@ -428,18 +411,5 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 		}
 		
 	}
-
-//	private class CoverartDownloadReceiver extends BroadcastReceiver {
-//
-//		@Override
-//		public void onReceive( Context context, Intent intent ) {
-//			
-//	        if ( intent.getAction().equals( CoverartDownloadService.ACTION_COMPLETE ) ) {
-//	        	Log.i( TAG, "CoverartDownloadReceiver.onReceive : complete=" + intent.getStringExtra( CoverartDownloadService.EXTRA_COMPLETE ) );
-//	        }
-//
-//		}
-//		
-//	}
 
 }

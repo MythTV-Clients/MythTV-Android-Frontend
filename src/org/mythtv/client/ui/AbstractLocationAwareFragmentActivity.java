@@ -291,6 +291,13 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 	        
 	        if ( intent.getAction().equals( UpcomingDownloadService.ACTION_COMPLETE ) ) {
 	        	Log.i( TAG, "UpcomingDownloadReceiver.onReceive : " + intent.getStringExtra( UpcomingDownloadService.EXTRA_COMPLETE ) );
+	        	
+	        	if( intent.getExtras().containsKey( UpcomingDownloadService.EXTRA_COMPLETE_UPTODATE ) ) {
+	        		Toast.makeText( AbstractLocationAwareFragmentActivity.this, "Upcoming Programs are up to date!", Toast.LENGTH_SHORT ).show();
+	        	} else {
+	        		Toast.makeText( AbstractLocationAwareFragmentActivity.this, "Upcoming Programs updated!", Toast.LENGTH_SHORT ).show();
+	        	}
+
 	        }
 	        
 		}
@@ -310,7 +317,11 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 	        if ( intent.getAction().equals( RecordedDownloadService.ACTION_COMPLETE ) ) {
 	        	Log.i( TAG, "RecordedDownloadReceiver.onReceive : complete=" + intent.getStringExtra( RecordedDownloadService.EXTRA_COMPLETE ) );
 	        	
-	        	Toast.makeText( AbstractLocationAwareFragmentActivity.this, "Recorded Programs updated!", Toast.LENGTH_SHORT ).show();
+	        	if( intent.getExtras().containsKey( RecordedDownloadService.EXTRA_COMPLETE_UPTODATE ) ) {
+	        		Toast.makeText( AbstractLocationAwareFragmentActivity.this, "Recorded Program are up to date!", Toast.LENGTH_SHORT ).show();
+	        	} else {
+	        		Toast.makeText( AbstractLocationAwareFragmentActivity.this, "Recorded Programs updated!", Toast.LENGTH_SHORT ).show();
+	        	}
 	        }
 
         	Log.i( TAG, "RecordedDownloadReceiver.onReceive : exit" );
