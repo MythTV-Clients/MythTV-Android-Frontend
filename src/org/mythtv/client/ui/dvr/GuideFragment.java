@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
 import org.mythtv.R;
 import org.mythtv.client.MainApplication;
 import org.mythtv.client.ui.AbstractMythFragment;
@@ -175,9 +176,9 @@ public class GuideFragment extends AbstractMythFragment implements OnClickListen
 	private void updateDateHeader() {
 		Log.v( TAG, "updateDateHeader : enter" );
 		
-		mDateTextView.setText( DateUtils.dateFormatter.print( date ) );
-		startDate = DateUtils.dateFormatter.print( date );
-		
+        mDateTextView.setText( DateTimeFormat.forPattern(mainApplication.getDateFormat()).print(date) );
+		startDate = DateUtils.dateFormatter.print(date);
+
 		DateTime today = new DateTime();
 		Log.v( TAG, "updateDateHeader : today=" + DateUtils.dateTimeFormatter.print( today ) );
 		if( today.dayOfYear().equals( date.dayOfYear() ) ) {
@@ -282,7 +283,7 @@ public class GuideFragment extends AbstractMythFragment implements OnClickListen
 
 			DateTime programGuideDate = date.withTime( Integer.parseInt( fragmentHeadings.get( position ) ), 0, 0, 0 );
 			ProgramGuide programGuide = cache.get( programGuideDate );
-			tl.addSplit( "ProgramGuide for " + DateUtils.dateFormatter.print( programGuideDate ) + " loaded" );
+            tl.addSplit( "ProgramGuide for " + DateTimeFormat.forPattern(mainApplication.getDateFormat()).print( programGuideDate ) + " loaded" );
 
 			return GuidePagerFragment.newInstance( startDate, fragmentHeadings.get( position ), programGuide );
 		}

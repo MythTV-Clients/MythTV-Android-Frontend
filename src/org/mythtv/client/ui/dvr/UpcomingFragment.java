@@ -20,6 +20,7 @@ package org.mythtv.client.ui.dvr;
 
 import org.joda.time.DateTime;
 import org.mythtv.R;
+import org.mythtv.client.MainApplication;
 import org.mythtv.client.ui.util.MythtvListFragment;
 import org.mythtv.client.ui.util.ProgramHelper;
 import org.mythtv.db.dvr.ProgramConstants;
@@ -50,6 +51,8 @@ public class UpcomingFragment extends MythtvListFragment implements LoaderManage
 	
 	private UpcomingCursorAdapter adapter;
 
+    private MainApplication mainApplication;
+
 	private ProgramHelper mProgramHelper;
 
 	public static UpcomingFragment newInstance( String formattedDay ) {
@@ -74,7 +77,9 @@ public class UpcomingFragment extends MythtvListFragment implements LoaderManage
 		
 		String startDate = args.getString( START_DATE_KEY );
 		DateTime now = new DateTime( startDate );
-		
+
+        mainApplication = getMainApplication();
+
 		String[] projection = { ProgramConstants._ID, ProgramConstants.FIELD_TITLE, ProgramConstants.FIELD_SUB_TITLE, ProgramConstants.FIELD_START_TIME, ProgramConstants.FIELD_DURATION, ProgramConstants.FIELD_CATEGORY, ProgramConstants.FIELD_CHANNEL_NUMBER };
 		
 		String selection =  ProgramConstants.FIELD_START_DATE + " = ? AND " + ProgramConstants.FIELD_START_TIME + " >= ?";
@@ -196,8 +201,13 @@ public class UpcomingFragment extends MythtvListFragment implements LoaderManage
 			mHolder.title.setText( sTitle );
 			mHolder.subTitle.setText( sSubTitle );
 			mHolder.channel.setText( sChannelNumber );
-			mHolder.startTime.setText( DateUtils.timeFormatter.print( startTime ) );
-			mHolder.duration.setText( iDuration + " minutes" );
+            mHolder.duration.setText( iDuration + " minutes" );
+
+            if (mainApplication.getClockType() != null && mainApplication.getClockType().equals("24")) {
+                mHolder.startTime.setText( DateUtils.timeFormatter24.print( startTime ) );
+            } else {
+                mHolder.startTime.setText( DateUtils.timeFormatter.print( startTime ) );
+            }
 
 			Log.v( TAG, "UpcomingCursorAdapter.bindView : exit" );
 		}

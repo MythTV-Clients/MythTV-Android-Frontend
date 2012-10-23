@@ -185,8 +185,7 @@ public class RecordingRulesFragment extends MythtvListFragment {
 	
 	private class RecordingRuleAdapter extends BaseAdapter {
 
-		private final DateTimeFormatter formatter = DateTimeFormat.forPattern( "yyyy-MM-dd" );
-		
+		private final DateTimeFormatter formatter = DateTimeFormat.forPattern(mainApplication.getDateFormat());
 		private Context mContext;
 		private LayoutInflater mInflater;
 

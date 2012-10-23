@@ -7,3 +7,4 @@ libs
 .project
 *.iml
 /temp
+.idea
