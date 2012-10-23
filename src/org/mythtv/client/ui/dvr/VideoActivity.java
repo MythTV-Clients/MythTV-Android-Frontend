@@ -25,6 +25,7 @@ package org.mythtv.client.ui.dvr;
 //import io.vov.vitamio.widget.VideoView;
 
 import org.mythtv.R;
+import org.mythtv.client.MainApplication.LocationSetting;
 import org.mythtv.client.ui.preferences.PlaybackProfile;
 import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.services.api.ETagInfo;
@@ -249,12 +250,12 @@ public class VideoActivity extends AbstractDvrActivity {
 			try {
 				Log.v( TAG, "CreateStreamTask : api" );
 				
-				String location = getMainApplication().getLocation();
+				LocationSetting location = getMainApplication().getLocation();
 				
-				if (location == "HOME"){
+				if( location.equals( LocationSetting.HOME ) ) {
 					selectedPlaybackProfile = getMainApplication().getSelectedHomePlaybackProfile();
 				}
-				else if (location == "AWAY"){
+				else if( location.equals( LocationSetting.AWAY ) ) {
 					selectedPlaybackProfile = getMainApplication().getSelectedAwayPlaybackProfile();
 				}
 				else{

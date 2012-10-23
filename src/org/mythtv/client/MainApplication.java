@@ -24,10 +24,10 @@ import java.util.Map;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.preferences.PlaybackProfile;
 import org.mythtv.db.MythtvDatabaseManager;
-import org.mythtv.service.util.FileHelper;
 import org.mythtv.services.api.MythServices;
 import org.mythtv.services.api.capture.CaptureCard;
 import org.mythtv.services.connect.MythServicesServiceProvider;
+import org.springframework.http.ResponseEntity;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
@@ -35,6 +35,8 @@ import com.fasterxml.jackson.datatype.joda.JodaModule;
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo.State;
 import android.util.Log;
 
 /**
@@ -44,9 +46,11 @@ import android.util.Log;
  */
 public class MainApplication extends Application {
 
-	public static final String GUIDE_DATA_LOADED = "GUIDE_DATA_LOADED";
-	public static final String NEXT_GUIDE_DATA_LOAD = "NEXT_GUIDE_DATA_LOAD";
-
+	public static enum LocationSetting {
+		HOME,
+		AWAY
+	}
+	
 	private static final String TAG = MainApplication.class.getSimpleName();
 	private static final String MASTER_BACKEND = "MASTER_BACKEND";
 	
@@ -54,7 +58,7 @@ public class MainApplication extends Application {
 
 	private MythServicesServiceProvider provider;
 	
-	private String location;
+	private LocationSetting location;
 	
 	private String masterBackend;
 	
@@ -126,6 +130,7 @@ public class MainApplication extends Application {
 	 */
 	public void connectSelectedHomeLocationProfile() {
 		setMasterBackend( getSelectedHomeLocationProfile().getUrl() );
+		setLocation( LocationSetting.HOME );
 	}
 	
 	/**
@@ -141,6 +146,7 @@ public class MainApplication extends Application {
 	 */
 	public void connectSelectedAwayLocationProfile() {
 		setMasterBackend( getSelectedAwayLocationProfile().getUrl() );
+		setLocation( LocationSetting.AWAY );
 	}
 	
 	/**
@@ -187,25 +193,17 @@ public class MainApplication extends Application {
 		Log.v( TAG, "setMasterBackend : enter" );
 	}
 
-	public void clearMasterBackend() {
-		SharedPreferences.Editor editor = mythtvPreferences.edit();
-		editor.remove( MASTER_BACKEND );
-		editor.commit();
-
-		masterBackend = null;
-	}
-
 	/**
 	 * @return the location
 	 */
-	public String getLocation() {
+	public LocationSetting getLocation() {
 		return location;
 	}
 
 	/**
 	 * @param location the location to set
 	 */
-	public void setLocation( String location ) {
+	private void setLocation( LocationSetting location ) {
 		this.location = location;
 	}
 

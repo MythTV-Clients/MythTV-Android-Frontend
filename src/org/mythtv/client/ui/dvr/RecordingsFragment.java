@@ -28,6 +28,7 @@ import org.mythtv.service.dvr.BannerDownloadService;
 import org.mythtv.service.dvr.RecordedDownloadService;
 import org.mythtv.service.dvr.cache.BannerLruMemoryCache;
 import org.mythtv.service.util.FileHelper;
+import org.mythtv.service.util.RunningServiceHelper;
 
 import android.annotation.TargetApi;
 import android.content.BroadcastReceiver;
@@ -72,6 +73,7 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 
 	private static FileHelper mFileHelper;
 	private static ProgramHelper mProgramHelper;
+	private RunningServiceHelper mRunningServiceHelper;
 
 	private BannerLruMemoryCache imageCache;
 
@@ -135,7 +137,8 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 
 		mFileHelper = new FileHelper( getActivity() );
 		mProgramHelper = ProgramHelper.createInstance( getActivity() );
-
+		mRunningServiceHelper = new RunningServiceHelper( getActivity() );
+		
 		imageCache = new BannerLruMemoryCache( getActivity() );
 
 		setHasOptionsMenu( true );
@@ -183,7 +186,9 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 
 			File existing = new File( recordedDirectory, RecordedDownloadService.RECORDED_FILE );
 			if( !existing.exists() ) {
-				getActivity().startService( new Intent( RecordedDownloadService.ACTION_DOWNLOAD ) );
+				if( !mRunningServiceHelper.isServiceRunning( "org.mythtv.service.dvr.RecordedDownloadService" ) ) {
+					getActivity().startService( new Intent( RecordedDownloadService.ACTION_DOWNLOAD ) );
+				}
 			}
 
 		}
@@ -250,7 +255,9 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 		case REFRESH_ID:
 			Log.d( TAG, "onOptionsItemSelected : refresh selected" );
 
-			getActivity().startService( new Intent( RecordedDownloadService.ACTION_DOWNLOAD ) );
+			if( !mRunningServiceHelper.isServiceRunning( "org.mythtv.service.dvr.RecordedDownloadService" ) ) {
+				getActivity().startService( new Intent( RecordedDownloadService.ACTION_DOWNLOAD ) );
+			}
 		    
 	        return true;
 		}

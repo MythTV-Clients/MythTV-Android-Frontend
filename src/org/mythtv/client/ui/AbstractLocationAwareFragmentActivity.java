@@ -26,11 +26,10 @@ import org.mythtv.service.dvr.UpcomingDownloadService;
 import org.mythtv.service.guide.ProgramGuideCleanupService;
 import org.mythtv.service.guide.ProgramGuideDownloadService;
 import org.mythtv.service.util.FileHelper;
+import org.mythtv.service.util.RunningServiceHelper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import android.app.ActivityManager;
-import android.app.ActivityManager.RunningServiceInfo;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -50,7 +49,8 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 	protected static final String TAG = AbstractLocationAwareFragmentActivity.class.getSimpleName();
 
 	private FileHelper mFileHelper;
-
+	private RunningServiceHelper mRunningServiceHelper;
+	
 	private ProgramGuideDownloadReceiver programGuideDownloadReceiver = new ProgramGuideDownloadReceiver();
 	private ProgramGuideCleanupReceiver programGuideCleanupReceiver = new ProgramGuideCleanupReceiver();
 	private RecordedDownloadReceiver recordedDownloadReceiver = new RecordedDownloadReceiver();
@@ -71,6 +71,7 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 		super.onCreate( savedInstanceState );
 		
 		mFileHelper = new FileHelper( this );
+		mRunningServiceHelper = new RunningServiceHelper( this );
 		
 		resources = getResources();
 
@@ -197,9 +198,7 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 	private void startServices() {
 		Log.v( TAG, "startServices : enter" );
 
-		if( !ProgramGuideDownloadServiceRunning() ) {
-			startService( new Intent( ProgramGuideCleanupService.ACTION_CLEANUP ) );
-		}
+		startService( new Intent( ProgramGuideCleanupService.ACTION_CLEANUP ) );
 		
 		File upcoming = new File( mFileHelper.getProgramUpcomingDataDirectory(), UpcomingDownloadService.UPCOMING_FILE );
 		if( upcoming.exists() ) {
@@ -208,12 +207,16 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 			DateTime lastModified = new DateTime( upcoming.lastModified() );
 				
 			if( lastModified.isBefore( today ) ) {
-				startService( new Intent( UpcomingDownloadService.ACTION_DOWNLOAD ) );
+				if( !mRunningServiceHelper.isServiceRunning( "org.mythtv.service.dvr.UpcomingDownloadService" ) ) {
+					startService( new Intent( UpcomingDownloadService.ACTION_DOWNLOAD ) );
+				}
 			} else {
 				Log.i( TAG, "onResume : not time to update 'upcoming' episodes" );
 			}
 		} else {
-			startService( new Intent( UpcomingDownloadService.ACTION_DOWNLOAD ) );
+			if( !mRunningServiceHelper.isServiceRunning( "org.mythtv.service.dvr.UpcomingDownloadService" ) ) {
+				startService( new Intent( UpcomingDownloadService.ACTION_DOWNLOAD ) );
+			}
 		}
 			
 		File recorded = new File( mFileHelper.getProgramRecordedDataDirectory(), RecordedDownloadService.RECORDED_FILE );
@@ -223,12 +226,16 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 			DateTime lastModified = new DateTime( recorded.lastModified() );
 				
 			if( lastModified.isBefore( lastHour ) ) {
-				startService( new Intent( RecordedDownloadService.ACTION_DOWNLOAD ) );
+				if( !mRunningServiceHelper.isServiceRunning( "org.mythtv.service.dvr.RecordedDownloadService" ) ) {
+					startService( new Intent( RecordedDownloadService.ACTION_DOWNLOAD ) );
+				}
 			} else {
 				Log.i( TAG, "onResume : not time to update 'recorded' episodes" );
 			}
 		} else {
-			startService( new Intent( RecordedDownloadService.ACTION_DOWNLOAD ) );
+			if( !mRunningServiceHelper.isServiceRunning( "org.mythtv.service.dvr.RecordedDownloadService" ) ) {
+				startService( new Intent( RecordedDownloadService.ACTION_DOWNLOAD ) );
+			}
 		}
 
 		Log.v( TAG, "startServices : exit" );
@@ -269,7 +276,9 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 		        	Log.i( TAG, "ProgramGuideCleanupReceiver.onReceive : programGuide count=" + programGuideCache.list().length );
 	    			
 	    			if( programGuideCache.list().length < ProgramGuideDownloadService.MAX_HOURS ) {
-	    				startService( new Intent( ProgramGuideDownloadService.ACTION_DOWNLOAD ) );
+	    				if( !mRunningServiceHelper.isServiceRunning( "org.mythtv.service.guide.ProgramGuideDownloadService" ) ) {
+		    				startService( new Intent( ProgramGuideDownloadService.ACTION_DOWNLOAD ) );
+	    				}
 	    			}
 	    			
 	    		}
@@ -373,25 +382,6 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 			Log.v( TAG, "CheckMythtvBackendConnectionTask.onPostExecute : exit" );
 		}
 		
-	}
-
-	private boolean ProgramGuideDownloadServiceRunning() {
-		Log.v( TAG, "ProgramGuideDownloadServiceRunning : enter" );
-
-		ActivityManager manager = (ActivityManager) getSystemService( Context.ACTIVITY_SERVICE );
-
-		for( RunningServiceInfo service : manager.getRunningServices( Integer.MAX_VALUE ) ) {
-//			Log.v( TAG, "ProgramGuideDownloadServiceRunning : service=" + service.service.getClassName() );
-
-			if( "org.mythtv.service.guide.ProgramGuideDownloadService".equals( service.service.getClassName() ) ) {
-
-				Log.v( TAG, "ProgramGuideDownloadServiceRunning : exit, ProgramGuideDownloadService is running" );
-				return true;
-			}
-		}
-
-		Log.v( TAG, "ProgramGuideDownloadServiceRunning : exit, ProgramGuideDownloadService is NOT running" );
-		return false;
 	}
 
 }

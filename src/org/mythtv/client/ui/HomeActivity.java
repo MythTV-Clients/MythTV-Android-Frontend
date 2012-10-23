@@ -25,7 +25,6 @@ import org.mythtv.R;
 import org.mythtv.client.ui.dvr.DvrDashboardFragment;
 import org.mythtv.client.ui.frontends.MythmoteActivity;
 import org.mythtv.client.ui.media.MediaDashboardFragment;
-import org.mythtv.client.ui.setup.SetupActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -57,8 +56,6 @@ public class HomeActivity extends AbstractLocationAwareFragmentActivity {
 
 		super.onCreate( savedInstanceState );
 
-		getMainApplication().setLocation( "HOME" );
-		
 		setContentView( R.layout.activity_home );
 
 		List<Fragment> fragments = new ArrayList<Fragment>();

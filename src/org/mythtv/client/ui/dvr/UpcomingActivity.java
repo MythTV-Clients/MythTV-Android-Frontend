@@ -25,6 +25,7 @@ import org.joda.time.DateTime;
 import org.mythtv.R;
 import org.mythtv.service.dvr.UpcomingDownloadService;
 import org.mythtv.service.util.DateUtils;
+import org.mythtv.service.util.RunningServiceHelper;
 
 import android.annotation.TargetApi;
 import android.content.BroadcastReceiver;
@@ -51,6 +52,8 @@ public class UpcomingActivity extends AbstractDvrActivity {
 	private static final String TAG = UpcomingActivity.class.getSimpleName();
 	private static final int REFRESH_ID = Menu.FIRST + 2;
 
+	private RunningServiceHelper mRunningServiceHelper;
+
 	private UpcomingDownloadReceiver upcomingDownloadReceiver = new UpcomingDownloadReceiver();
 
 	private MythtvUpcomingPagerAdapter mAdapter;
@@ -62,6 +65,8 @@ public class UpcomingActivity extends AbstractDvrActivity {
 	protected void onCreate( Bundle savedInstanceState ) {
 		Log.v( TAG, "onCreate : enter" );
 		super.onCreate( savedInstanceState );
+
+		mRunningServiceHelper = new RunningServiceHelper( this );
 
 		setContentView( R.layout.activity_dvr_upcoming );
 
@@ -154,7 +159,9 @@ public class UpcomingActivity extends AbstractDvrActivity {
 	private void loadData() {
 		Log.v( TAG, "loadData : enter" );
 		
-		startService( new Intent( UpcomingDownloadService.ACTION_DOWNLOAD ) );
+		if( !mRunningServiceHelper.isServiceRunning( "org.mythtv.service.dvr.UpcomingDownloadService" ) ) {
+			startService( new Intent( UpcomingDownloadService.ACTION_DOWNLOAD ) );
+		}
 		
 		Log.v( TAG, "loadData : exit" );
 	}
