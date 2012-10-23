@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.mythtv.R;
 import org.mythtv.service.dvr.UpcomingDownloadService;
 import org.mythtv.service.util.DateUtils;
@@ -228,7 +230,9 @@ public class UpcomingActivity extends AbstractDvrActivity {
 				case 1:
 					return resources.getString( R.string.upcoming_tomorrow );
 				default:
-					return fragmentHeadings.get( position );
+                    DateTimeFormatter defaultDateFormatter = DateTimeFormat.forPattern("yyyy-MM-dd");
+                    DateTime currentDate = defaultDateFormatter.parseDateTime(fragmentHeadings.get( position ));
+					return DateTimeFormat.forPattern( getMainApplication().getDateFormat()).print(currentDate);
 			}
 
 		}

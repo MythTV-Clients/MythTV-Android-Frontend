@@ -18,6 +18,8 @@
  */
 package org.mythtv.client;
 
+import static android.text.format.DateFormat.getDateFormatOrder;
+
 import java.util.List;
 import java.util.Map;
 
@@ -27,17 +29,15 @@ import org.mythtv.db.MythtvDatabaseManager;
 import org.mythtv.services.api.MythServices;
 import org.mythtv.services.api.capture.CaptureCard;
 import org.mythtv.services.connect.MythServicesServiceProvider;
-import org.springframework.http.ResponseEntity;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.joda.JodaModule;
 
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo.State;
+import android.provider.Settings;
 import android.util.Log;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.joda.JodaModule;
 
 /**
  * @author Daniel Frey
@@ -66,6 +66,7 @@ public class MainApplication extends Application {
 	private Map<String,List<CaptureCard>> currentCaptureCards;
 	
     private String clockType = "12h";
+    private String dateFormat = "yyyy-MM-dd";
 
 	protected ObjectMapper mObjectMapper;
 
@@ -84,10 +85,22 @@ public class MainApplication extends Application {
 		
 		mythtvPreferences = getSharedPreferences( "MythtvPreferences", Context.MODE_PRIVATE );
 		
-        String systemClock = android.provider.Settings.System.getString(getApplicationContext().getContentResolver(), android.provider.Settings.System.TIME_12_24);
+        String systemClock = Settings.System.getString(getApplicationContext().getContentResolver(), Settings.System.TIME_12_24);
         if(systemClock != null) this.clockType = systemClock;
 
-		mObjectMapper = new ObjectMapper();
+        char[] dateFormatOrder = getDateFormatOrder(getApplicationContext());
+        if(dateFormatOrder != null){
+            String format = new String(dateFormatOrder);
+            if(format.equals("Mdy")){
+                this.dateFormat = "MM-dd-yyyy";
+            }else if(format.equals("dMy")){
+                this.dateFormat = "dd-MM-yyyy";
+            }else if(format.equals("yMd")){
+                this.dateFormat = "yyyy-MM-dd";
+            }
+        }
+
+        mObjectMapper = new ObjectMapper();
 		mObjectMapper.registerModule( new JodaModule() );
 
 		Log.v( TAG, "onCreate : exit" );
@@ -247,5 +260,13 @@ public class MainApplication extends Application {
      */
     public void setClockType(String clockType) {
         this.clockType = clockType;
+    }
+
+    public String getDateFormat() {
+        return dateFormat;
+    }
+
+    public void setDateFormat(String dateFormat) {
+        this.dateFormat = dateFormat;
     }
 }
