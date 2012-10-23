@@ -25,6 +25,7 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.mythtv.R;
+import org.mythtv.client.MainApplication;
 import org.mythtv.service.dvr.UpcomingDownloadService;
 import org.mythtv.service.util.DateUtils;
 import org.mythtv.service.util.RunningServiceHelper;
@@ -54,7 +55,11 @@ public class UpcomingActivity extends AbstractDvrActivity {
 	private static final String TAG = UpcomingActivity.class.getSimpleName();
 	private static final int REFRESH_ID = Menu.FIRST + 2;
 
+<<<<<<< HEAD
 	private RunningServiceHelper mRunningServiceHelper;
+=======
+    private MainApplication mainApplication;
+>>>>>>> f218778821243ac4432be6a58b0d34c5f64c0a44
 
 	private UpcomingDownloadReceiver upcomingDownloadReceiver = new UpcomingDownloadReceiver();
 
@@ -68,7 +73,11 @@ public class UpcomingActivity extends AbstractDvrActivity {
 		Log.v( TAG, "onCreate : enter" );
 		super.onCreate( savedInstanceState );
 
+<<<<<<< HEAD
 		mRunningServiceHelper = new RunningServiceHelper( this );
+=======
+        mainApplication = (MainApplication) getApplicationContext();
+>>>>>>> f218778821243ac4432be6a58b0d34c5f64c0a44
 
 		setContentView( R.layout.activity_dvr_upcoming );
 
@@ -232,7 +241,11 @@ public class UpcomingActivity extends AbstractDvrActivity {
 				default:
                     DateTimeFormatter defaultDateFormatter = DateTimeFormat.forPattern("yyyy-MM-dd");
                     DateTime currentDate = defaultDateFormatter.parseDateTime(fragmentHeadings.get( position ));
+<<<<<<< HEAD
 					return DateTimeFormat.forPattern( getMainApplication().getDateFormat()).print(currentDate);
+=======
+					return DateTimeFormat.forPattern(mainApplication.getDateFormat()).print(currentDate);
+>>>>>>> f218778821243ac4432be6a58b0d34c5f64c0a44
 			}
 
 		}

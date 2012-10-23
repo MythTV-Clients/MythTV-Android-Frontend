@@ -23,6 +23,7 @@ import static android.text.format.DateFormat.getDateFormatOrder;
 import java.util.List;
 import java.util.Map;
 
+import android.provider.Settings;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.preferences.PlaybackProfile;
 import org.mythtv.db.MythtvDatabaseManager;
@@ -36,8 +37,12 @@ import android.content.SharedPreferences;
 import android.provider.Settings;
 import android.util.Log;
 
+<<<<<<< HEAD
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
+=======
+import static android.text.format.DateFormat.*;
+>>>>>>> f218778821243ac4432be6a58b0d34c5f64c0a44
 
 /**
  * @author Daniel Frey
@@ -58,8 +63,12 @@ public class MainApplication extends Application {
 
 	private MythServicesServiceProvider provider;
 	
+<<<<<<< HEAD
 	private LocationSetting location;
 	
+=======
+	private String location;
+>>>>>>> f218778821243ac4432be6a58b0d34c5f64c0a44
 	private String masterBackend;
 	
 	private List<String> captureCards;
