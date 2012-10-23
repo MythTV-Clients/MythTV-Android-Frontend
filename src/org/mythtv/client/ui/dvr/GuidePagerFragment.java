@@ -223,6 +223,19 @@ public class GuidePagerFragment extends MythtvListFragment {
 					weightSum += lParams.weight;
 					timeslot.setLayoutParams(lParams); 
 					timeslot.setOrientation( LinearLayout.HORIZONTAL );
+					if( null != program.getRecording() ) {
+						if( 4 == program.getRecording().getStatus() ) {
+							timeslot.setBackgroundColor( Color.BLUE );
+						}
+
+						if( -1 == program.getRecording().getStatus() ) {
+							timeslot.setBackgroundColor( Color.GREEN );
+						}
+
+						if( -2 == program.getRecording().getStatus() ) {
+							timeslot.setBackgroundColor( Color.RED );
+						}
+					}
 
 					View category = (View) new View( mContext );
 					category.setLayoutParams( new LayoutParams( 10, LayoutParams.MATCH_PARENT ) ); 
@@ -247,18 +260,17 @@ public class GuidePagerFragment extends MythtvListFragment {
 					
 					if( null != program.getRecording() ) {
 						if( 4 == program.getRecording().getStatus() ) {
-							title.setTextColor( Color.BLUE );
+							title.setTextColor( Color.WHITE );
 						}
 
 						if( -1 == program.getRecording().getStatus() ) {
-							title.setTextColor( Color.GREEN );
+							title.setTextColor( Color.WHITE );
 						}
 
 						if( -2 == program.getRecording().getStatus() ) {
-							title.setTextColor( Color.RED );
+							title.setTextColor( Color.WHITE );
 						}
 					}
-					
 					details.addView( title );
 				
 					TextView textViewTime = (TextView)  new TextView( mContext );
@@ -271,6 +283,20 @@ public class GuidePagerFragment extends MythtvListFragment {
 					textViewTime.setEllipsize( TruncateAt.END );
 					textViewTime.setSingleLine( true );
 					textViewTime.setHorizontallyScrolling( true );
+
+					if( null != program.getRecording() ) {
+						if( 4 == program.getRecording().getStatus() ) {
+							textViewTime.setTextColor( Color.WHITE );
+						}
+
+						if( -1 == program.getRecording().getStatus() ) {
+							textViewTime.setTextColor( Color.WHITE );
+						}
+
+						if( -2 == program.getRecording().getStatus() ) {
+							textViewTime.setTextColor( Color.WHITE );
+						}
+					}
 					details.addView( textViewTime );
 
 					TextView description = (TextView)  new TextView( mContext );
@@ -283,6 +309,20 @@ public class GuidePagerFragment extends MythtvListFragment {
 					description.setEllipsize( TruncateAt.END );
 					description.setSingleLine( true );
 					description.setHorizontallyScrolling( true );
+
+					if( null != program.getRecording() ) {
+						if( 4 == program.getRecording().getStatus() ) {
+							description.setTextColor( Color.WHITE );
+						}
+
+						if( -1 == program.getRecording().getStatus() ) {
+							description.setTextColor( Color.WHITE );
+						}
+
+						if( -2 == program.getRecording().getStatus() ) {
+							description.setTextColor( Color.WHITE );
+						}
+					}
 					details.addView( description );
 										
 					timeslot.addView( details );
