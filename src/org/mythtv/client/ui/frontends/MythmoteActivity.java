@@ -18,6 +18,9 @@
  */
 package org.mythtv.client.ui.frontends;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.mythtv.R;
 
 import android.annotation.TargetApi;
@@ -26,6 +29,11 @@ import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.ViewPager;
 import android.util.Log;
 
 /**
@@ -36,9 +44,11 @@ public class MythmoteActivity extends AbstractFrontendsActivity {
 
 	private static final String TAG = MythmoteActivity.class.getSimpleName();
 		
-	private boolean isTwoPane = false;
 	private PowerManager powerManager;
 	private PowerManager.WakeLock wakeLock;
+	private List<Fragment> fragmentArrayList;
+	private List<String> headerArrayList;
+	
 
 	/* (non-Javadoc)
 	 * @see org.mythtv.client.ui.AbstractMythtvFragmentActivity#onCreate(android.os.Bundle)
@@ -50,14 +60,11 @@ public class MythmoteActivity extends AbstractFrontendsActivity {
 		super.onCreate( savedInstanceState );
 		setContentView( R.layout.activity_mythmote );
 		
+		//setup the viewpager if layout contains one
+		setupViewPager();
+		
+		//get power manager so we can keep the screen on
 		powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
-
-		FrontendsFragment frontends = (FrontendsFragment) getSupportFragmentManager().findFragmentById( R.id.frontends_fragment );
-
-		isTwoPane = ( null != findViewById( R.id.fragment_dvr_program_group ) );
-		if( isTwoPane ) {
-//			frontends.enablePersistentSelection();
-		}
 
 		Log.v( TAG, "onCreate : exit" );
 	}
@@ -93,10 +100,66 @@ public class MythmoteActivity extends AbstractFrontendsActivity {
 		super.onPause();
 	}
 
-//	@Override
-//	public void onFrontendSelected( List<Frontend> frontend ) {
-//		// TODO Auto-generated method stub
-//		
-//	}
+	
+	/**
+	 * Setups up the viewpager and MythmotePagerAdapter if
+	 * the current layout contains the mythmote_pager view pager.
+	 */
+	private void setupViewPager() {
+
+		// get viewpager from layout
+		ViewPager pager = (ViewPager) findViewById(R.id.mythmote_pager);
+
+		// if there is a viewpager set it up
+		if (null != pager) {
+			
+			//get fragment manager
+			FragmentManager fm = this.getSupportFragmentManager();
+			
+			//create fragment and header arrays
+			fragmentArrayList = new ArrayList<Fragment>();
+			headerArrayList = new ArrayList<String>();
+			
+			//mythmote navigation page fragment
+			Fragment nav = Fragment.instantiate(this, MythmoteNavPageFragment.class.getName());
+			fragmentArrayList.add(nav);
+			headerArrayList.add(this.getString(R.string.mythmote_page_navigation));
+
+			//mythmote numbers page fragment
+			Fragment num = Fragment.instantiate(this, MythmoteNumPageFragment.class.getName());
+			fragmentArrayList.add(num);
+			headerArrayList.add(this.getString(R.string.mythmote_page_numbers));
+			
+			//set pager adapter and initial item
+			pager.setAdapter(new MythmotePagerAdapter(this.getSupportFragmentManager()));
+			pager.setCurrentItem(0);
+
+		}
+	}
+	
+	
+	
+	class MythmotePagerAdapter extends FragmentStatePagerAdapter {
+		
+        public MythmotePagerAdapter(FragmentManager fm) {
+            super(fm);
+        }
+
+        @Override
+        public int getCount() {
+            return fragmentArrayList.size();
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            return fragmentArrayList.get(position);
+        }
+        
+        @Override
+		public CharSequence getPageTitle(int position) {
+			return headerArrayList.get(position);
+		}
+
+    }
 
 }
