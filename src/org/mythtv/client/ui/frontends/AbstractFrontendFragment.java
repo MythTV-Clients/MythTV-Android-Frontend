@@ -77,7 +77,7 @@ public class AbstractFrontendFragment extends Fragment {
 
 		super.onCreate( savedInstanceState );
 	}
-
+	
 	public MainApplication getApplicationContext() {
 		return (MainApplication) getActivity().getApplicationContext();
 	}

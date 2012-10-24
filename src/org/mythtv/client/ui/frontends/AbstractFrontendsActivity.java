@@ -74,4 +74,5 @@ public abstract class AbstractFrontendsActivity extends AbstractMythtvFragmentAc
 		return super.onOptionsItemSelected( item );
 	}
 
+
 }
