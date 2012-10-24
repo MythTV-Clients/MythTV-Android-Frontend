@@ -36,7 +36,7 @@
     <!-- About -->
 	<string name="menu_about">About</string>
 	<string name="menu_about_ally">About</string>
-	<string name="about_title">About MythTV Android Frontend#8230;</string>
+	<string name="about_title">About MythTV Android Frontend&#8230;</string>
 	<string name="about_url1"><u>https://github.com/MythTV-Clients/MythTV-Android-Frontend</u></string>
 	<string name="about_url2"><u>http://mythtv.org</u></string>
 	<string name="about_url3"><u>http://c9studio.com</u></string>
