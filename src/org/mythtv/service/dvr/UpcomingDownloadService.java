@@ -155,15 +155,15 @@ public class UpcomingDownloadService extends MythtvService {
 	private Programs download() {
 		Log.v( TAG, "download : enter" );
 		
-		Cursor etags = getContentResolver().query( EtagConstants.CONTENT_URI, null, null, null, null );
-		while( etags.moveToNext() ) {
-			Long id = etags.getLong( etags.getColumnIndexOrThrow( EtagConstants._ID ) );
-			String endpoint = etags.getString( etags.getColumnIndexOrThrow( EtagConstants.FIELD_ENDPOINT ) );
-			String value = etags.getString( etags.getColumnIndexOrThrow( EtagConstants.FIELD_VALUE ) );
-			
-			Log.v( TAG, "download : etag=" + id + ", endpoint=" + endpoint + ", value=" + value );
-		}
-		etags.close();
+//		Cursor etags = getContentResolver().query( EtagConstants.CONTENT_URI, null, null, null, null );
+//		while( etags.moveToNext() ) {
+//			Long id = etags.getLong( etags.getColumnIndexOrThrow( EtagConstants._ID ) );
+//			String endpoint = etags.getString( etags.getColumnIndexOrThrow( EtagConstants.FIELD_ENDPOINT ) );
+//			String value = etags.getString( etags.getColumnIndexOrThrow( EtagConstants.FIELD_VALUE ) );
+//			
+//			Log.v( TAG, "download : etag=" + id + ", endpoint=" + endpoint + ", value=" + value );
+//		}
+//		etags.close();
 		
 		Long id = null;
 		ETagInfo etag = ETagInfo.createEmptyETag();
@@ -206,6 +206,13 @@ public class UpcomingDownloadService extends MythtvService {
 		
 		if( responseEntity.getStatusCode().equals( HttpStatus.NOT_MODIFIED ) ) {
 			Log.i( TAG, "download : " + Endpoint.GET_UPCOMING_LIST.getEndpoint() + " returned 304 Not Modified" );
+			
+			ContentValues values = new ContentValues();
+			values.put( EtagConstants.FIELD_ENDPOINT, Endpoint.GET_UPCOMING_LIST.name() );
+			values.put( EtagConstants.FIELD_VALUE, etag.getETag() );
+			values.put( EtagConstants.FIELD_DATE, ( new DateTime() ).getMillis() );
+			getContentResolver().update( ContentUris.withAppendedId( EtagConstants.CONTENT_URI, id ), values, null, null );
+
 		}
 		
 		Log.v( TAG, "download : exit" );

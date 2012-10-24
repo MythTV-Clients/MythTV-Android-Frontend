@@ -210,6 +210,13 @@ public class RecordedDownloadService extends MythtvService {
 
 			if( responseEntity.getStatusCode().equals( HttpStatus.NOT_MODIFIED ) ) {
 				Log.i( TAG, "download : " + Endpoint.GET_RECORDED_LIST.getEndpoint() + " returned 304 Not Modified" );
+
+				ContentValues values = new ContentValues();
+				values.put( EtagConstants.FIELD_ENDPOINT, Endpoint.GET_RECORDED_LIST.name() );
+				values.put( EtagConstants.FIELD_VALUE, etag.getETag() );
+				values.put( EtagConstants.FIELD_DATE, ( new DateTime() ).getMillis() );
+				getContentResolver().update( ContentUris.withAppendedId( EtagConstants.CONTENT_URI, id ), values, null, null );
+
 			}
 			
 		} catch( Exception e ) {
