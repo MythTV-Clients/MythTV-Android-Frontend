@@ -104,8 +104,7 @@ public class RecordedDownloadService extends MythtvService {
 			return;
 		}
 
-		ResponseEntity<String> hostname = mMainApplication.getMythServicesApi().mythOperations().getHostName();
-		if( null == hostname || "".equals( hostname ) ) {
+		if( !isBackendConnected() ) {
 			Intent completeIntent = new Intent( ACTION_COMPLETE );
 			completeIntent.putExtra( EXTRA_COMPLETE, "Master Backend unreachable" );
 			sendBroadcast( completeIntent );
@@ -161,15 +160,15 @@ public class RecordedDownloadService extends MythtvService {
 	private Programs download() {
 		Log.v( TAG, "download : enter" );
 
-		Cursor etags = getContentResolver().query( EtagConstants.CONTENT_URI, null, null, null, null );
-		while( etags.moveToNext() ) {
-			Long id = etags.getLong( etags.getColumnIndexOrThrow( EtagConstants._ID ) );
-			String endpoint = etags.getString( etags.getColumnIndexOrThrow( EtagConstants.FIELD_ENDPOINT ) );
-			String value = etags.getString( etags.getColumnIndexOrThrow( EtagConstants.FIELD_VALUE ) );
-			
-			Log.v( TAG, "download : etag=" + id + ", endpoint=" + endpoint + ", value=" + value );
-		}
-		etags.close();
+//		Cursor etags = getContentResolver().query( EtagConstants.CONTENT_URI, null, null, null, null );
+//		while( etags.moveToNext() ) {
+//			Long id = etags.getLong( etags.getColumnIndexOrThrow( EtagConstants._ID ) );
+//			String endpoint = etags.getString( etags.getColumnIndexOrThrow( EtagConstants.FIELD_ENDPOINT ) );
+//			String value = etags.getString( etags.getColumnIndexOrThrow( EtagConstants.FIELD_VALUE ) );
+//			
+//			Log.v( TAG, "download : etag=" + id + ", endpoint=" + endpoint + ", value=" + value );
+//		}
+//		etags.close();
 		
 		Long id = null;
 		ETagInfo etag = ETagInfo.createEmptyETag();

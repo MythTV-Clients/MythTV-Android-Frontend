@@ -23,6 +23,7 @@ import org.mythtv.service.util.FileHelper;
 
 import android.app.IntentService;
 import android.content.Intent;
+import android.util.Log;
 
 /**
  * @author Daniel Frey
@@ -32,16 +33,6 @@ public abstract class MythtvService extends IntentService {
 
 	protected static final String TAG = MythtvService.class.getSimpleName();
 	
-	public static enum Method { GET, POST, PUT, DELETE };
-
-	protected static final int REQUEST_INVALID = -1;
-
-	public static final String METHOD_EXTRA = "org.mythtv.service.METHOD_EXTRA";
-	public static final String RESOURCE_TYPE_EXTRA = "org.mythtv.service.RESOURCE_TYPE_EXTRA";
-
-	public static final String SERVICE_CALLBACK = "org.mythtv.service.SERVICE_CALLBACK";
-	public static final String ORIGINAL_INTENT_EXTRA = "org.mythtv.service.ORIGINAL_INTENT_EXTRA";
-
 	public static final String FILENAME_EXT = ".json";
     
 	protected FileHelper mFileHelper;
@@ -63,4 +54,20 @@ public abstract class MythtvService extends IntentService {
 		mMainApplication = (MainApplication) MythtvService.this.getApplicationContext();
 	}
 
+	protected boolean isBackendConnected() {
+		Log.v( TAG, "isBackendConnected : enter" );
+
+		try {
+			mMainApplication.getMythServicesApi().mythOperations().getHostName();
+			
+			Log.v( TAG, "isBackendConnected : exit" );
+			return true;
+		} catch( Exception e ) {
+			Log.w( TAG, "isBackendConnected : error, connecting to backend", e );
+		}
+		
+		Log.v( TAG, "isBackendConnected : exit, backend is offline" );
+		return false;
+	}
+	
 }

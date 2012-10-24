@@ -23,7 +23,6 @@ import static android.text.format.DateFormat.getDateFormatOrder;
 import java.util.List;
 import java.util.Map;
 
-import android.provider.Settings;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.preferences.PlaybackProfile;
 import org.mythtv.db.MythtvDatabaseManager;

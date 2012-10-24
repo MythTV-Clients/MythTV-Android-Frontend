@@ -18,17 +18,17 @@
  */
 package org.mythtv.client.ui.dvr;
 
-import java.io.File;
-
+import org.joda.time.DateTime;
 import org.mythtv.R;
 import org.mythtv.client.ui.util.MythtvListFragment;
 import org.mythtv.client.ui.util.ProgramHelper;
 import org.mythtv.db.dvr.ProgramConstants;
+import org.mythtv.db.http.EtagConstants;
 import org.mythtv.service.dvr.BannerDownloadService;
 import org.mythtv.service.dvr.RecordedDownloadService;
 import org.mythtv.service.dvr.cache.BannerLruMemoryCache;
-import org.mythtv.service.util.FileHelper;
 import org.mythtv.service.util.RunningServiceHelper;
+import org.mythtv.services.api.dvr.impl.DvrTemplate.Endpoint;
 
 import android.annotation.TargetApi;
 import android.content.BroadcastReceiver;
@@ -71,7 +71,6 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 	private RecordedDownloadReceiver recordedDownloadReceiver = new RecordedDownloadReceiver();
 	private BannerDownloadReceiver bannerDownloadReceiver = new BannerDownloadReceiver();
 
-	private static FileHelper mFileHelper;
 	private static ProgramHelper mProgramHelper;
 	private RunningServiceHelper mRunningServiceHelper;
 
@@ -135,7 +134,6 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 
 		super.onActivityCreated( savedInstanceState );
 
-		mFileHelper = new FileHelper( getActivity() );
 		mProgramHelper = ProgramHelper.createInstance( getActivity() );
 		mRunningServiceHelper = new RunningServiceHelper( getActivity() );
 		
@@ -181,18 +179,23 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 		Log.v( TAG, "onResume : enter" );
 		super.onStart();
 	    
-		File recordedDirectory = mFileHelper.getProgramRecordedDataDirectory();
-		if( recordedDirectory.exists() ) {
-
-			File existing = new File( recordedDirectory, RecordedDownloadService.RECORDED_FILE );
-			if( !existing.exists() ) {
+		Cursor cursor = getActivity().getContentResolver().query( Uri.withAppendedPath( EtagConstants.CONTENT_URI, "endpoint" ), null, EtagConstants.FIELD_ENDPOINT + " = ?" ,new String[] { Endpoint.GET_RECORDED_LIST.name() }, null );
+		if( cursor.moveToFirst() ) {
+			Long etagDate = cursor.getLong( cursor.getColumnIndexOrThrow( EtagConstants.FIELD_DATE ) );
+			
+			DateTime now = new DateTime();
+			if( now.getMillis() - etagDate.longValue() > 3600000 ) {
 				if( !mRunningServiceHelper.isServiceRunning( "org.mythtv.service.dvr.RecordedDownloadService" ) ) {
 					getActivity().startService( new Intent( RecordedDownloadService.ACTION_DOWNLOAD ) );
 				}
 			}
-
+		} else {
+			if( !mRunningServiceHelper.isServiceRunning( "org.mythtv.service.dvr.RecordedDownloadService" ) ) {
+				getActivity().startService( new Intent( RecordedDownloadService.ACTION_DOWNLOAD ) );
+			}
 		}
-		
+		cursor.close();
+
         Log.v( TAG, "onResume : exit" );
 	}
 	

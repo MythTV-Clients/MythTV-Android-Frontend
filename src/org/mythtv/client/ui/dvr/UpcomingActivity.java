@@ -25,15 +25,19 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.mythtv.R;
+import org.mythtv.db.http.EtagConstants;
 import org.mythtv.service.dvr.UpcomingDownloadService;
 import org.mythtv.service.util.DateUtils;
 import org.mythtv.service.util.RunningServiceHelper;
+import org.mythtv.services.api.dvr.impl.DvrTemplate.Endpoint;
 
 import android.annotation.TargetApi;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -96,6 +100,30 @@ public class UpcomingActivity extends AbstractDvrActivity {
 	    registerReceiver( upcomingDownloadReceiver, upcomingDownloadFilter );
 
 	    Log.v( TAG, "onStart : exit" );
+	}
+
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.FragmentActivity#onResume()
+	 */
+	@Override
+	protected void onResume() {
+		Log.v( TAG, "onResume : enter" );
+		super.onResume();
+
+		Cursor cursor = getContentResolver().query( Uri.withAppendedPath( EtagConstants.CONTENT_URI, "endpoint" ), null, EtagConstants.FIELD_ENDPOINT + " = ?" ,new String[] { Endpoint.GET_UPCOMING_LIST.name() }, null );
+		if( cursor.moveToFirst() ) {
+			Long etagDate = cursor.getLong( cursor.getColumnIndexOrThrow( EtagConstants.FIELD_DATE ) );
+			
+			DateTime now = new DateTime();
+			if( now.getMillis() - etagDate.longValue() > ( 2 * 3600000 ) ) {
+				loadData();
+			}
+		} else {
+			loadData();
+		}
+		cursor.close();
+
+		Log.v( TAG, "onResume : exit" );
 	}
 
 	/* (non-Javadoc)

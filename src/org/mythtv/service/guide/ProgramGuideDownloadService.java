@@ -96,8 +96,7 @@ public class ProgramGuideDownloadService extends MythtvService {
 			return;
 		}
 
-		ResponseEntity<String> hostname = mMainApplication.getMythServicesApi().mythOperations().getHostName();
-		if( null == hostname || "".equals( hostname ) ) {
+		if( !isBackendConnected() ) {
 			Intent completeIntent = new Intent( ACTION_COMPLETE );
 			completeIntent.putExtra( EXTRA_COMPLETE, "Master Backend unreachable" );
 			sendBroadcast( completeIntent );

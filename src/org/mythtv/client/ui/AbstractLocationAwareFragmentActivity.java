@@ -20,21 +20,15 @@ package org.mythtv.client.ui;
 
 import java.io.File;
 
-import org.joda.time.DateTime;
-import org.mythtv.service.dvr.RecordedDownloadService;
-import org.mythtv.service.dvr.UpcomingDownloadService;
 import org.mythtv.service.guide.ProgramGuideCleanupService;
 import org.mythtv.service.guide.ProgramGuideDownloadService;
 import org.mythtv.service.util.FileHelper;
 import org.mythtv.service.util.RunningServiceHelper;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
@@ -53,8 +47,6 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 	
 	private ProgramGuideDownloadReceiver programGuideDownloadReceiver = new ProgramGuideDownloadReceiver();
 	private ProgramGuideCleanupReceiver programGuideCleanupReceiver = new ProgramGuideCleanupReceiver();
-	private RecordedDownloadReceiver recordedDownloadReceiver = new RecordedDownloadReceiver();
-	private UpcomingDownloadReceiver upcomingDownloadReceiver = new UpcomingDownloadReceiver();
 	
 	// ***************************************
 	// FragmentActivity methods
@@ -97,16 +89,6 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 		programGuideDownloadFilter.addAction( ProgramGuideDownloadService.ACTION_COMPLETE );
 	    registerReceiver( programGuideDownloadReceiver, programGuideDownloadFilter );
 	    
-		IntentFilter recordedDownloadFilter = new IntentFilter( RecordedDownloadService.ACTION_DOWNLOAD );
-		recordedDownloadFilter.addAction( RecordedDownloadService.ACTION_PROGRESS );
-		recordedDownloadFilter.addAction( RecordedDownloadService.ACTION_COMPLETE );
-        registerReceiver( recordedDownloadReceiver, recordedDownloadFilter );
-
-        IntentFilter upcomingDownloadFilter = new IntentFilter();
-		upcomingDownloadFilter.addAction( UpcomingDownloadService.ACTION_PROGRESS );
-		upcomingDownloadFilter.addAction( UpcomingDownloadService.ACTION_COMPLETE );
-	    registerReceiver( upcomingDownloadReceiver, upcomingDownloadFilter );
-
 	    Log.v( TAG, "onStart : exit" );
 	}
 
@@ -118,7 +100,7 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 		Log.v( TAG, "onResume : enter" );
 		super.onResume();
 
-		new CheckMythtvBackendConnectionTask().execute();
+		startService( new Intent( ProgramGuideCleanupService.ACTION_CLEANUP ) );
 		
 		Log.v( TAG, "onResume : exit" );
 	}
@@ -150,25 +132,6 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 			}
 		}
 
-		if( null != recordedDownloadReceiver ) {
-			try {
-				unregisterReceiver( recordedDownloadReceiver );
-				recordedDownloadReceiver = null;
-			} catch( IllegalArgumentException e ) {
-				Log.e( TAG, e.getLocalizedMessage(), e );
-			}
-		}
-
-		if( null != upcomingDownloadReceiver ) {
-			try {
-				unregisterReceiver( upcomingDownloadReceiver );
-				upcomingDownloadReceiver = null;
-			} catch( IllegalArgumentException e ) {
-				Log.e( TAG, "onStop : error", e );
-			}
-		}
-
-		Log.v( TAG, "onStop : exit" );
 	}
 
 	/*
@@ -195,52 +158,6 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 
 	// internal helpers
 
-	private void startServices() {
-		Log.v( TAG, "startServices : enter" );
-
-		startService( new Intent( ProgramGuideCleanupService.ACTION_CLEANUP ) );
-		
-		File upcoming = new File( mFileHelper.getProgramUpcomingDataDirectory(), UpcomingDownloadService.UPCOMING_FILE );
-		if( upcoming.exists() ) {
-
-			DateTime today = new DateTime().withTime( 0, 0, 0, 0 );
-			DateTime lastModified = new DateTime( upcoming.lastModified() );
-				
-			if( lastModified.isBefore( today ) ) {
-				if( !mRunningServiceHelper.isServiceRunning( "org.mythtv.service.dvr.UpcomingDownloadService" ) ) {
-					startService( new Intent( UpcomingDownloadService.ACTION_DOWNLOAD ) );
-				}
-			} else {
-				Log.i( TAG, "onResume : not time to update 'upcoming' episodes" );
-			}
-		} else {
-			if( !mRunningServiceHelper.isServiceRunning( "org.mythtv.service.dvr.UpcomingDownloadService" ) ) {
-				startService( new Intent( UpcomingDownloadService.ACTION_DOWNLOAD ) );
-			}
-		}
-			
-		File recorded = new File( mFileHelper.getProgramRecordedDataDirectory(), RecordedDownloadService.RECORDED_FILE );
-		if( recorded.exists() ) {
-
-			DateTime lastHour = new DateTime().minusHours( 1 );
-			DateTime lastModified = new DateTime( recorded.lastModified() );
-				
-			if( lastModified.isBefore( lastHour ) ) {
-				if( !mRunningServiceHelper.isServiceRunning( "org.mythtv.service.dvr.RecordedDownloadService" ) ) {
-					startService( new Intent( RecordedDownloadService.ACTION_DOWNLOAD ) );
-				}
-			} else {
-				Log.i( TAG, "onResume : not time to update 'recorded' episodes" );
-			}
-		} else {
-			if( !mRunningServiceHelper.isServiceRunning( "org.mythtv.service.dvr.RecordedDownloadService" ) ) {
-				startService( new Intent( RecordedDownloadService.ACTION_DOWNLOAD ) );
-			}
-		}
-
-		Log.v( TAG, "startServices : exit" );
-	}
-	
 	private class ProgramGuideDownloadReceiver extends BroadcastReceiver {
 
 		@Override
@@ -285,101 +202,6 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 	    		
 	        }
 	        
-		}
-		
-	}
-
-	private class UpcomingDownloadReceiver extends BroadcastReceiver {
-
-		@Override
-		public void onReceive( Context context, Intent intent ) {
-			
-	        if ( intent.getAction().equals( UpcomingDownloadService.ACTION_PROGRESS ) ) {
-	        	Log.i( TAG, "UpcomingDownloadReceiver.onReceive : " + intent.getStringExtra( UpcomingDownloadService.EXTRA_PROGRESS ) );
-	        }
-	        
-	        if ( intent.getAction().equals( UpcomingDownloadService.ACTION_COMPLETE ) ) {
-	        	Log.i( TAG, "UpcomingDownloadReceiver.onReceive : " + intent.getStringExtra( UpcomingDownloadService.EXTRA_COMPLETE ) );
-	        	
-	        	if( intent.getExtras().containsKey( UpcomingDownloadService.EXTRA_COMPLETE_UPTODATE ) ) {
-	        		Toast.makeText( AbstractLocationAwareFragmentActivity.this, "Upcoming Programs are up to date!", Toast.LENGTH_SHORT ).show();
-	        	} else {
-	        		Toast.makeText( AbstractLocationAwareFragmentActivity.this, "Upcoming Programs updated!", Toast.LENGTH_SHORT ).show();
-	        	}
-
-	        }
-	        
-		}
-		
-	}
-
-	private class RecordedDownloadReceiver extends BroadcastReceiver {
-
-		@Override
-		public void onReceive( Context context, Intent intent ) {
-        	Log.i( TAG, "RecordedDownloadReceiver.onReceive : enter" );
-			
-	        if ( intent.getAction().equals( RecordedDownloadService.ACTION_PROGRESS ) ) {
-	        	Log.i( TAG, "RecordedDownloadReceiver.onReceive : progress=" + intent.getStringExtra( RecordedDownloadService.EXTRA_PROGRESS ) );
-	        }
-	        
-	        if ( intent.getAction().equals( RecordedDownloadService.ACTION_COMPLETE ) ) {
-	        	Log.i( TAG, "RecordedDownloadReceiver.onReceive : complete=" + intent.getStringExtra( RecordedDownloadService.EXTRA_COMPLETE ) );
-	        	
-	        	if( intent.getExtras().containsKey( RecordedDownloadService.EXTRA_COMPLETE_UPTODATE ) ) {
-	        		Toast.makeText( AbstractLocationAwareFragmentActivity.this, "Recorded Program are up to date!", Toast.LENGTH_SHORT ).show();
-	        	} else {
-	        		Toast.makeText( AbstractLocationAwareFragmentActivity.this, "Recorded Programs updated!", Toast.LENGTH_SHORT ).show();
-	        	}
-	        }
-
-        	Log.i( TAG, "RecordedDownloadReceiver.onReceive : exit" );
-		}
-		
-	}
-
-	private class CheckMythtvBackendConnectionTask extends AsyncTask<Void, Void, ResponseEntity<String>> {
-
-		/* (non-Javadoc)
-		 * @see android.os.AsyncTask#doInBackground(Params[])
-		 */
-		@Override
-		protected ResponseEntity<String> doInBackground( Void... args ) {
-			Log.v( TAG, "CheckMythtvBackendConnectionTask.doInBackground : enter" );
-			
-			try {
-				Log.v( TAG, "CheckMythtvBackendConnectionTask.doInBackground : exit" );
-				return getMainApplication().getMythServicesApi().mythOperations().getHostName();
-			} catch( Exception e ) {
-				Log.w( TAG, "CheckMythtvBackendConnectionTask.doInBackground : error connecting to backend", e );
-				
-				return null;
-			}
-		}
-
-		/* (non-Javadoc)
-		 * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
-		 */
-		@Override
-		protected void onPostExecute( ResponseEntity<String> result ) {
-			Log.v( TAG, "CheckMythtvBackendConnectionTask.onPostExecute : enter" );
-
-			if( null != result ) {
-				
-				if( result.getStatusCode().equals( HttpStatus.OK ) ) {
-					
-					String hostname = result.getBody();
-					if( null != hostname && !"".equals( hostname ) ) {
-
-						startServices();
-						
-					}
-			
-				}
-				
-			}
-			
-			Log.v( TAG, "CheckMythtvBackendConnectionTask.onPostExecute : exit" );
 		}
 		
 	}
