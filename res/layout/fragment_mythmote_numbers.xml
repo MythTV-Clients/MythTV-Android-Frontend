@@ -1,30 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:stretchColumns="0,1,2" >
+    android:layout_height="match_parent"
+    android:layout_margin="10px"
+    android:stretchColumns="0,1,2"
+    android:weightSum="100" >
 
     <TableRow
         android:id="@+id/tableRow1"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" >
+        android:layout_height="fill_parent"
+        android:layout_weight="25" >
 
         <Button
             android:id="@+id/numbers_button1"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:text="1" />
 
         <Button
             android:id="@+id/numbers_button2"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:text="2" />
 
         <Button
             android:id="@+id/numbers_button3"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:text="3" />
 
     </TableRow>
@@ -32,24 +35,25 @@
     <TableRow
         android:id="@+id/tableRow2"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" >
+        android:layout_height="fill_parent"
+        android:layout_weight="25" >
 
         <Button
             android:id="@+id/numbers_button4"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:text="4" />
 
         <Button
             android:id="@+id/numbers_button5"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:text="5" />
 
         <Button
             android:id="@+id/numbers_button6"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:text="6" />
 
     </TableRow>
@@ -57,24 +61,25 @@
     <TableRow
         android:id="@+id/tableRow3"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" >
+        android:layout_height="fill_parent"
+        android:layout_weight="25" >
 
         <Button
             android:id="@+id/numbers_button7"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:text="7" />
 
         <Button
             android:id="@+id/numbers_button8"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:text="8" />
 
         <Button
             android:id="@+id/numbers_button9"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:text="9" />
 
     </TableRow>
@@ -82,24 +87,25 @@
     <TableRow
         android:id="@+id/tableRow4"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" >
+        android:layout_height="fill_parent"
+        android:layout_weight="25" >
 
         <Button
             android:id="@+id/numbers_button_backspace"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:text="Delete" />
 
         <Button
             android:id="@+id/numbers_button0"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:text="0" />
 
         <Button
             android:id="@+id/numbers_button_enter"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:text="Enter" />
 
     </TableRow>

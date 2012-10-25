@@ -26,9 +26,9 @@ import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.service.util.DateUtils;
 
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -51,9 +51,16 @@ public class ProgramGroupFragment extends MythtvListFragment implements LoaderMa
 
 	private static final String TAG = ProgramGroupFragment.class.getSimpleName();
 	
+	public interface OnEpisodeSelectedListener
+	{
+		void onEpisodeSelected(FragmentActivity activity, int position, long id);
+	}
+	
 	private String programGroup;
 	
 	private ProgramCursorAdapter mAdapter;
+	
+	private OnEpisodeSelectedListener mEpisodeListener;
 	
 	private static ProgramHelper mProgramHelper; 
 	
@@ -135,10 +142,10 @@ public class ProgramGroupFragment extends MythtvListFragment implements LoaderMa
 		super.onListItemClick( l, v, position, id );
 		
 		Log.v (TAG, "onListItemClick : position=" + position + ", id=" + id );
-	    
-		Intent i = new Intent( getActivity(), VideoActivity.class );
-		i.putExtra( VideoActivity.EXTRA_PROGRAM_KEY, id );
-		startActivity( i );
+		
+		if(null!=mEpisodeListener){
+			mEpisodeListener.onEpisodeSelected(this.getActivity(), position, id);
+		}
 
 		Log.v( TAG, "onListItemClick : exit" );
 	}
@@ -157,6 +164,10 @@ public class ProgramGroupFragment extends MythtvListFragment implements LoaderMa
 	    getLoaderManager().restartLoader( 0, null, this );
 
 		Log.v( TAG, "loadProgramGroup : exit" );
+	}
+	
+	public void setOnEpisodeSelectedListener(OnEpisodeSelectedListener listener){
+		this.mEpisodeListener = listener;
 	}
 	
 	// internal helpers

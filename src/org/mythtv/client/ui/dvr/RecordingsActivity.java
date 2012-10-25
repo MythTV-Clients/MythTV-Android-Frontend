@@ -25,6 +25,7 @@ import android.content.ContentUris;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
@@ -33,7 +34,7 @@ import android.util.Log;
  * @author Daniel Frey
  * 
  */
-public class RecordingsActivity extends AbstractDvrActivity implements RecordingsFragment.OnProgramGroupListener {
+public class RecordingsActivity extends AbstractDvrActivity implements RecordingsFragment.OnProgramGroupListener, ProgramGroupFragment.OnEpisodeSelectedListener {
 
 	private static final String TAG = RecordingsActivity.class.getSimpleName();
 	private static final String PROGRAM_GROUP_LIST_TAG = "PROGRAM_GROUP_LIST_TAG";
@@ -42,6 +43,7 @@ public class RecordingsActivity extends AbstractDvrActivity implements Recording
 
 	private RecordingsFragment recordingsFragment;
 	private ProgramGroupFragment programGroupFragment;
+	
 	
 	@Override
 	public void onCreate( Bundle savedInstanceState ) {
@@ -57,6 +59,7 @@ public class RecordingsActivity extends AbstractDvrActivity implements Recording
 
 		if( mUseMultiplePanes ) {
 			programGroupFragment = (ProgramGroupFragment) getSupportFragmentManager().findFragmentById( R.id.fragment_dvr_program_group );
+			programGroupFragment.setOnEpisodeSelectedListener(this);
 			
 			Cursor cursor = getContentResolver().query( ProgramConstants.CONTENT_URI_RECORDED, new String[] { ProgramConstants._ID }, null, null, ProgramConstants.FIELD_PROGRAM_GROUP );
 			if( cursor.moveToFirst() ) {
@@ -127,6 +130,21 @@ public class RecordingsActivity extends AbstractDvrActivity implements Recording
 		}
 
 		Log.d( TAG, "onProgramGroupSelected : exit" );
+	}
+	
+	/**
+	 * This is called when an episode is selected in the ProgramGroupFragment. The ProgramGroupFragment
+	 * will only be visible during this activities life cycle on larger screens.
+	 */
+	@Override
+	public void onEpisodeSelected(FragmentActivity activity, int position, long id) {
+		
+		
+		Intent i = new Intent( activity, VideoActivity.class );
+		i.putExtra( VideoActivity.EXTRA_PROGRAM_KEY, id );
+		startActivity( i );
+		
+		
 	}
 
 }
