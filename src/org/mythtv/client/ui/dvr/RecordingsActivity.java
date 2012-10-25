@@ -43,6 +43,7 @@ public class RecordingsActivity extends AbstractDvrActivity implements Recording
 
 	private RecordingsFragment recordingsFragment;
 	private ProgramGroupFragment programGroupFragment;
+	private EpisodeFragment mEpisodeFragment;
 	
 	
 	@Override
@@ -58,6 +59,9 @@ public class RecordingsActivity extends AbstractDvrActivity implements Recording
 		mUseMultiplePanes = ( null != findViewById( R.id.fragment_dvr_program_group ) );
 
 		if( mUseMultiplePanes ) {
+			
+			mEpisodeFragment = (EpisodeFragment) getSupportFragmentManager().findFragmentById( R.id.fragment_dvr_episode );
+			
 			programGroupFragment = (ProgramGroupFragment) getSupportFragmentManager().findFragmentById( R.id.fragment_dvr_program_group );
 			programGroupFragment.setOnEpisodeSelectedListener(this);
 			
@@ -137,14 +141,24 @@ public class RecordingsActivity extends AbstractDvrActivity implements Recording
 	 * will only be visible during this activities life cycle on larger screens.
 	 */
 	@Override
-	public void onEpisodeSelected(FragmentActivity activity, int position, long id) {
+	public void onEpisodeSelected(long id) {
 		
+		Log.v(TAG,  "onEpisodeSelect : enter");
 		
+		//check if we're hosting multiple fragments and have the episode fragment
+		if( mUseMultiplePanes && null != mEpisodeFragment ){
+			//tell the episode fragment to do it's business
+			mEpisodeFragment.loadEpisode(id);
+		}
+		
+		/*
+		//Start Video Playback -- this will be moving to the activity bar
 		Intent i = new Intent( activity, VideoActivity.class );
 		i.putExtra( VideoActivity.EXTRA_PROGRAM_KEY, id );
 		startActivity( i );
+		*/
 		
-		
+		Log.v(TAG,  "onEpisodeSelect : exit");
 	}
 
 }

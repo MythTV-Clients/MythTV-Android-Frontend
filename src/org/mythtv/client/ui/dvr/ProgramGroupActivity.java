@@ -93,12 +93,14 @@ public class ProgramGroupActivity extends AbstractDvrActivity implements Program
 	 * as part of the RecordingsActivity. 
 	 */
 	@Override
-	public void onEpisodeSelected(FragmentActivity activity, int position,
-			long id) {
+	public void onEpisodeSelected(long id) {
 		
+		/*
+		//Start Video Playback -- this will be moving to the activity bar
 		Intent i = new Intent( activity, VideoActivity.class );
 		i.putExtra( VideoActivity.EXTRA_PROGRAM_KEY, id );
 		startActivity( i );
+		*/
 		
 	}
 

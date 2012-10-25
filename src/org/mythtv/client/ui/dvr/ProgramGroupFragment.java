@@ -53,7 +53,7 @@ public class ProgramGroupFragment extends MythtvListFragment implements LoaderMa
 	
 	public interface OnEpisodeSelectedListener
 	{
-		void onEpisodeSelected(FragmentActivity activity, int position, long id);
+		void onEpisodeSelected(long id);
 	}
 	
 	private String programGroup;
@@ -144,7 +144,7 @@ public class ProgramGroupFragment extends MythtvListFragment implements LoaderMa
 		Log.v (TAG, "onListItemClick : position=" + position + ", id=" + id );
 		
 		if(null!=mEpisodeListener){
-			mEpisodeListener.onEpisodeSelected(this.getActivity(), position, id);
+			mEpisodeListener.onEpisodeSelected(id);
 		}
 
 		Log.v( TAG, "onListItemClick : exit" );
