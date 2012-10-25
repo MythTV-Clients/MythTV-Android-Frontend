@@ -189,21 +189,22 @@ public class RecordedDownloadService extends MythtvService {
 			if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
 				ProgramList programList = responseEntity.getBody();
 				
-				ContentValues values = new ContentValues();
-				values.put( EtagConstants.FIELD_ENDPOINT, Endpoint.GET_RECORDED_LIST.name() );
-				values.put( EtagConstants.FIELD_VALUE, etag.getETag() );
-				values.put( EtagConstants.FIELD_DATE, ( new DateTime() ).getMillis() );
-				
-				if( null == id ) {
-					Log.v( TAG, "download : adding new etag" );
-					
-					getContentResolver().insert( EtagConstants.CONTENT_URI, values );
-				} else {
-					Log.v( TAG, "download : updating existing etag" );
+				if( null != etag.getETag() ) {
+					ContentValues values = new ContentValues();
+					values.put( EtagConstants.FIELD_ENDPOINT, Endpoint.GET_RECORDED_LIST.name() );
+					values.put( EtagConstants.FIELD_VALUE, etag.getETag() );
+					values.put( EtagConstants.FIELD_DATE, ( new DateTime() ).getMillis() );
 
-					getContentResolver().update( ContentUris.withAppendedId( EtagConstants.CONTENT_URI, id ), values, null, null );
+					if( null == id ) {
+						Log.v( TAG, "download : adding new etag" );
+
+						getContentResolver().insert( EtagConstants.CONTENT_URI, values );
+					} else {
+						Log.v( TAG, "download : updating existing etag" );
+
+						getContentResolver().update( ContentUris.withAppendedId( EtagConstants.CONTENT_URI, id ), values, null, null );
+					}
 				}
-				
 				Log.v( TAG, "download : exit" );
 				return programList.getPrograms();
 			}
@@ -211,12 +212,14 @@ public class RecordedDownloadService extends MythtvService {
 			if( responseEntity.getStatusCode().equals( HttpStatus.NOT_MODIFIED ) ) {
 				Log.i( TAG, "download : " + Endpoint.GET_RECORDED_LIST.getEndpoint() + " returned 304 Not Modified" );
 
-				ContentValues values = new ContentValues();
-				values.put( EtagConstants.FIELD_ENDPOINT, Endpoint.GET_RECORDED_LIST.name() );
-				values.put( EtagConstants.FIELD_VALUE, etag.getETag() );
-				values.put( EtagConstants.FIELD_DATE, ( new DateTime() ).getMillis() );
-				getContentResolver().update( ContentUris.withAppendedId( EtagConstants.CONTENT_URI, id ), values, null, null );
-
+				if( null != etag.getETag() ) {
+					ContentValues values = new ContentValues();
+					values.put( EtagConstants.FIELD_ENDPOINT, Endpoint.GET_RECORDED_LIST.name() );
+					values.put( EtagConstants.FIELD_VALUE, etag.getETag() );
+					values.put( EtagConstants.FIELD_DATE, ( new DateTime() ).getMillis() );
+					getContentResolver().update( ContentUris.withAppendedId( EtagConstants.CONTENT_URI, id ), values, null, null );
+				}
+				
 			}
 			
 		} catch( Exception e ) {
