@@ -20,6 +20,7 @@ package org.mythtv.client.ui;
 
 import java.io.File;
 
+import org.mythtv.service.channel.ChannelDownloadService;
 import org.mythtv.service.guide.ProgramGuideCleanupService;
 import org.mythtv.service.guide.ProgramGuideDownloadService;
 import org.mythtv.service.util.FileHelper;
@@ -45,6 +46,7 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 	private FileHelper mFileHelper;
 	private RunningServiceHelper mRunningServiceHelper;
 	
+	private ChannelDownloadReceiver channelDownloadReceiver = new ChannelDownloadReceiver();
 	private ProgramGuideDownloadReceiver programGuideDownloadReceiver = new ProgramGuideDownloadReceiver();
 	private ProgramGuideCleanupReceiver programGuideCleanupReceiver = new ProgramGuideCleanupReceiver();
 	
@@ -80,7 +82,11 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 		Log.v( TAG, "onStart : enter" );
 		super.onStart();
 
-		IntentFilter programGuideCleanupFilter = new IntentFilter();
+		IntentFilter channelDownloadFilter = new IntentFilter();
+		channelDownloadFilter.addAction( ChannelDownloadService.ACTION_COMPLETE );
+	    registerReceiver( channelDownloadReceiver, channelDownloadFilter );
+
+	    IntentFilter programGuideCleanupFilter = new IntentFilter();
 		programGuideCleanupFilter.addAction( ProgramGuideCleanupService.ACTION_COMPLETE );
 	    registerReceiver( programGuideCleanupReceiver, programGuideCleanupFilter );
 	    
@@ -100,6 +106,7 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 		Log.v( TAG, "onResume : enter" );
 		super.onResume();
 
+		startService( new Intent( ChannelDownloadService.ACTION_DOWNLOAD ) );
 		startService( new Intent( ProgramGuideCleanupService.ACTION_CLEANUP ) );
 		
 		Log.v( TAG, "onResume : exit" );
@@ -114,6 +121,15 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 		super.onStop();
 
 		// Unregister for broadcast
+		if( null != channelDownloadReceiver ) {
+			try {
+				unregisterReceiver( channelDownloadReceiver );
+				channelDownloadReceiver = null;
+			} catch( IllegalArgumentException e ) {
+				Log.e( TAG, "onStop : error", e );
+			}
+		}
+
 		if( null != programGuideCleanupReceiver ) {
 			try {
 				unregisterReceiver( programGuideCleanupReceiver );
@@ -157,6 +173,25 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 	}
 
 	// internal helpers
+
+	private class ChannelDownloadReceiver extends BroadcastReceiver {
+
+		@Override
+		public void onReceive( Context context, Intent intent ) {
+			
+	        if ( intent.getAction().equals( ChannelDownloadService.ACTION_PROGRESS ) ) {
+	        	Log.i( TAG, "ProgramGuideDownloadReceiver.onReceive : progress=" + intent.getStringExtra( ProgramGuideDownloadService.EXTRA_PROGRESS ) );
+	        }
+	        
+	        if ( intent.getAction().equals( ChannelDownloadService.ACTION_COMPLETE ) ) {
+	        	Log.i( TAG, "ProgramGuideDownloadReceiver.onReceive : " + intent.getStringExtra( ProgramGuideDownloadService.EXTRA_COMPLETE ) );
+	        	
+ //       		Toast.makeText( AbstractLocationAwareFragmentActivity.this, "Channels Loaded!", Toast.LENGTH_SHORT ).show();
+	        }
+
+		}
+		
+	}
 
 	private class ProgramGuideDownloadReceiver extends BroadcastReceiver {
 

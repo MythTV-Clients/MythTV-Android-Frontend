@@ -154,11 +154,11 @@ public class RecordingRuleFragment extends AbstractMythFragment {
 		// - should we move this to a utility?
 		// - slow
 		String channel = "[Any]";
-		//Cursor cursor = this.getActivity().getContentResolver().query( ChannelConstants.CONTENT_URI, new String[] { ChannelConstants.FIELD_CHAN_NUM }, ChannelConstants.FIELD_CHAN_ID + " = ?", new String[] { "" + rule.getChanId() }, null );
-		//if( cursor.moveToFirst() ) {
-		//	 channel = cursor.getString( cursor.getColumnIndexOrThrow( ChannelConstants.FIELD_CHAN_NUM ) );
-		//}
-		//cursor.close();
+		Cursor cursor = this.getActivity().getContentResolver().query( ChannelConstants.CONTENT_URI, new String[] { ChannelConstants.FIELD_CHAN_NUM }, ChannelConstants.FIELD_CHAN_ID + " = ?", new String[] { String.valueOf( rule.getChanId() ) }, null );
+		if( cursor.moveToFirst() ) {
+			 channel = cursor.getString( cursor.getColumnIndexOrThrow( ChannelConstants.FIELD_CHAN_NUM ) );
+		}
+		cursor.close();
 		
 		tView = (TextView) getActivity().findViewById( R.id.recording_rule_channel );
 		tView.setText( channel );
