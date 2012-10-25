@@ -32,6 +32,7 @@ public class FileHelper {
 
 //	private static final String TAG = FileHelper.class.getSimpleName();
 	
+	private static final String CHANNEL_DATA = "chanel";
 	private static final String PROGRAM_GUIDE_DATA = "programGuide";
 	private static final String PROGRAM_DATA = "program";
 	private static final String PROGRAM_RECORDED_DATA = "recorded";
@@ -43,6 +44,27 @@ public class FileHelper {
 	
 	public FileHelper( Context context ) {
 		mContext = context;
+	}
+	
+	public File getChannelDataDirectory() {
+//		Log.v( TAG, "getChannelDataDirectory : enter" );
+		
+		File cacheDir = getRootCacheDirectory();
+		if( null != cacheDir && cacheDir.exists() ) {
+			
+			File channelDataDirectory = new File( cacheDir, CHANNEL_DATA );
+			channelDataDirectory.mkdir();
+			
+			if( channelDataDirectory.exists() ) {
+//				Log.v( TAG, "getChannelDataDirectory : exit" );
+
+				return channelDataDirectory;
+			}
+			
+		}
+		
+//		Log.v( TAG, "getChannelDataDirectory : exit, channel data directory doesn't exit" );
+		return null;
 	}
 	
 	public File getProgramGuideDataDirectory() {

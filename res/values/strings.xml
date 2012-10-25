@@ -202,5 +202,6 @@
     <string name="notification_sync_program_guide">Syncing Program Guide</string>
     <string name="notification_sync_recordings">Syncing Recorded Programs</string>
     <string name="notification_sync_upcoming">Syncing Upcoming Programs</string>
-
+	<string name="notification_sync_channels">Syncing Channels</string>
+    
 </resources>

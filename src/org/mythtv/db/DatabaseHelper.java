@@ -44,7 +44,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	private static final String TAG = DatabaseHelper.class.getSimpleName();
 	
 	private static final String DATABASE_NAME = "mythtvdb";
-	private static final int DATABASE_VERSION = 46;
+	private static final int DATABASE_VERSION = 49;
 
 	public DatabaseHelper( Context context ) {
 		super( context, DATABASE_NAME, null, DATABASE_VERSION );
@@ -66,6 +66,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		dropEtag( db );
 		createEtag( db );
 		
+		dropChannel( db );
+		createChannel( db );
+		
 		dropProgram( db, ProgramConstants.TABLE_NAME_RECORDED );
 		createProgram( db, ProgramConstants.TABLE_NAME_RECORDED );
 		
@@ -85,11 +88,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	public void onUpgrade( SQLiteDatabase db, int oldVersion, int newVersion ) {
 		Log.v( TAG, "onUpgrade : enter" );
 
-		if( oldVersion < 46 ) {
-			Log.v( TAG, "onUpgrade : upgrading to db version 46" );
+		if( oldVersion < 49 ) {
+			Log.v( TAG, "onUpgrade : upgrading to db version 49" );
 
 			dropEtag( db );
 			createEtag( db );
+
+			dropChannel( db );
+			createChannel( db );
 			
 		}
 
@@ -461,47 +467,47 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		Log.v( TAG, "dropRecording : exit" );
 	}
 	
-//	private void createChannel( SQLiteDatabase db ) {
-//		Log.v( TAG, "createChannel : enter" );
-//		
-//		StringBuilder sqlBuilder = new StringBuilder();
-//		sqlBuilder.append( "CREATE TABLE " + ChannelConstants.TABLE_NAME + " (" );
-//		sqlBuilder.append( _ID ).append( " " ).append( ChannelConstants.FIELD_ID_DATA_TYPE ).append( " " ).append( ChannelConstants.FIELD_ID_PRIMARY_KEY ).append( ", " );
-//		sqlBuilder.append( ChannelConstants.FIELD_CHAN_ID ).append( " " ).append( ChannelConstants.FIELD_CHAN_ID_DATA_TYPE ).append( ", " );
-//		sqlBuilder.append( ChannelConstants.FIELD_CHAN_NUM ).append( " " ).append( ChannelConstants.FIELD_CHAN_NUM_DATA_TYPE ).append( ", " );
-//		sqlBuilder.append( ChannelConstants.FIELD_CALLSIGN ).append( " " ).append( ChannelConstants.FIELD_CALLSIGN_DATA_TYPE ).append( ", " );
-//		sqlBuilder.append( ChannelConstants.FIELD_ICON_URL ).append( " " ).append( ChannelConstants.FIELD_ICON_URL_DATA_TYPE ).append( ", " );
-//		sqlBuilder.append( ChannelConstants.FIELD_CHANNEL_NAME ).append( " " ).append( ChannelConstants.FIELD_CHANNEL_NAME_DATA_TYPE ).append( ", " );
-//		sqlBuilder.append( ChannelConstants.FIELD_MPLEX_ID ).append( " " ).append( ChannelConstants.FIELD_MPLEX_ID_DATA_TYPE ).append( ", " );
-//		sqlBuilder.append( ChannelConstants.FIELD_TRANSPORT_ID ).append( " " ).append( ChannelConstants.FIELD_TRANSPORT_ID_DATA_TYPE ).append( ", " );
-//		sqlBuilder.append( ChannelConstants.FIELD_SERVICE_ID ).append( " " ).append( ChannelConstants.FIELD_SERVICE_ID_DATA_TYPE ).append( ", " );
-//		sqlBuilder.append( ChannelConstants.FIELD_NETWORK_ID ).append( " " ).append( ChannelConstants.FIELD_NETWORK_ID_DATA_TYPE ).append( ", " );
-//		sqlBuilder.append( ChannelConstants.FIELD_ATSC_MAJOR_CHAN ).append( " " ).append( ChannelConstants.FIELD_ATSC_MAJOR_CHAN_DATA_TYPE ).append( ", " );
-//		sqlBuilder.append( ChannelConstants.FIELD_ATSC_MINOR_CHAN ).append( " " ).append( ChannelConstants.FIELD_ATSC_MINOR_CHAN_DATA_TYPE ).append( ", " );
-//		sqlBuilder.append( ChannelConstants.FIELD_FORMAT ).append( " " ).append( ChannelConstants.FIELD_FORMAT_DATA_TYPE ).append( ", " );
-//		sqlBuilder.append( ChannelConstants.FIELD_MODULATION ).append( " " ).append( ChannelConstants.FIELD_MODULATION_DATA_TYPE ).append( ", " );
-//		sqlBuilder.append( ChannelConstants.FIELD_FREQUENCY ).append( " " ).append( ChannelConstants.FIELD_FREQUENCY_DATA_TYPE ).append( ", " );
-//		sqlBuilder.append( ChannelConstants.FIELD_FREQUENCY_ID ).append( " " ).append( ChannelConstants.FIELD_FREQUENCY_ID_DATA_TYPE ).append( ", " );
-//		sqlBuilder.append( ChannelConstants.FIELD_FREQUENCY_TABLE ).append( " " ).append( ChannelConstants.FIELD_FREQUENCY_TABLE_DATA_TYPE ).append( ", " );
-//		sqlBuilder.append( ChannelConstants.FIELD_FINE_TUNE ).append( " " ).append( ChannelConstants.FIELD_FINE_TUNE_DATA_TYPE ).append( ", " );
-//		sqlBuilder.append( ChannelConstants.FIELD_SIS_STANDARD ).append( " " ).append( ChannelConstants.FIELD_SIS_STANDARD_DATA_TYPE ).append( ", " );
-//		sqlBuilder.append( ChannelConstants.FIELD_CHAN_FILTERS ).append( " " ).append( ChannelConstants.FIELD_CHAN_FILTERS_DATA_TYPE ).append( ", " );
-//		sqlBuilder.append( ChannelConstants.FIELD_SOURCE_ID ).append( " " ).append( ChannelConstants.FIELD_SOURCE_ID_DATA_TYPE ).append( ", " );
-//		sqlBuilder.append( ChannelConstants.FIELD_INPUT_ID ).append( " " ).append( ChannelConstants.FIELD_INPUT_ID_DATA_TYPE ).append( ", " );
-//		sqlBuilder.append( ChannelConstants.FIELD_COMM_FREE ).append( " " ).append( ChannelConstants.FIELD_COMM_FREE_DATA_TYPE ).append( ", " );
-//		sqlBuilder.append( ChannelConstants.FIELD_USE_EIT ).append( " " ).append( ChannelConstants.FIELD_USE_EIT_DATA_TYPE ).append( " default " ).append( ChannelConstants.FIELD_USE_EIT_DEFAULT ).append( ", " );
-//		sqlBuilder.append( ChannelConstants.FIELD_VISIBLE ).append( " " ).append( ChannelConstants.FIELD_VISIBLE_DATA_TYPE ).append( " default " ).append( ChannelConstants.FIELD_VISIBLE_DEFAULT ).append( ", " );
-//		sqlBuilder.append( ChannelConstants.FIELD_XMLTV_ID ).append( " " ).append( ChannelConstants.FIELD_XMLTV_ID_DATA_TYPE ).append( ", " );
-//		sqlBuilder.append( ChannelConstants.FIELD_DEFAULT_AUTH ).append( " " ).append( ChannelConstants.FIELD_DEFAULT_AUTH_DATA_TYPE );
-//		sqlBuilder.append( ");" );
-//		String sql = sqlBuilder.toString();
-//		if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
-//			Log.v( TAG, "createChannel : sql=" + sql );
-//		}
-//		db.execSQL( sql );
-//	
-//		Log.v( TAG, "createChannel : exit" );
-//	}
+	private void createChannel( SQLiteDatabase db ) {
+		Log.v( TAG, "createChannel : enter" );
+		
+		StringBuilder sqlBuilder = new StringBuilder();
+		sqlBuilder.append( "CREATE TABLE " + ChannelConstants.TABLE_NAME + " (" );
+		sqlBuilder.append( _ID ).append( " " ).append( ChannelConstants.FIELD_ID_DATA_TYPE ).append( " " ).append( ChannelConstants.FIELD_ID_PRIMARY_KEY ).append( ", " );
+		sqlBuilder.append( ChannelConstants.FIELD_CHAN_ID ).append( " " ).append( ChannelConstants.FIELD_CHAN_ID_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ChannelConstants.FIELD_CHAN_NUM ).append( " " ).append( ChannelConstants.FIELD_CHAN_NUM_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ChannelConstants.FIELD_CALLSIGN ).append( " " ).append( ChannelConstants.FIELD_CALLSIGN_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ChannelConstants.FIELD_ICON_URL ).append( " " ).append( ChannelConstants.FIELD_ICON_URL_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ChannelConstants.FIELD_CHANNEL_NAME ).append( " " ).append( ChannelConstants.FIELD_CHANNEL_NAME_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ChannelConstants.FIELD_MPLEX_ID ).append( " " ).append( ChannelConstants.FIELD_MPLEX_ID_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ChannelConstants.FIELD_TRANSPORT_ID ).append( " " ).append( ChannelConstants.FIELD_TRANSPORT_ID_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ChannelConstants.FIELD_SERVICE_ID ).append( " " ).append( ChannelConstants.FIELD_SERVICE_ID_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ChannelConstants.FIELD_NETWORK_ID ).append( " " ).append( ChannelConstants.FIELD_NETWORK_ID_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ChannelConstants.FIELD_ATSC_MAJOR_CHAN ).append( " " ).append( ChannelConstants.FIELD_ATSC_MAJOR_CHAN_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ChannelConstants.FIELD_ATSC_MINOR_CHAN ).append( " " ).append( ChannelConstants.FIELD_ATSC_MINOR_CHAN_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ChannelConstants.FIELD_FORMAT ).append( " " ).append( ChannelConstants.FIELD_FORMAT_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ChannelConstants.FIELD_MODULATION ).append( " " ).append( ChannelConstants.FIELD_MODULATION_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ChannelConstants.FIELD_FREQUENCY ).append( " " ).append( ChannelConstants.FIELD_FREQUENCY_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ChannelConstants.FIELD_FREQUENCY_ID ).append( " " ).append( ChannelConstants.FIELD_FREQUENCY_ID_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ChannelConstants.FIELD_FREQUENCY_TABLE ).append( " " ).append( ChannelConstants.FIELD_FREQUENCY_TABLE_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ChannelConstants.FIELD_FINE_TUNE ).append( " " ).append( ChannelConstants.FIELD_FINE_TUNE_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ChannelConstants.FIELD_SIS_STANDARD ).append( " " ).append( ChannelConstants.FIELD_SIS_STANDARD_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ChannelConstants.FIELD_CHAN_FILTERS ).append( " " ).append( ChannelConstants.FIELD_CHAN_FILTERS_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ChannelConstants.FIELD_SOURCE_ID ).append( " " ).append( ChannelConstants.FIELD_SOURCE_ID_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ChannelConstants.FIELD_INPUT_ID ).append( " " ).append( ChannelConstants.FIELD_INPUT_ID_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ChannelConstants.FIELD_COMM_FREE ).append( " " ).append( ChannelConstants.FIELD_COMM_FREE_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ChannelConstants.FIELD_USE_EIT ).append( " " ).append( ChannelConstants.FIELD_USE_EIT_DATA_TYPE ).append( " default " ).append( ChannelConstants.FIELD_USE_EIT_DEFAULT ).append( ", " );
+		sqlBuilder.append( ChannelConstants.FIELD_VISIBLE ).append( " " ).append( ChannelConstants.FIELD_VISIBLE_DATA_TYPE ).append( " default " ).append( ChannelConstants.FIELD_VISIBLE_DEFAULT ).append( ", " );
+		sqlBuilder.append( ChannelConstants.FIELD_XMLTV_ID ).append( " " ).append( ChannelConstants.FIELD_XMLTV_ID_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ChannelConstants.FIELD_DEFAULT_AUTH ).append( " " ).append( ChannelConstants.FIELD_DEFAULT_AUTH_DATA_TYPE );
+		sqlBuilder.append( ");" );
+		String sql = sqlBuilder.toString();
+		if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
+			Log.v( TAG, "createChannel : sql=" + sql );
+		}
+		db.execSQL( sql );
+	
+		Log.v( TAG, "createChannel : exit" );
+	}
 	
 	private void dropChannel( SQLiteDatabase db ) {
 		Log.v( TAG, "dropChannel : enter" );

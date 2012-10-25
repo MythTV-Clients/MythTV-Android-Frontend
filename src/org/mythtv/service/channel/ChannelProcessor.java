@@ -18,18 +18,13 @@
  */
 package org.mythtv.service.channel;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.mythtv.db.channel.ChannelConstants;
 import org.mythtv.service.AbstractMythtvProcessor;
 import org.mythtv.services.api.channel.ChannelInfo;
+import org.mythtv.services.api.channel.ChannelInfos;
 
-import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
-import android.database.Cursor;
-import android.net.Uri;
 import android.util.Log;
 
 /**
@@ -47,123 +42,80 @@ public class ChannelProcessor extends AbstractMythtvProcessor {
 		Log.v( TAG, "initialize : exit" );
 	}
 
-	public Long updateChannelContentProvider( ChannelInfo channel ) {
-//		Log.v( TAG, "updateChannelContentProvider : enter" );
-		
-		if( null != channel ) {
-			
-			if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
-				Log.v( TAG, "updateChannelContentProvider : channelInfo=" + channel.toString() );
-			}
-			
-			ContentValues values = new ContentValues();
-			values.put( ChannelConstants.FIELD_CHAN_ID, channel.getChannelId() );
-			values.put( ChannelConstants.FIELD_CHAN_NUM, channel.getChannelNumber() );
-			values.put( ChannelConstants.FIELD_CALLSIGN, channel.getCallSign() );
-			values.put( ChannelConstants.FIELD_ICON_URL, channel.getIconUrl() );
-			values.put( ChannelConstants.FIELD_CHANNEL_NAME, channel.getChannelName() );
-			values.put( ChannelConstants.FIELD_MPLEX_ID, channel.getMultiplexId() );
-			values.put( ChannelConstants.FIELD_TRANSPORT_ID, channel.getTransportId() );
-			values.put( ChannelConstants.FIELD_SERVICE_ID, channel.getServiceId() );
-			values.put( ChannelConstants.FIELD_NETWORK_ID, channel.getNetworkId() );
-			values.put( ChannelConstants.FIELD_ATSC_MAJOR_CHAN, channel.getAtscMajorChannel() );
-			values.put( ChannelConstants.FIELD_ATSC_MINOR_CHAN, channel.getAtscMinorChannel() );
-			values.put( ChannelConstants.FIELD_FORMAT, channel.getFormat() );
-			values.put( ChannelConstants.FIELD_MODULATION, channel.getModulation() );
-			values.put( ChannelConstants.FIELD_FREQUENCY, channel.getFrequency() );
-			values.put( ChannelConstants.FIELD_FREQUENCY_ID, channel.getFrequencyId() );
-			values.put( ChannelConstants.FIELD_FREQUENCY_TABLE, channel.getFrequenceTable() );
-			values.put( ChannelConstants.FIELD_FINE_TUNE, channel.getFineTune() );
-			values.put( ChannelConstants.FIELD_SIS_STANDARD, channel.getSiStandard() );
-			values.put( ChannelConstants.FIELD_CHAN_FILTERS, channel.getChannelFilters() );
-			values.put( ChannelConstants.FIELD_SOURCE_ID, channel.getSourceId() );
-			values.put( ChannelConstants.FIELD_INPUT_ID, channel.getInputId() );
-			values.put( ChannelConstants.FIELD_COMM_FREE, channel.getCommercialFree() );
-			values.put( ChannelConstants.FIELD_USE_EIT, channel.isUseEit() );
-			values.put( ChannelConstants.FIELD_VISIBLE, channel.isVisable() );
-			values.put( ChannelConstants.FIELD_XMLTV_ID, channel.getXmltvId() );
-			values.put( ChannelConstants.FIELD_DEFAULT_AUTH, channel.getDefaultAuth() );
+	public int processChannels( ChannelInfos channelInfos ) {
+		Log.v( TAG, "processChannels : enter" );
 
-			long id = 0;
-			Cursor cursor = mContext.getContentResolver().query( ChannelConstants.CONTENT_URI, null, ChannelConstants.FIELD_CHAN_ID + " = ? and " + ChannelConstants.FIELD_SOURCE_ID + " = ?", new String[] { "" + channel.getChannelId(), "" + channel.getSourceId() }, null );
-			if( cursor.moveToFirst() ) {
-				id = cursor.getInt( cursor.getColumnIndexOrThrow( ChannelConstants._ID ) );
-			} else {
-				Uri contentUri = mContext.getContentResolver().insert( ChannelConstants.CONTENT_URI, values );
-				id = ContentUris.parseId( contentUri );
-			}
-			cursor.close();
+		int result = 0;
+		
+		if( null != channelInfos ) {
 			
-			return id;
+			// add delete here
+			int deleted = mContext.getContentResolver().delete( ChannelConstants.CONTENT_URI, null, null );
+			Log.v( TAG, "processChannels : channels deleted=" + deleted );
+			
+			ContentValues[] contentValuesArray = convertChannelsToContentValuesArray( channelInfos );
+			result = mContext.getContentResolver().bulkInsert( ChannelConstants.CONTENT_URI, contentValuesArray );
+			Log.v( TAG, "processChannels : channels added=" + result );
 		}
 		
-		Log.v( TAG, "updateChannelContentProvider : exit, channel info is empty" );
+		Log.v( TAG, "processChannels : exit" );
+		return result;
+	}
+
+	// internal helpers
+	
+	private ContentValues[] convertChannelsToContentValuesArray( final ChannelInfos channelInfos ) {
+		
+		if( null != channelInfos ) {
+			
+			int i = 0;
+			ContentValues contentValues;
+			ContentValues[] contentValuesArray = new ContentValues[ channelInfos.getChannelInfos().size() ];
+			for( ChannelInfo channelInfo : channelInfos.getChannelInfos() ) {
+				
+				contentValues = convertChannelToContentValues( channelInfo );
+				contentValuesArray[ i ] = contentValues;
+				
+				i++;
+			}
+			
+			return contentValuesArray;
+		}
+		
 		return null;
 	}
 
-	public Long batchUpdateChannelContentProvider( List<ChannelInfo> channels ) {
+	private ContentValues convertChannelToContentValues( ChannelInfo channelInfo ) {
 		
-		long numberInserted = 0;
-		
-		if( null != channels && !channels.isEmpty() ) {
+		ContentValues values = new ContentValues();
+		values.put( ChannelConstants.FIELD_CHAN_ID, channelInfo.getChannelId() );
+		values.put( ChannelConstants.FIELD_CHAN_NUM, channelInfo.getChannelNumber() );
+		values.put( ChannelConstants.FIELD_CALLSIGN, channelInfo.getCallSign() );
+		values.put( ChannelConstants.FIELD_ICON_URL, channelInfo.getIconUrl() );
+		values.put( ChannelConstants.FIELD_CHANNEL_NAME, channelInfo.getChannelName() );
+		values.put( ChannelConstants.FIELD_MPLEX_ID, channelInfo.getMultiplexId() );
+		values.put( ChannelConstants.FIELD_TRANSPORT_ID, channelInfo.getTransportId() );
+		values.put( ChannelConstants.FIELD_SERVICE_ID, channelInfo.getServiceId() );
+		values.put( ChannelConstants.FIELD_NETWORK_ID, channelInfo.getNetworkId() );
+		values.put( ChannelConstants.FIELD_ATSC_MAJOR_CHAN, channelInfo.getAtscMajorChannel() );
+		values.put( ChannelConstants.FIELD_ATSC_MINOR_CHAN, channelInfo.getAtscMinorChannel() );
+		values.put( ChannelConstants.FIELD_FORMAT, channelInfo.getFormat() );
+		values.put( ChannelConstants.FIELD_MODULATION, channelInfo.getModulation() );
+		values.put( ChannelConstants.FIELD_FREQUENCY, channelInfo.getFrequency() );
+		values.put( ChannelConstants.FIELD_FREQUENCY_ID, channelInfo.getFrequencyId() );
+		values.put( ChannelConstants.FIELD_FREQUENCY_TABLE, channelInfo.getFrequenceTable() );
+		values.put( ChannelConstants.FIELD_FINE_TUNE, channelInfo.getFineTune() );
+		values.put( ChannelConstants.FIELD_SIS_STANDARD, channelInfo.getSiStandard() );
+		values.put( ChannelConstants.FIELD_CHAN_FILTERS, channelInfo.getChannelFilters() );
+		values.put( ChannelConstants.FIELD_SOURCE_ID, channelInfo.getSourceId() );
+		values.put( ChannelConstants.FIELD_INPUT_ID, channelInfo.getInputId() );
+		values.put( ChannelConstants.FIELD_COMM_FREE, channelInfo.getCommercialFree() );
+		values.put( ChannelConstants.FIELD_USE_EIT, ( channelInfo.isUseEit() ? 1 : 0 ) );
+		values.put( ChannelConstants.FIELD_VISIBLE, ( channelInfo.isVisable() ? 1 : 0 ) );
+		values.put( ChannelConstants.FIELD_XMLTV_ID, channelInfo.getXmltvId() );
+		values.put( ChannelConstants.FIELD_DEFAULT_AUTH, channelInfo.getDefaultAuth() );
 
-			List<String> lChannels = new ArrayList<String>();
-
-			Cursor cursor = mContext.getContentResolver().query( ChannelConstants.CONTENT_URI, new String[] { ChannelConstants._ID }, null, null, null );
-			if( cursor.getCount() == 0 ) {
-				List<ChannelInfo> filtered = new ArrayList<ChannelInfo>();
-				for( ChannelInfo channel : channels ) {
-					if( !lChannels.contains( channel.getChannelNumber() ) ) {
-						if( channel.isVisable() ) {
-							filtered.add( channel );
-						
-							lChannels.add( channel.getChannelNumber() );
-						}
-					}
-				}
-				
-				int count = 0;
-				ContentValues values;
-				ContentValues[] valuesArray = new ContentValues[ filtered.size() ];
-				for( ChannelInfo channel : filtered ) {
-					values = new ContentValues();
-					values.put( ChannelConstants.FIELD_CHAN_ID, null != channel.getChannelId() ? channel.getChannelId() : "" );
-					values.put( ChannelConstants.FIELD_CHAN_NUM, channel.getChannelNumber() );
-					values.put( ChannelConstants.FIELD_CALLSIGN, channel.getCallSign() );
-					values.put( ChannelConstants.FIELD_ICON_URL, channel.getIconUrl() );
-					values.put( ChannelConstants.FIELD_CHANNEL_NAME, channel.getChannelName() );
-					values.put( ChannelConstants.FIELD_MPLEX_ID, channel.getMultiplexId() );
-					values.put( ChannelConstants.FIELD_TRANSPORT_ID, channel.getTransportId() );
-					values.put( ChannelConstants.FIELD_SERVICE_ID, channel.getServiceId() );
-					values.put( ChannelConstants.FIELD_NETWORK_ID, channel.getNetworkId() );
-					values.put( ChannelConstants.FIELD_ATSC_MAJOR_CHAN, channel.getAtscMajorChannel() );
-					values.put( ChannelConstants.FIELD_ATSC_MINOR_CHAN, channel.getAtscMinorChannel() );
-					values.put( ChannelConstants.FIELD_FORMAT, channel.getFormat() );
-					values.put( ChannelConstants.FIELD_MODULATION, channel.getModulation() );
-					values.put( ChannelConstants.FIELD_FREQUENCY, channel.getFrequency() );
-					values.put( ChannelConstants.FIELD_FREQUENCY_ID, channel.getFrequencyId() );
-					values.put( ChannelConstants.FIELD_FREQUENCY_TABLE, channel.getFrequenceTable() );
-					values.put( ChannelConstants.FIELD_FINE_TUNE, channel.getFineTune() );
-					values.put( ChannelConstants.FIELD_SIS_STANDARD, channel.getSiStandard() );
-					values.put( ChannelConstants.FIELD_CHAN_FILTERS, channel.getChannelFilters() );
-					values.put( ChannelConstants.FIELD_SOURCE_ID, channel.getSourceId() );
-					values.put( ChannelConstants.FIELD_INPUT_ID, channel.getInputId() );
-					values.put( ChannelConstants.FIELD_COMM_FREE, channel.getCommercialFree() );
-					values.put( ChannelConstants.FIELD_USE_EIT, channel.isUseEit() ? 1 : 0 );
-					values.put( ChannelConstants.FIELD_VISIBLE, channel.isVisable() ? 1 : 0 );
-					values.put( ChannelConstants.FIELD_XMLTV_ID, channel.getXmltvId() );
-					values.put( ChannelConstants.FIELD_DEFAULT_AUTH, channel.getDefaultAuth() );
-					valuesArray[ count ] = values;
-
-					count++;
-
-				}
-				numberInserted = mContext.getContentResolver().bulkInsert( ChannelConstants.CONTENT_URI, valuesArray );
-			}
-			cursor.close();
-		}
-
-		return numberInserted;
+		return values;
 	}
 	
 }
