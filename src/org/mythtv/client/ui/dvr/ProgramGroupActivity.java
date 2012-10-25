@@ -22,6 +22,7 @@ import org.mythtv.R;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.MenuItem;
 
@@ -30,13 +31,14 @@ import android.view.MenuItem;
  * @author John Baab
  * 
  */
-public class ProgramGroupActivity extends AbstractDvrActivity {
+public class ProgramGroupActivity extends AbstractDvrActivity implements ProgramGroupFragment.OnEpisodeSelectedListener {
 
 	private static final String TAG = ProgramGroupActivity.class.getSimpleName();
 
 	public static final String EXTRA_PROGRAM_GROUP_KEY = "org.mythtv.client.ui.dvr.programGroup.EXTRA_PROGRAM_GROUP_KEY";
 
 	private ProgramGroupFragment programGroupFragment = null;
+	
 
 	// ***************************************
 	// Activity methods
@@ -58,6 +60,7 @@ public class ProgramGroupActivity extends AbstractDvrActivity {
 		String programGroup = extras.getString( EXTRA_PROGRAM_GROUP_KEY );
 
 		programGroupFragment = (ProgramGroupFragment) getSupportFragmentManager().findFragmentById( R.id.fragment_dvr_program_group );
+		programGroupFragment.setOnEpisodeSelectedListener(this);
 		programGroupFragment.loadProgramGroup( programGroup );
 		
 		Log.v( TAG, "onCreate : exit" );
@@ -83,5 +86,22 @@ public class ProgramGroupActivity extends AbstractDvrActivity {
 		Log.v( TAG, "onOptionsItemSelected : exit" );
 		return super.onOptionsItemSelected( item );
 	}
+
+	/**
+	 * This is called when an episode is selected in the ProgramGroupFragment. This activity
+	 * is used on smaller screens when the ProgramGroupFragment cannot be displayed
+	 * as part of the RecordingsActivity. 
+	 */
+	@Override
+	public void onEpisodeSelected(FragmentActivity activity, int position,
+			long id) {
+		
+		Intent i = new Intent( activity, VideoActivity.class );
+		i.putExtra( VideoActivity.EXTRA_PROGRAM_KEY, id );
+		startActivity( i );
+		
+	}
+
+	
 	
 }
