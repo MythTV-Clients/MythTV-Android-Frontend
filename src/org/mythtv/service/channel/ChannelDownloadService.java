@@ -128,8 +128,6 @@ public class ChannelDownloadService extends MythtvService {
 
     		ChannelInfos channelInfos = null;
     		try {
-    			sendNotification();
-
     			Long id = null;
     			ETagInfo etag = ETagInfo.createEmptyETag();
     			Cursor cursor = getContentResolver().query( Uri.withAppendedPath( EtagConstants.CONTENT_URI, "endpoint" ), null, EtagConstants.FIELD_ENDPOINT + " = ?" ,new String[] { Endpoint.GET_VIDEO_SOURCE_LIST.name() }, null );
@@ -138,11 +136,13 @@ public class ChannelDownloadService extends MythtvService {
     				String value = cursor.getString( cursor.getColumnIndexOrThrow( EtagConstants.FIELD_VALUE ) );
     				
     				etag.setETag( value );
-    				Log.v( TAG, "download : etag=" + etag.getETag() );
     			}
     			cursor.close();
 				ResponseEntity<VideoSourceList> responseEntity = mMainApplication.getMythServicesApi().channelOperations().getVideoSourceList( etag );
 				if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
+					sendNotification();
+					
+					mChannelProcessor.deleteChannels();
 					
 					if( null != etag.getETag() ) {
 						ContentValues values = new ContentValues();

@@ -32,7 +32,7 @@ public class FileHelper {
 
 //	private static final String TAG = FileHelper.class.getSimpleName();
 	
-	private static final String CHANNEL_DATA = "chanel";
+	private static final String CHANNEL_DATA = "channel";
 	private static final String PROGRAM_GUIDE_DATA = "programGuide";
 	private static final String PROGRAM_DATA = "program";
 	private static final String PROGRAM_RECORDED_DATA = "recorded";

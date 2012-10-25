@@ -262,7 +262,6 @@ public class RecordingRulesFragment extends MythtvListFragment {
 			}
 			
 			RecRule rule = getItem( position );
-			
 			String channel = "[Any]";
 			Cursor cursor = mContext.getContentResolver().query( ChannelConstants.CONTENT_URI, new String[] { ChannelConstants.FIELD_CHAN_NUM }, ChannelConstants.FIELD_CHAN_ID + " = ?", new String[] { String.valueOf( rule.getChanId() ) }, null );
 			if( cursor.moveToFirst() ) {

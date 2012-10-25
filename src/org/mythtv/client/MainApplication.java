@@ -31,8 +31,6 @@ import org.mythtv.services.api.capture.CaptureCard;
 import org.mythtv.services.connect.MythServicesServiceProvider;
 
 import android.app.Application;
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.provider.Settings;
 import android.util.Log;
 
@@ -46,21 +44,9 @@ import com.fasterxml.jackson.datatype.joda.JodaModule;
  */
 public class MainApplication extends Application {
 
-	public static enum LocationSetting {
-		HOME,
-		AWAY
-	}
-	
 	private static final String TAG = MainApplication.class.getSimpleName();
-	private static final String MASTER_BACKEND = "MASTER_BACKEND";
 	
-	private SharedPreferences mythtvPreferences;
-
 	private MythServicesServiceProvider provider;
-	
-	private LocationSetting location;
-
-	private String masterBackend;
 	
 	private List<String> captureCards;
 	private Map<String,List<CaptureCard>> currentCaptureCards;
@@ -82,8 +68,6 @@ public class MainApplication extends Application {
 		Log.v( TAG, "onCreate : enter" );
 
 		super.onCreate();
-		
-		mythtvPreferences = getSharedPreferences( "MythtvPreferences", Context.MODE_PRIVATE );
 		
         String systemClock = Settings.System.getString(getApplicationContext().getContentResolver(), Settings.System.TIME_12_24);
         if(systemClock != null) this.clockType = systemClock;
@@ -134,90 +118,101 @@ public class MainApplication extends Application {
 	 * @return the selectedHomeLocationProfile
 	 */
 	public LocationProfile getSelectedHomeLocationProfile() {
+		Log.v( TAG, "getSelectedHomeLocationProfile : enter" );
+		
 		MythtvDatabaseManager db = new MythtvDatabaseManager( this );
-		return db.fetchSelectedHomeLocationProfile();
+		LocationProfile profile = db.fetchSelectedHomeLocationProfile(); 
+		Log.v( TAG, "getSelectedHomeLocationProfile : profile=" + profile.toString() );
+		
+		Log.v( TAG, "getSelectedHomeLocationProfile : exit" );
+		return profile;
 	}
 
 	/**
 	 * 
 	 */
 	public void connectSelectedHomeLocationProfile() {
-		setMasterBackend( getSelectedHomeLocationProfile().getUrl() );
-		setLocation( LocationSetting.HOME );
+		Log.v( TAG, "connectSelectedHomeLocationProfile : enter" );
+		
+		MythtvDatabaseManager db = new MythtvDatabaseManager( this );
+		db.clearConnectedLocationProfile();
+		
+		LocationProfile profile = db.fetchSelectedHomeLocationProfile(); 
+		db.connectLocationProfile( profile.getId() );
+
+		Log.v( TAG, "connectSelectedHomeLocationProfile : exit" );
 	}
 	
 	/**
 	 * @return the selectedAwayLocationProfile
 	 */
 	public LocationProfile getSelectedAwayLocationProfile() {
+		Log.v( TAG, "getSelectedAwayLocationProfile : enter" );
+		
 		MythtvDatabaseManager db = new MythtvDatabaseManager( this );
-		return db.fetchSelectedAwayLocationProfile();
+		LocationProfile profile = db.fetchSelectedAwayLocationProfile(); 
+		Log.v( TAG, "getSelectedAwayLocationProfile : profile=" + profile.toString() );
+		
+		Log.v( TAG, "getSelectedAwayLocationProfile : exit" );
+		return profile;
 	}
 
 	/**
 	 * 
 	 */
 	public void connectSelectedAwayLocationProfile() {
-		setMasterBackend( getSelectedAwayLocationProfile().getUrl() );
-		setLocation( LocationSetting.AWAY );
+		Log.v( TAG, "connectSelectedAwayLocationProfile : enter" );
+		
+		MythtvDatabaseManager db = new MythtvDatabaseManager( this );
+		db.clearConnectedLocationProfile();
+		
+		LocationProfile profile = db.fetchSelectedAwayLocationProfile(); 
+		db.connectLocationProfile( profile.getId() );
+		
+		Log.v( TAG, "connectSelectedAwayLocationProfile : exit" );
 	}
 	
 	/**
 	 * @return the selectedHomePlaybackProfile
 	 */
 	public PlaybackProfile getSelectedHomePlaybackProfile() {
+		Log.v( TAG, "getSelectedHomePlaybackProfile : enter" );
+
 		MythtvDatabaseManager db = new MythtvDatabaseManager( this );
-		return db.fetchSelectedHomePlaybackProfile();
+		PlaybackProfile profile = db.fetchSelectedHomePlaybackProfile(); 
+		Log.v( TAG, "getSelectedHomePlaybackProfile : profile=" + profile.toString() );
+		
+		Log.v( TAG, "getSelectedHomePlaybackProfile : exit" );
+		return profile;
 	}
 
 	/**
 	 * @return the selectedAwayPlaybackProfile
 	 */
 	public PlaybackProfile getSelectedAwayPlaybackProfile() {
+		Log.v( TAG, "getSelectedAwayPlaybackProfile : enter" );
+
 		MythtvDatabaseManager db = new MythtvDatabaseManager( this );
-		return db.fetchSelectedAwayPlaybackProfile();
+		PlaybackProfile profile = db.fetchSelectedAwayPlaybackProfile(); 
+		Log.v( TAG, "getSelectedAwayPlaybackProfile : profile=" + profile.toString() );
+		
+		Log.v( TAG, "getSelectedAwayPlaybackProfile : exit" );
+		return profile;
 	}
 
+	public LocationProfile getConnectedLocationProfile() {
+		MythtvDatabaseManager db = new MythtvDatabaseManager( this );
+		LocationProfile profile = db.fetchConnectedLocationProfile();
+
+		return profile;
+	}
 
 	/**
 	 * @return the masterBackend
 	 */
 	public String getMasterBackend() {
-		if( null == masterBackend || "".equals( masterBackend ) ) {
-			masterBackend = mythtvPreferences.getString( MASTER_BACKEND, null );
-		}
-		
-		return masterBackend;
-	}
 
-	/**
-	 * @param masterBackend the masterBackend to set
-	 */
-	public void setMasterBackend( String masterBackend ) {
-		Log.v( TAG, "setMasterBackend : enter" );
-
-		this.masterBackend = masterBackend;
-
-		Log.v( TAG, "setMasterBackend : storing masterbackend in SharedPreferences [" + masterBackend + "]" );
-		SharedPreferences.Editor editor = mythtvPreferences.edit();
-		editor.putString( MASTER_BACKEND, masterBackend );
-		editor.commit();
-
-		Log.v( TAG, "setMasterBackend : enter" );
-	}
-
-	/**
-	 * @return the location
-	 */
-	public LocationSetting getLocation() {
-		return location;
-	}
-
-	/**
-	 * @param location the location to set
-	 */
-	private void setLocation( LocationSetting location ) {
-		this.location = location;
+		return getConnectedLocationProfile().getUrl();
 	}
 
 	/**
@@ -269,4 +264,5 @@ public class MainApplication extends Application {
     public void setDateFormat(String dateFormat) {
         this.dateFormat = dateFormat;
     }
+
 }

@@ -46,6 +46,10 @@ public class LocationProfileConstants {
 	public static final String FIELD_SELECTED_DATA_TYPE = "INTEGER";
 	public static final String FIELD_SELECTED_DEFAULT = "0";
 	
+	public static final String FIELD_CONNECTED = "CONNECTED";
+	public static final String FIELD_CONNECTED_DATA_TYPE = "INTEGER";
+	public static final String FIELD_CONNECTED_DEFAULT = "0";
+
 	// queries
 	public static final String SELECT_LOCATION_PROFILE =
 			"select " +

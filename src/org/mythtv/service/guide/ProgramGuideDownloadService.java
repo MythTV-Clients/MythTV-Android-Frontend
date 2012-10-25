@@ -105,53 +105,56 @@ public class ProgramGuideDownloadService extends MythtvService {
 			return;
 		}
 		
-		mNotificationManager = (NotificationManager) getSystemService( Context.NOTIFICATION_SERVICE );
+		if( programGuideCache.list().length < MAX_HOURS ) {
 
-        if ( intent.getAction().equals( ACTION_DOWNLOAD ) ) {
-    		Log.i( TAG, "onHandleIntent : DOWNLOAD action selected" );
+			mNotificationManager = (NotificationManager) getSystemService( Context.NOTIFICATION_SERVICE );
 
-    		boolean newDataDownloaded = false;
+			if ( intent.getAction().equals( ACTION_DOWNLOAD ) ) {
+				Log.i( TAG, "onHandleIntent : DOWNLOAD action selected" );
 
-    		try {
-    			sendNotification();
+				boolean newDataDownloaded = false;
 
-    			DateTime start = new DateTime();
-    			start = start.withTime( 0, 0, 0, 001 );
+				try {
+					sendNotification();
 
-   				for( int currentHour = 0; currentHour < MAX_HOURS; currentHour++ ) {
+					DateTime start = new DateTime();
+					start = start.withTime( 0, 0, 0, 001 );
 
-   					File file = new File( programGuideCache, DateUtils.fileDateTimeFormatter.print( start ) + FILENAME_EXT );
-    				if( !file.exists() ) {
+					for( int currentHour = 0; currentHour < MAX_HOURS; currentHour++ ) {
 
-    					ProgramGuide programGuide = download( start );
-    		    		if( null != programGuide ) {
-    		    				
-    						newDataDownloaded = process( file, programGuide );
-    					}
-    					
-    				}
-    				
-					start = start.plusHours( 1 );
-					
-					double percentage = ( (float) currentHour / (float) MAX_HOURS ) * 100;
-					progressUpdate( percentage );
-    			}
-			} catch( JsonGenerationException e ) {
-				Log.e( TAG, "onHandleIntent : error generating json", e );
-			} catch( JsonMappingException e ) {
-				Log.e( TAG, "onHandleIntent : error mapping json", e );
-			} catch( IOException e ) {
-				Log.e( TAG, "onHandleIntent : error handling files", e );
-			} finally {
-    			completed();
+						File file = new File( programGuideCache, DateUtils.fileDateTimeFormatter.print( start ) + FILENAME_EXT );
+						if( !file.exists() ) {
 
-    			Intent completeIntent = new Intent( ACTION_COMPLETE );
-    			completeIntent.putExtra( EXTRA_COMPLETE, "Program Guide Download Service Finished" );
-    			completeIntent.putExtra( EXTRA_COMPLETE_DOWNLOADED, newDataDownloaded );
-    			sendBroadcast( completeIntent );
-    		}
+							ProgramGuide programGuide = download( start );
+							if( null != programGuide ) {
 
-        }
+								newDataDownloaded = process( file, programGuide );
+							}
+
+						}
+
+						start = start.plusHours( 1 );
+
+						double percentage = ( (float) currentHour / (float) MAX_HOURS ) * 100;
+						progressUpdate( percentage );
+					}
+				} catch( JsonGenerationException e ) {
+					Log.e( TAG, "onHandleIntent : error generating json", e );
+				} catch( JsonMappingException e ) {
+					Log.e( TAG, "onHandleIntent : error mapping json", e );
+				} catch( IOException e ) {
+					Log.e( TAG, "onHandleIntent : error handling files", e );
+				} finally {
+					completed();
+
+					Intent completeIntent = new Intent( ACTION_COMPLETE );
+					completeIntent.putExtra( EXTRA_COMPLETE, "Program Guide Download Service Finished" );
+					completeIntent.putExtra( EXTRA_COMPLETE_DOWNLOADED, newDataDownloaded );
+					sendBroadcast( completeIntent );
+				}
+
+			}
+		}
 		
 		Log.d( TAG, "onHandleIntent : exit" );
 	}

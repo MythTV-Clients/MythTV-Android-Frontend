@@ -44,7 +44,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	private static final String TAG = DatabaseHelper.class.getSimpleName();
 	
 	private static final String DATABASE_NAME = "mythtvdb";
-	private static final int DATABASE_VERSION = 49;
+	private static final int DATABASE_VERSION = 51;
 
 	public DatabaseHelper( Context context ) {
 		super( context, DATABASE_NAME, null, DATABASE_VERSION );
@@ -88,9 +88,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	public void onUpgrade( SQLiteDatabase db, int oldVersion, int newVersion ) {
 		Log.v( TAG, "onUpgrade : enter" );
 
-		if( oldVersion < 49 ) {
-			Log.v( TAG, "onUpgrade : upgrading to db version 49" );
+		if( oldVersion < 51 ) {
+			Log.v( TAG, "onUpgrade : upgrading to db version 51" );
 
+			alterLocationProfiles( db );
+			
 			dropEtag( db );
 			createEtag( db );
 
@@ -177,7 +179,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		sqlBuilder.append( LocationProfileConstants.FIELD_TYPE ).append( " " ).append( LocationProfileConstants.FIELD_TYPE_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( LocationProfileConstants.FIELD_NAME ).append( " " ).append( LocationProfileConstants.FIELD_NAME_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( LocationProfileConstants.FIELD_URL ).append( " " ).append( LocationProfileConstants.FIELD_URL_DATA_TYPE ).append( ", " );
-		sqlBuilder.append( LocationProfileConstants.FIELD_SELECTED ).append( " " ).append( LocationProfileConstants.FIELD_SELECTED_DATA_TYPE ).append( " default" ).append( LocationProfileConstants.FIELD_SELECTED_DEFAULT );
+		sqlBuilder.append( LocationProfileConstants.FIELD_SELECTED ).append( " " ).append( LocationProfileConstants.FIELD_SELECTED_DATA_TYPE ).append( " default" ).append( LocationProfileConstants.FIELD_SELECTED_DEFAULT ).append( ", " );
+		sqlBuilder.append( LocationProfileConstants.FIELD_CONNECTED ).append( " " ).append( LocationProfileConstants.FIELD_CONNECTED_DATA_TYPE ).append( " default" ).append( LocationProfileConstants.FIELD_CONNECTED_DEFAULT );
 		sqlBuilder.append( ");" );
 		String sql = sqlBuilder.toString();
 		if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
@@ -186,6 +189,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		db.execSQL( sql );
 
 		Log.v( TAG, "createLocationProfiles : exit" );
+	}
+	
+	private void alterLocationProfiles( SQLiteDatabase db ) {
+		Log.v( TAG, "alterLocationProfiles : enter" );
+		
+		db.execSQL( "ALTER TABLE " + LocationProfileConstants.TABLE_NAME + " ADD COLUMN " + LocationProfileConstants.FIELD_CONNECTED + " " + LocationProfileConstants.FIELD_CONNECTED_DATA_TYPE );
+		
+		Log.v( TAG, "alterLocationProfiles : exit" );
 	}
 	
 	private void dropLocationProfiles( SQLiteDatabase db ) {

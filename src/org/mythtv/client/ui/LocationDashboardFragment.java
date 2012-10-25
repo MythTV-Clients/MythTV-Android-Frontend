@@ -48,9 +48,13 @@ public class LocationDashboardFragment extends AbstractMythFragment {
 				Log.v( TAG, "home.onClick : enter" );
 				
 				if( null != getMainApplication().getSelectedHomeLocationProfile() ) {
+					Log.v( TAG, "away.onClick : showing home dashboard" );
+					
 					getMainApplication().connectSelectedHomeLocationProfile();
 					
-					new CheckMythtvBackendConnectionTask().execute( "home" );
+					connectHomeLocation();
+					
+//					new CheckMythtvBackendConnectionTask().execute( "home" );
 				} else {
 					AlertDialog.Builder builder = new AlertDialog.Builder( getActivity() );
 					builder.setTitle( R.string.location_alert_error_title );
@@ -77,7 +81,9 @@ public class LocationDashboardFragment extends AbstractMythFragment {
 
 					getMainApplication().connectSelectedAwayLocationProfile();
 					
-					new CheckMythtvBackendConnectionTask().execute( "away" );
+					connectAwayLocation();
+					
+//					new CheckMythtvBackendConnectionTask().execute( "away" );
 				} else {
 					Log.v( TAG, "away.onClick : no away profile selected" );
 

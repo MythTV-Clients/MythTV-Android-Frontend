@@ -42,16 +42,22 @@ public class ChannelProcessor extends AbstractMythtvProcessor {
 		Log.v( TAG, "initialize : exit" );
 	}
 
+	public int deleteChannels() {
+		Log.v( TAG, "deleteChannels : enter" );
+		
+		int deleted = mContext.getContentResolver().delete( ChannelConstants.CONTENT_URI, null, null );
+		Log.v( TAG, "deleteChannels : channels deleted=" + deleted );
+
+		Log.v( TAG, "deleteChannels : exit" );
+		return deleted;
+	}
+	
 	public int processChannels( ChannelInfos channelInfos ) {
 		Log.v( TAG, "processChannels : enter" );
 
 		int result = 0;
 		
 		if( null != channelInfos ) {
-			
-			// add delete here
-			int deleted = mContext.getContentResolver().delete( ChannelConstants.CONTENT_URI, null, null );
-			Log.v( TAG, "processChannels : channels deleted=" + deleted );
 			
 			ContentValues[] contentValuesArray = convertChannelsToContentValuesArray( channelInfos );
 			result = mContext.getContentResolver().bulkInsert( ChannelConstants.CONTENT_URI, contentValuesArray );

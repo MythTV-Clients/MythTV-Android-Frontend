@@ -273,6 +273,81 @@ public class MythtvDatabaseManager {
 		return fetchSelectedLocationProfileByType( LocationType.AWAY );
 	}
 
+	public boolean clearConnectedLocationProfile() {
+		Log.v( TAG, "clearConnectedLocationProfile : enter" );
+
+		open();
+
+		ContentValues args = new ContentValues();
+		args.put( LocationProfileConstants.FIELD_CONNECTED, 0 );
+
+		int rows = db.update( LocationProfileConstants.TABLE_NAME, args, null, null );
+	
+		close();
+
+		Log.v( TAG, "clearConnectedLocationProfile : exit" );
+		return rows > 0;
+	}
+
+	public boolean connectLocationProfile( long id ) {
+		Log.v( TAG, "connectLocationProfile : enter" );
+
+		open();
+
+		ContentValues args = new ContentValues();
+		args.put( LocationProfileConstants.FIELD_CONNECTED, 1 );
+
+		int rows = db.update( LocationProfileConstants.TABLE_NAME, args, _ID + "=" + id, null );
+	
+		close();
+
+		Log.v( TAG, "connectLocationProfile : exit" );
+		return rows == 1;
+	}
+
+	public LocationProfile fetchConnectedLocationProfile() {
+		Log.v( TAG, "fetchConnectedLocationProfile : enter" );
+		
+		open();
+		
+		LocationProfile profile = null;
+
+		try {
+			Cursor cursor = db.query( 
+						LocationProfileConstants.TABLE_NAME, 
+						new String[] { _ID, LocationProfileConstants.FIELD_TYPE, LocationProfileConstants.FIELD_NAME, LocationProfileConstants.FIELD_URL, LocationProfileConstants.FIELD_SELECTED }, 
+						LocationProfileConstants.FIELD_CONNECTED + "=?", 
+						new String[] { "1" }, 
+						null, null, null 
+					  );
+			
+			if( cursor.getCount() == 1 && cursor.moveToFirst() ) {
+				Log.v( TAG, "fetchConnectedLocationProfile : connected location profile found" );
+
+				profile = convertCursorToLocationProfile( cursor );
+			}
+			
+			cursor.close();
+			
+		} catch( SQLException e ) {
+			Log.e( TAG, "fetchConnectedLocationProfile : error", e );
+			
+			AlertDialog.Builder builder = new AlertDialog.Builder( context );
+			builder.setTitle( "DataBase Error" );
+			builder.setMessage( "An error occurred locating profile" );
+			builder.setNeutralButton( R.string.close, new OnClickListener() {
+
+				public void onClick( DialogInterface dialog, int which ) { }
+			
+			});
+		} finally {
+			close();
+		}
+		
+		Log.v( TAG, "fetchConnectedLocationProfile : exit" );
+		return profile;
+	}
+
 	/**
 	 * @return
 	 */
