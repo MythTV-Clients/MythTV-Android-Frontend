@@ -71,11 +71,9 @@
 								
 		<!-- Main Dashboard -->
 		<activity 
-			android:name=".client.ui.HomeActivity"
-			android:configChanges="keyboard|keyboardHidden|orientation|screenSize" />
+			android:name=".client.ui.HomeActivity" />
 		<activity 
-			android:name=".client.ui.AwayActivity"
-			android:configChanges="keyboard|keyboardHidden|orientation|screenSize" />
+			android:name=".client.ui.AwayActivity" />
 				
 		<!-- DVR Activities -->
 		<activity 
@@ -113,55 +111,55 @@
 		<!-- MythTV Android Services -->
 		<service android:name=".service.dvr.DvrService" />
 		
-		<service android:name=".service.UpgradeCleanupService" android:process=":upgrade">
+		<service android:name=".service.UpgradeCleanupService" android:process=":upgrade" android:exported="false">
 			<intent-filter>
                 <action android:name="org.mythtv.background.upgradeCleanup.PROGRAM_GUIDE_CLEANUP" />
                 <action android:name="org.mythtv.background.upgradeCleanup.PROGRAMS_CLEANUP" />
             </intent-filter>
         </service>
 		
-		<service android:name=".service.dvr.RecordedDownloadService" android:process=":recorded">
+		<service android:name=".service.dvr.RecordedDownloadService" android:process=":recorded" android:exported="false">
 			<intent-filter>
                 <action android:name="org.mythtv.background.recordedDownload.ACTION_DOWNLOAD" />
             </intent-filter>
         </service>
 		
-		<service android:name=".service.dvr.ProgramGroupRecordedDownloadService" android:process=":programGroupRecorded">
+		<service android:name=".service.dvr.ProgramGroupRecordedDownloadService" android:process=":programGroupRecorded" android:exported="false">
 			<intent-filter>
                 <action
                     android:name="org.mythtv.background.programGroupRecordedDownload.ACTION_DOWNLOAD" />
             </intent-filter>
         </service>
 		
-		<service android:name=".service.dvr.BannerDownloadService" android:process=":banner">
+		<service android:name=".service.dvr.BannerDownloadService" android:process=":banner" android:exported="false">
 			<intent-filter>
                 <action
                     android:name="org.mythtv.background.bannerDownload.ACTION_DOWNLOAD" />
             </intent-filter>
         </service>
 		
-		<service android:name=".service.dvr.CoverartDownloadService" android:process=":coverart">
+		<service android:name=".service.dvr.CoverartDownloadService" android:process=":coverart" android:exported="false">
 			<intent-filter>
                 <action
                     android:name="org.mythtv.background.coverartDownload.ACTION_DOWNLOAD" />
             </intent-filter>
         </service>
 		
-		<service android:name=".service.dvr.UpcomingDownloadService" android:process=":upcoming">
+		<service android:name=".service.dvr.UpcomingDownloadService" android:process=":upcoming" android:exported="false">
 			<intent-filter>
                 <action
                     android:name="org.mythtv.background.upcomingDownload.ACTION_DOWNLOAD" />
             </intent-filter>
 		</service>
 		
-		<service android:name=".service.guide.ProgramGuideDownloadService" android:process=":programGuide">
+		<service android:name=".service.guide.ProgramGuideDownloadService" android:process=":programGuide" android:exported="false">
 			<intent-filter>
                 <action
                     android:name="org.mythtv.background.programGuideDownload.ACTION_DOWNLOAD" />
             </intent-filter>
         </service>
 		
-		<service android:name=".service.guide.ProgramGuideCleanupService" android:process=":programGuideCleanup">
+		<service android:name=".service.guide.ProgramGuideCleanupService" android:process=":programGuideCleanup" android:exported="false">
 			<intent-filter>
                 <action
                     android:name="org.mythtv.background.programGuideCleanup.ACTION_CLEANUP" />
