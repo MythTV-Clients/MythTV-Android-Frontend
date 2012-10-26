@@ -92,8 +92,14 @@ public class ProgramGroupActivity extends AbstractDvrActivity implements Program
 	 * as part of the RecordingsActivity. 
 	 */
 	@Override
-	public void onEpisodeSelected(long id) {
-		
+	public void onEpisodeSelected( long id ) {
+		Log.v( TAG, "onEpisodeSelect : enter" );
+
+		Log.v( TAG, "onEpisodeSelect : starting episode activity" );
+		Intent i = new Intent( this, EpisodeActivity.class );
+		i.putExtra( EpisodeActivity.EPISODE_KEY, id );
+		startActivity( i );
+
 		/*
 		//Start Video Playback -- this will be moving to the activity bar
 		Intent i = new Intent( activity, VideoActivity.class );
@@ -101,6 +107,7 @@ public class ProgramGroupActivity extends AbstractDvrActivity implements Program
 		startActivity( i );
 		*/
 		
+		Log.v( TAG, "onEpisodeSelect : exit" );
 	}
 
 	

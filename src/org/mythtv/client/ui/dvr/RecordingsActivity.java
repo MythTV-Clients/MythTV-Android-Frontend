@@ -132,6 +132,8 @@ public class RecordingsActivity extends AbstractDvrActivity implements Recording
 			startActivity( i );
 		}
 
+		onEpisodeSelected( recordedId );
+		
 		Log.d( TAG, "onProgramGroupSelected : exit" );
 	}
 	
@@ -141,7 +143,6 @@ public class RecordingsActivity extends AbstractDvrActivity implements Recording
 	 */
 	@Override
 	public void onEpisodeSelected(long id) {
-		
 		Log.v(TAG,  "onEpisodeSelect : enter");
 		
 		//check if we're hosting multiple fragments and have the episode fragment

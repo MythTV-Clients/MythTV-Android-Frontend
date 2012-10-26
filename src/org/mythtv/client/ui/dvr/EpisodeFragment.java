@@ -3,32 +3,53 @@ package org.mythtv.client.ui.dvr;
 import org.mythtv.R;
 import org.mythtv.client.ui.AbstractMythFragment;
 import org.mythtv.db.dvr.ProgramConstants;
+import org.mythtv.service.dvr.cache.CoverartLruMemoryCache;
 
 import android.content.ContentUris;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 public class EpisodeFragment  extends AbstractMythFragment {
 
 	private static final String TAG = ProgramGroupActivity.class.getSimpleName();
 	
+	private CoverartLruMemoryCache cache;
+	
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
+	public View onCreateView( LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState ) {
+		Log.v( TAG, "onCreateView : enter" );
 		
 		View root = inflater.inflate( R.layout.fragment_dvr_episode, container, false );
 		
+		cache = new CoverartLruMemoryCache( getActivity() );
+
+		Log.v( TAG, "onCreateView : exit" );
 		return root;
 	}
 
-	
-	
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
+	 */
+	@Override
+	public void onActivityCreated( Bundle savedInstanceState ) {
+		Log.v( TAG, "onActivityCreated : enter" );
+		super.onActivityCreated( savedInstanceState );
+		
+		cache = new CoverartLruMemoryCache( getActivity() );
+		
+		Log.v( TAG, "onActivityCreated : exit" );
+	}
+
+
+
 	public void loadEpisode(long id){
 		
 		String[] projection =
@@ -54,7 +75,14 @@ public class EpisodeFragment  extends AbstractMythFragment {
 	        
 	        //get activity to grab views from
 	        FragmentActivity activity = this.getActivity();
-	        
+	
+	        //coverart
+	        ImageView iView = (ImageView) activity.findViewById( R.id.imageView_episode_coverart );
+	        Bitmap coverart = cache.get( title );
+	        if( null != coverart ) {
+	        	iView.setImageBitmap( coverart );
+	        }
+	        	        
 	        //title
 	        TextView tView = (TextView)activity.findViewById(R.id.textView_episode_title);
 	        tView.setText(title);
