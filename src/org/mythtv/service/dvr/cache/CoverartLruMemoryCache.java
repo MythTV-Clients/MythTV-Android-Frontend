@@ -44,7 +44,7 @@ public class CoverartLruMemoryCache extends LruCache<String, Bitmap> {
     private FileHelper mFileHelper;
 	
 	public CoverartLruMemoryCache( Context context ) {
-		super( 12 * 1024 * 1024 );
+		super( 4 * 1024 * 1024 );
 		Log.v( TAG, "initialize : enter" );
 
 		mContext = context;
@@ -79,28 +79,28 @@ public class CoverartLruMemoryCache extends LruCache<String, Bitmap> {
 		return super.create( key );
 	}
 
-	/* (non-Javadoc)
-	 * @see android.support.v4.util.LruCache#sizeOf(java.lang.Object, java.lang.Object)
-	 */
-	@Override
-	protected int sizeOf( String key, Bitmap value ) {
-		
-		File programGroupDirectory = mFileHelper.getProgramGroupDirectory( key );
-		if( programGroupDirectory.exists() ) {
-
-			File image = new File( programGroupDirectory, CoverartDownloadService.COVERART_FILE );
-			if( image.exists() ) {
-				return (int) image.length();
-			}
-		
-			File imageNa = new File( programGroupDirectory, CoverartDownloadService.COVERART_FILE_NA );
-			if( imageNa.exists() ) {
-				return 0;
-			}
-		
-		}
-
-		return super.sizeOf( key, value );    
-	}
+//	/* (non-Javadoc)
+//	 * @see android.support.v4.util.LruCache#sizeOf(java.lang.Object, java.lang.Object)
+//	 */
+//	@Override
+//	protected int sizeOf( String key, Bitmap value ) {
+//		
+//		File programGroupDirectory = mFileHelper.getProgramGroupDirectory( key );
+//		if( programGroupDirectory.exists() ) {
+//
+//			File image = new File( programGroupDirectory, CoverartDownloadService.COVERART_FILE );
+//			if( image.exists() ) {
+//				return (int) image.length();
+//			}
+//		
+//			File imageNa = new File( programGroupDirectory, CoverartDownloadService.COVERART_FILE_NA );
+//			if( imageNa.exists() ) {
+//				return 0;
+//			}
+//		
+//		}
+//
+//		return super.sizeOf( key, value );    
+//	}
 
 }
