@@ -130,7 +130,7 @@ public class RecordedDownloadService extends MythtvService {
     				
     				cleanupRecordedArtwork( programs );
     				
-    				downloadBanners();
+    				downloadArtwork();
     			}
 			} catch( JsonGenerationException e ) {
 				Log.e( TAG, "onHandleIntent : error generating json", e );
@@ -301,8 +301,8 @@ public class RecordedDownloadService extends MythtvService {
 		Log.v( TAG, "cleanupRecordedArtwork : exit" );
 	}
 	
-	private void downloadBanners() {
-		Log.v( TAG, "downloadBanners : enter" );
+	private void downloadArtwork() {
+		Log.v( TAG, "downloadArtwork : enter" );
 		
 		Cursor cursor = getContentResolver().query( ProgramConstants.CONTENT_URI_RECORDED, new String[] { ProgramConstants._ID, ProgramConstants.FIELD_TITLE }, null, null, null );
 		while( cursor.moveToNext() ) {
@@ -319,12 +319,19 @@ public class RecordedDownloadService extends MythtvService {
 					startService( downloadBannerIntent );
 				}
 					
+				File coverart = new File( programGroupDirectory, CoverartDownloadService.COVERART_FILE );
+				if( !coverart.exists() ) {
+					Intent downloadCoverartIntent = new Intent( CoverartDownloadService.ACTION_DOWNLOAD );
+					downloadCoverartIntent.putExtra( CoverartDownloadService.COVERART_RECORDED_ID, id );
+					startService( downloadCoverartIntent );
+				}
+					
 			}
 
 		}
 		cursor.close();
 		
-		Log.v( TAG, "downloadBanners : exit" );
+		Log.v( TAG, "downloadArtwork : exit" );
 	}
 	
 	@SuppressWarnings( "deprecation" )
