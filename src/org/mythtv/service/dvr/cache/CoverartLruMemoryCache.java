@@ -18,6 +18,7 @@
  */
 package org.mythtv.service.dvr.cache;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -26,8 +27,10 @@ import org.mythtv.service.dvr.CoverartDownloadService;
 import org.mythtv.service.util.FileHelper;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.support.v4.util.LruCache;
 import android.util.Log;
 
@@ -35,12 +38,13 @@ import android.util.Log;
  * @author Daniel Frey
  *
  */
-public class CoverartLruMemoryCache extends LruCache<String, Bitmap> {
+public class CoverartLruMemoryCache extends LruCache<String, BitmapDrawable> {
 
 	private static final String TAG = CoverartLruMemoryCache.class.getSimpleName();
 	
 	private final Context mContext;
-
+	private final Resources mResources;
+	
     private FileHelper mFileHelper;
 	
 	public CoverartLruMemoryCache( Context context ) {
@@ -50,6 +54,8 @@ public class CoverartLruMemoryCache extends LruCache<String, Bitmap> {
 		mContext = context;
 		mFileHelper = new FileHelper( mContext );
 		
+		mResources = mContext.getResources();
+		
 		Log.v( TAG, "initialize : exit" );
 	}
 
@@ -57,7 +63,7 @@ public class CoverartLruMemoryCache extends LruCache<String, Bitmap> {
 	 * @see android.support.v4.util.LruCache#create(java.lang.Object)
 	 */
 	@Override
-	protected Bitmap create( String key ) {
+	protected BitmapDrawable create( String key ) {
 		Log.v( TAG, "create : enter" );
 
 		File programGroupDirectory = mFileHelper.getProgramGroupDirectory( key );
@@ -66,11 +72,24 @@ public class CoverartLruMemoryCache extends LruCache<String, Bitmap> {
 			File image = new File( programGroupDirectory, CoverartDownloadService.COVERART_FILE );
 			if( image.exists() ) {
 				try {
-					InputStream is = new FileInputStream( image );
-					Bitmap bitmap = BitmapFactory.decodeStream( is );
-					return bitmap;
+				    BitmapFactory.Options options = new BitmapFactory.Options();
+				    options.inJustDecodeBounds=true;
+				    options.inDither=false;                     //Disable Dithering mode
+				    options.inPurgeable=true;                   //Tell to gc that whether it needs free memory, the Bitmap can be cleared
+				    options.inInputShareable=true;              //Which kind of reference will be used to recover the Bitmap data after being clear, when it will be used in the future
+				    options.inTempStorage=new byte[ 32 * 1024 ]; 
+
+				    BitmapFactory.decodeFile( image.getAbsolutePath(), options );
+				    options.inSampleSize = getScale( options.outWidth, options.outHeight, (int) ( (float) options.outWidth * .70), (int) ( (float) options.outHeight * .70 ) );
+				    options.inJustDecodeBounds=false;
+				    
+					InputStream is = new BufferedInputStream( new FileInputStream( image ) );
+					Bitmap bitmap = BitmapFactory.decodeStream( is, null, options );
+					is.close();
+					
+					return new BitmapDrawable( mResources, bitmap );
 				} catch( Exception e ) {
-					Log.e( TAG, "create : error reading file" );
+					Log.e( TAG, "create : error reading file", e );
 				}
 			}
 		}
@@ -102,5 +121,27 @@ public class CoverartLruMemoryCache extends LruCache<String, Bitmap> {
 //
 //		return super.sizeOf( key, value );    
 //	}
+
+	// internal helpers
+	
+	private static int getScale( int originalWidth,int originalHeight, final int requiredWidth,final int requiredHeight ) {
+		//a scale of 1 means the original dimensions 
+		//of the image are maintained
+		int scale=1;
+
+		//calculate scale only if the height or width of 
+		//the image exceeds the required value.
+		if( ( originalWidth > requiredWidth ) || ( originalHeight > requiredHeight ) ) {
+			//calculate scale with respect to
+			//the smaller dimension
+			if( originalWidth < originalHeight ) {
+				scale=Math.round( (float) originalWidth / requiredWidth );
+			} else {
+				scale=Math.round( (float) originalHeight / requiredHeight );
+			}
+		}
+
+		return scale;
+	}
 
 }

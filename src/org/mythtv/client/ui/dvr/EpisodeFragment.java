@@ -7,7 +7,7 @@ import org.mythtv.service.dvr.cache.CoverartLruMemoryCache;
 
 import android.content.ContentUris;
 import android.database.Cursor;
-import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
@@ -43,8 +43,6 @@ public class EpisodeFragment extends AbstractMythFragment {
 		Log.v( TAG, "onActivityCreated : enter" );
 		super.onActivityCreated( savedInstanceState );
 		
-		cache = new CoverartLruMemoryCache( getActivity() );
-		
 		Log.v( TAG, "onActivityCreated : exit" );
 	}
 
@@ -78,9 +76,9 @@ public class EpisodeFragment extends AbstractMythFragment {
 	
 	        //coverart
 	        ImageView iView = (ImageView) activity.findViewById( R.id.imageView_episode_coverart );
-	        Bitmap coverart = cache.get( title );
+	        BitmapDrawable coverart = cache.get( title );
 	        if( null != coverart ) {
-	        	iView.setImageBitmap( coverart );
+	        	iView.setImageDrawable( coverart );
 	        }
 	        	        
 	        //title

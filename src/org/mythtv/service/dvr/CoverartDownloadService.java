@@ -19,9 +19,9 @@
 package org.mythtv.service.dvr;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 
+import org.apache.commons.io.FileUtils;
 import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.service.MythtvService;
 import org.mythtv.services.api.ETagInfo;
@@ -31,8 +31,6 @@ import org.springframework.http.ResponseEntity;
 import android.content.ContentUris;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.util.Log;
 
 /**
@@ -138,13 +136,7 @@ public class CoverartDownloadService extends MythtvService {
 					ResponseEntity<byte[]> responseEntity = mMainApplication.getMythServicesApi().contentOperations().getRecordingArtwork( "Coverart", inetref, -1, -1, -1, eTag );
 					if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
 						byte[] bytes = responseEntity.getBody();
-						Bitmap bitmap = BitmapFactory.decodeByteArray( bytes, 0, bytes.length );
-
-						String name = coverart.getAbsolutePath();
-						FileOutputStream fos = new FileOutputStream( name );
-						bitmap.compress( Bitmap.CompressFormat.PNG, 100, fos );
-						fos.flush();
-						fos.close();
+						FileUtils.writeByteArrayToFile( coverart, bytes );
 						
 						Log.v( TAG, "download : downloaded coverart file '" + coverart.getName() + "' in program group '" + title + "'" );
 					}

@@ -126,12 +126,12 @@ public class RecordedDownloadService extends MythtvService {
     			if( null != programs ) {
     				cleanup();
     				
-    				process( programs );
-    				
-    				cleanupRecordedArtwork( programs );
-    				
-    				downloadArtwork();
+    				process( programs );	
     			}
+
+    			cleanupRecordedArtwork();
+				downloadArtwork();
+				
 			} catch( JsonGenerationException e ) {
 				Log.e( TAG, "onHandleIntent : error generating json", e );
 			} catch( JsonMappingException e ) {
@@ -262,7 +262,7 @@ public class RecordedDownloadService extends MythtvService {
 
 	// internal helpers
 	
-	private void cleanupRecordedArtwork( Programs programs ) throws IOException {
+	private void cleanupRecordedArtwork() throws IOException {
 		Log.v( TAG, "cleanupRecordedArtwork : enter" );
 		
 		Map<String, Boolean> directories = new HashMap<String, Boolean>();
@@ -281,8 +281,11 @@ public class RecordedDownloadService extends MythtvService {
 			}
 		}
 		
-		for( Program program : programs.getPrograms() ) {
-			String encodedTitle = UrlUtils.encodeUrl( program.getTitle() );
+		Cursor cursor = getContentResolver().query( ProgramConstants.CONTENT_URI_RECORDED, new String[] { ProgramConstants._ID, ProgramConstants.FIELD_TITLE }, null, null, null );
+		while( cursor.moveToNext() ) {
+			Long id = cursor.getLong( cursor.getColumnIndexOrThrow( ProgramConstants._ID ) );
+	        String title = cursor.getString( cursor.getColumnIndexOrThrow( ProgramConstants.FIELD_TITLE ) );
+			String encodedTitle = UrlUtils.encodeUrl( title );
 			if( directories.containsKey( encodedTitle ) && !directories.get( encodedTitle ).booleanValue() ) {
 				directories.put( encodedTitle, Boolean.TRUE );
 				
