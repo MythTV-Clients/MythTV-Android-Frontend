@@ -17,9 +17,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-public class EpisodeFragment  extends AbstractMythFragment {
+public class EpisodeFragment extends AbstractMythFragment {
 
-	private static final String TAG = ProgramGroupActivity.class.getSimpleName();
+	private static final String TAG = EpisodeFragment.class.getSimpleName();
 	
 	private CoverartLruMemoryCache cache;
 	
