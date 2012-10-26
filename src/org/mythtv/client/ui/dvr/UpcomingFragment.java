@@ -159,7 +159,7 @@ public class UpcomingFragment extends MythtvListFragment implements LoaderManage
 		 */
 		@Override
 		public View newView( Context context, Cursor cursor, ViewGroup parent ) {
-			Log.v( TAG, "UpcomingCursorAdapter.newView : enter" );
+			//Log.v( TAG, "UpcomingCursorAdapter.newView : enter" );
 			
 			View view = mInflater.inflate( R.layout.upcoming_row, parent, false );
 		    
@@ -175,7 +175,7 @@ public class UpcomingFragment extends MythtvListFragment implements LoaderManage
 
 		    view.setTag(refHolder);
 		    
-		    Log.v( TAG, "UpcomingCursorAdapter.newView : exit" );
+		    //Log.v( TAG, "UpcomingCursorAdapter.newView : exit" );
 			return view;
 		}
 
@@ -184,7 +184,7 @@ public class UpcomingFragment extends MythtvListFragment implements LoaderManage
 		 */
 		@Override
 		public void bindView( View view, Context context, Cursor cursor ) {
-			Log.v( TAG, "UpcomingCursorAdapter.bindView : enter" );
+			//Log.v( TAG, "UpcomingCursorAdapter.bindView : enter" );
 
 			long lStartTime = cursor.getLong( cursor.getColumnIndex( ProgramConstants.FIELD_START_TIME ) );
 			int iDuration = cursor.getInt( cursor.getColumnIndex( ProgramConstants.FIELD_DURATION ) );
@@ -209,7 +209,7 @@ public class UpcomingFragment extends MythtvListFragment implements LoaderManage
                 mHolder.startTime.setText( DateUtils.timeFormatter.print( startTime ) );
             }
 
-			Log.v( TAG, "UpcomingCursorAdapter.bindView : exit" );
+			//Log.v( TAG, "UpcomingCursorAdapter.bindView : exit" );
 		}
 
 	}
