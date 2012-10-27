@@ -2,44 +2,80 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical" >
+    android:orientation="vertical"
+    android:padding="5dp"
+    android:weightSum="100" >
 
     <ImageView
         android:id="@+id/imageView_episode_coverart"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="fill_parent"
+        android:layout_weight="50"
         android:src="@drawable/blank" />
 
-    <TextView
-        android:id="@+id/textView_episode_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Title"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
-    
-    <TextView
-        android:id="@+id/textView_episode_subtitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Sub-Title" />
-    
-    <TextView
-        android:id="@+id/textView_episode_description"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Description" />
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="fill_parent"
+        android:layout_weight="50" >
 
-    <TextView
-        android:id="@+id/textView_episode_airdate"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="AirDate" />
-    
-    <TextView
-        android:id="@+id/textView_episode_ch_num"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Channel Num" />
-    
-    
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" >
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal" >
+
+                <TextView
+                    android:id="@+id/textView_episode_title"
+                    android:layout_width="0dip"
+                    android:layout_height="wrap_content"
+                    android:layout_weight=".3"
+                    android:padding="5dp"
+                    android:text="Title"
+                    android:textAppearance="?android:attr/textAppearanceLarge" />
+
+                <TextView
+                    android:id="@+id/textView_episode_ch_num"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="5dp"
+                    android:text="Channel Num" />
+                
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal" >
+
+                <TextView
+                    android:id="@+id/textView_episode_subtitle"
+                    android:layout_width="0dip"
+                    android:layout_height="wrap_content"
+                    android:layout_weight=".3"
+                    android:padding="5dp"
+                    android:text="Sub-Title" />
+
+                <TextView
+                    android:id="@+id/textView_episode_airdate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="5dp"
+                    android:text="AirDate" />
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/textView_episode_description"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="5dp"
+                android:text="Description" />
+            
+        </LinearLayout>
+    </ScrollView>
+
 </LinearLayout>
