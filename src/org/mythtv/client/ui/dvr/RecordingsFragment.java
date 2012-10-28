@@ -293,9 +293,15 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 	}
 
 	public interface OnProgramGroupListener {
+		
 		void onProgramGroupSelected( Long recordedId );
+				
 	}
 
+	public void notifyDeleted() {
+		getLoaderManager().restartLoader( 0, null, this );
+	}
+	
 	// internal helpers
 	
 	private void restartLoader() {

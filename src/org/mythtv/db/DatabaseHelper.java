@@ -44,7 +44,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	private static final String TAG = DatabaseHelper.class.getSimpleName();
 	
 	private static final String DATABASE_NAME = "mythtvdb";
-	private static final int DATABASE_VERSION = 51;
+	private static final int DATABASE_VERSION = 53;
 
 	public DatabaseHelper( Context context ) {
 		super( context, DATABASE_NAME, null, DATABASE_VERSION );
@@ -88,17 +88,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	public void onUpgrade( SQLiteDatabase db, int oldVersion, int newVersion ) {
 		Log.v( TAG, "onUpgrade : enter" );
 
-		if( oldVersion < 51 ) {
-			Log.v( TAG, "onUpgrade : upgrading to db version 51" );
+		if( oldVersion < 53 ) {
+			Log.v( TAG, "onUpgrade : upgrading to db version 53" );
 
-			alterLocationProfiles( db );
-			
-			dropEtag( db );
-			createEtag( db );
+			dropProgram( db, ProgramConstants.TABLE_NAME_RECORDED );
+			createProgram( db, ProgramConstants.TABLE_NAME_RECORDED );
 
-			dropChannel( db );
-			createChannel( db );
-			
 		}
 
 		Log.v( TAG, "onUpgrade : exit" );
@@ -406,6 +401,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		sqlBuilder.append( ProgramConstants.FIELD_INETREF ).append( " " ).append( ProgramConstants.FIELD_INETREF_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( ProgramConstants.FIELD_SEASON ).append( " " ).append( ProgramConstants.FIELD_SEASON_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( ProgramConstants.FIELD_EPISODE ).append( " " ).append( ProgramConstants.FIELD_EPISODE_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ProgramConstants.FIELD_CHANNEL_ID ).append( " " ).append( ProgramConstants.FIELD_CHANNEL_ID_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( ProgramConstants.FIELD_CHANNEL_NUMBER ).append( " " ).append( ProgramConstants.FIELD_CHANNEL_NUMBER_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( ProgramConstants.FIELD_STATUS ).append( " " ).append( ProgramConstants.FIELD_STATUS_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( ProgramConstants.FIELD_PRIORITY ).append( " " ).append( ProgramConstants.FIELD_PRIORITY_DATA_TYPE ).append( ", " );

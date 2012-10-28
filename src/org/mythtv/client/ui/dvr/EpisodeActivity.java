@@ -15,7 +15,7 @@ import android.view.MenuItem;
  * @author Daniel Frey
  *
  */
-public class EpisodeActivity extends AbstractDvrActivity {
+public class EpisodeActivity extends AbstractDvrActivity implements EpisodeFragment.OnEpisodeActionListener {
 
 	public static final String EPISODE_KEY = "EPISODE_ID";
 	
@@ -37,7 +37,8 @@ public class EpisodeActivity extends AbstractDvrActivity {
 		Long episodeId = args.getLong( EPISODE_KEY, -1 );
 		
 		episodeFragment = (EpisodeFragment) getSupportFragmentManager().findFragmentById( R.id.fragment_dvr_episode );
-	
+		episodeFragment.setOnEpisodeActionListener( this );
+		
 		if( episodeId > 0 ) {
 			episodeFragment.loadEpisode( episodeId );
 		}
@@ -84,6 +85,36 @@ public class EpisodeActivity extends AbstractDvrActivity {
 
 		Log.v( TAG, "onOptionsItemSelected : exit" );
 		return super.onOptionsItemSelected( item );
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mythtv.client.ui.dvr.EpisodeFragment.OnEpisodeActionListener#onEpisodeDeleted(java.lang.String)
+	 */
+	@Override
+	public void onEpisodeDeleted( String programGroup ) {
+		Log.v( TAG, "onEpisodeDeleted : enter" );
+		
+		String[] projection = new String[] { ProgramConstants._ID };
+		
+		Cursor cursor = getContentResolver().query( ProgramConstants.CONTENT_URI_RECORDED, projection, ProgramConstants.FIELD_PROGRAM_GROUP + " = ?", new String[] { programGroup }, ProgramConstants.FIELD_PROGRAM_GROUP );
+		if( cursor.getCount() > 0 ) {
+
+			if( cursor.moveToFirst() ) {
+				Long id = cursor.getLong( cursor.getColumnIndexOrThrow( ProgramConstants._ID ) );
+				Intent i = new Intent( this, EpisodeActivity.class );
+				i.putExtra( EpisodeActivity.EPISODE_KEY, id );
+				startActivity( i );
+			}
+
+		} else {
+		
+			finish();
+
+		}
+		cursor.close();
+
+
+		Log.v( TAG, "onEpisodeDeleted : exit" );
 	}
 
 }

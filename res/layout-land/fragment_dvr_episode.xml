@@ -10,8 +10,7 @@
         android:id="@+id/imageView_episode_coverart"
         android:layout_width="match_parent"
         android:layout_height="fill_parent"
-        android:layout_weight="50"
-        android:src="@drawable/blank" />
+        android:layout_weight="50" />
 
     <ScrollView
         android:layout_width="match_parent"

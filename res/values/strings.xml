@@ -161,6 +161,11 @@
     <string name="guide_date">today</string>
     <string name="guide_next">NEXT</string>
     
+    <string name="episode_alert_delete_title">Delete Recording&#8230;</string>
+    <string name="episode_alert_delete_message">Are you sure you want to delete this recording?</string>
+    <string name="episode_alert_delete_button_cancel">Cancel</string>
+    <string name="episode_alert_delete_button_delete">Delete</string>
+    
     <!-- Recording Rule -->
     <string name="chkbox_rec_rule_active">Recording Rule Active</string>
     <string name="chkbox_rec_rule_auto_comm_flag">Auto Commercial Flag</string>

@@ -1,15 +1,22 @@
 package org.mythtv.client.ui.dvr;
 
+import org.joda.time.DateTime;
 import org.mythtv.R;
 import org.mythtv.client.ui.AbstractMythFragment;
 import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.service.dvr.cache.CoverartLruMemoryCache;
+import org.mythtv.services.api.Bool;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import android.annotation.TargetApi;
+import android.app.AlertDialog;
 import android.content.ContentUris;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.drawable.BitmapDrawable;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -22,6 +29,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class EpisodeFragment extends AbstractMythFragment {
 
@@ -30,9 +38,14 @@ public class EpisodeFragment extends AbstractMythFragment {
 	private static final int WATCH_ID = Menu.FIRST + 301;
 	private static final int ADD_ID = Menu.FIRST + 302;
 
+	private OnEpisodeActionListener listener = null;
+
 	private CoverartLruMemoryCache cache;
 
+	private String programGroup, title, subTitle;
 	private Long episodeId;
+	private Integer channelId;
+	private DateTime startTime;
 	
 	@Override
 	public View onCreateView( LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState ) {
@@ -115,7 +128,24 @@ public class EpisodeFragment extends AbstractMythFragment {
 		case DELETE_ID:
 			Log.d( TAG, "onOptionsItemSelected : delete selected" );
 
-	        return true;
+			AlertDialog.Builder builder = new AlertDialog.Builder( getActivity() );
+
+			builder
+				.setTitle( R.string.episode_alert_delete_title )
+				.setMessage( R.string.episode_alert_delete_message )
+				.setPositiveButton( R.string.episode_alert_delete_button_delete, new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick( DialogInterface dialog, int which ) {
+						
+						new RemoveRecordingTask().execute();
+						
+					}
+				} )
+				.setNegativeButton( R.string.episode_alert_delete_button_cancel, null )
+				.show();
+
+			return true;
 		}
 		
 		Log.v( TAG, "onOptionsItemSelected : exit" );
@@ -126,16 +156,21 @@ public class EpisodeFragment extends AbstractMythFragment {
 
 		episodeId = id;
 		
-		String[] projection = { ProgramConstants._ID, ProgramConstants.FIELD_TITLE, ProgramConstants.FIELD_SUB_TITLE,
-				ProgramConstants.FIELD_DESCRIPTION, ProgramConstants.FIELD_AIR_DATE,
-				ProgramConstants.FIELD_CHANNEL_NUMBER, ProgramConstants.FIELD_CATEGORY,
-				ProgramConstants.FIELD_START_TIME, ProgramConstants.FIELD_END_TIME };
+		String[] projection = { 
+			ProgramConstants._ID, ProgramConstants.FIELD_TITLE, ProgramConstants.FIELD_SUB_TITLE,
+			ProgramConstants.FIELD_DESCRIPTION, ProgramConstants.FIELD_AIR_DATE, ProgramConstants.FIELD_CHANNEL_NUMBER, 
+			ProgramConstants.FIELD_CATEGORY, ProgramConstants.FIELD_START_TIME, ProgramConstants.FIELD_END_TIME,
+			ProgramConstants.FIELD_CHANNEL_ID, ProgramConstants.FIELD_PROGRAM_GROUP
+		};
 
-		Cursor cursor = getActivity().getContentResolver().query(
-				ContentUris.withAppendedId( ProgramConstants.CONTENT_URI_RECORDED, id ), projection, null, null, null );
+		Cursor cursor = getActivity().getContentResolver().query( ContentUris.withAppendedId( ProgramConstants.CONTENT_URI_RECORDED, id ), projection, null, null, null );
 		if( cursor.moveToFirst() ) {
 
-			String title = cursor.getString( cursor.getColumnIndexOrThrow( ProgramConstants.FIELD_TITLE ) );
+			programGroup = cursor.getString( cursor.getColumnIndexOrThrow( ProgramConstants.FIELD_PROGRAM_GROUP ) );
+			channelId = Integer.parseInt( cursor.getString( cursor.getColumnIndexOrThrow( ProgramConstants.FIELD_CHANNEL_ID ) ) );
+			startTime = new DateTime( cursor.getLong( cursor.getColumnIndexOrThrow( ProgramConstants.FIELD_START_TIME ) ) );
+
+			title = cursor.getString( cursor.getColumnIndexOrThrow( ProgramConstants.FIELD_TITLE ) );
 			Log.d( TAG, "loadEpisode : Episode_Title=" + title );
 
 			// get activity to grab views from
@@ -146,6 +181,8 @@ public class EpisodeFragment extends AbstractMythFragment {
 			BitmapDrawable coverart = cache.get( title );
 			if( null != coverart ) {
 				iView.setImageDrawable( coverart );
+			} else {
+				iView.setImageDrawable( null );
 			}
 
 			// title
@@ -153,8 +190,9 @@ public class EpisodeFragment extends AbstractMythFragment {
 			tView.setText( title );
 
 			// subtitle
+			subTitle = cursor.getString( cursor.getColumnIndexOrThrow( ProgramConstants.FIELD_SUB_TITLE ) );
 			tView = (TextView) activity.findViewById( R.id.textView_episode_subtitle );
-			tView.setText( cursor.getString( cursor.getColumnIndexOrThrow( ProgramConstants.FIELD_SUB_TITLE ) ) );
+			tView.setText( subTitle );
 
 			// description
 			tView = (TextView) activity.findViewById( R.id.textView_episode_description );
@@ -172,6 +210,93 @@ public class EpisodeFragment extends AbstractMythFragment {
 			Log.d( TAG, "loadEpisode: Empty Cursor Returned" );
 		}
 		cursor.close();
+	}
+
+	public void setOnEpisodeActionListener( OnEpisodeActionListener listener ) {
+		Log.v( TAG, "setOnEpisodeActionListener : enter" );
+
+		this.listener = listener;
+
+		Log.v( TAG, "setOnEpisodeActionListener : exit" );
+	}
+
+	public interface OnEpisodeActionListener {
+		void onEpisodeDeleted( String programGroup );
+	}
+
+	// internal helpers
+	
+	private void deleteNotify( Boolean deleted ) {
+		
+		Toast.makeText( getActivity(), ( "Episode" + ( !deleted ? " NOT " : " " ) + "deleted!" ), Toast.LENGTH_SHORT ).show();
+		
+	}
+	
+	private void exceptionDialolg( Throwable t ) {
+		AlertDialog.Builder builder = new AlertDialog.Builder( getActivity() );
+
+		builder
+			.setTitle( R.string.exception )
+			.setMessage( t.toString() )
+			.setPositiveButton( R.string.close, null )
+				.show();
+	}
+
+	private class RemoveRecordingTask extends AsyncTask<Void, Void, ResponseEntity<Bool>> {
+
+		private Exception e = null;
+
+		@Override
+		protected ResponseEntity<Bool> doInBackground( Void... params ) {
+			Log.v( TAG, "CreateStreamTask : enter" );
+
+			ResponseEntity<String> hostname = getMainApplication().getMythServicesApi().mythOperations().getHostName();
+			if( null == hostname || "".equals( hostname ) ) {
+				return null;
+			}
+
+			ResponseEntity<Bool> removed = null;
+
+			try {
+				Log.v( TAG, "RemoveRecordingTask : api" );
+				
+				removed = getMainApplication().getMythServicesApi().dvrOperations().removeRecorded( channelId, startTime );
+			} catch( Exception e ) {
+				Log.v( TAG, "CreateStreamTask : error" );
+
+				this.e = e;
+			}
+
+			Log.v( TAG, "CreateStreamTask : exit" );
+			return removed;
+		}
+
+		@Override
+		protected void onPostExecute( ResponseEntity<Bool> result ) {
+			Log.v( TAG, "RemoveRecordingTask : onPostExecute - enter" );
+
+			if( null == e ) {
+				if( null != result ) {
+					if( result.getStatusCode().equals( HttpStatus.OK ) ) {
+						
+						Bool bool = result.getBody();
+						if( bool.getBool().equals( Boolean.TRUE ) ) {
+						
+							getActivity().getContentResolver().delete( ContentUris.withAppendedId( ProgramConstants.CONTENT_URI_RECORDED, episodeId ), null, null );
+							listener.onEpisodeDeleted( programGroup );
+							
+						}
+						
+						deleteNotify( bool.getBool() );
+					}
+				}
+			} else {
+				Log.e( TAG, "RemoveRecordingTask : onPostExecute - error removing recording", e );
+				exceptionDialolg( e );
+			}
+
+			Log.v( TAG, "RemoveRecordingTask : onPostExecute - exit" );
+		}
 	}
 
 }

@@ -61,7 +61,7 @@ public class ProgramGroupActivity extends AbstractDvrActivity implements Program
 		programGroupFragment = (ProgramGroupFragment) getSupportFragmentManager().findFragmentById( R.id.fragment_dvr_program_group );
 		programGroupFragment.setOnEpisodeSelectedListener(this);
 		programGroupFragment.loadProgramGroup( programGroup );
-		
+				
 		Log.v( TAG, "onCreate : exit" );
 	}
 
@@ -110,6 +110,4 @@ public class ProgramGroupActivity extends AbstractDvrActivity implements Program
 		Log.v( TAG, "onEpisodeSelect : exit" );
 	}
 
-	
-	
 }

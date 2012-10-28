@@ -33,7 +33,7 @@ import android.util.Log;
  * @author Daniel Frey
  * 
  */
-public class RecordingsActivity extends AbstractDvrActivity implements RecordingsFragment.OnProgramGroupListener, ProgramGroupFragment.OnEpisodeSelectedListener {
+public class RecordingsActivity extends AbstractDvrActivity implements RecordingsFragment.OnProgramGroupListener, ProgramGroupFragment.OnEpisodeSelectedListener, EpisodeFragment.OnEpisodeActionListener {
 
 	private static final String TAG = RecordingsActivity.class.getSimpleName();
 	private static final String PROGRAM_GROUP_LIST_TAG = "PROGRAM_GROUP_LIST_TAG";
@@ -59,10 +59,11 @@ public class RecordingsActivity extends AbstractDvrActivity implements Recording
 
 		if( mUseMultiplePanes ) {
 			
-			mEpisodeFragment = (EpisodeFragment) getSupportFragmentManager().findFragmentById( R.id.fragment_dvr_episode );
-			
 			programGroupFragment = (ProgramGroupFragment) getSupportFragmentManager().findFragmentById( R.id.fragment_dvr_program_group );
 			programGroupFragment.setOnEpisodeSelectedListener(this);
+			
+			mEpisodeFragment = (EpisodeFragment) getSupportFragmentManager().findFragmentById( R.id.fragment_dvr_episode );
+			mEpisodeFragment.setOnEpisodeActionListener( this );
 			
 			Cursor cursor = getContentResolver().query( ProgramConstants.CONTENT_URI_RECORDED, new String[] { ProgramConstants._ID }, null, null, ProgramConstants.FIELD_PROGRAM_GROUP );
 			if( cursor.moveToFirst() ) {
@@ -143,7 +144,7 @@ public class RecordingsActivity extends AbstractDvrActivity implements Recording
 	 */
 	@Override
 	public void onEpisodeSelected(long id) {
-		Log.v(TAG,  "onEpisodeSelect : enter");
+		Log.v( TAG, "onEpisodeSelect : enter" );
 		
 		//check if we're hosting multiple fragments and have the episode fragment
 		if( mUseMultiplePanes && null != mEpisodeFragment ){
@@ -151,14 +152,44 @@ public class RecordingsActivity extends AbstractDvrActivity implements Recording
 			mEpisodeFragment.loadEpisode(id);
 		}
 		
-		/*
-		//Start Video Playback -- this will be moving to the activity bar
-		Intent i = new Intent( activity, VideoActivity.class );
-		i.putExtra( VideoActivity.EXTRA_PROGRAM_KEY, id );
-		startActivity( i );
-		*/
+		Log.v( TAG, "onEpisodeSelect : exit" );
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mythtv.client.ui.dvr.EpisodeFragment.OnEpisodeActionListener#onEpisodeDeleted(java.lang.String)
+	 */
+	@Override
+	public void onEpisodeDeleted( String programGroup ) {
+		Log.v( TAG, "onEpisodeDeleted : enter" );
+
+		String[] projection = new String[] { ProgramConstants._ID };
 		
-		Log.v(TAG,  "onEpisodeSelect : exit");
+		Cursor cursor = getContentResolver().query( ProgramConstants.CONTENT_URI_RECORDED, projection, ProgramConstants.FIELD_PROGRAM_GROUP + " = ?", new String[] { programGroup }, ProgramConstants.FIELD_PROGRAM_GROUP );
+		if( cursor.getCount() > 0 ) {
+
+			if( cursor.moveToFirst() ) {
+				Long id = cursor.getLong( cursor.getColumnIndexOrThrow( ProgramConstants._ID ) );
+				onProgramGroupSelected( id );
+				onEpisodeSelected( id );
+			}
+
+		} else {
+		
+			cursor.close();
+			
+			cursor = getContentResolver().query( ProgramConstants.CONTENT_URI_RECORDED, projection, null, null, ProgramConstants.FIELD_PROGRAM_GROUP );
+			if( cursor.moveToFirst() ) {
+				Long id = cursor.getLong( cursor.getColumnIndexOrThrow( ProgramConstants._ID ) );
+				onProgramGroupSelected( id );
+				onEpisodeSelected( id );
+			}
+
+		}
+		cursor.close();
+		
+		recordingsFragment.notifyDeleted();
+		
+		Log.v( TAG, "onEpisodeDeleted : exit" );
 	}
 
 }

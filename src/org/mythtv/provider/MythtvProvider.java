@@ -156,43 +156,85 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 		
 		final SQLiteDatabase db = database.getWritableDatabase();
 		
+		int deleted;
+		
 		switch( URI_MATCHER.match( uri ) ) {
 			case RECORDED:
-				return db.delete( ProgramConstants.TABLE_NAME_RECORDED, selection, selectionArgs );
-		
+
+				deleted = db.delete( ProgramConstants.TABLE_NAME_RECORDED, selection, selectionArgs );
+				
+				getContext().getContentResolver().notifyChange( uri, null );
+				
+				return deleted;
+
 			case RECORDED_ID:
-				return db.delete( ProgramConstants.TABLE_NAME_RECORDED, ProgramConstants._ID
+				
+				deleted = db.delete( ProgramConstants.TABLE_NAME_RECORDED, ProgramConstants._ID
 						+ "="
 						+ Long.toString( ContentUris.parseId( uri ) )
 						+ ( !TextUtils.isEmpty( selection ) ? " AND (" + selection + ')' : "" ), selectionArgs );
-		
+				
+				getContext().getContentResolver().notifyChange( uri, null );
+				
+				return deleted;
+
 			case UPCOMING:
-				return db.delete( ProgramConstants.TABLE_NAME_UPCOMING, selection, selectionArgs );
+				
+				deleted = db.delete( ProgramConstants.TABLE_NAME_UPCOMING, selection, selectionArgs );
+				
+				getContext().getContentResolver().notifyChange( uri, null );
 		
+				return deleted;
+
 			case UPCOMING_ID:
-				return db.delete( ProgramConstants.TABLE_NAME_UPCOMING, ProgramConstants._ID
+
+				deleted = db.delete( ProgramConstants.TABLE_NAME_UPCOMING, ProgramConstants._ID
 						+ "="
 						+ Long.toString( ContentUris.parseId( uri ) )
 						+ ( !TextUtils.isEmpty( selection ) ? " AND (" + selection + ')' : "" ), selectionArgs );
 		
+				getContext().getContentResolver().notifyChange( uri, null );
+				
+				return deleted;
+
 			case CHANNELS:
-				return db.delete( ChannelConstants.TABLE_NAME, selection, selectionArgs );
+
+				deleted = db.delete( ChannelConstants.TABLE_NAME, selection, selectionArgs );
 		
+				getContext().getContentResolver().notifyChange( uri, null );
+				
+				return deleted;
+
 			case CHANNEL_ID:
-				return db.delete( ChannelConstants.TABLE_NAME, ChannelConstants._ID
+
+				deleted = db.delete( ChannelConstants.TABLE_NAME, ChannelConstants._ID
 						+ "="
 						+ Long.toString( ContentUris.parseId( uri ) )
 						+ ( !TextUtils.isEmpty( selection ) ? " AND (" + selection + ')' : "" ), selectionArgs );
 		
+				getContext().getContentResolver().notifyChange( uri, null );
+				
+				return deleted;
+
 			case ETAGS:
-				return db.delete( EtagConstants.TABLE_NAME, selection, selectionArgs );
+
+				deleted = db.delete( EtagConstants.TABLE_NAME, selection, selectionArgs );
 		
+				getContext().getContentResolver().notifyChange( uri, null );
+				
+				return deleted;
+			
 			case ETAG_ID:
-				return db.delete( EtagConstants.TABLE_NAME, EtagConstants._ID
+
+				deleted = db.delete( EtagConstants.TABLE_NAME, EtagConstants._ID
 						+ "="
 						+ Long.toString( ContentUris.parseId( uri ) )
 						+ ( !TextUtils.isEmpty( selection ) ? " AND (" + selection + ')' : "" ), selectionArgs );
 		
+				getContext().getContentResolver().notifyChange( uri, null );
+				
+				return deleted;
+
 			default:
 				throw new IllegalArgumentException( "Unknown URI " + uri );
 		}
@@ -579,20 +621,21 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 			insert.bindString( 26, value.getAsString( ProgramConstants.FIELD_INETREF ) );
 			insert.bindString( 27, value.getAsString( ProgramConstants.FIELD_SEASON ) );
 			insert.bindString( 28, value.getAsString( ProgramConstants.FIELD_EPISODE ) );
-			insert.bindString( 29, value.getAsString( ProgramConstants.FIELD_CHANNEL_NUMBER ) );
-			insert.bindLong( 30, value.getAsInteger( ProgramConstants.FIELD_STATUS ) );
-			insert.bindLong( 31, value.getAsInteger( ProgramConstants.FIELD_PRIORITY ) );
-			insert.bindLong( 31, value.getAsLong( ProgramConstants.FIELD_START_TS ) );
-			insert.bindLong( 32, value.getAsLong( ProgramConstants.FIELD_END_TS ) );
-			insert.bindLong( 33, value.getAsInteger( ProgramConstants.FIELD_RECORD_ID ) );
-			insert.bindString( 34, value.getAsString( ProgramConstants.FIELD_REC_GROUP ) );
-			insert.bindString( 35, value.getAsString( ProgramConstants.FIELD_PLAY_GROUP ) );
-			insert.bindString( 36, value.getAsString( ProgramConstants.FIELD_STORAGE_GROUP ) );
-			insert.bindLong( 37, value.getAsInteger( ProgramConstants.FIELD_REC_TYPE ) );
-			insert.bindLong( 38, value.getAsInteger( ProgramConstants.FIELD_DUP_IN_TYPE ) );
-			insert.bindLong( 39, value.getAsInteger( ProgramConstants.FIELD_DUP_METHOD ) );
-			insert.bindLong( 40, value.getAsInteger( ProgramConstants.FIELD_ENCODER_ID ) );
-			insert.bindString( 41, value.getAsString( ProgramConstants.FIELD_PROFILE ) );
+			insert.bindString( 29, value.getAsString( ProgramConstants.FIELD_CHANNEL_ID ) );
+			insert.bindString( 30, value.getAsString( ProgramConstants.FIELD_CHANNEL_NUMBER ) );
+			insert.bindLong( 31, value.getAsInteger( ProgramConstants.FIELD_STATUS ) );
+			insert.bindLong( 32, value.getAsInteger( ProgramConstants.FIELD_PRIORITY ) );
+			insert.bindLong( 33, value.getAsLong( ProgramConstants.FIELD_START_TS ) );
+			insert.bindLong( 34, value.getAsLong( ProgramConstants.FIELD_END_TS ) );
+			insert.bindLong( 35, value.getAsInteger( ProgramConstants.FIELD_RECORD_ID ) );
+			insert.bindString( 36, value.getAsString( ProgramConstants.FIELD_REC_GROUP ) );
+			insert.bindString( 37, value.getAsString( ProgramConstants.FIELD_PLAY_GROUP ) );
+			insert.bindString( 38, value.getAsString( ProgramConstants.FIELD_STORAGE_GROUP ) );
+			insert.bindLong( 39, value.getAsInteger( ProgramConstants.FIELD_REC_TYPE ) );
+			insert.bindLong( 40, value.getAsInteger( ProgramConstants.FIELD_DUP_IN_TYPE ) );
+			insert.bindLong( 41, value.getAsInteger( ProgramConstants.FIELD_DUP_METHOD ) );
+			insert.bindLong( 42, value.getAsInteger( ProgramConstants.FIELD_ENCODER_ID ) );
+			insert.bindString( 43, value.getAsString( ProgramConstants.FIELD_PROFILE ) );
 			
 			insert.execute();
 		}
