@@ -63,7 +63,7 @@ import android.widget.Toast;
 public class RecordingsFragment extends MythtvListFragment implements LoaderManager.LoaderCallbacks<Cursor>  {
 
 	private static final String TAG = RecordingsFragment.class.getSimpleName();
-	private static final int REFRESH_ID = Menu.FIRST + 2;
+	private static final int REFRESH_ID = Menu.FIRST + 100;
 
 	private OnProgramGroupListener listener = null;
 	private ProgramGroupCursorAdapter adapter;

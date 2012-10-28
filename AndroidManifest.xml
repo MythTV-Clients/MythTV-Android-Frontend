@@ -77,11 +77,14 @@
 				
 		<!-- DVR Activities -->
 		<activity 
-			android:name=".client.ui.dvr.EpisodeActivity" />
+			android:name=".client.ui.dvr.EpisodeActivity"
+			android:uiOptions="splitActionBarWhenNarrow" />
 		<activity 
-			android:name=".client.ui.dvr.ProgramGroupActivity" />
+			android:name=".client.ui.dvr.ProgramGroupActivity"
+			android:uiOptions="splitActionBarWhenNarrow" />
 		<activity 
-			android:name=".client.ui.dvr.RecordingsActivity" />
+			android:name=".client.ui.dvr.RecordingsActivity"
+			android:uiOptions="splitActionBarWhenNarrow" />
 		<activity 
 			android:name=".client.ui.dvr.VideoActivity"
 			android:screenOrientation="landscape" />
