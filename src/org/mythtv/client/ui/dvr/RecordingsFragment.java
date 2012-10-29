@@ -239,7 +239,7 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 		super.onCreateOptionsMenu( menu, inflater );
 
 		MenuItem refresh = menu.add( Menu.NONE, REFRESH_ID, Menu.NONE, "Refresh" );
-		refresh.setIcon( R.drawable.ic_menu_refresh_default );
+		refresh.setIcon( R.drawable.ic_menu_refresh );
 	    if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
 	    	refresh.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
 	    }
@@ -396,6 +396,8 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 	        	
 	        	if( intent.getExtras().containsKey( RecordedDownloadService.EXTRA_COMPLETE_UPTODATE ) ) {
 	        		Toast.makeText( getActivity(), "Recorded Program are up to date!", Toast.LENGTH_SHORT ).show();
+	        	} else if( intent.getExtras().containsKey( RecordedDownloadService.EXTRA_COMPLETE_OFFLINE ) ) {
+	        		Toast.makeText( getActivity(), "Recorded Programs Update failed because Master Backend is not connected!", Toast.LENGTH_SHORT ).show();
 	        	} else {
 	        		Toast.makeText( getActivity(), "Recorded Programs updated!", Toast.LENGTH_SHORT ).show();
 	        		

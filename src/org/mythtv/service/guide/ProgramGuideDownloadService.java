@@ -66,6 +66,7 @@ public class ProgramGuideDownloadService extends MythtvService {
     public static final String EXTRA_PROGRESS_ERROR = "PROGRESS_ERROR";
     public static final String EXTRA_COMPLETE = "COMPLETE";
     public static final String EXTRA_COMPLETE_DOWNLOADED = "COMPLETE_DOWNLOADED";
+    public static final String EXTRA_COMPLETE_OFFLINE = "COMPLETE_OFFLINE";
 
 	private NotificationManager mNotificationManager;
 	private Notification mNotification = null;
@@ -99,6 +100,7 @@ public class ProgramGuideDownloadService extends MythtvService {
 		if( !isBackendConnected() ) {
 			Intent completeIntent = new Intent( ACTION_COMPLETE );
 			completeIntent.putExtra( EXTRA_COMPLETE, "Master Backend unreachable" );
+			completeIntent.putExtra( EXTRA_COMPLETE_OFFLINE, Boolean.TRUE );
 			sendBroadcast( completeIntent );
 
 			Log.d( TAG, "onHandleIntent : exit, Master Backend unreachable" );

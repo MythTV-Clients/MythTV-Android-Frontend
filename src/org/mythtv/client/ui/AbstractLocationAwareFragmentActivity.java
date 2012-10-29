@@ -208,6 +208,10 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 	        	if( intent.getBooleanExtra( ProgramGuideDownloadService.EXTRA_COMPLETE_DOWNLOADED, Boolean.FALSE ) ) {
 	        		Toast.makeText( AbstractLocationAwareFragmentActivity.this, "Program Guide updated!", Toast.LENGTH_SHORT ).show();
 	        	}
+
+	        	if( intent.getExtras().containsKey( ProgramGuideDownloadService.EXTRA_COMPLETE_OFFLINE ) ) {
+	        		Toast.makeText( AbstractLocationAwareFragmentActivity.this, "Program Guide Update failed because Master Backend is not connected!", Toast.LENGTH_SHORT ).show();
+	        	}
 	        }
 
 		}

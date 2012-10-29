@@ -155,7 +155,7 @@ public class UpcomingActivity extends AbstractDvrActivity {
 		Log.v( TAG, "onCreateOptionsMenu : enter" );
 
 		MenuItem refresh = menu.add( Menu.NONE, REFRESH_ID, Menu.NONE, "Refresh" );
-		refresh.setIcon( R.drawable.ic_menu_refresh_default );
+		refresh.setIcon( R.drawable.ic_menu_refresh );
 		if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
 	    	refresh.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
 	    }
@@ -286,6 +286,8 @@ public class UpcomingActivity extends AbstractDvrActivity {
 	        	
 	        	if( intent.getExtras().containsKey( UpcomingDownloadService.EXTRA_COMPLETE_UPTODATE ) ) {
 	        		Toast.makeText( UpcomingActivity.this, "Upcoming Programs are up to date!", Toast.LENGTH_SHORT ).show();
+	        	} else if( intent.getExtras().containsKey( UpcomingDownloadService.EXTRA_COMPLETE_OFFLINE ) ) {
+	        		Toast.makeText( UpcomingActivity.this, "Upcoming Programs Update failed because Master Backend is not connected!", Toast.LENGTH_SHORT ).show();
 	        	} else {
 	        		Toast.makeText( UpcomingActivity.this, "Upcoming Programs updated!", Toast.LENGTH_SHORT ).show();
 
