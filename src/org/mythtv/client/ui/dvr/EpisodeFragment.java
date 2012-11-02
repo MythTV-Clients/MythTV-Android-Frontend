@@ -84,23 +84,27 @@ public class EpisodeFragment extends AbstractMythFragment {
 		Log.v( TAG, "onCreateOptionsMenu : enter" );
 		super.onCreateOptionsMenu( menu, inflater );
 
-		MenuItem watch = menu.add( Menu.NONE, WATCH_ID, Menu.NONE, "Watch" );
-		watch.setIcon( android.R.drawable.ic_menu_view );
-	    if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-	    	watch.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
-	    }
-		
-		MenuItem add = menu.add( Menu.NONE, ADD_ID, Menu.NONE, "ADD" );
-		add.setIcon( android.R.drawable.ic_menu_add );
-	    if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-	    	add.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
-	    }
+		if( isMasterBackendConnected() ) {
+			
+			MenuItem watch = menu.add( Menu.NONE, WATCH_ID, Menu.NONE, "Watch" );
+			watch.setIcon( android.R.drawable.ic_menu_view );
+		    if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
+		    	watch.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
+		    }
+			
+			MenuItem add = menu.add( Menu.NONE, ADD_ID, Menu.NONE, "ADD" );
+			add.setIcon( android.R.drawable.ic_menu_add );
+		    if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
+		    	add.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
+		    }
 
-		MenuItem delete = menu.add( Menu.NONE, DELETE_ID, Menu.NONE, "Delete" );
-		delete.setIcon( android.R.drawable.ic_menu_delete );
-	    if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-	    	delete.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
-	    }
+			MenuItem delete = menu.add( Menu.NONE, DELETE_ID, Menu.NONE, "Delete" );
+			delete.setIcon( android.R.drawable.ic_menu_delete );
+		    if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
+		    	delete.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
+		    }
+			
+		}
 
 	    Log.v( TAG, "onCreateOptionsMenu : exit" );
 	}
@@ -116,34 +120,53 @@ public class EpisodeFragment extends AbstractMythFragment {
 		case WATCH_ID:
 			Log.d( TAG, "onOptionsItemSelected : watch selected" );
 
-			Intent playerIntent = new Intent( getActivity(), VideoActivity.class );
-			playerIntent.putExtra( VideoActivity.EXTRA_PROGRAM_KEY, episodeId );
-			startActivity( playerIntent );
-
+			if( isMasterBackendConnected() ) {
+				
+				Intent playerIntent = new Intent( getActivity(), VideoActivity.class );
+				playerIntent.putExtra( VideoActivity.EXTRA_PROGRAM_KEY, episodeId );
+				startActivity( playerIntent );
+			
+			} else {
+				notConnectedNotify();
+			}
+			
 			return true;
 		case ADD_ID:
 			Log.d( TAG, "onOptionsItemSelected : add selected" );
 
-	        return true;
+			if( isMasterBackendConnected() ) {
+				
+			
+			} else {
+				notConnectedNotify();
+			}
+
+			return true;
 		case DELETE_ID:
 			Log.d( TAG, "onOptionsItemSelected : delete selected" );
 
-			AlertDialog.Builder builder = new AlertDialog.Builder( getActivity() );
+			if( isMasterBackendConnected() ) {
+				
+				AlertDialog.Builder builder = new AlertDialog.Builder( getActivity() );
 
-			builder
-				.setTitle( R.string.episode_alert_delete_title )
-				.setMessage( R.string.episode_alert_delete_message )
-				.setPositiveButton( R.string.episode_alert_delete_button_delete, new DialogInterface.OnClickListener() {
-					
-					@Override
-					public void onClick( DialogInterface dialog, int which ) {
+				builder
+					.setTitle( R.string.episode_alert_delete_title )
+					.setMessage( R.string.episode_alert_delete_message )
+					.setPositiveButton( R.string.episode_alert_delete_button_delete, new DialogInterface.OnClickListener() {
 						
-						new RemoveRecordingTask().execute();
-						
-					}
-				} )
-				.setNegativeButton( R.string.episode_alert_delete_button_cancel, null )
-				.show();
+						@Override
+						public void onClick( DialogInterface dialog, int which ) {
+							
+							new RemoveRecordingTask().execute();
+							
+						}
+					} )
+					.setNegativeButton( R.string.episode_alert_delete_button_cancel, null )
+					.show();
+			
+			} else {
+				notConnectedNotify();
+			}
 
 			return true;
 		}
@@ -226,6 +249,12 @@ public class EpisodeFragment extends AbstractMythFragment {
 
 	// internal helpers
 	
+	private void notConnectedNotify() {
+		
+		Toast.makeText( getActivity(), getResources().getString( R.string.notification_not_connected ), Toast.LENGTH_SHORT ).show();
+		
+	}
+
 	private void deleteNotify( Boolean deleted ) {
 		
 		Toast.makeText( getActivity(), ( "Episode" + ( !deleted ? " NOT " : " " ) + "deleted!" ), Toast.LENGTH_SHORT ).show();

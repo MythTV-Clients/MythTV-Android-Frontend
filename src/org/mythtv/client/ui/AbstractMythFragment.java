@@ -19,7 +19,10 @@
 package org.mythtv.client.ui;
 
 import org.mythtv.client.MainApplication;
+import org.mythtv.db.status.StatusConstants;
+import org.mythtv.db.status.StatusConstants.StatusKey;
 
+import android.database.Cursor;
 import android.support.v4.app.Fragment;
 
 /**
@@ -35,6 +38,19 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
     //***************************************
 	public MainApplication getMainApplication() {
 		return (MainApplication) getActivity().getApplicationContext();
+	}
+
+	public boolean isMasterBackendConnected() {
+		
+		Boolean connected = Boolean.FALSE;
+		
+		Cursor cursor = getActivity().getContentResolver().query( StatusConstants.CONTENT_URI, new String[] { StatusConstants.FIELD_VALUE }, StatusConstants.FIELD_KEY + " = ?", new String[] { StatusKey.MASTER_BACKEND_CONNECTED.name() }, null );
+		if( cursor.moveToFirst() ) {
+			connected = Boolean.valueOf( cursor.getString( cursor.getColumnIndexOrThrow( StatusConstants.FIELD_VALUE ) ) );
+		}
+		cursor.close();
+		
+		return connected.booleanValue();
 	}
 	
 }

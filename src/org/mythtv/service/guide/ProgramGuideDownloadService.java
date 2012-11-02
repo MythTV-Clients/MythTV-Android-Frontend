@@ -127,6 +127,11 @@ public class ProgramGuideDownloadService extends MythtvService {
 						File file = new File( programGuideCache, DateUtils.fileDateTimeFormatter.print( start ) + FILENAME_EXT );
 						if( !file.exists() ) {
 
+							if( !isBackendConnected() ) {
+								Log.d( TAG, "onHandleIntent : exit, Master Backend unreachable" );
+								break;
+							}
+							
 							ProgramGuide programGuide = download( start );
 							if( null != programGuide ) {
 

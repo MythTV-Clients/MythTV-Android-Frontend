@@ -20,6 +20,7 @@ package org.mythtv.db;
 
 import static android.provider.BaseColumns._ID;
 
+import org.joda.time.DateTime;
 import org.mythtv.db.channel.ChannelConstants;
 import org.mythtv.db.content.ArtworkConstants;
 import org.mythtv.db.dvr.ProgramConstants;
@@ -27,6 +28,8 @@ import org.mythtv.db.dvr.RecordingConstants;
 import org.mythtv.db.http.EtagConstants;
 import org.mythtv.db.preferences.LocationProfileConstants;
 import org.mythtv.db.preferences.PlaybackProfileConstants;
+import org.mythtv.db.status.StatusConstants;
+import org.mythtv.db.status.StatusConstants.StatusKey;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -44,7 +47,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	private static final String TAG = DatabaseHelper.class.getSimpleName();
 	
 	private static final String DATABASE_NAME = "mythtvdb";
-	private static final int DATABASE_VERSION = 53;
+	private static final int DATABASE_VERSION = 55;
 
 	public DatabaseHelper( Context context ) {
 		super( context, DATABASE_NAME, null, DATABASE_VERSION );
@@ -63,6 +66,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		dropPlaybackProfiles( db );
 		createPlaybackProfiles( db );
 		
+		dropStatus( db );
+		createStatus( db );
+
 		dropEtag( db );
 		createEtag( db );
 		
@@ -88,11 +94,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	public void onUpgrade( SQLiteDatabase db, int oldVersion, int newVersion ) {
 		Log.v( TAG, "onUpgrade : enter" );
 
-		if( oldVersion < 53 ) {
-			Log.v( TAG, "onUpgrade : upgrading to db version 53" );
+		if( oldVersion < 55 ) {
+			Log.v( TAG, "onUpgrade : upgrading to db version 55" );
 
-			dropProgram( db, ProgramConstants.TABLE_NAME_RECORDED );
-			createProgram( db, ProgramConstants.TABLE_NAME_RECORDED );
+			onCreate( db );
 
 		}
 
@@ -137,6 +142,39 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		Log.v( TAG, "createCleanup : exit" );
 	}
 
+	private void dropStatus( SQLiteDatabase db ) {
+		Log.v( TAG, "dropStatus : enter" );
+		
+		db.execSQL( "DROP TABLE IF EXISTS " + StatusConstants.TABLE_NAME );
+		
+		Log.v( TAG, "dropStatus : exit" );
+	}
+
+	private void createStatus( SQLiteDatabase db ) {
+		Log.v( TAG, "createStatus : enter" );
+		
+		StringBuilder sqlBuilder = new StringBuilder();
+		sqlBuilder.append( "CREATE TABLE " + StatusConstants.TABLE_NAME + " (" );
+		sqlBuilder.append( _ID ).append( " " ).append( EtagConstants.FIELD_ID_DATA_TYPE ).append( " " ).append( StatusConstants.FIELD_ID_PRIMARY_KEY ).append( ", " );
+		sqlBuilder.append( StatusConstants.FIELD_KEY ).append( " " ).append( StatusConstants.FIELD_KEY_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( StatusConstants.FIELD_VALUE ).append( " " ).append( StatusConstants.FIELD_VALUE_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( StatusConstants.FIELD_DATE ).append( " " ).append( StatusConstants.FIELD_DATE_DATA_TYPE );
+		sqlBuilder.append( ");" );
+		String sql = sqlBuilder.toString();
+		if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
+			Log.v( TAG, "createStatus : sql=" + sql );
+		}
+		db.execSQL( sql );
+
+		ContentValues values = new ContentValues();
+		values.put( StatusConstants.FIELD_KEY, StatusKey.MASTER_BACKEND_CONNECTED.name() );
+		values.put( StatusConstants.FIELD_VALUE, "FALSE" );
+		values.put( StatusConstants.FIELD_DATE, new DateTime().getMillis() );
+		db.insert( StatusConstants.TABLE_NAME, null, values );
+
+		Log.v( TAG, "createStatus : exit" );
+	}
+	
 	private void dropEtag( SQLiteDatabase db ) {
 		Log.v( TAG, "dropEtag : enter" );
 		

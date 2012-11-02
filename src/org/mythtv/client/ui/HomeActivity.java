@@ -80,9 +80,11 @@ public class HomeActivity extends AbstractLocationAwareFragmentActivity {
 	public boolean onCreateOptionsMenu( Menu menu ) {
 		Log.d( TAG, "onCreateOptionsMenu : enter" );
 
-		MenuInflater inflater = getMenuInflater();
-		inflater.inflate( R.menu.home_main_menu, menu );
-
+		if( isMasterBackendConnected() ) {
+			MenuInflater inflater = getMenuInflater();
+			inflater.inflate( R.menu.home_main_menu, menu );
+		}
+		
 		Log.d( TAG, "onCreateOptionsMenu : exit" );
 		return true;
 	}
@@ -102,7 +104,10 @@ public class HomeActivity extends AbstractLocationAwareFragmentActivity {
 		case R.id.menu_frontends:
 			Log.d( TAG, "onOptionsItemSelected : setup selected" );
 
-			startActivity( new Intent( this, MythmoteActivity.class ) );
+			if( isMasterBackendConnected() ) {
+				startActivity( new Intent( this, MythmoteActivity.class ) );
+			}
+			
 			return true;
 //		case R.id.menu_setup:
 //			Log.d( TAG, "onOptionsItemSelected : setup selected" );

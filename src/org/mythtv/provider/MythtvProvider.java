@@ -24,6 +24,7 @@ import org.mythtv.db.DatabaseHelper;
 import org.mythtv.db.channel.ChannelConstants;
 import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.db.http.EtagConstants;
+import org.mythtv.db.status.StatusConstants;
 
 import android.content.ContentProviderOperation;
 import android.content.ContentProviderResult;
@@ -74,6 +75,11 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 	private static final int ETAG_ID 				= 1001;
 	private static final int ETAG_ENDPOINT	 		= 1002;
 
+	private static final String STATUS_CONTENT_TYPE = "vnd.mythtv.cursor.dir/org.mythtv.status";
+	private static final String STATUS_CONTENT_ITEM_TYPE = "vnd.mythtv.cursor.item/org.mythtv.status";
+	private static final int STATUS 				= 1100;
+	private static final int STATUS_ID 				= 1101;
+
 	static {
 		URI_MATCHER = new UriMatcher( UriMatcher.NO_MATCH );
 		URI_MATCHER.addURI( AUTHORITY, ProgramConstants.TABLE_NAME_RECORDED, RECORDED );
@@ -87,6 +93,8 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 		URI_MATCHER.addURI( AUTHORITY, EtagConstants.TABLE_NAME, ETAGS );
 		URI_MATCHER.addURI( AUTHORITY, EtagConstants.TABLE_NAME + "/#", ETAG_ID );
 		URI_MATCHER.addURI( AUTHORITY, EtagConstants.TABLE_NAME + "/endpoint", ETAG_ENDPOINT );
+		URI_MATCHER.addURI( AUTHORITY, StatusConstants.TABLE_NAME, STATUS );
+		URI_MATCHER.addURI( AUTHORITY, StatusConstants.TABLE_NAME + "/#", STATUS_ID );
 	}
 
 	private DatabaseHelper database = null;
@@ -141,6 +149,12 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 			
 			case ETAG_ENDPOINT:
 				return ETAG_CONTENT_ITEM_TYPE;
+			
+			case STATUS:
+				return STATUS_CONTENT_TYPE;
+			
+			case STATUS_ID:
+				return STATUS_CONTENT_ITEM_TYPE;
 			
 			default:
 				throw new IllegalArgumentException( "Unknown URI " + uri );
@@ -235,6 +249,25 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				
 				return deleted;
 
+			case STATUS:
+
+				deleted = db.delete( StatusConstants.TABLE_NAME, selection, selectionArgs );
+		
+				getContext().getContentResolver().notifyChange( uri, null );
+				
+				return deleted;
+			
+			case STATUS_ID:
+
+				deleted = db.delete( StatusConstants.TABLE_NAME, EtagConstants._ID
+						+ "="
+						+ Long.toString( ContentUris.parseId( uri ) )
+						+ ( !TextUtils.isEmpty( selection ) ? " AND (" + selection + ')' : "" ), selectionArgs );
+		
+				getContext().getContentResolver().notifyChange( uri, null );
+				
+				return deleted;
+
 			default:
 				throw new IllegalArgumentException( "Unknown URI " + uri );
 		}
@@ -275,6 +308,13 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 	
 			case ETAGS:
 				newUri = ContentUris.withAppendedId( EtagConstants.CONTENT_URI, db.insertOrThrow( EtagConstants.TABLE_NAME, null, values ) );
+				
+				getContext().getContentResolver().notifyChange( newUri, null );
+				
+				return newUri;
+	
+			case STATUS:
+				newUri = ContentUris.withAppendedId( StatusConstants.CONTENT_URI, db.insertOrThrow( StatusConstants.TABLE_NAME, null, values ) );
 				
 				getContext().getContentResolver().notifyChange( newUri, null );
 				
@@ -373,6 +413,21 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				
 				return cursor;
 
+			case STATUS:
+				
+				cursor = db.query( StatusConstants.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder );
+				cursor.setNotificationUri( getContext().getContentResolver(), uri );
+				
+				return cursor;
+	
+			case STATUS_ID:
+				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
+
+				cursor = db.query( StatusConstants.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder );
+				cursor.setNotificationUri( getContext().getContentResolver(), uri );
+				
+				return cursor;
+	
 			default:
 				throw new IllegalArgumentException( "Unknown URI " + uri );
 		}
@@ -449,6 +504,22 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
 
 				affected = db.update( EtagConstants.TABLE_NAME, values, selection , selectionArgs );
+
+				getContext().getContentResolver().notifyChange( uri, null );
+				
+				return affected;
+
+			case STATUS:
+				affected = db.update( StatusConstants.TABLE_NAME, values, selection , selectionArgs );
+				
+				getContext().getContentResolver().notifyChange( uri, null );
+				
+				return affected;
+
+			case STATUS_ID:
+				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
+
+				affected = db.update( StatusConstants.TABLE_NAME, values, selection , selectionArgs );
 
 				getContext().getContentResolver().notifyChange( uri, null );
 				

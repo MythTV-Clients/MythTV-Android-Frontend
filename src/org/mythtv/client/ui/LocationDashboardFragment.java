@@ -19,13 +19,13 @@
 package org.mythtv.client.ui;
 
 import org.mythtv.R;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.mythtv.service.MythtvService;
+import org.mythtv.service.util.RunningServiceHelper;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
-import android.os.AsyncTask;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -36,6 +36,27 @@ public class LocationDashboardFragment extends AbstractMythFragment {
 
 	private final static String TAG = LocationDashboardFragment.class.getSimpleName();
 
+	private RunningServiceHelper mRunningServiceHelper;
+	
+	private ConnectReceiver connectReceiver = new ConnectReceiver();
+	private String connectedProfile;
+	
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
+	 */
+	@Override
+	public void onActivityCreated( Bundle savedInstanceState ) {
+		Log.v( TAG, "onActivityCreated : enter" );
+		super.onActivityCreated( savedInstanceState );
+		
+		mRunningServiceHelper = new RunningServiceHelper( getActivity() );
+		
+		Log.v( TAG, "onActivityCreated : exit" );
+	}
+
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.Fragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle)
+	 */
 	@Override
 	public View onCreateView( LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState ) {
 		Log.v( TAG, "onCreateView : enter" );
@@ -47,26 +68,14 @@ public class LocationDashboardFragment extends AbstractMythFragment {
 			public void onClick( View view ) {
 				Log.v( TAG, "home.onClick : enter" );
 				
-				if( null != getMainApplication().getSelectedHomeLocationProfile() ) {
-					Log.v( TAG, "away.onClick : showing home dashboard" );
-					
+				if( !mRunningServiceHelper.isServiceRunning( "org.mythtv.service.MythtvService" ) ) {
 					getMainApplication().connectSelectedHomeLocationProfile();
 					
-					connectHomeLocation();
-					
-//					new CheckMythtvBackendConnectionTask().execute( "home" );
-				} else {
-					AlertDialog.Builder builder = new AlertDialog.Builder( getActivity() );
-					builder.setTitle( R.string.location_alert_error_title );
-					builder.setNeutralButton( R.string.btn_ok, new DialogInterface.OnClickListener() {
+					connectedProfile = "home";
 
-						public void onClick( DialogInterface dialog, int which ) { }
-						
-					});
-					builder.setMessage( R.string.location_alert_error_message );
-					builder.show();
+					getActivity().startService( new Intent( MythtvService.ACTION_CONNECT ) );
 				}
-
+			
 				Log.v( TAG, "home.onClick : exit" );
 			}
 
@@ -76,26 +85,12 @@ public class LocationDashboardFragment extends AbstractMythFragment {
 			public void onClick( View view ) {
 				Log.v( TAG, "away.onClick : enter" );
 
-				if( null != getMainApplication().getSelectedAwayLocationProfile() ) {
-					Log.v( TAG, "away.onClick : showing away dashboard" );
-
+				if( !mRunningServiceHelper.isServiceRunning( "org.mythtv.service.MythtvService" ) ) {
 					getMainApplication().connectSelectedAwayLocationProfile();
 					
-					connectAwayLocation();
-					
-//					new CheckMythtvBackendConnectionTask().execute( "away" );
-				} else {
-					Log.v( TAG, "away.onClick : no away profile selected" );
-
-					AlertDialog.Builder builder = new AlertDialog.Builder( getActivity() );
-					builder.setTitle( R.string.location_alert_error_title );
-					builder.setNeutralButton( R.string.btn_ok, new DialogInterface.OnClickListener() {
-
-						public void onClick( DialogInterface dialog, int which ) { }
+					connectedProfile = "away";
 						
-					});
-					builder.setMessage( R.string.location_alert_error_message );
-					builder.show();
+					getActivity().startService( new Intent( MythtvService.ACTION_CONNECT ) );
 				}
 
 				Log.v( TAG, "away.onClick : exit" );
@@ -106,100 +101,79 @@ public class LocationDashboardFragment extends AbstractMythFragment {
 		return root;
 	}
 
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.Fragment#onStart()
+	 */
+	@Override
+	public void onStart() {
+		Log.v( TAG, "onStart : enter" );
+		super.onStart();
+
+		IntentFilter connectFilter = new IntentFilter( MythtvService.ACTION_CONNECT );
+		connectFilter.addAction(  MythtvService.ACTION_COMPLETE );
+        getActivity().registerReceiver( connectReceiver, connectFilter );
+
+		Log.v( TAG, "onStart : enter" );
+	}
+
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.Fragment#onStop()
+	 */
+	@Override
+	public void onStop() {
+		Log.v( TAG, "onStop : enter" );
+		super.onStop();
+
+		// Unregister for broadcast
+		if( null != connectReceiver ) {
+			try {
+				getActivity().unregisterReceiver( connectReceiver );
+				//connectReceiver = null;
+			} catch( IllegalArgumentException e ) {
+				Log.e( TAG, e.getLocalizedMessage(), e );
+			}
+		}
+
+		Log.v( TAG, "onStop : exit" );
+	}
+
 	// internal helpers
 	
 	private void connectHomeLocation() {
+		Log.i( TAG, "connectHomeLocation : starting home dashboard" );
+		
 		startActivity( new Intent( getActivity(), HomeActivity.class ) );
 	}
 	
 	private void connectAwayLocation() {
+		Log.i( TAG, "connectHomeLocation : starting away dashboard" );
+
 		startActivity( new Intent( getActivity(), AwayActivity.class ) );
 	}
 
-	private void showBackendConnectionFailedWarning() {
-		
-		AlertDialog.Builder builder = new AlertDialog.Builder( getActivity() );
-		builder.setTitle( R.string.location_alert_error_title );
-		builder.setNeutralButton( R.string.btn_ok, new DialogInterface.OnClickListener() {
+	private class ConnectReceiver extends BroadcastReceiver {
 
-			public void onClick( DialogInterface dialog, int which ) { }
-			
-		});
-		builder.setMessage( R.string.location_alert_error_message_not_connected );
-		builder.show();
-
-	}
-	
-	private class CheckMythtvBackendConnectionTask extends AsyncTask<String, Void, ResponseEntity<String>> {
-
-		private String connectedPofile;
-		
-		/* (non-Javadoc)
-		 * @see android.os.AsyncTask#doInBackground(Params[])
-		 */
 		@Override
-		protected ResponseEntity<String> doInBackground( String... args ) {
-			Log.v( TAG, "CheckMythtvBackendConnectionTask.doInBackground : enter" );
+		public void onReceive( Context context, Intent intent ) {
+        	Log.i( TAG, "ConnectReceiver.onReceive : action=" + intent.getAction() );
 			
-			connectedPofile = args[ 0 ];
-			
-			try {
-				Log.v( TAG, "CheckMythtvBackendConnectionTask.doInBackground : exit" );
-				return getMainApplication().getMythServicesApi().mythOperations().getHostName();
-			} catch( Exception e ) {
-				Log.w( TAG, "CheckMythtvBackendConnectionTask.doInBackground : error connecting to backend", e );
-				
-				return null;
-			}
-		}
+	        if ( intent.getAction().equals( MythtvService.ACTION_COMPLETE ) ) {
+	        	Log.i( TAG, "ConnectReceiver.onReceive : complete=" + intent.getStringExtra( MythtvService.EXTRA_COMPLETE ) );
+	        	
+	        	if( intent.getBooleanExtra( MythtvService.EXTRA_COMPLETE_ONLINE, Boolean.FALSE ) ) {
 
-		/* (non-Javadoc)
-		 * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
-		 */
-		@Override
-		protected void onPostExecute( ResponseEntity<String> result ) {
-			Log.v( TAG, "CheckMythtvBackendConnectionTask.onPostExecute : enter" );
+	        	}
 
-			if( null != result ) {
-				
-				if( result.getStatusCode().equals( HttpStatus.OK ) ) {
-					
-					String hostname = result.getBody();
-					if( null != hostname && !"".equals( hostname ) ) {
-
-						if( connectedPofile.equals( "home" ) ) {
-							connectHomeLocation();
-						}
-
-						if( connectedPofile.equals( "away" ) ) {
-							connectAwayLocation();
-						}
-						
-					} else {
-					
-						Log.v( TAG, "CheckMythtvBackendConnectionTask.onPostExecute : mythtv master backend not found" );
-
-						showBackendConnectionFailedWarning();
-					
-					}
-			
-				} else {
-
-					Log.v( TAG, "CheckMythtvBackendConnectionTask.onPostExecute : mythtv master backend not found" );
-
-					showBackendConnectionFailedWarning();
-				
+        		if( connectedProfile.equals( "home" ) ) {
+					connectHomeLocation();
 				}
-				
-			} else {
 
-				Log.v( TAG, "CheckMythtvBackendConnectionTask.onPostExecute : mythtv master backend not found" );
+				if( connectedProfile.equals( "away" ) ) {
+					connectAwayLocation();
+				}
 
-				showBackendConnectionFailedWarning();
+	        }
 
-			}
-			
-			Log.v( TAG, "CheckMythtvBackendConnectionTask.onPostExecute : exit" );
 		}
 		
 	}

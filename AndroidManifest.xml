@@ -114,7 +114,13 @@
 		    android:name=".client.ui.setup.capture.CaptureCardsActivity" />
 		
 		<!-- MythTV Android Services -->
-		<service android:name=".service.UpgradeCleanupService" android:process=":upgrade" android:exported="false">
+		<service android:name=".service.MythtvService" android:exported="false">
+			<intent-filter>
+                <action android:name="org.mythtv.background.ACTION_CONNECT" />
+            </intent-filter>
+        </service>
+
+				<service android:name=".service.UpgradeCleanupService" android:process=":upgrade" android:exported="false">
 			<intent-filter>
                 <action android:name="org.mythtv.background.upgradeCleanup.PROGRAM_GUIDE_CLEANUP" />
                 <action android:name="org.mythtv.background.upgradeCleanup.PROGRAMS_CLEANUP" />

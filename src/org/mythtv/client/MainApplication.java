@@ -122,7 +122,9 @@ public class MainApplication extends Application {
 		
 		MythtvDatabaseManager db = new MythtvDatabaseManager( this );
 		LocationProfile profile = db.fetchSelectedHomeLocationProfile(); 
-		Log.v( TAG, "getSelectedHomeLocationProfile : profile=" + profile.toString() );
+		if( null != profile ) {
+			Log.v( TAG, "getSelectedHomeLocationProfile : profile=" + profile.toString() );
+		}
 		
 		Log.v( TAG, "getSelectedHomeLocationProfile : exit" );
 		return profile;
@@ -138,7 +140,9 @@ public class MainApplication extends Application {
 		db.clearConnectedLocationProfile();
 		
 		LocationProfile profile = db.fetchSelectedHomeLocationProfile(); 
-		db.connectLocationProfile( profile.getId() );
+		if( null != profile ) {
+			db.connectLocationProfile( profile.getId() );
+		}
 
 		Log.v( TAG, "connectSelectedHomeLocationProfile : exit" );
 	}
@@ -151,7 +155,9 @@ public class MainApplication extends Application {
 		
 		MythtvDatabaseManager db = new MythtvDatabaseManager( this );
 		LocationProfile profile = db.fetchSelectedAwayLocationProfile(); 
-		Log.v( TAG, "getSelectedAwayLocationProfile : profile=" + profile.toString() );
+		if( null != profile ) {
+			Log.v( TAG, "getSelectedAwayLocationProfile : profile=" + profile.toString() );
+		}
 		
 		Log.v( TAG, "getSelectedAwayLocationProfile : exit" );
 		return profile;
@@ -167,7 +173,9 @@ public class MainApplication extends Application {
 		db.clearConnectedLocationProfile();
 		
 		LocationProfile profile = db.fetchSelectedAwayLocationProfile(); 
-		db.connectLocationProfile( profile.getId() );
+		if( null != profile ) {
+			db.connectLocationProfile( profile.getId() );
+		}
 		
 		Log.v( TAG, "connectSelectedAwayLocationProfile : exit" );
 	}
