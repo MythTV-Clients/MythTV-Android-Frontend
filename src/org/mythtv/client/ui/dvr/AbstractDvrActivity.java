@@ -64,16 +64,18 @@ public abstract class AbstractDvrActivity extends AbstractMythtvFragmentActivity
 		switch( item.getItemId() ) {
 			case android.R.id.home:
 			
+				finish();
+				
 				// app icon in action bar clicked; go home
-				if( getMainApplication().getConnectedLocationProfile().equals( "HOME" ) ) {
-					Intent intent = new Intent( this, HomeActivity.class );
-					intent.addFlags( Intent.FLAG_ACTIVITY_CLEAR_TOP );
-					startActivity( intent );
-				} else {
-					Intent intent = new Intent( this, AwayActivity.class );
-					intent.addFlags( Intent.FLAG_ACTIVITY_CLEAR_TOP );
-					startActivity( intent );
-				}
+//				if( getMainApplication().getConnectedLocationProfile().equals( "HOME" ) ) {
+//					Intent intent = new Intent( this, HomeActivity.class );
+//					intent.addFlags( Intent.FLAG_ACTIVITY_CLEAR_TOP );
+//					startActivity( intent );
+//				} else {
+//					Intent intent = new Intent( this, AwayActivity.class );
+//					intent.addFlags( Intent.FLAG_ACTIVITY_CLEAR_TOP );
+//					startActivity( intent );
+//				}
 
 			return true;
 		}

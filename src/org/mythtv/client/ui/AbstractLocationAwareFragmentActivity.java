@@ -124,7 +124,7 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 		if( null != channelDownloadReceiver ) {
 			try {
 				unregisterReceiver( channelDownloadReceiver );
-				channelDownloadReceiver = null;
+				//channelDownloadReceiver = null;
 			} catch( IllegalArgumentException e ) {
 				Log.e( TAG, "onStop : error", e );
 			}
@@ -133,7 +133,7 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 		if( null != programGuideCleanupReceiver ) {
 			try {
 				unregisterReceiver( programGuideCleanupReceiver );
-				programGuideCleanupReceiver = null;
+				//programGuideCleanupReceiver = null;
 			} catch( IllegalArgumentException e ) {
 				Log.e( TAG, "onStop : error", e );
 			}
@@ -142,7 +142,7 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 		if( null != programGuideDownloadReceiver ) {
 			try {
 				unregisterReceiver( programGuideDownloadReceiver );
-				programGuideDownloadReceiver = null;
+				//programGuideDownloadReceiver = null;
 			} catch( IllegalArgumentException e ) {
 				Log.e( TAG, "onStop : error", e );
 			}
