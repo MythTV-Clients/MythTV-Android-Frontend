@@ -71,7 +71,7 @@ public class ProgramGuideDownloadService extends MythtvService {
 	private NotificationManager mNotificationManager;
 	private Notification mNotification = null;
 	private PendingIntent mContentIntent = null;
-	private int notificationId;
+	private int notificationId = 1000;
 	
 	private File programGuideCache = null;
 	
@@ -225,7 +225,6 @@ public class ProgramGuideDownloadService extends MythtvService {
 	private void sendNotification() {
 
 		long when = System.currentTimeMillis();
-		notificationId = (int) when;
 		
         mNotification = new Notification( android.R.drawable.stat_notify_sync, getResources().getString( R.string.notification_sync_program_guide ), when );
 

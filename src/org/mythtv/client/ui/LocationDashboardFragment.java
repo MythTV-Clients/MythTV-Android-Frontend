@@ -22,8 +22,10 @@ import org.mythtv.R;
 import org.mythtv.service.MythtvService;
 import org.mythtv.service.util.RunningServiceHelper;
 
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
@@ -69,11 +71,26 @@ public class LocationDashboardFragment extends AbstractMythFragment {
 				Log.v( TAG, "home.onClick : enter" );
 				
 				if( !mRunningServiceHelper.isServiceRunning( "org.mythtv.service.MythtvService" ) ) {
-					getMainApplication().connectSelectedHomeLocationProfile();
-					
-					connectedProfile = "home";
+					if( null == getMainApplication().getSelectedHomeLocationProfile() ) {
+						
+						AlertDialog.Builder builder = new AlertDialog.Builder( getActivity() );
+						builder.setTitle( R.string.location_alert_error_title );
+						builder.setNeutralButton( R.string.btn_ok, new DialogInterface.OnClickListener() {
 
-					getActivity().startService( new Intent( MythtvService.ACTION_CONNECT ) );
+							public void onClick( DialogInterface dialog, int which ) { }
+							
+						});
+						builder.setMessage( R.string.location_alert_error_home_message );
+						builder.show();
+
+					} else {
+					
+						getMainApplication().connectSelectedHomeLocationProfile();
+					
+						connectedProfile = "home";
+
+						getActivity().startService( new Intent( MythtvService.ACTION_CONNECT ) );
+					}
 				}
 			
 				Log.v( TAG, "home.onClick : exit" );
@@ -86,11 +103,26 @@ public class LocationDashboardFragment extends AbstractMythFragment {
 				Log.v( TAG, "away.onClick : enter" );
 
 				if( !mRunningServiceHelper.isServiceRunning( "org.mythtv.service.MythtvService" ) ) {
-					getMainApplication().connectSelectedAwayLocationProfile();
-					
-					connectedProfile = "away";
+					if( null == getMainApplication().getSelectedAwayLocationProfile() ) {
 						
-					getActivity().startService( new Intent( MythtvService.ACTION_CONNECT ) );
+						AlertDialog.Builder builder = new AlertDialog.Builder( getActivity() );
+						builder.setTitle( R.string.location_alert_error_title );
+						builder.setNeutralButton( R.string.btn_ok, new DialogInterface.OnClickListener() {
+
+							public void onClick( DialogInterface dialog, int which ) { }
+							
+						});
+						builder.setMessage( R.string.location_alert_error_away_message );
+						builder.show();
+
+					} else {
+					
+						getMainApplication().connectSelectedAwayLocationProfile();
+					
+						connectedProfile = "away";
+						
+						getActivity().startService( new Intent( MythtvService.ACTION_CONNECT ) );
+					}
 				}
 
 				Log.v( TAG, "away.onClick : exit" );
