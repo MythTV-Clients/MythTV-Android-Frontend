@@ -83,6 +83,7 @@ public class HomeActivity extends AbstractLocationAwareFragmentActivity {
 		if( isMasterBackendConnected() ) {
 			MenuInflater inflater = getMenuInflater();
 			inflater.inflate( R.menu.home_main_menu, menu );
+			Log.d( TAG, "onCreateOptionsMenu : menu inflated" );
 		}
 		
 		Log.d( TAG, "onCreateOptionsMenu : exit" );
@@ -102,7 +103,7 @@ public class HomeActivity extends AbstractLocationAwareFragmentActivity {
 
 		switch( item.getItemId() ) {
 		case R.id.menu_frontends:
-			Log.d( TAG, "onOptionsItemSelected : setup selected" );
+			Log.d( TAG, "onOptionsItemSelected : Mythmote selected" );
 
 			if( isMasterBackendConnected() ) {
 				startActivity( new Intent( this, MythmoteActivity.class ) );
