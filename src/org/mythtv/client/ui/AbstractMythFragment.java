@@ -21,9 +21,12 @@ package org.mythtv.client.ui;
 import org.mythtv.client.MainApplication;
 import org.mythtv.db.status.StatusConstants;
 import org.mythtv.db.status.StatusConstants.StatusKey;
+import org.mythtv.service.util.RunningServiceHelper;
 
 import android.database.Cursor;
+import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 
 /**
  * @author Daniel Frey
@@ -33,6 +36,21 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
 
 	protected static final String TAG = AbstractMythFragment.class.getSimpleName();
 	
+	protected RunningServiceHelper mRunningServiceHelper;
+	
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
+	 */
+	@Override
+	public void onActivityCreated( Bundle savedInstanceState ) {
+		Log.v( TAG, "onActivityCreated : enter" );
+		super.onActivityCreated( savedInstanceState );
+
+		mRunningServiceHelper = new RunningServiceHelper( getActivity() );
+		
+		Log.v( TAG, "onActivityCreated : exit" );
+	}
+
 	//***************************************
     // MythActivity methods
     //***************************************
@@ -41,6 +59,7 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
 	}
 
 	public boolean isMasterBackendConnected() {
+		Log.v( TAG, "isMasterBackendConnected : enter" );
 		
 		Boolean connected = Boolean.FALSE;
 		
@@ -50,6 +69,7 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
 		}
 		cursor.close();
 		
+		Log.v( TAG, "isMasterBackendConnected : exit" );
 		return connected.booleanValue();
 	}
 	

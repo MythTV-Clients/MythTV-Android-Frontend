@@ -80,6 +80,32 @@ public class ProgramGuideDownloadService extends MythtvService {
 	}
 	
 	/* (non-Javadoc)
+	 * @see android.app.IntentService#onDestroy()
+	 */
+	@Override
+	public void onDestroy() {
+		Log.d( TAG, "onDestroy : enter" );
+		super.onDestroy();
+
+		completed();
+		
+		Log.d( TAG, "onDestroy : exit" );
+	}
+
+	/* (non-Javadoc)
+	 * @see android.app.Service#onUnbind(android.content.Intent)
+	 */
+	@Override
+	public boolean onUnbind( Intent intent ) {
+		Log.d( TAG, "onUnbind : enter" );
+
+		completed();
+		
+		Log.d( TAG, "onUnbind : enter" );
+		return super.onUnbind( intent );
+	}
+
+	/* (non-Javadoc)
 	 * @see android.app.IntentService#onHandleIntent(android.content.Intent)
 	 */
 	@Override

@@ -24,6 +24,8 @@ import org.mythtv.db.DatabaseHelper;
 import org.mythtv.db.channel.ChannelConstants;
 import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.db.http.EtagConstants;
+import org.mythtv.db.preferences.LocationProfileConstants;
+import org.mythtv.db.preferences.PlaybackProfileConstants;
 import org.mythtv.db.status.StatusConstants;
 
 import android.content.ContentProviderOperation;
@@ -80,6 +82,16 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 	private static final int STATUS 				= 1100;
 	private static final int STATUS_ID 				= 1101;
 
+	private static final String LOCATION_PROFILE_CONTENT_TYPE = "vnd.mythtv.cursor.dir/org.mythtv.locationProfile";
+	private static final String LOCATION_PROFILE_CONTENT_ITEM_TYPE = "vnd.mythtv.cursor.item/org.mythtv.locationProfile";
+	private static final int LOCATION_PROFILE 		= 2000;
+	private static final int LOCATION_PROFILE_ID 	= 2001;
+
+	private static final String PLAYBACK_PROFILE_CONTENT_TYPE = "vnd.mythtv.cursor.dir/org.mythtv.playbackProfile";
+	private static final String PLAYBACK_PROFILE_CONTENT_ITEM_TYPE = "vnd.mythtv.cursor.item/org.mythtv.playbackProfile";
+	private static final int PLAYBACK_PROFILE 		= 2100;
+	private static final int PLAYBACK_PROFILE_ID 	= 2101;
+
 	static {
 		URI_MATCHER = new UriMatcher( UriMatcher.NO_MATCH );
 		URI_MATCHER.addURI( AUTHORITY, ProgramConstants.TABLE_NAME_RECORDED, RECORDED );
@@ -95,6 +107,10 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 		URI_MATCHER.addURI( AUTHORITY, EtagConstants.TABLE_NAME + "/endpoint", ETAG_ENDPOINT );
 		URI_MATCHER.addURI( AUTHORITY, StatusConstants.TABLE_NAME, STATUS );
 		URI_MATCHER.addURI( AUTHORITY, StatusConstants.TABLE_NAME + "/#", STATUS_ID );
+		URI_MATCHER.addURI( AUTHORITY, LocationProfileConstants.TABLE_NAME, LOCATION_PROFILE );
+		URI_MATCHER.addURI( AUTHORITY, LocationProfileConstants.TABLE_NAME + "/#", LOCATION_PROFILE_ID );
+		URI_MATCHER.addURI( AUTHORITY, PlaybackProfileConstants.TABLE_NAME, PLAYBACK_PROFILE );
+		URI_MATCHER.addURI( AUTHORITY, PlaybackProfileConstants.TABLE_NAME + "/#", PLAYBACK_PROFILE_ID );
 	}
 
 	private DatabaseHelper database = null;
@@ -155,6 +171,18 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 			
 			case STATUS_ID:
 				return STATUS_CONTENT_ITEM_TYPE;
+			
+			case LOCATION_PROFILE:
+				return LOCATION_PROFILE_CONTENT_TYPE;
+			
+			case LOCATION_PROFILE_ID:
+				return LOCATION_PROFILE_CONTENT_ITEM_TYPE;
+			
+			case PLAYBACK_PROFILE:
+				return PLAYBACK_PROFILE_CONTENT_TYPE;
+			
+			case PLAYBACK_PROFILE_ID:
+				return PLAYBACK_PROFILE_CONTENT_ITEM_TYPE;
 			
 			default:
 				throw new IllegalArgumentException( "Unknown URI " + uri );
@@ -259,7 +287,45 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 			
 			case STATUS_ID:
 
-				deleted = db.delete( StatusConstants.TABLE_NAME, EtagConstants._ID
+				deleted = db.delete( StatusConstants.TABLE_NAME, StatusConstants._ID
+						+ "="
+						+ Long.toString( ContentUris.parseId( uri ) )
+						+ ( !TextUtils.isEmpty( selection ) ? " AND (" + selection + ')' : "" ), selectionArgs );
+		
+				getContext().getContentResolver().notifyChange( uri, null );
+				
+				return deleted;
+
+			case LOCATION_PROFILE:
+
+				deleted = db.delete( LocationProfileConstants.TABLE_NAME, selection, selectionArgs );
+		
+				getContext().getContentResolver().notifyChange( uri, null );
+				
+				return deleted;
+			
+			case LOCATION_PROFILE_ID:
+
+				deleted = db.delete( LocationProfileConstants.TABLE_NAME, LocationProfileConstants._ID
+						+ "="
+						+ Long.toString( ContentUris.parseId( uri ) )
+						+ ( !TextUtils.isEmpty( selection ) ? " AND (" + selection + ')' : "" ), selectionArgs );
+		
+				getContext().getContentResolver().notifyChange( uri, null );
+				
+				return deleted;
+
+			case PLAYBACK_PROFILE:
+
+				deleted = db.delete( PlaybackProfileConstants.TABLE_NAME, selection, selectionArgs );
+		
+				getContext().getContentResolver().notifyChange( uri, null );
+				
+				return deleted;
+			
+			case PLAYBACK_PROFILE_ID:
+
+				deleted = db.delete( PlaybackProfileConstants.TABLE_NAME, PlaybackProfileConstants._ID
 						+ "="
 						+ Long.toString( ContentUris.parseId( uri ) )
 						+ ( !TextUtils.isEmpty( selection ) ? " AND (" + selection + ')' : "" ), selectionArgs );
@@ -315,6 +381,20 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 	
 			case STATUS:
 				newUri = ContentUris.withAppendedId( StatusConstants.CONTENT_URI, db.insertOrThrow( StatusConstants.TABLE_NAME, null, values ) );
+				
+				getContext().getContentResolver().notifyChange( newUri, null );
+				
+				return newUri;
+	
+			case LOCATION_PROFILE:
+				newUri = ContentUris.withAppendedId( LocationProfileConstants.CONTENT_URI, db.insertOrThrow( LocationProfileConstants.TABLE_NAME, null, values ) );
+				
+				getContext().getContentResolver().notifyChange( newUri, null );
+				
+				return newUri;
+	
+			case PLAYBACK_PROFILE:
+				newUri = ContentUris.withAppendedId( PlaybackProfileConstants.CONTENT_URI, db.insertOrThrow( PlaybackProfileConstants.TABLE_NAME, null, values ) );
 				
 				getContext().getContentResolver().notifyChange( newUri, null );
 				
@@ -428,6 +508,36 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				
 				return cursor;
 	
+			case LOCATION_PROFILE:
+				
+				cursor = db.query( LocationProfileConstants.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder );
+				cursor.setNotificationUri( getContext().getContentResolver(), uri );
+				
+				return cursor;
+	
+			case LOCATION_PROFILE_ID:
+				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
+
+				cursor = db.query( LocationProfileConstants.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder );
+				cursor.setNotificationUri( getContext().getContentResolver(), uri );
+				
+				return cursor;
+	
+			case PLAYBACK_PROFILE:
+				
+				cursor = db.query( PlaybackProfileConstants.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder );
+				cursor.setNotificationUri( getContext().getContentResolver(), uri );
+				
+				return cursor;
+	
+			case PLAYBACK_PROFILE_ID:
+				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
+
+				cursor = db.query( PlaybackProfileConstants.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder );
+				cursor.setNotificationUri( getContext().getContentResolver(), uri );
+				
+				return cursor;
+	
 			default:
 				throw new IllegalArgumentException( "Unknown URI " + uri );
 		}
@@ -520,6 +630,38 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
 
 				affected = db.update( StatusConstants.TABLE_NAME, values, selection , selectionArgs );
+
+				getContext().getContentResolver().notifyChange( uri, null );
+				
+				return affected;
+
+			case LOCATION_PROFILE:
+				affected = db.update( LocationProfileConstants.TABLE_NAME, values, selection , selectionArgs );
+				
+				getContext().getContentResolver().notifyChange( uri, null );
+				
+				return affected;
+
+			case LOCATION_PROFILE_ID:
+				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
+
+				affected = db.update( LocationProfileConstants.TABLE_NAME, values, selection , selectionArgs );
+
+				getContext().getContentResolver().notifyChange( uri, null );
+				
+				return affected;
+
+			case PLAYBACK_PROFILE:
+				affected = db.update( PlaybackProfileConstants.TABLE_NAME, values, selection , selectionArgs );
+				
+				getContext().getContentResolver().notifyChange( uri, null );
+				
+				return affected;
+
+			case PLAYBACK_PROFILE_ID:
+				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
+
+				affected = db.update( PlaybackProfileConstants.TABLE_NAME, values, selection , selectionArgs );
 
 				getContext().getContentResolver().notifyChange( uri, null );
 				

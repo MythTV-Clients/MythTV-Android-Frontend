@@ -18,13 +18,11 @@
  */
 package org.mythtv.client.ui.preferences;
 
-import static android.provider.BaseColumns._ID;
-
 import org.mythtv.R;
 import org.mythtv.client.ui.AbstractMythtvFragmentActivity;
 import org.mythtv.client.ui.preferences.LocationProfile.LocationType;
-import org.mythtv.db.MythtvDatabaseManager;
 import org.mythtv.db.preferences.PlaybackProfileConstants;
+import org.mythtv.db.preferences.PlaybackProfileDaoHelper;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -43,22 +41,28 @@ public class PlaybackProfileEditor extends AbstractMythtvFragmentActivity {
 
 	private static final String TAG = PlaybackProfileEditor.class.getSimpleName();
 
+	private PlaybackProfileDaoHelper mPlaybackProfileDaoHelper;
+	
 	private PlaybackProfile profile;
 
 	@Override
 	public void onCreate( Bundle savedInstanceState ) {
 		Log.v( TAG, "onCreate : enter" );
-
 		super.onCreate( savedInstanceState );
 
+		mPlaybackProfileDaoHelper = new PlaybackProfileDaoHelper( this );
+		
 		setContentView( this.getLayoutInflater().inflate( R.layout.preference_playback_profile_editor, null ) );
 
 		setupSaveButtonEvent( R.id.btnPreferencePlaybackProfileSave );
 		setupCancelButtonEvent( R.id.btnPreferencePlaybackProfileCancel );
 
-		int id = getIntent().getIntExtra( _ID, -1 );
-		//if( id != -1 ) {
+		int id = getIntent().getIntExtra( PlaybackProfileConstants._ID, -1 );
+
+		profile = mPlaybackProfileDaoHelper.findOne( (long) id );
+		if( null == profile ) {
 			profile = new PlaybackProfile();
+			
 			profile.setId( id );
 			profile.setType( LocationType.valueOf( getIntent().getStringExtra( PlaybackProfileConstants.FIELD_TYPE ) ) );
 			profile.setName( getIntent().getStringExtra( PlaybackProfileConstants.FIELD_NAME ) );
@@ -68,9 +72,9 @@ public class PlaybackProfileEditor extends AbstractMythtvFragmentActivity {
 			profile.setAudioBitrate( getIntent().getIntExtra( PlaybackProfileConstants.FIELD_AUDIO_BITRATE, -1 ) );
 			profile.setAudioSampleRate( getIntent().getIntExtra( PlaybackProfileConstants.FIELD_SAMPLE_RATE, -1 ) );
 			profile.setSelected( 0 != getIntent().getIntExtra( PlaybackProfileConstants.FIELD_SELECTED, 0 ) );
+		}
 
-			setUiFromPlaybackProfile();
-		//}
+		setUiFromPlaybackProfile();
 
 		Log.v( TAG, "onCreate : exit" );
 	}
@@ -257,11 +261,10 @@ public class PlaybackProfileEditor extends AbstractMythtvFragmentActivity {
 		} else {
 			Log.v( TAG, "save : proceeding to save" );
 
-			MythtvDatabaseManager db = new MythtvDatabaseManager( this );
 			if( profile.getId() != -1 ) {
 				Log.v( TAG, "save : updating existing playback profile" );
 
-				retVal = db.updatePlaybackProfile( profile );
+				retVal = mPlaybackProfileDaoHelper.save( profile );
 			}
 		}
 

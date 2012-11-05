@@ -25,7 +25,8 @@ import java.util.Map;
 
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.preferences.PlaybackProfile;
-import org.mythtv.db.MythtvDatabaseManager;
+import org.mythtv.db.preferences.LocationProfileDaoHelper;
+import org.mythtv.db.preferences.PlaybackProfileDaoHelper;
 import org.mythtv.services.api.MythServices;
 import org.mythtv.services.api.capture.CaptureCard;
 import org.mythtv.services.connect.MythServicesServiceProvider;
@@ -45,6 +46,9 @@ import com.fasterxml.jackson.datatype.joda.JodaModule;
 public class MainApplication extends Application {
 
 	private static final String TAG = MainApplication.class.getSimpleName();
+	
+	private LocationProfileDaoHelper mLocationProfileDaoHelper;
+	private PlaybackProfileDaoHelper mPlaybackProfileDaoHelper;
 	
 	private MythServicesServiceProvider provider;
 	
@@ -68,6 +72,9 @@ public class MainApplication extends Application {
 		Log.v( TAG, "onCreate : enter" );
 
 		super.onCreate();
+		
+		mLocationProfileDaoHelper = new LocationProfileDaoHelper( this );
+		mPlaybackProfileDaoHelper = new PlaybackProfileDaoHelper( this );
 		
         String systemClock = Settings.System.getString(getApplicationContext().getContentResolver(), Settings.System.TIME_12_24);
         if(systemClock != null) this.clockType = systemClock;
@@ -120,8 +127,7 @@ public class MainApplication extends Application {
 	public LocationProfile getSelectedHomeLocationProfile() {
 		Log.v( TAG, "getSelectedHomeLocationProfile : enter" );
 		
-		MythtvDatabaseManager db = new MythtvDatabaseManager( this );
-		LocationProfile profile = db.fetchSelectedHomeLocationProfile(); 
+		LocationProfile profile = mLocationProfileDaoHelper.findSelectedHomeProfile(); 
 		if( null != profile ) {
 			Log.v( TAG, "getSelectedHomeLocationProfile : profile=" + profile.toString() );
 		}
@@ -136,12 +142,9 @@ public class MainApplication extends Application {
 	public void connectSelectedHomeLocationProfile() {
 		Log.v( TAG, "connectSelectedHomeLocationProfile : enter" );
 		
-		MythtvDatabaseManager db = new MythtvDatabaseManager( this );
-		db.clearConnectedLocationProfile();
-		
-		LocationProfile profile = db.fetchSelectedHomeLocationProfile(); 
+		LocationProfile profile = mLocationProfileDaoHelper.findSelectedHomeProfile(); 
 		if( null != profile ) {
-			db.connectLocationProfile( profile.getId() );
+			mLocationProfileDaoHelper.setConnectedLocationProfile( (long) profile.getId() );
 		}
 
 		Log.v( TAG, "connectSelectedHomeLocationProfile : exit" );
@@ -153,8 +156,7 @@ public class MainApplication extends Application {
 	public LocationProfile getSelectedAwayLocationProfile() {
 		Log.v( TAG, "getSelectedAwayLocationProfile : enter" );
 		
-		MythtvDatabaseManager db = new MythtvDatabaseManager( this );
-		LocationProfile profile = db.fetchSelectedAwayLocationProfile(); 
+		LocationProfile profile = mLocationProfileDaoHelper.findSelectedAwayProfile(); 
 		if( null != profile ) {
 			Log.v( TAG, "getSelectedAwayLocationProfile : profile=" + profile.toString() );
 		}
@@ -169,12 +171,9 @@ public class MainApplication extends Application {
 	public void connectSelectedAwayLocationProfile() {
 		Log.v( TAG, "connectSelectedAwayLocationProfile : enter" );
 		
-		MythtvDatabaseManager db = new MythtvDatabaseManager( this );
-		db.clearConnectedLocationProfile();
-		
-		LocationProfile profile = db.fetchSelectedAwayLocationProfile(); 
+		LocationProfile profile = mLocationProfileDaoHelper.findSelectedAwayProfile(); 
 		if( null != profile ) {
-			db.connectLocationProfile( profile.getId() );
+			mLocationProfileDaoHelper.setConnectedLocationProfile( (long) profile.getId() );
 		}
 		
 		Log.v( TAG, "connectSelectedAwayLocationProfile : exit" );
@@ -186,8 +185,7 @@ public class MainApplication extends Application {
 	public PlaybackProfile getSelectedHomePlaybackProfile() {
 		Log.v( TAG, "getSelectedHomePlaybackProfile : enter" );
 
-		MythtvDatabaseManager db = new MythtvDatabaseManager( this );
-		PlaybackProfile profile = db.fetchSelectedHomePlaybackProfile(); 
+		PlaybackProfile profile = mPlaybackProfileDaoHelper.findSelectedHomeProfile(); 
 		Log.v( TAG, "getSelectedHomePlaybackProfile : profile=" + profile.toString() );
 		
 		Log.v( TAG, "getSelectedHomePlaybackProfile : exit" );
@@ -200,8 +198,7 @@ public class MainApplication extends Application {
 	public PlaybackProfile getSelectedAwayPlaybackProfile() {
 		Log.v( TAG, "getSelectedAwayPlaybackProfile : enter" );
 
-		MythtvDatabaseManager db = new MythtvDatabaseManager( this );
-		PlaybackProfile profile = db.fetchSelectedAwayPlaybackProfile(); 
+		PlaybackProfile profile = mPlaybackProfileDaoHelper.findSelectedAwayProfile(); 
 		Log.v( TAG, "getSelectedAwayPlaybackProfile : profile=" + profile.toString() );
 		
 		Log.v( TAG, "getSelectedAwayPlaybackProfile : exit" );
@@ -209,8 +206,7 @@ public class MainApplication extends Application {
 	}
 
 	public LocationProfile getConnectedLocationProfile() {
-		MythtvDatabaseManager db = new MythtvDatabaseManager( this );
-		LocationProfile profile = db.fetchConnectedLocationProfile();
+		LocationProfile profile = mLocationProfileDaoHelper.findConnectedProfile();
 
 		return profile;
 	}

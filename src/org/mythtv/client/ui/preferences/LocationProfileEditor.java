@@ -18,16 +18,11 @@
  */
 package org.mythtv.client.ui.preferences;
 
-import static android.provider.BaseColumns._ID;
-import static org.mythtv.db.preferences.LocationProfileConstants.FIELD_NAME;
-import static org.mythtv.db.preferences.LocationProfileConstants.FIELD_SELECTED;
-import static org.mythtv.db.preferences.LocationProfileConstants.FIELD_TYPE;
-import static org.mythtv.db.preferences.LocationProfileConstants.FIELD_URL;
-
 import org.mythtv.R;
 import org.mythtv.client.ui.AbstractMythtvFragmentActivity;
 import org.mythtv.client.ui.preferences.LocationProfile.LocationType;
-import org.mythtv.db.MythtvDatabaseManager;
+import org.mythtv.db.preferences.LocationProfileConstants;
+import org.mythtv.db.preferences.LocationProfileDaoHelper;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -47,30 +42,36 @@ public class LocationProfileEditor extends AbstractMythtvFragmentActivity {
 
 	private static final String TAG = LocationProfileEditor.class.getSimpleName();
 
+	private LocationProfileDaoHelper mLocationProfileDaoHelper;
+	
 	private LocationProfile profile;
 
 	@Override
 	public void onCreate( Bundle savedInstanceState ) {
 		Log.v( TAG, "onCreate : enter" );
-
 		super.onCreate( savedInstanceState );
 
+		mLocationProfileDaoHelper = new LocationProfileDaoHelper( this );
+		
 		setContentView( this.getLayoutInflater().inflate( R.layout.preference_location_profile_editor, null ) );
 
 		setupSaveButtonEvent( R.id.btnPreferenceLocationProfileSave );
 		setupCancelButtonEvent( R.id.btnPreferenceLocationProfileCancel );
 
-		int id = getIntent().getIntExtra( _ID, -1 );
-		//if( id != -1 ) {
-			profile = new LocationProfile();
-			profile.setId( id );
-			profile.setType( LocationType.valueOf( getIntent().getStringExtra( FIELD_TYPE ) ) );
-			profile.setName( getIntent().getStringExtra( FIELD_NAME ) );
-			profile.setUrl( getIntent().getStringExtra( FIELD_URL ) );
-			profile.setSelected( 0 != getIntent().getIntExtra( FIELD_SELECTED, 0 ) );
+		int id = getIntent().getIntExtra( LocationProfileConstants._ID, -1 );
 
-			setUiFromLocationProfile();
-		//}
+		profile = mLocationProfileDaoHelper.findOne( (long) id );
+		if( null == profile ) {
+			profile = new LocationProfile();
+			
+			profile.setId( id );
+			profile.setType( LocationType.valueOf( getIntent().getStringExtra( LocationProfileConstants.FIELD_TYPE ) ) );
+			profile.setName( getIntent().getStringExtra( LocationProfileConstants.FIELD_NAME ) );
+			profile.setUrl( getIntent().getStringExtra( LocationProfileConstants.FIELD_URL ) );
+			profile.setSelected( 0 != getIntent().getIntExtra( LocationProfileConstants.FIELD_SELECTED, 0 ) );
+		}
+		
+		setUiFromLocationProfile();
 
 		Log.v( TAG, "onCreate : exit" );
 	}
@@ -211,24 +212,9 @@ public class LocationProfileEditor extends AbstractMythtvFragmentActivity {
 		} else {
 			Log.v( TAG, "save : proceeding to save" );
 
-			MythtvDatabaseManager db = new MythtvDatabaseManager( this );
-			if( profile.getId() == -1 ) {
-				Log.v( TAG, "save : saving new location profile" );
-
-				switch( profile.getType() ) {
-				case HOME:
-					profile.setId( (int) db.createHomeLocationProfile( profile ) );
-					retVal = true;
-					break;
-				case AWAY:
-					profile.setId( (int) db.createAwayLocationProfile( profile ) );
-					retVal = true;
-					break;
-				}
-			} else {
-				Log.v( TAG, "save : updating existing location profile" );
-
-				retVal = db.updateLocationProfile( profile );
+			retVal = mLocationProfileDaoHelper.save( profile );
+			if( retVal ) {
+				Log.i( TAG, "save : LocationProfile saved!" );
 			}
 		}
 

@@ -18,14 +18,23 @@
  */
 package org.mythtv.db.preferences;
 
+import org.mythtv.provider.MythtvProvider;
+
+import android.net.Uri;
+import android.provider.BaseColumns;
+
 /**
  * @author Daniel Frey
  *
  */
-public class LocationProfileConstants {
+public class LocationProfileConstants implements BaseColumns {
 
-	public static final String TABLE_NAME = "LOCATION_PROFILE";
+	public static final String TABLE_NAME = "location_profile";
 	
+	public static final Uri CONTENT_URI = Uri.parse( "content://" + MythtvProvider.AUTHORITY + "/" + TABLE_NAME );
+
+	public static final String INSERT_ROW, UPDATE_ROW;
+
 	// db fields
 	public static final String FIELD_ID_DATA_TYPE = "INTEGER";
 	public static final String FIELD_ID_PRIMARY_KEY = "PRIMARY KEY AUTOINCREMENT";
@@ -57,4 +66,34 @@ public class LocationProfileConstants {
 			"from " +
 				"location_profile lp";
 
+	static {
+	
+		StringBuilder insert = new StringBuilder();
+		
+		insert.append( "INSERT INTO " ).append( TABLE_NAME ).append( " ( " );
+		insert.append( FIELD_TYPE ).append( "," );
+		insert.append( FIELD_NAME ).append( "," );
+		insert.append( FIELD_URL ).append( "," );
+		insert.append( FIELD_SELECTED ).append( "," );
+		insert.append( FIELD_CONNECTED );
+		insert.append( " ) " );
+		insert.append( "VALUES( ?,?,?,?,? )" );
+		
+		INSERT_ROW = insert.toString();
+
+		StringBuilder update = new StringBuilder();
+		
+		update.append( "UPDATE " ).append( TABLE_NAME ).append( " SET " );
+		update.append( FIELD_TYPE ).append( " = ? " );
+		update.append( FIELD_NAME ).append( " = ? " );
+		update.append( FIELD_URL ).append( " = ? " );
+		update.append( FIELD_SELECTED ).append( " = ?" );
+		update.append( FIELD_CONNECTED ).append( " = ?" );
+		update.append( "WHERE " );
+		update.append( _ID ).append( " = ?" );
+		
+		UPDATE_ROW = update.toString();
+
+	}
+	
 }

@@ -18,14 +18,23 @@
  */
 package org.mythtv.db.preferences;
 
+import org.mythtv.provider.MythtvProvider;
+
+import android.net.Uri;
+import android.provider.BaseColumns;
+
 /**
  * @author Daniel Frey
  *
  */
-public class PlaybackProfileConstants {
+public class PlaybackProfileConstants implements BaseColumns {
 
-	public static final String TABLE_NAME = "PLAYBACK_PROFILE";
+	public static final String TABLE_NAME = "playback_profile";
 	
+	public static final Uri CONTENT_URI = Uri.parse( "content://" + MythtvProvider.AUTHORITY + "/" + TABLE_NAME );
+
+	public static final String INSERT_ROW, UPDATE_ROW;
+
 	// db fields
 	public static final String FIELD_ID_DATA_TYPE = "INTEGER";
 	public static final String FIELD_ID_PRIMARY_KEY = "PRIMARY KEY AUTOINCREMENT";
@@ -69,4 +78,40 @@ public class PlaybackProfileConstants {
 			"from " +
 				"playback_profile pp";
 
+	static {
+		
+		StringBuilder insert = new StringBuilder();
+		
+		insert.append( "INSERT INTO " ).append( TABLE_NAME ).append( " ( " );
+		insert.append( FIELD_TYPE ).append( "," );
+		insert.append( FIELD_NAME ).append( "," );
+		insert.append( FIELD_WIDTH ).append( "," );
+		insert.append( FIELD_HEIGHT ).append( "," );
+		insert.append( FIELD_BITRATE ).append( "," );
+		insert.append( FIELD_AUDIO_BITRATE ).append( "," );
+		insert.append( FIELD_SAMPLE_RATE ).append( "," );
+		insert.append( FIELD_SELECTED );
+		insert.append( " ) " );
+		insert.append( "VALUES( ?,?,?,?,?,?,?,? )" );
+		
+		INSERT_ROW = insert.toString();
+
+		StringBuilder update = new StringBuilder();
+		
+		update.append( "UPDATE " ).append( TABLE_NAME ).append( " SET " );
+		update.append( FIELD_TYPE ).append( " = ?, " );
+		update.append( FIELD_NAME ).append( " = ?, " );
+		update.append( FIELD_WIDTH ).append( " = ?, " );
+		update.append( FIELD_HEIGHT ).append( " = ?, " );
+		update.append( FIELD_BITRATE ).append( " = ?, " );
+		update.append( FIELD_AUDIO_BITRATE ).append( " = ?, " );
+		update.append( FIELD_SAMPLE_RATE ).append( " = ?, " );
+		update.append( FIELD_SELECTED ).append( " = ? " );
+		update.append( "WHERE " );
+		update.append( _ID ).append( " = ?" );
+		
+		UPDATE_ROW = update.toString();
+
+	}
+	
 }

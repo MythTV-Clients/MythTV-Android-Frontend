@@ -31,6 +31,7 @@ public class LocationProfile {
 	private String name;
 	private String url;
 	private boolean selected;
+	private boolean connected;
 	
 	public LocationProfile() { }
 
@@ -104,6 +105,20 @@ public class LocationProfile {
 		this.selected = selected;
 	}
 
+	/**
+	 * @return the connected
+	 */
+	public boolean isConnected() {
+		return connected;
+	}
+
+	/**
+	 * @param connected the connected to set
+	 */
+	public void setConnected( boolean connected ) {
+		this.connected = connected;
+	}
+
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
@@ -135,6 +150,9 @@ public class LocationProfile {
 		
 		builder.append( "selected=" );
 		builder.append( selected );
+		
+		builder.append( "connected=" );
+		builder.append( connected );
 		
 		builder.append( "]" );
 	

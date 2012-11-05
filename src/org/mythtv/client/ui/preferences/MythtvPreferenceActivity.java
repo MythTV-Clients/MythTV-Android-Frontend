@@ -18,8 +18,6 @@
  */
 package org.mythtv.client.ui.preferences;
 
-import static android.provider.BaseColumns._ID;
-
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.EventListener;
@@ -31,9 +29,10 @@ import javax.jmdns.ServiceListener;
 
 import org.mythtv.R;
 import org.mythtv.client.ui.preferences.LocationProfile.LocationType;
-import org.mythtv.db.MythtvDatabaseManager;
 import org.mythtv.db.preferences.LocationProfileConstants;
+import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.db.preferences.PlaybackProfileConstants;
+import org.mythtv.db.preferences.PlaybackProfileDaoHelper;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -77,6 +76,9 @@ public class MythtvPreferenceActivity extends PreferenceActivity implements Serv
 	private static JmDNS zeroConf = null;
 	private static MulticastLock mLock = null;
 
+	private static LocationProfileDaoHelper mLocationProfileDaoHelper;
+	private static PlaybackProfileDaoHelper mPlaybackProfileDaoHelper;
+	
 	/* (non-Javadoc)
 	 * @see android.preference.PreferenceActivity#onCreate(android.os.Bundle)
 	 */
@@ -86,6 +88,9 @@ public class MythtvPreferenceActivity extends PreferenceActivity implements Serv
 		Log.v( TAG, "onCreate : enter" );
 		super.onCreate( savedInstanceState );
 
+		mLocationProfileDaoHelper = new LocationProfileDaoHelper( this );
+		mPlaybackProfileDaoHelper = new PlaybackProfileDaoHelper( this );
+		
 		// Load the preferences from an XML resource
         addPreferencesFromResource( R.xml.mythtv_home_profile_preferences );
         addPreferencesFromResource( R.xml.mythtv_home_playback_profile_preferences );
@@ -220,8 +225,6 @@ public class MythtvPreferenceActivity extends PreferenceActivity implements Serv
 	private void setupPreferences( final Context context ) {
 		Log.v( TAG, "setupPreferences : enter" );
 
-		MythtvDatabaseManager db = new MythtvDatabaseManager( context );
-
 		Preference addHomeLocationProfilePreference = findPreference( PREFERENCE_HOME_ADD_KEY );
 		addHomeLocationProfilePreference.setOnPreferenceClickListener( new OnPreferenceClickListener() {
 
@@ -267,7 +270,7 @@ public class MythtvPreferenceActivity extends PreferenceActivity implements Serv
 		PreferenceCategory homeProfilesPreferenceCategory = (PreferenceCategory) findPreference( PREFERENCE_CATEGORY_HOME_SAVED_KEY );
 		homeProfilesPreferenceCategory.removeAll();
 
-		final List<LocationProfile> homeLocationProfiles = db.fetchHomeLocationProfiles();
+		final List<LocationProfile> homeLocationProfiles = mLocationProfileDaoHelper.findAllHomeLocationProfiles();
 		if( null != homeLocationProfiles && !homeLocationProfiles.isEmpty() ) {
 			Log.v( TAG, "setupPreferences : setting Home Location Profiles" );
 			
@@ -278,7 +281,7 @@ public class MythtvPreferenceActivity extends PreferenceActivity implements Serv
 	        
 		}
 		
-		LocationProfile selectedHomeLocationProfile = db.fetchSelectedHomeLocationProfile();
+		LocationProfile selectedHomeLocationProfile = mLocationProfileDaoHelper.findSelectedHomeProfile();
 
 		Preference deleteHomeLocationProfilePreference = findPreference( PREFERENCE_HOME_DELETE_KEY );
 		deleteHomeLocationProfilePreference.setOnPreferenceClickListener( new OnPreferenceClickListener() {
@@ -333,7 +336,7 @@ public class MythtvPreferenceActivity extends PreferenceActivity implements Serv
 		PreferenceCategory homePlaybackProfilesPreferenceCategory = (PreferenceCategory) findPreference( PREFERENCE_CATEGORY_HOME_PLAYBACK_SAVED_KEY );
 		homePlaybackProfilesPreferenceCategory.removeAll();
 
-		final List<PlaybackProfile> homePlaybackProfiles = db.fetchHomePlaybackProfiles();
+		final List<PlaybackProfile> homePlaybackProfiles = mPlaybackProfileDaoHelper.findAllHomePlaybackProfiles();
 		if( null != homePlaybackProfiles && !homePlaybackProfiles.isEmpty() ) {
 			Log.v( TAG, "setupPreferences : setting Home Playback Profiles" );
 			
@@ -344,7 +347,7 @@ public class MythtvPreferenceActivity extends PreferenceActivity implements Serv
 	        
 		}
 		
-		PlaybackProfile selectedHomePlaybackProfile = db.fetchSelectedHomePlaybackProfile();
+		PlaybackProfile selectedHomePlaybackProfile = mPlaybackProfileDaoHelper.findSelectedHomeProfile();
 
 		if( null != selectedHomePlaybackProfile ) {
 			Log.v( TAG, "setupPreferences : setting selected Home Playback Profile" );
@@ -395,7 +398,7 @@ public class MythtvPreferenceActivity extends PreferenceActivity implements Serv
 		PreferenceCategory awayProfilesPreferenceCategory = (PreferenceCategory) findPreference( PREFERENCE_CATEGORY_AWAY_SAVED_KEY );
 		awayProfilesPreferenceCategory.removeAll();
 
-		final List<LocationProfile> awayLocationProfiles = db.fetchAwayLocationProfiles();
+		final List<LocationProfile> awayLocationProfiles = mLocationProfileDaoHelper.findAllAwayLocationProfiles();
 		if( null != awayLocationProfiles && !awayLocationProfiles.isEmpty() ) {
 			Log.v( TAG, "setupPreferences : setting Away Location Profiles" );
 			
@@ -406,7 +409,7 @@ public class MythtvPreferenceActivity extends PreferenceActivity implements Serv
 	        
 		}
 		
-		LocationProfile selectedAwayLocationProfile = db.fetchSelectedAwayLocationProfile();
+		LocationProfile selectedAwayLocationProfile = mLocationProfileDaoHelper.findSelectedAwayProfile();
 
 		Preference deleteAwayLocationProfilePreference = findPreference( PREFERENCE_AWAY_DELETE_KEY );
 		deleteAwayLocationProfilePreference.setOnPreferenceClickListener( new OnPreferenceClickListener() {
@@ -461,7 +464,7 @@ public class MythtvPreferenceActivity extends PreferenceActivity implements Serv
 		PreferenceCategory awayPlaybackProfilesPreferenceCategory = (PreferenceCategory) findPreference( PREFERENCE_CATEGORY_AWAY_PLAYBACK_SAVED_KEY );
 		awayPlaybackProfilesPreferenceCategory.removeAll();
 
-		final List<PlaybackProfile> awayPlaybackProfiles = db.fetchAwayPlaybackProfiles();
+		final List<PlaybackProfile> awayPlaybackProfiles = mPlaybackProfileDaoHelper.findAllAwayPlaybackProfiles();
 		if( null != awayPlaybackProfiles && !awayPlaybackProfiles.isEmpty() ) {
 			Log.v( TAG, "setupPreferences : setting Away Playback Profiles" );
 			
@@ -472,7 +475,7 @@ public class MythtvPreferenceActivity extends PreferenceActivity implements Serv
 	        
 		}
 		
-		PlaybackProfile selectedAwayPlaybackProfile = db.fetchSelectedAwayPlaybackProfile();
+		PlaybackProfile selectedAwayPlaybackProfile = mPlaybackProfileDaoHelper.findSelectedAwayProfile();
 
 		if( null != selectedAwayPlaybackProfile ) {
 			Log.v( TAG, "setupPreferences : setting selected Away Playback Profile" );
@@ -541,8 +544,7 @@ public class MythtvPreferenceActivity extends PreferenceActivity implements Serv
 
 				public boolean onPreferenceClick( Preference preference ) {
 					
-					MythtvDatabaseManager db = new MythtvDatabaseManager( context );
-					LocationProfile profile = db.fetchLocationProfile( Integer.parseInt( preference.getKey() ) );
+					LocationProfile profile = mLocationProfileDaoHelper.findOne( Long.parseLong( preference.getKey() ) );
 					
 					// show location editor
 					showLocationProfileEditDialog( context, profile );
@@ -574,8 +576,7 @@ public class MythtvPreferenceActivity extends PreferenceActivity implements Serv
 
 				public boolean onPreferenceClick( Preference preference ) {
 					
-					MythtvDatabaseManager db = new MythtvDatabaseManager( context );
-					PlaybackProfile profile = db.fetchPlaybackProfile( Integer.parseInt( preference.getKey() ) );
+					PlaybackProfile profile = mPlaybackProfileDaoHelper.findOne( Long.parseLong( preference.getKey() ) );
 					
 					// show playback profile editor
 					showPlaybackProfileEditDialog( context, profile );
@@ -600,7 +601,7 @@ public class MythtvPreferenceActivity extends PreferenceActivity implements Serv
 
 			// put extra information is needed
 			if( null != profile ) {
-				intent.putExtra( _ID, profile.getId() );
+				intent.putExtra( LocationProfileConstants._ID, profile.getId() );
 				intent.putExtra( LocationProfileConstants.FIELD_TYPE, profile.getType().name() );
 				intent.putExtra( LocationProfileConstants.FIELD_NAME, profile.getName() );
 				intent.putExtra( LocationProfileConstants.FIELD_URL, profile.getUrl() );
@@ -624,7 +625,7 @@ public class MythtvPreferenceActivity extends PreferenceActivity implements Serv
 
 			// put extra information is needed
 			if( null != profile ) {
-				intent.putExtra( _ID, profile.getId() );
+				intent.putExtra( PlaybackProfileConstants._ID, profile.getId() );
 				intent.putExtra( PlaybackProfileConstants.FIELD_TYPE, profile.getType().name() );
 				intent.putExtra( PlaybackProfileConstants.FIELD_NAME, profile.getName() );
 				intent.putExtra( PlaybackProfileConstants.FIELD_WIDTH, profile.getWidth() );
@@ -743,17 +744,16 @@ public class MythtvPreferenceActivity extends PreferenceActivity implements Serv
 		protected static void saveSelectedLocationProfile( final Context context, final int id, final LocationType type ) {
 			Log.v( TAG, "saveSelectedLocationProfile : enter" );
 
-			MythtvDatabaseManager db = new MythtvDatabaseManager( context );
 			switch( type ) {
 			case HOME :
 				Log.v( TAG, "saveSelectedLocationProfile : setting home selected location profile" );
 
-				db.setSelectedHomeLocationProfile( id );
+				mLocationProfileDaoHelper.setSelectedLocationProfile( (long) id );
 				break;
 			case AWAY :
 				Log.v( TAG, "saveSelectedLocationProfile : setting away selected location profile" );
 
-				db.setSelectedAwayLocationProfile( id );
+				mLocationProfileDaoHelper.setSelectedLocationProfile( (long) id );
 				break;
 			} 
 			
@@ -768,17 +768,16 @@ public class MythtvPreferenceActivity extends PreferenceActivity implements Serv
 		protected static void saveSelectedPlaybackProfile( final Context context, final int id, final LocationType type ) {
 			Log.v( TAG, "saveSelectedPlaybackProfile : enter" );
 
-			MythtvDatabaseManager db = new MythtvDatabaseManager( context );
 			switch( type ) {
 			case HOME :
 				Log.v( TAG, "saveSelectedPlaybackProfile : setting home selected playback profile" );
 
-				db.setSelectedHomePlaybackProfile( id );
+				mPlaybackProfileDaoHelper.setSelectedPlaybackProfile( (long) id );
 				break;
 			case AWAY :
 				Log.v( TAG, "saveSelectedPlaybackProfile : setting away selected playback profile" );
 
-				db.setSelectedAwayPlaybackProfile( id );
+				mPlaybackProfileDaoHelper.setSelectedPlaybackProfile( (long) id );
 				break;
 			} 
 			
@@ -806,8 +805,7 @@ public class MythtvPreferenceActivity extends PreferenceActivity implements Serv
 				public void onClick( DialogInterface dialog, int which ) {
 
 					// delete  location
-					MythtvDatabaseManager db = new MythtvDatabaseManager( context );
-					db.deleteLocationProfile( ids[ which ] );
+					mLocationProfileDaoHelper.delete( (long) ids[ which ] );
 					
 					listener.defaultLocationProfileChanged();
 				}

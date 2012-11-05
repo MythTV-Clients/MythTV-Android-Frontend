@@ -49,12 +49,7 @@ public class DvrDashboardFragment extends AbstractMythFragment {
 			public void onClick( View view ) {
 				Log.v( TAG, "recordings.onClick : enter" );
 
-//				if( getMainApplication().isDatabaseLoading() ) {
-//		    		Toast toast = Toast.makeText( getActivity(), getActivity().getString( R.string.data_loading ), Toast.LENGTH_LONG );
-//		    		toast.show();
-//				} else {
-					startActivity( new Intent( getActivity(), RecordingsActivity.class ) );
-//				}
+				startActivity( new Intent( getActivity(), RecordingsActivity.class ) );
 				
 				Log.v( TAG, "recordings.onClick : exit" );
 			}
@@ -65,12 +60,7 @@ public class DvrDashboardFragment extends AbstractMythFragment {
 			public void onClick( View view ) {
 				Log.v( TAG, "upcoming.onClick : enter" );
 
-//				if( getMainApplication().isDatabaseLoading() ) {
-//		    		Toast toast = Toast.makeText( getActivity(), getActivity().getString( R.string.data_loading ), Toast.LENGTH_LONG );
-//		    		toast.show();
-//				} else {
-					startActivity( new Intent( getActivity(), UpcomingActivity.class ) );
-//				}
+				startActivity( new Intent( getActivity(), UpcomingActivity.class ) );
 
 				Log.v( TAG, "upcoming.onClick : exit" );
 			}
@@ -80,12 +70,7 @@ public class DvrDashboardFragment extends AbstractMythFragment {
 			public void onClick( View view ) {
 				Log.v( TAG, "guide.onClick : enter" );
 
-//				if( getMainApplication().isDatabaseLoading() ) {
-//		    		Toast toast = Toast.makeText( getActivity(), getActivity().getString( R.string.data_loading ), Toast.LENGTH_LONG );
-//		    		toast.show();
-//				} else {
-					startActivity( new Intent( getActivity(), GuideActivity.class ) );
-//				}
+				startActivity( new Intent( getActivity(), GuideActivity.class ) );
 
 				Log.v( TAG, "guide.onClick : exit" );
 			}
@@ -95,12 +80,7 @@ public class DvrDashboardFragment extends AbstractMythFragment {
 			public void onClick( View view ) {
 				Log.v( TAG, "recording_rules.onClick : enter" );
 
-//				if( getMainApplication().isDatabaseLoading() ) {
-//		    		Toast toast = Toast.makeText( getActivity(), getActivity().getString( R.string.data_loading ), Toast.LENGTH_LONG );
-//		    		toast.show();
-//				} else {
-					startActivity( new Intent( getActivity(), RecordingRulesActivity.class ) );
-//				}
+				startActivity( new Intent( getActivity(), RecordingRulesActivity.class ) );
 
 				Log.v( TAG, "recording_rules.onClick : exit" );
 			}

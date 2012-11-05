@@ -75,22 +75,6 @@ public class UpgradeCleanupService extends MythtvService {
     		
         }
 		
-        if ( intent.getAction().equals( ACTION_PROGRAMS_CLEANUP ) ) {
-    		Log.i( TAG, "onHandleIntent : PROGRAMS CLEANUP action selected" );
-
-    		try {
-        		boolean performCleanup = db.fetchCleanupPrograms();
-        		if( performCleanup ) {
-        			result = cleanupPrograms();
-        		}
-    		} catch( IOException e ) {
-    			Log.e( TAG, "onHandleIntent : error PROGRAMS CLEANUP", e );
-    			
-    			result = e.getLocalizedMessage();
-    		}
-    		
-        }
-
 		Intent completeIntent = new Intent( ACTION_COMPLETE );
 		completeIntent.putExtra( EXTRA_COMPLETE, result );
 		sendBroadcast( completeIntent );
@@ -120,24 +104,4 @@ public class UpgradeCleanupService extends MythtvService {
 		return "Upgrade Program Guide Cleanup Service Finished";
 	}
 
-	private String cleanupPrograms() throws IOException {
-		Log.v( TAG, "cleanupPrograms : enter" );
-
-		Intent progressIntent = new Intent( ACTION_PROGRESS );
-		progressIntent.putExtra( EXTRA_PROGESS, "Upgrade Program Cleanup Service Started" );
-		sendBroadcast( progressIntent );
-
-		File programCache = mFileHelper.getProgramDataDirectory();
-		if( null != programCache && programCache.exists() ) {
-			Log.v( TAG, "cleanupPrograms : found programs cache" );
-
-			FileUtils.cleanDirectory( programCache );
-		}
-
-		db.updateCleanup( "CLEANUP_PROGRAMS" );
-		
-		Log.v( TAG, "cleanupPrograms : exit" );
-		return "Upgrade Programs Cleanup Service Finished";
-	}
-	
 }

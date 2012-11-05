@@ -22,9 +22,7 @@ import static android.provider.BaseColumns._ID;
 
 import org.joda.time.DateTime;
 import org.mythtv.db.channel.ChannelConstants;
-import org.mythtv.db.content.ArtworkConstants;
 import org.mythtv.db.dvr.ProgramConstants;
-import org.mythtv.db.dvr.RecordingConstants;
 import org.mythtv.db.http.EtagConstants;
 import org.mythtv.db.preferences.LocationProfileConstants;
 import org.mythtv.db.preferences.PlaybackProfileConstants;
@@ -47,7 +45,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	private static final String TAG = DatabaseHelper.class.getSimpleName();
 	
 	private static final String DATABASE_NAME = "mythtvdb";
-	private static final int DATABASE_VERSION = 56;
+	private static final int DATABASE_VERSION = 57;
 
 	public DatabaseHelper( Context context ) {
 		super( context, DATABASE_NAME, null, DATABASE_VERSION );
@@ -94,8 +92,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	public void onUpgrade( SQLiteDatabase db, int oldVersion, int newVersion ) {
 		Log.v( TAG, "onUpgrade : enter" );
 
-		if( oldVersion < 56 ) {
-			Log.v( TAG, "onUpgrade : upgrading to db version 56" );
+		if( oldVersion < 57 ) {
+			Log.v( TAG, "onUpgrade : upgrading to db version 57" );
 
 			onCreate( db );
 
@@ -134,11 +132,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		values.put( "VALUE", "FALSE" );
 		db.insert( "CLEANUP", null, values );
 
-		values = new ContentValues();
-		values.put( "KEY", "CLEANUP_PROGRAMS" );
-		values.put( "VALUE", "FALSE" );
-		db.insert( "CLEANUP", null, values );
-		
 		Log.v( TAG, "createCleanup : exit" );
 	}
 
@@ -208,7 +201,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		
 		StringBuilder sqlBuilder = new StringBuilder();
 		sqlBuilder.append( "CREATE TABLE " + LocationProfileConstants.TABLE_NAME + " (" );
-		sqlBuilder.append( _ID ).append( " " ).append( LocationProfileConstants.FIELD_ID_DATA_TYPE ).append( " " ).append( LocationProfileConstants.FIELD_ID_PRIMARY_KEY ).append( ", " );
+		sqlBuilder.append( LocationProfileConstants._ID ).append( " " ).append( LocationProfileConstants.FIELD_ID_DATA_TYPE ).append( " " ).append( LocationProfileConstants.FIELD_ID_PRIMARY_KEY ).append( ", " );
 		sqlBuilder.append( LocationProfileConstants.FIELD_TYPE ).append( " " ).append( LocationProfileConstants.FIELD_TYPE_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( LocationProfileConstants.FIELD_NAME ).append( " " ).append( LocationProfileConstants.FIELD_NAME_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( LocationProfileConstants.FIELD_URL ).append( " " ).append( LocationProfileConstants.FIELD_URL_DATA_TYPE ).append( ", " );
@@ -222,14 +215,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		db.execSQL( sql );
 
 		Log.v( TAG, "createLocationProfiles : exit" );
-	}
-	
-	private void alterLocationProfiles( SQLiteDatabase db ) {
-		Log.v( TAG, "alterLocationProfiles : enter" );
-		
-		db.execSQL( "ALTER TABLE " + LocationProfileConstants.TABLE_NAME + " ADD COLUMN " + LocationProfileConstants.FIELD_CONNECTED + " " + LocationProfileConstants.FIELD_CONNECTED_DATA_TYPE );
-		
-		Log.v( TAG, "alterLocationProfiles : exit" );
 	}
 	
 	private void dropLocationProfiles( SQLiteDatabase db ) {
@@ -474,44 +459,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		Log.v( TAG, "dropProgram : exit" );
 	}
 	
-//	private void createRecording( SQLiteDatabase db ) {
-//		Log.v( TAG, "createRecording : enter" );
-//		
-//		StringBuilder sqlBuilder = new StringBuilder();
-//		sqlBuilder.append( "CREATE TABLE " + RecordingConstants.TABLE_NAME + " (" );
-//		sqlBuilder.append( _ID ).append( " " ).append( RecordingConstants.FIELD_ID_DATA_TYPE ).append( " " ).append( RecordingConstants.FIELD_ID_PRIMARY_KEY ).append( ", " );
-//		sqlBuilder.append( RecordingConstants.FIELD_STATUS ).append( " " ).append( RecordingConstants.FIELD_STATUS_DATA_TYPE ).append( ", " );
-//		sqlBuilder.append( RecordingConstants.FIELD_PRIORITY ).append( " " ).append( RecordingConstants.FIELD_PRIORITY_DATA_TYPE ).append( ", " );
-//		sqlBuilder.append( RecordingConstants.FIELD_START_TS ).append( " " ).append( RecordingConstants.FIELD_START_TS_DATA_TYPE ).append( ", " );
-//		sqlBuilder.append( RecordingConstants.FIELD_END_TS ).append( " " ).append( RecordingConstants.FIELD_END_TS_DATA_TYPE ).append( ", " );
-//		sqlBuilder.append( RecordingConstants.FIELD_RECORD_ID ).append( " " ).append( RecordingConstants.FIELD_RECORD_ID_DATA_TYPE ).append( ", " );
-//		sqlBuilder.append( RecordingConstants.FIELD_REC_GROUP ).append( " " ).append( RecordingConstants.FIELD_REC_GROUP_DATA_TYPE ).append( ", " );
-//		sqlBuilder.append( RecordingConstants.FIELD_PLAY_GROUP ).append( " " ).append( RecordingConstants.FIELD_PLAY_GROUP_DATA_TYPE ).append( ", " );
-//		sqlBuilder.append( RecordingConstants.FIELD_STORAGE_GROUP ).append( " " ).append( RecordingConstants.FIELD_STORAGE_GROUP_DATA_TYPE ).append( ", " );
-//		sqlBuilder.append( RecordingConstants.FIELD_REC_TYPE ).append( " " ).append( RecordingConstants.FIELD_REC_TYPE_DATA_TYPE ).append( ", " );
-//		sqlBuilder.append( RecordingConstants.FIELD_DUP_IN_TYPE ).append( " " ).append( RecordingConstants.FIELD_DUP_IN_TYPE_DATA_TYPE ).append( ", " );
-//		sqlBuilder.append( RecordingConstants.FIELD_DUP_METHOD ).append( " " ).append( RecordingConstants.FIELD_DUP_METHOD_DATA_TYPE ).append( ", " );
-//		sqlBuilder.append( RecordingConstants.FIELD_ENCODER_ID ).append( " " ).append( RecordingConstants.FIELD_ENCODER_ID_DATA_TYPE ).append( ", " );
-//		sqlBuilder.append( RecordingConstants.FIELD_PROFILE ).append( " " ).append( RecordingConstants.FIELD_PROFILE_DATA_TYPE ).append( ", " );
-//		sqlBuilder.append( RecordingConstants.FIELD_PROGRAM_ID ).append( " " ).append( RecordingConstants.FIELD_PROGRAM_ID_DATA_TYPE );
-//		sqlBuilder.append( ");" );
-//		String sql = sqlBuilder.toString();
-//		if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
-//			Log.v( TAG, "createRecording : sql=" + sql );
-//		}
-//		db.execSQL( sql );
-//	
-//		Log.v( TAG, "createRecording : exit" );
-//	}
-
-	private void dropRecording( SQLiteDatabase db ) {
-		Log.v( TAG, "dropRecording : enter" );
-		
-		db.execSQL( "DROP TABLE IF EXISTS " + RecordingConstants.TABLE_NAME );
-		
-		Log.v( TAG, "dropRecording : exit" );
-	}
-	
 	private void createChannel( SQLiteDatabase db ) {
 		Log.v( TAG, "createChannel : enter" );
 		
@@ -560,60 +507,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		db.execSQL( "DROP TABLE IF EXISTS " + ChannelConstants.TABLE_NAME );
 		
 		Log.v( TAG, "dropChannel : exit" );
-	}
-	
-//	private void createArtwork( SQLiteDatabase db ) {
-//		Log.v( TAG, "createArtwork : enter" );
-//		
-//		StringBuilder sqlBuilder = new StringBuilder();
-//		sqlBuilder.append( "CREATE TABLE " + ArtworkConstants.TABLE_NAME + " (" );
-//		sqlBuilder.append( _ID ).append( " " ).append( ArtworkConstants.FIELD_ID_DATA_TYPE ).append( " " ).append( ArtworkConstants.FIELD_ID_PRIMARY_KEY ).append( ", " );
-//		sqlBuilder.append( ArtworkConstants.FIELD_URL ).append( " " ).append( ArtworkConstants.FIELD_URL_DATA_TYPE ).append( ", " );
-//		sqlBuilder.append( ArtworkConstants.FIELD_FILE_NAME ).append( " " ).append( ArtworkConstants.FIELD_FILE_NAME_DATA_TYPE ).append( ", " );
-//		sqlBuilder.append( ArtworkConstants.FIELD_STORAGE_GROUP ).append( " " ).append( ArtworkConstants.FIELD_STORAGE_GROUP_DATA_TYPE ).append( ", " );
-//		sqlBuilder.append( ArtworkConstants.FIELD_TYPE ).append( " " ).append( ArtworkConstants.FIELD_TYPE_DATA_TYPE );
-//		sqlBuilder.append( ");" );
-//		String sql = sqlBuilder.toString();
-//		if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
-//			Log.v( TAG, "createArtwork : sql=" + sql );
-//		}
-//		db.execSQL( sql );
-//	
-//		Log.v( TAG, "createArtwork : exit" );
-//	}
-	
-	private void dropArtwork( SQLiteDatabase db ) {
-		Log.v( TAG, "dropArtwork : enter" );
-		
-		db.execSQL( "DROP TABLE IF EXISTS " + ArtworkConstants.TABLE_NAME );
-		
-		Log.v( TAG, "dropArtwork : exit" );
-	}
-	
-//	private void createProgramArtworks( SQLiteDatabase db ) {
-//		Log.v( TAG, "createProgramArtworks : enter" );
-//		
-//		StringBuilder sqlBuilder = new StringBuilder();
-//		sqlBuilder.append( "CREATE TABLE PROGRAM_ARTWORKS (" );
-//		sqlBuilder.append( "PROGRAM_ID INTEGER, " );
-//		sqlBuilder.append( "ARTWORK_ID INTEGER, " );
-//		sqlBuilder.append( "PRIMARY KEY( PROGRAM_ID, ARTWORK_ID ) " );
-//		sqlBuilder.append( ");" );
-//		String sql = sqlBuilder.toString();
-//		if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
-//			Log.v( TAG, "createProgramArtworks : sql=" + sql );
-//		}
-//		db.execSQL( sql );
-//	
-//		Log.v( TAG, "createProgramArtworks : exit" );
-//	}
-	
-	private void dropProgramArtworks( SQLiteDatabase db ) {
-		Log.v( TAG, "dropProgramArtworks : enter" );
-		
-		db.execSQL( "DROP TABLE IF EXISTS PROGRAM_ARTWORKS" );
-		
-		Log.v( TAG, "dropProgramArtworks : exit" );
 	}
 	
 }
