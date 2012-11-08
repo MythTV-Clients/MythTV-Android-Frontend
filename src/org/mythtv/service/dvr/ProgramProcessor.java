@@ -81,19 +81,20 @@ public abstract class ProgramProcessor extends AbstractMythtvProcessor {
 		values.put( ProgramConstants.FIELD_EPISODE, null != program.getEpisode() ? program.getEpisode() : "" );
 		values.put( ProgramConstants.FIELD_CHANNEL_ID, null != program.getChannelInfo() ? program.getChannelInfo().getChannelId() : "" );
 		values.put( ProgramConstants.FIELD_CHANNEL_NUMBER, null != program.getChannelInfo() ? program.getChannelInfo().getChannelNumber() : "" );
-		values.put( ProgramConstants.FIELD_STATUS, null != program.getChannelInfo() ? program.getRecording().getStatus() : -1 );
-		values.put( ProgramConstants.FIELD_PRIORITY, null != program.getChannelInfo() ? program.getRecording().getStatus() : -1 );
-		values.put( ProgramConstants.FIELD_START_TS, null != program.getChannelInfo() ? program.getRecording().getStartTimestamp().getMillis() : -1 );
-		values.put( ProgramConstants.FIELD_END_TS, null != program.getChannelInfo() ? program.getRecording().getEndTimestamp().getMillis() : -1 );
-		values.put( ProgramConstants.FIELD_RECORD_ID, null != program.getChannelInfo() ? program.getRecording().getRecordid() : -1 );
-		values.put( ProgramConstants.FIELD_REC_GROUP, null != program.getChannelInfo() ? program.getRecording().getRecordingGroup() : "" );
-		values.put( ProgramConstants.FIELD_PLAY_GROUP, null != program.getChannelInfo() ? program.getRecording().getPlayGroup() : "" );
-		values.put( ProgramConstants.FIELD_STORAGE_GROUP, null != program.getChannelInfo() ? program.getRecording().getStorageGroup() : "" );
-		values.put( ProgramConstants.FIELD_REC_TYPE, null != program.getChannelInfo() ? program.getRecording().getRecordingType() : -1 );
-		values.put( ProgramConstants.FIELD_DUP_IN_TYPE, null != program.getChannelInfo() ? program.getRecording().getDuplicateInType() : -1 );
-		values.put( ProgramConstants.FIELD_DUP_METHOD, null != program.getChannelInfo() ? program.getRecording().getDuplicateMethod() : -1 );
-		values.put( ProgramConstants.FIELD_ENCODER_ID, null != program.getChannelInfo() ? program.getRecording().getEncoderId() : -1 );
-		values.put( ProgramConstants.FIELD_PROFILE, null != program.getChannelInfo() ? program.getRecording().getProfile() : "" );
+		values.put( ProgramConstants.FIELD_CHANNEL_CALLSIGN, null != program.getChannelInfo() ? program.getChannelInfo().getCallSign() : "" );
+		values.put( ProgramConstants.FIELD_STATUS, null != program.getRecording() ? program.getRecording().getStatus() : -1 );
+		values.put( ProgramConstants.FIELD_PRIORITY, null != program.getRecording() ? program.getRecording().getPriority() : -1 );
+		values.put( ProgramConstants.FIELD_START_TS, null != program.getRecording() && null != program.getRecording().getStartTimestamp() ? program.getRecording().getStartTimestamp().getMillis() : -1 );
+		values.put( ProgramConstants.FIELD_END_TS, null != program.getRecording() && null != program.getRecording().getEndTimestamp() ? program.getRecording().getEndTimestamp().getMillis() : -1 );
+		values.put( ProgramConstants.FIELD_RECORD_ID, null != program.getRecording() ? program.getRecording().getRecordid() : -1 );
+		values.put( ProgramConstants.FIELD_REC_GROUP, null != program.getRecording() ? program.getRecording().getRecordingGroup() : "" );
+		values.put( ProgramConstants.FIELD_PLAY_GROUP, null != program.getRecording() ? program.getRecording().getPlayGroup() : "" );
+		values.put( ProgramConstants.FIELD_STORAGE_GROUP, null != program.getRecording() ? program.getRecording().getStorageGroup() : "" );
+		values.put( ProgramConstants.FIELD_REC_TYPE, null != program.getRecording() ? program.getRecording().getRecordingType() : -1 );
+		values.put( ProgramConstants.FIELD_DUP_IN_TYPE, null != program.getRecording() ? program.getRecording().getDuplicateInType() : -1 );
+		values.put( ProgramConstants.FIELD_DUP_METHOD, null != program.getRecording() ? program.getRecording().getDuplicateMethod() : -1 );
+		values.put( ProgramConstants.FIELD_ENCODER_ID, null != program.getRecording() ? program.getRecording().getEncoderId() : -1 );
+		values.put( ProgramConstants.FIELD_PROFILE, null != program.getRecording() ? program.getRecording().getProfile() : "" );
 		return values;
 	}
 

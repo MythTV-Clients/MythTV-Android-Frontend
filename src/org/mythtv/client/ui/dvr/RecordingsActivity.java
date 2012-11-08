@@ -20,6 +20,9 @@ package org.mythtv.client.ui.dvr;
 
 import org.mythtv.R;
 import org.mythtv.db.dvr.ProgramConstants;
+import org.mythtv.service.util.FileHelper;
+import org.mythtv.service.util.image.ImageCache;
+import org.mythtv.service.util.image.ImageFetcher;
 
 import android.content.ContentUris;
 import android.content.Intent;
@@ -27,6 +30,7 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.util.DisplayMetrics;
 import android.util.Log;
 
 /**
@@ -37,6 +41,9 @@ public class RecordingsActivity extends AbstractDvrActivity implements Recording
 
 	private static final String TAG = RecordingsActivity.class.getSimpleName();
 	private static final String PROGRAM_GROUP_LIST_TAG = "PROGRAM_GROUP_LIST_TAG";
+	
+	private ImageFetcher mImageFetcher;
+	private FileHelper mFileHelper;
 	
 	private boolean mUseMultiplePanes;
 
@@ -52,12 +59,29 @@ public class RecordingsActivity extends AbstractDvrActivity implements Recording
 
 		setContentView( R.layout.activity_dvr_recordings );
 
-		recordingsFragment = (RecordingsFragment) getSupportFragmentManager().findFragmentById( R.id.fragment_dvr_program_groups );
+		mFileHelper = new FileHelper( this );
+		
+        // Fetch screen height and width, to use as our max size when loading images as this activity runs full screen
+        final DisplayMetrics displayMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics( displayMetrics );
+        
+        final int height = displayMetrics.heightPixels;
+        final int width = displayMetrics.widthPixels;
+        Log.v( TAG, "onCreate : device hxw - " + height + " x " + width );
+        
+        int longest = width; //( height < width ? height : width );
+        
+        ImageCache.ImageCacheParams cacheParams = new ImageCache.ImageCacheParams( mFileHelper.getProgramRecordedDataDirectory() );
+        cacheParams.setMemCacheSizePercent( this, 0.25f ); // Set memory cache to 25% of mem class
+
+        recordingsFragment = (RecordingsFragment) getSupportFragmentManager().findFragmentById( R.id.fragment_dvr_program_groups );
 		recordingsFragment.setOnProgramGroupListener( this );
 
 		mUseMultiplePanes = ( null != findViewById( R.id.fragment_dvr_program_group ) );
 
 		if( mUseMultiplePanes ) {
+			
+			longest = width / 3;
 			
 			programGroupFragment = (ProgramGroupFragment) getSupportFragmentManager().findFragmentById( R.id.fragment_dvr_program_group );
 			programGroupFragment.setOnEpisodeSelectedListener(this);
@@ -72,10 +96,58 @@ public class RecordingsActivity extends AbstractDvrActivity implements Recording
 			}
 		}
 		
-		Log.v( TAG, "onCreate : exit" );
+        mImageFetcher = new ImageFetcher( this, longest );
+        mImageFetcher.addImageCache( getSupportFragmentManager(), cacheParams );
+        mImageFetcher.setImageFadeIn( false );
+
+        Log.v( TAG, "onCreate : exit" );
 	}
 
-	public void onProgramGroupSelected( Long recordedId ) {
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.FragmentActivity#onResume()
+	 */
+	@Override
+	protected void onResume() {
+		Log.v( TAG, "onResume : enter" );
+		super.onResume();
+		
+        mImageFetcher.setExitTasksEarly( false );
+
+		Log.v( TAG, "onResume : exit" );
+	}
+
+    /* (non-Javadoc)
+     * @see android.support.v4.app.FragmentActivity#onPause()
+     */
+    @Override
+    protected void onPause() {
+		Log.v( TAG, "onPause : enter" );
+        super.onPause();
+
+        mImageFetcher.setExitTasksEarly(true);
+        mImageFetcher.flushCache();
+
+        Log.v( TAG, "onPause : enter" );
+    }
+
+    /* (non-Javadoc)
+     * @see android.support.v4.app.FragmentActivity#onDestroy()
+     */
+    @Override
+    protected void onDestroy() {
+		Log.v( TAG, "onDestroy : enter" );
+		super.onDestroy();
+        
+		mImageFetcher.closeCache();
+
+        Log.v( TAG, "onDestroy : exit" );
+    }
+
+    public ImageFetcher getImageFetcher() {
+        return mImageFetcher;
+    }
+
+    public void onProgramGroupSelected( Long recordedId ) {
 		Log.d( TAG, "onProgramGroupSelected : enter" );
 		
 		String programGroup = "";

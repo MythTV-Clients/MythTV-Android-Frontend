@@ -131,8 +131,8 @@ public class RecordedDownloadService extends MythtvService {
     				process( programs );	
     			}
 
-    			cleanupRecordedArtwork();
-				downloadArtwork();
+//    			cleanupRecordedArtwork();
+//				downloadArtwork();
 				
 			} catch( JsonGenerationException e ) {
 				Log.e( TAG, "onHandleIntent : error generating json", e );

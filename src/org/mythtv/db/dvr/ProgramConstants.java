@@ -134,6 +134,9 @@ public class ProgramConstants implements BaseColumns {
 	public static final String FIELD_CHANNEL_NUMBER = "CHANNEL_NUMBER";
 	public static final String FIELD_CHANNEL_NUMBER_DATA_TYPE = "TEXT";
 
+	public static final String FIELD_CHANNEL_CALLSIGN = "CHANNEL_CALLSIGN";
+	public static final String FIELD_CHANNEL_CALLSIGN_DATA_TYPE = "TEXT";
+
 	public static final String FIELD_STATUS = "STATUS";
 	public static final String FIELD_STATUS_DATA_TYPE = "INTEGER";
 
@@ -205,6 +208,7 @@ public class ProgramConstants implements BaseColumns {
 		insert.append( FIELD_EPISODE ).append( "," );
 		insert.append( FIELD_CHANNEL_ID ).append( ", " );
 		insert.append( FIELD_CHANNEL_NUMBER ).append( ", " );
+		insert.append( FIELD_CHANNEL_CALLSIGN ).append( ", " );
 		insert.append( FIELD_STATUS ).append( ", " );
 		insert.append( FIELD_PRIORITY ).append( ", " );
 		insert.append( FIELD_START_TS ).append( ", " );
@@ -222,7 +226,7 @@ public class ProgramConstants implements BaseColumns {
 		
 		StringBuilder values = new StringBuilder();
 		values.append( " ) " );
-		values.append( "VALUES( ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? )" );
+		values.append( "VALUES( ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? )" );
 		
 		StringBuilder insertProgram = new StringBuilder();
 		insertProgram.append( "INSERT INTO " ).append( TABLE_NAME_PROGRAM ).append( " ( " );
@@ -271,6 +275,7 @@ public class ProgramConstants implements BaseColumns {
 		update.append( FIELD_EPISODE ).append( " = ?, " );
 		update.append( FIELD_CHANNEL_ID ).append( " = ?" );
 		update.append( FIELD_CHANNEL_NUMBER ).append( " = ?" );
+		update.append( FIELD_CHANNEL_CALLSIGN ).append( " = ?" );
 		update.append( FIELD_STATUS ).append( " = ?" );
 		update.append( FIELD_PRIORITY ).append( " = ?" );
 		update.append( FIELD_START_TS ).append( " = ?" );

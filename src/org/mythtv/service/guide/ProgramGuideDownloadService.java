@@ -202,7 +202,7 @@ public class ProgramGuideDownloadService extends MythtvService {
 		Log.i( TAG, "download : starting download for " + DateUtils.dateTimeFormatter.print( start ) + ", end time=" + DateUtils.dateTimeFormatter.print( end ) );
 
 		ETagInfo etag = ETagInfo.createEmptyETag();
-		ResponseEntity<ProgramGuideWrapper> responseEntity = mMainApplication.getMythServicesApi().guideOperations().getProgramGuide( start, end, 1, -1, true, etag );
+		ResponseEntity<ProgramGuideWrapper> responseEntity = mMainApplication.getMythServicesApi().guideOperations().getProgramGuide( start, end, 1, -1, false, etag );
 
 		try {
 
@@ -224,22 +224,22 @@ public class ProgramGuideDownloadService extends MythtvService {
 	private boolean process( File file, ProgramGuide programGuide ) throws JsonGenerationException, JsonMappingException, IOException {
 		Log.v( TAG, "process : enter" );
 		
-		List<String> callsigns = new ArrayList<String>();
-		List<ChannelInfo> channels = new ArrayList<ChannelInfo>();
-		for( ChannelInfo channel : programGuide.getChannels() ) {
-			if( channel.isVisable() ) {
-				if( !callsigns.contains( channel.getCallSign() ) ) {
-					channels.add( channel );
-
-					callsigns.add( channel.getCallSign() );
-				}
-			}
-		}
-		if( null != channels && !channels.isEmpty() ) {
-			Collections.sort( channels );
-		}
-
-		programGuide.setChannels( channels );
+//		List<String> callsigns = new ArrayList<String>();
+//		List<ChannelInfo> channels = new ArrayList<ChannelInfo>();
+//		for( ChannelInfo channel : programGuide.getChannels() ) {
+//			if( channel.isVisable() ) {
+//				if( !callsigns.contains( channel.getCallSign() ) ) {
+//					channels.add( channel );
+//
+//					callsigns.add( channel.getCallSign() );
+//				}
+//			}
+//		}
+//		if( null != channels && !channels.isEmpty() ) {
+//			Collections.sort( channels );
+//		}
+//
+//		programGuide.setChannels( channels );
 
 		mMainApplication.getObjectMapper().writeValue( file, programGuide );
 		

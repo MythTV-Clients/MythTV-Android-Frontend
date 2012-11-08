@@ -28,6 +28,7 @@ import org.mythtv.service.dvr.BannerDownloadService;
 import org.mythtv.service.dvr.RecordedDownloadService;
 import org.mythtv.service.dvr.cache.BannerLruMemoryCache;
 import org.mythtv.service.util.RunningServiceHelper;
+import org.mythtv.service.util.image.ImageFetcher;
 import org.mythtv.services.api.dvr.impl.DvrTemplate.Endpoint;
 
 import android.annotation.TargetApi;
@@ -36,7 +37,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
-import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -51,6 +51,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -69,12 +71,13 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 	private ProgramGroupCursorAdapter adapter;
 	
 	private RecordedDownloadReceiver recordedDownloadReceiver = new RecordedDownloadReceiver();
-	private BannerDownloadReceiver bannerDownloadReceiver = new BannerDownloadReceiver();
+//	private BannerDownloadReceiver bannerDownloadReceiver = new BannerDownloadReceiver();
 
 	private static ProgramHelper mProgramHelper;
 	private RunningServiceHelper mRunningServiceHelper;
-
-	private BannerLruMemoryCache imageCache;
+	private ImageFetcher mImageFetcher;
+	
+//	private BannerLruMemoryCache imageCache;
 
 	/* (non-Javadoc)
 	 * @see android.support.v4.app.LoaderManager.LoaderCallbacks#onCreateLoader(int, android.os.Bundle)
@@ -136,8 +139,12 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 
 		mProgramHelper = ProgramHelper.createInstance( getActivity() );
 		mRunningServiceHelper = new RunningServiceHelper( getActivity() );
-		
-		imageCache = new BannerLruMemoryCache( getActivity() );
+	
+        if( RecordingsActivity.class.isInstance( getActivity() ) ) {
+            mImageFetcher = ( (RecordingsActivity) getActivity() ).getImageFetcher();
+        }
+
+//		imageCache = new BannerLruMemoryCache( getActivity() );
 
 		setHasOptionsMenu( true );
 		setRetainInstance( true );
@@ -147,7 +154,26 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 	    setListAdapter( adapter );
 
 		getLoaderManager().initLoader( 0, null, this );
-		 
+		
+		getListView().setOnScrollListener( new AbsListView.OnScrollListener() {
+            
+			@Override
+            public void onScrollStateChanged( AbsListView absListView, int scrollState ) {
+
+				// Pause fetcher to ensure smoother scrolling when flinging
+                if( scrollState == AbsListView.OnScrollListener.SCROLL_STATE_FLING ) {
+                    mImageFetcher.setPauseWork( true );
+                } else {
+                    mImageFetcher.setPauseWork( false );
+                }
+                
+            }
+
+            @Override
+            public void onScroll( AbsListView absListView, int firstVisibleItem, int visibleItemCount, int totalItemCount ) { }
+            
+        });
+		
 		Log.v( TAG, "onActivityCreated : exit" );
 	}
 
@@ -164,9 +190,9 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 		recordedDownloadFilter.addAction( RecordedDownloadService.ACTION_COMPLETE );
         getActivity().registerReceiver( recordedDownloadReceiver, recordedDownloadFilter );
 
-		IntentFilter bannerDownloadFilter = new IntentFilter( BannerDownloadService.ACTION_DOWNLOAD );
-		bannerDownloadFilter.addAction( BannerDownloadService.ACTION_COMPLETE );
-        getActivity().registerReceiver( bannerDownloadReceiver, bannerDownloadFilter );
+//		IntentFilter bannerDownloadFilter = new IntentFilter( BannerDownloadService.ACTION_DOWNLOAD );
+//		bannerDownloadFilter.addAction( BannerDownloadService.ACTION_COMPLETE );
+//        getActivity().registerReceiver( bannerDownloadReceiver, bannerDownloadFilter );
 
 		Log.v( TAG, "onStart : enter" );
 	}
@@ -211,20 +237,20 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 		if( null != recordedDownloadReceiver ) {
 			try {
 				getActivity().unregisterReceiver( recordedDownloadReceiver );
-				recordedDownloadReceiver = null;
+//				recordedDownloadReceiver = null;
 			} catch( IllegalArgumentException e ) {
 				Log.e( TAG, e.getLocalizedMessage(), e );
 			}
 		}
 
-		if( null != bannerDownloadReceiver ) {
-			try {
-				getActivity().unregisterReceiver( bannerDownloadReceiver );
-				bannerDownloadReceiver = null;
-			} catch( IllegalArgumentException e ) {
-				Log.e( TAG, e.getLocalizedMessage(), e );
-			}
-		}
+//		if( null != bannerDownloadReceiver ) {
+//			try {
+//				getActivity().unregisterReceiver( bannerDownloadReceiver );
+//				bannerDownloadReceiver = null;
+//			} catch( IllegalArgumentException e ) {
+//				Log.e( TAG, e.getLocalizedMessage(), e );
+//			}
+//		}
 
 		Log.v( TAG, "onStop : exit" );
 	}
@@ -335,6 +361,7 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 			refHolder.programGroupDetail = (LinearLayout) view.findViewById( R.id.program_group_detail );
 			refHolder.category = (View) view.findViewById( R.id.program_group_category );
 			refHolder.programGroup = (TextView) view.findViewById( R.id.program_group_row );
+			refHolder.programGroupBanner = (ImageView) view.findViewById( R.id.program_group_row_banner );
 			
 			view.setTag( refHolder );
 			
@@ -345,12 +372,13 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 		/* (non-Javadoc)
 		 * @see android.support.v4.widget.CursorAdapter#bindView(android.view.View, android.content.Context, android.database.Cursor)
 		 */
-		@SuppressWarnings( "deprecation" )
+//		@SuppressWarnings( "deprecation" )
 		@Override
 		public void bindView( View view, Context context, Cursor cursor ) {
 
 	        String title = cursor.getString( cursor.getColumnIndexOrThrow( ProgramConstants.FIELD_TITLE ) );
 	        String category = cursor.getString( cursor.getColumnIndexOrThrow( ProgramConstants.FIELD_CATEGORY ) );
+	        String inetref = cursor.getString( cursor.getColumnIndexOrThrow( ProgramConstants.FIELD_INETREF ) );
 	        //Log.v( TAG, "bindView : id=" + id + ",title=" + title + ", category=" + category );
 
 	        ViewHolder mHolder = (ViewHolder) view.getTag();
@@ -358,15 +386,16 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 			mHolder.programGroup.setText( title );
 			mHolder.category.setBackgroundColor( mProgramHelper.getCategoryColor( category ) );
 
-			BitmapDrawable banner = imageCache.get( title );
-			if( null != banner ) {
-				mHolder.programGroupDetail.setBackgroundDrawable( banner );
-				mHolder.programGroup.setVisibility( View.INVISIBLE );
-			} else {
-				mHolder.programGroupDetail.setBackgroundDrawable( null );
-				mHolder.programGroup.setVisibility( View.VISIBLE );
-			}
+//			BitmapDrawable banner = imageCache.get( title );
+//			if( null != banner ) {
+//				mHolder.programGroupDetail.setBackgroundDrawable( banner );
+//				mHolder.programGroup.setVisibility( View.INVISIBLE );
+//			} else {
+//				mHolder.programGroupDetail.setBackgroundDrawable( null );
+//				mHolder.programGroup.setVisibility( View.VISIBLE );
+//			}
 			
+            mImageFetcher.loadImage( inetref, "Banner", mHolder.programGroupBanner, mHolder.programGroup );
 		}
 
 	}
@@ -376,6 +405,7 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 		LinearLayout programGroupDetail;
 		View category;
 		TextView programGroup;
+		ImageView programGroupBanner;
 		
 		ViewHolder() { }
 
@@ -411,23 +441,23 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 		
 	}
 
-	private class BannerDownloadReceiver extends BroadcastReceiver {
-
-		@Override
-		public void onReceive( Context context, Intent intent ) {
-			
-	        if ( intent.getAction().equals( BannerDownloadService.ACTION_COMPLETE ) ) {
-	        	Log.i( TAG, "BannerDownloadReceiver.onReceive : complete=" + intent.getStringExtra( BannerDownloadService.EXTRA_COMPLETE ) );
-	        	
-	        	if( null != intent.getStringExtra( BannerDownloadService.EXTRA_COMPLETE_FILENAME ) && !"".equals( intent.getStringExtra( BannerDownloadService.EXTRA_COMPLETE_FILENAME ) ) ) {
-	        		imageCache.remove( intent.getStringExtra( BannerDownloadService.EXTRA_COMPLETE_FILENAME ) );
-	        	}
-
-	        	adapter.notifyDataSetChanged();
-	        }
-
-		}
-		
-	}
+//	private class BannerDownloadReceiver extends BroadcastReceiver {
+//
+//		@Override
+//		public void onReceive( Context context, Intent intent ) {
+//			
+//	        if ( intent.getAction().equals( BannerDownloadService.ACTION_COMPLETE ) ) {
+//	        	Log.i( TAG, "BannerDownloadReceiver.onReceive : complete=" + intent.getStringExtra( BannerDownloadService.EXTRA_COMPLETE ) );
+//	        	
+//	        	if( null != intent.getStringExtra( BannerDownloadService.EXTRA_COMPLETE_FILENAME ) && !"".equals( intent.getStringExtra( BannerDownloadService.EXTRA_COMPLETE_FILENAME ) ) ) {
+//	        		imageCache.remove( intent.getStringExtra( BannerDownloadService.EXTRA_COMPLETE_FILENAME ) );
+//	        	}
+//
+//	        	adapter.notifyDataSetChanged();
+//	        }
+//
+//		}
+//		
+//	}
 
 }

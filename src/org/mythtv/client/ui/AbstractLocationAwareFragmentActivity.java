@@ -23,6 +23,7 @@ import java.io.File;
 import org.mythtv.service.channel.ChannelDownloadService;
 import org.mythtv.service.guide.ProgramGuideCleanupService;
 import org.mythtv.service.guide.ProgramGuideDownloadService;
+import org.mythtv.service.guide.ProgramGuideDownloadServiceNew;
 import org.mythtv.service.util.FileHelper;
 import org.mythtv.service.util.RunningServiceHelper;
 
@@ -48,6 +49,7 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 	
 	private ChannelDownloadReceiver channelDownloadReceiver = new ChannelDownloadReceiver();
 	private ProgramGuideDownloadReceiver programGuideDownloadReceiver = new ProgramGuideDownloadReceiver();
+	private ProgramGuideDownloadReceiverNew programGuideDownloadReceiverNew = new ProgramGuideDownloadReceiverNew();
 	private ProgramGuideCleanupReceiver programGuideCleanupReceiver = new ProgramGuideCleanupReceiver();
 	
 	// ***************************************
@@ -95,6 +97,11 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 		programGuideDownloadFilter.addAction( ProgramGuideDownloadService.ACTION_COMPLETE );
 	    registerReceiver( programGuideDownloadReceiver, programGuideDownloadFilter );
 	    
+		IntentFilter programGuideDownloadFilterNew = new IntentFilter();
+		programGuideDownloadFilterNew.addAction( ProgramGuideDownloadServiceNew.ACTION_PROGRESS );
+		programGuideDownloadFilterNew.addAction( ProgramGuideDownloadServiceNew.ACTION_COMPLETE );
+	    registerReceiver( programGuideDownloadReceiverNew, programGuideDownloadFilterNew );
+	    
 	    Log.v( TAG, "onStart : exit" );
 	}
 
@@ -108,7 +115,7 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 
 		startService( new Intent( ChannelDownloadService.ACTION_DOWNLOAD ) );
 		startService( new Intent( ProgramGuideCleanupService.ACTION_CLEANUP ) );
-		
+
 		Log.v( TAG, "onResume : exit" );
 	}
 
@@ -142,6 +149,15 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 		if( null != programGuideDownloadReceiver ) {
 			try {
 				unregisterReceiver( programGuideDownloadReceiver );
+				//programGuideDownloadReceiver = null;
+			} catch( IllegalArgumentException e ) {
+				Log.e( TAG, "onStop : error", e );
+			}
+		}
+
+		if( null != programGuideDownloadReceiverNew ) {
+			try {
+				unregisterReceiver( programGuideDownloadReceiverNew );
 				//programGuideDownloadReceiver = null;
 			} catch( IllegalArgumentException e ) {
 				Log.e( TAG, "onStop : error", e );
@@ -187,6 +203,11 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 	        	Log.i( TAG, "ProgramGuideDownloadReceiver.onReceive : " + intent.getStringExtra( ProgramGuideDownloadService.EXTRA_COMPLETE ) );
 	        	
  //       		Toast.makeText( AbstractLocationAwareFragmentActivity.this, "Channels Loaded!", Toast.LENGTH_SHORT ).show();
+
+//	        	if( !mRunningServiceHelper.isServiceRunning( "org.mythtv.service.guide.ProgramGuideDownloadServiceNew" ) ) {
+//	    			startService( new Intent( ProgramGuideDownloadServiceNew.ACTION_DOWNLOAD ) );
+//	    		}
+
 	        }
 
 		}
@@ -210,6 +231,31 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 	        	}
 
 	        	if( intent.getExtras().containsKey( ProgramGuideDownloadService.EXTRA_COMPLETE_OFFLINE ) ) {
+	        		Toast.makeText( AbstractLocationAwareFragmentActivity.this, "Program Guide Update failed because Master Backend is not connected!", Toast.LENGTH_SHORT ).show();
+	        	}
+	        }
+
+		}
+		
+	}
+
+	private class ProgramGuideDownloadReceiverNew extends BroadcastReceiver {
+
+		@Override
+		public void onReceive( Context context, Intent intent ) {
+			
+	        if ( intent.getAction().equals( ProgramGuideDownloadServiceNew.ACTION_PROGRESS ) ) {
+	        	Log.i( TAG, "ProgramGuideDownloadReceiverNew.onReceive : progress=" + intent.getStringExtra( ProgramGuideDownloadServiceNew.EXTRA_PROGRESS ) );
+	        }
+	        
+	        if ( intent.getAction().equals( ProgramGuideDownloadServiceNew.ACTION_COMPLETE ) ) {
+	        	Log.i( TAG, "ProgramGuideDownloadReceiverNew.onReceive : " + intent.getStringExtra( ProgramGuideDownloadServiceNew.EXTRA_COMPLETE ) );
+	        	
+	        	if( intent.getBooleanExtra( ProgramGuideDownloadServiceNew.EXTRA_COMPLETE_DOWNLOADED, Boolean.FALSE ) ) {
+	        		Toast.makeText( AbstractLocationAwareFragmentActivity.this, "Program Guide updated!", Toast.LENGTH_SHORT ).show();
+	        	}
+
+	        	if( intent.getExtras().containsKey( ProgramGuideDownloadServiceNew.EXTRA_COMPLETE_OFFLINE ) ) {
 	        		Toast.makeText( AbstractLocationAwareFragmentActivity.this, "Program Guide Update failed because Master Backend is not connected!", Toast.LENGTH_SHORT ).show();
 	        	}
 	        }

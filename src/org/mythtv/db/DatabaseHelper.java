@@ -45,7 +45,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	private static final String TAG = DatabaseHelper.class.getSimpleName();
 	
 	private static final String DATABASE_NAME = "mythtvdb";
-	private static final int DATABASE_VERSION = 57;
+	private static final int DATABASE_VERSION = 63;
 
 	public DatabaseHelper( Context context ) {
 		super( context, DATABASE_NAME, null, DATABASE_VERSION );
@@ -79,6 +79,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		dropProgram( db, ProgramConstants.TABLE_NAME_UPCOMING );
 		createProgram( db, ProgramConstants.TABLE_NAME_UPCOMING );
 
+		dropProgram( db, ProgramConstants.TABLE_NAME_PROGRAM );
+		createProgram( db, ProgramConstants.TABLE_NAME_PROGRAM );
+
 		dropCleanup( db );
 		createCleanup( db );
 		
@@ -92,8 +95,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	public void onUpgrade( SQLiteDatabase db, int oldVersion, int newVersion ) {
 		Log.v( TAG, "onUpgrade : enter" );
 
-		if( oldVersion < 57 ) {
-			Log.v( TAG, "onUpgrade : upgrading to db version 57" );
+		if( oldVersion < 63 ) {
+			Log.v( TAG, "onUpgrade : upgrading to db version 63" );
 
 			onCreate( db );
 
@@ -214,6 +217,27 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		}
 		db.execSQL( sql );
 
+		ContentValues values = new ContentValues();
+		values.put( LocationProfileConstants.FIELD_TYPE, "HOME" );
+		values.put( LocationProfileConstants.FIELD_NAME, "Home" );
+		values.put( LocationProfileConstants.FIELD_URL, "http://192.168.10.200:6544/" );
+		values.put( LocationProfileConstants.FIELD_SELECTED, 1 );
+		db.insert( LocationProfileConstants.TABLE_NAME, null, values );
+
+		values = new ContentValues();
+		values.put( LocationProfileConstants.FIELD_TYPE, "AWAY" );
+		values.put( LocationProfileConstants.FIELD_NAME, "Tunnel" );
+		values.put( LocationProfileConstants.FIELD_URL, "http://10.0.2.2:6544/" );
+		values.put( LocationProfileConstants.FIELD_SELECTED, 1 );
+		db.insert( LocationProfileConstants.TABLE_NAME, null, values );
+		
+		values = new ContentValues();
+		values.put( LocationProfileConstants.FIELD_TYPE, "AWAY" );
+		values.put( LocationProfileConstants.FIELD_NAME, "Home" );
+		values.put( LocationProfileConstants.FIELD_URL, "http://192.168.10.200:6544/" );
+		values.put( LocationProfileConstants.FIELD_SELECTED, 0 );
+		db.insert( LocationProfileConstants.TABLE_NAME, null, values );
+		
 		Log.v( TAG, "createLocationProfiles : exit" );
 	}
 	
@@ -426,6 +450,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		sqlBuilder.append( ProgramConstants.FIELD_EPISODE ).append( " " ).append( ProgramConstants.FIELD_EPISODE_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( ProgramConstants.FIELD_CHANNEL_ID ).append( " " ).append( ProgramConstants.FIELD_CHANNEL_ID_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( ProgramConstants.FIELD_CHANNEL_NUMBER ).append( " " ).append( ProgramConstants.FIELD_CHANNEL_NUMBER_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ProgramConstants.FIELD_CHANNEL_CALLSIGN ).append( " " ).append( ProgramConstants.FIELD_CHANNEL_CALLSIGN_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( ProgramConstants.FIELD_STATUS ).append( " " ).append( ProgramConstants.FIELD_STATUS_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( ProgramConstants.FIELD_PRIORITY ).append( " " ).append( ProgramConstants.FIELD_PRIORITY_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( ProgramConstants.FIELD_START_TS ).append( " " ).append( ProgramConstants.FIELD_START_TS_DATA_TYPE ).append( ", " );

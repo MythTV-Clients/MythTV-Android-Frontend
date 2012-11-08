@@ -5,6 +5,7 @@ import org.mythtv.R;
 import org.mythtv.client.ui.AbstractMythFragment;
 import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.service.dvr.cache.CoverartLruMemoryCache;
+import org.mythtv.service.util.image.ImageFetcher;
 import org.mythtv.services.api.Bool;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -40,9 +41,10 @@ public class EpisodeFragment extends AbstractMythFragment {
 
 	private OnEpisodeActionListener listener = null;
 
-	private CoverartLruMemoryCache cache;
+	private ImageFetcher mImageFetcher;
+//	private CoverartLruMemoryCache cache;
 
-	private String programGroup, title, subTitle;
+	private String programGroup, title, subTitle, inetref;
 	private Long episodeId;
 	private Integer channelId;
 	private DateTime startTime;
@@ -53,7 +55,7 @@ public class EpisodeFragment extends AbstractMythFragment {
 
 		View root = inflater.inflate( R.layout.fragment_dvr_episode, container, false );
 
-		cache = new CoverartLruMemoryCache( getActivity() );
+//		cache = new CoverartLruMemoryCache( getActivity() );
 
 		Log.v( TAG, "onCreateView : exit" );
 		return root;
@@ -177,10 +179,18 @@ public class EpisodeFragment extends AbstractMythFragment {
 
 	public void loadEpisode( long id ) {
 
+        if( RecordingsActivity.class.isInstance( getActivity() ) ) {
+            mImageFetcher = ( (RecordingsActivity) getActivity() ).getImageFetcher();
+        }
+
+        if( EpisodeActivity.class.isInstance( getActivity() ) ) {
+            mImageFetcher = ( (EpisodeActivity) getActivity() ).getImageFetcher();
+        }
+
 		episodeId = id;
 		
 		String[] projection = { 
-			ProgramConstants._ID, ProgramConstants.FIELD_TITLE, ProgramConstants.FIELD_SUB_TITLE,
+			ProgramConstants._ID, ProgramConstants.FIELD_TITLE, ProgramConstants.FIELD_SUB_TITLE, ProgramConstants.FIELD_INETREF,
 			ProgramConstants.FIELD_DESCRIPTION, ProgramConstants.FIELD_AIR_DATE, ProgramConstants.FIELD_CHANNEL_NUMBER, 
 			ProgramConstants.FIELD_CATEGORY, ProgramConstants.FIELD_START_TIME, ProgramConstants.FIELD_END_TIME,
 			ProgramConstants.FIELD_CHANNEL_ID, ProgramConstants.FIELD_PROGRAM_GROUP
@@ -190,6 +200,7 @@ public class EpisodeFragment extends AbstractMythFragment {
 		if( cursor.moveToFirst() ) {
 
 			programGroup = cursor.getString( cursor.getColumnIndexOrThrow( ProgramConstants.FIELD_PROGRAM_GROUP ) );
+			inetref = cursor.getString( cursor.getColumnIndexOrThrow( ProgramConstants.FIELD_INETREF ) );
 			channelId = Integer.parseInt( cursor.getString( cursor.getColumnIndexOrThrow( ProgramConstants.FIELD_CHANNEL_ID ) ) );
 			startTime = new DateTime( cursor.getLong( cursor.getColumnIndexOrThrow( ProgramConstants.FIELD_START_TIME ) ) );
 
@@ -201,12 +212,17 @@ public class EpisodeFragment extends AbstractMythFragment {
 
 			// coverart
 			ImageView iView = (ImageView) activity.findViewById( R.id.imageView_episode_coverart );
-			BitmapDrawable coverart = cache.get( title );
-			if( null != coverart ) {
-				iView.setImageDrawable( coverart );
+			if( null != inetref && !"".equals( inetref ) ) {
+				mImageFetcher.loadImage( inetref, "Coverart", iView, null );
 			} else {
 				iView.setImageDrawable( null );
 			}
+//			BitmapDrawable coverart = cache.get( title );
+//			if( null != coverart ) {
+//				iView.setImageDrawable( coverart );
+//			} else {
+//				iView.setImageDrawable( null );
+//			}
 
 			// title
 			TextView tView = (TextView) activity.findViewById( R.id.textView_episode_title );

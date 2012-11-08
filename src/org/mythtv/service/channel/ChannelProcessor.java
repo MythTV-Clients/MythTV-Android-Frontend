@@ -18,6 +18,9 @@
  */
 package org.mythtv.service.channel;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.mythtv.db.channel.ChannelConstants;
 import org.mythtv.service.AbstractMythtvProcessor;
 import org.mythtv.services.api.channel.ChannelInfo;
@@ -25,6 +28,7 @@ import org.mythtv.services.api.channel.ChannelInfos;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.util.Log;
 
 /**
@@ -60,8 +64,12 @@ public class ChannelProcessor extends AbstractMythtvProcessor {
 		if( null != channelInfos ) {
 			
 			ContentValues[] contentValuesArray = convertChannelsToContentValuesArray( channelInfos );
-			result = mContext.getContentResolver().bulkInsert( ChannelConstants.CONTENT_URI, contentValuesArray );
-			Log.v( TAG, "processChannels : channels added=" + result );
+			if( null != contentValuesArray ) {
+				Log.v( TAG, "processChannels : channels=" + contentValuesArray.length );
+
+				result = mContext.getContentResolver().bulkInsert( ChannelConstants.CONTENT_URI, contentValuesArray );
+				Log.v( TAG, "processChannels : channels added=" + result );
+			}
 		}
 		
 		Log.v( TAG, "processChannels : exit" );
@@ -74,18 +82,30 @@ public class ChannelProcessor extends AbstractMythtvProcessor {
 		
 		if( null != channelInfos ) {
 			
-			int i = 0;
+			String[] channelProjection = new String[] { ChannelConstants._ID };
+			String channelSelection = ChannelConstants.FIELD_CALLSIGN + " = ?";
+
 			ContentValues contentValues;
-			ContentValues[] contentValuesArray = new ContentValues[ channelInfos.getChannelInfos().size() ];
+			List<ContentValues> contentValuesArray = new ArrayList<ContentValues>();
+
 			for( ChannelInfo channelInfo : channelInfos.getChannelInfos() ) {
+
+				Cursor channelCursor = mContext.getContentResolver().query( ChannelConstants.CONTENT_URI, channelProjection, channelSelection, new String[] { channelInfo.getCallSign() }, null );
+				if( channelCursor.getCount() == 0 ) {
+
+					contentValues = convertChannelToContentValues( channelInfo );
+					contentValuesArray.add( contentValues );
+
+				}
+				channelCursor.close();
 				
-				contentValues = convertChannelToContentValues( channelInfo );
-				contentValuesArray[ i ] = contentValues;
+			}			
+			
+			if( !contentValuesArray.isEmpty() ) {
 				
-				i++;
+				return contentValuesArray.toArray( new ContentValues[ contentValuesArray.size() ] );
 			}
 			
-			return contentValuesArray;
 		}
 		
 		return null;
