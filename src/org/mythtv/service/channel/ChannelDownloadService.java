@@ -25,6 +25,7 @@ import org.apache.commons.io.FileUtils;
 import org.joda.time.DateTime;
 import org.mythtv.R;
 import org.mythtv.db.channel.ChannelConstants;
+import org.mythtv.db.channel.ChannelDaoHelper;
 import org.mythtv.db.http.EtagConstants;
 import org.mythtv.service.MythtvService;
 import org.mythtv.services.api.ETagInfo;
@@ -75,7 +76,8 @@ public class ChannelDownloadService extends MythtvService {
 	private int notificationId;
 	
 	private File channelDirectory = null;
-	private ChannelProcessor mChannelProcessor;
+//	private ChannelProcessor mChannelProcessor;
+	private ChannelDaoHelper mChannelDaoHelper;
 	
 	public ChannelDownloadService() {
 		super( "ChannelDownloadService" );
@@ -89,8 +91,9 @@ public class ChannelDownloadService extends MythtvService {
 		Log.d( TAG, "onHandleIntent : enter" );
 		super.onHandleIntent( intent );
 		
-		mChannelProcessor = new ChannelProcessor( this );
-
+//		mChannelProcessor = new ChannelProcessor( this );
+		mChannelDaoHelper = new ChannelDaoHelper( this );
+		
 		channelDirectory = mFileHelper.getChannelDataDirectory();
 		if( null == channelDirectory || !channelDirectory.exists() ) {
 			Intent completeIntent = new Intent( ACTION_COMPLETE );
@@ -138,11 +141,13 @@ public class ChannelDownloadService extends MythtvService {
     				etag.setETag( value );
     			}
     			cursor.close();
+    			
 				ResponseEntity<VideoSourceList> responseEntity = mMainApplication.getMythServicesApi().channelOperations().getVideoSourceList( etag );
 				if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
 					sendNotification();
 					
-					mChannelProcessor.deleteChannels();
+//					mChannelProcessor.deleteChannels();
+					mChannelDaoHelper.deleteAll();
 					
 					if( null != etag.getETag() ) {
 						ContentValues values = new ContentValues();
@@ -178,7 +183,7 @@ public class ChannelDownloadService extends MythtvService {
 
 					}
 
-					downloadChannelIcons();
+//					downloadChannelIcons();
 				}					
 			} catch( JsonGenerationException e ) {
 				Log.e( TAG, "onHandleIntent : error generating json", e );
@@ -230,9 +235,8 @@ public class ChannelDownloadService extends MythtvService {
 		}
 		cursor.close();
 		
-		ResponseEntity<ChannelInfoList> responseEntity = mMainApplication.getMythServicesApi().channelOperations().getChannelInfoList( sourceId, 1, -1, etag );
-
 		try {
+			ResponseEntity<ChannelInfoList> responseEntity = mMainApplication.getMythServicesApi().channelOperations().getChannelInfoList( sourceId, 1, -1, etag );
 		
 			if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
 				ChannelInfoList channelInfoList = responseEntity.getBody();
@@ -274,7 +278,7 @@ public class ChannelDownloadService extends MythtvService {
 			}
 			
 		} catch( Exception e ) {
-			Log.e( TAG, "download : error downloading upcoming program list" );
+			Log.e( TAG, "download : error downloading upcoming program list", e );
 		}
 		
 		Log.v( TAG, "download : exit" );
@@ -294,35 +298,44 @@ public class ChannelDownloadService extends MythtvService {
 		
 		mMainApplication.getObjectMapper().writeValue( new File( channelDirectory, CHANNELS_FILE ), channelInfos );
 
-		int channelsAdded = mChannelProcessor.processChannels( channelInfos );
-		Log.v( TAG, "process : channelsAdded=" + channelsAdded );
+//		int channelsAdded = mChannelProcessor.processChannels( channelInfos );
+		if( null != channelInfos ) {
+			
+			if( null != channelInfos.getChannelInfos() && !channelInfos.getChannelInfos().isEmpty() ) {
+				
+				int channelsAdded = mChannelDaoHelper.load( channelInfos.getChannelInfos() );
+				Log.v( TAG, "process : channelsAdded=" + channelsAdded );
+			
+			}
+			
+		}
 		
 		Log.v( TAG, "process : exit" );
 	}
 
 	// internal helpers
 	
-	private void downloadChannelIcons() {
-		Log.v( TAG, "downloadChannelIcons : enter" );
-		
-		Cursor cursor = getContentResolver().query( ChannelConstants.CONTENT_URI, new String[] { ChannelConstants._ID, ChannelConstants.FIELD_CHAN_ID, ChannelConstants.FIELD_CALLSIGN }, null, null, null );
-		while( cursor.moveToNext() ) {
-			Long id = cursor.getLong( cursor.getColumnIndexOrThrow( ChannelConstants._ID ) );
-	        String chanId = cursor.getString( cursor.getColumnIndexOrThrow( ChannelConstants.FIELD_CHAN_ID ) );
-	        String callsign = cursor.getString( cursor.getColumnIndexOrThrow( ChannelConstants.FIELD_CALLSIGN ) );
-	        
-			File icon = new File( channelDirectory, callsign + CALLSIGN_EXT );
-			if( !icon.exists() ) {
-				//Intent downloadBannerIntent = new Intent( BannerDownloadService.ACTION_DOWNLOAD );
-				//downloadBannerIntent.putExtra( BannerDownloadService.BANNER_RECORDED_ID, id );
-				//startService( downloadBannerIntent );
-			}
-				
-		}
-		cursor.close();
-		
-		Log.v( TAG, "downloadChannelIcons : exit" );
-	}
+//	private void downloadChannelIcons() {
+//		Log.v( TAG, "downloadChannelIcons : enter" );
+//		
+//		Cursor cursor = getContentResolver().query( ChannelConstants.CONTENT_URI, new String[] { ChannelConstants._ID, ChannelConstants.FIELD_CHAN_ID, ChannelConstants.FIELD_CALLSIGN }, null, null, null );
+//		while( cursor.moveToNext() ) {
+//			Long id = cursor.getLong( cursor.getColumnIndexOrThrow( ChannelConstants._ID ) );
+//	        String chanId = cursor.getString( cursor.getColumnIndexOrThrow( ChannelConstants.FIELD_CHAN_ID ) );
+//	        String callsign = cursor.getString( cursor.getColumnIndexOrThrow( ChannelConstants.FIELD_CALLSIGN ) );
+//	        
+//			File icon = new File( channelDirectory, callsign + CALLSIGN_EXT );
+//			if( !icon.exists() ) {
+//				//Intent downloadBannerIntent = new Intent( BannerDownloadService.ACTION_DOWNLOAD );
+//				//downloadBannerIntent.putExtra( BannerDownloadService.BANNER_RECORDED_ID, id );
+//				//startService( downloadBannerIntent );
+//			}
+//				
+//		}
+//		cursor.close();
+//		
+//		Log.v( TAG, "downloadChannelIcons : exit" );
+//	}
 	
 	@SuppressWarnings( "deprecation" )
 	private void sendNotification() {

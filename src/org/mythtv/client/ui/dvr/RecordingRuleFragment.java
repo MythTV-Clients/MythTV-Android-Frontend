@@ -25,7 +25,9 @@ import org.mythtv.R;
 import org.mythtv.client.ui.AbstractMythFragment;
 import org.mythtv.client.ui.util.ProgramHelper;
 import org.mythtv.db.channel.ChannelConstants;
+import org.mythtv.db.channel.ChannelDaoHelper;
 import org.mythtv.services.api.ETagInfo;
+import org.mythtv.services.api.channel.ChannelInfo;
 import org.mythtv.services.api.dvr.RecRule;
 import org.mythtv.services.api.dvr.RecRuleWrapper;
 import org.springframework.http.HttpStatus;
@@ -33,7 +35,6 @@ import org.springframework.http.ResponseEntity;
 
 import android.annotation.TargetApi;
 import android.content.Intent;
-import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -54,6 +55,7 @@ public class RecordingRuleFragment extends AbstractMythFragment {
 
 	private static final String TAG = RecordingRuleFragment.class.getSimpleName();
 	
+	private ChannelDaoHelper mChannelDaoHelper;
 	private ProgramHelper mProgramHelper;
 	private Integer mRecordingRuleId;
 	
@@ -107,6 +109,7 @@ public class RecordingRuleFragment extends AbstractMythFragment {
 		Log.v( TAG, "onActivityCreated : enter" );
 		super.onActivityCreated( savedInstanceState );
 
+		mChannelDaoHelper = new ChannelDaoHelper( getActivity() );
 		mProgramHelper = ProgramHelper.createInstance( getActivity() );
 		
 		Log.v( TAG, "onActivityCreated : exit" );
@@ -154,11 +157,10 @@ public class RecordingRuleFragment extends AbstractMythFragment {
 		// - should we move this to a utility?
 		// - slow
 		String channel = "[Any]";
-		Cursor cursor = this.getActivity().getContentResolver().query( ChannelConstants.CONTENT_URI, new String[] { ChannelConstants.FIELD_CHAN_NUM }, ChannelConstants.FIELD_CHAN_ID + " = ?", new String[] { String.valueOf( rule.getChanId() ) }, null );
-		if( cursor.moveToFirst() ) {
-			 channel = cursor.getString( cursor.getColumnIndexOrThrow( ChannelConstants.FIELD_CHAN_NUM ) );
+		ChannelInfo channelInfo = mChannelDaoHelper.findOne( null, new String[] { ChannelConstants.FIELD_CHAN_NUM }, ChannelConstants.FIELD_CALLSIGN + " = ?", new String[] { rule.getCallSign() }, null );
+		if( null != channelInfo ) {
+			channel = channelInfo.getChannelNumber();
 		}
-		cursor.close();
 		
 		tView = (TextView) getActivity().findViewById( R.id.recording_rule_channel );
 		tView.setText( channel );

@@ -822,7 +822,7 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 					SQLiteStatement insert = db.compileStatement( ChannelConstants.INSERT_ROW );
 				
 					for( ContentValues value : values ) {
-						insert.bindString( 1, value.getAsString( ChannelConstants.FIELD_CHAN_ID ) );
+						insert.bindString( 1, value.getAsString( ChannelConstants._ID ) );
 						insert.bindString( 2, value.getAsString( ChannelConstants.FIELD_CHAN_NUM ) );
 						insert.bindString( 3, value.getAsString( ChannelConstants.FIELD_CALLSIGN ) );
 						insert.bindString( 4, value.getAsString( ChannelConstants.FIELD_ICON_URL ) );
