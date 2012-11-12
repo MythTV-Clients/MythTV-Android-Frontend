@@ -26,6 +26,7 @@ import org.mythtv.client.ui.AbstractMythFragment;
 import org.mythtv.client.ui.util.ProgramHelper;
 import org.mythtv.db.channel.ChannelConstants;
 import org.mythtv.services.api.ETagInfo;
+import org.mythtv.services.api.Int;
 import org.mythtv.services.api.dvr.RecRule;
 import org.mythtv.services.api.dvr.RecRuleWrapper;
 import org.springframework.http.HttpStatus;
@@ -39,17 +40,21 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.TextView;
 
 /**
  * @author Daniel Frey
  *
  */
-public class RecordingRuleEditFragment extends AbstractMythFragment {
+public class RecordingRuleEditFragment extends AbstractMythFragment implements OnCheckedChangeListener {
 
 	private static final String TAG = RecordingRuleEditFragment.class.getSimpleName();
 	
 	private ProgramHelper mProgramHelper;
+	private boolean mEdited = false;
+	private RecRule mRule;
 	
 	public static RecordingRuleEditFragment newInstance( Bundle args ) {
 		RecordingRuleEditFragment fragment = new RecordingRuleEditFragment();
@@ -102,6 +107,25 @@ public class RecordingRuleEditFragment extends AbstractMythFragment {
 		
 		Log.v( TAG, "onActivityCreated : exit" );
 	}
+	
+	/**
+	 * 
+	 */
+	@Override
+	public void onPause() {
+		
+		this.saveRecordingRule();
+		
+		super.onPause();
+	}
+	
+	/**
+	 * Called when the rule is edited
+	 */
+	@Override
+	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+		this.mEdited = true;
+	}
 
 	public void loadRecordingRule( Integer recordingRuleId ) {
 		Log.v( TAG, "loadRecordingRule : enter" );
@@ -121,6 +145,8 @@ public class RecordingRuleEditFragment extends AbstractMythFragment {
 		View view;
 		CheckBox cBox;
 		TextView tView;
+		
+		this.mRule = rule;
 		
 		view = getActivity().findViewById( R.id.recording_rule_category_color );
 		view.setBackgroundColor( mProgramHelper.getCategoryColor( rule.getCategory() ) );
@@ -155,29 +181,76 @@ public class RecordingRuleEditFragment extends AbstractMythFragment {
 		
 		cBox = (CheckBox) getActivity().findViewById( R.id.recording_rule_checkBox_active );
 		cBox.setChecked( !rule.isInactive() );
+		cBox.setOnCheckedChangeListener(this);
 		
 		cBox = (CheckBox) getActivity().findViewById( R.id.recording_rule_checkBox_auto_comm_flag );
 		cBox.setChecked( rule.isAutoCommflag() );
+		cBox.setOnCheckedChangeListener(this);
 		
 		cBox = (CheckBox) getActivity().findViewById( R.id.recording_rule_checkBox_auto_transcode );
 		cBox.setChecked( rule.isAutoTranscode() );
+		cBox.setOnCheckedChangeListener(this);
 		
 		cBox = (CheckBox) getActivity().findViewById( R.id.recording_rule_checkBox_auto_meta_lookup );
 		cBox.setChecked( rule.isAutoMetaLookup() );
+		cBox.setOnCheckedChangeListener(this);
 		
 		cBox = (CheckBox) getActivity().findViewById( R.id.recording_rule_checkBox_auto_usr_job1 );
 		cBox.setChecked( rule.isAutoUserJob1() );
+		cBox.setOnCheckedChangeListener(this);
 		
 		cBox = (CheckBox) getActivity().findViewById( R.id.recording_rule_checkBox_auto_usr_job2 );
 		cBox.setChecked( rule.isAutoUserJob2() );
+		cBox.setOnCheckedChangeListener(this);
 		
 		cBox = (CheckBox) getActivity().findViewById( R.id.recording_rule_checkBox_auto_usr_job3 );
 		cBox.setChecked( rule.isAutoUserJob3() );
+		cBox.setOnCheckedChangeListener(this);
 		
 		cBox = (CheckBox) getActivity().findViewById( R.id.recording_rule_checkBox_auto_usr_job4 );
 		cBox.setChecked( rule.isAutoUserJob4() );
+		cBox.setOnCheckedChangeListener(this);
 		
 		Log.v( TAG, "setupForm : exit" );
+	}
+	
+	
+	/**
+	 * Reads the rule state from the UI and saves it back to the master backend
+	 * @return
+	 */
+	private void saveRecordingRule(){
+		
+		//nothing to do
+		if(!this.mEdited) return;
+		
+		CheckBox cBox;
+		
+		cBox = (CheckBox) getActivity().findViewById( R.id.recording_rule_checkBox_active );
+		this.mRule.setInactive(cBox.isChecked());
+		
+		cBox = (CheckBox) getActivity().findViewById( R.id.recording_rule_checkBox_auto_comm_flag );
+		this.mRule.setAutoCommflag(cBox.isChecked());
+		
+		cBox = (CheckBox) getActivity().findViewById( R.id.recording_rule_checkBox_auto_transcode );
+		this.mRule.setAutoTranscode(cBox.isChecked());
+		
+		cBox = (CheckBox) getActivity().findViewById( R.id.recording_rule_checkBox_auto_meta_lookup );
+		this.mRule.setAutoMetaLookup(cBox.isChecked());
+		
+		cBox = (CheckBox) getActivity().findViewById( R.id.recording_rule_checkBox_auto_usr_job1 );
+		this.mRule.setAutoUserJob1(cBox.isChecked());
+		
+		cBox = (CheckBox) getActivity().findViewById( R.id.recording_rule_checkBox_auto_usr_job2 );
+		this.mRule.setAutoUserJob2(cBox.isChecked());
+		
+		cBox = (CheckBox) getActivity().findViewById( R.id.recording_rule_checkBox_auto_usr_job3 );
+		this.mRule.setAutoUserJob3(cBox.isChecked());
+		
+		cBox = (CheckBox) getActivity().findViewById( R.id.recording_rule_checkBox_auto_usr_job4 );
+		this.mRule.setAutoUserJob4(cBox.isChecked());
+		
+		new SaveRecordingRuleTask().doInBackground(this.mRule);
 	}
 	
 	private class DownloadRecordingRuleTask extends AsyncTask<Integer, Void, ResponseEntity<RecRuleWrapper>> {
@@ -213,6 +286,57 @@ public class RecordingRuleEditFragment extends AbstractMythFragment {
 				
 			}
 			
+		}
+		
+	}
+	
+	private class SaveRecordingRuleTask extends AsyncTask<RecRule, Void, Void>{
+
+		@Override
+		protected Void doInBackground(RecRule... params) {
+			
+			RecRule rule = params[0];
+			ETagInfo etag = ETagInfo.createEmptyETag();
+			ResponseEntity<Int> response = getMainApplication().getMythServicesApi().dvrOperations().addRecordingSchedule(
+					rule.getChanId(), 
+					rule.getStartTime(),
+					rule.getParentId(), 
+					rule.isInactive(), 
+					rule.getSeason(), 
+					rule.getEpisode(), 
+					rule.getInetref(), 
+					rule.getFindId(), 
+					rule.getType(),
+					rule.getSearchType(), 
+					rule.getRecPriority(), 
+					rule.getPreferredInput(),
+					rule.getStartOffset(), 
+					rule.getEndOffset(), 
+					rule.getDupMethod(),
+					rule.getDupIn(), 
+					rule.getFilter(),
+					rule.getRecProfile(),
+					rule.getRecGroup(),
+					rule.getStorageGroup(), 
+					rule.getPlayGroup(),
+					rule.isAutoExpire(),
+					rule.getMaxEpisodes(),
+					rule.isMaxNewest(),
+					rule.isAutoCommflag(),
+					rule.isAutoTranscode(), 
+					rule.isAutoMetaLookup(), 
+					rule.isAutoUserJob1(),
+					rule.isAutoUserJob2(), 
+					rule.isAutoUserJob3(),
+					rule.isAutoUserJob4(),
+					rule.getTranscoder());
+			
+			//on successful add, delete old recording rule
+			if(response.hasBody() && response.getBody().getInteger() == 1){
+				getMainApplication().getMythServicesApi().dvrOperations().removeRecordingSchedule(rule.getId());
+			}
+			
+			return null;
 		}
 		
 	}
