@@ -79,7 +79,7 @@ public abstract class ProgramProcessor extends AbstractMythtvProcessor {
 		values.put( ProgramConstants.FIELD_INETREF, null != program.getInetref() ? program.getInetref() : "" );
 		values.put( ProgramConstants.FIELD_SEASON, null != program.getSeason() ? program.getSeason() : "" );
 		values.put( ProgramConstants.FIELD_EPISODE, null != program.getEpisode() ? program.getEpisode() : "" );
-		values.put( ProgramConstants.FIELD_CHANNEL_ID, null != program.getChannelInfo() ? program.getChannelInfo().getChannelId() : "" );
+		values.put( ProgramConstants.FIELD_CHANNEL_ID, null != program.getChannelInfo() ? program.getChannelInfo().getChannelId() : -1 );
 		values.put( ProgramConstants.FIELD_CHANNEL_NUMBER, null != program.getChannelInfo() ? program.getChannelInfo().getChannelNumber() : "" );
 		values.put( ProgramConstants.FIELD_CHANNEL_CALLSIGN, null != program.getChannelInfo() ? program.getChannelInfo().getCallSign() : "" );
 		values.put( ProgramConstants.FIELD_STATUS, null != program.getRecording() ? program.getRecording().getStatus() : -1 );

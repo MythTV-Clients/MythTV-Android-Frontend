@@ -239,7 +239,7 @@ public class ProgramGuideDownloadServiceNew extends MythtvService {
 					
 					ContentValues programValues = convertProgramToContentValues( program );
 
-					Cursor programCursor = getContentResolver().query( ProgramConstants.CONTENT_URI_PROGRAM, programProjection, programSelection, new String[] { channel.getChannelId(), DateUtils.dateTimeFormatter.print( program.getStartTime() ) }, null );
+					Cursor programCursor = getContentResolver().query( ProgramConstants.CONTENT_URI_PROGRAM, programProjection, programSelection, new String[] { String.valueOf( channel.getChannelId() ), DateUtils.dateTimeFormatter.print( program.getStartTime() ) }, null );
 					if( programCursor.moveToFirst() ) {
 						Long id = programCursor.getLong( programCursor.getColumnIndexOrThrow( ProgramConstants._ID ) );
 						ops.add( 
@@ -281,7 +281,7 @@ public class ProgramGuideDownloadServiceNew extends MythtvService {
 	private ContentValues convertChannelToContentValues( ChannelInfo channelInfo ) {
 		
 		ContentValues values = new ContentValues();
-		values.put( ChannelConstants.FIELD_CHAN_ID, channelInfo.getChannelId() );
+		values.put( ChannelConstants._ID, channelInfo.getChannelId() );
 		values.put( ChannelConstants.FIELD_CHAN_NUM, channelInfo.getChannelNumber() );
 		values.put( ChannelConstants.FIELD_CALLSIGN, channelInfo.getCallSign() );
 		values.put( ChannelConstants.FIELD_ICON_URL, channelInfo.getIconUrl() );
@@ -350,7 +350,7 @@ public class ProgramGuideDownloadServiceNew extends MythtvService {
 		values.put( ProgramConstants.FIELD_INETREF, null != program.getInetref() ? program.getInetref() : "" );
 		values.put( ProgramConstants.FIELD_SEASON, null != program.getSeason() ? program.getSeason() : "" );
 		values.put( ProgramConstants.FIELD_EPISODE, null != program.getEpisode() ? program.getEpisode() : "" );
-		values.put( ProgramConstants.FIELD_CHANNEL_ID, null != program.getChannelInfo() ? program.getChannelInfo().getChannelId() : "" );
+		values.put( ProgramConstants.FIELD_CHANNEL_ID, null != program.getChannelInfo() ? program.getChannelInfo().getChannelId() : -1 );
 		values.put( ProgramConstants.FIELD_CHANNEL_NUMBER, null != program.getChannelInfo() ? program.getChannelInfo().getChannelNumber() : "" );
 		values.put( ProgramConstants.FIELD_CHANNEL_CALLSIGN, null != program.getChannelInfo() ? program.getChannelInfo().getCallSign() : "" );
 		values.put( ProgramConstants.FIELD_STATUS, null != program.getRecording() ? program.getRecording().getStatus() : -1 );

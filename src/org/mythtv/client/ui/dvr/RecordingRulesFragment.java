@@ -28,9 +28,11 @@ import org.mythtv.client.MainApplication;
 import org.mythtv.client.ui.util.MythtvListFragment;
 import org.mythtv.client.ui.util.ProgramHelper;
 import org.mythtv.db.channel.ChannelConstants;
+import org.mythtv.db.channel.ChannelDaoHelper;
 import org.mythtv.service.util.NotificationHelper;
 import org.mythtv.service.util.NotificationHelper.NotificationType;
 import org.mythtv.services.api.ETagInfo;
+import org.mythtv.services.api.channel.ChannelInfo;
 import org.mythtv.services.api.dvr.RecRule;
 import org.mythtv.services.api.dvr.RecRuleList;
 import org.springframework.http.HttpStatus;
@@ -38,7 +40,6 @@ import org.springframework.http.ResponseEntity;
 
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -67,6 +68,8 @@ public class RecordingRulesFragment extends MythtvListFragment {
 	private OnRecordingRuleListener listener = null;
 	private RecordingRuleAdapter adapter;
 
+	private ChannelDaoHelper mChannelDaoHelper;
+	
 	private MainApplication mainApplication;
 	
 	/**
@@ -92,6 +95,8 @@ public class RecordingRulesFragment extends MythtvListFragment {
 		Log.v( TAG, "onActivityCreated : enter" );
 		super.onActivityCreated( savedInstanceState );
 
+		mChannelDaoHelper = new ChannelDaoHelper( getActivity() );
+		
 		setHasOptionsMenu( true );
 		setRetainInstance( true );
 
@@ -263,12 +268,11 @@ public class RecordingRulesFragment extends MythtvListFragment {
 			
 			RecRule rule = getItem( position );
 			String channel = "[Any]";
-			Cursor cursor = mContext.getContentResolver().query( ChannelConstants.CONTENT_URI, new String[] { ChannelConstants.FIELD_CHAN_NUM }, ChannelConstants.FIELD_CHAN_ID + " = ?", new String[] { String.valueOf( rule.getChanId() ) }, null );
-			if( cursor.moveToFirst() ) {
-				 channel = cursor.getString( cursor.getColumnIndexOrThrow( ChannelConstants.FIELD_CHAN_NUM ) );
+			ChannelInfo channelInfo = mChannelDaoHelper.findOne( null, new String[] { ChannelConstants.FIELD_CHAN_NUM }, ChannelConstants.FIELD_CALLSIGN + " = ?", new String[] { rule.getCallSign() }, null );
+			if( null != channelInfo ) {
+				channel = channelInfo.getChannelNumber();
 			}
-			cursor.close();
-
+			
 			mHolder.category.setBackgroundColor( mProgramHelper.getCategoryColor( rule.getCategory() ) );
 			mHolder.title.setText( rule.getTitle() );
 			mHolder.channel.setText( channel );

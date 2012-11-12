@@ -25,14 +25,15 @@ import org.mythtv.R;
 import org.mythtv.client.ui.AbstractMythFragment;
 import org.mythtv.client.ui.util.ProgramHelper;
 import org.mythtv.db.channel.ChannelConstants;
+import org.mythtv.db.channel.ChannelDaoHelper;
 import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.Int;
+import org.mythtv.services.api.channel.ChannelInfo;
 import org.mythtv.services.api.dvr.RecRule;
 import org.mythtv.services.api.dvr.RecRuleWrapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -52,6 +53,7 @@ public class RecordingRuleEditFragment extends AbstractMythFragment implements O
 
 	private static final String TAG = RecordingRuleEditFragment.class.getSimpleName();
 	
+	private ChannelDaoHelper mChannelDaoHelper;
 	private ProgramHelper mProgramHelper;
 	private boolean mEdited = false;
 	private RecRule mRule;
@@ -103,6 +105,7 @@ public class RecordingRuleEditFragment extends AbstractMythFragment implements O
 		Log.v( TAG, "onActivityCreated : enter" );
 		super.onActivityCreated( savedInstanceState );
 
+		mChannelDaoHelper = new ChannelDaoHelper( getActivity() );
 		mProgramHelper = ProgramHelper.createInstance( getActivity() );
 		
 		Log.v( TAG, "onActivityCreated : exit" );
@@ -170,11 +173,10 @@ public class RecordingRuleEditFragment extends AbstractMythFragment implements O
 		// - should we move this to a utility?
 		// - slow
 		String channel = "[Any]";
-		Cursor cursor = this.getActivity().getContentResolver().query( ChannelConstants.CONTENT_URI, new String[] { ChannelConstants.FIELD_CHAN_NUM }, ChannelConstants.FIELD_CHAN_ID + " = ?", new String[] { String.valueOf( rule.getChanId() ) }, null );
-		if( cursor.moveToFirst() ) {
-			 channel = cursor.getString( cursor.getColumnIndexOrThrow( ChannelConstants.FIELD_CHAN_NUM ) );
+		ChannelInfo channelInfo = mChannelDaoHelper.findOne( null, new String[] { ChannelConstants.FIELD_CHAN_NUM }, ChannelConstants.FIELD_CALLSIGN + " = ?", new String[] { rule.getCallSign() }, null );
+		if( null != channelInfo ) {
+			channel = channelInfo.getChannelNumber();
 		}
-		cursor.close();
 		
 		tView = (TextView) getActivity().findViewById( R.id.recording_rule_channel );
 		tView.setText( channel );

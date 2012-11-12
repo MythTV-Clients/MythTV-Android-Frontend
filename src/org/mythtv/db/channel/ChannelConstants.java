@@ -37,10 +37,10 @@ public class ChannelConstants implements BaseColumns {
 	
 	// db fields
 	public static final String FIELD_ID_DATA_TYPE = "INTEGER";
-	public static final String FIELD_ID_PRIMARY_KEY = "PRIMARY KEY AUTOINCREMENT";
+	public static final String FIELD_ID_PRIMARY_KEY = "PRIMARY KEY";
 
-	public static final String FIELD_CHAN_ID = "CHAN_ID";
-	public static final String FIELD_CHAN_ID_DATA_TYPE = "TEXT";
+//	public static final String FIELD_CHAN_ID = "CHAN_ID";
+//	public static final String FIELD_CHAN_ID_DATA_TYPE = "TEXT";
 
 	public static final String FIELD_CHAN_NUM = "CHAN_NUM";
 	public static final String FIELD_CHAN_NUM_DATA_TYPE = "TEXT";
@@ -123,7 +123,8 @@ public class ChannelConstants implements BaseColumns {
 		StringBuilder sb = new StringBuilder();
 		
 		sb.append( "INSERT INTO " ).append( TABLE_NAME ).append( " ( " );
-		sb.append( FIELD_CHAN_ID ).append( "," );
+//		sb.append( FIELD_CHAN_ID ).append( "," );
+		sb.append( _ID ).append( "," );
 		sb.append( FIELD_CHAN_NUM ).append( "," );
 		sb.append( FIELD_CALLSIGN ).append( "," );
 		sb.append( FIELD_ICON_URL ).append( "," );
