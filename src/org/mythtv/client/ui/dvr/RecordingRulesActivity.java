@@ -38,6 +38,8 @@ public class RecordingRulesActivity extends AbstractDvrActivity implements Recor
 	//Menu item IDs used in child fragments. Put them here to help avoid ID collisions
 	public static final int REFRESH_ID = Menu.FIRST + 2;
 	public static final int EDIT_ID = Menu.FIRST + 3;
+	public static final int SAVE_ID	= Menu.FIRST +4;
+	public static final int RESET_ID = Menu.FIRST + 5;
 
 	/* (non-Javadoc)
 	 * @see org.mythtv.client.ui.dvr.AbstractDvrActivity#onCreate(android.os.Bundle)

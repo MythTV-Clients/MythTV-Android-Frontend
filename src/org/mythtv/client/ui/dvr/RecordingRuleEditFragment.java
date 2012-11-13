@@ -34,16 +34,22 @@ import org.mythtv.services.api.dvr.RecRuleWrapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import android.annotation.TargetApi;
+import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.TextView;
+import android.widget.Toast;
 
 /**
  * @author Daniel Frey
@@ -64,7 +70,7 @@ public class RecordingRuleEditFragment extends AbstractMythFragment implements O
 		
 		return fragment;
 	}
-	
+
 	public RecordingRuleEditFragment() { }
 	
 	/* (non-Javadoc)
@@ -74,6 +80,8 @@ public class RecordingRuleEditFragment extends AbstractMythFragment implements O
 	public void onCreate( Bundle savedInstanceState ) {
 		Log.v( TAG, "onCreate : enter" );
 		super.onCreate( savedInstanceState );
+		
+		this.setHasOptionsMenu(true);
 
 		Bundle args = getArguments();
 		if( null != args ) {
@@ -110,16 +118,53 @@ public class RecordingRuleEditFragment extends AbstractMythFragment implements O
 		
 		Log.v( TAG, "onActivityCreated : exit" );
 	}
-	
-	/**
-	 * 
-	 */
+
 	@Override
-	public void onPause() {
+	@TargetApi( 11 )
+	public void onPrepareOptionsMenu(Menu menu) {
 		
-		this.saveRecordingRule();
+		Log.v( TAG, "onCreateOptionsMenu : enter" );
 		
-		super.onPause();
+	    MenuItem save = menu.add( Menu.NONE, RecordingRulesActivity.SAVE_ID, Menu.NONE, "SAVE" );
+	    MenuItem reset = menu.add( Menu.NONE, RecordingRulesActivity.RESET_ID, Menu.NONE, "RESET" );
+	    if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
+	    	save.setShowAsAction( MenuItem.SHOW_AS_ACTION_ALWAYS );
+	    	save.setIcon( android.R.drawable.ic_menu_save );
+	    	
+	    	reset.setShowAsAction( MenuItem.SHOW_AS_ACTION_ALWAYS );
+	    	reset.setIcon( android.R.drawable.ic_menu_revert );
+	    }
+		
+		Log.v( TAG, "onCreateOptionsMenu : exit" );
+		
+		super.onPrepareOptionsMenu(menu);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		Log.v( TAG, "onOptionsItemSelected : enter" );
+
+		Intent intent = null;
+		
+		switch( item.getItemId() ) {
+			case android.R.id.home:
+				// app icon in action bar clicked; go home
+				intent = new Intent( this.getActivity(), RecordingRulesActivity.class );
+				intent.addFlags( Intent.FLAG_ACTIVITY_CLEAR_TOP );
+				startActivity( intent );
+				return true;
+				
+			case RecordingRulesActivity.RESET_ID:
+				this.setupForm(this.mRule);
+				return true;
+				
+			case RecordingRulesActivity.SAVE_ID:
+				this.saveRecordingRule();
+				return true;
+		}
+
+		Log.v( TAG, "onOptionsItemSelected : exit" );
+		return super.onOptionsItemSelected( item );
 	}
 	
 	/**
@@ -223,36 +268,50 @@ public class RecordingRuleEditFragment extends AbstractMythFragment implements O
 	 */
 	private void saveRecordingRule(){
 		
-		//nothing to do
-		if(!this.mEdited) return;
+		Log.v( TAG, "saveRecordingRule : enter" );
 		
+		//nothing to do
+		if(!this.mEdited) 
+		{
+			Log.v( TAG, "saveRecordingRule : do nothing : exit" );
+			return;
+		}
+		
+		RecRule rule = this.mRule;
 		CheckBox cBox;
 		
 		cBox = (CheckBox) getActivity().findViewById( R.id.recording_rule_checkBox_active );
-		this.mRule.setInactive(cBox.isChecked());
+		rule.setInactive(cBox.isChecked());
 		
 		cBox = (CheckBox) getActivity().findViewById( R.id.recording_rule_checkBox_auto_comm_flag );
-		this.mRule.setAutoCommflag(cBox.isChecked());
+		rule.setAutoCommflag(cBox.isChecked());
 		
 		cBox = (CheckBox) getActivity().findViewById( R.id.recording_rule_checkBox_auto_transcode );
-		this.mRule.setAutoTranscode(cBox.isChecked());
+		rule.setAutoTranscode(cBox.isChecked());
 		
 		cBox = (CheckBox) getActivity().findViewById( R.id.recording_rule_checkBox_auto_meta_lookup );
-		this.mRule.setAutoMetaLookup(cBox.isChecked());
+		rule.setAutoMetaLookup(cBox.isChecked());
 		
 		cBox = (CheckBox) getActivity().findViewById( R.id.recording_rule_checkBox_auto_usr_job1 );
-		this.mRule.setAutoUserJob1(cBox.isChecked());
+		rule.setAutoUserJob1(cBox.isChecked());
 		
 		cBox = (CheckBox) getActivity().findViewById( R.id.recording_rule_checkBox_auto_usr_job2 );
-		this.mRule.setAutoUserJob2(cBox.isChecked());
+		rule.setAutoUserJob2(cBox.isChecked());
 		
 		cBox = (CheckBox) getActivity().findViewById( R.id.recording_rule_checkBox_auto_usr_job3 );
-		this.mRule.setAutoUserJob3(cBox.isChecked());
+		rule.setAutoUserJob3(cBox.isChecked());
 		
 		cBox = (CheckBox) getActivity().findViewById( R.id.recording_rule_checkBox_auto_usr_job4 );
-		this.mRule.setAutoUserJob4(cBox.isChecked());
+		rule.setAutoUserJob4(cBox.isChecked());
 		
-		new SaveRecordingRuleTask().doInBackground(this.mRule);
+		new SaveRecordingRuleTask().execute(rule);
+		
+		Log.v( TAG, "saveRecordingRule : exit" );
+	}
+	
+	private void toast(String msg){
+		Toast t = Toast.makeText(this.getActivity(), msg, Toast.LENGTH_SHORT);
+		t.show();
 	}
 	
 	private class DownloadRecordingRuleTask extends AsyncTask<Integer, Void, ResponseEntity<RecRuleWrapper>> {
@@ -292,55 +351,61 @@ public class RecordingRuleEditFragment extends AbstractMythFragment implements O
 		
 	}
 	
-	private class SaveRecordingRuleTask extends AsyncTask<RecRule, Void, Void>{
+	private class SaveRecordingRuleTask extends AsyncTask<RecRule, Void, String>{
 
 		@Override
-		protected Void doInBackground(RecRule... params) {
+		protected String doInBackground(RecRule... params) {
+
+			Log.v( TAG, "SaveRecordingRuleTask : doInBackground() : enter" );
 			
-			RecRule rule = params[0];
-			ETagInfo etag = ETagInfo.createEmptyETag();
-			ResponseEntity<Int> response = getMainApplication().getMythServicesApi().dvrOperations().addRecordingSchedule(
-					rule.getChanId(), 
-					rule.getStartTime(),
-					rule.getParentId(), 
-					rule.isInactive(), 
-					rule.getSeason(), 
-					rule.getEpisode(), 
-					rule.getInetref(), 
-					rule.getFindId(), 
-					rule.getType(),
-					rule.getSearchType(), 
-					rule.getRecPriority(), 
-					rule.getPreferredInput(),
-					rule.getStartOffset(), 
-					rule.getEndOffset(), 
-					rule.getDupMethod(),
-					rule.getDupIn(), 
-					rule.getFilter(),
-					rule.getRecProfile(),
-					rule.getRecGroup(),
-					rule.getStorageGroup(), 
-					rule.getPlayGroup(),
-					rule.isAutoExpire(),
-					rule.getMaxEpisodes(),
-					rule.isMaxNewest(),
-					rule.isAutoCommflag(),
-					rule.isAutoTranscode(), 
-					rule.isAutoMetaLookup(), 
-					rule.isAutoUserJob1(),
-					rule.isAutoUserJob2(), 
-					rule.isAutoUserJob3(),
-					rule.isAutoUserJob4(),
-					rule.getTranscoder());
-			
-			//on successful add, delete old recording rule
-			if(response.hasBody() && response.getBody().getInteger() == 1){
-				getMainApplication().getMythServicesApi().dvrOperations().removeRecordingSchedule(rule.getId());
+			try {
+				RecRule rule = params[0];
+				ETagInfo etag = ETagInfo.createEmptyETag();
+				ResponseEntity<Int> response = getMainApplication()
+						.getMythServicesApi()
+						.dvrOperations()
+						.addRecordingSchedule(rule.getChanId(),
+								rule.getStartTime(), rule.getParentId(),
+								rule.isInactive(), rule.getSeason(),
+								rule.getEpisode(), rule.getInetref(),
+								rule.getFindId(), rule.getType(),
+								rule.getSearchType(), rule.getRecPriority(),
+								rule.getPreferredInput(),
+								rule.getStartOffset(), rule.getEndOffset(),
+								rule.getDupMethod(), rule.getDupIn(),
+								rule.getFilter(), rule.getRecProfile(),
+								rule.getRecGroup(), rule.getStorageGroup(),
+								rule.getPlayGroup(), rule.isAutoExpire(),
+								rule.getMaxEpisodes(), rule.isMaxNewest(),
+								rule.isAutoCommflag(), rule.isAutoTranscode(),
+								rule.isAutoMetaLookup(), rule.isAutoUserJob1(),
+								rule.isAutoUserJob2(), rule.isAutoUserJob3(),
+								rule.isAutoUserJob4(), rule.getTranscoder());
+
+				// on successful add, delete old recording rule
+				if (response.hasBody() && response.getBody().getInteger() == 1) {
+					getMainApplication().getMythServicesApi().dvrOperations().removeRecordingSchedule(rule.getId());
+				}
+
+			} catch (Exception e) {
+				
+				Log.e(TAG, e.getMessage());
+				
+				Log.v( TAG, "SaveRecordingRuleTask : doInBackground() : exit-error" );
+				return "Failed To Save Recording Rule";
 			}
-			
-			return null;
+
+			Log.v( TAG, "SaveRecordingRuleTask : doInBackground() : exit" );
+			return "Recording Rule Saved";
 		}
-		
+				
+		@Override
+		protected void onPostExecute(String result) {
+			
+			toast(result);
+			
+			super.onPostExecute(result);
+		}
 	}
 	
 }
