@@ -148,10 +148,7 @@ public class RecordingRuleEditFragment extends AbstractMythFragment implements O
 		
 		switch( item.getItemId() ) {
 			case android.R.id.home:
-				// app icon in action bar clicked; go home
-				intent = new Intent( this.getActivity(), RecordingRulesActivity.class );
-				intent.addFlags( Intent.FLAG_ACTIVITY_CLEAR_TOP );
-				startActivity( intent );
+				this.getActivity().finish();
 				return true;
 				
 			case RecordingRulesActivity.RESET_ID:
