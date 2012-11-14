@@ -22,17 +22,18 @@ import org.joda.time.DateTime;
 import org.mythtv.R;
 import org.mythtv.client.ui.util.MythtvListFragment;
 import org.mythtv.client.ui.util.ProgramHelper;
-import org.mythtv.db.dvr.ProgramConstants;
+import org.mythtv.db.dvr.programGroup.ProgramGroup;
+import org.mythtv.db.dvr.programGroup.ProgramGroupConstants;
+import org.mythtv.db.dvr.programGroup.ProgramGroupDaoHelper;
 import org.mythtv.db.http.EtagConstants;
-import org.mythtv.service.dvr.BannerDownloadService;
 import org.mythtv.service.dvr.RecordedDownloadService;
-import org.mythtv.service.dvr.cache.BannerLruMemoryCache;
 import org.mythtv.service.util.RunningServiceHelper;
 import org.mythtv.service.util.image.ImageFetcher;
 import org.mythtv.services.api.dvr.impl.DvrTemplate.Endpoint;
 
 import android.annotation.TargetApi;
 import android.content.BroadcastReceiver;
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -71,14 +72,12 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 	private ProgramGroupCursorAdapter adapter;
 	
 	private RecordedDownloadReceiver recordedDownloadReceiver = new RecordedDownloadReceiver();
-//	private BannerDownloadReceiver bannerDownloadReceiver = new BannerDownloadReceiver();
 
 	private static ProgramHelper mProgramHelper;
+	private ProgramGroupDaoHelper mProgramGroupDaoHelper;
 	private RunningServiceHelper mRunningServiceHelper;
 	private ImageFetcher mImageFetcher;
 	
-//	private BannerLruMemoryCache imageCache;
-
 	/* (non-Javadoc)
 	 * @see android.support.v4.app.LoaderManager.LoaderCallbacks#onCreateLoader(int, android.os.Bundle)
 	 */
@@ -86,15 +85,15 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 	public Loader<Cursor> onCreateLoader( int id, Bundle args ) {
 		Log.v( TAG, "onCreateLoader : enter" );
 		
-		String[] projection = { ProgramConstants._ID, ProgramConstants.FIELD_TITLE, ProgramConstants.FIELD_PROGRAM_GROUP, ProgramConstants.FIELD_INETREF, ProgramConstants.FIELD_CATEGORY };
+		String[] projection = null;
 		
 		String selection = null;
 		
 		String[] selectionArgs = null;
 		
-		String sortOrder = ProgramConstants.FIELD_PROGRAM_GROUP;
+		String sortOrder = ProgramGroupConstants.FIELD_PROGRAM_GROUP;
 		
-	    CursorLoader cursorLoader = new CursorLoader( getActivity(), Uri.withAppendedPath( ProgramConstants.CONTENT_URI_RECORDED, "programGroups" ), projection, selection, selectionArgs, sortOrder );
+	    CursorLoader cursorLoader = new CursorLoader( getActivity(), ProgramGroupConstants.CONTENT_URI, projection, selection, selectionArgs, sortOrder );
 		
 	    Log.v( TAG, "onCreateLoader : exit" );
 		return cursorLoader;
@@ -123,8 +122,6 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 		
 		adapter.swapCursor( null );
 		
-		restartLoader();
-		
 		Log.v( TAG, "onLoaderReset : exit" );
 	}
 
@@ -137,14 +134,13 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 
 		super.onActivityCreated( savedInstanceState );
 
+		mProgramGroupDaoHelper = new ProgramGroupDaoHelper( getActivity() );
 		mProgramHelper = ProgramHelper.createInstance( getActivity() );
 		mRunningServiceHelper = new RunningServiceHelper( getActivity() );
 	
         if( RecordingsActivity.class.isInstance( getActivity() ) ) {
             mImageFetcher = ( (RecordingsActivity) getActivity() ).getImageFetcher();
         }
-
-//		imageCache = new BannerLruMemoryCache( getActivity() );
 
 		setHasOptionsMenu( true );
 		setRetainInstance( true );
@@ -190,10 +186,6 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 		recordedDownloadFilter.addAction( RecordedDownloadService.ACTION_COMPLETE );
         getActivity().registerReceiver( recordedDownloadReceiver, recordedDownloadFilter );
 
-//		IntentFilter bannerDownloadFilter = new IntentFilter( BannerDownloadService.ACTION_DOWNLOAD );
-//		bannerDownloadFilter.addAction( BannerDownloadService.ACTION_COMPLETE );
-//        getActivity().registerReceiver( bannerDownloadReceiver, bannerDownloadFilter );
-
 		Log.v( TAG, "onStart : enter" );
 	}
 
@@ -237,20 +229,10 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 		if( null != recordedDownloadReceiver ) {
 			try {
 				getActivity().unregisterReceiver( recordedDownloadReceiver );
-//				recordedDownloadReceiver = null;
 			} catch( IllegalArgumentException e ) {
 				Log.e( TAG, e.getLocalizedMessage(), e );
 			}
 		}
-
-//		if( null != bannerDownloadReceiver ) {
-//			try {
-//				getActivity().unregisterReceiver( bannerDownloadReceiver );
-//				bannerDownloadReceiver = null;
-//			} catch( IllegalArgumentException e ) {
-//				Log.e( TAG, e.getLocalizedMessage(), e );
-//			}
-//		}
 
 		Log.v( TAG, "onStop : exit" );
 	}
@@ -284,6 +266,14 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 		case REFRESH_ID:
 			Log.d( TAG, "onOptionsItemSelected : refresh selected" );
 
+			Cursor cursor = getActivity().getContentResolver().query( Uri.withAppendedPath( EtagConstants.CONTENT_URI, "endpoint" ), null, EtagConstants.FIELD_ENDPOINT + " = ?" ,new String[] { Endpoint.GET_RECORDED_LIST.name() }, null );
+			if( cursor.moveToFirst() ) {
+				Long id = cursor.getLong( cursor.getColumnIndexOrThrow( EtagConstants._ID ) );
+
+				getActivity().getContentResolver().delete( ContentUris.withAppendedId( EtagConstants.CONTENT_URI, id ), null, null );
+			}
+			cursor.close();
+
 			if( !mRunningServiceHelper.isServiceRunning( "org.mythtv.service.dvr.RecordedDownloadService" ) ) {
 				getActivity().startService( new Intent( RecordedDownloadService.ACTION_DOWNLOAD ) );
 			}
@@ -303,9 +293,18 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 		Log.v( TAG, "onListItemClick : enter" );
 
 		super.onListItemClick( l, v, position, id );
-		Log.v( TAG, "onListItemClick : position=" + position + ", id=" + id + ", tag=" + v.getTag() );
+		Log.v( TAG, "onListItemClick : position=" + position + ", id=" + id );
 
-		listener.onProgramGroupSelected( id );
+		String title = null;
+		Cursor cursor = getActivity().getContentResolver().query( ContentUris.withAppendedId( ProgramGroupConstants.CONTENT_URI, id ), new String[] { ProgramGroupConstants.FIELD_TITLE }, null, null, null );
+		if( cursor.moveToFirst() ) {
+			title = cursor.getString( cursor.getColumnIndexOrThrow( ProgramGroupConstants.FIELD_TITLE ) );
+		}
+		cursor.close();
+
+		if( null != title ) {
+			listener.onProgramGroupSelected( title );
+		}
 		
 		Log.v( TAG, "onListItemClick : exit" );
 	}
@@ -320,7 +319,7 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 
 	public interface OnProgramGroupListener {
 		
-		void onProgramGroupSelected( Long recordedId );
+		void onProgramGroupSelected( String title );
 				
 	}
 
@@ -330,14 +329,6 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 	
 	// internal helpers
 	
-	private void restartLoader() {
-		Log.v( TAG, "restartLoader : enter" );
-		
-		getLoaderManager().restartLoader( 0, null, this );
-
-		Log.v( TAG, "restartLoader : exit" );
-	}
-
 	private class ProgramGroupCursorAdapter extends CursorAdapter {
 
 		private LayoutInflater mInflater;
@@ -372,30 +363,17 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 		/* (non-Javadoc)
 		 * @see android.support.v4.widget.CursorAdapter#bindView(android.view.View, android.content.Context, android.database.Cursor)
 		 */
-//		@SuppressWarnings( "deprecation" )
 		@Override
 		public void bindView( View view, Context context, Cursor cursor ) {
 
-	        String title = cursor.getString( cursor.getColumnIndexOrThrow( ProgramConstants.FIELD_TITLE ) );
-	        String category = cursor.getString( cursor.getColumnIndexOrThrow( ProgramConstants.FIELD_CATEGORY ) );
-	        String inetref = cursor.getString( cursor.getColumnIndexOrThrow( ProgramConstants.FIELD_INETREF ) );
-	        //Log.v( TAG, "bindView : id=" + id + ",title=" + title + ", category=" + category );
+			ProgramGroup programGroup = mProgramGroupDaoHelper.convertCursorToProgramGroup( cursor );
 
 	        ViewHolder mHolder = (ViewHolder) view.getTag();
 			
-			mHolder.programGroup.setText( title );
-			mHolder.category.setBackgroundColor( mProgramHelper.getCategoryColor( category ) );
+			mHolder.programGroup.setText( programGroup.getTitle() );
+			mHolder.category.setBackgroundColor( mProgramHelper.getCategoryColor( programGroup.getCategory() ) );
 
-//			BitmapDrawable banner = imageCache.get( title );
-//			if( null != banner ) {
-//				mHolder.programGroupDetail.setBackgroundDrawable( banner );
-//				mHolder.programGroup.setVisibility( View.INVISIBLE );
-//			} else {
-//				mHolder.programGroupDetail.setBackgroundDrawable( null );
-//				mHolder.programGroup.setVisibility( View.VISIBLE );
-//			}
-			
-            mImageFetcher.loadImage( inetref, "Banner", mHolder.programGroupBanner, mHolder.programGroup );
+            mImageFetcher.loadImage( programGroup.getInetref(), "Banner", mHolder.programGroupBanner, mHolder.programGroup );
 		}
 
 	}

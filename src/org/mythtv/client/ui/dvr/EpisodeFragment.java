@@ -191,15 +191,15 @@ public class EpisodeFragment extends AbstractMythFragment {
 		
 		String[] projection = { 
 			ProgramConstants._ID, ProgramConstants.FIELD_TITLE, ProgramConstants.FIELD_SUB_TITLE, ProgramConstants.FIELD_INETREF,
-			ProgramConstants.FIELD_DESCRIPTION, ProgramConstants.FIELD_AIR_DATE, ProgramConstants.FIELD_CHANNEL_NUMBER, 
+			ProgramConstants.FIELD_DESCRIPTION, ProgramConstants.FIELD_AIR_DATE, 
 			ProgramConstants.FIELD_CATEGORY, ProgramConstants.FIELD_START_TIME, ProgramConstants.FIELD_END_TIME,
-			ProgramConstants.FIELD_CHANNEL_ID, ProgramConstants.FIELD_PROGRAM_GROUP
+			ProgramConstants.FIELD_CHANNEL_ID
 		};
 
 		Cursor cursor = getActivity().getContentResolver().query( ContentUris.withAppendedId( ProgramConstants.CONTENT_URI_RECORDED, id ), projection, null, null, null );
 		if( cursor.moveToFirst() ) {
 
-			programGroup = cursor.getString( cursor.getColumnIndexOrThrow( ProgramConstants.FIELD_PROGRAM_GROUP ) );
+//			programGroup = cursor.getString( cursor.getColumnIndexOrThrow( ProgramConstants.FIELD_PROGRAM_GROUP ) );
 			inetref = cursor.getString( cursor.getColumnIndexOrThrow( ProgramConstants.FIELD_INETREF ) );
 			channelId = Integer.parseInt( cursor.getString( cursor.getColumnIndexOrThrow( ProgramConstants.FIELD_CHANNEL_ID ) ) );
 			startTime = new DateTime( cursor.getLong( cursor.getColumnIndexOrThrow( ProgramConstants.FIELD_START_TIME ) ) );
@@ -239,7 +239,7 @@ public class EpisodeFragment extends AbstractMythFragment {
 
 			// channel number
 			tView = (TextView) activity.findViewById( R.id.textView_episode_ch_num );
-			tView.setText( cursor.getString( cursor.getColumnIndexOrThrow( ProgramConstants.FIELD_CHANNEL_NUMBER ) ) );
+//			tView.setText( cursor.getString( cursor.getColumnIndexOrThrow( ProgramConstants.FIELD_CHANNEL_NUMBER ) ) );
 
 			// airdate
 			tView = (TextView) activity.findViewById( R.id.textView_episode_airdate );

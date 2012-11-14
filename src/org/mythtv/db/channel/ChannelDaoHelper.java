@@ -33,6 +33,13 @@ public class ChannelDaoHelper {
 		this.mContext = context;
 	}
 
+	/**
+	 * @param projection
+	 * @param selection
+	 * @param selectionArgs
+	 * @param sortOrder
+	 * @return
+	 */
 	public List<ChannelInfo> findAll( String[] projection, String selection, String[] selectionArgs, String sortOrder ) {
 		Log.d( TAG, "findAll : enter" );
 		
@@ -49,6 +56,9 @@ public class ChannelDaoHelper {
 		return channelInfos;
 	}
 	
+	/**
+	 * @return
+	 */
 	public List<ChannelInfo> finalAll() {
 		Log.d( TAG, "findAll : enter" );
 		
@@ -58,6 +68,14 @@ public class ChannelDaoHelper {
 		return channelInfos;
 	}
 	
+	/**
+	 * @param id
+	 * @param projection
+	 * @param selection
+	 * @param selectionArgs
+	 * @param sortOrder
+	 * @return
+	 */
 	public ChannelInfo findOne( Long id, String[] projection, String selection, String[] selectionArgs, String sortOrder ) {
 		Log.d( TAG, "findOne : enter" );
 		
@@ -166,22 +184,22 @@ public class ChannelDaoHelper {
 		
 		if( null != channelInfos && !channelInfos.isEmpty() ) {
 			
-			String[] channelProjection = new String[] { ChannelConstants._ID };
-			String channelSelection = ChannelConstants.FIELD_CALLSIGN + " = ?";
+//			String[] channelProjection = new String[] { ChannelConstants._ID };
+//			String channelSelection = ChannelConstants.FIELD_CALLSIGN + " = ?";
 
 			ContentValues contentValues;
 			List<ContentValues> contentValuesArray = new ArrayList<ContentValues>();
 
 			for( ChannelInfo channelInfo : channelInfos ) {
 
-				Cursor channelCursor = mContext.getContentResolver().query( ChannelConstants.CONTENT_URI, channelProjection, channelSelection, new String[] { channelInfo.getCallSign() }, null );
-				if( channelCursor.getCount() == 0 ) {
+//				Cursor channelCursor = mContext.getContentResolver().query( ChannelConstants.CONTENT_URI, channelProjection, channelSelection, new String[] { channelInfo.getCallSign() }, null );
+//				if( channelCursor.getCount() == 0 ) {
 
 					contentValues = convertChannelInfoToContentValues( channelInfo );
 					contentValuesArray.add( contentValues );
 
-				}
-				channelCursor.close();
+//				}
+//				channelCursor.close();
 				
 			}			
 			

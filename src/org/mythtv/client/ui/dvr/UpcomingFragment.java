@@ -80,9 +80,9 @@ public class UpcomingFragment extends MythtvListFragment implements LoaderManage
 
         mainApplication = getMainApplication();
 
-		String[] projection = { ProgramConstants._ID, ProgramConstants.FIELD_TITLE, ProgramConstants.FIELD_SUB_TITLE, ProgramConstants.FIELD_START_TIME, ProgramConstants.FIELD_DURATION, ProgramConstants.FIELD_CATEGORY, ProgramConstants.FIELD_CHANNEL_NUMBER };
+		String[] projection = { ProgramConstants._ID, ProgramConstants.FIELD_TITLE, ProgramConstants.FIELD_SUB_TITLE, ProgramConstants.FIELD_START_TIME, ProgramConstants.FIELD_CATEGORY };
 		
-		String selection =  ProgramConstants.FIELD_START_DATE + " = ? AND " + ProgramConstants.FIELD_START_TIME + " >= ?";
+		String selection = null; // ProgramConstants.FIELD_START_DATE + " = ? AND " + ProgramConstants.FIELD_START_TIME + " >= ?";
 		
 		String[] selectionArgs = new String[] { startDate, "" + DateUtils.convertUtc( now ).getMillis() };
 		
@@ -187,11 +187,11 @@ public class UpcomingFragment extends MythtvListFragment implements LoaderManage
 			//Log.v( TAG, "UpcomingCursorAdapter.bindView : enter" );
 
 			long lStartTime = cursor.getLong( cursor.getColumnIndex( ProgramConstants.FIELD_START_TIME ) );
-			int iDuration = cursor.getInt( cursor.getColumnIndex( ProgramConstants.FIELD_DURATION ) );
+//			int iDuration = cursor.getInt( cursor.getColumnIndex( ProgramConstants.FIELD_DURATION ) );
 			String sTitle = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_TITLE ) );
 			String sSubTitle = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_SUB_TITLE ) );
 			String sCategory = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_CATEGORY ) );
-			String sChannelNumber = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_CHANNEL_NUMBER ) );
+//			String sChannelNumber = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_CHANNEL_NUMBER ) );
 			
 			ViewHolder mHolder = (ViewHolder) view.getTag();
 
@@ -200,8 +200,8 @@ public class UpcomingFragment extends MythtvListFragment implements LoaderManage
 			mHolder.category.setBackgroundColor( mProgramHelper.getCategoryColor( sCategory ) );
 			mHolder.title.setText( sTitle );
 			mHolder.subTitle.setText( sSubTitle );
-			mHolder.channel.setText( sChannelNumber );
-            mHolder.duration.setText( iDuration + " minutes" );
+//			mHolder.channel.setText( sChannelNumber );
+//            mHolder.duration.setText( iDuration + " minutes" );
 
             if (mainApplication.getClockType() != null && mainApplication.getClockType().equals("24")) {
                 mHolder.startTime.setText( DateUtils.timeFormatter24.print( startTime ) );

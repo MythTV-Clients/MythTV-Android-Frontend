@@ -23,6 +23,7 @@ import static android.provider.BaseColumns._ID;
 import org.joda.time.DateTime;
 import org.mythtv.db.channel.ChannelConstants;
 import org.mythtv.db.dvr.ProgramConstants;
+import org.mythtv.db.dvr.programGroup.ProgramGroupConstants;
 import org.mythtv.db.http.EtagConstants;
 import org.mythtv.db.preferences.LocationProfileConstants;
 import org.mythtv.db.preferences.PlaybackProfileConstants;
@@ -45,7 +46,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	private static final String TAG = DatabaseHelper.class.getSimpleName();
 	
 	private static final String DATABASE_NAME = "mythtvdb";
-	private static final int DATABASE_VERSION = 69;
+	private static final int DATABASE_VERSION = 71;
 
 	public DatabaseHelper( Context context ) {
 		super( context, DATABASE_NAME, null, DATABASE_VERSION );
@@ -82,6 +83,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		dropProgram( db, ProgramConstants.TABLE_NAME_PROGRAM );
 		createProgram( db, ProgramConstants.TABLE_NAME_PROGRAM );
 
+		dropProgramGroup( db );
+		createProgramGroup( db );
+		
 		dropCleanup( db );
 		createCleanup( db );
 		
@@ -95,8 +99,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	public void onUpgrade( SQLiteDatabase db, int oldVersion, int newVersion ) {
 		Log.v( TAG, "onUpgrade : enter" );
 
-		if( oldVersion < 69 ) {
-			Log.v( TAG, "onUpgrade : upgrading to db version 69" );
+		if( oldVersion < 71 ) {
+			Log.v( TAG, "onUpgrade : upgrading to db version 71" );
 
 			onCreate( db );
 
@@ -217,26 +221,26 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		}
 		db.execSQL( sql );
 
-//		ContentValues values = new ContentValues();
-//		values.put( LocationProfileConstants.FIELD_TYPE, "HOME" );
-//		values.put( LocationProfileConstants.FIELD_NAME, "Home" );
-//		values.put( LocationProfileConstants.FIELD_URL, "http://192.168.10.200:6544/" );
-//		values.put( LocationProfileConstants.FIELD_SELECTED, 1 );
-//		db.insert( LocationProfileConstants.TABLE_NAME, null, values );
-//
-//		values = new ContentValues();
-//		values.put( LocationProfileConstants.FIELD_TYPE, "AWAY" );
-//		values.put( LocationProfileConstants.FIELD_NAME, "Tunnel" );
-//		values.put( LocationProfileConstants.FIELD_URL, "http://10.0.2.2:6544/" );
-//		values.put( LocationProfileConstants.FIELD_SELECTED, 1 );
-//		db.insert( LocationProfileConstants.TABLE_NAME, null, values );
-//		
-//		values = new ContentValues();
-//		values.put( LocationProfileConstants.FIELD_TYPE, "AWAY" );
-//		values.put( LocationProfileConstants.FIELD_NAME, "Home" );
-//		values.put( LocationProfileConstants.FIELD_URL, "http://192.168.10.200:6544/" );
-//		values.put( LocationProfileConstants.FIELD_SELECTED, 0 );
-//		db.insert( LocationProfileConstants.TABLE_NAME, null, values );
+		ContentValues values = new ContentValues();
+		values.put( LocationProfileConstants.FIELD_TYPE, "HOME" );
+		values.put( LocationProfileConstants.FIELD_NAME, "Home" );
+		values.put( LocationProfileConstants.FIELD_URL, "http://192.168.10.200:6544/" );
+		values.put( LocationProfileConstants.FIELD_SELECTED, 1 );
+		db.insert( LocationProfileConstants.TABLE_NAME, null, values );
+
+		values = new ContentValues();
+		values.put( LocationProfileConstants.FIELD_TYPE, "AWAY" );
+		values.put( LocationProfileConstants.FIELD_NAME, "Tunnel" );
+		values.put( LocationProfileConstants.FIELD_URL, "http://10.0.2.2:6544/" );
+		values.put( LocationProfileConstants.FIELD_SELECTED, 1 );
+		db.insert( LocationProfileConstants.TABLE_NAME, null, values );
+		
+		values = new ContentValues();
+		values.put( LocationProfileConstants.FIELD_TYPE, "AWAY" );
+		values.put( LocationProfileConstants.FIELD_NAME, "Home" );
+		values.put( LocationProfileConstants.FIELD_URL, "http://192.168.10.200:6544/" );
+		values.put( LocationProfileConstants.FIELD_SELECTED, 0 );
+		db.insert( LocationProfileConstants.TABLE_NAME, null, values );
 		
 		Log.v( TAG, "createLocationProfiles : exit" );
 	}
@@ -420,13 +424,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		StringBuilder sqlBuilder = new StringBuilder();
 		sqlBuilder.append( "CREATE TABLE " + tableName + " (" );
 		sqlBuilder.append( _ID ).append( " " ).append( ProgramConstants.FIELD_ID_DATA_TYPE ).append( " " ).append( ProgramConstants.FIELD_ID_PRIMARY_KEY ).append( ", " );
-		sqlBuilder.append( ProgramConstants.FIELD_PROGRAM_GROUP ).append( " " ).append( ProgramConstants.FIELD_PROGRAM_GROUP_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( ProgramConstants.FIELD_START_TIME ).append( " " ).append( ProgramConstants.FIELD_START_TIME_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( ProgramConstants.FIELD_END_TIME ).append( " " ).append( ProgramConstants.FIELD_END_TIME_DATA_TYPE ).append( ", " );
-		sqlBuilder.append( ProgramConstants.FIELD_DURATION ).append( " " ).append( ProgramConstants.FIELD_DURATION_DATA_TYPE ).append( ", " );
-		sqlBuilder.append( ProgramConstants.FIELD_START_DATE ).append( " " ).append( ProgramConstants.FIELD_START_DATE_DATA_TYPE ).append( ", " );
-		sqlBuilder.append( ProgramConstants.FIELD_TIMESLOT_HOUR ).append( " " ).append( ProgramConstants.FIELD_TIMESLOT_HOUR_DATA_TYPE ).append( ", " );
-		sqlBuilder.append( ProgramConstants.FIELD_TIMESLOT_MINUTE ).append( " " ).append( ProgramConstants.FIELD_TIMESLOT_MINUTE_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( ProgramConstants.FIELD_TITLE ).append( " " ).append( ProgramConstants.FIELD_TITLE_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( ProgramConstants.FIELD_SUB_TITLE ).append( " " ).append( ProgramConstants.FIELD_SUB_TITLE_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( ProgramConstants.FIELD_CATEGORY ).append( " " ).append( ProgramConstants.FIELD_CATEGORY_DATA_TYPE ).append( ", " );
@@ -449,21 +448,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		sqlBuilder.append( ProgramConstants.FIELD_SEASON ).append( " " ).append( ProgramConstants.FIELD_SEASON_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( ProgramConstants.FIELD_EPISODE ).append( " " ).append( ProgramConstants.FIELD_EPISODE_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( ProgramConstants.FIELD_CHANNEL_ID ).append( " " ).append( ProgramConstants.FIELD_CHANNEL_ID_DATA_TYPE ).append( ", " );
-		sqlBuilder.append( ProgramConstants.FIELD_CHANNEL_NUMBER ).append( " " ).append( ProgramConstants.FIELD_CHANNEL_NUMBER_DATA_TYPE ).append( ", " );
-		sqlBuilder.append( ProgramConstants.FIELD_CHANNEL_CALLSIGN ).append( " " ).append( ProgramConstants.FIELD_CHANNEL_CALLSIGN_DATA_TYPE ).append( ", " );
-		sqlBuilder.append( ProgramConstants.FIELD_STATUS ).append( " " ).append( ProgramConstants.FIELD_STATUS_DATA_TYPE ).append( ", " );
-		sqlBuilder.append( ProgramConstants.FIELD_PRIORITY ).append( " " ).append( ProgramConstants.FIELD_PRIORITY_DATA_TYPE ).append( ", " );
-		sqlBuilder.append( ProgramConstants.FIELD_START_TS ).append( " " ).append( ProgramConstants.FIELD_START_TS_DATA_TYPE ).append( ", " );
-		sqlBuilder.append( ProgramConstants.FIELD_END_TS ).append( " " ).append( ProgramConstants.FIELD_END_TS_DATA_TYPE ).append( ", " );
-		sqlBuilder.append( ProgramConstants.FIELD_RECORD_ID ).append( " " ).append( ProgramConstants.FIELD_RECORD_ID_DATA_TYPE ).append( ", " );
-		sqlBuilder.append( ProgramConstants.FIELD_REC_GROUP ).append( " " ).append( ProgramConstants.FIELD_REC_GROUP_DATA_TYPE ).append( ", " );
-		sqlBuilder.append( ProgramConstants.FIELD_PLAY_GROUP ).append( " " ).append( ProgramConstants.FIELD_PLAY_GROUP_DATA_TYPE ).append( ", " );
-		sqlBuilder.append( ProgramConstants.FIELD_STORAGE_GROUP ).append( " " ).append( ProgramConstants.FIELD_STORAGE_GROUP_DATA_TYPE ).append( ", " );
-		sqlBuilder.append( ProgramConstants.FIELD_REC_TYPE ).append( " " ).append( ProgramConstants.FIELD_REC_TYPE_DATA_TYPE ).append( ", " );
-		sqlBuilder.append( ProgramConstants.FIELD_DUP_IN_TYPE ).append( " " ).append( ProgramConstants.FIELD_DUP_IN_TYPE_DATA_TYPE ).append( ", " );
-		sqlBuilder.append( ProgramConstants.FIELD_DUP_METHOD ).append( " " ).append( ProgramConstants.FIELD_DUP_METHOD_DATA_TYPE ).append( ", " );
-		sqlBuilder.append( ProgramConstants.FIELD_ENCODER_ID ).append( " " ).append( ProgramConstants.FIELD_ENCODER_ID_DATA_TYPE ).append( ", " );
-		sqlBuilder.append( ProgramConstants.FIELD_PROFILE ).append( " " ).append( ProgramConstants.FIELD_PROFILE_DATA_TYPE );
+		sqlBuilder.append( ProgramConstants.FIELD_RECORD_ID ).append( " " ).append( ProgramConstants.FIELD_RECORD_ID_DATA_TYPE );
 		sqlBuilder.append( ");" );
 		String sql = sqlBuilder.toString();
 		if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
@@ -490,7 +475,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		StringBuilder sqlBuilder = new StringBuilder();
 		sqlBuilder.append( "CREATE TABLE " + ChannelConstants.TABLE_NAME + " (" );
 		sqlBuilder.append( _ID ).append( " " ).append( ChannelConstants.FIELD_ID_DATA_TYPE ).append( " " ).append( ChannelConstants.FIELD_ID_PRIMARY_KEY ).append( ", " );
-//		sqlBuilder.append( ChannelConstants.FIELD_CHAN_ID ).append( " " ).append( ChannelConstants.FIELD_CHAN_ID_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( ChannelConstants.FIELD_CHAN_NUM ).append( " " ).append( ChannelConstants.FIELD_CHAN_NUM_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( ChannelConstants.FIELD_CALLSIGN ).append( " " ).append( ChannelConstants.FIELD_CALLSIGN_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( ChannelConstants.FIELD_ICON_URL ).append( " " ).append( ChannelConstants.FIELD_ICON_URL_DATA_TYPE ).append( ", " );
@@ -532,6 +516,34 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		db.execSQL( "DROP TABLE IF EXISTS " + ChannelConstants.TABLE_NAME );
 		
 		Log.v( TAG, "dropChannel : exit" );
+	}
+	
+	private void createProgramGroup( SQLiteDatabase db ) {
+		Log.v( TAG, "createProgramGroup : enter" );
+		
+		StringBuilder sqlBuilder = new StringBuilder();
+		sqlBuilder.append( "CREATE TABLE " + ProgramGroupConstants.TABLE_NAME + " (" );
+		sqlBuilder.append( _ID ).append( " " ).append( ProgramGroupConstants.FIELD_ID_DATA_TYPE ).append( " " ).append( ProgramGroupConstants.FIELD_ID_PRIMARY_KEY ).append( ", " );
+		sqlBuilder.append( ProgramGroupConstants.FIELD_PROGRAM_GROUP ).append( " " ).append( ProgramGroupConstants.FIELD_PROGRAM_GROUP_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ProgramGroupConstants.FIELD_TITLE ).append( " " ).append( ProgramGroupConstants.FIELD_TITLE_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ProgramGroupConstants.FIELD_CATEGORY ).append( " " ).append( ProgramGroupConstants.FIELD_CATEGORY_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ProgramGroupConstants.FIELD_INETREF ).append( " " ).append( ProgramGroupConstants.FIELD_INETREF_DATA_TYPE );
+		sqlBuilder.append( ");" );
+		String sql = sqlBuilder.toString();
+		if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
+			Log.v( TAG, "createProgramGroup : sql=" + sql );
+		}
+		db.execSQL( sql );
+	
+		Log.v( TAG, "createProgramGroup : exit" );
+	}
+	
+	private void dropProgramGroup( SQLiteDatabase db ) {
+		Log.v( TAG, "dropProgramGroup : enter" );
+		
+		db.execSQL( "DROP TABLE IF EXISTS " + ProgramGroupConstants.TABLE_NAME );
+		
+		Log.v( TAG, "dropProgramGroup : exit" );
 	}
 	
 }

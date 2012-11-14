@@ -23,7 +23,6 @@ import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.service.AbstractMythtvProcessor;
 import org.mythtv.service.util.DateUtils;
 import org.mythtv.services.api.dvr.Program;
-import org.mythtv.services.utils.ArticleCleaner;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -42,22 +41,12 @@ public abstract class ProgramProcessor extends AbstractMythtvProcessor {
 
 	protected ContentValues convertProgramToContentValues( final Program program ) {
 		
-		long durationInMinutes = ( program.getEndTime().getMillis() / 60000 ) - ( program.getStartTime().getMillis() / 60000 );
-
-		// Removing Grammar Articles.  English only at this time, needs internationalization
-		String cleanTitle = ArticleCleaner.clean( program.getTitle() );
-
 		DateTime startTime = new DateTime( program.getStartTime().getMillis() );
 		DateTime endTime = new DateTime( program.getEndTime().getMillis() );
 		
 		ContentValues values = new ContentValues();
-		values.put( ProgramConstants.FIELD_PROGRAM_GROUP, cleanTitle );
 		values.put( ProgramConstants.FIELD_START_TIME, startTime.getMillis() );
 		values.put( ProgramConstants.FIELD_END_TIME, endTime.getMillis() );
-		values.put( ProgramConstants.FIELD_DURATION, durationInMinutes );
-		values.put( ProgramConstants.FIELD_START_DATE, DateUtils.dateFormatter.print( startTime ) );
-		values.put( ProgramConstants.FIELD_TIMESLOT_HOUR, startTime.getHourOfDay() );
-		values.put( ProgramConstants.FIELD_TIMESLOT_MINUTE, startTime.getMinuteOfHour() );
 		values.put( ProgramConstants.FIELD_TITLE, null != program.getTitle() ? program.getTitle() : "" );
 		values.put( ProgramConstants.FIELD_SUB_TITLE, null != program.getSubTitle() ? program.getSubTitle() : "" );
 		values.put( ProgramConstants.FIELD_CATEGORY, null != program.getCategory() ? program.getCategory() : "" );
@@ -80,21 +69,7 @@ public abstract class ProgramProcessor extends AbstractMythtvProcessor {
 		values.put( ProgramConstants.FIELD_SEASON, null != program.getSeason() ? program.getSeason() : "" );
 		values.put( ProgramConstants.FIELD_EPISODE, null != program.getEpisode() ? program.getEpisode() : "" );
 		values.put( ProgramConstants.FIELD_CHANNEL_ID, null != program.getChannelInfo() ? program.getChannelInfo().getChannelId() : -1 );
-		values.put( ProgramConstants.FIELD_CHANNEL_NUMBER, null != program.getChannelInfo() ? program.getChannelInfo().getChannelNumber() : "" );
-		values.put( ProgramConstants.FIELD_CHANNEL_CALLSIGN, null != program.getChannelInfo() ? program.getChannelInfo().getCallSign() : "" );
-		values.put( ProgramConstants.FIELD_STATUS, null != program.getRecording() ? program.getRecording().getStatus() : -1 );
-		values.put( ProgramConstants.FIELD_PRIORITY, null != program.getRecording() ? program.getRecording().getPriority() : -1 );
-		values.put( ProgramConstants.FIELD_START_TS, null != program.getRecording() && null != program.getRecording().getStartTimestamp() ? program.getRecording().getStartTimestamp().getMillis() : -1 );
-		values.put( ProgramConstants.FIELD_END_TS, null != program.getRecording() && null != program.getRecording().getEndTimestamp() ? program.getRecording().getEndTimestamp().getMillis() : -1 );
-		values.put( ProgramConstants.FIELD_RECORD_ID, null != program.getRecording() ? program.getRecording().getRecordid() : -1 );
-		values.put( ProgramConstants.FIELD_REC_GROUP, null != program.getRecording() ? program.getRecording().getRecordingGroup() : "" );
-		values.put( ProgramConstants.FIELD_PLAY_GROUP, null != program.getRecording() ? program.getRecording().getPlayGroup() : "" );
-		values.put( ProgramConstants.FIELD_STORAGE_GROUP, null != program.getRecording() ? program.getRecording().getStorageGroup() : "" );
-		values.put( ProgramConstants.FIELD_REC_TYPE, null != program.getRecording() ? program.getRecording().getRecordingType() : -1 );
-		values.put( ProgramConstants.FIELD_DUP_IN_TYPE, null != program.getRecording() ? program.getRecording().getDuplicateInType() : -1 );
-		values.put( ProgramConstants.FIELD_DUP_METHOD, null != program.getRecording() ? program.getRecording().getDuplicateMethod() : -1 );
-		values.put( ProgramConstants.FIELD_ENCODER_ID, null != program.getRecording() ? program.getRecording().getEncoderId() : -1 );
-		values.put( ProgramConstants.FIELD_PROFILE, null != program.getRecording() ? program.getRecording().getProfile() : "" );
+		values.put( ProgramConstants.FIELD_RECORD_ID, null != program.getRecording() ? program.getRecording().getRecordId() : -1 );
 		return values;
 	}
 

@@ -43,27 +43,12 @@ public class ProgramConstants implements BaseColumns {
 	public static final String FIELD_ID_DATA_TYPE = "INTEGER";
 	public static final String FIELD_ID_PRIMARY_KEY = "PRIMARY KEY AUTOINCREMENT";
 	
-	public static final String FIELD_PROGRAM_GROUP = "PROGRAM_GROUP";
-	public static final String FIELD_PROGRAM_GROUP_DATA_TYPE = "TEXT";
-
 	public static final String FIELD_START_TIME = "START_TIME";
 	public static final String FIELD_START_TIME_DATA_TYPE = "INTEGER";
 
 	public static final String FIELD_END_TIME = "END_TIME";
 	public static final String FIELD_END_TIME_DATA_TYPE = "INTEGER";
 	
-	public static final String FIELD_DURATION = "DURATION";
-	public static final String FIELD_DURATION_DATA_TYPE = "INTEGER";
-	
-	public static final String FIELD_START_DATE = "START_DATE";
-	public static final String FIELD_START_DATE_DATA_TYPE = "TEXT";
-
-	public static final String FIELD_TIMESLOT_HOUR = "TIMESLOT_HOUR";
-	public static final String FIELD_TIMESLOT_HOUR_DATA_TYPE = "TEXT";
-
-	public static final String FIELD_TIMESLOT_MINUTE = "TIMESLOT";
-	public static final String FIELD_TIMESLOT_MINUTE_DATA_TYPE = "TEXT";
-
 	public static final String FIELD_TITLE = "TITLE";
 	public static final String FIELD_TITLE_DATA_TYPE = "TEXT";
 	
@@ -131,60 +116,13 @@ public class ProgramConstants implements BaseColumns {
 	public static final String FIELD_CHANNEL_ID = "CHANNEL_ID";
 	public static final String FIELD_CHANNEL_ID_DATA_TYPE = "TEXT";
 
-	public static final String FIELD_CHANNEL_NUMBER = "CHANNEL_NUMBER";
-	public static final String FIELD_CHANNEL_NUMBER_DATA_TYPE = "TEXT";
-
-	public static final String FIELD_CHANNEL_CALLSIGN = "CHANNEL_CALLSIGN";
-	public static final String FIELD_CHANNEL_CALLSIGN_DATA_TYPE = "TEXT";
-
-	public static final String FIELD_STATUS = "STATUS";
-	public static final String FIELD_STATUS_DATA_TYPE = "INTEGER";
-
-	public static final String FIELD_PRIORITY = "PRIORITY";
-	public static final String FIELD_PRIORITY_DATA_TYPE = "INTEGER";
-	
-	public static final String FIELD_START_TS = "START_TS";
-	public static final String FIELD_START_TS_DATA_TYPE = "INTEGER";
-	
-	public static final String FIELD_END_TS = "END_TS";
-	public static final String FIELD_END_TS_DATA_TYPE = "INTEGER";
-	
 	public static final String FIELD_RECORD_ID = "RECORD_ID";
 	public static final String FIELD_RECORD_ID_DATA_TYPE = "INTEGER";
 	
-	public static final String FIELD_REC_GROUP = "REC_GROUP";
-	public static final String FIELD_REC_GROUP_DATA_TYPE = "TEXT";
-	
-	public static final String FIELD_PLAY_GROUP = "PLAY_GROUP";
-	public static final String FIELD_PLAY_GROUP_DATA_TYPE = "TEXT";
-	
-	public static final String FIELD_STORAGE_GROUP = "STORAGE_GROUP";
-	public static final String FIELD_STORAGE_GROUP_DATA_TYPE = "TEXT";
-	
-	public static final String FIELD_REC_TYPE = "REC_TYPE";
-	public static final String FIELD_REC_TYPE_DATA_TYPE = "INTEGER";
-	
-	public static final String FIELD_DUP_IN_TYPE = "DUP_IN_TYPE";
-	public static final String FIELD_DUP_IN_TYPE_DATA_TYPE = "INTEGER";
-	
-	public static final String FIELD_DUP_METHOD = "DUP_METHOD";
-	public static final String FIELD_DUP_METHOD_DATA_TYPE = "INTEGER";
-	
-	public static final String FIELD_ENCODER_ID = "ENCODER_ID";
-	public static final String FIELD_ENCODER_ID_DATA_TYPE = "INTEGER";
-	
-	public static final String FIELD_PROFILE = "PROFILE";
-	public static final String FIELD_PROFILE_DATA_TYPE = "TEXT";
-
 	static {
 		StringBuilder insert = new StringBuilder();
-		insert.append( FIELD_PROGRAM_GROUP ).append( "," );
 		insert.append( FIELD_START_TIME ).append( "," );
 		insert.append( FIELD_END_TIME ).append( "," );
-		insert.append( FIELD_DURATION ).append( "," );
-		insert.append( FIELD_START_DATE ).append( "," );
-		insert.append( FIELD_TIMESLOT_HOUR ).append( "," );
-		insert.append( FIELD_TIMESLOT_MINUTE ).append( "," );
 		insert.append( FIELD_TITLE ).append( "," );
 		insert.append( FIELD_SUB_TITLE ).append( "," );
 		insert.append( FIELD_CATEGORY ).append( "," );
@@ -207,26 +145,11 @@ public class ProgramConstants implements BaseColumns {
 		insert.append( FIELD_SEASON ).append( "," );
 		insert.append( FIELD_EPISODE ).append( "," );
 		insert.append( FIELD_CHANNEL_ID ).append( ", " );
-		insert.append( FIELD_CHANNEL_NUMBER ).append( ", " );
-		insert.append( FIELD_CHANNEL_CALLSIGN ).append( ", " );
-		insert.append( FIELD_STATUS ).append( ", " );
-		insert.append( FIELD_PRIORITY ).append( ", " );
-		insert.append( FIELD_START_TS ).append( ", " );
-		insert.append( FIELD_END_TS ).append( ", " );
-		insert.append( FIELD_RECORD_ID ).append( ", " );
-		insert.append( FIELD_REC_GROUP ).append( ", " );
-		insert.append( FIELD_PLAY_GROUP ).append( ", " );
-		insert.append( FIELD_STORAGE_GROUP ).append( ", " );
-		insert.append( FIELD_REC_TYPE ).append( ", " );
-		insert.append( FIELD_DUP_IN_TYPE ).append( ", " );
-		insert.append( FIELD_DUP_METHOD ).append( ", " );
-		insert.append( FIELD_ENCODER_ID ).append( ", " );
-		insert.append( FIELD_PROFILE );
-
+		insert.append( FIELD_RECORD_ID );
 		
 		StringBuilder values = new StringBuilder();
 		values.append( " ) " );
-		values.append( "VALUES( ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? )" );
+		values.append( "VALUES( ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? )" );
 		
 		StringBuilder insertProgram = new StringBuilder();
 		insertProgram.append( "INSERT INTO " ).append( TABLE_NAME_PROGRAM ).append( " ( " );
@@ -247,12 +170,7 @@ public class ProgramConstants implements BaseColumns {
 		INSERT_UPCOMING_ROW = insertUpcoming.toString();
 		
 		StringBuilder update = new StringBuilder();
-		update.append( FIELD_PROGRAM_GROUP ).append( " = ?, " );
 		update.append( FIELD_END_TIME ).append( " = ?, " );
-		update.append( FIELD_DURATION ).append( " = ?, " );
-		update.append( FIELD_START_DATE ).append( " = ?, " );
-		update.append( FIELD_TIMESLOT_HOUR ).append( " = ?, " );
-		update.append( FIELD_TIMESLOT_MINUTE ).append( " = ?, " );
 		update.append( FIELD_TITLE ).append( " = ?, " );
 		update.append( FIELD_SUB_TITLE ).append( " = ?, " );
 		update.append( FIELD_CATEGORY ).append( " = ?, " );
@@ -274,23 +192,9 @@ public class ProgramConstants implements BaseColumns {
 		update.append( FIELD_SEASON ).append( " = ?, " );
 		update.append( FIELD_EPISODE ).append( " = ?, " );
 		update.append( FIELD_CHANNEL_ID ).append( " = ?" );
-		update.append( FIELD_CHANNEL_NUMBER ).append( " = ?" );
-		update.append( FIELD_CHANNEL_CALLSIGN ).append( " = ?" );
-		update.append( FIELD_STATUS ).append( " = ?" );
-		update.append( FIELD_PRIORITY ).append( " = ?" );
-		update.append( FIELD_START_TS ).append( " = ?" );
-		update.append( FIELD_END_TS ).append( " = ?" );
 		update.append( FIELD_RECORD_ID ).append( " = ?" );
-		update.append( FIELD_REC_GROUP ).append( " = ?" );
-		update.append( FIELD_PLAY_GROUP ).append( " = ?" );
-		update.append( FIELD_STORAGE_GROUP ).append( " = ?" );
-		update.append( FIELD_REC_TYPE ).append( " = ?" );
-		update.append( FIELD_DUP_IN_TYPE ).append( " = ?" );
-		update.append( FIELD_DUP_METHOD ).append( " = ?" );
-		update.append( FIELD_ENCODER_ID ).append( " = ?" );
-		update.append( FIELD_PROFILE ).append( " = ?" );
 		update.append( " WHERE " );
-		update.append( FIELD_PROGRAM_ID ).append( " = ? AND " );
+		update.append( FIELD_CHANNEL_ID ).append( " = ? AND " );
 		update.append( FIELD_START_TIME ).append( " = ?" );
 		
 		StringBuilder updateProgram = new StringBuilder();

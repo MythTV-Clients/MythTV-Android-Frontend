@@ -20,11 +20,11 @@ package org.mythtv.client.ui.dvr;
 
 import org.mythtv.R;
 import org.mythtv.db.dvr.ProgramConstants;
+import org.mythtv.db.dvr.programGroup.ProgramGroupConstants;
 import org.mythtv.service.util.FileHelper;
 import org.mythtv.service.util.image.ImageCache;
 import org.mythtv.service.util.image.ImageFetcher;
 
-import android.content.ContentUris;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -89,10 +89,10 @@ public class RecordingsActivity extends AbstractDvrActivity implements Recording
 			mEpisodeFragment = (EpisodeFragment) getSupportFragmentManager().findFragmentById( R.id.fragment_dvr_episode );
 			mEpisodeFragment.setOnEpisodeActionListener( this );
 			
-			Cursor cursor = getContentResolver().query( ProgramConstants.CONTENT_URI_RECORDED, new String[] { ProgramConstants._ID }, null, null, ProgramConstants.FIELD_PROGRAM_GROUP );
+			Cursor cursor = getContentResolver().query( ProgramGroupConstants.CONTENT_URI, new String[] { ProgramGroupConstants.FIELD_TITLE }, null, null, ProgramGroupConstants.FIELD_PROGRAM_GROUP );
 			if( cursor.moveToFirst() ) {
-				Long id = cursor.getLong( cursor.getColumnIndexOrThrow( ProgramConstants._ID ) );
-				onProgramGroupSelected( id );
+				String title = cursor.getString( cursor.getColumnIndexOrThrow( ProgramConstants.FIELD_TITLE ) );
+				onProgramGroupSelected( title );
 			}
 		}
 		
@@ -147,16 +147,13 @@ public class RecordingsActivity extends AbstractDvrActivity implements Recording
         return mImageFetcher;
     }
 
-    public void onProgramGroupSelected( Long recordedId ) {
+    public void onProgramGroupSelected( String programGroup ) {
 		Log.d( TAG, "onProgramGroupSelected : enter" );
-		
-		String programGroup = "";
-		
-		Cursor cursor = getContentResolver().query( ContentUris.withAppendedId( ProgramConstants.CONTENT_URI_RECORDED, recordedId ), new String[] { ProgramConstants.FIELD_PROGRAM_GROUP }, null, null, null );
+
+		Long recordedId = null;
+		Cursor cursor = getContentResolver().query( ProgramConstants.CONTENT_URI_RECORDED, new String[] { ProgramConstants._ID }, ProgramConstants.FIELD_TITLE + " = ?", new String[] { programGroup }, null );
 		if( cursor.moveToFirst() ) {
-	        programGroup = cursor.getString( cursor.getColumnIndexOrThrow( ProgramConstants.FIELD_PROGRAM_GROUP ) );
-	        
-	        Log.d( TAG, "onProgramGroupSelected : programGroup=" + programGroup );
+			recordedId = cursor.getLong( cursor.getColumnIndexOrThrow( ProgramConstants._ID ) );
 		}
 		cursor.close();
 		
@@ -236,28 +233,28 @@ public class RecordingsActivity extends AbstractDvrActivity implements Recording
 
 		String[] projection = new String[] { ProgramConstants._ID };
 		
-		Cursor cursor = getContentResolver().query( ProgramConstants.CONTENT_URI_RECORDED, projection, ProgramConstants.FIELD_PROGRAM_GROUP + " = ?", new String[] { programGroup }, ProgramConstants.FIELD_PROGRAM_GROUP );
-		if( cursor.getCount() > 0 ) {
-
-			if( cursor.moveToFirst() ) {
-				Long id = cursor.getLong( cursor.getColumnIndexOrThrow( ProgramConstants._ID ) );
-				onProgramGroupSelected( id );
-				onEpisodeSelected( id );
-			}
-
-		} else {
-		
-			cursor.close();
-			
-			cursor = getContentResolver().query( ProgramConstants.CONTENT_URI_RECORDED, projection, null, null, ProgramConstants.FIELD_PROGRAM_GROUP );
-			if( cursor.moveToFirst() ) {
-				Long id = cursor.getLong( cursor.getColumnIndexOrThrow( ProgramConstants._ID ) );
-				onProgramGroupSelected( id );
-				onEpisodeSelected( id );
-			}
-
-		}
-		cursor.close();
+//		Cursor cursor = getContentResolver().query( ProgramConstants.CONTENT_URI_RECORDED, projection, ProgramConstants.FIELD_PROGRAM_GROUP + " = ?", new String[] { programGroup }, ProgramConstants.FIELD_PROGRAM_GROUP );
+//		if( cursor.getCount() > 0 ) {
+//
+//			if( cursor.moveToFirst() ) {
+//				Long id = cursor.getLong( cursor.getColumnIndexOrThrow( ProgramConstants._ID ) );
+//				onProgramGroupSelected( id );
+//				onEpisodeSelected( id );
+//			}
+//
+//		} else {
+//		
+//			cursor.close();
+//			
+//			cursor = getContentResolver().query( ProgramConstants.CONTENT_URI_RECORDED, projection, null, null, ProgramConstants.FIELD_PROGRAM_GROUP );
+//			if( cursor.moveToFirst() ) {
+//				Long id = cursor.getLong( cursor.getColumnIndexOrThrow( ProgramConstants._ID ) );
+//				onProgramGroupSelected( id );
+//				onEpisodeSelected( id );
+//			}
+//
+//		}
+//		cursor.close();
 		
 		recordingsFragment.notifyDeleted();
 		

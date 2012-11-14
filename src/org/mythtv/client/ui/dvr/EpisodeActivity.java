@@ -83,14 +83,14 @@ public class EpisodeActivity extends AbstractDvrActivity implements EpisodeFragm
 		Long episodeId = args.getLong( EPISODE_KEY, -1 );
 
 		String programGroup = null;
-		Cursor cursor = getContentResolver().query(
-				ContentUris.withAppendedId( ProgramConstants.CONTENT_URI_RECORDED, episodeId ),
-				new String[] { ProgramConstants.FIELD_PROGRAM_GROUP },
-				null, null, null );
-		if( cursor.moveToFirst() ) {
-			programGroup = cursor.getString( cursor.getColumnIndexOrThrow( ProgramConstants.FIELD_PROGRAM_GROUP ) );
-		}
-		cursor.close();
+//		Cursor cursor = getContentResolver().query(
+//				ContentUris.withAppendedId( ProgramConstants.CONTENT_URI_RECORDED, episodeId ),
+//				new String[] { ProgramConstants.FIELD_PROGRAM_GROUP },
+//				null, null, null );
+//		if( cursor.moveToFirst() ) {
+//			programGroup = cursor.getString( cursor.getColumnIndexOrThrow( ProgramConstants.FIELD_PROGRAM_GROUP ) );
+//		}
+//		cursor.close();
 		
 		switch( item.getItemId() ) {
 			case android.R.id.home:
@@ -166,22 +166,22 @@ public class EpisodeActivity extends AbstractDvrActivity implements EpisodeFragm
 		
 		String[] projection = new String[] { ProgramConstants._ID };
 		
-		Cursor cursor = getContentResolver().query( ProgramConstants.CONTENT_URI_RECORDED, projection, ProgramConstants.FIELD_PROGRAM_GROUP + " = ?", new String[] { programGroup }, ProgramConstants.FIELD_PROGRAM_GROUP );
-		if( cursor.getCount() > 0 ) {
-
-			if( cursor.moveToFirst() ) {
-				Long id = cursor.getLong( cursor.getColumnIndexOrThrow( ProgramConstants._ID ) );
-				Intent i = new Intent( this, EpisodeActivity.class );
-				i.putExtra( EpisodeActivity.EPISODE_KEY, id );
-				startActivity( i );
-			}
-
-		} else {
-		
-			finish();
-
-		}
-		cursor.close();
+//		Cursor cursor = getContentResolver().query( ProgramConstants.CONTENT_URI_RECORDED, projection, ProgramConstants.FIELD_PROGRAM_GROUP + " = ?", new String[] { programGroup }, ProgramConstants.FIELD_PROGRAM_GROUP );
+//		if( cursor.getCount() > 0 ) {
+//
+//			if( cursor.moveToFirst() ) {
+//				Long id = cursor.getLong( cursor.getColumnIndexOrThrow( ProgramConstants._ID ) );
+//				Intent i = new Intent( this, EpisodeActivity.class );
+//				i.putExtra( EpisodeActivity.EPISODE_KEY, id );
+//				startActivity( i );
+//			}
+//
+//		} else {
+//		
+//			finish();
+//
+//		}
+//		cursor.close();
 
 
 		Log.v( TAG, "onEpisodeDeleted : exit" );
