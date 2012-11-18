@@ -24,21 +24,21 @@ package org.mythtv.client.ui.dvr;
 //import io.vov.vitamio.widget.MediaController;
 //import io.vov.vitamio.widget.VideoView;
 
+import org.joda.time.DateTime;
 import org.mythtv.R;
 import org.mythtv.client.ui.preferences.LocationProfile.LocationType;
 import org.mythtv.client.ui.preferences.PlaybackProfile;
-import org.mythtv.db.dvr.ProgramConstants;
+import org.mythtv.db.dvr.RecordedDaoHelper;
 import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.content.LiveStreamInfo;
 import org.mythtv.services.api.content.LiveStreamInfoWrapper;
+import org.mythtv.services.api.dvr.Program;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.ContentUris;
 import android.content.Intent;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -51,13 +51,16 @@ import android.util.Log;
 public class VideoActivity extends AbstractDvrActivity {
 
 	private static final String TAG = VideoActivity.class.getSimpleName();
-	public static final String EXTRA_PROGRAM_KEY = "org.mythtv.client.ui.dvr.programGroup.EXTRA_PROGRAM_KEY";
+	public static final String EXTRA_CHANNEL_ID = "org.mythtv.client.ui.dvr.programGroup.EXTRA_CHANNEL_ID";
+	public static final String EXTRA_START_TIME = "org.mythtv.client.ui.dvr.programGroup.EXTRA_START_TIME";
 	
 	private ResponseEntity<LiveStreamInfoWrapper> info = null;
 	private ProgressDialog progressDialog;
 	private Boolean firstrun = true;
 	private PlaybackProfile selectedPlaybackProfile;
 
+	private RecordedDaoHelper mRecordedDaoHelper;
+	
 	// ***************************************
 	// Activity methods
 	// ***************************************
@@ -72,23 +75,22 @@ public class VideoActivity extends AbstractDvrActivity {
 		Log.v( TAG, "onCreate : enter" );
 		super.onCreate( savedInstanceState );
 
+		mRecordedDaoHelper = new RecordedDaoHelper( this );
+		
 	    setContentView( R.layout.activity_video );
 	    
 	    setupActionBar();
 	    
-		progressDialog = ProgressDialog.show( this, "Please wait...", "Retrieving video...", true, true );
 
-	    Long recordedId = getIntent().getLongExtra( EXTRA_PROGRAM_KEY, -1 );
+	    Long channelId = getIntent().getLongExtra( EXTRA_CHANNEL_ID, -1 );
+	    Long startTime = getIntent().getLongExtra( EXTRA_START_TIME, -1 );
 
-	    if( null != recordedId ) {
-	    	Cursor cursor = getContentResolver().query( ContentUris.withAppendedId( ProgramConstants.CONTENT_URI_RECORDED, recordedId ), new String[] { ProgramConstants.FIELD_FILENAME, ProgramConstants.FIELD_HOSTNAME }, null, null, null );
-	    	if( cursor.moveToFirst() ) {
-	    		String filename = cursor.getString( cursor.getColumnIndexOrThrow( ProgramConstants.FIELD_FILENAME ) );
-	    		String hostname = cursor.getString( cursor.getColumnIndexOrThrow( ProgramConstants.FIELD_HOSTNAME ) );
+	    Program program = mRecordedDaoHelper.findOne( channelId, new DateTime( startTime ) );
+	    if( null != program ) {
 
-	    		new CreateStreamTask().execute( filename, hostname );
-	    	}
-	    	cursor.close();
+	    	progressDialog = ProgressDialog.show( this, "Please wait...", "Retrieving video...", true, true );
+    		
+	    	new CreateStreamTask().execute( program.getFilename(), program.getHostname() );
 	    }
 	    
 		Log.v( TAG, "onCreate : exit" );

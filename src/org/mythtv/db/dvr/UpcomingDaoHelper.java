@@ -6,7 +6,6 @@ package org.mythtv.db.dvr;
 import java.util.List;
 
 import org.joda.time.DateTime;
-import org.mythtv.db.dvr.programGroup.ProgramGroupDaoHelper;
 import org.mythtv.services.api.dvr.Program;
 
 import android.content.ContentUris;
@@ -19,16 +18,12 @@ import android.util.Log;
  * @author Daniel Frey
  *
  */
-public class RecordedDaoHelper extends ProgramDaoHelper {
+public class UpcomingDaoHelper extends ProgramDaoHelper {
 
-	private static final String TAG = RecordedDaoHelper.class.getSimpleName();
+	private static final String TAG = UpcomingDaoHelper.class.getSimpleName();
 	
-	private ProgramGroupDaoHelper mProgramGroupDaoHelper;
-	
-	public RecordedDaoHelper( Context context ) {
+	public UpcomingDaoHelper( Context context ) {
 		super( context );
-		
-		mProgramGroupDaoHelper = new ProgramGroupDaoHelper( context );
 	}
 
 	/* (non-Javadoc)
@@ -38,7 +33,7 @@ public class RecordedDaoHelper extends ProgramDaoHelper {
 	public List<Program> findAll() {
 		Log.d( TAG, "findAll : enter" );
 		
-		List<Program> programs = findAll( ProgramConstants.CONTENT_URI_RECORDED, null, null, null, null );
+		List<Program> programs = findAll( ProgramConstants.CONTENT_URI_UPCOMING, null, null, null, null );
 		
 		Log.d( TAG, "findAll : exit" );
 		return programs;
@@ -51,7 +46,7 @@ public class RecordedDaoHelper extends ProgramDaoHelper {
 	public List<Program> findAllByTitle( String title ) {
 		Log.d( TAG, "findAllByTitle : enter" );
 		
-		List<Program> programs = findAll( ProgramConstants.CONTENT_URI_RECORDED, null, ProgramConstants.FIELD_TITLE + " = ?", new String[] { title }, null );
+		List<Program> programs = findAll( ProgramConstants.CONTENT_URI_UPCOMING, null, ProgramConstants.FIELD_TITLE + " = ?", new String[] { title }, null );
 		if( null != programs && !programs.isEmpty() ) {
 			for( Program program : programs ) {
 				Log.v( TAG, "findAllByTitle : channelId=" + program.getChannelInfo().getChannelId() + ", startTime=" + program.getStartTime().getMillis() + ", program=" + program.toString() );
@@ -70,7 +65,7 @@ public class RecordedDaoHelper extends ProgramDaoHelper {
 		Log.d( TAG, "findOne : enter" );
 		Log.d( TAG, "findOne : id=" + id );
 		
-		Program program = findOne( ContentUris.withAppendedId( ProgramConstants.CONTENT_URI_RECORDED, id ), null, null, null, null );
+		Program program = findOne( ContentUris.withAppendedId( ProgramConstants.CONTENT_URI_UPCOMING, id ), null, null, null, null );
 		if( null != program ) {
 			Log.d( TAG, "findOne : program=" + program.toString() );
 		}
@@ -89,7 +84,7 @@ public class RecordedDaoHelper extends ProgramDaoHelper {
 		String selection = ProgramConstants.TABLE_NAME_RECORDED + "." + ProgramConstants.FIELD_CHANNEL_ID + " = ? AND " + ProgramConstants.TABLE_NAME_RECORDED + "." + ProgramConstants.FIELD_START_TIME + " = ?";
 		String[] selectionArgs = new String[] { String.valueOf( channelId ), String.valueOf( startTime.getMillis() ) };
 
-		Program program = findOne( ProgramConstants.CONTENT_URI_RECORDED, null, selection, selectionArgs, null );
+		Program program = findOne( ProgramConstants.CONTENT_URI_UPCOMING, null, selection, selectionArgs, null );
 		if( null != program ) {
 			Log.v( TAG, "findOne : program=" + program.toString() );
 		} else {
@@ -107,7 +102,7 @@ public class RecordedDaoHelper extends ProgramDaoHelper {
 	public int save( Program program ) {
 		Log.d( TAG, "save : enter" );
 
-		int saved = save( ProgramConstants.CONTENT_URI_RECORDED, program );
+		int saved = save( ProgramConstants.CONTENT_URI_UPCOMING, program );
 		
 		Log.d( TAG, "save : exit" );
 		return saved;
@@ -120,7 +115,7 @@ public class RecordedDaoHelper extends ProgramDaoHelper {
 	public int deleteAll() {
 		Log.d( TAG, "deleteAll : enter" );
 
-		int deleted = deleteAll( ProgramConstants.CONTENT_URI_RECORDED );
+		int deleted = deleteAll( ProgramConstants.CONTENT_URI_UPCOMING );
 		
 		Log.d( TAG, "deleteAll : exit" );
 		return deleted;
@@ -133,7 +128,7 @@ public class RecordedDaoHelper extends ProgramDaoHelper {
 	public int delete( Program program ) {
 		Log.d( TAG, "delete : enter" );
 
-		int deleted = delete( ProgramConstants.CONTENT_URI_RECORDED, program );
+		int deleted = delete( ProgramConstants.CONTENT_URI_UPCOMING, program );
 		
 		Log.d( TAG, "delete : exit" );
 		return deleted;
@@ -146,12 +141,8 @@ public class RecordedDaoHelper extends ProgramDaoHelper {
 	public int load( List<Program> programs ) throws RemoteException, OperationApplicationException {
 		Log.d( TAG, "load : enter" );
 
-//		deleteAll();
-		
-		int loaded = load( ProgramConstants.CONTENT_URI_RECORDED, programs );
+		int loaded = load( ProgramConstants.CONTENT_URI_UPCOMING, programs );
 		Log.d( TAG, "load : loaded=" + loaded );
-		
-		mProgramGroupDaoHelper.load( programs );
 		
 		Log.d( TAG, "load : exit" );
 		return loaded;

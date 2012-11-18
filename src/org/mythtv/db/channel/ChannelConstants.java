@@ -39,9 +39,6 @@ public class ChannelConstants implements BaseColumns {
 	public static final String FIELD_ID_DATA_TYPE = "INTEGER";
 	public static final String FIELD_ID_PRIMARY_KEY = "PRIMARY KEY";
 
-//	public static final String FIELD_CHAN_ID = "CHAN_ID";
-//	public static final String FIELD_CHAN_ID_DATA_TYPE = "TEXT";
-
 	public static final String FIELD_CHAN_NUM = "CHAN_NUM";
 	public static final String FIELD_CHAN_NUM_DATA_TYPE = "TEXT";
 	
@@ -119,11 +116,17 @@ public class ChannelConstants implements BaseColumns {
 	public static final String FIELD_DEFAULT_AUTH = "DEFAULT_AUTH";
 	public static final String FIELD_DEFAULT_AUTH_DATA_TYPE = "TEXT";
 
+	public static final String[] COLUMN_MAP = { 
+		_ID, FIELD_CHAN_NUM, FIELD_CALLSIGN, FIELD_ICON_URL, FIELD_CHANNEL_NAME, FIELD_MPLEX_ID, FIELD_TRANSPORT_ID, FIELD_SERVICE_ID,
+		FIELD_NETWORK_ID, FIELD_ATSC_MAJOR_CHAN, FIELD_ATSC_MINOR_CHAN, FIELD_FORMAT, FIELD_MODULATION, FIELD_FREQUENCY, FIELD_FREQUENCY_ID,
+		FIELD_FREQUENCY_TABLE, FIELD_FINE_TUNE, FIELD_SIS_STANDARD, FIELD_CHAN_FILTERS, FIELD_SOURCE_ID, FIELD_INPUT_ID, FIELD_SOURCE_ID,
+		FIELD_INPUT_ID, FIELD_COMM_FREE, FIELD_USE_EIT, FIELD_VISIBLE, FIELD_XMLTV_ID, FIELD_DEFAULT_AUTH
+	};
+	
 	static {
 		StringBuilder sb = new StringBuilder();
 		
 		sb.append( "INSERT INTO " ).append( TABLE_NAME ).append( " ( " );
-//		sb.append( FIELD_CHAN_ID ).append( "," );
 		sb.append( _ID ).append( "," );
 		sb.append( FIELD_CHAN_NUM ).append( "," );
 		sb.append( FIELD_CALLSIGN ).append( "," );

@@ -1,14 +1,16 @@
 package org.mythtv.client.ui.dvr;
 
+import org.joda.time.DateTime;
 import org.mythtv.R;
 import org.mythtv.db.dvr.ProgramConstants;
+import org.mythtv.db.dvr.RecordedDaoHelper;
 import org.mythtv.service.util.FileHelper;
 import org.mythtv.service.util.image.ImageCache;
 import org.mythtv.service.util.image.ImageFetcher;
+import org.mythtv.services.api.dvr.Program;
+import org.mythtv.services.utils.ArticleCleaner;
 
-import android.content.ContentUris;
 import android.content.Intent;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -21,12 +23,13 @@ import android.view.MenuItem;
  */
 public class EpisodeActivity extends AbstractDvrActivity implements EpisodeFragment.OnEpisodeActionListener {
 
-	public static final String EPISODE_KEY = "EPISODE_ID";
+	public static final String CHANNEL_ID = "CHANNEL_ID";
+	public static final String START_TIME = "START_TIME";
 	
 	private static final String TAG = EpisodeActivity.class.getSimpleName();
 
+	private RecordedDaoHelper mRecordedDaoHelper;
 	private ImageFetcher mImageFetcher;
-	private FileHelper mFileHelper;
 
 	private EpisodeFragment episodeFragment;
 	
@@ -38,10 +41,10 @@ public class EpisodeActivity extends AbstractDvrActivity implements EpisodeFragm
 		Log.v( TAG, "onCreate : enter" );
 		super.onCreate( savedInstanceState );
 		
+		mRecordedDaoHelper = new RecordedDaoHelper( this );
+		
 		setContentView( R.layout.activity_dvr_episode );
 		
-		mFileHelper = new FileHelper( this );
-
         // Fetch screen height and width, to use as our max size when loading images as this activity runs full screen
         final DisplayMetrics displayMetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics( displayMetrics );
@@ -52,6 +55,7 @@ public class EpisodeActivity extends AbstractDvrActivity implements EpisodeFragm
         
         final int longest = width; //( height < width ? height : width );
         
+		FileHelper mFileHelper = new FileHelper( this );
         ImageCache.ImageCacheParams cacheParams = new ImageCache.ImageCacheParams( mFileHelper.getProgramRecordedDataDirectory() );
         cacheParams.setMemCacheSizePercent( this, 0.25f ); // Set memory cache to 25% of mem class
 
@@ -60,14 +64,13 @@ public class EpisodeActivity extends AbstractDvrActivity implements EpisodeFragm
         mImageFetcher.setImageFadeIn( false );
 
 		Bundle args = getIntent().getExtras();
-		Long episodeId = args.getLong( EPISODE_KEY, -1 );
+		Long channelId = args.getLong( CHANNEL_ID, -1 );
+		Long startTime = args.getLong( START_TIME, -1 );
 		
 		episodeFragment = (EpisodeFragment) getSupportFragmentManager().findFragmentById( R.id.fragment_dvr_episode );
 		episodeFragment.setOnEpisodeActionListener( this );
 		
-		if( episodeId > 0 ) {
-			episodeFragment.loadEpisode( episodeId );
-		}
+		episodeFragment.loadEpisode( channelId, new DateTime( startTime ) );
 		
 		Log.v( TAG, "onCreate : exit" );
 	}
@@ -80,17 +83,11 @@ public class EpisodeActivity extends AbstractDvrActivity implements EpisodeFragm
 		Log.v( TAG, "onOptionsItemSelected : enter" );
 
 		Bundle args = getIntent().getExtras();
-		Long episodeId = args.getLong( EPISODE_KEY, -1 );
-
-		String programGroup = null;
-//		Cursor cursor = getContentResolver().query(
-//				ContentUris.withAppendedId( ProgramConstants.CONTENT_URI_RECORDED, episodeId ),
-//				new String[] { ProgramConstants.FIELD_PROGRAM_GROUP },
-//				null, null, null );
-//		if( cursor.moveToFirst() ) {
-//			programGroup = cursor.getString( cursor.getColumnIndexOrThrow( ProgramConstants.FIELD_PROGRAM_GROUP ) );
-//		}
-//		cursor.close();
+		Long channelId = args.getLong( CHANNEL_ID, -1 );
+		Long startTime = args.getLong( START_TIME, -1 );
+		Program program = mRecordedDaoHelper.findOne( channelId, new DateTime( startTime ) );
+		
+		String programGroup = ArticleCleaner.clean( program.getTitle() );
 		
 		switch( item.getItemId() ) {
 			case android.R.id.home:
@@ -153,10 +150,6 @@ public class EpisodeActivity extends AbstractDvrActivity implements EpisodeFragm
         Log.v( TAG, "onDestroy : exit" );
     }
 
-    public ImageFetcher getImageFetcher() {
-        return mImageFetcher;
-    }
-
 	/* (non-Javadoc)
 	 * @see org.mythtv.client.ui.dvr.EpisodeFragment.OnEpisodeActionListener#onEpisodeDeleted(java.lang.String)
 	 */
@@ -182,9 +175,24 @@ public class EpisodeActivity extends AbstractDvrActivity implements EpisodeFragm
 //
 //		}
 //		cursor.close();
-
+		
+		finish();
 
 		Log.v( TAG, "onEpisodeDeleted : exit" );
 	}
+
+    /**
+     * @return
+     */
+    public ImageFetcher getImageFetcher() {
+        return mImageFetcher;
+    }
+
+    /**
+     * @return
+     */
+    public RecordedDaoHelper getRecordedDaoHelper() {
+        return mRecordedDaoHelper;
+    }
 
 }

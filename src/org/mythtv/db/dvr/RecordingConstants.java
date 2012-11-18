@@ -33,6 +33,8 @@ public class RecordingConstants implements BaseColumns {
 	
 	public static final Uri CONTENT_URI = Uri.parse( "content://" + MythtvProvider.AUTHORITY + "/" + TABLE_NAME );
 
+	public static final String INSERT_ROW, UPDATE_ROW;
+
 	// db fields
 	public static final String FIELD_ID_DATA_TYPE = "INTEGER";
 	public static final String FIELD_ID_PRIMARY_KEY = "PRIMARY KEY AUTOINCREMENT";
@@ -51,7 +53,7 @@ public class RecordingConstants implements BaseColumns {
 	
 	public static final String FIELD_RECORD_ID = "RECORD_ID";
 	public static final String FIELD_RECORD_ID_DATA_TYPE = "INTEGER";
-	
+
 	public static final String FIELD_REC_GROUP = "REC_GROUP";
 	public static final String FIELD_REC_GROUP_DATA_TYPE = "TEXT";
 	
@@ -78,5 +80,66 @@ public class RecordingConstants implements BaseColumns {
 	
 	public static final String FIELD_PROGRAM_ID = "PROGRAM_ID";
 	public static final String FIELD_PROGRAM_ID_DATA_TYPE = "INTEGER";
+
+	public static final String[] COLUMN_MAP = { _ID,
+		FIELD_STATUS, FIELD_PRIORITY, FIELD_START_TS, FIELD_END_TS, FIELD_RECORD_ID, FIELD_REC_GROUP, FIELD_PLAY_GROUP, 
+		FIELD_STORAGE_GROUP, FIELD_REC_TYPE, FIELD_DUP_IN_TYPE, FIELD_DUP_METHOD, FIELD_ENCODER_ID, FIELD_PROFILE, FIELD_PROGRAM_ID
+	};
+
+	static {
+		
+		StringBuilder insert = new StringBuilder();
+		insert.append( FIELD_STATUS ).append( "," );
+		insert.append( FIELD_PRIORITY ).append( "," );
+		insert.append( FIELD_START_TS ).append( "," );
+		insert.append( FIELD_END_TS ).append( "," );
+		insert.append( FIELD_RECORD_ID ).append( "," );
+		insert.append( FIELD_REC_GROUP ).append( "," );
+		insert.append( FIELD_PLAY_GROUP ).append( "," );
+		insert.append( FIELD_STORAGE_GROUP ).append( "," );
+		insert.append( FIELD_REC_TYPE ).append( "," );
+		insert.append( FIELD_DUP_IN_TYPE ).append( "," );
+		insert.append( FIELD_DUP_METHOD ).append( "," );
+		insert.append( FIELD_ENCODER_ID ).append( "," );
+		insert.append( FIELD_PROGRAM_ID ).append( "," );
+		insert.append( FIELD_PROFILE ).append( "," );
+		insert.append( FIELD_PROGRAM_ID );
+		
+		StringBuilder values = new StringBuilder();
+		values.append( " ) " );
+		values.append( "VALUES( ?,?,?,?,?,?,?,?,?,?,?,?,?,?,? )" );
+		
+		StringBuilder insertRecording = new StringBuilder();
+		insertRecording.append( "INSERT INTO " ).append( TABLE_NAME ).append( " ( " );
+		insertRecording.append( insert.toString() );
+		insertRecording.append( values.toString() );
+		INSERT_ROW = insertRecording.toString();
+		
+		StringBuilder update = new StringBuilder();
+		update.append( FIELD_STATUS ).append( " = ?, " );
+		update.append( FIELD_PRIORITY ).append( " = ?, " );
+		update.append( FIELD_START_TS ).append( " = ?, " );
+		update.append( FIELD_END_TS ).append( " = ?, " );
+		update.append( FIELD_RECORD_ID ).append( " = ?, " );
+		update.append( FIELD_REC_GROUP ).append( " = ?, " );
+		update.append( FIELD_PLAY_GROUP ).append( " = ?, " );
+		update.append( FIELD_STORAGE_GROUP ).append( " = ?, " );
+		update.append( FIELD_REC_TYPE ).append( " = ?, " );
+		update.append( FIELD_DUP_IN_TYPE ).append( " = ?, " );
+		update.append( FIELD_DUP_METHOD ).append( " = ?, " );
+		update.append( FIELD_ENCODER_ID ).append( " = ?, " );
+		update.append( FIELD_PROGRAM_ID ).append( " = ?, " );
+		update.append( FIELD_PROFILE ).append( " = ?, " );
+		update.append( FIELD_PROGRAM_ID ).append( " = ? " );
+		update.append( " WHERE " );
+		update.append( _ID ).append( " = ?" );
+		
+		StringBuilder updateRecording = new StringBuilder();
+		updateRecording.append( "UPDATE " ).append( TABLE_NAME );
+		updateRecording.append( " SET " );
+		updateRecording.append( update.toString() );
+		UPDATE_ROW = updateRecording.toString();
+		
+	}
 
 }

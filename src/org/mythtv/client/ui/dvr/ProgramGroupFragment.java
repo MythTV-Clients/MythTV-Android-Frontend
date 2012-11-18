@@ -23,7 +23,10 @@ import org.mythtv.R;
 import org.mythtv.client.ui.util.MythtvListFragment;
 import org.mythtv.client.ui.util.ProgramHelper;
 import org.mythtv.db.dvr.ProgramConstants;
+import org.mythtv.db.dvr.RecordedDaoHelper;
+import org.mythtv.db.dvr.programGroup.ProgramGroup;
 import org.mythtv.service.util.DateUtils;
+import org.mythtv.services.api.dvr.Program;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -52,16 +55,17 @@ public class ProgramGroupFragment extends MythtvListFragment implements LoaderMa
 	
 	public interface OnEpisodeSelectedListener
 	{
-		void onEpisodeSelected(long id);
+		void onEpisodeSelected( Long channelId, DateTime startTime );
 	}
-	
-	private String programGroup;
 	
 	private ProgramCursorAdapter mAdapter;
 	
 	private OnEpisodeSelectedListener mEpisodeListener;
 	
 	private static ProgramHelper mProgramHelper; 
+	private RecordedDaoHelper mRecordedDaoHelper;
+	
+	private ProgramGroup programGroup;
 	
 	public ProgramGroupFragment() { }
 	
@@ -73,7 +77,7 @@ public class ProgramGroupFragment extends MythtvListFragment implements LoaderMa
 		Log.v( TAG, "onCreateLoader : enter" );
 		
 		String[] projection = { ProgramConstants._ID, ProgramConstants.FIELD_TITLE, ProgramConstants.FIELD_SUB_TITLE, ProgramConstants.FIELD_CATEGORY, ProgramConstants.FIELD_START_TIME };
-		String[] selectionArgs = { ( null == programGroup ? "" : programGroup ) };
+		String[] selectionArgs = { ( null != programGroup && null != programGroup.getTitle() ? programGroup.getTitle() : "" ) };
 		 
 	    CursorLoader cursorLoader = new CursorLoader( getActivity(), ProgramConstants.CONTENT_URI_RECORDED, projection, ProgramConstants.FIELD_TITLE + " = ?", selectionArgs, ProgramConstants.FIELD_SEASON + " DESC ," + ProgramConstants.FIELD_EPISODE + " DESC" );
 	    
@@ -121,6 +125,7 @@ public class ProgramGroupFragment extends MythtvListFragment implements LoaderMa
 		Log.i( TAG, "onActivityCreated : enter" );
 		super.onActivityCreated( savedInstanceState );
 	    
+		mRecordedDaoHelper = new RecordedDaoHelper( getActivity() );
 		mProgramHelper = ProgramHelper.createInstance( getActivity() );
 		
 	    mAdapter = new ProgramCursorAdapter(
@@ -140,20 +145,25 @@ public class ProgramGroupFragment extends MythtvListFragment implements LoaderMa
 		Log.v( TAG, "onListItemClick : enter" );
 		super.onListItemClick( l, v, position, id );
 		
-		Log.v (TAG, "onListItemClick : position=" + position + ", id=" + id );
+		Log.v ( TAG, "onListItemClick : position=" + position + ", id=" + id );
 		
-		if(null!=mEpisodeListener){
-			mEpisodeListener.onEpisodeSelected(id);
+		Program program = mRecordedDaoHelper.findOne( id );
+		
+		if( null != program && null != mEpisodeListener ) {
+			Log.v( TAG, "onListItemClick : selecting episode" );
+			Log.v( TAG, "onListItemClick : program=" + program.toString() );
+			
+			mEpisodeListener.onEpisodeSelected( (long) program.getChannelInfo().getChannelId(), program.getStartTime() );
 		}
 
 		Log.v( TAG, "onListItemClick : exit" );
 	}
 	
-	public String getSelectedProgramGroup() {
+	public ProgramGroup getSelectedProgramGroup() {
 		return programGroup;
 	}
 	
-	public void loadProgramGroup( String programGroup ) {
+	public void loadProgramGroup( ProgramGroup programGroup ) {
 		Log.v( TAG, "loadProgramGroup : enter" );
 		
 		Log.v( TAG, "loadProgramGroup : programGroup=" + programGroup );

@@ -18,15 +18,19 @@
  */
 package org.mythtv.client.ui.dvr;
 
+import java.util.List;
+
+import org.joda.time.DateTime;
 import org.mythtv.R;
-import org.mythtv.db.dvr.ProgramConstants;
-import org.mythtv.db.dvr.programGroup.ProgramGroupConstants;
+import org.mythtv.db.dvr.RecordedDaoHelper;
+import org.mythtv.db.dvr.programGroup.ProgramGroup;
+import org.mythtv.db.dvr.programGroup.ProgramGroupDaoHelper;
 import org.mythtv.service.util.FileHelper;
 import org.mythtv.service.util.image.ImageCache;
 import org.mythtv.service.util.image.ImageFetcher;
+import org.mythtv.services.api.dvr.Program;
 
 import android.content.Intent;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -43,23 +47,27 @@ public class RecordingsActivity extends AbstractDvrActivity implements Recording
 	private static final String PROGRAM_GROUP_LIST_TAG = "PROGRAM_GROUP_LIST_TAG";
 	
 	private ImageFetcher mImageFetcher;
-	private FileHelper mFileHelper;
+	private ProgramGroupDaoHelper mProgramGroupDaoHelper;
+	private RecordedDaoHelper mRecordedDaoHelper;
 	
 	private boolean mUseMultiplePanes;
 
-	private RecordingsFragment recordingsFragment;
-	private ProgramGroupFragment programGroupFragment;
+	private RecordingsFragment mRecordingsFragment;
+	private ProgramGroupFragment mProgramGroupFragment;
 	private EpisodeFragment mEpisodeFragment;
 	
+	private ProgramGroup selectedProgramGroup;
+	private Program selectedProgram;
 	
 	@Override
 	public void onCreate( Bundle savedInstanceState ) {
 		Log.v( TAG, "onCreate : enter" );
 		super.onCreate( savedInstanceState );
 
+		mProgramGroupDaoHelper = new ProgramGroupDaoHelper( this );
+		mRecordedDaoHelper = new RecordedDaoHelper( this );
+		
 		setContentView( R.layout.activity_dvr_recordings );
-
-		mFileHelper = new FileHelper( this );
 		
         // Fetch screen height and width, to use as our max size when loading images as this activity runs full screen
         final DisplayMetrics displayMetrics = new DisplayMetrics();
@@ -71,11 +79,12 @@ public class RecordingsActivity extends AbstractDvrActivity implements Recording
         
         int longest = width; //( height < width ? height : width );
         
+		FileHelper mFileHelper = new FileHelper( this );
         ImageCache.ImageCacheParams cacheParams = new ImageCache.ImageCacheParams( mFileHelper.getProgramRecordedDataDirectory() );
         cacheParams.setMemCacheSizePercent( this, 0.25f ); // Set memory cache to 25% of mem class
 
-        recordingsFragment = (RecordingsFragment) getSupportFragmentManager().findFragmentById( R.id.fragment_dvr_program_groups );
-		recordingsFragment.setOnProgramGroupListener( this );
+        mRecordingsFragment = (RecordingsFragment) getSupportFragmentManager().findFragmentById( R.id.fragment_dvr_program_groups );
+        mRecordingsFragment.setOnProgramGroupListener( this );
 
 		mUseMultiplePanes = ( null != findViewById( R.id.fragment_dvr_program_group ) );
 
@@ -83,17 +92,17 @@ public class RecordingsActivity extends AbstractDvrActivity implements Recording
 			
 			longest = width / 3;
 			
-			programGroupFragment = (ProgramGroupFragment) getSupportFragmentManager().findFragmentById( R.id.fragment_dvr_program_group );
-			programGroupFragment.setOnEpisodeSelectedListener(this);
+			mProgramGroupFragment = (ProgramGroupFragment) getSupportFragmentManager().findFragmentById( R.id.fragment_dvr_program_group );
+			mProgramGroupFragment.setOnEpisodeSelectedListener(this);
 			
 			mEpisodeFragment = (EpisodeFragment) getSupportFragmentManager().findFragmentById( R.id.fragment_dvr_episode );
 			mEpisodeFragment.setOnEpisodeActionListener( this );
 			
-			Cursor cursor = getContentResolver().query( ProgramGroupConstants.CONTENT_URI, new String[] { ProgramGroupConstants.FIELD_TITLE }, null, null, ProgramGroupConstants.FIELD_PROGRAM_GROUP );
-			if( cursor.moveToFirst() ) {
-				String title = cursor.getString( cursor.getColumnIndexOrThrow( ProgramConstants.FIELD_TITLE ) );
-				onProgramGroupSelected( title );
+			List<ProgramGroup> programGroups = mProgramGroupDaoHelper.findAll();
+			if( null != programGroups && !programGroups.isEmpty() ) {
+				onProgramGroupSelected( programGroups.get( 0 ) );
 			}
+		
 		}
 		
         mImageFetcher = new ImageFetcher( this, longest );
@@ -143,82 +152,92 @@ public class RecordingsActivity extends AbstractDvrActivity implements Recording
         Log.v( TAG, "onDestroy : exit" );
     }
 
-    public ImageFetcher getImageFetcher() {
-        return mImageFetcher;
-    }
-
-    public void onProgramGroupSelected( String programGroup ) {
+    /* (non-Javadoc)
+     * @see org.mythtv.client.ui.dvr.RecordingsFragment.OnProgramGroupListener#onProgramGroupSelected(org.mythtv.db.dvr.programGroup.ProgramGroup)
+     */
+    public void onProgramGroupSelected( ProgramGroup programGroup ) {
 		Log.d( TAG, "onProgramGroupSelected : enter" );
 
-		Long recordedId = null;
-		Cursor cursor = getContentResolver().query( ProgramConstants.CONTENT_URI_RECORDED, new String[] { ProgramConstants._ID }, ProgramConstants.FIELD_TITLE + " = ?", new String[] { programGroup }, null );
-		if( cursor.moveToFirst() ) {
-			recordedId = cursor.getLong( cursor.getColumnIndexOrThrow( ProgramConstants._ID ) );
-		}
-		cursor.close();
-		
-		if( null == programGroup || "".equals( programGroup ) ) {
+		if( null == programGroup ) {
 			Log.d( TAG, "onProgramGroupSelected : exit, programGroups is empty" );
 
 			return;
 		}
 		
+		selectedProgramGroup = programGroup;
+		selectedProgram = null;
+		
+		List<Program> programs = mRecordedDaoHelper.findAllByTitle( programGroup.getTitle() );
+		if( null == programs || programs.isEmpty() ) {
+			Log.d( TAG, "onProgramGroupSelected : exit, no programs in programGroup" );
+
+			return;
+		}
+
+		selectedProgram = programs.get( 0 );
+		
 		if( null != findViewById( R.id.fragment_dvr_program_group ) ) {
 			FragmentManager manager = getSupportFragmentManager();
 
-			final boolean programGroupAdded = ( programGroupFragment != null );
+			final boolean programGroupAdded = ( mProgramGroupFragment != null );
 			if( programGroupAdded ) {
-				if( null != programGroupFragment.getSelectedProgramGroup() && programGroupFragment.getSelectedProgramGroup().equals( programGroup ) ) {
+				if( null != mProgramGroupFragment.getSelectedProgramGroup() && mProgramGroupFragment.getSelectedProgramGroup().equals( programGroup ) ) {
+					Log.d( TAG, "onProgramGroupSelected : exit, programGroup already selected" );
+					
 					return;
 				}
 				
-				programGroupFragment.loadProgramGroup( programGroup );
+				mProgramGroupFragment.loadProgramGroup( programGroup );
 			} else {
 				Log.v( TAG, "onProgramGroupSelected : creating new programGroupFragment" );
 				FragmentTransaction transaction = manager.beginTransaction();
-				programGroupFragment = new ProgramGroupFragment();
+				mProgramGroupFragment = new ProgramGroupFragment();
 
 				if( mUseMultiplePanes ) {
 					Log.v( TAG, "onProgramGroupSelected : adding to multipane" );
 
-					transaction.add( R.id.fragment_dvr_program_group, programGroupFragment, PROGRAM_GROUP_LIST_TAG );
+					transaction.add( R.id.fragment_dvr_program_group, mProgramGroupFragment, PROGRAM_GROUP_LIST_TAG );
 				} else {
 					Log.v( TAG, "onProgramGroupSelected : replacing fragment" );
 
-					transaction.replace( R.id.fragment_dvr_program_group, programGroupFragment, PROGRAM_GROUP_LIST_TAG );
+					transaction.replace( R.id.fragment_dvr_program_group, mProgramGroupFragment, PROGRAM_GROUP_LIST_TAG );
 					transaction.addToBackStack( null );
 				}
 				transaction.setTransition( FragmentTransaction.TRANSIT_FRAGMENT_OPEN );
 				transaction.commit();
 
 				Log.v( TAG, "onProgramGroupSelected : setting program group to display" );
-				programGroupFragment.loadProgramGroup( programGroup );
+				mProgramGroupFragment.loadProgramGroup( programGroup );
 			}
+
+			onEpisodeSelected( selectedProgram.getChannelInfo().getChannelId(), selectedProgram.getStartTime() );
+			
 		} else {
 			Log.v( TAG, "onProgramGroupSelected : starting program group activity" );
 
 			Intent i = new Intent( this, ProgramGroupActivity.class );
-			i.putExtra( ProgramGroupActivity.EXTRA_PROGRAM_GROUP_KEY, programGroup );
+			i.putExtra( ProgramGroupActivity.EXTRA_PROGRAM_GROUP_KEY, programGroup.getId() );
 			startActivity( i );
 		}
 
-		onEpisodeSelected( recordedId );
-		
 		Log.d( TAG, "onProgramGroupSelected : exit" );
 	}
 	
-	/**
+	/* (non-Javadoc)
+	 * @see org.mythtv.client.ui.dvr.ProgramGroupFragment.OnEpisodeSelectedListener#onEpisodeSelected(java.lang.Long, org.joda.time.DateTime)
+	 * 
 	 * This is called when an episode is selected in the ProgramGroupFragment. The ProgramGroupFragment
 	 * will only be visible during this activities life cycle on larger screens.
+	 * 
 	 */
 	@Override
-	public void onEpisodeSelected(long id) {
+	public void onEpisodeSelected( Long channelId, DateTime startTime ) {
 		Log.v( TAG, "onEpisodeSelect : enter" );
 		
 		//check if we're hosting multiple fragments and have the episode fragment
 		if( mUseMultiplePanes && null != mEpisodeFragment ){
 			//tell the episode fragment to do it's business
-			mEpisodeFragment.loadEpisode(id);
+			mEpisodeFragment.loadEpisode( channelId, startTime );
 		}
 		
 		Log.v( TAG, "onEpisodeSelect : exit" );
@@ -231,34 +250,44 @@ public class RecordingsActivity extends AbstractDvrActivity implements Recording
 	public void onEpisodeDeleted( String programGroup ) {
 		Log.v( TAG, "onEpisodeDeleted : enter" );
 
-		String[] projection = new String[] { ProgramConstants._ID };
-		
-//		Cursor cursor = getContentResolver().query( ProgramConstants.CONTENT_URI_RECORDED, projection, ProgramConstants.FIELD_PROGRAM_GROUP + " = ?", new String[] { programGroup }, ProgramConstants.FIELD_PROGRAM_GROUP );
-//		if( cursor.getCount() > 0 ) {
-//
-//			if( cursor.moveToFirst() ) {
-//				Long id = cursor.getLong( cursor.getColumnIndexOrThrow( ProgramConstants._ID ) );
-//				onProgramGroupSelected( id );
-//				onEpisodeSelected( id );
-//			}
-//
-//		} else {
-//		
-//			cursor.close();
-//			
-//			cursor = getContentResolver().query( ProgramConstants.CONTENT_URI_RECORDED, projection, null, null, ProgramConstants.FIELD_PROGRAM_GROUP );
-//			if( cursor.moveToFirst() ) {
-//				Long id = cursor.getLong( cursor.getColumnIndexOrThrow( ProgramConstants._ID ) );
-//				onProgramGroupSelected( id );
-//				onEpisodeSelected( id );
-//			}
-//
-//		}
-//		cursor.close();
-		
-		recordingsFragment.notifyDeleted();
+		mRecordingsFragment.notifyDeleted();
 		
 		Log.v( TAG, "onEpisodeDeleted : exit" );
 	}
+
+    /**
+     * @return
+     */
+    public ImageFetcher getImageFetcher() {
+        return mImageFetcher;
+    }
+
+    /**
+     * @return
+     */
+    public ProgramGroupDaoHelper getProgramGroupDaoHelper() {
+    	return mProgramGroupDaoHelper;
+    }
+    
+    /**
+     * @return
+     */
+    public RecordedDaoHelper getRecordedDaoHelper() {
+    	return mRecordedDaoHelper;
+    }
+
+    /**
+     * @return
+     */
+    public ProgramGroup getSelectedProgramGroup() {
+    	return selectedProgramGroup;
+    }
+    
+    /**
+     * @return
+     */
+    public Program getSelectedProgram() {
+    	return selectedProgram;
+    }
 
 }

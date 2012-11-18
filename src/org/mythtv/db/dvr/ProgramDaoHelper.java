@@ -4,17 +4,26 @@
 package org.mythtv.db.dvr;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.joda.time.DateTime;
+import org.mythtv.db.channel.ChannelDaoHelper;
+import org.mythtv.provider.MythtvProvider;
 import org.mythtv.service.util.DateUtils;
+import org.mythtv.services.api.channel.ChannelInfo;
 import org.mythtv.services.api.dvr.Program;
 
+import android.content.ContentProviderOperation;
+import android.content.ContentProviderResult;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.OperationApplicationException;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.RemoteException;
 import android.util.Log;
 
 /**
@@ -27,8 +36,14 @@ public abstract class ProgramDaoHelper {
 	
 	private Context mContext;
 	
+	private ChannelDaoHelper mChannelDaoHelper;
+	private RecordingDaoHelper mRecordingDaoHelper;
+	
 	protected ProgramDaoHelper( Context context ) {
 		this.mContext = context;
+		
+		mChannelDaoHelper = new ChannelDaoHelper( context );
+		mRecordingDaoHelper = new RecordingDaoHelper( context );
 	}
 	
 	/**
@@ -58,7 +73,7 @@ public abstract class ProgramDaoHelper {
 	/**
 	 * @return
 	 */
-	public abstract List<Program> finalAll();
+	public abstract List<Program> findAll();
 	
 	/**
 	 * @param uri
@@ -70,6 +85,13 @@ public abstract class ProgramDaoHelper {
 	 */
 	protected Program findOne( Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder ) {
 		Log.v( TAG, "findOne : enter" );
+		
+		Log.v( TAG, "findOne : selection=" + selection );
+		if( null != selectionArgs ) {
+			for( String selectionArg : selectionArgs ) {
+				Log.v( TAG, "findOne : selectionArg=" + selectionArg );
+			}
+		}
 		
 		Program program = null;
 		
@@ -177,21 +199,106 @@ public abstract class ProgramDaoHelper {
 	 * @param programs
 	 * @param uri
 	 * @return
+	 * @throws OperationApplicationException 
+	 * @throws RemoteException 
 	 */
-	protected int load( Uri uri, List<Program> programs ) {
+	protected int load( Uri uri, List<Program> programs ) throws RemoteException, OperationApplicationException {
 		Log.v( TAG, "load : enter" );
+				
+		Map<String, Program> recorded = new HashMap<String, Program>();
+		for( Program program : findAll( uri, null, null, null, null ) ) {
+			recorded.put( program.getFilename(), program );
+		}
 		
 		int loaded = -1;
 		
-		ContentValues[] contentValuesArray = convertProgramsToContentValuesArray( programs );
-		if( null != contentValuesArray ) {
-			Log.v( TAG, "processPrograms : programs=" + contentValuesArray.length );
+		ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
+		
+		String[] programProjection = new String[] { ProgramConstants._ID };
+		String programSelection = ProgramConstants.FIELD_CHANNEL_ID + " = ? AND " + ProgramConstants.FIELD_START_TIME + " = ?";
 
-			loaded = mContext.getContentResolver().bulkInsert( uri, contentValuesArray );
-			Log.v( TAG, "load : loaded=" + loaded );
+		for( Program program : programs ) {
+
+			DateTime startTime = new DateTime( program.getStartTime() );
+			
+			ContentValues programValues = convertProgramToContentValues( program );
+			Cursor programCursor = mContext.getContentResolver().query( uri, programProjection, programSelection, new String[] { String.valueOf( program.getChannelInfo().getChannelId() ), String.valueOf( startTime.getMillis() ) }, null );
+			if( programCursor.moveToFirst() ) {
+				Log.v( TAG, "load : UPDATE channel=" + program.getChannelInfo().getChannelNumber() + ", startTime=" + DateUtils.dateTimeFormatterPretty.print( startTime ) );
+
+				Long id = programCursor.getLong( programCursor.getColumnIndexOrThrow( ProgramConstants._ID ) );
+				ops.add( 
+						ContentProviderOperation.newUpdate( ContentUris.withAppendedId( ProgramConstants.CONTENT_URI_PROGRAM, id ) )
+							.withValues( programValues )
+							.withYieldAllowed( true )
+							.build()
+					);
+				
+			} else {
+				Log.v( TAG, "load : INSERT channel=" + program.getChannelInfo().getChannelNumber() + ", startTime=" + DateUtils.dateTimeFormatterPretty.print( startTime ) );
+
+				ops.add(  
+						ContentProviderOperation.newInsert( uri )
+							.withValues( programValues )
+							.withYieldAllowed( true )
+							.build()
+					);
+			}
+			programCursor.close();
+
+			if( null != program.getRecording() ) {
+				
+				String[] recordingProjection = new String[] { ProgramConstants._ID };
+				String recordingSelection = RecordingConstants.FIELD_RECORD_ID + " = ? AND " + RecordingConstants.FIELD_START_TS + " = ?";
+
+				ContentValues recordingValues = mRecordingDaoHelper.convertRecordingToContentValues( program.getRecording() );
+				Cursor recordingCursor = mContext.getContentResolver().query( RecordingConstants.CONTENT_URI, recordingProjection, recordingSelection, new String[] { String.valueOf( program.getRecording().getRecordId() ), String.valueOf( program.getRecording().getStartTimestamp().getMillis() ) }, null );
+				if( recordingCursor.moveToFirst() ) {
+					Log.v( TAG, "load : UPDATE recording=" + program.getRecording().getRecordId() + ", startTime=" + DateUtils.dateTimeFormatterPretty.print( program.getRecording().getStartTimestamp() ) );
+
+					ops.add( 
+						ContentProviderOperation.newUpdate( ContentUris.withAppendedId( RecordingConstants.CONTENT_URI, program.getRecording().getRecordId() ) )
+						.withValues( recordingValues )
+						.build()
+					);
+				} else {
+					Log.v( TAG, "load : INSERT recording=" + program.getRecording().getRecordId() + ", startTime=" + DateUtils.dateTimeFormatterPretty.print( program.getRecording().getStartTimestamp() ) );
+
+					ops.add(  
+						ContentProviderOperation.newInsert( RecordingConstants.CONTENT_URI )
+						.withValues( recordingValues )
+						.build()
+					);
+				}
+				recordingCursor.close();
+			}
+			
+			if( recorded.containsKey( program.getFilename() ) ) {
+				recorded.remove( program.getFilename() );
+			}
+
 		}
 		
+		for( Program program : recorded.values() ) {
+
+			DateTime startTime = new DateTime( program.getStartTime() );
+			
+			Log.v( TAG, "load : DELETET channel=" + program.getChannelInfo().getChannelNumber() + ", startTime=" + DateUtils.dateTimeFormatterPretty.print( startTime ) );
+			
+			ops.add(  
+				ContentProviderOperation.newDelete( uri )
+				.withSelection( ProgramConstants.FIELD_FILENAME + " = ?", new String[] { program.getFilename() } )
+				.build()
+			);
+		}
 		
+		if( !ops.isEmpty() ) {
+			//Log.v( TAG, "process : applying batch '" + channel.getCallSign() + "'" );
+			
+			ContentProviderResult[] results = mContext.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
+			loaded = results.length;
+		}
+
 		Log.v( TAG, "load : exit" );
 		return loaded;
 	}
@@ -200,19 +307,26 @@ public abstract class ProgramDaoHelper {
 	 * @param programs
 	 * @return
 	 */
-	public abstract int load( List<Program> programs );
+	public abstract int load( List<Program> programs ) throws RemoteException, OperationApplicationException;
 	
 	/**
 	 * @param cursor
 	 * @return
 	 */
 	public Program convertCursorToProgram( Cursor cursor ) {
-		Log.v( TAG, "convertCursorToProgram : enter" );
+//		Log.v( TAG, "convertCursorToProgram : enter" );
 
+//		Long id = null;
 		DateTime startTime = null, endTime = null, lastModified = null, airDate = null;
 		String title = "", subTitle = "", category = "", categoryType = "", seriesId = "", programId = "", fileSize = "", programFlags = "", hostname = "", filename = "", description = "", inetref = "", season = "", episode = "";
 		int repeat = -1, videoProps = -1, audioProps = -1, subProps = -1;
 		float stars = 0.0f;
+		
+		ChannelInfo channelInfo = null;
+		
+//		if( cursor.getColumnIndex( ProgramConstants._ID ) != -1 ) {
+//			id = cursor.getLong( cursor.getColumnIndex( ProgramConstants._ID ) );
+//		}
 		
 		if( cursor.getColumnIndex( ProgramConstants.FIELD_START_TIME ) != -1 ) {
 			startTime = new DateTime( cursor.getLong( cursor.getColumnIndex( ProgramConstants.FIELD_START_TIME ) ) );
@@ -306,10 +420,10 @@ public abstract class ProgramDaoHelper {
 			episode = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_EPISODE ) );
 		}
 		
-//		if( cursor.getColumnIndex( ProgramConstants.FIELD_ ) != -1 ) {
-//			xmltvId = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_ ) );
-//		}
-//		
+		if( cursor.getColumnIndex( ProgramConstants.FIELD_CHANNEL_ID ) != -1 ) {
+			channelInfo = mChannelDaoHelper.convertCursorToChannelInfo( cursor );
+		}
+		
 //		if( cursor.getColumnIndex( ProgramConstants.FIELD_ ) != -1 ) {
 //			defaultAuth = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_ ) );
 //		}
@@ -338,18 +452,20 @@ public abstract class ProgramDaoHelper {
 		program.setInetref( inetref );
 		program.setSeason( season );
 		program.setEpisode( episode );
-//		program.set;
+		program.setChannelInfo( channelInfo );
 //		program.set;
 //		program.set;
 		
-		Log.v( TAG, "convertCursorToProgram : exit" );
+//		Log.v( TAG, "convertCursorToProgram : id=" + id + ", program=" + program.toString() );
+
+//		Log.v( TAG, "convertCursorToProgram : exit" );
 		return program;
 	}
 
 	// internal helpers
 
 	private ContentValues[] convertProgramsToContentValuesArray( final List<Program> programs ) {
-		Log.v( TAG, "convertProgramsToContentValuesArray : enter" );
+//		Log.v( TAG, "convertProgramsToContentValuesArray : enter" );
 		
 		if( null != programs && !programs.isEmpty() ) {
 			
@@ -365,13 +481,13 @@ public abstract class ProgramDaoHelper {
 			
 			if( !contentValuesArray.isEmpty() ) {
 				
-				Log.v( TAG, "convertProgramsToContentValuesArray : exit" );
+//				Log.v( TAG, "convertProgramsToContentValuesArray : exit" );
 				return contentValuesArray.toArray( new ContentValues[ contentValuesArray.size() ] );
 			}
 			
 		}
 		
-		Log.v( TAG, "convertProgramsToContentValuesArray : exit, no programs to convert" );
+//		Log.v( TAG, "convertProgramsToContentValuesArray : exit, no programs to convert" );
 		return null;
 	}
 

@@ -18,7 +18,10 @@
  */
 package org.mythtv.client.ui.dvr;
 
+import org.joda.time.DateTime;
 import org.mythtv.R;
+import org.mythtv.db.dvr.programGroup.ProgramGroup;
+import org.mythtv.db.dvr.programGroup.ProgramGroupDaoHelper;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -36,8 +39,10 @@ public class ProgramGroupActivity extends AbstractDvrActivity implements Program
 
 	public static final String EXTRA_PROGRAM_GROUP_KEY = "org.mythtv.client.ui.dvr.programGroup.EXTRA_PROGRAM_GROUP_KEY";
 
-	private ProgramGroupFragment programGroupFragment = null;
+	private ProgramGroupDaoHelper mProgramGroupDaoHelper;
+	private ProgramGroupFragment mProgramGroupFragment = null;
 	
+	private ProgramGroup selectedProgramGroup;
 
 	// ***************************************
 	// Activity methods
@@ -53,14 +58,18 @@ public class ProgramGroupActivity extends AbstractDvrActivity implements Program
 		Log.v( TAG, "onCreate : enter" );
 		super.onCreate( savedInstanceState );
 
+		mProgramGroupDaoHelper = new ProgramGroupDaoHelper( this );
+		
 		setContentView( R.layout.activity_dvr_program_group );
 
 		Bundle extras = getIntent().getExtras(); 
-		String programGroup = extras.getString( EXTRA_PROGRAM_GROUP_KEY );
+		Long id = extras.getLong( EXTRA_PROGRAM_GROUP_KEY );
 
-		programGroupFragment = (ProgramGroupFragment) getSupportFragmentManager().findFragmentById( R.id.fragment_dvr_program_group );
-		programGroupFragment.setOnEpisodeSelectedListener(this);
-		programGroupFragment.loadProgramGroup( programGroup );
+		selectedProgramGroup = mProgramGroupDaoHelper.findOne( id );
+		
+		mProgramGroupFragment = (ProgramGroupFragment) getSupportFragmentManager().findFragmentById( R.id.fragment_dvr_program_group );
+		mProgramGroupFragment.setOnEpisodeSelectedListener(this);
+		mProgramGroupFragment.loadProgramGroup( selectedProgramGroup );
 				
 		Log.v( TAG, "onCreate : exit" );
 	}
@@ -92,22 +101,30 @@ public class ProgramGroupActivity extends AbstractDvrActivity implements Program
 	 * as part of the RecordingsActivity. 
 	 */
 	@Override
-	public void onEpisodeSelected( long id ) {
+	public void onEpisodeSelected( Long channelId, DateTime startTime ) {
 		Log.v( TAG, "onEpisodeSelect : enter" );
 
 		Log.v( TAG, "onEpisodeSelect : starting episode activity" );
 		Intent i = new Intent( this, EpisodeActivity.class );
-		i.putExtra( EpisodeActivity.EPISODE_KEY, id );
+		i.putExtra( EpisodeActivity.CHANNEL_ID, channelId );
+		i.putExtra( EpisodeActivity.START_TIME, startTime.getMillis() );
 		startActivity( i );
 
-		/*
-		//Start Video Playback -- this will be moving to the activity bar
-		Intent i = new Intent( activity, VideoActivity.class );
-		i.putExtra( VideoActivity.EXTRA_PROGRAM_KEY, id );
-		startActivity( i );
-		*/
-		
 		Log.v( TAG, "onEpisodeSelect : exit" );
 	}
 
+	/**
+	 * @return
+	 */
+	public ProgramGroupDaoHelper getProgramGroupDaoHelper() {
+		return mProgramGroupDaoHelper;
+	}
+	
+	/**
+	 * @return
+	 */
+	public ProgramGroup getSelectedProgramGroup() {
+		return selectedProgramGroup;
+	}
+	
 }

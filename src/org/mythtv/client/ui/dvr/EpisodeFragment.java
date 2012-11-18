@@ -1,22 +1,24 @@
 package org.mythtv.client.ui.dvr;
 
+import java.util.List;
+
 import org.joda.time.DateTime;
 import org.mythtv.R;
 import org.mythtv.client.ui.AbstractMythFragment;
-import org.mythtv.db.dvr.ProgramConstants;
-import org.mythtv.service.dvr.cache.CoverartLruMemoryCache;
+import org.mythtv.db.dvr.RecordedDaoHelper;
+import org.mythtv.db.dvr.programGroup.ProgramGroup;
+import org.mythtv.db.dvr.programGroup.ProgramGroupDaoHelper;
+import org.mythtv.service.util.DateUtils;
 import org.mythtv.service.util.image.ImageFetcher;
 import org.mythtv.services.api.Bool;
+import org.mythtv.services.api.dvr.Program;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
-import android.content.ContentUris;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.Cursor;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -41,21 +43,17 @@ public class EpisodeFragment extends AbstractMythFragment {
 
 	private OnEpisodeActionListener listener = null;
 
+	private ProgramGroupDaoHelper mProgramGroupDaoHelper; 
+	private RecordedDaoHelper mRecordedDaoHelper; 
 	private ImageFetcher mImageFetcher;
-//	private CoverartLruMemoryCache cache;
 
-	private String programGroup, title, subTitle, inetref;
-	private Long episodeId;
-	private Integer channelId;
-	private DateTime startTime;
+	private Program program;
 	
 	@Override
 	public View onCreateView( LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState ) {
 		Log.v( TAG, "onCreateView : enter" );
 
 		View root = inflater.inflate( R.layout.fragment_dvr_episode, container, false );
-
-//		cache = new CoverartLruMemoryCache( getActivity() );
 
 		Log.v( TAG, "onCreateView : exit" );
 		return root;
@@ -71,6 +69,9 @@ public class EpisodeFragment extends AbstractMythFragment {
 		Log.v( TAG, "onActivityCreated : enter" );
 		super.onActivityCreated( savedInstanceState );
 
+		mProgramGroupDaoHelper = new ProgramGroupDaoHelper( getActivity() );
+		mRecordedDaoHelper = new RecordedDaoHelper( getActivity() );
+		
 		setHasOptionsMenu( true );
 		setRetainInstance( true );
 
@@ -125,7 +126,8 @@ public class EpisodeFragment extends AbstractMythFragment {
 			if( isMasterBackendConnected() ) {
 				
 				Intent playerIntent = new Intent( getActivity(), VideoActivity.class );
-				playerIntent.putExtra( VideoActivity.EXTRA_PROGRAM_KEY, episodeId );
+				playerIntent.putExtra( VideoActivity.EXTRA_CHANNEL_ID, program.getChannelInfo().getChannelId() );
+				playerIntent.putExtra( VideoActivity.EXTRA_START_TIME, program.getStartTime().getMillis() );
 				startActivity( playerIntent );
 			
 			} else {
@@ -177,78 +179,65 @@ public class EpisodeFragment extends AbstractMythFragment {
 		return super.onOptionsItemSelected( item );
 	}
 
-	public void loadEpisode( long id ) {
+	public void loadEpisode( Long channelId, DateTime startTime ) {
+		Log.v( TAG, "loadEpisode : enter" );
 
+		if( null == mRecordedDaoHelper ) {
+			mRecordedDaoHelper = new RecordedDaoHelper( getActivity() );
+		}
+		
         if( RecordingsActivity.class.isInstance( getActivity() ) ) {
             mImageFetcher = ( (RecordingsActivity) getActivity() ).getImageFetcher();
+//           mRecordedDaoHelper = ( (RecordingsActivity) getActivity() ).getRecordedDaoHelper();
         }
 
         if( EpisodeActivity.class.isInstance( getActivity() ) ) {
             mImageFetcher = ( (EpisodeActivity) getActivity() ).getImageFetcher();
+//            mRecordedDaoHelper = ( (EpisodeActivity) getActivity() ).getRecordedDaoHelper();
         }
 
-		episodeId = id;
-		
-		String[] projection = { 
-			ProgramConstants._ID, ProgramConstants.FIELD_TITLE, ProgramConstants.FIELD_SUB_TITLE, ProgramConstants.FIELD_INETREF,
-			ProgramConstants.FIELD_DESCRIPTION, ProgramConstants.FIELD_AIR_DATE, 
-			ProgramConstants.FIELD_CATEGORY, ProgramConstants.FIELD_START_TIME, ProgramConstants.FIELD_END_TIME,
-			ProgramConstants.FIELD_CHANNEL_ID
-		};
-
-		Cursor cursor = getActivity().getContentResolver().query( ContentUris.withAppendedId( ProgramConstants.CONTENT_URI_RECORDED, id ), projection, null, null, null );
-		if( cursor.moveToFirst() ) {
-
-//			programGroup = cursor.getString( cursor.getColumnIndexOrThrow( ProgramConstants.FIELD_PROGRAM_GROUP ) );
-			inetref = cursor.getString( cursor.getColumnIndexOrThrow( ProgramConstants.FIELD_INETREF ) );
-			channelId = Integer.parseInt( cursor.getString( cursor.getColumnIndexOrThrow( ProgramConstants.FIELD_CHANNEL_ID ) ) );
-			startTime = new DateTime( cursor.getLong( cursor.getColumnIndexOrThrow( ProgramConstants.FIELD_START_TIME ) ) );
-
-			title = cursor.getString( cursor.getColumnIndexOrThrow( ProgramConstants.FIELD_TITLE ) );
-			Log.d( TAG, "loadEpisode : Episode_Title=" + title );
+		Log.v( TAG, "loadEpisode : channelId=" + channelId + ", startTime=" + DateUtils.dateTimeFormatterPretty.print( startTime ) );
+        program = mRecordedDaoHelper.findOne( channelId, startTime );
+		if( null != program ) {
 
 			// get activity to grab views from
 			FragmentActivity activity = this.getActivity();
 
 			// coverart
 			ImageView iView = (ImageView) activity.findViewById( R.id.imageView_episode_coverart );
-			if( null != inetref && !"".equals( inetref ) ) {
-				mImageFetcher.loadImage( inetref, "Coverart", iView, null );
+			if( null != program.getInetref() && !"".equals( program.getInetref() ) ) {
+				if( null != mImageFetcher ) {
+					mImageFetcher.loadImage( program.getInetref(), "Coverart", iView, null );
+				}
 			} else {
 				iView.setImageDrawable( null );
 			}
-//			BitmapDrawable coverart = cache.get( title );
-//			if( null != coverart ) {
-//				iView.setImageDrawable( coverart );
-//			} else {
-//				iView.setImageDrawable( null );
-//			}
 
 			// title
 			TextView tView = (TextView) activity.findViewById( R.id.textView_episode_title );
-			tView.setText( title );
+			tView.setText( program.getTitle() );
 
 			// subtitle
-			subTitle = cursor.getString( cursor.getColumnIndexOrThrow( ProgramConstants.FIELD_SUB_TITLE ) );
 			tView = (TextView) activity.findViewById( R.id.textView_episode_subtitle );
-			tView.setText( subTitle );
+			tView.setText( program.getSubTitle() );
 
 			// description
 			tView = (TextView) activity.findViewById( R.id.textView_episode_description );
-			tView.setText( cursor.getString( cursor.getColumnIndexOrThrow( ProgramConstants.FIELD_DESCRIPTION ) ) );
+			tView.setText( program.getDescription() );
 
 			// channel number
 			tView = (TextView) activity.findViewById( R.id.textView_episode_ch_num );
-//			tView.setText( cursor.getString( cursor.getColumnIndexOrThrow( ProgramConstants.FIELD_CHANNEL_NUMBER ) ) );
+			tView.setText( program.getChannelInfo().getChannelNumber() );
 
 			// airdate
 			tView = (TextView) activity.findViewById( R.id.textView_episode_airdate );
-			tView.setText( cursor.getString( cursor.getColumnIndexOrThrow( ProgramConstants.FIELD_AIR_DATE ) ) );
+			tView.setText( DateUtils.dateTimeFormatterPretty.print( program.getStartTime() ) );
 
 		} else {
 			Log.d( TAG, "loadEpisode: Empty Cursor Returned" );
 		}
-		cursor.close();
+
+		Log.v( TAG, "loadEpisode : exit" );
 	}
 
 	public void setOnEpisodeActionListener( OnEpisodeActionListener listener ) {
@@ -305,7 +294,7 @@ public class EpisodeFragment extends AbstractMythFragment {
 			try {
 				Log.v( TAG, "RemoveRecordingTask : api" );
 				
-				removed = getMainApplication().getMythServicesApi().dvrOperations().removeRecorded( channelId, startTime );
+				removed = getMainApplication().getMythServicesApi().dvrOperations().removeRecorded( program.getChannelInfo().getChannelId(), program.getStartTime() );
 			} catch( Exception e ) {
 				Log.v( TAG, "CreateStreamTask : error" );
 
@@ -327,8 +316,24 @@ public class EpisodeFragment extends AbstractMythFragment {
 						Bool bool = result.getBody();
 						if( bool.getBool().equals( Boolean.TRUE ) ) {
 						
-							getActivity().getContentResolver().delete( ContentUris.withAppendedId( ProgramConstants.CONTENT_URI_RECORDED, episodeId ), null, null );
-							listener.onEpisodeDeleted( programGroup );
+							String title = program.getTitle();
+							ProgramGroup programGroup = mProgramGroupDaoHelper.findByTitle( title );
+							
+							String programGroupName = programGroup.getProgramGroup();
+							
+							mRecordedDaoHelper.delete( program );
+							
+							List<Program> programs = mRecordedDaoHelper.findAllByTitle( title );
+							if( null == programs || programs.isEmpty() ) {
+								mProgramGroupDaoHelper.delete( programGroup );
+								
+								List<ProgramGroup> programGroups = mProgramGroupDaoHelper.findAll();
+								if( null != programGroups && !programGroups.isEmpty() ) {
+									programGroupName = programGroups.get( 0 ).getProgramGroup();
+								}
+							}
+							
+							listener.onEpisodeDeleted( programGroupName );
 							
 						}
 						

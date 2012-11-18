@@ -25,6 +25,7 @@ import java.text.DecimalFormat;
 import org.apache.commons.io.FileUtils;
 import org.joda.time.DateTime;
 import org.mythtv.R;
+import org.mythtv.db.dvr.UpcomingDaoHelper;
 import org.mythtv.db.http.EtagConstants;
 import org.mythtv.service.MythtvService;
 import org.mythtv.services.api.ETagInfo;
@@ -41,8 +42,10 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.OperationApplicationException;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.RemoteException;
 import android.util.Log;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
@@ -77,7 +80,8 @@ public class UpcomingDownloadService extends MythtvService {
 	private int notificationId;
 	
 	private File upcomingDirectory = null;
-	private UpcomingProcessor mUpcomingProcessor;
+
+	private UpcomingDaoHelper mUpcomingDaoHelper;
 
 	public UpcomingDownloadService() {
 		super( "UpcomingDownloadService" );
@@ -91,7 +95,7 @@ public class UpcomingDownloadService extends MythtvService {
 		Log.d( TAG, "onHandleIntent : enter" );
 		super.onHandleIntent( intent );
 		
-		mUpcomingProcessor = new UpcomingProcessor( this );
+		mUpcomingDaoHelper = new UpcomingDaoHelper( this );
 
 		upcomingDirectory = mFileHelper.getProgramUpcomingDataDirectory();
 		if( null == upcomingDirectory || !upcomingDirectory.exists() ) {
@@ -134,6 +138,10 @@ public class UpcomingDownloadService extends MythtvService {
 				Log.e( TAG, "onHandleIntent : error mapping json", e );
 			} catch( IOException e ) {
 				Log.e( TAG, "onHandleIntent : error handling files", e );
+			} catch( RemoteException e ) {
+				Log.e( TAG, "onHandleIntent : error loading upcoming data", e );
+			} catch( OperationApplicationException e ) {
+				Log.e( TAG, "onHandleIntent : error loading upcoming data", e );
 			} finally {
     			completed();
 
@@ -156,16 +164,6 @@ public class UpcomingDownloadService extends MythtvService {
 	
 	private Programs download() {
 		Log.v( TAG, "download : enter" );
-		
-//		Cursor etags = getContentResolver().query( EtagConstants.CONTENT_URI, null, null, null, null );
-//		while( etags.moveToNext() ) {
-//			Long id = etags.getLong( etags.getColumnIndexOrThrow( EtagConstants._ID ) );
-//			String endpoint = etags.getString( etags.getColumnIndexOrThrow( EtagConstants.FIELD_ENDPOINT ) );
-//			String value = etags.getString( etags.getColumnIndexOrThrow( EtagConstants.FIELD_VALUE ) );
-//			
-//			Log.v( TAG, "download : etag=" + id + ", endpoint=" + endpoint + ", value=" + value );
-//		}
-//		etags.close();
 		
 		Long id = null;
 		ETagInfo etag = ETagInfo.createEmptyETag();
@@ -233,12 +231,12 @@ public class UpcomingDownloadService extends MythtvService {
 		Log.v( TAG, "cleanup : exit" );
 	}
 	
-	private void process( Programs programs ) throws JsonGenerationException, JsonMappingException, IOException {
+	private void process( Programs programs ) throws JsonGenerationException, JsonMappingException, IOException, RemoteException, OperationApplicationException {
 		Log.v( TAG, "process : enter" );
 		
 		mMainApplication.getObjectMapper().writeValue( new File( upcomingDirectory, UPCOMING_FILE ), programs );
 
-		int programsAdded = mUpcomingProcessor.processPrograms( programs );
+		int programsAdded = mUpcomingDaoHelper.load( programs.getPrograms() );
 		Log.v( TAG, "process : programsAdded=" + programsAdded );
 
 		Log.v( TAG, "process : exit" );

@@ -19,16 +19,22 @@
 package org.mythtv.provider;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
+import org.joda.time.DateTime;
 import org.mythtv.db.DatabaseHelper;
 import org.mythtv.db.channel.ChannelConstants;
 import org.mythtv.db.dvr.ProgramConstants;
+import org.mythtv.db.dvr.RecordingConstants;
 import org.mythtv.db.dvr.programGroup.ProgramGroupConstants;
 import org.mythtv.db.http.EtagConstants;
 import org.mythtv.db.preferences.LocationProfileConstants;
 import org.mythtv.db.preferences.PlaybackProfileConstants;
 import org.mythtv.db.status.StatusConstants;
+import org.mythtv.service.util.DateUtils;
 
+import android.annotation.TargetApi;
 import android.content.ContentProviderOperation;
 import android.content.ContentProviderResult;
 import android.content.ContentUris;
@@ -37,8 +43,10 @@ import android.content.OperationApplicationException;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteQueryBuilder;
 import android.database.sqlite.SQLiteStatement;
 import android.net.Uri;
+import android.os.Build;
 import android.text.TextUtils;
 import android.util.Log;
 //import org.mythtv.db.dvr.ProgramGroupConstants;
@@ -74,6 +82,11 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 	private static final String PROGRAM_GROUP_CONTENT_ITEM_TYPE = "vnd.mythtv.cursor.item/org.mythtv.programGroup";
 	private static final int PROGRAM_GROUP 				= 130;
 	private static final int PROGRAM_GROUP_ID			= 131;
+
+	private static final String RECORDING_CONTENT_TYPE = "vnd.mythtv.cursor.dir/org.mythtv.recording";
+	private static final String RECORDING_CONTENT_ITEM_TYPE = "vnd.mythtv.cursor.item/org.mythtv.recording";
+	private static final int RECORDING 					= 140;
+	private static final int RECORDING_ID				= 141;
 
 	private static final String CHANNEL_CONTENT_TYPE = "vnd.mythtv.cursor.dir/org.mythtv.channel";
 	private static final String CHANNEL_CONTENT_ITEM_TYPE = "vnd.mythtv.cursor.item/org.mythtv.channel";
@@ -111,6 +124,8 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 		URI_MATCHER.addURI( AUTHORITY, ProgramConstants.TABLE_NAME_PROGRAM + "/#", PROGRAM_ID );
 		URI_MATCHER.addURI( AUTHORITY, ProgramGroupConstants.TABLE_NAME, PROGRAM_GROUP );
 		URI_MATCHER.addURI( AUTHORITY, ProgramGroupConstants.TABLE_NAME + "/#", PROGRAM_GROUP_ID );
+		URI_MATCHER.addURI( AUTHORITY, RecordingConstants.TABLE_NAME, RECORDING );
+		URI_MATCHER.addURI( AUTHORITY, RecordingConstants.TABLE_NAME + "/#", RECORDING_ID );
 		URI_MATCHER.addURI( AUTHORITY, ChannelConstants.TABLE_NAME, CHANNELS );
 		URI_MATCHER.addURI( AUTHORITY, ChannelConstants.TABLE_NAME + "/#", CHANNEL_ID );
 		URI_MATCHER.addURI( AUTHORITY, EtagConstants.TABLE_NAME, ETAGS );
@@ -167,6 +182,12 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 			
 			case PROGRAM_GROUP_ID:
 				return PROGRAM_GROUP_CONTENT_ITEM_TYPE;
+			
+			case RECORDING:
+				return RECORDING_CONTENT_TYPE;
+			
+			case RECORDING_ID:
+				return RECORDING_CONTENT_ITEM_TYPE;
 			
 			case CHANNELS:
 				return CHANNEL_CONTENT_TYPE;
@@ -294,6 +315,25 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				
 				return deleted;
 
+			case RECORDING:
+
+				deleted = db.delete( RecordingConstants.TABLE_NAME, selection, selectionArgs );
+				
+				getContext().getContentResolver().notifyChange( uri, null );
+				
+				return deleted;
+
+			case RECORDING_ID:
+				
+				deleted = db.delete( RecordingConstants.TABLE_NAME, RecordingConstants._ID
+						+ "="
+						+ Long.toString( ContentUris.parseId( uri ) )
+						+ ( !TextUtils.isEmpty( selection ) ? " AND (" + selection + ')' : "" ), selectionArgs );
+				
+				getContext().getContentResolver().notifyChange( uri, null );
+				
+				return deleted;
+
 			case CHANNELS:
 
 				deleted = db.delete( ChannelConstants.TABLE_NAME, selection, selectionArgs );
@@ -407,6 +447,8 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 		
 		switch( URI_MATCHER.match( uri ) ) {
 			case RECORDED:
+				System.out.println( "channelId=" + values.get( ProgramConstants.FIELD_CHANNEL_ID ) + ", startTime=" + DateUtils.dateTimeFormatterPretty.print( new DateTime( (Long) values.get( ProgramConstants.FIELD_START_TIME ) ) ) );
+				
 				newUri = ContentUris.withAppendedId( ProgramConstants.CONTENT_URI_RECORDED, db.insertOrThrow( ProgramConstants.TABLE_NAME_RECORDED, null, values ) );
 				
 				getContext().getContentResolver().notifyChange( newUri, null );
@@ -429,6 +471,15 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 	
 			case PROGRAM_GROUP:
 				newUri = ContentUris.withAppendedId( ProgramGroupConstants.CONTENT_URI, db.insertOrThrow( ProgramGroupConstants.TABLE_NAME, null, values ) );
+				
+				getContext().getContentResolver().notifyChange( newUri, null );
+				
+				return newUri;
+	
+			case RECORDING:
+				System.out.println( "recordId=" + values.get( RecordingConstants.FIELD_RECORD_ID ) + ", startTime=" + DateUtils.dateTimeFormatterPretty.print( new DateTime( (Long) values.get( RecordingConstants.FIELD_START_TS ) ) ) );
+
+				newUri = ContentUris.withAppendedId( RecordingConstants.CONTENT_URI, db.insertOrThrow( RecordingConstants.TABLE_NAME, null, values ) );
 				
 				getContext().getContentResolver().notifyChange( newUri, null );
 				
@@ -478,30 +529,103 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 	/* (non-Javadoc)
 	 * @see android.content.ContentProvider#query(android.net.Uri, java.lang.String[], java.lang.String, java.lang.String[], java.lang.String)
 	 */
+	@TargetApi( Build.VERSION_CODES.HONEYCOMB )
 	@Override
 	public Cursor query( Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder ) {
 		
 		final SQLiteDatabase db = database.getReadableDatabase();
 		
+		SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
+
+		StringBuilder sb = new StringBuilder();
+
 		Cursor cursor = null;
 		
 		switch( URI_MATCHER.match( uri ) ) {
 			case RECORDED:
-				cursor = db.query( ProgramConstants.TABLE_NAME_RECORDED, projection, selection, selectionArgs, null, null, sortOrder );
+				
+				sb.append( ProgramConstants.TABLE_NAME_RECORDED );
+				sb.append( " LEFT OUTER JOIN " );
+				sb.append( ChannelConstants.TABLE_NAME );
+				sb.append( " ON (" );
+				sb.append( ChannelConstants.TABLE_NAME ).append( "." ).append( ChannelConstants._ID );
+				sb.append( " = ");
+				sb.append( ProgramConstants.TABLE_NAME_RECORDED ).append( "." ).append( ProgramConstants.FIELD_CHANNEL_ID );
+				sb.append( ")" );
+				sb.append( " LEFT OUTER JOIN " );
+				sb.append( RecordingConstants.TABLE_NAME );
+				sb.append( " ON (" );
+				sb.append( RecordingConstants.TABLE_NAME ).append( "." ).append( RecordingConstants._ID );
+				sb.append( " = ");
+				sb.append( ProgramConstants.TABLE_NAME_RECORDED ).append( "." ).append( ProgramConstants.FIELD_RECORD_ID );
+				sb.append( ")" );
+				
+				queryBuilder.setTables( sb.toString() );
+				queryBuilder.setProjectionMap( mRecordedColumnMap );
+				
+//				System.out.println( queryBuilder.buildQuery( null, selection, null, null, sortOrder, null ) );
+				
+				cursor = queryBuilder.query( db, null, selection, selectionArgs, null, null, sortOrder );
+				
 				cursor.setNotificationUri( getContext().getContentResolver(), uri );
 				
 				return cursor;
 	
 			case RECORDED_ID:
-				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
+				selection = ProgramConstants.TABLE_NAME_RECORDED + "." + appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
 
-				cursor = db.query( ProgramConstants.TABLE_NAME_RECORDED, projection, selection, selectionArgs, null, null, sortOrder );
+				sb.append( ProgramConstants.TABLE_NAME_RECORDED );
+				sb.append( " LEFT OUTER JOIN " );
+				sb.append( ChannelConstants.TABLE_NAME );
+				sb.append( " ON (" );
+				sb.append( ChannelConstants.TABLE_NAME ).append( "." ).append( ChannelConstants._ID );
+				sb.append( " = ");
+				sb.append( ProgramConstants.TABLE_NAME_RECORDED ).append( "." ).append( ProgramConstants.FIELD_CHANNEL_ID );
+				sb.append( ")" );
+				sb.append( " LEFT OUTER JOIN " );
+				sb.append( RecordingConstants.TABLE_NAME );
+				sb.append( " ON (" );
+				sb.append( RecordingConstants.TABLE_NAME ).append( "." ).append( RecordingConstants._ID );
+				sb.append( " = ");
+				sb.append( ProgramConstants.TABLE_NAME_RECORDED ).append( "." ).append( ProgramConstants.FIELD_RECORD_ID );
+				sb.append( ")" );
+				
+				queryBuilder.setTables( sb.toString() );
+				queryBuilder.setProjectionMap( mRecordedColumnMap );
+				
+//				System.out.println( queryBuilder.buildQuery( null, selection, null, null, sortOrder, null ) );
+				
+				cursor = queryBuilder.query( db, null, selection, selectionArgs, null, null, sortOrder );
+
 				cursor.setNotificationUri( getContext().getContentResolver(), uri );
 				
 				return cursor;
 	
 			case UPCOMING:
-				cursor = db.query( ProgramConstants.TABLE_NAME_UPCOMING, projection, selection, selectionArgs, null, null, sortOrder );
+				
+				sb.append( ProgramConstants.TABLE_NAME_UPCOMING );
+				sb.append( " LEFT OUTER JOIN " );
+				sb.append( ChannelConstants.TABLE_NAME );
+				sb.append( " ON (" );
+				sb.append( ChannelConstants.TABLE_NAME ).append( "." ).append( ChannelConstants._ID );
+				sb.append( " = ");
+				sb.append( ProgramConstants.TABLE_NAME_UPCOMING ).append( "." ).append( ProgramConstants.FIELD_CHANNEL_ID );
+				sb.append( ")" );
+				sb.append( " LEFT OUTER JOIN " );
+				sb.append( RecordingConstants.TABLE_NAME );
+				sb.append( " ON (" );
+				sb.append( RecordingConstants.TABLE_NAME ).append( "." ).append( RecordingConstants._ID );
+				sb.append( " = ");
+				sb.append( ProgramConstants.TABLE_NAME_UPCOMING ).append( "." ).append( ProgramConstants.FIELD_RECORD_ID );
+				sb.append( ")" );
+				
+				queryBuilder.setTables( sb.toString() );
+				queryBuilder.setProjectionMap( mUpcomingColumnMap );
+				
+//				System.out.println( queryBuilder.buildQuery( null, selection, null, null, sortOrder, null ) );
+				
+				cursor = queryBuilder.query( db, null, selection, selectionArgs, null, null, sortOrder );
+
 				cursor.setNotificationUri( getContext().getContentResolver(), uri );
 				
 				return cursor;
@@ -509,7 +633,29 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 			case UPCOMING_ID:
 				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
 
-				cursor = db.query( ProgramConstants.TABLE_NAME_UPCOMING, projection, selection, selectionArgs, null, null, sortOrder );
+				sb.append( ProgramConstants.TABLE_NAME_UPCOMING );
+				sb.append( " LEFT OUTER JOIN " );
+				sb.append( ChannelConstants.TABLE_NAME );
+				sb.append( " ON (" );
+				sb.append( ChannelConstants.TABLE_NAME ).append( "." ).append( ChannelConstants._ID );
+				sb.append( " = ");
+				sb.append( ProgramConstants.TABLE_NAME_UPCOMING ).append( "." ).append( ProgramConstants.FIELD_CHANNEL_ID );
+				sb.append( ")" );
+				sb.append( " LEFT OUTER JOIN " );
+				sb.append( RecordingConstants.TABLE_NAME );
+				sb.append( " ON (" );
+				sb.append( RecordingConstants.TABLE_NAME ).append( "." ).append( RecordingConstants._ID );
+				sb.append( " = ");
+				sb.append( ProgramConstants.TABLE_NAME_UPCOMING ).append( "." ).append( ProgramConstants.FIELD_RECORD_ID );
+				sb.append( ")" );
+				
+				queryBuilder.setTables( sb.toString() );
+				queryBuilder.setProjectionMap( mUpcomingColumnMap );
+				
+//				System.out.println( queryBuilder.buildQuery( null, selection, null, null, sortOrder, null ) );
+				
+				cursor = queryBuilder.query( db, null, selection, selectionArgs, null, null, sortOrder );
+
 				cursor.setNotificationUri( getContext().getContentResolver(), uri );
 				
 				return cursor;
@@ -538,6 +684,20 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
 
 				cursor = db.query( ProgramGroupConstants.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder );
+				cursor.setNotificationUri( getContext().getContentResolver(), uri );
+				
+				return cursor;
+	
+			case RECORDING:
+				cursor = db.query( RecordingConstants.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder );
+				cursor.setNotificationUri( getContext().getContentResolver(), uri );
+				
+				return cursor;
+	
+			case RECORDING_ID:
+				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
+
+				cursor = db.query( RecordingConstants.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder );
 				cursor.setNotificationUri( getContext().getContentResolver(), uri );
 				
 				return cursor;
@@ -699,6 +859,22 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
 
 				affected = db.update( ProgramGroupConstants.TABLE_NAME, values, selection , selectionArgs );
+				
+				getContext().getContentResolver().notifyChange( uri, null );
+				
+				return affected;
+
+			case RECORDING:
+				affected = db.update( RecordingConstants.TABLE_NAME, values, selection , selectionArgs );
+				
+				getContext().getContentResolver().notifyChange( uri, null );
+				
+				return affected;
+
+			case RECORDING_ID:
+				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
+
+				affected = db.update( RecordingConstants.TABLE_NAME, values, selection , selectionArgs );
 				
 				getContext().getContentResolver().notifyChange( uri, null );
 				
@@ -887,6 +1063,41 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 
 				return numInserted;
 
+			case RECORDING:
+				
+				db.beginTransaction();
+				try {
+					//standard SQL insert statement, that can be reused
+					SQLiteStatement insert = db.compileStatement( RecordingConstants.INSERT_ROW );
+				
+					for( ContentValues value : values ) {
+						insert.bindString( 1, value.getAsString( RecordingConstants._ID ) );
+						insert.bindLong( 2, value.getAsLong( RecordingConstants.FIELD_STATUS ) );
+						insert.bindLong( 3, value.getAsLong( RecordingConstants.FIELD_PRIORITY ) );
+						insert.bindLong( 4, value.getAsLong( RecordingConstants.FIELD_START_TS ) );
+						insert.bindLong( 5, value.getAsLong( RecordingConstants.FIELD_END_TS ) );
+						insert.bindString( 6, value.getAsString( RecordingConstants.FIELD_REC_GROUP ) );
+						insert.bindString( 7, value.getAsString( RecordingConstants.FIELD_PLAY_GROUP ) );
+						insert.bindString( 8, value.getAsString( RecordingConstants.FIELD_STORAGE_GROUP ) );
+						insert.bindLong( 9, value.getAsLong( RecordingConstants.FIELD_REC_TYPE ) );
+						insert.bindLong( 10, value.getAsLong( RecordingConstants.FIELD_DUP_IN_TYPE ) );
+						insert.bindLong( 11, value.getAsLong( RecordingConstants.FIELD_DUP_METHOD ) );
+						insert.bindLong( 12, value.getAsLong( RecordingConstants.FIELD_ENCODER_ID ) );
+						insert.bindString( 13, value.getAsString( RecordingConstants.FIELD_PROFILE ) );
+//						insert.bindLong( 14, value.getAsLong( RecordingConstants.FIELD_PROGRAM_ID ) );
+						insert.execute();
+					}
+					db.setTransactionSuccessful();
+	            
+					numInserted = values.length;
+				} finally {
+					db.endTransaction();
+				}
+			
+				getContext().getContentResolver().notifyChange( uri, null );
+
+				return numInserted;
+
 			case CHANNELS:
 			
 				db.beginTransaction();
@@ -998,4 +1209,54 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 		}
 
 	}
+	
+	private static final Map<String, String> mRecordedColumnMap = buildRecordedColumnMap();
+	private static Map<String, String> buildRecordedColumnMap() {
+		
+		Map<String, String> columnMap = new HashMap<String, String>();
+
+		String programProjection[] = ProgramConstants.COLUMN_MAP;
+		for( String col : programProjection ) {
+
+			String qualifiedCol = ProgramConstants.TABLE_NAME_RECORDED + "." + col;
+			columnMap.put( qualifiedCol, qualifiedCol );
+		}
+		
+		return buildProgramColumnMap( columnMap );
+	}
+
+	private static final Map<String, String> mUpcomingColumnMap = buildUpcomingColumnMap();
+	private static Map<String, String> buildUpcomingColumnMap() {
+		
+		Map<String, String> columnMap = new HashMap<String, String>();
+
+		String programProjection[] = ProgramConstants.COLUMN_MAP;
+		for( String col : programProjection ) {
+
+			String qualifiedCol = ProgramConstants.TABLE_NAME_UPCOMING + "." + col;
+			columnMap.put( qualifiedCol, qualifiedCol );
+		}
+		
+		return buildProgramColumnMap( columnMap );
+	}
+
+	private static Map<String, String> buildProgramColumnMap( Map<String, String> columnMap ) {
+		
+		String channelProjection[] = ChannelConstants.COLUMN_MAP;
+		for( String col : channelProjection ) {
+
+			String qualifiedCol = ChannelConstants.TABLE_NAME + "." + col;
+			columnMap.put( qualifiedCol, qualifiedCol + " as " + ChannelConstants.TABLE_NAME + "_" + col );
+		}
+		
+		String recordingProjection[] = RecordingConstants.COLUMN_MAP;
+		for( String col : recordingProjection ) {
+
+			String qualifiedCol = RecordingConstants.TABLE_NAME + "." + col;
+			columnMap.put( qualifiedCol, qualifiedCol + " as " + RecordingConstants.TABLE_NAME + "_" + col );
+		}
+		
+		return columnMap;
+	}
+	
 }

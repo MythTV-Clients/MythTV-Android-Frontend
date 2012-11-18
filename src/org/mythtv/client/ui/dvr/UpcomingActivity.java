@@ -25,6 +25,7 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.mythtv.R;
+import org.mythtv.db.dvr.UpcomingDaoHelper;
 import org.mythtv.db.http.EtagConstants;
 import org.mythtv.service.dvr.UpcomingDownloadService;
 import org.mythtv.service.util.DateUtils;
@@ -62,6 +63,7 @@ public class UpcomingActivity extends AbstractDvrActivity {
 
 	private UpcomingDownloadReceiver upcomingDownloadReceiver = new UpcomingDownloadReceiver();
 
+	private UpcomingDaoHelper mUpcomingDaoHelper;
 	private MythtvUpcomingPagerAdapter mAdapter;
 	
 	/* (non-Javadoc)
@@ -72,6 +74,7 @@ public class UpcomingActivity extends AbstractDvrActivity {
 		Log.v( TAG, "onCreate : enter" );
 		super.onCreate( savedInstanceState );
 
+		mUpcomingDaoHelper = new UpcomingDaoHelper( this );
 		mRunningServiceHelper = new RunningServiceHelper( this );
 
 		setContentView( R.layout.activity_dvr_upcoming );
@@ -184,6 +187,10 @@ public class UpcomingActivity extends AbstractDvrActivity {
 		return super.onOptionsItemSelected( item );
 	}
 
+	public UpcomingDaoHelper getUpcomingDaoHelper() {
+		return mUpcomingDaoHelper;
+	}
+	
 	// internal helpers
 	
 	private void loadData() {

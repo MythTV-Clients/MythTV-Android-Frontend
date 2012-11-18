@@ -71,6 +71,21 @@ public class ProgramGroupDaoHelper {
 		return programGroup;
 	}
 
+	public ProgramGroup findByTitle( String title ) {
+		Log.v( TAG, "findOne : enter" );
+		
+		ProgramGroup programGroup = null;
+		
+		Cursor cursor = mContext.getContentResolver().query( ProgramGroupConstants.CONTENT_URI, null, ProgramGroupConstants.FIELD_TITLE + " = ?", new String[] { title }, null );
+		if( cursor.moveToFirst() ) {
+			programGroup = convertCursorToProgramGroup( cursor );
+		}
+		cursor.close();
+		
+		Log.v( TAG, "findOne : exit" );
+		return programGroup;
+	}
+
 	/**
 	 * @param programGroup
 	 * @return

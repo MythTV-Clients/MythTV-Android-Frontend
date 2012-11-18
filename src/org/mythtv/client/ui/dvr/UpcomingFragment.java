@@ -24,7 +24,9 @@ import org.mythtv.client.MainApplication;
 import org.mythtv.client.ui.util.MythtvListFragment;
 import org.mythtv.client.ui.util.ProgramHelper;
 import org.mythtv.db.dvr.ProgramConstants;
+import org.mythtv.db.dvr.UpcomingDaoHelper;
 import org.mythtv.service.util.DateUtils;
+import org.mythtv.services.api.dvr.Program;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -54,7 +56,8 @@ public class UpcomingFragment extends MythtvListFragment implements LoaderManage
     private MainApplication mainApplication;
 
 	private ProgramHelper mProgramHelper;
-
+	private UpcomingDaoHelper mUpcomingDaoHelper;
+	
 	public static UpcomingFragment newInstance( String formattedDay ) {
 		
 		UpcomingFragment fragment = new UpcomingFragment();
@@ -76,15 +79,17 @@ public class UpcomingFragment extends MythtvListFragment implements LoaderManage
 		Log.v( TAG, "onCreateLoader : enter" );
 		
 		String startDate = args.getString( START_DATE_KEY );
-		DateTime now = new DateTime( startDate );
+		DateTime startDay = new DateTime( startDate ).withTimeAtStartOfDay();
+		DateTime endDay = startDay.plusDays( 1 );
+		DateTime now = new DateTime();
 
         mainApplication = getMainApplication();
 
 		String[] projection = { ProgramConstants._ID, ProgramConstants.FIELD_TITLE, ProgramConstants.FIELD_SUB_TITLE, ProgramConstants.FIELD_START_TIME, ProgramConstants.FIELD_CATEGORY };
 		
-		String selection = null; // ProgramConstants.FIELD_START_DATE + " = ? AND " + ProgramConstants.FIELD_START_TIME + " >= ?";
+		String selection = ProgramConstants.FIELD_START_TIME + " > ? AND " + ProgramConstants.FIELD_START_TIME + " <= ? AND " + ProgramConstants.FIELD_START_TIME + " >= ?";
 		
-		String[] selectionArgs = new String[] { startDate, "" + DateUtils.convertUtc( now ).getMillis() };
+		String[] selectionArgs = new String[] { String.valueOf( startDay.getMillis() ), String.valueOf( endDay.getMillis() ), String.valueOf( now.getMillis() ) };
 		
 	    CursorLoader cursorLoader = new CursorLoader( getActivity(), ProgramConstants.CONTENT_URI_UPCOMING, projection, selection, selectionArgs, ProgramConstants.FIELD_START_TIME );
 		
@@ -127,6 +132,10 @@ public class UpcomingFragment extends MythtvListFragment implements LoaderManage
 		super.onActivityCreated( savedInstanceState );
 
 		mProgramHelper = ProgramHelper.createInstance( getActivity() );
+
+		if( UpcomingActivity.class.isInstance( getActivity() ) ) {
+			mUpcomingDaoHelper = ( (UpcomingActivity) getActivity() ).getUpcomingDaoHelper();
+		}
 		
 		setHasOptionsMenu( true );
 		
@@ -186,27 +195,20 @@ public class UpcomingFragment extends MythtvListFragment implements LoaderManage
 		public void bindView( View view, Context context, Cursor cursor ) {
 			//Log.v( TAG, "UpcomingCursorAdapter.bindView : enter" );
 
-			long lStartTime = cursor.getLong( cursor.getColumnIndex( ProgramConstants.FIELD_START_TIME ) );
-//			int iDuration = cursor.getInt( cursor.getColumnIndex( ProgramConstants.FIELD_DURATION ) );
-			String sTitle = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_TITLE ) );
-			String sSubTitle = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_SUB_TITLE ) );
-			String sCategory = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_CATEGORY ) );
-//			String sChannelNumber = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_CHANNEL_NUMBER ) );
+			Program program = mUpcomingDaoHelper.convertCursorToProgram( cursor );
 			
 			ViewHolder mHolder = (ViewHolder) view.getTag();
 
-			DateTime startTime = new DateTime( lStartTime );
-				
-			mHolder.category.setBackgroundColor( mProgramHelper.getCategoryColor( sCategory ) );
-			mHolder.title.setText( sTitle );
-			mHolder.subTitle.setText( sSubTitle );
-//			mHolder.channel.setText( sChannelNumber );
-//            mHolder.duration.setText( iDuration + " minutes" );
+			mHolder.category.setBackgroundColor( mProgramHelper.getCategoryColor( program.getCategory() ) );
+			mHolder.title.setText( program.getTitle() );
+			mHolder.subTitle.setText( program.getSubTitle() );
+			mHolder.channel.setText( null != program.getChannelInfo() ? program.getChannelInfo().getChannelNumber() : "" );
+            mHolder.duration.setText( program.getDurationInMinutes() + " minutes" );
 
-            if (mainApplication.getClockType() != null && mainApplication.getClockType().equals("24")) {
-                mHolder.startTime.setText( DateUtils.timeFormatter24.print( startTime ) );
+            if( mainApplication.getClockType() != null && mainApplication.getClockType().equals( "24" ) ) {
+                mHolder.startTime.setText( DateUtils.timeFormatter24.print( program.getStartTime() ) );
             } else {
-                mHolder.startTime.setText( DateUtils.timeFormatter.print( startTime ) );
+                mHolder.startTime.setText( DateUtils.timeFormatter.print( program.getStartTime() ) );
             }
 
 			//Log.v( TAG, "UpcomingCursorAdapter.bindView : exit" );

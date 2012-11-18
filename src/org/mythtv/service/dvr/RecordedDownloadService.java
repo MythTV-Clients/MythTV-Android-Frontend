@@ -44,8 +44,10 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.OperationApplicationException;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.RemoteException;
 import android.util.Log;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
@@ -134,6 +136,10 @@ public class RecordedDownloadService extends MythtvService {
 				Log.e( TAG, "onHandleIntent : error mapping json", e );
 			} catch( IOException e ) {
 				Log.e( TAG, "onHandleIntent : error handling files", e );
+			} catch( RemoteException e ) {
+				Log.e( TAG, "onHandleIntent : error applying batch 1", e );
+			} catch( OperationApplicationException e ) {
+				Log.e( TAG, "onHandleIntent : error applying batch 2", e );
 			} finally {
     			completed();
 
@@ -224,18 +230,8 @@ public class RecordedDownloadService extends MythtvService {
 		Log.v( TAG, "cleanup : exit" );
 	}
 
-	private void process( Programs programs ) throws JsonGenerationException, JsonMappingException, IOException {
+	private void process( Programs programs ) throws JsonGenerationException, JsonMappingException, IOException, RemoteException, OperationApplicationException {
 		Log.v( TAG, "process : enter" );
-		
-		List<Program> filteredPrograms = new ArrayList<Program>();
-		if( null != programs ) {
-			for( Program program : programs.getPrograms() ) {
-				if( !program.getRecording().getRecordingGroup().equalsIgnoreCase( "livetv" ) ) {
-					filteredPrograms.add( program );
-				}
-			}
-		}
-		programs.setPrograms( filteredPrograms );
 		
 		mMainApplication.getObjectMapper().writeValue( new File( recordedDirectory, RECORDED_FILE ), programs );
 

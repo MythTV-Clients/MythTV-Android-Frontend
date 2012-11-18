@@ -295,15 +295,11 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 		super.onListItemClick( l, v, position, id );
 		Log.v( TAG, "onListItemClick : position=" + position + ", id=" + id );
 
-		String title = null;
-		Cursor cursor = getActivity().getContentResolver().query( ContentUris.withAppendedId( ProgramGroupConstants.CONTENT_URI, id ), new String[] { ProgramGroupConstants.FIELD_TITLE }, null, null, null );
-		if( cursor.moveToFirst() ) {
-			title = cursor.getString( cursor.getColumnIndexOrThrow( ProgramGroupConstants.FIELD_TITLE ) );
-		}
-		cursor.close();
+		ProgramGroup programGroup = mProgramGroupDaoHelper.findOne( id );		
+		if( null != programGroup ) {
+			Log.v( TAG, "onListItemClick : selecting program group, programGroup=" + programGroup.toString() );
 
-		if( null != title ) {
-			listener.onProgramGroupSelected( title );
+			listener.onProgramGroupSelected( programGroup );
 		}
 		
 		Log.v( TAG, "onListItemClick : exit" );
@@ -319,7 +315,7 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 
 	public interface OnProgramGroupListener {
 		
-		void onProgramGroupSelected( String title );
+		void onProgramGroupSelected( ProgramGroup programGroup );
 				
 	}
 
