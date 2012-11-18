@@ -23,10 +23,9 @@ import java.io.IOException;
 import java.text.DecimalFormat;
 
 import org.apache.commons.io.FileUtils;
-import org.joda.time.DateTime;
 import org.mythtv.R;
 import org.mythtv.db.dvr.UpcomingDaoHelper;
-import org.mythtv.db.http.EtagConstants;
+import org.mythtv.db.http.EtagDaoHelper;
 import org.mythtv.service.MythtvService;
 import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.dvr.ProgramList;
@@ -38,13 +37,9 @@ import org.springframework.http.ResponseEntity;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.ContentUris;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.OperationApplicationException;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.RemoteException;
 import android.util.Log;
 
@@ -82,7 +77,8 @@ public class UpcomingDownloadService extends MythtvService {
 	private File upcomingDirectory = null;
 
 	private UpcomingDaoHelper mUpcomingDaoHelper;
-
+	private EtagDaoHelper mEtagDaoHelper;
+	
 	public UpcomingDownloadService() {
 		super( "UpcomingDownloadService" );
 	}
@@ -96,7 +92,8 @@ public class UpcomingDownloadService extends MythtvService {
 		super.onHandleIntent( intent );
 		
 		mUpcomingDaoHelper = new UpcomingDaoHelper( this );
-
+		mEtagDaoHelper = new EtagDaoHelper( this );
+		
 		upcomingDirectory = mFileHelper.getProgramUpcomingDataDirectory();
 		if( null == upcomingDirectory || !upcomingDirectory.exists() ) {
 			Intent completeIntent = new Intent( ACTION_COMPLETE );
@@ -122,35 +119,24 @@ public class UpcomingDownloadService extends MythtvService {
 		if ( intent.getAction().equals( ACTION_DOWNLOAD ) ) {
     		Log.i( TAG, "onHandleIntent : DOWNLOAD action selected" );
 
-    		Programs programs = null;
+    		boolean passed = true;
+    		
     		try {
     			sendNotification();
 
-    			programs = download();
-    			if( null != programs ) {
-    				cleanup();
-    				
-    				process( programs );
-    			}
-			} catch( JsonGenerationException e ) {
-				Log.e( TAG, "onHandleIntent : error generating json", e );
-			} catch( JsonMappingException e ) {
-				Log.e( TAG, "onHandleIntent : error mapping json", e );
-			} catch( IOException e ) {
-				Log.e( TAG, "onHandleIntent : error handling files", e );
-			} catch( RemoteException e ) {
+    			download();
+
+			} catch( Exception e ) {
 				Log.e( TAG, "onHandleIntent : error loading upcoming data", e );
-			} catch( OperationApplicationException e ) {
-				Log.e( TAG, "onHandleIntent : error loading upcoming data", e );
+				
+				passed = false;
 			} finally {
     			completed();
 
     			Intent completeIntent = new Intent( ACTION_COMPLETE );
     			completeIntent.putExtra( EXTRA_COMPLETE, "Upcoming Programs Download Service Finished" );
     			completeIntent.putExtra( EXTRA_COMPLETE, "Recorded Programs Download Service Finished" );
-    			if( null == programs ) {
-    				completeIntent.putExtra( EXTRA_COMPLETE_UPTODATE, Boolean.TRUE );
-    			}
+   				completeIntent.putExtra( EXTRA_COMPLETE_UPTODATE, passed );
     			
     			sendBroadcast( completeIntent );
     		}
@@ -162,65 +148,44 @@ public class UpcomingDownloadService extends MythtvService {
 
 	// internal helpers
 	
-	private Programs download() {
+	private void download() throws Exception {
 		Log.v( TAG, "download : enter" );
 		
-		Long id = null;
-		ETagInfo etag = ETagInfo.createEmptyETag();
-		Cursor cursor = getContentResolver().query( Uri.withAppendedPath( EtagConstants.CONTENT_URI, "endpoint" ), null, EtagConstants.FIELD_ENDPOINT + " = ?" ,new String[] { Endpoint.GET_UPCOMING_LIST.name() }, null );
-		if( cursor.moveToFirst() ) {
-			id = cursor.getLong( cursor.getColumnIndexOrThrow( EtagConstants._ID ) );
-			String value = cursor.getString( cursor.getColumnIndexOrThrow( EtagConstants.FIELD_VALUE ) );
-			
-			etag.setETag( value );
-			Log.v( TAG, "download : etag=" + etag.getETag() );
-		}
-		cursor.close();
+		ETagInfo etag = mEtagDaoHelper.findByEndpointAndDataId( Endpoint.GET_UPCOMING_LIST.name(), "" );
 
 		ResponseEntity<ProgramList> responseEntity = mMainApplication.getMythServicesApi().dvrOperations().getUpcomingList( -1, -1, false, etag );
 		if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
-
-			try {
-				ProgramList programList = responseEntity.getBody();
-
-				if( null != etag.getETag() ) {
-					ContentValues values = new ContentValues();
-					values.put( EtagConstants.FIELD_ENDPOINT, Endpoint.GET_UPCOMING_LIST.name() );
-					values.put( EtagConstants.FIELD_VALUE, etag.getETag() );
-					values.put( EtagConstants.FIELD_DATE, ( new DateTime() ).getMillis() );
-
-					if( null == id ) {
-						Log.v( TAG, "download : adding new etag" );
-
-						getContentResolver().insert( EtagConstants.CONTENT_URI, values );
-					} else {
-						Log.v( TAG, "download : updating existing etag" );
-
-						getContentResolver().update( ContentUris.withAppendedId( EtagConstants.CONTENT_URI, id ), values, null, null );
-					}
-				}
+			Log.i( TAG, "download : " + Endpoint.GET_UPCOMING_LIST.getEndpoint() + " returned 200 OK" );
+	
+			ProgramList programList = responseEntity.getBody();
+			if( null != programList ) {
 				
-				return programList.getPrograms();
-			} catch( Exception e ) {
-				Log.e( TAG, "download : error downloading upcoming program list" );
+				if( null != programList.getPrograms() ) {
+					
+					cleanup();
+				
+					process( programList.getPrograms() );
+				
+					if( null != etag.getETag() ) {
+						mEtagDaoHelper.save( etag, Endpoint.GET_UPCOMING_LIST.name(), "" );
+					}
+						
+				}
+			
 			}
+
 		}
 		
 		if( responseEntity.getStatusCode().equals( HttpStatus.NOT_MODIFIED ) ) {
 			Log.i( TAG, "download : " + Endpoint.GET_UPCOMING_LIST.getEndpoint() + " returned 304 Not Modified" );
 			
 			if( null != etag.getETag() ) {
-				ContentValues values = new ContentValues();
-				values.put( EtagConstants.FIELD_ENDPOINT, Endpoint.GET_UPCOMING_LIST.name() );
-				values.put( EtagConstants.FIELD_VALUE, etag.getETag() );
-				values.put( EtagConstants.FIELD_DATE, ( new DateTime() ).getMillis() );
-				getContentResolver().update( ContentUris.withAppendedId( EtagConstants.CONTENT_URI, id ), values, null, null );
+				mEtagDaoHelper.save( etag, Endpoint.GET_UPCOMING_LIST.name(), "" );
 			}
 			
 		}
 		
 		Log.v( TAG, "download : exit" );
-		return null;
 	}
 
 	private void cleanup() throws IOException {

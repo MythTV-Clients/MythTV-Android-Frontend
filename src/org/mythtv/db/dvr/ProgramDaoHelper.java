@@ -32,12 +32,12 @@ import android.util.Log;
  */
 public abstract class ProgramDaoHelper {
 
-	private static final String TAG = ProgramDaoHelper.class.getSimpleName();
+	protected static final String TAG = ProgramDaoHelper.class.getSimpleName();
 	
-	private Context mContext;
+	protected Context mContext;
 	
-	private ChannelDaoHelper mChannelDaoHelper;
-	private RecordingDaoHelper mRecordingDaoHelper;
+	protected ChannelDaoHelper mChannelDaoHelper;
+	protected RecordingDaoHelper mRecordingDaoHelper;
 	
 	protected ProgramDaoHelper( Context context ) {
 		this.mContext = context;
@@ -464,7 +464,7 @@ public abstract class ProgramDaoHelper {
 
 	// internal helpers
 
-	private ContentValues[] convertProgramsToContentValuesArray( final List<Program> programs ) {
+	protected ContentValues[] convertProgramsToContentValuesArray( final List<Program> programs ) {
 //		Log.v( TAG, "convertProgramsToContentValuesArray : enter" );
 		
 		if( null != programs && !programs.isEmpty() ) {
@@ -491,7 +491,7 @@ public abstract class ProgramDaoHelper {
 		return null;
 	}
 
-	private ContentValues convertProgramToContentValues( final Program program ) {
+	protected ContentValues convertProgramToContentValues( final Program program ) {
 		
 		DateTime startTime = new DateTime( program.getStartTime().getMillis() );
 		DateTime endTime = new DateTime( program.getEndTime().getMillis() );
@@ -520,8 +520,8 @@ public abstract class ProgramDaoHelper {
 		values.put( ProgramConstants.FIELD_INETREF, null != program.getInetref() ? program.getInetref() : "" );
 		values.put( ProgramConstants.FIELD_SEASON, null != program.getSeason() ? program.getSeason() : "" );
 		values.put( ProgramConstants.FIELD_EPISODE, null != program.getEpisode() ? program.getEpisode() : "" );
-		values.put( ProgramConstants.FIELD_CHANNEL_ID, null != program.getChannelInfo() ? program.getChannelInfo().getChannelId() : -1 );
-		values.put( ProgramConstants.FIELD_RECORD_ID, null != program.getRecording() ? program.getRecording().getRecordId() : -1 );
+		values.put( ProgramConstants.FIELD_CHANNEL_ID, null != program.getChannelInfo() && null != program.getChannelInfo().getChannelId() ? program.getChannelInfo().getChannelId() : -1 );
+		values.put( ProgramConstants.FIELD_RECORD_ID, null != program.getRecording() && null != program.getRecording().getRecordId() ? program.getRecording().getRecordId() : -1 );
 		
 		return values;
 	}

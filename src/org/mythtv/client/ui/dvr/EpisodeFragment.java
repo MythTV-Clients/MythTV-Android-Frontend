@@ -233,8 +233,6 @@ public class EpisodeFragment extends AbstractMythFragment {
 			tView = (TextView) activity.findViewById( R.id.textView_episode_airdate );
 			tView.setText( DateUtils.dateTimeFormatterPretty.print( program.getStartTime() ) );
 
-		} else {
-			Log.d( TAG, "loadEpisode: Empty Cursor Returned" );
 		}
 
 		Log.v( TAG, "loadEpisode : exit" );

@@ -22,11 +22,9 @@ import java.io.File;
 import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
-import org.joda.time.DateTime;
 import org.mythtv.R;
-import org.mythtv.db.channel.ChannelConstants;
 import org.mythtv.db.channel.ChannelDaoHelper;
-import org.mythtv.db.http.EtagConstants;
+import org.mythtv.db.http.EtagDaoHelper;
 import org.mythtv.service.MythtvService;
 import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.channel.ChannelInfoList;
@@ -40,12 +38,8 @@ import org.springframework.http.ResponseEntity;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.ContentUris;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
-import android.net.Uri;
 import android.util.Log;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
@@ -76,8 +70,8 @@ public class ChannelDownloadService extends MythtvService {
 	private int notificationId;
 	
 	private File channelDirectory = null;
-//	private ChannelProcessor mChannelProcessor;
 	private ChannelDaoHelper mChannelDaoHelper;
+	private EtagDaoHelper mEtagDaoHelper;
 	
 	public ChannelDownloadService() {
 		super( "ChannelDownloadService" );
@@ -91,8 +85,8 @@ public class ChannelDownloadService extends MythtvService {
 		Log.d( TAG, "onHandleIntent : enter" );
 		super.onHandleIntent( intent );
 		
-//		mChannelProcessor = new ChannelProcessor( this );
 		mChannelDaoHelper = new ChannelDaoHelper( this );
+		mEtagDaoHelper = new EtagDaoHelper( this );
 		
 		channelDirectory = mFileHelper.getChannelDataDirectory();
 		if( null == channelDirectory || !channelDirectory.exists() ) {
@@ -113,59 +107,22 @@ public class ChannelDownloadService extends MythtvService {
 			return;
 		}
 		
-//		Cursor channelCursor = getContentResolver().query( ChannelConstants.CONTENT_URI, null, null, null, null );
-//		if( channelCursor.getCount() > 0 ) {
-//			Intent completeIntent = new Intent( ACTION_COMPLETE );
-//			completeIntent.putExtra( EXTRA_COMPLETE, "channels already loaded" );
-//			sendBroadcast( completeIntent );
-//
-//			Log.d( TAG, "onHandleIntent : exit, Master Backend unreachable" );
-//			return;
-//		}
-//		channelCursor.close();
-		
 		mNotificationManager = (NotificationManager) getSystemService( Context.NOTIFICATION_SERVICE );
 
 		if ( intent.getAction().equals( ACTION_DOWNLOAD ) ) {
     		Log.i( TAG, "onHandleIntent : DOWNLOAD action selected" );
 
-    		ChannelInfos channelInfos = null;
+    		boolean passed = true;
+    		
     		try {
-    			Long id = null;
-    			ETagInfo etag = ETagInfo.createEmptyETag();
-    			Cursor cursor = getContentResolver().query( Uri.withAppendedPath( EtagConstants.CONTENT_URI, "endpoint" ), null, EtagConstants.FIELD_ENDPOINT + " = ?" ,new String[] { Endpoint.GET_VIDEO_SOURCE_LIST.name() }, null );
-    			if( cursor.moveToFirst() ) {
-    				id = cursor.getLong( cursor.getColumnIndexOrThrow( EtagConstants._ID ) );
-    				String value = cursor.getString( cursor.getColumnIndexOrThrow( EtagConstants.FIELD_VALUE ) );
-    				
-    				etag.setETag( value );
-    			}
-    			cursor.close();
+    			ETagInfo etag = mEtagDaoHelper.findByEndpointAndDataId( Endpoint.GET_VIDEO_SOURCE_LIST.name(), null );
     			
 				ResponseEntity<VideoSourceList> responseEntity = mMainApplication.getMythServicesApi().channelOperations().getVideoSourceList( etag );
 				if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
 					sendNotification();
 					
-//					mChannelProcessor.deleteChannels();
 					mChannelDaoHelper.deleteAll();
 					
-					if( null != etag.getETag() ) {
-						ContentValues values = new ContentValues();
-						values.put( EtagConstants.FIELD_ENDPOINT, Endpoint.GET_VIDEO_SOURCE_LIST.name() );
-						values.put( EtagConstants.FIELD_VALUE, etag.getETag() );
-						values.put( EtagConstants.FIELD_DATE, ( new DateTime() ).getMillis() );
-
-						if( null == id ) {
-							Log.v( TAG, "download : adding new etag" );
-
-							getContentResolver().insert( EtagConstants.CONTENT_URI, values );
-						} else {
-							Log.v( TAG, "download : updating existing etag" );
-
-							getContentResolver().update( ContentUris.withAppendedId( EtagConstants.CONTENT_URI, id ), values, null, null );
-						}
-					}
-
 					VideoSourceList videoSourceList = responseEntity.getBody();
 					
 					if( null != videoSourceList ) {
@@ -173,32 +130,31 @@ public class ChannelDownloadService extends MythtvService {
 						
 						for( VideoSource videoSource : videoSourceList.getVideoSources().getVideoSources() ) {
 
-							channelInfos = download( videoSource.getId() );
-			    			if( null != channelInfos ) {
-
-			    				process( channelInfos );
-			    				
-			    			}
+							download( videoSource.getId() );
 						}
 
 					}
 
-//					downloadChannelIcons();
+					if( null != etag.getETag() ) {
+						mEtagDaoHelper.save( etag, Endpoint.GET_VIDEO_SOURCE_LIST.name(), null );
+					}
+
 				}					
-			} catch( JsonGenerationException e ) {
-				Log.e( TAG, "onHandleIntent : error generating json", e );
-			} catch( JsonMappingException e ) {
-				Log.e( TAG, "onHandleIntent : error mapping json", e );
-			} catch( IOException e ) {
+			
+				if( responseEntity.getStatusCode().equals( HttpStatus.NOT_MODIFIED ) ) {
+					mEtagDaoHelper.save( etag, Endpoint.GET_VIDEO_SOURCE_LIST.name(), null );
+				}
+				
+			} catch( Exception e ) {
 				Log.e( TAG, "onHandleIntent : error handling files", e );
+				
+				passed = false;
 			} finally {
     			completed();
 
     			Intent completeIntent = new Intent( ACTION_COMPLETE );
     			completeIntent.putExtra( EXTRA_COMPLETE, "Channels Download Service Finished" );
-    			if( null == channelInfos ) {
-    				completeIntent.putExtra( EXTRA_COMPLETE_UPTODATE, Boolean.TRUE );
-    			}
+   				completeIntent.putExtra( EXTRA_COMPLETE_UPTODATE, passed );
     			
     			sendBroadcast( completeIntent );
     		}
@@ -210,79 +166,39 @@ public class ChannelDownloadService extends MythtvService {
 
 	// internal helpers
 	
-	private ChannelInfos download( int sourceId ) {
+	private void download( int sourceId ) throws Exception {
 		Log.v( TAG, "download : enter" );
 
-//		Cursor etags = getContentResolver().query( EtagConstants.CONTENT_URI, null, null, null, null );
-//		while( etags.moveToNext() ) {
-//			Long id = etags.getLong( etags.getColumnIndexOrThrow( EtagConstants._ID ) );
-//			String endpoint = etags.getString( etags.getColumnIndexOrThrow( EtagConstants.FIELD_ENDPOINT ) );
-//			String value = etags.getString( etags.getColumnIndexOrThrow( EtagConstants.FIELD_VALUE ) );
-//			
-//			Log.v( TAG, "download : etag=" + id + ", endpoint=" + endpoint + ", value=" + value );
-//		}
-//		etags.close();
+		ETagInfo etag = mEtagDaoHelper.findByEndpointAndDataId( Endpoint.GET_CHANNEL_INFO_LIST.name(), String.valueOf( sourceId ) );
 		
-		Long id = null;
-		ETagInfo etag = ETagInfo.createEmptyETag();
-		Cursor cursor = getContentResolver().query( Uri.withAppendedPath( EtagConstants.CONTENT_URI, "endpoint" ), null, EtagConstants.FIELD_ENDPOINT + " = ? and " + EtagConstants.FIELD_DATA_ID + " = ?" ,new String[] { Endpoint.GET_CHANNEL_INFO_LIST.name(), String.valueOf( sourceId ) }, null );
-		if( cursor.moveToFirst() ) {
-			id = cursor.getLong( cursor.getColumnIndexOrThrow( EtagConstants._ID ) );
-			String value = cursor.getString( cursor.getColumnIndexOrThrow( EtagConstants.FIELD_VALUE ) );
-			
-			etag.setETag( value );
-			Log.v( TAG, "download : etag=" + etag.getETag() );
-		}
-		cursor.close();
-		
-		try {
-			ResponseEntity<ChannelInfoList> responseEntity = mMainApplication.getMythServicesApi().channelOperations().getChannelInfoList( sourceId, 1, -1, etag );
-		
-			if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
-				ChannelInfoList channelInfoList = responseEntity.getBody();
-				
-				if( null != etag.getETag() ) {
-					ContentValues values = new ContentValues();
-					values.put( EtagConstants.FIELD_ENDPOINT, Endpoint.GET_CHANNEL_INFO_LIST.name() );
-					values.put( EtagConstants.FIELD_VALUE, etag.getETag() );
-					values.put( EtagConstants.FIELD_DATA_ID, sourceId );
-					values.put( EtagConstants.FIELD_DATE, ( new DateTime() ).getMillis() );
+		ResponseEntity<ChannelInfoList> responseEntity = mMainApplication.getMythServicesApi().channelOperations().getChannelInfoList( sourceId, 1, -1, etag );
 
-					if( null == id ) {
-						Log.v( TAG, "download : adding new etag" );
+		if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
+			ChannelInfoList channelInfoList = responseEntity.getBody();
 
-						getContentResolver().insert( EtagConstants.CONTENT_URI, values );
-					} else {
-						Log.v( TAG, "download : updating existing etag" );
+			if( null != channelInfoList ) {
 
-						getContentResolver().update( ContentUris.withAppendedId( EtagConstants.CONTENT_URI, id ), values, null, null );
-					}
+				if( null != channelInfoList.getChannelInfos() ) {
+					process( channelInfoList.getChannelInfos() );
 				}
 
-				Log.v( TAG, "download : exit" );
-				return channelInfoList.getChannelInfos();
-			}
-
-			if( responseEntity.getStatusCode().equals( HttpStatus.NOT_MODIFIED ) ) {
-				Log.i( TAG, "download : " + Endpoint.GET_CHANNEL_INFO_LIST.getEndpoint() + " returned 304 Not Modified" );
-
 				if( null != etag.getETag() ) {
-					ContentValues values = new ContentValues();
-					values.put( EtagConstants.FIELD_ENDPOINT, Endpoint.GET_CHANNEL_INFO_LIST.name() );
-					values.put( EtagConstants.FIELD_VALUE, etag.getETag() );
-					values.put( EtagConstants.FIELD_DATA_ID, sourceId );
-					values.put( EtagConstants.FIELD_DATE, ( new DateTime() ).getMillis() );
-					getContentResolver().update( ContentUris.withAppendedId( EtagConstants.CONTENT_URI, id ), values, null, null );
+					Log.i( TAG, "download : " + Endpoint.GET_CHANNEL_INFO_LIST.getEndpoint() + " returned 200 OK" );
+
+					mEtagDaoHelper.save( etag, Endpoint.GET_CHANNEL_INFO_LIST.name(), String.valueOf( sourceId ) );
 				}
-				
+
 			}
-			
-		} catch( Exception e ) {
-			Log.e( TAG, "download : error downloading upcoming program list", e );
+
 		}
-		
+
+		if( responseEntity.getStatusCode().equals( HttpStatus.NOT_MODIFIED ) ) {
+			Log.i( TAG, "download : " + Endpoint.GET_CHANNEL_INFO_LIST.getEndpoint() + " returned 304 Not Modified" );
+
+			mEtagDaoHelper.save( etag, Endpoint.GET_CHANNEL_INFO_LIST.name(), String.valueOf( sourceId ) );
+		}
+			
 		Log.v( TAG, "download : exit" );
-		return null;
 	}
 
 	private void cleanup() throws IOException {
@@ -298,7 +214,6 @@ public class ChannelDownloadService extends MythtvService {
 		
 		mMainApplication.getObjectMapper().writeValue( new File( channelDirectory, CHANNELS_FILE ), channelInfos );
 
-//		int channelsAdded = mChannelProcessor.processChannels( channelInfos );
 		if( null != channelInfos ) {
 			
 			if( null != channelInfos.getChannelInfos() && !channelInfos.getChannelInfos().isEmpty() ) {
@@ -314,28 +229,6 @@ public class ChannelDownloadService extends MythtvService {
 	}
 
 	// internal helpers
-	
-//	private void downloadChannelIcons() {
-//		Log.v( TAG, "downloadChannelIcons : enter" );
-//		
-//		Cursor cursor = getContentResolver().query( ChannelConstants.CONTENT_URI, new String[] { ChannelConstants._ID, ChannelConstants.FIELD_CHAN_ID, ChannelConstants.FIELD_CALLSIGN }, null, null, null );
-//		while( cursor.moveToNext() ) {
-//			Long id = cursor.getLong( cursor.getColumnIndexOrThrow( ChannelConstants._ID ) );
-//	        String chanId = cursor.getString( cursor.getColumnIndexOrThrow( ChannelConstants.FIELD_CHAN_ID ) );
-//	        String callsign = cursor.getString( cursor.getColumnIndexOrThrow( ChannelConstants.FIELD_CALLSIGN ) );
-//	        
-//			File icon = new File( channelDirectory, callsign + CALLSIGN_EXT );
-//			if( !icon.exists() ) {
-//				//Intent downloadBannerIntent = new Intent( BannerDownloadService.ACTION_DOWNLOAD );
-//				//downloadBannerIntent.putExtra( BannerDownloadService.BANNER_RECORDED_ID, id );
-//				//startService( downloadBannerIntent );
-//			}
-//				
-//		}
-//		cursor.close();
-//		
-//		Log.v( TAG, "downloadChannelIcons : exit" );
-//	}
 	
 	@SuppressWarnings( "deprecation" )
 	private void sendNotification() {

@@ -20,17 +20,13 @@ package org.mythtv.service.dvr;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.apache.commons.io.FileUtils;
-import org.joda.time.DateTime;
 import org.mythtv.R;
 import org.mythtv.db.dvr.RecordedDaoHelper;
-import org.mythtv.db.http.EtagConstants;
+import org.mythtv.db.http.EtagDaoHelper;
 import org.mythtv.service.MythtvService;
 import org.mythtv.services.api.ETagInfo;
-import org.mythtv.services.api.dvr.Program;
 import org.mythtv.services.api.dvr.ProgramList;
 import org.mythtv.services.api.dvr.Programs;
 import org.mythtv.services.api.dvr.impl.DvrTemplate.Endpoint;
@@ -40,13 +36,9 @@ import org.springframework.http.ResponseEntity;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.ContentUris;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.OperationApplicationException;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.RemoteException;
 import android.util.Log;
 
@@ -79,6 +71,7 @@ public class RecordedDownloadService extends MythtvService {
 	
 	private File recordedDirectory = null;
 	private RecordedDaoHelper mRecordedDaoHelper;
+	private EtagDaoHelper mEtagDaoHelper;
 	
 	public RecordedDownloadService() {
 		super( "RecordedDownloadService" );
@@ -92,8 +85,11 @@ public class RecordedDownloadService extends MythtvService {
 		Log.d( TAG, "onHandleIntent : enter" );
 		super.onHandleIntent( intent );
 		
+		boolean passed = true;
+		
 		mRecordedDaoHelper = new RecordedDaoHelper( this );
-
+		mEtagDaoHelper = new EtagDaoHelper( this );
+		
 		recordedDirectory = mFileHelper.getProgramRecordedDataDirectory();
 		if( null == recordedDirectory || !recordedDirectory.exists() ) {
 			Intent completeIntent = new Intent( ACTION_COMPLETE );
@@ -123,30 +119,19 @@ public class RecordedDownloadService extends MythtvService {
     		try {
     			sendNotification();
 
-    			programs = download();
-    			if( null != programs ) {
-    				cleanup();
-    				
-    				process( programs );	
-    			}
+    			download();
 
-			} catch( JsonGenerationException e ) {
-				Log.e( TAG, "onHandleIntent : error generating json", e );
-			} catch( JsonMappingException e ) {
-				Log.e( TAG, "onHandleIntent : error mapping json", e );
-			} catch( IOException e ) {
-				Log.e( TAG, "onHandleIntent : error handling files", e );
-			} catch( RemoteException e ) {
-				Log.e( TAG, "onHandleIntent : error applying batch 1", e );
-			} catch( OperationApplicationException e ) {
-				Log.e( TAG, "onHandleIntent : error applying batch 2", e );
+			} catch( Exception e ) {
+				Log.e( TAG, "onHandleIntent : error", e );
+				
+				passed = false;
 			} finally {
     			completed();
 
     			Intent completeIntent = new Intent( ACTION_COMPLETE );
     			completeIntent.putExtra( EXTRA_COMPLETE, "Recorded Programs Download Service Finished" );
     			if( null == programs ) {
-    				completeIntent.putExtra( EXTRA_COMPLETE_UPTODATE, Boolean.TRUE );
+    				completeIntent.putExtra( EXTRA_COMPLETE_UPTODATE, passed );
     			}
     			
     			sendBroadcast( completeIntent );
@@ -159,67 +144,44 @@ public class RecordedDownloadService extends MythtvService {
 
 	// internal helpers
 	
-	private Programs download() {
+	private void download() throws Exception {
 		Log.v( TAG, "download : enter" );
 
-		Long id = null;
-		ETagInfo etag = ETagInfo.createEmptyETag();
-		Cursor cursor = getContentResolver().query( Uri.withAppendedPath( EtagConstants.CONTENT_URI, "endpoint" ), null, EtagConstants.FIELD_ENDPOINT + " = ?" ,new String[] { Endpoint.GET_RECORDED_LIST.name() }, null );
-		if( cursor.moveToFirst() ) {
-			id = cursor.getLong( cursor.getColumnIndexOrThrow( EtagConstants._ID ) );
-			String value = cursor.getString( cursor.getColumnIndexOrThrow( EtagConstants.FIELD_VALUE ) );
-			
-			etag.setETag( value );
-			Log.v( TAG, "download : etag=" + etag.getETag() );
-		}
-		cursor.close();
+		ETagInfo etag = mEtagDaoHelper.findByEndpointAndDataId( Endpoint.GET_RECORDED_LIST.name(), "" );
 		
 		ResponseEntity<ProgramList> responseEntity = mMainApplication.getMythServicesApi().dvrOperations().getRecordedList( etag );
 
-		try {
-		
-			if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
-				ProgramList programList = responseEntity.getBody();
-				
+		if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
+			ProgramList programList = responseEntity.getBody();
+
+			if( null != programList.getPrograms() ) {
+				cleanup();
+
+				process( programList.getPrograms() );	
+
 				if( null != etag.getETag() ) {
-					ContentValues values = new ContentValues();
-					values.put( EtagConstants.FIELD_ENDPOINT, Endpoint.GET_RECORDED_LIST.name() );
-					values.put( EtagConstants.FIELD_VALUE, etag.getETag() );
-					values.put( EtagConstants.FIELD_DATE, ( new DateTime() ).getMillis() );
+					Log.i( TAG, "download : " + Endpoint.GET_RECORDED_LIST.getEndpoint() + " returned 200 OK" );
 
-					if( null == id ) {
-						Log.v( TAG, "download : adding new etag" );
-
-						getContentResolver().insert( EtagConstants.CONTENT_URI, values );
-					} else {
-						Log.v( TAG, "download : updating existing etag" );
-
-						getContentResolver().update( ContentUris.withAppendedId( EtagConstants.CONTENT_URI, id ), values, null, null );
+					if( null != etag.getETag() ) {
+						mEtagDaoHelper.save( etag, Endpoint.GET_RECORDED_LIST.name(), "" );
 					}
+
 				}
-				Log.v( TAG, "download : exit" );
-				return programList.getPrograms();
+
 			}
 
-			if( responseEntity.getStatusCode().equals( HttpStatus.NOT_MODIFIED ) ) {
-				Log.i( TAG, "download : " + Endpoint.GET_RECORDED_LIST.getEndpoint() + " returned 304 Not Modified" );
-
-				if( null != etag.getETag() ) {
-					ContentValues values = new ContentValues();
-					values.put( EtagConstants.FIELD_ENDPOINT, Endpoint.GET_RECORDED_LIST.name() );
-					values.put( EtagConstants.FIELD_VALUE, etag.getETag() );
-					values.put( EtagConstants.FIELD_DATE, ( new DateTime() ).getMillis() );
-					getContentResolver().update( ContentUris.withAppendedId( EtagConstants.CONTENT_URI, id ), values, null, null );
-				}
-				
-			}
-			
-		} catch( Exception e ) {
-			Log.e( TAG, "download : error downloading upcoming program list" );
 		}
-		
+
+		if( responseEntity.getStatusCode().equals( HttpStatus.NOT_MODIFIED ) ) {
+			Log.i( TAG, "download : " + Endpoint.GET_RECORDED_LIST.getEndpoint() + " returned 304 Not Modified" );
+
+			if( null != etag.getETag() ) {
+				mEtagDaoHelper.save( etag, Endpoint.GET_RECORDED_LIST.name(), "" );
+			}
+
+		}
+			
 		Log.v( TAG, "download : exit" );
-		return null;
 	}
 
 	private void cleanup() throws IOException {

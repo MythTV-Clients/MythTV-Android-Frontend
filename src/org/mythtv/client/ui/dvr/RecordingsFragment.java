@@ -26,6 +26,7 @@ import org.mythtv.db.dvr.programGroup.ProgramGroup;
 import org.mythtv.db.dvr.programGroup.ProgramGroupConstants;
 import org.mythtv.db.dvr.programGroup.ProgramGroupDaoHelper;
 import org.mythtv.db.http.EtagConstants;
+import org.mythtv.db.http.EtagDaoHelper;
 import org.mythtv.service.dvr.RecordedDownloadService;
 import org.mythtv.service.util.RunningServiceHelper;
 import org.mythtv.service.util.image.ImageFetcher;
@@ -74,6 +75,7 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 	private RecordedDownloadReceiver recordedDownloadReceiver = new RecordedDownloadReceiver();
 
 	private static ProgramHelper mProgramHelper;
+	private EtagDaoHelper mEtagDaoHelper;
 	private ProgramGroupDaoHelper mProgramGroupDaoHelper;
 	private RunningServiceHelper mRunningServiceHelper;
 	private ImageFetcher mImageFetcher;
@@ -134,8 +136,9 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 
 		super.onActivityCreated( savedInstanceState );
 
-		mProgramGroupDaoHelper = new ProgramGroupDaoHelper( getActivity() );
 		mProgramHelper = ProgramHelper.createInstance( getActivity() );
+		mEtagDaoHelper = new EtagDaoHelper( getActivity() );
+		mProgramGroupDaoHelper = new ProgramGroupDaoHelper( getActivity() );
 		mRunningServiceHelper = new RunningServiceHelper( getActivity() );
 	
         if( RecordingsActivity.class.isInstance( getActivity() ) ) {
@@ -197,22 +200,21 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 		Log.v( TAG, "onResume : enter" );
 		super.onStart();
 	    
-		Cursor cursor = getActivity().getContentResolver().query( Uri.withAppendedPath( EtagConstants.CONTENT_URI, "endpoint" ), null, EtagConstants.FIELD_ENDPOINT + " = ?" ,new String[] { Endpoint.GET_RECORDED_LIST.name() }, null );
-		if( cursor.moveToFirst() ) {
-			Long etagDate = cursor.getLong( cursor.getColumnIndexOrThrow( EtagConstants.FIELD_DATE ) );
+		DateTime etag = mEtagDaoHelper.findDateByEndpointAndDataId( Endpoint.GET_RECORDED_LIST.name(), "" );
+		if( null != etag ) {
 			
 			DateTime now = new DateTime();
-			if( now.getMillis() - etagDate.longValue() > 3600000 ) {
+			if( now.getMillis() - etag.getMillis() > 3600000 ) {
 				if( !mRunningServiceHelper.isServiceRunning( "org.mythtv.service.dvr.RecordedDownloadService" ) ) {
 					getActivity().startService( new Intent( RecordedDownloadService.ACTION_DOWNLOAD ) );
 				}
 			}
+			
 		} else {
 			if( !mRunningServiceHelper.isServiceRunning( "org.mythtv.service.dvr.RecordedDownloadService" ) ) {
 				getActivity().startService( new Intent( RecordedDownloadService.ACTION_DOWNLOAD ) );
 			}
 		}
-		cursor.close();
 
         Log.v( TAG, "onResume : exit" );
 	}

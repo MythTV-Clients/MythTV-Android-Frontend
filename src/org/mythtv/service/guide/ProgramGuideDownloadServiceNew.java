@@ -1,15 +1,11 @@
 package org.mythtv.service.guide;
 
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.joda.time.DateTime;
 import org.mythtv.R;
-import org.mythtv.db.channel.ChannelConstants;
-import org.mythtv.db.dvr.ProgramConstants;
+import org.mythtv.db.dvr.ProgramGuideDaoHelper;
 import org.mythtv.db.http.EtagConstants;
-import org.mythtv.provider.MythtvProvider;
 import org.mythtv.service.MythtvService;
 import org.mythtv.service.util.DateUtils;
 import org.mythtv.services.api.ETagInfo;
@@ -24,7 +20,6 @@ import org.springframework.http.ResponseEntity;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.ContentProviderOperation;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
@@ -44,7 +39,7 @@ public class ProgramGuideDownloadServiceNew extends MythtvService {
 	private static final String TAG = ProgramGuideDownloadServiceNew.class.getSimpleName();
 	private static final DecimalFormat formatter = new DecimalFormat( "###" );
 	
-	public static final Integer MAX_DAYS = 2; //14;
+	public static final Integer MAX_HOURS = 288; //288
 
     public static final String ACTION_DOWNLOAD = "org.mythtv.background.programGuideDownloadNew.ACTION_DOWNLOAD";
     public static final String ACTION_PROGRESS = "org.mythtv.background.programGuideDownloadNew.ACTION_PROGRESS";
@@ -62,6 +57,8 @@ public class ProgramGuideDownloadServiceNew extends MythtvService {
 	private PendingIntent mContentIntent = null;
 	private int notificationId = 1001;
 
+	private ProgramGuideDaoHelper mProgramGuideDaoHelper; 
+	
 	public ProgramGuideDownloadServiceNew() {
 		super( "ProgamGuideDownloadServiceNew" );
 	}
@@ -73,6 +70,8 @@ public class ProgramGuideDownloadServiceNew extends MythtvService {
 	protected void onHandleIntent( Intent intent ) {
 		Log.v( TAG, "onHandleIntent : enter" );
 		super.onHandleIntent( intent );
+
+		mProgramGuideDaoHelper = new ProgramGuideDaoHelper( this );
 
 		mNotificationManager = (NotificationManager) getSystemService( Context.NOTIFICATION_SERVICE );
 		
@@ -92,29 +91,19 @@ public class ProgramGuideDownloadServiceNew extends MythtvService {
 			
 			boolean newDataDownloaded = false;
 			
-			DateTime start = new DateTime();
-			start = start.withTime( 0, 0, 0, 001 );
+			DateTime start = new DateTime().withTimeAtStartOfDay();
 
 			try {
-				for( int i = 1; i <= MAX_DAYS; i++ ) {
+				for( int i = 1; i <= MAX_HOURS; i++ ) {
 
-					ProgramGuide programGuide = download( start );
-					if( null != programGuide ) {
+					newDataDownloaded = download( start );
 
-						newDataDownloaded = process( programGuide );
+					start = start.plusHours( 1 );
 
-					}
-
-					start = start.plusDays( 1 );
-
-					double percentage = ( (float) i / (float) MAX_DAYS ) * 100;
+					double percentage = ( (float) i / (float) MAX_HOURS ) * 100;
 					progressUpdate( percentage );
 
 				}
-			} catch( RemoteException e ) {
-				Log.e( TAG, "onHandleIntent : RemoteException", e );
-			} catch( OperationApplicationException e ) {
-				Log.e( TAG, "onHandleIntent : OperationApplicationException", e );
 			} finally {
 			
 				completed();
@@ -133,11 +122,13 @@ public class ProgramGuideDownloadServiceNew extends MythtvService {
 
 	// internal helpers
 	
-	private ProgramGuide download( DateTime start ) {
+	private boolean download( DateTime start ) {
 		Log.v( TAG, "download : enter" );
 		
+		boolean newDataDownloaded = false;
+		
 		DateTime end = new DateTime( start );
-		end = end.withTime( 23, 59, 59, 999 );
+		end = end.withTime( start.getHourOfDay(), 59, 59, 999 );
 		Log.i( TAG, "download : starting download for " + DateUtils.dateTimeFormatter.print( start ) + ", end time=" + DateUtils.dateTimeFormatter.print( end ) );
 
 		String endpoint = Endpoint.GET_PROGRAM_GUIDE.name() + "_" + DateUtils.dateFormatter.print( start );
@@ -161,6 +152,14 @@ public class ProgramGuideDownloadServiceNew extends MythtvService {
 			if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
 				ProgramGuideWrapper programGuide = responseEntity.getBody();
 				
+				if( null != programGuide ) {
+
+					if( null != programGuide.getProgramGuide() ) {
+						newDataDownloaded = process( programGuide.getProgramGuide() );
+					}
+					
+				}
+
 				if( null != etag.getETag() ) {
 					ContentValues values = new ContentValues();
 					values.put( EtagConstants.FIELD_ENDPOINT, endpoint );
@@ -179,7 +178,7 @@ public class ProgramGuideDownloadServiceNew extends MythtvService {
 				}
 
 				Log.v( TAG, "download : exit" );
-				return programGuide.getProgramGuide();
+				return newDataDownloaded;
 			}
 			
 			if( responseEntity.getStatusCode().equals( HttpStatus.NOT_MODIFIED ) ) {
@@ -202,146 +201,28 @@ public class ProgramGuideDownloadServiceNew extends MythtvService {
 		}
 			
 		Log.v( TAG, "download : exit" );
-		return null;
+		return newDataDownloaded;
 	}
 
 	private boolean process( ProgramGuide programGuide ) throws RemoteException, OperationApplicationException {
 		Log.v( TAG, "process : enter" );
 
-		List<ContentValues> insertValues = new ArrayList<ContentValues>();
-		ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
-
-		String[] channelProjection = new String[] { ChannelConstants._ID };
-		String channelSelection = ChannelConstants.FIELD_CALLSIGN + " = ?";
-		
-		String[] programProjection = new String[] { ProgramConstants._ID };
-		String programSelection = ProgramConstants.FIELD_CHANNEL_ID + " = ? AND " + ProgramConstants.FIELD_START_TIME + " = ?";
-
 		for( ChannelInfo channel : programGuide.getChannels() ) {
 
-			ContentValues channelValues = convertChannelToContentValues( channel );
-			Cursor channelCursor = getContentResolver().query( ChannelConstants.CONTENT_URI, channelProjection, channelSelection, new String[] { channel.getCallSign() }, null );
-			if( channelCursor.getCount() == 0 ) {
-				ops.add( 
-						ContentProviderOperation.newInsert( ChannelConstants.CONTENT_URI )
-							.withValues( channelValues )
-							.build()
-					);
-			}
-			channelCursor.close();
-			
 			if( null != channel.getPrograms() && !channel.getPrograms().isEmpty() ) {
 				
 				for( Program program : channel.getPrograms() ) {
-					
 					program.setChannelInfo( channel );
-					
-					ContentValues programValues = convertProgramToContentValues( program );
-
-					Cursor programCursor = getContentResolver().query( ProgramConstants.CONTENT_URI_PROGRAM, programProjection, programSelection, new String[] { String.valueOf( channel.getChannelId() ), DateUtils.dateTimeFormatter.print( program.getStartTime() ) }, null );
-					if( programCursor.moveToFirst() ) {
-						Long id = programCursor.getLong( programCursor.getColumnIndexOrThrow( ProgramConstants._ID ) );
-						ops.add( 
-								ContentProviderOperation.newUpdate( ContentUris.withAppendedId( ProgramConstants.CONTENT_URI_PROGRAM, id ) )
-									.withValues( programValues )
-									.build()
-							);
-					} else {
-						insertValues.add( programValues );
-					}
-					programCursor.close();
-					
 				}
 				
-			}
-			
-			if( !ops.isEmpty() ) {
-				//Log.v( TAG, "process : applying batch '" + channel.getCallSign() + "'" );
-				
-				getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
+				mProgramGuideDaoHelper.load( channel.getPrograms() );
 
-				ops = new ArrayList<ContentProviderOperation>();
-			}
-			
-			if( !insertValues.isEmpty() ) {
-				//Log.v( TAG, "process : inserting programs" );
-
-				getContentResolver().bulkInsert( ProgramConstants.CONTENT_URI_PROGRAM, insertValues.toArray( new ContentValues[ insertValues.size() ] ) );
-				
-				insertValues = new ArrayList<ContentValues>();
 			}
 			
 		}
 	
 		Log.v( TAG, "process : exit" );
 		return true;
-	}
-
-	private ContentValues convertChannelToContentValues( ChannelInfo channelInfo ) {
-		
-		ContentValues values = new ContentValues();
-		values.put( ChannelConstants._ID, channelInfo.getChannelId() );
-		values.put( ChannelConstants.FIELD_CHAN_NUM, channelInfo.getChannelNumber() );
-		values.put( ChannelConstants.FIELD_CALLSIGN, channelInfo.getCallSign() );
-		values.put( ChannelConstants.FIELD_ICON_URL, channelInfo.getIconUrl() );
-		values.put( ChannelConstants.FIELD_CHANNEL_NAME, channelInfo.getChannelName() );
-		values.put( ChannelConstants.FIELD_MPLEX_ID, channelInfo.getMultiplexId() );
-		values.put( ChannelConstants.FIELD_TRANSPORT_ID, channelInfo.getTransportId() );
-		values.put( ChannelConstants.FIELD_SERVICE_ID, channelInfo.getServiceId() );
-		values.put( ChannelConstants.FIELD_NETWORK_ID, channelInfo.getNetworkId() );
-		values.put( ChannelConstants.FIELD_ATSC_MAJOR_CHAN, channelInfo.getAtscMajorChannel() );
-		values.put( ChannelConstants.FIELD_ATSC_MINOR_CHAN, channelInfo.getAtscMinorChannel() );
-		values.put( ChannelConstants.FIELD_FORMAT, channelInfo.getFormat() );
-		values.put( ChannelConstants.FIELD_MODULATION, channelInfo.getModulation() );
-		values.put( ChannelConstants.FIELD_FREQUENCY, channelInfo.getFrequency() );
-		values.put( ChannelConstants.FIELD_FREQUENCY_ID, channelInfo.getFrequencyId() );
-		values.put( ChannelConstants.FIELD_FREQUENCY_TABLE, channelInfo.getFrequenceTable() );
-		values.put( ChannelConstants.FIELD_FINE_TUNE, channelInfo.getFineTune() );
-		values.put( ChannelConstants.FIELD_SIS_STANDARD, channelInfo.getSiStandard() );
-		values.put( ChannelConstants.FIELD_CHAN_FILTERS, channelInfo.getChannelFilters() );
-		values.put( ChannelConstants.FIELD_SOURCE_ID, channelInfo.getSourceId() );
-		values.put( ChannelConstants.FIELD_INPUT_ID, channelInfo.getInputId() );
-		values.put( ChannelConstants.FIELD_COMM_FREE, channelInfo.getCommercialFree() );
-		values.put( ChannelConstants.FIELD_USE_EIT, ( channelInfo.isUseEit() ? 1 : 0 ) );
-		values.put( ChannelConstants.FIELD_VISIBLE, ( channelInfo.isVisable() ? 1 : 0 ) );
-		values.put( ChannelConstants.FIELD_XMLTV_ID, channelInfo.getXmltvId() );
-		values.put( ChannelConstants.FIELD_DEFAULT_AUTH, channelInfo.getDefaultAuth() );
-
-		return values;
-	}
-
-	private ContentValues convertProgramToContentValues( final Program program ) {
-		
-		DateTime startTime = new DateTime( program.getStartTime().getMillis() );
-		DateTime endTime = new DateTime( program.getEndTime().getMillis() );
-		
-		ContentValues values = new ContentValues();
-		values.put( ProgramConstants.FIELD_START_TIME, startTime.getMillis() );
-		values.put( ProgramConstants.FIELD_END_TIME, endTime.getMillis() );
-		values.put( ProgramConstants.FIELD_TITLE, null != program.getTitle() ? program.getTitle() : "" );
-		values.put( ProgramConstants.FIELD_SUB_TITLE, null != program.getSubTitle() ? program.getSubTitle() : "" );
-		values.put( ProgramConstants.FIELD_CATEGORY, null != program.getCategory() ? program.getCategory() : "" );
-		values.put( ProgramConstants.FIELD_CATEGORY_TYPE, null != program.getCategoryType() ? program.getCategoryType() : "" );
-		values.put( ProgramConstants.FIELD_REPEAT, program.isRepeat() ? 1 : 0 );
-		values.put( ProgramConstants.FIELD_VIDEO_PROPS, program.getVideoProps() );
-		values.put( ProgramConstants.FIELD_AUDIO_PROPS, program.getAudioProps() );
-		values.put( ProgramConstants.FIELD_SUB_PROPS, program.getSubProps() );
-		values.put( ProgramConstants.FIELD_SERIES_ID, null != program.getSeriesId() ? program.getSeriesId() : "" );
-		values.put( ProgramConstants.FIELD_PROGRAM_ID, null != program.getProgramId() ? program.getProgramId() : "" );
-		values.put( ProgramConstants.FIELD_STARS, program.getStars() );
-		values.put( ProgramConstants.FIELD_FILE_SIZE, null != program.getFileSize() ? program.getFileSize() : "" );
-		values.put( ProgramConstants.FIELD_LAST_MODIFIED, null != program.getLastModified() ? DateUtils.dateTimeFormatter.print( program.getLastModified() ) : "" );
-		values.put( ProgramConstants.FIELD_PROGRAM_FLAGS, null != program.getProgramFlags() ? program.getProgramFlags() : "" );
-		values.put( ProgramConstants.FIELD_HOSTNAME, null != program.getHostname() ? program.getHostname() : "" );
-		values.put( ProgramConstants.FIELD_FILENAME, null != program.getFilename() ? program.getFilename() : "" );
-		values.put( ProgramConstants.FIELD_AIR_DATE, null != program.getAirDate() ? DateUtils.dateTimeFormatter.print( program.getAirDate() ) : "" );
-		values.put( ProgramConstants.FIELD_DESCRIPTION, null != program.getDescription() ? program.getDescription() : "" );
-		values.put( ProgramConstants.FIELD_INETREF, null != program.getInetref() ? program.getInetref() : "" );
-		values.put( ProgramConstants.FIELD_SEASON, null != program.getSeason() ? program.getSeason() : "" );
-		values.put( ProgramConstants.FIELD_EPISODE, null != program.getEpisode() ? program.getEpisode() : "" );
-		values.put( ProgramConstants.FIELD_CHANNEL_ID, null != program.getChannelInfo() ? program.getChannelInfo().getChannelId() : -1 );
-		values.put( ProgramConstants.FIELD_RECORD_ID, null != program.getRecording() ? program.getRecording().getRecordId() : -1 );
-		return values;
 	}
 
 	@SuppressWarnings( "deprecation" )

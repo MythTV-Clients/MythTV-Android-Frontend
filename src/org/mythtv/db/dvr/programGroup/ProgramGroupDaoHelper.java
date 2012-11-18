@@ -225,7 +225,7 @@ public class ProgramGroupDaoHelper {
 	// internal helpers
 	
 	private ContentValues[] convertProgramGroupsToContentValuesArray( final List<ProgramGroup> programGroups ) {
-		Log.v( TAG, "convertProgramGroupsToContentValuesArray : enter" );
+//		Log.v( TAG, "convertProgramGroupsToContentValuesArray : enter" );
 		
 		if( null != programGroups && !programGroups.isEmpty() ) {
 			
@@ -241,13 +241,13 @@ public class ProgramGroupDaoHelper {
 			
 			if( !contentValuesArray.isEmpty() ) {
 				
-				Log.v( TAG, "convertProgramGroupsToContentValuesArray : exit" );
+//				Log.v( TAG, "convertProgramGroupsToContentValuesArray : exit" );
 				return contentValuesArray.toArray( new ContentValues[ contentValuesArray.size() ] );
 			}
 			
 		}
 		
-		Log.v( TAG, "convertProgramGroupsToContentValuesArray : exit, no programs to convert" );
+//		Log.v( TAG, "convertProgramGroupsToContentValuesArray : exit, no programs to convert" );
 		return null;
 	}
 

@@ -21,16 +21,12 @@ package org.mythtv.service.guide;
 import java.io.File;
 import java.io.IOException;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 import org.joda.time.DateTime;
 import org.mythtv.R;
 import org.mythtv.service.MythtvService;
 import org.mythtv.service.util.DateUtils;
 import org.mythtv.services.api.ETagInfo;
-import org.mythtv.services.api.channel.ChannelInfo;
 import org.mythtv.services.api.guide.ProgramGuide;
 import org.mythtv.services.api.guide.ProgramGuideWrapper;
 import org.springframework.http.HttpStatus;
