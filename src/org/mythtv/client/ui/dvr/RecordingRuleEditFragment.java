@@ -42,6 +42,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -56,6 +57,7 @@ import android.widget.Toast;
  *
  */
 public class RecordingRuleEditFragment extends AbstractMythFragment implements OnCheckedChangeListener {
+
 
 	private static final String TAG = RecordingRuleEditFragment.class.getSimpleName();
 	
@@ -118,10 +120,10 @@ public class RecordingRuleEditFragment extends AbstractMythFragment implements O
 		
 		Log.v( TAG, "onActivityCreated : exit" );
 	}
-
+	
 	@Override
 	@TargetApi( 11 )
-	public void onPrepareOptionsMenu(Menu menu) {
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		
 		Log.v( TAG, "onCreateOptionsMenu : enter" );
 		
@@ -137,8 +139,9 @@ public class RecordingRuleEditFragment extends AbstractMythFragment implements O
 		
 		Log.v( TAG, "onCreateOptionsMenu : exit" );
 		
-		super.onPrepareOptionsMenu(menu);
+		super.onCreateOptionsMenu(menu, inflater);
 	}
+
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
