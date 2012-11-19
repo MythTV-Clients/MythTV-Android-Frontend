@@ -311,9 +311,8 @@ public class RecordingRulesFragment extends MythtvListFragment {
 				
 				String message = "Retrieving Recording Rules";
 				mNotificationHelper.createNotification( "Mythtv for Android", message, NotificationType.UPLOAD );
-
-				ResponseEntity<String> hostname = mainApplication.getMythServicesApi().mythOperations().getHostName();
-				if( null == hostname || "".equals( hostname ) ) {
+				
+				if( !mNetworkHelper.isMasterBackendConnected() ) {
 					return null;
 				}
 

@@ -320,8 +320,7 @@ public class RecordingRuleEditFragment extends AbstractMythFragment implements O
 		@Override
 		protected ResponseEntity<RecRuleWrapper> doInBackground( Integer... params ) {
 			
-			ResponseEntity<String> hostname = getMainApplication().getMythServicesApi().mythOperations().getHostName();
-			if( null == hostname || "".equals( hostname ) ) {
+			if( !mNetworkHelper.isMasterBackendConnected() ) {
 				return null;
 			}
 

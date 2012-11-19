@@ -19,7 +19,9 @@
 package org.mythtv.client.ui.util;
 
 import org.mythtv.client.MainApplication;
+import org.mythtv.service.util.NetworkHelper;
 
+import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.view.View;
 import android.widget.ListView;
@@ -29,6 +31,19 @@ import android.widget.ListView;
  *
  */
 public class MythtvListFragment extends ListFragment {
+
+	protected NetworkHelper mNetworkHelper;
+
+	
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
+	 */
+	@Override
+	public void onActivityCreated( Bundle savedInstanceState ) {
+		super.onActivityCreated( savedInstanceState );
+
+		mNetworkHelper = new NetworkHelper( getActivity() );
+	}
 
 	/* (non-Javadoc)
 	 * @see android.support.v4.app.ListFragment#onListItemClick(android.widget.ListView, android.view.View, int, long)

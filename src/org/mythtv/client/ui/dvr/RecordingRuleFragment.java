@@ -237,11 +237,9 @@ public class RecordingRuleFragment extends AbstractMythFragment {
 		@Override
 		protected ResponseEntity<RecRuleWrapper> doInBackground( Integer... params ) {
 			
-			ResponseEntity<String> hostname = getMainApplication().getMythServicesApi().mythOperations().getHostName();
-			if( null == hostname || "".equals( hostname ) ) {
+			if( !mNetworkHelper.isMasterBackendConnected() ) {
 				return null;
 			}
-
 			
 			Integer id = params[ 0 ];
 			

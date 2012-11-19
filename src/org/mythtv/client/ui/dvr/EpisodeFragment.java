@@ -284,8 +284,7 @@ public class EpisodeFragment extends AbstractMythFragment {
 		protected ResponseEntity<Bool> doInBackground( Void... params ) {
 			Log.v( TAG, "CreateStreamTask : enter" );
 
-			ResponseEntity<String> hostname = getMainApplication().getMythServicesApi().mythOperations().getHostName();
-			if( null == hostname || "".equals( hostname ) ) {
+			if( !mNetworkHelper.isMasterBackendConnected() ) {
 				return null;
 			}
 
