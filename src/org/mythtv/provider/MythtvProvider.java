@@ -734,7 +734,16 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				return cursor;
 	
 			case RECORDING:
-				cursor = db.query( RecordingConstants.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder );
+				
+				sb.append( RecordingConstants.TABLE_NAME );
+				
+				queryBuilder.setTables( sb.toString() );
+				queryBuilder.setProjectionMap( mRecordingColumnMap );
+				
+//				System.out.println( queryBuilder.buildQuery( null, selection, null, null, sortOrder, null ) );
+				
+				cursor = queryBuilder.query( db, null, selection, selectionArgs, null, null, sortOrder );
+				
 				cursor.setNotificationUri( getContext().getContentResolver(), uri );
 				
 				return cursor;
@@ -742,14 +751,30 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 			case RECORDING_ID:
 				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
 
-				cursor = db.query( RecordingConstants.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder );
+				sb.append( RecordingConstants.TABLE_NAME );
+				
+				queryBuilder.setTables( sb.toString() );
+				queryBuilder.setProjectionMap( mRecordingColumnMap );
+				
+//				System.out.println( queryBuilder.buildQuery( null, selection, null, null, sortOrder, null ) );
+				
+				cursor = queryBuilder.query( db, null, selection, selectionArgs, null, null, sortOrder );
+				
 				cursor.setNotificationUri( getContext().getContentResolver(), uri );
 				
 				return cursor;
 	
 			case CHANNELS:
 				
-				cursor = db.query( ChannelConstants.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder );
+				sb.append( ChannelConstants.TABLE_NAME );
+				
+				queryBuilder.setTables( sb.toString() );
+				queryBuilder.setProjectionMap( mChannelColumnMap );
+				
+//				System.out.println( queryBuilder.buildQuery( null, selection, null, null, sortOrder, null ) );
+				
+				cursor = queryBuilder.query( db, null, selection, selectionArgs, null, null, sortOrder );
+				
 				cursor.setNotificationUri( getContext().getContentResolver(), uri );
 				
 				return cursor;
@@ -757,7 +782,15 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 			case CHANNEL_ID:
 				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
 
-				cursor = db.query( ChannelConstants.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder );
+				sb.append( ChannelConstants.TABLE_NAME );
+				
+				queryBuilder.setTables( sb.toString() );
+				queryBuilder.setProjectionMap( mChannelColumnMap );
+				
+//				System.out.println( queryBuilder.buildQuery( null, selection, null, null, sortOrder, null ) );
+				
+				cursor = queryBuilder.query( db, null, selection, selectionArgs, null, null, sortOrder );
+				
 				cursor.setNotificationUri( getContext().getContentResolver(), uri );
 				
 				return cursor;
@@ -1308,12 +1341,37 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 	}
 
 	private static Map<String, String> buildProgramColumnMap( Map<String, String> columnMap ) {
+		if( null == columnMap ) {
+			columnMap = new HashMap<String, String>();
+		}
+		
+		columnMap = buildChannelColumnMap( columnMap );
+		
+		columnMap = buildRecordingColumnMap( columnMap );
+		
+		return columnMap;
+	}
+	
+	private static final Map<String, String> mChannelColumnMap = buildChannelColumnMap( new HashMap<String, String>() );
+	private static Map<String, String> buildChannelColumnMap( Map<String, String> columnMap ) {
+		if( null == columnMap ) {
+			columnMap = new HashMap<String, String>();
+		}
 		
 		String channelProjection[] = ChannelConstants.COLUMN_MAP;
 		for( String col : channelProjection ) {
 
 			String qualifiedCol = ChannelConstants.TABLE_NAME + "." + col;
 			columnMap.put( qualifiedCol, qualifiedCol + " as " + ChannelConstants.TABLE_NAME + "_" + col );
+		}
+		
+		return columnMap;
+	}
+
+	private static final Map<String, String> mRecordingColumnMap = buildRecordingColumnMap( new HashMap<String, String>() );
+	private static Map<String, String> buildRecordingColumnMap( Map<String, String> columnMap ) {
+		if( null == columnMap ) {
+			columnMap = new HashMap<String, String>();
 		}
 		
 		String recordingProjection[] = RecordingConstants.COLUMN_MAP;
@@ -1325,5 +1383,5 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 		
 		return columnMap;
 	}
-	
+
 }

@@ -87,7 +87,7 @@ public class EpisodeFragment extends AbstractMythFragment {
 		Log.v( TAG, "onCreateOptionsMenu : enter" );
 		super.onCreateOptionsMenu( menu, inflater );
 
-		if( isMasterBackendConnected() ) {
+		if( mNetworkHelper.isNetworkConnected() ) {
 			
 			MenuItem watch = menu.add( Menu.NONE, WATCH_ID, Menu.NONE, "Watch" );
 			watch.setIcon( android.R.drawable.ic_menu_view );
@@ -123,7 +123,7 @@ public class EpisodeFragment extends AbstractMythFragment {
 		case WATCH_ID:
 			Log.d( TAG, "onOptionsItemSelected : watch selected" );
 
-			if( isMasterBackendConnected() ) {
+			if( mNetworkHelper.isNetworkConnected() ) {
 				
 				Intent playerIntent = new Intent( getActivity(), VideoActivity.class );
 				playerIntent.putExtra( VideoActivity.EXTRA_CHANNEL_ID, program.getChannelInfo().getChannelId() );
@@ -138,18 +138,20 @@ public class EpisodeFragment extends AbstractMythFragment {
 		case ADD_ID:
 			Log.d( TAG, "onOptionsItemSelected : add selected" );
 
-			if( isMasterBackendConnected() ) {
-				
+			Toast.makeText( getActivity(), "Add HLS to Playlist - Coming Soon!", Toast.LENGTH_SHORT ).show();
 			
-			} else {
-				notConnectedNotify();
-			}
+//			if( mNetworkHelper.isNetworkConnected() ) {
+//				
+//			
+//			} else {
+//				notConnectedNotify();
+//			}
 
 			return true;
 		case DELETE_ID:
 			Log.d( TAG, "onOptionsItemSelected : delete selected" );
 
-			if( isMasterBackendConnected() ) {
+			if( mNetworkHelper.isNetworkConnected() ) {
 				
 				AlertDialog.Builder builder = new AlertDialog.Builder( getActivity() );
 

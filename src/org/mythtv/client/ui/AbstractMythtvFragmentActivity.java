@@ -19,13 +19,11 @@
 package org.mythtv.client.ui;
 
 import org.mythtv.client.MainApplication;
-import org.mythtv.db.status.StatusConstants;
-import org.mythtv.db.status.StatusConstants.StatusKey;
+import org.mythtv.service.util.NetworkHelper;
 
 import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.content.res.Resources;
-import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
@@ -46,8 +44,10 @@ public abstract class AbstractMythtvFragmentActivity extends FragmentActivity im
 
 	private static final int ABOUT_ID = Menu.FIRST + 1;
 
-	protected Resources resources;
+	protected Resources mResources;
 
+	protected NetworkHelper mNetworkHelper;
+	
 	//***************************************
     // MythActivity methods
     //***************************************
@@ -65,10 +65,10 @@ public abstract class AbstractMythtvFragmentActivity extends FragmentActivity im
 	@Override
 	protected void onCreate( Bundle savedInstanceState ) {
 		Log.v( TAG, "onCreate : enter" );
-
 		super.onCreate( savedInstanceState );
 
-		resources = getResources();
+		mResources = getResources();
+		mNetworkHelper = new NetworkHelper( this );
 		
 		Log.v( TAG, "onCreate : exit" );
 	}
@@ -131,19 +131,6 @@ public abstract class AbstractMythtvFragmentActivity extends FragmentActivity im
 		}
 		
 		Log.v( TAG, "setupActionBar : exit" );
-	}
-
-	protected boolean isMasterBackendConnected() {
-		
-		Boolean connected = Boolean.FALSE;
-		
-		Cursor cursor = getContentResolver().query( StatusConstants.CONTENT_URI, new String[] { StatusConstants.FIELD_VALUE }, StatusConstants.FIELD_KEY + " = ?", new String[] { StatusKey.MASTER_BACKEND_CONNECTED.name() }, null );
-		if( cursor.moveToFirst() ) {
-			connected = Boolean.valueOf( cursor.getString( cursor.getColumnIndexOrThrow( StatusConstants.FIELD_VALUE ) ) );
-		}
-		cursor.close();
-		
-		return connected.booleanValue();
 	}
 
 }

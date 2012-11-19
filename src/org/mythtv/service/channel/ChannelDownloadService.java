@@ -98,7 +98,7 @@ public class ChannelDownloadService extends MythtvService {
 			return;
 		}
 
-		if( !isBackendConnected() ) {
+		if( !mNetworkHelper.isMasterBackendConnected() ) {
 			Intent completeIntent = new Intent( ACTION_COMPLETE );
 			completeIntent.putExtra( EXTRA_COMPLETE, "Master Backend unreachable" );
 			sendBroadcast( completeIntent );

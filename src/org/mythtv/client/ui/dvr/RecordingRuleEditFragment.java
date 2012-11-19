@@ -24,7 +24,6 @@ package org.mythtv.client.ui.dvr;
 import org.mythtv.R;
 import org.mythtv.client.ui.AbstractMythFragment;
 import org.mythtv.client.ui.util.ProgramHelper;
-import org.mythtv.db.channel.ChannelConstants;
 import org.mythtv.db.channel.ChannelDaoHelper;
 import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.Int;
@@ -35,7 +34,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import android.annotation.TargetApi;
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -147,8 +145,6 @@ public class RecordingRuleEditFragment extends AbstractMythFragment implements O
 	public boolean onOptionsItemSelected(MenuItem item) {
 		Log.v( TAG, "onOptionsItemSelected : enter" );
 
-		Intent intent = null;
-		
 		switch( item.getItemId() ) {
 			case android.R.id.home:
 				this.getActivity().finish();
@@ -218,9 +214,11 @@ public class RecordingRuleEditFragment extends AbstractMythFragment implements O
 		// - should we move this to a utility?
 		// - slow
 		String channel = "[Any]";
-		ChannelInfo channelInfo = mChannelDaoHelper.findOne( null, new String[] { ChannelConstants.FIELD_CHAN_NUM }, ChannelConstants.FIELD_CALLSIGN + " = ?", new String[] { rule.getCallSign() }, null );
-		if( null != channelInfo ) {
-			channel = channelInfo.getChannelNumber();
+		if( rule.getChanId() > 0 ) {
+			ChannelInfo channelInfo = mChannelDaoHelper.findOne( (long) rule.getChanId() );
+			if( null != channelInfo && channelInfo.getChannelId() > -1 ) {
+				channel = channelInfo.getChannelNumber();
+			}
 		}
 		
 		tView = (TextView) getActivity().findViewById( R.id.recording_rule_channel );

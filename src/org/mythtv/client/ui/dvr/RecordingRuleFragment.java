@@ -24,7 +24,6 @@ package org.mythtv.client.ui.dvr;
 import org.mythtv.R;
 import org.mythtv.client.ui.AbstractMythFragment;
 import org.mythtv.client.ui.util.ProgramHelper;
-import org.mythtv.db.channel.ChannelConstants;
 import org.mythtv.db.channel.ChannelDaoHelper;
 import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.channel.ChannelInfo;
@@ -46,6 +45,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 /**
  * @author Daniel Frey
@@ -157,9 +157,11 @@ public class RecordingRuleFragment extends AbstractMythFragment {
 		// - should we move this to a utility?
 		// - slow
 		String channel = "[Any]";
-		ChannelInfo channelInfo = mChannelDaoHelper.findOne( null, new String[] { ChannelConstants.FIELD_CHAN_NUM }, ChannelConstants.FIELD_CALLSIGN + " = ?", new String[] { rule.getCallSign() }, null );
-		if( null != channelInfo ) {
-			channel = channelInfo.getChannelNumber();
+		if( rule.getChanId() > 0 ) {
+			ChannelInfo channelInfo = mChannelDaoHelper.findOne( (long) rule.getChanId() );
+			if( null != channelInfo && channelInfo.getChannelId() > -1 ) {
+				channel = channelInfo.getChannelNumber();
+			}
 		}
 		
 		tView = (TextView) getActivity().findViewById( R.id.recording_rule_channel );
@@ -180,6 +182,12 @@ public class RecordingRuleFragment extends AbstractMythFragment {
 	    	edit.setIcon( android.R.drawable.ic_menu_edit );
 	    }
 		
+		MenuItem delete = menu.add( Menu.NONE, RecordingRulesActivity.DELETE_ID, Menu.NONE, "Delete" );
+		delete.setIcon( android.R.drawable.ic_menu_delete );
+	    if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
+	    	delete.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
+	    }
+
 		Log.v( TAG, "onCreateOptionsMenu : exit" );
 		
 		super.onCreateOptionsMenu(menu, inflater);
@@ -202,10 +210,17 @@ public class RecordingRuleFragment extends AbstractMythFragment {
 				startActivity( intent );
 
 				return true;
+			
 			case RecordingRulesActivity.EDIT_ID:
 				intent = new Intent( this.getActivity(), RecordingRuleEditActivity.class );
 				intent.putExtra( RecordingRuleEditActivity.EXTRA_RECORDING_RULE_EDIT_KEY, mRecordingRuleId );
 				startActivity( intent );
+				
+				return true;
+
+			case RecordingRulesActivity.DELETE_ID:
+
+				Toast.makeText( getActivity(), "Delete Recording Rule - Coming Soon!", Toast.LENGTH_SHORT ).show();
 				
 				return true;
 		}

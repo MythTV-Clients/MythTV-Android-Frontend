@@ -69,7 +69,7 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 		mFileHelper = new FileHelper( this );
 		mRunningServiceHelper = new RunningServiceHelper( this );
 		
-		resources = getResources();
+		mResources = getResources();
 
 		setupActionBar();
 

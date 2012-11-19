@@ -40,7 +40,8 @@ public class RecordingRulesActivity extends AbstractDvrActivity implements Recor
 	public static final int EDIT_ID = Menu.FIRST + 3;
 	public static final int SAVE_ID	= Menu.FIRST +4;
 	public static final int RESET_ID = Menu.FIRST + 5;
-
+	public static final int DELETE_ID = Menu.FIRST + 6;
+	
 	/* (non-Javadoc)
 	 * @see org.mythtv.client.ui.dvr.AbstractDvrActivity#onCreate(android.os.Bundle)
 	 */

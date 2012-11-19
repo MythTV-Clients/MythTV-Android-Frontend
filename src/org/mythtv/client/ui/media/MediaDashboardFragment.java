@@ -26,6 +26,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 /**
  * @author Daniel Frey
@@ -58,6 +59,8 @@ public class MediaDashboardFragment extends AbstractMythFragment {
 //					startActivity( new Intent( getActivity(), ScheduleActivity.class ) );
 //				}
 
+				Toast.makeText( getActivity(), "Videos - Coming Soon!", Toast.LENGTH_SHORT ).show();
+				
 				Log.v( TAG, "videos.onClick : exit" );
 			}
 
@@ -67,6 +70,8 @@ public class MediaDashboardFragment extends AbstractMythFragment {
 			public void onClick( View view ) {
 				Log.v( TAG, "music.onClick : enter" );
 
+				Toast.makeText( getActivity(), "Music - Coming Soon!", Toast.LENGTH_SHORT ).show();
+
 				Log.v( TAG, "music.onClick : exit" );
 			}
 		} );
@@ -74,6 +79,8 @@ public class MediaDashboardFragment extends AbstractMythFragment {
 		root.findViewById( R.id.media_btn_pictures ).setOnClickListener( new View.OnClickListener() {
 			public void onClick( View view ) {
 				Log.v( TAG, "pictures.onClick : enter" );
+
+				Toast.makeText( getActivity(), "Pictures - Coming Soon!", Toast.LENGTH_SHORT ).show();
 
 				Log.v( TAG, "pictures.onClick : exit" );
 			}

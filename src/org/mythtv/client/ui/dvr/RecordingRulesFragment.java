@@ -27,7 +27,6 @@ import org.mythtv.R;
 import org.mythtv.client.MainApplication;
 import org.mythtv.client.ui.util.MythtvListFragment;
 import org.mythtv.client.ui.util.ProgramHelper;
-import org.mythtv.db.channel.ChannelConstants;
 import org.mythtv.db.channel.ChannelDaoHelper;
 import org.mythtv.service.util.NotificationHelper;
 import org.mythtv.service.util.NotificationHelper.NotificationType;
@@ -120,7 +119,7 @@ public class RecordingRulesFragment extends MythtvListFragment {
 		super.onCreateOptionsMenu( menu, inflater );
 
 		MenuItem refresh = menu.add( Menu.NONE, RecordingRulesActivity.REFRESH_ID, Menu.NONE, "Refresh" );
-		refresh.setIcon( R.drawable.ic_menu_refresh_default );
+		refresh.setIcon( R.drawable.ic_menu_refresh );
 	    if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
 	    	refresh.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
 	    }
@@ -268,9 +267,11 @@ public class RecordingRulesFragment extends MythtvListFragment {
 			
 			RecRule rule = getItem( position );
 			String channel = "[Any]";
-			ChannelInfo channelInfo = mChannelDaoHelper.findOne( null, new String[] { ChannelConstants.FIELD_CHAN_NUM }, ChannelConstants.FIELD_CALLSIGN + " = ?", new String[] { rule.getCallSign() }, null );
-			if( null != channelInfo ) {
-				channel = channelInfo.getChannelNumber();
+			if( rule.getChanId() > 0 ) {
+				ChannelInfo channelInfo = mChannelDaoHelper.findOne( (long) rule.getChanId() );
+				if( null != channelInfo && channelInfo.getChannelId() > -1 ) {
+					channel = channelInfo.getChannelNumber();
+				}
 			}
 			
 			mHolder.category.setBackgroundColor( mProgramHelper.getCategoryColor( rule.getCategory() ) );

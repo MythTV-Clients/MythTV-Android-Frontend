@@ -75,7 +75,7 @@ public class ProgramGuideDownloadServiceNew extends MythtvService {
 
 		mNotificationManager = (NotificationManager) getSystemService( Context.NOTIFICATION_SERVICE );
 		
-		if( !isBackendConnected() ) {
+		if( !mNetworkHelper.isMasterBackendConnected() ) {
 			Intent completeIntent = new Intent( ACTION_COMPLETE );
 			completeIntent.putExtra( EXTRA_COMPLETE, "Master Backend unreachable" );
 			completeIntent.putExtra( EXTRA_COMPLETE_OFFLINE, Boolean.TRUE );

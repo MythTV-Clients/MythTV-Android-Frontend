@@ -76,7 +76,7 @@ public class BannerDownloadService extends MythtvService {
 		}
 
 		
-		if( !isBackendConnected() ) {
+		if( !mNetworkHelper.isMasterBackendConnected() ) {
 			Intent completeIntent = new Intent( ACTION_COMPLETE );
 			completeIntent.putExtra( EXTRA_COMPLETE, "Master Backend unreachable" );
 			sendBroadcast( completeIntent );

@@ -18,19 +18,11 @@
  */
 package org.mythtv.service;
 
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-
-import org.joda.time.DateTime;
 import org.mythtv.client.MainApplication;
-import org.mythtv.db.status.StatusConstants;
-import org.mythtv.db.status.StatusConstants.StatusKey;
 import org.mythtv.service.util.FileHelper;
+import org.mythtv.service.util.NetworkHelper;
 
 import android.app.IntentService;
-import android.content.ContentValues;
 import android.content.Intent;
 import android.util.Log;
 
@@ -46,6 +38,7 @@ public class MythtvService extends IntentService {
     
 	protected FileHelper mFileHelper;
     protected MainApplication mMainApplication;
+    protected NetworkHelper mNetworkHelper;
 	
     public static final String ACTION_CONNECT = "org.mythtv.background.ACTION_CONNECT";
     public static final String ACTION_COMPLETE = "org.mythtv.background.ACTION_COMPLETE";
@@ -69,12 +62,14 @@ public class MythtvService extends IntentService {
 	 */
 	@Override
 	protected void onHandleIntent( Intent intent ) {
+
 		mMainApplication = (MainApplication) MythtvService.this.getApplicationContext();
-		
+		mNetworkHelper = new NetworkHelper( this );
+
 		if ( intent.getAction().equals( ACTION_CONNECT ) ) {
 			Log.v( TAG, "onHandleIntent : checking master backend connection" );
 
-			Boolean connected = isBackendConnected();
+			Boolean connected = mNetworkHelper.isMasterBackendConnected();
 			Log.v( TAG, "onHandleIntent : connected=" + connected );
 
 			Intent completeIntent = new Intent( ACTION_COMPLETE );
@@ -87,59 +82,4 @@ public class MythtvService extends IntentService {
 		
 	}
 
-	protected boolean isBackendConnected() {
-		Log.v( TAG, "isBackendConnected : enter" );
-
-		boolean pinged = false;
-		try {
-
-			if( null == mMainApplication.getConnectedLocationProfile() ) {
-				Log.v( TAG, "isBackendConnected : exit, no backend selected" );
-				
-				return false;
-			}
-			
-			URL url = new URL( mMainApplication.getConnectedLocationProfile().getUrl() );
-
-			HttpURLConnection urlc = (HttpURLConnection) url.openConnection();
-			urlc.setRequestProperty( "User-Agent", "Android Application:MythTV_Android_Frontent" );
-			urlc.setRequestProperty( "Connection", "close" );
-			urlc.setConnectTimeout( 1000 * 10 ); // mTimeout is in seconds
-			urlc.connect();
-			if( urlc.getResponseCode() == 200 ) {
-				Log.v( TAG, "isBackendConnected : master backend is connected" );
-				
-				pinged = true;
-			}
-		} catch( MalformedURLException e ) {
-			Log.w( TAG, "isBackendConnected : error, connecting with backend url", e );
-		} catch( IOException e ) {
-			Log.w( TAG, "isBackendConnected : error, connecting to backend", e );
-		}
-
-		if( pinged ) {
-			try {
-				mMainApplication.getMythServicesApi().mythOperations().getHostName();
-
-				ContentValues values = new ContentValues();
-				values.put( StatusConstants.FIELD_VALUE, String.valueOf( Boolean.TRUE ) );
-				values.put( StatusConstants.FIELD_DATE, new DateTime().getMillis() );
-				getContentResolver().update( StatusConstants.CONTENT_URI, values, StatusConstants.FIELD_KEY + " = ?", new String[] { StatusKey.MASTER_BACKEND_CONNECTED.name() } );
-
-				Log.v( TAG, "isBackendConnected : exit" );
-				return true;
-			} catch( Exception e ) {
-				Log.w( TAG, "isBackendConnected : error, connecting to backend", e );
-			}
-		}
-		
-		ContentValues values = new ContentValues();
-		values.put( StatusConstants.FIELD_VALUE, String.valueOf( Boolean.FALSE ) );
-		values.put( StatusConstants.FIELD_DATE, new DateTime().getMillis() );
-		getContentResolver().update( StatusConstants.CONTENT_URI, values, StatusConstants.FIELD_KEY + " = ?", new String[] { StatusKey.MASTER_BACKEND_CONNECTED.name() } );
-		
-		Log.v( TAG, "isBackendConnected : exit, backend is offline" );
-		return false;
-	}
-	
 }

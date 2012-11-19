@@ -119,7 +119,7 @@ public class ProgramGuideDownloadService extends MythtvService {
 			return;
 		}
 
-		if( !isBackendConnected() ) {
+		if( !mNetworkHelper.isMasterBackendConnected() ) {
 			Intent completeIntent = new Intent( ACTION_COMPLETE );
 			completeIntent.putExtra( EXTRA_COMPLETE, "Master Backend unreachable" );
 			completeIntent.putExtra( EXTRA_COMPLETE_OFFLINE, Boolean.TRUE );
@@ -149,7 +149,7 @@ public class ProgramGuideDownloadService extends MythtvService {
 						File file = new File( programGuideCache, DateUtils.fileDateTimeFormatter.print( start ) + FILENAME_EXT );
 						if( !file.exists() ) {
 
-							if( !isBackendConnected() ) {
+							if( !mNetworkHelper.isMasterBackendConnected() ) {
 								Log.d( TAG, "onHandleIntent : exit, Master Backend unreachable" );
 								break;
 							}

@@ -80,7 +80,7 @@ public class HomeActivity extends AbstractLocationAwareFragmentActivity {
 	public boolean onCreateOptionsMenu( Menu menu ) {
 		Log.d( TAG, "onCreateOptionsMenu : enter" );
 
-		if( isMasterBackendConnected() ) {
+		if( mNetworkHelper.isNetworkConnected() ) {
 			MenuInflater inflater = getMenuInflater();
 			inflater.inflate( R.menu.home_main_menu, menu );
 			Log.d( TAG, "onCreateOptionsMenu : menu inflated" );
@@ -105,7 +105,7 @@ public class HomeActivity extends AbstractLocationAwareFragmentActivity {
 		case R.id.menu_frontends:
 			Log.d( TAG, "onOptionsItemSelected : Mythmote selected" );
 
-			if( isMasterBackendConnected() ) {
+			if( mNetworkHelper.isNetworkConnected() ) {
 				startActivity( new Intent( this, MythmoteActivity.class ) );
 			}
 			
@@ -166,9 +166,9 @@ public class HomeActivity extends AbstractLocationAwareFragmentActivity {
 
 			switch( position ) {
 			case 0:
-				return resources.getString( R.string.tab_dvr );
+				return mResources.getString( R.string.tab_dvr );
 			case 1:
-				return resources.getString( R.string.tab_multimedia );
+				return mResources.getString( R.string.tab_multimedia );
 			}
 
 			return super.getPageTitle( position );

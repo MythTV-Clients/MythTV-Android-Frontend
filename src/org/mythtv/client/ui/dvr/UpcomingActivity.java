@@ -263,9 +263,9 @@ public class UpcomingActivity extends AbstractDvrActivity {
 
 			switch( position ) {
 				case 0:
-					return resources.getString( R.string.upcoming_today );
+					return mResources.getString( R.string.upcoming_today );
 				case 1:
-					return resources.getString( R.string.upcoming_tomorrow );
+					return mResources.getString( R.string.upcoming_tomorrow );
 				default:
                     DateTimeFormatter defaultDateFormatter = DateTimeFormat.forPattern("yyyy-MM-dd");
                     DateTime currentDate = defaultDateFormatter.parseDateTime(fragmentHeadings.get( position ));

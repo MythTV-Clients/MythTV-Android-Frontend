@@ -83,6 +83,7 @@ public class ChannelDaoHelper {
 		
 		Uri uri = ChannelConstants.CONTENT_URI;
 		if( null != id && id > 0 ) {
+			Log.d( TAG, "findOne : appending id=" + id );
 			uri = ContentUris.withAppendedId( ChannelConstants.CONTENT_URI, id );
 		}
 		
@@ -104,6 +105,10 @@ public class ChannelDaoHelper {
 		Log.d( TAG, "findOne : enter" );
 		
 		ChannelInfo channelInfo = findOne( id, null, null, null, null );
+		if( null != channelInfo ) {
+			Log.v( TAG, "findOne : channelInfo=" + channelInfo.toString() );
+		}
+		
 		
 		Log.d( TAG, "findOne : exit" );
 		return channelInfo;
