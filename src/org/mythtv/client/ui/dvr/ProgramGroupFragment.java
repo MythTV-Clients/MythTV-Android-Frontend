@@ -20,6 +20,7 @@ package org.mythtv.client.ui.dvr;
 
 import org.joda.time.DateTime;
 import org.mythtv.R;
+import org.mythtv.client.MainApplication;
 import org.mythtv.client.ui.util.MythtvListFragment;
 import org.mythtv.client.ui.util.ProgramHelper;
 import org.mythtv.db.dvr.ProgramConstants;
@@ -196,6 +197,7 @@ public class ProgramGroupFragment extends MythtvListFragment implements LoaderMa
 		public View getView( int position, View convertView, ViewGroup parent ) {
 			Log.v( TAG, "getView : enter" );
 
+            MainApplication mainApplication = (MainApplication) mContext.getApplicationContext();
 			View v = convertView;
 			ViewHolder mHolder;
 			
@@ -221,7 +223,7 @@ public class ProgramGroupFragment extends MythtvListFragment implements LoaderMa
 			Long startTime = getCursor().getLong( getCursor().getColumnIndexOrThrow( ProgramConstants.FIELD_START_TIME ) );
 	        Log.v( TAG, "getView : id=" + id + ", title=" + title + ", subTitle=" + subTitle );
 
-	        mHolder.subTitle.setText( !"".equals( subTitle ) ? subTitle : DateUtils.dateTimeFormatterPretty.print( new DateTime( startTime ) ) );
+	        mHolder.subTitle.setText(!"".equals(subTitle) ? subTitle : DateUtils.getDateTimeUsingLocaleFormattingPretty(new DateTime(startTime), mainApplication.getDateFormat(), mainApplication.getClockType()));
 			mHolder.category.setBackgroundColor( mProgramHelper.getCategoryColor( category ) );
 
 			return v;

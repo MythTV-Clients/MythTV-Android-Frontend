@@ -26,7 +26,8 @@ import org.joda.time.format.DateTimeFormatter;
 
 /**
  * @author Daniel Frey
- * 
+ * @author Espen Fossen
+ *
  */
 public class DateUtils {
 
@@ -90,5 +91,29 @@ public class DateUtils {
 	public static DateTime convertUtc( DateTime day ) {
 		return day.withZone( DateTimeZone.UTC );
 	}
+
+    public static String getDateTimeUsingLocaleFormattingPretty(String dateTime, String dateFormat, String clockType){
+        DateTime currentDateTime = dateTimeFormatterPretty.parseDateTime(dateTime);
+        return getDateTimeUsingLocaleFormattingPretty(currentDateTime, dateFormat, clockType);
+    }
+
+    public static String getDateTimeUsingLocaleFormattingPretty(DateTime dateTime, String dateFormat, String clockType){
+        if(clockType != null && clockType.equals("24")) return DateTimeFormat.forPattern( dateFormat+" "+"HH:mm" ).print(dateTime);
+        else return dateTimeFormatterPretty.print(dateTime);
+    }
+
+    public static String getDateWithLocaleFormatting(String date, String dateFormat){
+        DateTime currentDate = dateFormatter.parseDateTime(date);
+        return getDateWithLocaleFormatting(currentDate, dateFormat);
+    }
+
+    public static String getDateWithLocaleFormatting(DateTime date, String dateFormat){
+        return DateTimeFormat.forPattern(dateFormat).print(date);
+    }
+
+    public static String getTimeWithLocaleFormatting(DateTime date, String clockType){
+        if(clockType != null && clockType.equals("24")) return timeFormatter24.print(date);
+        else return timeFormatter.print(date);
+    }
 
 }
