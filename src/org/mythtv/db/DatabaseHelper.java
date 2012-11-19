@@ -225,34 +225,34 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		}
 		db.execSQL( sql );
 
-		ContentValues values = new ContentValues();
-
-		values.put( LocationProfileConstants.FIELD_TYPE, "HOME" );
-		values.put( LocationProfileConstants.FIELD_NAME, "Home" );
-		values.put( LocationProfileConstants.FIELD_URL, "http://192.168.10.200:6544/" );
-		values.put( LocationProfileConstants.FIELD_SELECTED, 1 );
-		db.insert( LocationProfileConstants.TABLE_NAME, null, values );
-
-		values = new ContentValues();
-		values.put( LocationProfileConstants.FIELD_TYPE, "AWAY" );
-		values.put( LocationProfileConstants.FIELD_NAME, "Emulator" );
-		values.put( LocationProfileConstants.FIELD_URL, "http://10.0.2.2:6544/" );
-		values.put( LocationProfileConstants.FIELD_SELECTED, 1 );
-		db.insert( LocationProfileConstants.TABLE_NAME, null, values );
-		
-		values = new ContentValues();
-		values.put( LocationProfileConstants.FIELD_TYPE, "AWAY" );
-		values.put( LocationProfileConstants.FIELD_NAME, "Home" );
-		values.put( LocationProfileConstants.FIELD_URL, "http://192.168.10.200:6544/" );
-		values.put( LocationProfileConstants.FIELD_SELECTED, 0 );
-		db.insert( LocationProfileConstants.TABLE_NAME, null, values );
-		
-		values = new ContentValues();
-		values.put( LocationProfileConstants.FIELD_TYPE, "AWAY" );
-		values.put( LocationProfileConstants.FIELD_NAME, "Tunnel" );
-		values.put( LocationProfileConstants.FIELD_URL, "http://localhost:6544/" );
-		values.put( LocationProfileConstants.FIELD_SELECTED, 1 );
-		db.insert( LocationProfileConstants.TABLE_NAME, null, values );
+//		ContentValues values = new ContentValues();
+//
+//		values.put( LocationProfileConstants.FIELD_TYPE, "HOME" );
+//		values.put( LocationProfileConstants.FIELD_NAME, "Home" );
+//		values.put( LocationProfileConstants.FIELD_URL, "http://192.168.10.200:6544/" );
+//		values.put( LocationProfileConstants.FIELD_SELECTED, 1 );
+//		db.insert( LocationProfileConstants.TABLE_NAME, null, values );
+//
+//		values = new ContentValues();
+//		values.put( LocationProfileConstants.FIELD_TYPE, "AWAY" );
+//		values.put( LocationProfileConstants.FIELD_NAME, "Emulator" );
+//		values.put( LocationProfileConstants.FIELD_URL, "http://10.0.2.2:6544/" );
+//		values.put( LocationProfileConstants.FIELD_SELECTED, 1 );
+//		db.insert( LocationProfileConstants.TABLE_NAME, null, values );
+//		
+//		values = new ContentValues();
+//		values.put( LocationProfileConstants.FIELD_TYPE, "AWAY" );
+//		values.put( LocationProfileConstants.FIELD_NAME, "Home" );
+//		values.put( LocationProfileConstants.FIELD_URL, "http://192.168.10.200:6544/" );
+//		values.put( LocationProfileConstants.FIELD_SELECTED, 0 );
+//		db.insert( LocationProfileConstants.TABLE_NAME, null, values );
+//		
+//		values = new ContentValues();
+//		values.put( LocationProfileConstants.FIELD_TYPE, "AWAY" );
+//		values.put( LocationProfileConstants.FIELD_NAME, "Tunnel" );
+//		values.put( LocationProfileConstants.FIELD_URL, "http://localhost:6544/" );
+//		values.put( LocationProfileConstants.FIELD_SELECTED, 1 );
+//		db.insert( LocationProfileConstants.TABLE_NAME, null, values );
 		
 		Log.v( TAG, "createLocationProfiles : exit" );
 	}
