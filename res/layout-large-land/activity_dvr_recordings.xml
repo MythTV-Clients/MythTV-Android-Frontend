@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
+
     This file is part of MythTV Android Frontend
 
     MythTV Android Frontend is free software: you can redistribute it and/or modify
@@ -16,8 +17,8 @@
     along with MythTV Android Frontend.  If not, see <http://www.gnu.org/licenses/>.
 
     This software can be found at <https://github.com/MythTV-Clients/MythTV-Android-Frontend/>
--->
 
+-->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"

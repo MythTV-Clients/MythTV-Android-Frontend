@@ -136,6 +136,7 @@
                     	<exclude>gen/**</exclude>
                     	<exclude>bin/**</exclude>
                     	<exclude>header/**</exclude>
+                        <exclude>src/org/mythtv/service/util/image/**</exclude>
                     </excludes>
                 	<useDefaultExcludes>true</useDefaultExcludes>
                 	<useDefaultMapping>true</useDefaultMapping>
