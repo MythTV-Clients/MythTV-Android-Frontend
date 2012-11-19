@@ -25,6 +25,7 @@ import org.mythtv.R;
 import org.mythtv.client.ui.AbstractMythFragment;
 import org.mythtv.client.ui.util.ProgramHelper;
 import org.mythtv.db.channel.ChannelDaoHelper;
+import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.channel.ChannelInfo;
 import org.mythtv.services.api.dvr.RecRule;
@@ -84,6 +85,8 @@ public class RecordingRuleFragment extends AbstractMythFragment {
 			int recordingRuleId = args.getInt( "RECORDING_RULE_ID" );
 			loadRecordingRule( recordingRuleId );
 		}
+		
+		mNetworkHelper = new NetworkHelper( getActivity() );
 		
 		Log.v( TAG, "onCreate : exit" );
 	}
@@ -212,9 +215,12 @@ public class RecordingRuleFragment extends AbstractMythFragment {
 				return true;
 			
 			case RecordingRulesActivity.EDIT_ID:
-				intent = new Intent( this.getActivity(), RecordingRuleEditActivity.class );
-				intent.putExtra( RecordingRuleEditActivity.EXTRA_RECORDING_RULE_EDIT_KEY, mRecordingRuleId );
-				startActivity( intent );
+
+				Toast.makeText( getActivity(), "Edit Recording Rule - Coming Soon!", Toast.LENGTH_SHORT ).show();
+				
+//				intent = new Intent( this.getActivity(), RecordingRuleEditActivity.class );
+//				intent.putExtra( RecordingRuleEditActivity.EXTRA_RECORDING_RULE_EDIT_KEY, mRecordingRuleId );
+//				startActivity( intent );
 				
 				return true;
 

@@ -25,6 +25,7 @@ import org.mythtv.R;
 import org.mythtv.client.ui.AbstractMythFragment;
 import org.mythtv.client.ui.util.ProgramHelper;
 import org.mythtv.db.channel.ChannelDaoHelper;
+import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.Int;
 import org.mythtv.services.api.channel.ChannelInfo;
@@ -88,6 +89,8 @@ public class RecordingRuleEditFragment extends AbstractMythFragment implements O
 			int recordingRuleId = args.getInt( "RECORDING_RULE_ID" );
 			loadRecordingRule( recordingRuleId );
 		}
+		
+		mNetworkHelper = new NetworkHelper( getActivity() );
 		
 		Log.v( TAG, "onCreate : exit" );
 	}
