@@ -96,12 +96,15 @@
 			android:configChanges="keyboard|keyboardHidden|orientation|screenSize" />
 		<activity 
 			android:name=".client.ui.dvr.RecordingRulesActivity"
+			android:uiOptions="splitActionBarWhenNarrow"
 			android:configChanges="keyboard|keyboardHidden|orientation|screenSize" />
 		<activity 
 			android:name=".client.ui.dvr.RecordingRuleActivity"
+			android:uiOptions="splitActionBarWhenNarrow"
 			android:configChanges="keyboard|keyboardHidden|orientation|screenSize" />
 		<activity 
 			android:name=".client.ui.dvr.RecordingRuleEditActivity"
+			android:uiOptions="splitActionBarWhenNarrow"
 			android:configChanges="keyboard|keyboardHidden|orientation|screenSize" />
 																
 		<!-- Frontends Activities -->
