@@ -251,7 +251,7 @@ public class EpisodeFragment extends AbstractMythFragment {
 
 			// airdate
 			tView = (TextView) activity.findViewById( R.id.textView_episode_airdate );
-			tView.setText( DateUtils.dateTimeFormatterPretty.print( program.getStartTime() ) );
+            tView.setText(DateUtils.getDateTimeUsingLocaleFormattingPretty(program.getStartTime(), getMainApplication().getDateFormat(), getMainApplication().getClockType()));
 
 		}
 

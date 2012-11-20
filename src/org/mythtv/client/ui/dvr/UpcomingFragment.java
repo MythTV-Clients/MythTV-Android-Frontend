@@ -204,12 +204,7 @@ public class UpcomingFragment extends MythtvListFragment implements LoaderManage
 			mHolder.subTitle.setText( program.getSubTitle() );
 			mHolder.channel.setText( null != program.getChannelInfo() ? program.getChannelInfo().getChannelNumber() : "" );
             mHolder.duration.setText( program.getDurationInMinutes() + " minutes" );
-
-            if( mainApplication.getClockType() != null && mainApplication.getClockType().equals( "24" ) ) {
-                mHolder.startTime.setText( DateUtils.timeFormatter24.print( program.getStartTime() ) );
-            } else {
-                mHolder.startTime.setText( DateUtils.timeFormatter.print( program.getStartTime() ) );
-            }
+            mHolder.startTime.setText(DateUtils.getTimeWithLocaleFormatting(program.getStartTime(), mainApplication.getClockType()));
 
 			//Log.v( TAG, "UpcomingCursorAdapter.bindView : exit" );
 		}

@@ -21,13 +21,12 @@ package org.mythtv.client.ui.dvr;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import org.mythtv.R;
 import org.mythtv.client.MainApplication;
 import org.mythtv.client.ui.util.MythtvListFragment;
 import org.mythtv.client.ui.util.ProgramHelper;
 import org.mythtv.db.channel.ChannelDaoHelper;
+import org.mythtv.service.util.DateUtils;
 import org.mythtv.service.util.NotificationHelper;
 import org.mythtv.service.util.NotificationHelper.NotificationType;
 import org.mythtv.services.api.ETagInfo;
@@ -189,7 +188,6 @@ public class RecordingRulesFragment extends MythtvListFragment {
 	
 	private class RecordingRuleAdapter extends BaseAdapter {
 
-		private final DateTimeFormatter formatter = DateTimeFormat.forPattern(mainApplication.getDateFormat());
 		private Context mContext;
 		private LayoutInflater mInflater;
 
@@ -278,7 +276,7 @@ public class RecordingRulesFragment extends MythtvListFragment {
 			mHolder.title.setText( rule.getTitle() );
 			mHolder.channel.setText( channel );
 			mHolder.type.setText( rule.getType() );
-			mHolder.last.setText( formatter.print( rule.getLastRecorded() ) );
+			mHolder.last.setText(DateUtils.getDateWithLocaleFormatting(rule.getLastRecorded(), mainApplication.getDateFormat()));
 			mHolder.active.setChecked(!rule.isInactive());
 			mHolder.active.setTag(rule);
 			mHolder.active.setOnCheckedChangeListener(sRuleCheckChangeListener);
