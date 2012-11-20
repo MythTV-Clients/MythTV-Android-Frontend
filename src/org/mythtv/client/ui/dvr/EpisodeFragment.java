@@ -228,6 +228,8 @@ public class EpisodeFragment extends AbstractMythFragment {
 			if( null != program.getInetref() && !"".equals( program.getInetref() ) ) {
 				if( null != mImageFetcher ) {
 					mImageFetcher.loadImage( program.getInetref(), "Coverart", iView, null );
+				} else {
+					iView.setImageDrawable( null );
 				}
 			} else {
 				iView.setImageDrawable( null );
