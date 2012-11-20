@@ -216,7 +216,7 @@ public class RecordingsActivity extends AbstractDvrActivity implements Recording
 			Log.v( TAG, "onProgramGroupSelected : starting program group activity" );
 
 			Intent i = new Intent( this, ProgramGroupActivity.class );
-			i.putExtra( ProgramGroupActivity.EXTRA_PROGRAM_GROUP_KEY, programGroup.getId() );
+			i.putExtra( ProgramGroupActivity.EXTRA_PROGRAM_GROUP_KEY, programGroup.getProgramGroup() );
 			startActivity( i );
 		}
 

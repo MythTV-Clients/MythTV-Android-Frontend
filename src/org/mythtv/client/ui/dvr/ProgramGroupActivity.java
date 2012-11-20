@@ -63,12 +63,12 @@ public class ProgramGroupActivity extends AbstractDvrActivity implements Program
 		setContentView( R.layout.activity_dvr_program_group );
 
 		Bundle extras = getIntent().getExtras(); 
-		Long id = extras.getLong( EXTRA_PROGRAM_GROUP_KEY );
+		String programGroup = extras.getString( EXTRA_PROGRAM_GROUP_KEY );
 
-		selectedProgramGroup = mProgramGroupDaoHelper.findOne( id );
+		selectedProgramGroup = mProgramGroupDaoHelper.findByTitle( programGroup );
 		
 		mProgramGroupFragment = (ProgramGroupFragment) getSupportFragmentManager().findFragmentById( R.id.fragment_dvr_program_group );
-		mProgramGroupFragment.setOnEpisodeSelectedListener(this);
+		mProgramGroupFragment.setOnEpisodeSelectedListener( this );
 		mProgramGroupFragment.loadProgramGroup( selectedProgramGroup );
 				
 		Log.v( TAG, "onCreate : exit" );
