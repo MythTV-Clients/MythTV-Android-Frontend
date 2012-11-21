@@ -55,7 +55,7 @@ import android.widget.Toast;
 public class UpcomingActivity extends AbstractDvrActivity {
 
 	private static final String TAG = UpcomingActivity.class.getSimpleName();
-	private static final int REFRESH_ID = Menu.FIRST + 2;
+	private static final int REFRESH_ID = Menu.FIRST + 100;
 
 	private RunningServiceHelper mRunningServiceHelper;
 

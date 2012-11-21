@@ -18,12 +18,15 @@
  */
 package org.mythtv.client.ui;
 
+import org.mythtv.R;
 import org.mythtv.client.MainApplication;
 import org.mythtv.service.util.NetworkHelper;
 
 import android.annotation.TargetApi;
 import android.app.ActionBar;
+import android.content.Intent;
 import android.content.res.Resources;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
@@ -43,6 +46,7 @@ public abstract class AbstractMythtvFragmentActivity extends FragmentActivity im
 	protected static final String TAG = AbstractMythtvFragmentActivity.class.getSimpleName();
 
 	private static final int ABOUT_ID = Menu.FIRST + 1;
+	private static final int FAQ_ID = Menu.FIRST + 2;
 
 	protected Resources mResources;
 
@@ -81,10 +85,16 @@ public abstract class AbstractMythtvFragmentActivity extends FragmentActivity im
 	public boolean onCreateOptionsMenu( Menu menu ) {
 		Log.v( TAG, "onCreateOptionsMenu : enter" );
 
-	    MenuItem prefs = menu.add( Menu.NONE, ABOUT_ID, Menu.NONE, "ABOUT" );
+	    MenuItem about = menu.add( Menu.NONE, ABOUT_ID, Menu.NONE, getResources().getString( R.string.menu_about ) );
 	    if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-	    	prefs.setShowAsAction( MenuItem.SHOW_AS_ACTION_NEVER );
-	    	prefs.setIcon( android.R.drawable.ic_menu_info_details );
+	    	about.setShowAsAction( MenuItem.SHOW_AS_ACTION_NEVER );
+	    	about.setIcon( android.R.drawable.ic_menu_info_details );
+	    }
+	    
+	    MenuItem faq = menu.add( Menu.NONE, FAQ_ID, Menu.NONE,  getResources().getString( R.string.menu_faq ) );
+	    if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
+	    	faq.setShowAsAction( MenuItem.SHOW_AS_ACTION_NEVER );
+	    	faq.setIcon( android.R.drawable.ic_menu_help );
 	    }
 	    
 		Log.v( TAG, "onCreateOptionsMenu : exit" );
@@ -100,7 +110,7 @@ public abstract class AbstractMythtvFragmentActivity extends FragmentActivity im
 
 		switch( item.getItemId() ) {
 		case ABOUT_ID:
-			Log.d( TAG, "onOptionsItemSelected : prefs selected" );
+			Log.d( TAG, "onOptionsItemSelected : about selected" );
 
 		    FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
 		    Fragment prev = getSupportFragmentManager().findFragmentByTag( "aboutDialog" );
@@ -113,6 +123,13 @@ public abstract class AbstractMythtvFragmentActivity extends FragmentActivity im
 		    newFragment.show( ft, "aboutDialog" );
 		    
 	        return true;
+	    
+		case FAQ_ID:
+			
+			Intent faqIntent = new Intent( Intent.ACTION_VIEW, Uri.parse( "https://github.com/MythTV-Clients/MythTV-Android-Frontend/wiki/FAQ" ) );
+			startActivity( faqIntent );
+			
+			return true;
 		}
 
 		Log.d( TAG, "onOptionsItemSelected : exit" );

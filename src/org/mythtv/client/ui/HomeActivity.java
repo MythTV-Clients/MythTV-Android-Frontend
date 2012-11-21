@@ -27,6 +27,7 @@ import org.mythtv.client.ui.frontends.MythmoteActivity;
 import org.mythtv.client.ui.media.MediaDashboardFragment;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
@@ -128,6 +129,14 @@ public class HomeActivity extends AbstractLocationAwareFragmentActivity {
 		    DialogFragment newFragment = AboutDialogFragment.newInstance();
 		    newFragment.show( ft, "aboutDialog" );
 		    
+			return true;
+
+		case R.id.menu_faq:
+			Log.d( TAG, "onOptionsItemSelected : faq selected" );
+
+			Intent faqIntent = new Intent( Intent.ACTION_VIEW, Uri.parse( "https://github.com/MythTV-Clients/MythTV-Android-Frontend/wiki/FAQ" ) );
+			startActivity( faqIntent );
+
 			return true;
 		}
 

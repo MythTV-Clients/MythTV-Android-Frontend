@@ -47,7 +47,7 @@ import android.widget.Button;
 public class LocationActivity extends AbstractMythtvFragmentActivity {
 
 	private static final String TAG = LocationActivity.class.getSimpleName();
-	private static final int EDIT_ID = Menu.FIRST + 2;
+	private static final int EDIT_ID = Menu.FIRST + 100;
 
 	private UpgradeCleanupReceiver upgradeCleanupReceiver = new UpgradeCleanupReceiver();
 	

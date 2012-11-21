@@ -40,7 +40,10 @@
 	<string name="about_url1"><u>https://github.com/MythTV-Clients/MythTV-Android-Frontend</u></string>
 	<string name="about_url2"><u>http://mythtv.org</u></string>
 	<string name="about_url3"><u>http://c9studio.com</u></string>
-		
+
+	<!-- FAQ -->
+	<string name="menu_faq">FAQ</string>
+			
 	<!-- Preferences -->
 	<string name="preferences_title">Preferences</string>
 	<string name="preferences_unset">No value selected</string>
