@@ -61,12 +61,19 @@ Connecting to Mythtv Backend via SSH
 If you want to use this app on a cellular network, take a look at these instructions for accessing the backend while not on the home wifi network:
 https://github.com/MythTV-Clients/MythTV-Android-Frontend/wiki/Access-MythTV-Master-Backend-via-SSH
 
+Prepare repository for release
+==============================
+The following instructions prepare the code in the repository for release to the Google Play Market
+
+`mvn release:clean -Dgpg.passphrase=[passphrase]`
+
+`mvn release:prepare -Dgpg.passphrase=[passphrase]`
+
+This tags the repository at a point in time where it can be reverted for testing issues reported from the Google Play Developer Console.
+====================================
+
 
 Mythtv for Android and Zeroconf
 ===============================
-Mythtv for Andriod tries to locate all your MythTV backend and frontend machines.  In order for the app to automatically discover these services, you need to make sure 
-that the avahi-daemon is running.  You can manually add your backend machines, but, at this time, there is no preferences editor for your frontends.  In order to use
-the MythMote functionality, follow your distro's instructions on installing and enabling the avahi-daemon.  Once installed and running, the app will be able to not only
-auto-discover your frontends, but also your backend.
-
-Additionally, MythTV must be compiled with libdns-sd enabled. To verify that it is, type mythfrontend --version. The string: using_libdns_sd must appear in the output.
+Please see the section titles: What are the requirements for Mythtv for Android and Zeroconf?
+in https://github.com/MythTV-Clients/MythTV-Android-Frontend/wiki/FAQ
