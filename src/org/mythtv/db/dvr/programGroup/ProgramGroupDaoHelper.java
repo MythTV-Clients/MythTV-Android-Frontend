@@ -169,16 +169,26 @@ public class ProgramGroupDaoHelper {
 		
 		Map<String, ProgramGroup> programGroups = new TreeMap<String, ProgramGroup>();
 		for( Program program : programs ) {
-			String cleaned = ArticleCleaner.clean( program.getTitle() );
-			if( !programGroups.containsKey( cleaned ) ) {
+			
+			if( null != program.getRecording() ) {
 				
-				ProgramGroup programGroup = new ProgramGroup();
-				programGroup.setTitle( program.getTitle() );
-				programGroup.setCategory( program.getCategory() );
-				programGroup.setInetref( program.getInetref() );
+				if( null != program.getRecording().getRecordingGroup() && !"livetv".equalsIgnoreCase( program.getRecording().getRecordingGroup() ) ) {
+					
+					String cleaned = ArticleCleaner.clean( program.getTitle() );
+					if( !programGroups.containsKey( cleaned ) ) {
+						
+						ProgramGroup programGroup = new ProgramGroup();
+						programGroup.setTitle( program.getTitle() );
+						programGroup.setCategory( program.getCategory() );
+						programGroup.setInetref( program.getInetref() );
+						
+						programGroups.put( cleaned, programGroup );
+					}
+
+				}
 				
-				programGroups.put( cleaned, programGroup );
 			}
+			
 		}
 		
 		int loaded = -1;
