@@ -25,6 +25,7 @@ import org.mythtv.R;
 import org.mythtv.client.ui.dvr.DvrDashboardFragment;
 import org.mythtv.client.ui.frontends.MythmoteActivity;
 import org.mythtv.client.ui.media.MediaDashboardFragment;
+import org.mythtv.client.ui.util.MenuHelper;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -48,15 +49,18 @@ public class HomeActivity extends AbstractLocationAwareFragmentActivity {
 
 	private final static String TAG = HomeActivity.class.getSimpleName();
 
+	private MenuHelper mMenuHelper;
+	
 	/* (non-Javadoc)
 	 * @see org.mythtv.client.ui.AbstractLocationAwareFragmentActivity#onCreate(android.os.Bundle)
 	 */
 	@Override
 	protected void onCreate( Bundle savedInstanceState ) {
 		Log.d( TAG, "onCreate : enter" );
-
 		super.onCreate( savedInstanceState );
 
+		mMenuHelper = new MenuHelper( this );
+		
 		setContentView( R.layout.activity_home );
 
 		List<Fragment> fragments = new ArrayList<Fragment>();
@@ -81,11 +85,9 @@ public class HomeActivity extends AbstractLocationAwareFragmentActivity {
 	public boolean onCreateOptionsMenu( Menu menu ) {
 		Log.d( TAG, "onCreateOptionsMenu : enter" );
 
-		if( mNetworkHelper.isNetworkConnected() ) {
-			MenuInflater inflater = getMenuInflater();
-			inflater.inflate( R.menu.home_main_menu, menu );
-			Log.d( TAG, "onCreateOptionsMenu : menu inflated" );
-		}
+		mMenuHelper.aboutMenuItem( menu );
+		mMenuHelper.helpSubMenu( menu );
+		mMenuHelper.mythmoteMenuItem( menu );
 		
 		Log.d( TAG, "onCreateOptionsMenu : exit" );
 		return true;
@@ -103,7 +105,7 @@ public class HomeActivity extends AbstractLocationAwareFragmentActivity {
 		Log.d( TAG, "onOptionsItemSelected : enter" );
 
 		switch( item.getItemId() ) {
-		case R.id.menu_frontends:
+		case MenuHelper.MYTHMOTE_ID:
 			Log.d( TAG, "onOptionsItemSelected : Mythmote selected" );
 
 			if( mNetworkHelper.isNetworkConnected() ) {
@@ -116,28 +118,31 @@ public class HomeActivity extends AbstractLocationAwareFragmentActivity {
 //
 //			startActivity( new Intent( this, SetupActivity.class ) );
 //			return true;
-		case R.id.menu_about:
+		case MenuHelper.ABOUT_ID:
 			Log.d( TAG, "onOptionsItemSelected : about selected" );
 
-		    FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-		    Fragment prev = getSupportFragmentManager().findFragmentByTag( "aboutDialog" );
-		    if( null != prev ) {
-		        ft.remove( prev );
-		    }
-		    ft.addToBackStack( null );
-
-		    DialogFragment newFragment = AboutDialogFragment.newInstance();
-		    newFragment.show( ft, "aboutDialog" );
+		    mMenuHelper.handleAboutMenu();
 		    
+	        return true;
+	    
+		case MenuHelper.FAQ_ID:
+			
+		    mMenuHelper.handleFaqMenu();
+			
 			return true;
 
-		case R.id.menu_faq:
-			Log.d( TAG, "onOptionsItemSelected : faq selected" );
-
-			Intent faqIntent = new Intent( Intent.ACTION_VIEW, Uri.parse( "https://github.com/MythTV-Clients/MythTV-Android-Frontend/wiki/FAQ" ) );
-			startActivity( faqIntent );
-
+		case MenuHelper.TROUBLESHOOT_ID:
+			
+		    mMenuHelper.handleTroubleshootMenu();
+			
 			return true;
+		
+		case MenuHelper.ISSUES_ID:
+
+			mMenuHelper.handleIssuesMenu();
+			
+			return true;
+		
 		}
 
 		Log.d( TAG, "onOptionsItemSelected : exit" );

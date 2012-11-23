@@ -18,21 +18,16 @@
  */
 package org.mythtv.client.ui;
 
-import org.mythtv.R;
 import org.mythtv.client.MainApplication;
+import org.mythtv.client.ui.util.MenuHelper;
 import org.mythtv.service.util.NetworkHelper;
 
 import android.annotation.TargetApi;
 import android.app.ActionBar;
-import android.content.Intent;
 import android.content.res.Resources;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -45,12 +40,11 @@ public abstract class AbstractMythtvFragmentActivity extends FragmentActivity im
 
 	protected static final String TAG = AbstractMythtvFragmentActivity.class.getSimpleName();
 
-	private static final int ABOUT_ID = Menu.FIRST + 1;
-	private static final int FAQ_ID = Menu.FIRST + 2;
-
 	protected Resources mResources;
 
+	protected MenuHelper mMenuHelper;
 	protected NetworkHelper mNetworkHelper;
+	
 	
 	//***************************************
     // MythActivity methods
@@ -72,6 +66,8 @@ public abstract class AbstractMythtvFragmentActivity extends FragmentActivity im
 		super.onCreate( savedInstanceState );
 
 		mResources = getResources();
+		
+		mMenuHelper = new MenuHelper( this );
 		mNetworkHelper = new NetworkHelper( this );
 		
 		Log.v( TAG, "onCreate : exit" );
@@ -85,17 +81,8 @@ public abstract class AbstractMythtvFragmentActivity extends FragmentActivity im
 	public boolean onCreateOptionsMenu( Menu menu ) {
 		Log.v( TAG, "onCreateOptionsMenu : enter" );
 
-	    MenuItem about = menu.add( Menu.NONE, ABOUT_ID, Menu.NONE, getResources().getString( R.string.menu_about ) );
-	    if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-	    	about.setShowAsAction( MenuItem.SHOW_AS_ACTION_NEVER );
-	    	about.setIcon( android.R.drawable.ic_menu_info_details );
-	    }
-	    
-	    MenuItem faq = menu.add( Menu.NONE, FAQ_ID, Menu.NONE,  getResources().getString( R.string.menu_faq ) );
-	    if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-	    	faq.setShowAsAction( MenuItem.SHOW_AS_ACTION_NEVER );
-	    	faq.setIcon( android.R.drawable.ic_menu_help );
-	    }
+	    mMenuHelper.aboutMenuItem( menu );
+	    mMenuHelper.helpSubMenu( menu );
 	    
 		Log.v( TAG, "onCreateOptionsMenu : exit" );
 		return super.onCreateOptionsMenu( menu );
@@ -109,27 +96,31 @@ public abstract class AbstractMythtvFragmentActivity extends FragmentActivity im
 		Log.d( TAG, "onOptionsItemSelected : enter" );
 
 		switch( item.getItemId() ) {
-		case ABOUT_ID:
+		case MenuHelper.ABOUT_ID:
 			Log.d( TAG, "onOptionsItemSelected : about selected" );
 
-		    FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-		    Fragment prev = getSupportFragmentManager().findFragmentByTag( "aboutDialog" );
-		    if( null != prev ) {
-		        ft.remove( prev );
-		    }
-		    ft.addToBackStack( null );
-
-		    DialogFragment newFragment = AboutDialogFragment.newInstance();
-		    newFragment.show( ft, "aboutDialog" );
+		    mMenuHelper.handleAboutMenu();
 		    
 	        return true;
 	    
-		case FAQ_ID:
+		case MenuHelper.FAQ_ID:
 			
-			Intent faqIntent = new Intent( Intent.ACTION_VIEW, Uri.parse( "https://github.com/MythTV-Clients/MythTV-Android-Frontend/wiki/FAQ" ) );
-			startActivity( faqIntent );
+		    mMenuHelper.handleFaqMenu();
 			
 			return true;
+
+		case MenuHelper.TROUBLESHOOT_ID:
+			
+		    mMenuHelper.handleTroubleshootMenu();
+			
+			return true;
+		
+		case MenuHelper.ISSUES_ID:
+
+			mMenuHelper.handleIssuesMenu();
+			
+			return true;
+		
 		}
 
 		Log.d( TAG, "onOptionsItemSelected : exit" );

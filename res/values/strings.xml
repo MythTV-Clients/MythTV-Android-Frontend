@@ -41,9 +41,13 @@
 	<string name="about_url2"><u>http://mythtv.org</u></string>
 	<string name="about_url3"><u>http://c9studio.com</u></string>
 
-	<!-- FAQ -->
-	<string name="menu_faq">FAQ</string>
-			
+	<!-- Help -->
+	<string name="menu_help">Help</string>
+	<string name="menu_help_faq">FAQ</string>
+	<string name="menu_help_troubleshoot">Troubleshoot</string>
+	<string name="menu_help_issues">Issues</string>
+	<string name="menu_help_not_connected">The internet is not currently available on your device.  Please check your connections and try again.</string>
+				
 	<!-- Preferences -->
 	<string name="preferences_title">Preferences</string>
 	<string name="preferences_unset">No value selected</string>

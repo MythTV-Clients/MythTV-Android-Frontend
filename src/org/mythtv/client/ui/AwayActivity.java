@@ -46,7 +46,6 @@ public class AwayActivity extends AbstractLocationAwareFragmentActivity {
 	@Override
 	protected void onCreate( Bundle savedInstanceState ) {
 		Log.d( TAG, "onCreate : enter" );
-
 		super.onCreate( savedInstanceState );
 
 		setContentView( R.layout.activity_away );

@@ -36,6 +36,6 @@
 	    android:title="@string/menu_about" />
     <item 
 	    android:id="@+id/menu_faq" 
-	    android:title="@string/menu_faq" />
+	    android:title="@string/menu_help_faq" />
     		
 </menu>
