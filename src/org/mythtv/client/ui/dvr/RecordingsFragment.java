@@ -20,6 +20,7 @@ package org.mythtv.client.ui.dvr;
 
 import org.joda.time.DateTime;
 import org.mythtv.R;
+import org.mythtv.client.ui.util.MenuHelper;
 import org.mythtv.client.ui.util.MythtvListFragment;
 import org.mythtv.client.ui.util.ProgramHelper;
 import org.mythtv.db.dvr.programGroup.ProgramGroup;
@@ -67,7 +68,6 @@ import android.widget.Toast;
 public class RecordingsFragment extends MythtvListFragment implements LoaderManager.LoaderCallbacks<Cursor>  {
 
 	private static final String TAG = RecordingsFragment.class.getSimpleName();
-	private static final int REFRESH_ID = Menu.FIRST + 100;
 
 	private OnProgramGroupListener listener = null;
 	private ProgramGroupCursorAdapter adapter;
@@ -76,8 +76,10 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 
 	private static ProgramHelper mProgramHelper;
 	private EtagDaoHelper mEtagDaoHelper;
+	private MenuHelper mMenuHelper;
 	private ProgramGroupDaoHelper mProgramGroupDaoHelper;
 	private RunningServiceHelper mRunningServiceHelper;
+
 	private ImageFetcher mImageFetcher;
 	
 	/* (non-Javadoc)
@@ -133,11 +135,12 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 	@Override
 	public void onActivityCreated( Bundle savedInstanceState ) {
 		Log.v( TAG, "onActivityCreated : enter" );
-
 		super.onActivityCreated( savedInstanceState );
 
 		mProgramHelper = ProgramHelper.createInstance( getActivity() );
+
 		mEtagDaoHelper = new EtagDaoHelper( getActivity() );
+		mMenuHelper = new MenuHelper( getActivity() );
 		mProgramGroupDaoHelper = new ProgramGroupDaoHelper( getActivity() );
 		mRunningServiceHelper = new RunningServiceHelper( getActivity() );
 	
@@ -248,11 +251,7 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 		Log.v( TAG, "onCreateOptionsMenu : enter" );
 		super.onCreateOptionsMenu( menu, inflater );
 
-		MenuItem refresh = menu.add( Menu.NONE, REFRESH_ID, Menu.NONE, "Refresh" );
-		refresh.setIcon( R.drawable.ic_menu_refresh );
-	    if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-	    	refresh.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
-	    }
+		mMenuHelper.refreshMenuItem( menu );
 		
 		Log.v( TAG, "onCreateOptionsMenu : exit" );
 	}
@@ -265,7 +264,7 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 		Log.v( TAG, "onOptionsItemSelected : enter" );
 		
 		switch( item.getItemId() ) {
-		case REFRESH_ID:
+		case MenuHelper.REFRESH_ID:
 			Log.d( TAG, "onOptionsItemSelected : refresh selected" );
 
 			Cursor cursor = getActivity().getContentResolver().query( Uri.withAppendedPath( EtagConstants.CONTENT_URI, "endpoint" ), null, EtagConstants.FIELD_ENDPOINT + " = ?" ,new String[] { Endpoint.GET_RECORDED_LIST.name() }, null );

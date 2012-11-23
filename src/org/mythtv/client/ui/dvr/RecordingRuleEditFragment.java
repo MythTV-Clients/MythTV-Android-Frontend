@@ -23,6 +23,7 @@ package org.mythtv.client.ui.dvr;
 
 import org.mythtv.R;
 import org.mythtv.client.ui.AbstractMythFragment;
+import org.mythtv.client.ui.util.MenuHelper;
 import org.mythtv.client.ui.util.ProgramHelper;
 import org.mythtv.db.channel.ChannelDaoHelper;
 import org.mythtv.service.util.NetworkHelper;
@@ -34,9 +35,7 @@ import org.mythtv.services.api.dvr.RecRuleWrapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import android.annotation.TargetApi;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -57,11 +56,12 @@ import android.widget.Toast;
  */
 public class RecordingRuleEditFragment extends AbstractMythFragment implements OnCheckedChangeListener {
 
-
 	private static final String TAG = RecordingRuleEditFragment.class.getSimpleName();
 	
 	private ChannelDaoHelper mChannelDaoHelper;
+	private MenuHelper mMenuHelper;
 	private ProgramHelper mProgramHelper;
+	
 	private boolean mEdited = false;
 	private RecRule mRule;
 	
@@ -82,7 +82,7 @@ public class RecordingRuleEditFragment extends AbstractMythFragment implements O
 		Log.v( TAG, "onCreate : enter" );
 		super.onCreate( savedInstanceState );
 		
-		this.setHasOptionsMenu(true);
+		setHasOptionsMenu( true );
 
 		Bundle args = getArguments();
 		if( null != args ) {
@@ -122,21 +122,19 @@ public class RecordingRuleEditFragment extends AbstractMythFragment implements O
 		Log.v( TAG, "onActivityCreated : exit" );
 	}
 	
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.Fragment#onCreateOptionsMenu(android.view.Menu, android.view.MenuInflater)
+	 */
 	@Override
-	@TargetApi( 11 )
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-		
 		Log.v( TAG, "onCreateOptionsMenu : enter" );
+
+		if( null == mMenuHelper ) {
+			mMenuHelper = new MenuHelper( getActivity() );
+		}
 		
-	    MenuItem save = menu.add( Menu.NONE, RecordingRulesActivity.SAVE_ID, Menu.NONE, "SAVE" );
-	    MenuItem reset = menu.add( Menu.NONE, RecordingRulesActivity.RESET_ID, Menu.NONE, "RESET" );
-	    if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-	    	save.setShowAsAction( MenuItem.SHOW_AS_ACTION_ALWAYS );
-	    	save.setIcon( android.R.drawable.ic_menu_save );
-	    	
-	    	reset.setShowAsAction( MenuItem.SHOW_AS_ACTION_ALWAYS );
-	    	reset.setIcon( android.R.drawable.ic_menu_revert );
-	    }
+		mMenuHelper.saveMenuItem( menu );
+		mMenuHelper.resetMenuItem( menu );
 		
 		Log.v( TAG, "onCreateOptionsMenu : exit" );
 		
@@ -144,21 +142,34 @@ public class RecordingRuleEditFragment extends AbstractMythFragment implements O
 	}
 
 
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.Fragment#onOptionsItemSelected(android.view.MenuItem)
+	 */
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		Log.v( TAG, "onOptionsItemSelected : enter" );
 
+		if( null == mMenuHelper ) {
+			mMenuHelper = new MenuHelper( getActivity() );
+		}
+
 		switch( item.getItemId() ) {
 			case android.R.id.home:
+				
 				this.getActivity().finish();
+				
 				return true;
 				
-			case RecordingRulesActivity.RESET_ID:
-				this.setupForm(this.mRule);
+			case MenuHelper.RESET_ID:
+				
+				this.setupForm( this.mRule );
+				
 				return true;
 				
-			case RecordingRulesActivity.SAVE_ID:
+			case MenuHelper.SAVE_ID:
+				
 				this.saveRecordingRule();
+				
 				return true;
 		}
 

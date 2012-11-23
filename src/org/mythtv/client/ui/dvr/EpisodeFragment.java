@@ -23,6 +23,7 @@ import java.util.List;
 import org.joda.time.DateTime;
 import org.mythtv.R;
 import org.mythtv.client.ui.AbstractMythFragment;
+import org.mythtv.client.ui.util.MenuHelper;
 import org.mythtv.db.dvr.RecordedDaoHelper;
 import org.mythtv.db.dvr.programGroup.ProgramGroup;
 import org.mythtv.db.dvr.programGroup.ProgramGroupDaoHelper;
@@ -38,7 +39,6 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
@@ -55,12 +55,10 @@ import android.widget.Toast;
 public class EpisodeFragment extends AbstractMythFragment {
 
 	private static final String TAG = EpisodeFragment.class.getSimpleName();
-	private static final int DELETE_ID = Menu.FIRST + 300;
-	private static final int WATCH_ID = Menu.FIRST + 301;
-	private static final int ADD_ID = Menu.FIRST + 302;
 
 	private OnEpisodeActionListener listener = null;
 
+	private MenuHelper mMenuHelper;
 	private ProgramGroupDaoHelper mProgramGroupDaoHelper; 
 	private RecordedDaoHelper mRecordedDaoHelper; 
 	private ImageFetcher mImageFetcher;
@@ -87,6 +85,7 @@ public class EpisodeFragment extends AbstractMythFragment {
 		Log.v( TAG, "onActivityCreated : enter" );
 		super.onActivityCreated( savedInstanceState );
 
+		mMenuHelper = new MenuHelper( getActivity() );
 		mProgramGroupDaoHelper = new ProgramGroupDaoHelper( getActivity() );
 		mRecordedDaoHelper = new RecordedDaoHelper( getActivity() );
 		
@@ -105,28 +104,10 @@ public class EpisodeFragment extends AbstractMythFragment {
 		Log.v( TAG, "onCreateOptionsMenu : enter" );
 		super.onCreateOptionsMenu( menu, inflater );
 
-		if( mNetworkHelper.isNetworkConnected() ) {
-			
-			MenuItem watch = menu.add( Menu.NONE, WATCH_ID, Menu.NONE, "Watch" );
-			watch.setIcon( android.R.drawable.ic_menu_view );
-		    if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-		    	watch.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
-		    }
-			
-			MenuItem add = menu.add( Menu.NONE, ADD_ID, Menu.NONE, "ADD" );
-			add.setIcon( android.R.drawable.ic_menu_add );
-		    if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-		    	add.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
-		    }
-
-			MenuItem delete = menu.add( Menu.NONE, DELETE_ID, Menu.NONE, "Delete" );
-			delete.setIcon( android.R.drawable.ic_menu_delete );
-		    if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-		    	delete.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
-		    }
-			
-		}
-
+		mMenuHelper.watchMenuItem( menu );
+		mMenuHelper.addMenuItem( menu );
+		mMenuHelper.deleteMenuItem( menu );
+		
 	    Log.v( TAG, "onCreateOptionsMenu : exit" );
 	}
 
@@ -138,7 +119,7 @@ public class EpisodeFragment extends AbstractMythFragment {
 		Log.v( TAG, "onOptionsItemSelected : enter" );
 		
 		switch( item.getItemId() ) {
-		case WATCH_ID:
+		case MenuHelper.WATCH_ID:
 			Log.d( TAG, "onOptionsItemSelected : watch selected" );
 
 			if( mNetworkHelper.isNetworkConnected() ) {
@@ -153,7 +134,7 @@ public class EpisodeFragment extends AbstractMythFragment {
 			}
 			
 			return true;
-		case ADD_ID:
+		case MenuHelper.ADD_ID:
 			Log.d( TAG, "onOptionsItemSelected : add selected" );
 
 			Toast.makeText( getActivity(), "Add HLS to Playlist - Coming Soon!", Toast.LENGTH_SHORT ).show();
@@ -166,7 +147,7 @@ public class EpisodeFragment extends AbstractMythFragment {
 //			}
 
 			return true;
-		case DELETE_ID:
+		case MenuHelper.DELETE_ID:
 			Log.d( TAG, "onOptionsItemSelected : delete selected" );
 
 			if( mNetworkHelper.isNetworkConnected() ) {
@@ -208,12 +189,10 @@ public class EpisodeFragment extends AbstractMythFragment {
 		
         if( RecordingsActivity.class.isInstance( getActivity() ) ) {
             mImageFetcher = ( (RecordingsActivity) getActivity() ).getImageFetcher();
-//           mRecordedDaoHelper = ( (RecordingsActivity) getActivity() ).getRecordedDaoHelper();
         }
 
         if( EpisodeActivity.class.isInstance( getActivity() ) ) {
             mImageFetcher = ( (EpisodeActivity) getActivity() ).getImageFetcher();
-//            mRecordedDaoHelper = ( (EpisodeActivity) getActivity() ).getRecordedDaoHelper();
         }
 
 		Log.v( TAG, "loadEpisode : channelId=" + channelId + ", startTime=" + DateUtils.dateTimeFormatterPretty.print( startTime ) );

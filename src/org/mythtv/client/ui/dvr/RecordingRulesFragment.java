@@ -23,6 +23,7 @@ import java.util.List;
 
 import org.mythtv.R;
 import org.mythtv.client.MainApplication;
+import org.mythtv.client.ui.util.MenuHelper;
 import org.mythtv.client.ui.util.MythtvListFragment;
 import org.mythtv.client.ui.util.ProgramHelper;
 import org.mythtv.db.channel.ChannelDaoHelper;
@@ -39,7 +40,6 @@ import org.springframework.http.ResponseEntity;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -67,6 +67,7 @@ public class RecordingRulesFragment extends MythtvListFragment {
 	private RecordingRuleAdapter adapter;
 
 	private ChannelDaoHelper mChannelDaoHelper;
+	private MenuHelper mMenuHelper;
 	
 	private MainApplication mainApplication;
 	
@@ -76,11 +77,11 @@ public class RecordingRulesFragment extends MythtvListFragment {
 	private OnCheckedChangeListener sRuleCheckChangeListener = new OnCheckedChangeListener(){
 
 		@Override
-		public void onCheckedChanged(CompoundButton buttonView,
-				boolean isChecked) {
-			RecRule rule = (RecRule)buttonView.getTag();
-			rule.setInactive(!isChecked);
-			new SetRuleActiveStateTask().execute(isChecked?1:0, rule.getId());
+		public void onCheckedChanged( CompoundButton buttonView, boolean isChecked ) {
+			RecRule rule = (RecRule) buttonView.getTag();
+			rule.setInactive( !isChecked );
+			
+			new SetRuleActiveStateTask().execute( isChecked?1:0, rule.getId() );
 		}
 		
 	};
@@ -94,6 +95,7 @@ public class RecordingRulesFragment extends MythtvListFragment {
 		super.onActivityCreated( savedInstanceState );
 
 		mChannelDaoHelper = new ChannelDaoHelper( getActivity() );
+		mMenuHelper = new MenuHelper( getActivity() );
 		
 		setHasOptionsMenu( true );
 		setRetainInstance( true );
@@ -117,11 +119,7 @@ public class RecordingRulesFragment extends MythtvListFragment {
 		Log.v( TAG, "onCreateOptionsMenu : enter" );
 		super.onCreateOptionsMenu( menu, inflater );
 
-		MenuItem refresh = menu.add( Menu.NONE, RecordingRulesActivity.REFRESH_ID, Menu.NONE, "Refresh" );
-		refresh.setIcon( R.drawable.ic_menu_refresh );
-	    if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-	    	refresh.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
-	    }
+		mMenuHelper.refreshMenuItem( menu );
 		
 		Log.v( TAG, "onCreateOptionsMenu : exit" );
 	}
@@ -134,7 +132,7 @@ public class RecordingRulesFragment extends MythtvListFragment {
 		Log.v( TAG, "onOptionsItemSelected : enter" );
 		
 		switch( item.getItemId() ) {
-		case RecordingRulesActivity.REFRESH_ID:
+		case MenuHelper.REFRESH_ID:
 			Log.d( TAG, "onOptionsItemSelected : refresh selected" );
 
 	        return true;

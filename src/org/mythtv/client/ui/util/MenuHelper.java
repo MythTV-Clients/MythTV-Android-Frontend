@@ -33,6 +33,15 @@ public class MenuHelper {
 	
 	public static final int MYTHMOTE_ID = Menu.FIRST + 20;
 	
+	public static final int REFRESH_ID = Menu.FIRST + 100;
+
+	public static final int EDIT_ID = Menu.FIRST + 200;
+	public static final int SAVE_ID	= Menu.FIRST + 201;
+	public static final int RESET_ID = Menu.FIRST + 202;
+	public static final int DELETE_ID = Menu.FIRST + 203;
+	public static final int WATCH_ID = Menu.FIRST + 204;
+	public static final int ADD_ID = Menu.FIRST + 205;
+
 	private static final String TAG = MenuHelper.class.getSimpleName();
 	
 	private Context mContext;
@@ -56,9 +65,9 @@ public class MenuHelper {
 	public MenuItem aboutMenuItem( Menu menu ) {
 		
 	    MenuItem menuItem = menu.add( Menu.NONE, ABOUT_ID, Menu.NONE, mResources.getString( R.string.menu_about ) );
+    	menuItem.setIcon( android.R.drawable.ic_menu_info_details );
 	    if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
 	    	menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_NEVER );
-	    	menuItem.setIcon( android.R.drawable.ic_menu_info_details );
 	    }
 
 	    return menuItem;
@@ -104,9 +113,9 @@ public class MenuHelper {
 	public MenuItem faqMenuItem( Menu menu ) {
 		
 	    MenuItem menuItem = menu.add( Menu.NONE, FAQ_ID, Menu.NONE, mResources.getString( R.string.menu_help_faq ) );
+    	menuItem.setIcon( android.R.drawable.ic_menu_info_details );
 	    if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
 	    	menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_NEVER );
-	    	menuItem.setIcon( android.R.drawable.ic_menu_info_details );
 	    }
 
 	    return menuItem;
@@ -190,9 +199,163 @@ public class MenuHelper {
 		
 		if( mNetworkHelper.isNetworkConnected() ) {
 			MenuItem menuItem = menu.add( Menu.NONE, MYTHMOTE_ID, Menu.NONE, mResources.getString( R.string.frontends_title ) );
+			menuItem.setIcon( R.drawable.ic_menu_mythmote_default );
 			if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
 				menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
-				menuItem.setIcon( R.drawable.ic_menu_mythmote_default );
+			}
+
+			return menuItem;
+		}
+		
+		return null;
+	}
+
+	/**
+	 * Build Refresh MenuItem
+	 * 
+	 * @param menu
+	 * @return
+	 */
+	@TargetApi( Build.VERSION_CODES.HONEYCOMB )
+	public MenuItem refreshMenuItem( Menu menu ) {
+		
+		if( mNetworkHelper.isNetworkConnected() ) {
+			MenuItem menuItem = menu.add( Menu.NONE, REFRESH_ID, Menu.NONE, mResources.getString( R.string.menu_refresh ) );
+			menuItem.setIcon( R.drawable.ic_menu_refresh );
+			if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
+				menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
+			}
+
+			return menuItem;
+		}
+		
+		return null;
+	}
+
+	/**
+	 * Build Edit MenuItem
+	 * 
+	 * @param menu
+	 * @return
+	 */
+	@TargetApi( Build.VERSION_CODES.HONEYCOMB )
+	public MenuItem editMenuItem( Menu menu ) {
+		
+		if( mNetworkHelper.isNetworkConnected() ) {
+			MenuItem menuItem = menu.add( Menu.NONE, EDIT_ID, Menu.NONE, mResources.getString( R.string.menu_edit ) );
+			menuItem.setIcon( android.R.drawable.ic_menu_edit );
+			if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
+				menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
+			}
+
+			return menuItem;
+		}
+		
+		return null;
+	}
+
+	/**
+	 * Build Save MenuItem
+	 * 
+	 * @param menu
+	 * @return
+	 */
+	@TargetApi( Build.VERSION_CODES.HONEYCOMB )
+	public MenuItem saveMenuItem( Menu menu ) {
+		
+		if( mNetworkHelper.isNetworkConnected() ) {
+			MenuItem menuItem = menu.add( Menu.NONE, SAVE_ID, Menu.NONE, mResources.getString( R.string.menu_save ) );
+			menuItem.setIcon( android.R.drawable.ic_menu_save );
+			if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
+				menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
+			}
+
+			return menuItem;
+		}
+		
+		return null;
+	}
+
+	/**
+	 * Build Reset MenuItem
+	 * 
+	 * @param menu
+	 * @return
+	 */
+	@TargetApi( Build.VERSION_CODES.HONEYCOMB )
+	public MenuItem resetMenuItem( Menu menu ) {
+		
+		if( mNetworkHelper.isNetworkConnected() ) {
+			MenuItem menuItem = menu.add( Menu.NONE, RESET_ID, Menu.NONE, mResources.getString( R.string.menu_reset ) );
+			menuItem.setIcon( android.R.drawable.ic_menu_revert );
+			if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
+				menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
+			}
+
+			return menuItem;
+		}
+		
+		return null;
+	}
+
+	/**
+	 * Build Delete MenuItem
+	 * 
+	 * @param menu
+	 * @return
+	 */
+	@TargetApi( Build.VERSION_CODES.HONEYCOMB )
+	public MenuItem deleteMenuItem( Menu menu ) {
+		
+		if( mNetworkHelper.isNetworkConnected() ) {
+			MenuItem menuItem = menu.add( Menu.NONE, DELETE_ID, Menu.NONE, mResources.getString( R.string.menu_delete ) );
+			menuItem.setIcon( android.R.drawable.ic_menu_delete );
+			if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
+				menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
+			}
+
+			return menuItem;
+		}
+		
+		return null;
+	}
+
+	/**
+	 * Build Watch MenuItem
+	 * 
+	 * @param menu
+	 * @return
+	 */
+	@TargetApi( Build.VERSION_CODES.HONEYCOMB )
+	public MenuItem watchMenuItem( Menu menu ) {
+		
+		if( mNetworkHelper.isNetworkConnected() ) {
+			MenuItem menuItem = menu.add( Menu.NONE, WATCH_ID, Menu.NONE, mResources.getString( R.string.menu_watch ) );
+			menuItem.setIcon( android.R.drawable.ic_menu_view );
+			if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
+				menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
+			}
+
+			return menuItem;
+		}
+		
+		return null;
+	}
+
+	/**
+	 * Build Add MenuItem
+	 * 
+	 * @param menu
+	 * @return
+	 */
+	@TargetApi( Build.VERSION_CODES.HONEYCOMB )
+	public MenuItem addMenuItem( Menu menu ) {
+		
+		if( mNetworkHelper.isNetworkConnected() ) {
+			MenuItem menuItem = menu.add( Menu.NONE, ADD_ID, Menu.NONE, mResources.getString( R.string.menu_add ) );
+			menuItem.setIcon( android.R.drawable.ic_menu_add );
+			if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
+				menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
 			}
 
 			return menuItem;

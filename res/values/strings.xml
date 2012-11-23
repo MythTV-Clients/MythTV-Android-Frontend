@@ -33,15 +33,16 @@
 	
     <string name="data_loading">Mythtv for Android is currently loading data from your backend. Please try again later.</string>
 	
-    <!-- About -->
+    <!-- Menus -->
 	<string name="menu_about">About</string>
-	<string name="menu_about_ally">About</string>
-	<string name="about_title">About MythTV Android Frontend&#8230;</string>
-	<string name="about_url1"><u>https://github.com/MythTV-Clients/MythTV-Android-Frontend</u></string>
-	<string name="about_url2"><u>http://mythtv.org</u></string>
-	<string name="about_url3"><u>http://c9studio.com</u></string>
-
-	<!-- Help -->
+	<string name="menu_refresh">Refresh</string>
+	<string name="menu_edit">Edit</string>
+	<string name="menu_save">Save</string>
+	<string name="menu_reset">Reset</string>
+	<string name="menu_delete">Delete</string>
+	<string name="menu_watch">Watch</string>
+	<string name="menu_add">Add</string>
+	<string name="menu_prefs">Prefs</string>
 	<string name="menu_help">Help</string>
 	<string name="menu_help_faq">FAQ</string>
 	<string name="menu_help_troubleshoot">Troubleshoot</string>
@@ -129,12 +130,6 @@
 	<string name="btn_save">Save</string>
 	<string name="btn_cancel">Cancel</string>
 						
-	<!-- Menu -->
-	<string name="menu_prefs">Prefs</string>
-	<string name="menu_refresh">Refresh</string>
-	<string name="menu_clear">Clear</string>
-	<string name="menu_setup">Setup</string>
-	
 	<!-- Location dashboard -->
 	<string name="btn_home">Home</string>
 	<string name="btn_home_ally">Use selected home profile</string>

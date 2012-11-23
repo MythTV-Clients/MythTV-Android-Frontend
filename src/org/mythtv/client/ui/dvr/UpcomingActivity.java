@@ -22,9 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import org.mythtv.R;
+import org.mythtv.client.ui.util.MenuHelper;
 import org.mythtv.db.dvr.UpcomingDaoHelper;
 import org.mythtv.db.http.EtagDaoHelper;
 import org.mythtv.service.dvr.UpcomingDownloadService;
@@ -37,7 +36,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -55,13 +53,13 @@ import android.widget.Toast;
 public class UpcomingActivity extends AbstractDvrActivity {
 
 	private static final String TAG = UpcomingActivity.class.getSimpleName();
-	private static final int REFRESH_ID = Menu.FIRST + 100;
 
 	private RunningServiceHelper mRunningServiceHelper;
 
 	private UpcomingDownloadReceiver upcomingDownloadReceiver = new UpcomingDownloadReceiver();
 
 	private EtagDaoHelper mEtagDaoHelper;
+	private MenuHelper mMenuHelper;
 	private UpcomingDaoHelper mUpcomingDaoHelper;
 	
 	private MythtvUpcomingPagerAdapter mAdapter;
@@ -75,8 +73,9 @@ public class UpcomingActivity extends AbstractDvrActivity {
 		super.onCreate( savedInstanceState );
 
 		mEtagDaoHelper = new EtagDaoHelper( this );
-		mUpcomingDaoHelper = new UpcomingDaoHelper( this );
+		mMenuHelper = new MenuHelper( this );
 		mRunningServiceHelper = new RunningServiceHelper( this );
+		mUpcomingDaoHelper = new UpcomingDaoHelper( this );
 		
 		setContentView( R.layout.activity_dvr_upcoming );
 
@@ -156,11 +155,7 @@ public class UpcomingActivity extends AbstractDvrActivity {
 	public boolean onCreateOptionsMenu( Menu menu ) {
 		Log.v( TAG, "onCreateOptionsMenu : enter" );
 
-		MenuItem refresh = menu.add( Menu.NONE, REFRESH_ID, Menu.NONE, "Refresh" );
-		refresh.setIcon( R.drawable.ic_menu_refresh );
-		if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-	    	refresh.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
-	    }
+		mMenuHelper.refreshMenuItem( menu );
 
 		Log.v( TAG, "onCreateOptionsMenu : exit" );
 	    return super.onCreateOptionsMenu( menu );
@@ -174,7 +169,7 @@ public class UpcomingActivity extends AbstractDvrActivity {
 		Log.v( TAG, "onOptionsItemSelected : enter" );
 		
 		switch( item.getItemId() ) {
-		case REFRESH_ID:
+		case MenuHelper.REFRESH_ID:
 			Log.d( TAG, "onOptionsItemSelected : refresh selected" );
 
 			loadData();
