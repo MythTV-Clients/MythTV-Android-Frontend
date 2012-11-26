@@ -104,7 +104,10 @@ public class EpisodeActivity extends AbstractDvrActivity implements EpisodeFragm
 		Long startTime = args.getLong( START_TIME, -1 );
 		Program program = mRecordedDaoHelper.findOne( channelId, new DateTime( startTime ) );
 		
-		String programGroup = ArticleCleaner.clean( program.getTitle() );
+		String programGroup = null;
+		if( null != program ) {
+			programGroup = ArticleCleaner.clean( program.getTitle() );
+		}
 		
 		switch( item.getItemId() ) {
 			case android.R.id.home:
