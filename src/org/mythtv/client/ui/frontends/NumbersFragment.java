@@ -34,23 +34,23 @@ public class NumbersFragment extends AbstractFrontendFragment implements OnClick
 			Bundle savedInstanceState) {
 		
 		//inflate fragment layout
-		View view = inflater.inflate(R.layout.fragment_mythmote_numbers, container, false);
+		View mView = inflater.inflate(R.layout.fragment_mythmote_numbers, container, false);
 		
 		//set onclick listener for each button
-		((Button)view.findViewById(R.id.numbers_button0)).setOnClickListener(this);
-		((Button)view.findViewById(R.id.numbers_button1)).setOnClickListener(this);
-		((Button)view.findViewById(R.id.numbers_button2)).setOnClickListener(this);
-		((Button)view.findViewById(R.id.numbers_button3)).setOnClickListener(this);
-		((Button)view.findViewById(R.id.numbers_button4)).setOnClickListener(this);
-		((Button)view.findViewById(R.id.numbers_button5)).setOnClickListener(this);
-		((Button)view.findViewById(R.id.numbers_button6)).setOnClickListener(this);
-		((Button)view.findViewById(R.id.numbers_button7)).setOnClickListener(this);
-		((Button)view.findViewById(R.id.numbers_button8)).setOnClickListener(this);
-		((Button)view.findViewById(R.id.numbers_button9)).setOnClickListener(this);
-		((Button)view.findViewById(R.id.numbers_button_backspace)).setOnClickListener(this);
-		((Button)view.findViewById(R.id.numbers_button_enter)).setOnClickListener(this);
+		((Button)mView.findViewById(R.id.numbers_button0)).setOnClickListener(this);
+		((Button)mView.findViewById(R.id.numbers_button1)).setOnClickListener(this);
+		((Button)mView.findViewById(R.id.numbers_button2)).setOnClickListener(this);
+		((Button)mView.findViewById(R.id.numbers_button3)).setOnClickListener(this);
+		((Button)mView.findViewById(R.id.numbers_button4)).setOnClickListener(this);
+		((Button)mView.findViewById(R.id.numbers_button5)).setOnClickListener(this);
+		((Button)mView.findViewById(R.id.numbers_button6)).setOnClickListener(this);
+		((Button)mView.findViewById(R.id.numbers_button7)).setOnClickListener(this);
+		((Button)mView.findViewById(R.id.numbers_button8)).setOnClickListener(this);
+		((Button)mView.findViewById(R.id.numbers_button9)).setOnClickListener(this);
+		((Button)mView.findViewById(R.id.numbers_button_backspace)).setOnClickListener(this);
+		((Button)mView.findViewById(R.id.numbers_button_enter)).setOnClickListener(this);
 		
-		return view;
+		return mView;
 	}
 
 	@Override

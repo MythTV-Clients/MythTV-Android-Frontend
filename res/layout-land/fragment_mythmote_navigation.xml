@@ -27,136 +27,126 @@
     android:orientation="vertical"
     android:weightSum="100">
     
-    
-    <TableRow android:layout_weight="20"
-        android:weightSum="100">
+    <TableRow
+        android:layout_weight="20"
+        android:weightSum="100" >
+
+        <ImageButton
+            android:id="@+id/imageButton_ch_up"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="20"
+            android:src="@drawable/mythmote_btn_ch_up" />
     
 	     <ImageButton
-	        android:id="@+id/imageButton_nav_info"
-	        android:layout_width="match_parent"
-	        android:layout_height="match_parent"
-	        android:src="@drawable/mythmote_btn_nav_info"
-	        android:layout_weight="33" />
+	         android:id="@+id/imageButton_nav_info"
+	         android:layout_width="match_parent"
+	         android:layout_height="match_parent"
+	         android:layout_weight="20"
+	         android:src="@drawable/mythmote_btn_nav_info" />
 	
 	    <ImageButton
 	        android:id="@+id/imageButton_nav_up"
 	        android:layout_width="match_parent"
 	        android:layout_height="match_parent"
 	        android:src="@drawable/mythmote_btn_nav_up"
-	        android:layout_weight="33" />
+	        android:layout_weight="20" />
 	    
 	    <ImageButton
 	        android:id="@+id/imageButton_nav_tvguide"
 	        android:layout_width="match_parent"
 	        android:layout_height="match_parent"
 	        android:src="@drawable/mythmote_btn_nav_guide"
-	        android:layout_weight="33" />
+	        android:layout_weight="20" />
+
+	    <ImageButton
+	        android:id="@+id/imageButton_vol_up"
+	        android:layout_width="match_parent"
+	        android:layout_height="match_parent"
+	        android:layout_weight="20"
+	        android:src="@drawable/mythmote_btn_vol_up" />
     
     </TableRow>
     
     
     <TableRow android:layout_weight="20"
         android:weightSum="100">
+
+        <ImageButton
+            android:id="@+id/imageButton_ch_last"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="20"
+            android:src="@drawable/mythmote_btn_ch_last" />
     
 	     <ImageButton
 	        android:id="@+id/imageButton_nav_left"
 	        android:layout_width="match_parent"
 	        android:layout_height="match_parent"
 	        android:src="@drawable/mythmote_btn_nav_left"
-	        android:layout_weight="33" />
+	        android:layout_weight="20" />
 	
 	    <ImageButton
 	        android:id="@+id/imageButton_nav_select"
 	        android:layout_width="match_parent"
 	        android:layout_height="match_parent"
 	        android:src="@drawable/mythmote_btn_nav_select"
-	        android:layout_weight="33" />
+	        android:layout_weight="20" />
 	    
 	    <ImageButton
 	        android:id="@+id/imageButton_nav_right"
 	        android:layout_width="match_parent"
 	        android:layout_height="match_parent"
 	        android:src="@drawable/mythmote_btn_nav_right"
-	        android:layout_weight="33" />
+	        android:layout_weight="20" />
+
+	    <ImageButton
+	        android:id="@+id/imageButton_vol_mute"
+	        android:layout_width="match_parent"
+	        android:layout_height="match_parent"
+	        android:layout_weight="20"
+	        android:src="@drawable/mythmote_btn_vol_mute" />
     
     </TableRow>
     
     <TableRow android:layout_weight="20"
         android:weightSum="100">
+
+        <ImageButton
+            android:id="@+id/imageButton_ch_down"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="20"
+            android:src="@drawable/mythmote_btn_ch_down" />
     
 	     <ImageButton
 	        android:id="@+id/imageButton_nav_cancel"
 	        android:layout_width="match_parent"
 	        android:layout_height="match_parent"
 	        android:src="@drawable/mythmote_btn_nav_cancel"
-	        android:layout_weight="33" />
+	        android:layout_weight="20" />
 	
 	    <ImageButton
 	        android:id="@+id/imageButton_nav_down"
 	        android:layout_width="match_parent"
 	        android:layout_height="match_parent"
 	        android:src="@drawable/mythmote_btn_nav_down"
-	        android:layout_weight="33" />
+	        android:layout_weight="20" />
 	    
 	    <ImageButton
 	        android:id="@+id/imageButton_nav_menu"
 	        android:layout_width="match_parent"
 	        android:layout_height="match_parent"
 	        android:src="@drawable/mythmote_btn_nav_menu"
-	        android:layout_weight="33" />
+	        android:layout_weight="20" />
+
+	    <ImageButton
+	        android:id="@+id/imageButton_vol_down"
+	        android:layout_width="match_parent"
+	        android:layout_height="match_parent"
+	        android:layout_weight="20"
+	        android:src="@drawable/mythmote_btn_vol_down" />
     
-    </TableRow>
-    
-    <TableRow android:layout_weight="20"
-        android:weightSum="100">
-        
-		<ImageButton
-			android:id="@+id/imageButton_ch_up"
-			android:layout_width="match_parent"
-			android:layout_height="match_parent"
-			android:src="@drawable/mythmote_btn_ch_up"
-			android:layout_weight="33" />
-			
-		<ImageButton
-			android:id="@+id/imageButton_ch_last"
-			android:layout_width="match_parent"
-			android:layout_height="match_parent"
-			android:src="@drawable/mythmote_btn_ch_last"
-			android:layout_weight="33" />
-			   
-		<ImageButton
-			android:id="@+id/imageButton_ch_down"
-			android:layout_width="match_parent"
-			android:layout_height="match_parent"
-			android:src="@drawable/mythmote_btn_ch_down"
-			android:layout_weight="33" />
-	
-    </TableRow>
-    
-    <TableRow android:layout_weight="20"
-        android:weightSum="100">
-        	
-        <ImageButton
-	       android:id="@+id/imageButton_vol_up"
-	       android:layout_width="match_parent"
-	       android:layout_height="match_parent"
-	       android:src="@drawable/mythmote_btn_vol_up"
-	       android:layout_weight="33" />
-	
-	   <ImageButton
-	       android:id="@+id/imageButton_vol_mute"
-	       android:layout_width="match_parent"
-	       android:layout_height="match_parent"
-	       android:src="@drawable/mythmote_btn_vol_mute"
-	       android:layout_weight="33" />
-	   
-	   <ImageButton
-	       android:id="@+id/imageButton_vol_down"
-	       android:layout_width="match_parent"
-	       android:layout_height="match_parent"
-	       android:src="@drawable/mythmote_btn_vol_down"
-	       android:layout_weight="33" />
-	   
     </TableRow>
     
     <TableRow android:layout_weight="20"
