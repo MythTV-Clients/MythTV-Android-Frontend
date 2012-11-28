@@ -350,9 +350,11 @@ public class FrontendsFragment extends AbstractFrontendFragment implements Servi
 		WifiInfo wifiinfo = wifi.getConnectionInfo();
 		int intaddr = wifiinfo.getIpAddress();
 
-		byte[] byteaddr = new byte[] { (byte) (intaddr & 0xff),
-				(byte) (intaddr >> 8 & 0xff), (byte) (intaddr >> 16 & 0xff),
-				(byte) (intaddr >> 24 & 0xff) };
+		byte[] byteaddr = new byte[] { 
+				(byte) (intaddr & 0xff),
+				(byte) (intaddr >> 8 & 0xff),
+				(byte) (intaddr >> 16 & 0xff),
+				(byte) (intaddr >> 24 & 0xff)};
 		InetAddress addr = InetAddress.getByAddress(byteaddr);
 		Log.d(TAG, "startProbe : wifi address=" + addr.toString());
 
