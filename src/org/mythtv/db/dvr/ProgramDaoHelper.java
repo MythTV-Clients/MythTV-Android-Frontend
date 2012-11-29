@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.joda.time.DateTime;
+import org.mythtv.db.AbstractDaoHelper;
 import org.mythtv.db.channel.ChannelDaoHelper;
 import org.mythtv.provider.MythtvProvider;
 import org.mythtv.service.util.DateUtils;
@@ -45,20 +46,19 @@ import android.util.Log;
  * @author Daniel Frey
  *
  */
-public abstract class ProgramDaoHelper {
+public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 
 	protected static final String TAG = ProgramDaoHelper.class.getSimpleName();
-	
-	protected Context mContext;
 	
 	protected ChannelDaoHelper mChannelDaoHelper;
 	protected RecordingDaoHelper mRecordingDaoHelper;
 	
 	protected ProgramDaoHelper( Context context ) {
-		this.mContext = context;
+		super( context );
 		
 		mChannelDaoHelper = new ChannelDaoHelper( context );
 		mRecordingDaoHelper = new RecordingDaoHelper( context );
+		
 	}
 	
 	/**
@@ -141,6 +141,8 @@ public abstract class ProgramDaoHelper {
 		String selection = ProgramConstants.FIELD_CHANNEL_ID + " = ? AND " + ProgramConstants.FIELD_START_TIME + " = ?";
 		String[] selectionArgs = new String[] { String.valueOf( program.getChannelInfo().getChannelId() ), String.valueOf( program.getStartTime().getMillis() ) };
 		
+		selection = appendLocationUrl( selection, null );
+
 		int updated = -1;
 		Cursor cursor = mContext.getContentResolver().query( uri, projection, selection, selectionArgs, null );
 		if( cursor.moveToFirst() ) {
@@ -197,6 +199,8 @@ public abstract class ProgramDaoHelper {
 		String selection = ProgramConstants.FIELD_CHANNEL_ID + " = ? AND " + ProgramConstants.FIELD_START_TIME + " = ?";
 		String[] selectionArgs = new String[] { String.valueOf( program.getChannelInfo().getChannelId() ), String.valueOf( program.getStartTime().getMillis() ) };
 
+		selection = appendLocationUrl( selection, null );
+
 		int deleted = mContext.getContentResolver().delete( uri, selection, selectionArgs );
 		Log.v( TAG, "delete : deleted=" + deleted );
 		
@@ -211,13 +215,14 @@ public abstract class ProgramDaoHelper {
 	public abstract int delete( Program program );
 	
 	/**
-	 * @param programs
 	 * @param uri
+	 * @param programs
+	 * @param table
 	 * @return
-	 * @throws OperationApplicationException 
-	 * @throws RemoteException 
+	 * @throws RemoteException
+	 * @throws OperationApplicationException
 	 */
-	protected int load( Uri uri, List<Program> programs ) throws RemoteException, OperationApplicationException {
+	protected int load( Uri uri, List<Program> programs, String table ) throws RemoteException, OperationApplicationException {
 		Log.v( TAG, "load : enter" );
 				
 		Map<String, Program> recorded = new HashMap<String, Program>();
@@ -231,6 +236,8 @@ public abstract class ProgramDaoHelper {
 		
 		String[] programProjection = new String[] { ProgramConstants._ID };
 		String programSelection = ProgramConstants.FIELD_CHANNEL_ID + " = ? AND " + ProgramConstants.FIELD_START_TIME + " = ?";
+
+		programSelection = appendLocationUrl( programSelection, table );
 
 		for( Program program : programs ) {
 
@@ -264,16 +271,17 @@ public abstract class ProgramDaoHelper {
 			if( null != program.getRecording() ) {
 				
 				String[] recordingProjection = new String[] { ProgramConstants._ID };
-				String recordingSelection = RecordingConstants.FIELD_RECORD_ID + " = ? AND " + RecordingConstants.FIELD_START_TS + " = ?";
+				String recordingSelection = RecordingConstants.FIELD_RECORD_ID + " = ? AND " + RecordingConstants.FIELD_START_TS + " = ? AND " + RecordingConstants.FIELD_LOCATION_URL + " = ?";
 
 				ContentValues recordingValues = mRecordingDaoHelper.convertRecordingToContentValues( program.getRecording() );
-				Cursor recordingCursor = mContext.getContentResolver().query( RecordingConstants.CONTENT_URI, recordingProjection, recordingSelection, new String[] { String.valueOf( program.getRecording().getRecordId() ), String.valueOf( program.getRecording().getStartTimestamp().getMillis() ) }, null );
+				Cursor recordingCursor = mContext.getContentResolver().query( RecordingConstants.CONTENT_URI, recordingProjection, recordingSelection, new String[] { String.valueOf( program.getRecording().getRecordId() ), String.valueOf( program.getRecording().getStartTimestamp().getMillis() ), mLocationProfile.getUrl() }, null );
 				if( recordingCursor.moveToFirst() ) {
 					Log.v( TAG, "load : UPDATE recording=" + program.getRecording().getRecordId() + ", startTime=" + DateUtils.dateTimeFormatterPretty.print( program.getRecording().getStartTimestamp() ) );
 
 					ops.add( 
 						ContentProviderOperation.newUpdate( ContentUris.withAppendedId( RecordingConstants.CONTENT_URI, program.getRecording().getRecordId() ) )
 						.withValues( recordingValues )
+						.withYieldAllowed( true )
 						.build()
 					);
 				} else {
@@ -282,6 +290,7 @@ public abstract class ProgramDaoHelper {
 					ops.add(  
 						ContentProviderOperation.newInsert( RecordingConstants.CONTENT_URI )
 						.withValues( recordingValues )
+						.withYieldAllowed( true )
 						.build()
 					);
 				}
@@ -303,6 +312,7 @@ public abstract class ProgramDaoHelper {
 			ops.add(  
 				ContentProviderOperation.newDelete( uri )
 				.withSelection( ProgramConstants.FIELD_FILENAME + " = ?", new String[] { program.getFilename() } )
+				.withYieldAllowed( true )
 				.build()
 			);
 		}
@@ -477,8 +487,6 @@ public abstract class ProgramDaoHelper {
 		return program;
 	}
 
-	// internal helpers
-
 	protected ContentValues[] convertProgramsToContentValuesArray( final List<Program> programs ) {
 //		Log.v( TAG, "convertProgramsToContentValuesArray : enter" );
 		
@@ -537,6 +545,7 @@ public abstract class ProgramDaoHelper {
 		values.put( ProgramConstants.FIELD_EPISODE, null != program.getEpisode() ? program.getEpisode() : "" );
 		values.put( ProgramConstants.FIELD_CHANNEL_ID, null != program.getChannelInfo() && null != program.getChannelInfo().getChannelId() ? program.getChannelInfo().getChannelId() : -1 );
 		values.put( ProgramConstants.FIELD_RECORD_ID, null != program.getRecording() && null != program.getRecording().getRecordId() ? program.getRecording().getRecordId() : -1 );
+		values.put( ProgramConstants.FIELD_LOCATION_URL, mLocationProfile.getUrl() );
 		
 		return values;
 	}

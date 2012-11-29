@@ -41,7 +41,11 @@ public class NetworkHelper {
 	private Context mContext;
 	private LocationProfileDaoHelper mLocationProfileDaoHelper;
 	
-	public NetworkHelper( Context context ) {
+	public static NetworkHelper newInstance( Context context ) {
+		return new NetworkHelper( context );
+	}
+	
+	protected NetworkHelper( Context context ) {
 		this.mContext = context;
 		
 		this.mLocationProfileDaoHelper = new LocationProfileDaoHelper( mContext );

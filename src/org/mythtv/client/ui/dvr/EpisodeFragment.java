@@ -28,6 +28,7 @@ import org.mythtv.db.dvr.RecordedDaoHelper;
 import org.mythtv.db.dvr.programGroup.ProgramGroup;
 import org.mythtv.db.dvr.programGroup.ProgramGroupDaoHelper;
 import org.mythtv.service.util.DateUtils;
+import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.service.util.image.ImageFetcher;
 import org.mythtv.services.api.Bool;
 import org.mythtv.services.api.dvr.Program;
@@ -59,6 +60,7 @@ public class EpisodeFragment extends AbstractMythFragment {
 	private OnEpisodeActionListener listener = null;
 
 	private MenuHelper mMenuHelper;
+	private NetworkHelper mNetworkHelper;
 	private ProgramGroupDaoHelper mProgramGroupDaoHelper; 
 	private RecordedDaoHelper mRecordedDaoHelper; 
 	private ImageFetcher mImageFetcher;
@@ -85,9 +87,10 @@ public class EpisodeFragment extends AbstractMythFragment {
 		Log.v( TAG, "onActivityCreated : enter" );
 		super.onActivityCreated( savedInstanceState );
 
-		mMenuHelper = new MenuHelper( getActivity() );
-		mProgramGroupDaoHelper = new ProgramGroupDaoHelper( getActivity() );
-		mRecordedDaoHelper = new RecordedDaoHelper( getActivity() );
+		mMenuHelper =( (AbstractDvrActivity) getActivity() ).getMenuHelper();
+		mNetworkHelper =( (AbstractDvrActivity) getActivity() ).getNetworkHelper();
+		mProgramGroupDaoHelper = ( (AbstractDvrActivity) getActivity() ).getProgramGroupDaoHelper();
+		mRecordedDaoHelper = ( (AbstractDvrActivity) getActivity() ).getRecordedDaoHelper();
 		
 		setHasOptionsMenu( true );
 		setRetainInstance( true );
@@ -189,17 +192,13 @@ public class EpisodeFragment extends AbstractMythFragment {
 		Log.v( TAG, "loadEpisode : enter" );
 
 		if( null == mRecordedDaoHelper ) {
-			mRecordedDaoHelper = new RecordedDaoHelper( getActivity() );
+			mRecordedDaoHelper = ( (AbstractDvrActivity) getActivity() ).getRecordedDaoHelper();
 		}
 		
-        if( RecordingsActivity.class.isInstance( getActivity() ) ) {
-            mImageFetcher = ( (RecordingsActivity) getActivity() ).getImageFetcher();
-        }
-
-        if( EpisodeActivity.class.isInstance( getActivity() ) ) {
-            mImageFetcher = ( (EpisodeActivity) getActivity() ).getImageFetcher();
-        }
-
+		if( null == mImageFetcher ) {
+            mImageFetcher = ( (AbstractDvrActivity) getActivity() ).getImageFetcher();
+		}
+		
 		Log.v( TAG, "loadEpisode : channelId=" + channelId + ", startTime=" + DateUtils.dateTimeFormatterPretty.print( startTime ) );
         program = mRecordedDaoHelper.findOne( channelId, startTime );
 		if( null != program ) {

@@ -59,7 +59,8 @@ public class RecordingRuleEditFragment extends AbstractMythFragment implements O
 	private static final String TAG = RecordingRuleEditFragment.class.getSimpleName();
 	
 	private ChannelDaoHelper mChannelDaoHelper;
-	private MenuHelper mMenuHelper;
+	private MenuHelper mMenuHelper = ( (AbstractDvrActivity) getActivity() ).getMenuHelper();
+	private NetworkHelper mNetworkHelper = ( (AbstractDvrActivity) getActivity() ).getNetworkHelper();
 	private ProgramHelper mProgramHelper;
 	
 	private boolean mEdited = false;
@@ -89,8 +90,6 @@ public class RecordingRuleEditFragment extends AbstractMythFragment implements O
 			int recordingRuleId = args.getInt( "RECORDING_RULE_ID" );
 			loadRecordingRule( recordingRuleId );
 		}
-		
-		mNetworkHelper = new NetworkHelper( getActivity() );
 		
 		Log.v( TAG, "onCreate : exit" );
 	}
@@ -129,10 +128,6 @@ public class RecordingRuleEditFragment extends AbstractMythFragment implements O
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		Log.v( TAG, "onCreateOptionsMenu : enter" );
 
-		if( null == mMenuHelper ) {
-			mMenuHelper = new MenuHelper( getActivity() );
-		}
-		
 		mMenuHelper.saveMenuItem( menu );
 		mMenuHelper.resetMenuItem( menu );
 		
@@ -148,10 +143,6 @@ public class RecordingRuleEditFragment extends AbstractMythFragment implements O
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		Log.v( TAG, "onOptionsItemSelected : enter" );
-
-		if( null == mMenuHelper ) {
-			mMenuHelper = new MenuHelper( getActivity() );
-		}
 
 		switch( item.getItemId() ) {
 			case android.R.id.home:
@@ -229,7 +220,7 @@ public class RecordingRuleEditFragment extends AbstractMythFragment implements O
 		// - slow
 		String channel = "[Any]";
 		if( rule.getChanId() > 0 ) {
-			ChannelInfo channelInfo = mChannelDaoHelper.findOne( (long) rule.getChanId() );
+			ChannelInfo channelInfo = mChannelDaoHelper.findByChannelId( (long) rule.getChanId() );
 			if( null != channelInfo && channelInfo.getChannelId() > -1 ) {
 				channel = channelInfo.getChannelNumber();
 			}

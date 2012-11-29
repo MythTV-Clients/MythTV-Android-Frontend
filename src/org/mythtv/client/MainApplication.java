@@ -18,17 +18,11 @@
  */
 package org.mythtv.client;
 
-import static android.text.format.DateFormat.getDateFormatOrder;
-
-import java.util.List;
-import java.util.Map;
-
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.preferences.PlaybackProfile;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.db.preferences.PlaybackProfileDaoHelper;
 import org.mythtv.services.api.MythServices;
-import org.mythtv.services.api.capture.CaptureCard;
 import org.mythtv.services.connect.MythServicesServiceProvider;
 
 import android.app.Application;
@@ -52,15 +46,12 @@ public class MainApplication extends Application {
 	
 	private MythServicesServiceProvider provider;
 	
-	private List<String> captureCards;
-	private Map<String,List<CaptureCard>> currentCaptureCards;
-	
     private String clockType = "12h";
     private String dateFormat = "yyyy-MM-dd";
 
 	protected ObjectMapper mObjectMapper;
 
-    //***************************************
+	//***************************************
     // Application methods
     //***************************************
 
@@ -70,25 +61,28 @@ public class MainApplication extends Application {
 	@Override
 	public void onCreate() {
 		Log.v( TAG, "onCreate : enter" );
-
 		super.onCreate();
 		
 		mLocationProfileDaoHelper = new LocationProfileDaoHelper( this );
 		mPlaybackProfileDaoHelper = new PlaybackProfileDaoHelper( this );
 		
-        String systemClock = Settings.System.getString(getApplicationContext().getContentResolver(), Settings.System.TIME_12_24);
-        if(systemClock != null) this.clockType = systemClock;
+		String systemClock = Settings.System.getString( getApplicationContext().getContentResolver(), Settings.System.TIME_12_24 );
+        if( null != systemClock ) {
+        	this.clockType = systemClock;
+        }
 
-        char[] dateFormatOrder = getDateFormatOrder(getApplicationContext());
-        if(dateFormatOrder != null){
-            String format = new String(dateFormatOrder);
-            if(format.equals("Mdy")){
+        String dateFormatOrder = Settings.System.getString( getContentResolver(), Settings.System.DATE_FORMAT );
+        if( null != dateFormatOrder ) {
+            
+        	String format = new String( dateFormatOrder );
+            if( format.equals( "Mdy" ) ){
                 this.dateFormat = "MM-dd-yyyy";
-            }else if(format.equals("dMy")){
+            } else if( format.equals( "dMy" ) ) {
                 this.dateFormat = "dd-MM-yyyy";
-            }else if(format.equals("yMd")){
+            } else if(format.equals( "yMd" ) ) {
                 this.dateFormat = "yyyy-MM-dd";
             }
+            
         }
 
         mObjectMapper = new ObjectMapper();
@@ -107,10 +101,13 @@ public class MainApplication extends Application {
     // Public methods
     //***************************************
 	public MythServices getMythServicesApi() {
+		Log.v( TAG, "getMythServicesApi : enter" );
+		
 		if( null == provider ) {
 			provider = new MythServicesServiceProvider( getMasterBackend() );
 		}
 		
+		Log.v( TAG, "getMythServicesApi : exit" );
 		return provider.getApi();
 	}
 
@@ -118,6 +115,9 @@ public class MainApplication extends Application {
 	 * @return the mObjectMapper
 	 */
 	public ObjectMapper getObjectMapper() {
+		Log.v( TAG, "getObjectMapper : enter" );
+		
+		Log.v( TAG, "getObjectMapper : exit" );
 		return mObjectMapper;
 	}
 
@@ -215,58 +215,46 @@ public class MainApplication extends Application {
 	 * @return the masterBackend
 	 */
 	public String getMasterBackend() {
+		Log.v( TAG, "getMasterBackend : enter" );
 
+		Log.v( TAG, "getMasterBackend : exit" );
 		return getConnectedLocationProfile().getUrl();
-	}
-
-	/**
-	 * @return the captureCards
-	 */
-	public List<String> getCaptureCards() {
-		return captureCards;
-	}
-
-	/**
-	 * @param captureCards the captureCards to set
-	 */
-	public void setCaptureCards( List<String> captureCards ) {
-		this.captureCards = captureCards;
-	}
-
-	/**
-	 * @return the currentCaptureCards
-	 */
-	public Map<String, List<CaptureCard>> getCurrentCaptureCards() {
-		return currentCaptureCards;
-	}
-
-	/**
-	 * @param currentCaptureCards the currentCaptureCards to set
-	 */
-	public void setCurrentCaptureCards( Map<String, List<CaptureCard>> currentCaptureCards ) {
-		this.currentCaptureCards = currentCaptureCards;
 	}
 
     /**
      * @return the current clockType
      */
     public String getClockType() {
+		Log.v( TAG, "getClockType : enter" );
+		
+		Log.v( TAG, "getClockType : exit" );
         return clockType;
     }
 
     /**
      * @param clockType the current clockType to set
      */
-    public void setClockType(String clockType) {
-        this.clockType = clockType;
+    public void setClockType( String clockType ) {
+		Log.v( TAG, "setClockType : enter" );
+
+		this.clockType = clockType;
+
+		Log.v( TAG, "setClockType : exit" );
     }
 
     public String getDateFormat() {
+		Log.v( TAG, "getDateFormat : enter" );
+
+		Log.v( TAG, "getDateFormat : exit" );
         return dateFormat;
     }
 
-    public void setDateFormat(String dateFormat) {
+    public void setDateFormat( String dateFormat ) {
+		Log.v( TAG, "setDateFormat : enter" );
+		
         this.dateFormat = dateFormat;
+
+        Log.v( TAG, "setDateFormat : exit" );
     }
 
 }

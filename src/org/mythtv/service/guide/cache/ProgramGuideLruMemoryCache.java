@@ -62,7 +62,7 @@ public class ProgramGuideLruMemoryCache extends LruCache<DateTime, ProgramGuide>
 		Log.v( TAG, "initialize : enter" );
 
 		mContext = context;
-		mFileHelper = new FileHelper( mContext );
+		mFileHelper = FileHelper.newInstance( mContext );
 		
 		mapper = new ObjectMapper();
 		mapper.registerModule( new JodaModule() );

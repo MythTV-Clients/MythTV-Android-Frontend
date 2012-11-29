@@ -52,8 +52,10 @@ public class RecordedDaoHelper extends ProgramDaoHelper {
 	@Override
 	public List<Program> findAll() {
 		Log.d( TAG, "findAll : enter" );
+
+		String selection = appendLocationUrl( "", ProgramConstants.TABLE_NAME_RECORDED );
 		
-		List<Program> programs = findAll( ProgramConstants.CONTENT_URI_RECORDED, null, null, null, null );
+		List<Program> programs = findAll( ProgramConstants.CONTENT_URI_RECORDED, null, selection, null, null );
 		
 		Log.d( TAG, "findAll : exit" );
 		return programs;
@@ -66,7 +68,12 @@ public class RecordedDaoHelper extends ProgramDaoHelper {
 	public List<Program> findAllByTitle( String title ) {
 		Log.d( TAG, "findAllByTitle : enter" );
 		
-		List<Program> programs = findAll( ProgramConstants.CONTENT_URI_RECORDED, null, ProgramConstants.FIELD_TITLE + " = ?", new String[] { title }, null );
+		String selection = ProgramConstants.FIELD_TITLE + " = ?";
+		String[] selectionArgs = new String[] { title };
+
+		selection = appendLocationUrl( selection, ProgramConstants.TABLE_NAME_RECORDED );
+		
+		List<Program> programs = findAll( ProgramConstants.CONTENT_URI_RECORDED, null, selection, selectionArgs, null );
 		if( null != programs && !programs.isEmpty() ) {
 			for( Program program : programs ) {
 				Log.v( TAG, "findAllByTitle : channelId=" + program.getChannelInfo().getChannelId() + ", startTime=" + program.getStartTime().getMillis() + ", program=" + program.toString() );
@@ -104,6 +111,8 @@ public class RecordedDaoHelper extends ProgramDaoHelper {
 		String selection = ProgramConstants.TABLE_NAME_RECORDED + "." + ProgramConstants.FIELD_CHANNEL_ID + " = ? AND " + ProgramConstants.TABLE_NAME_RECORDED + "." + ProgramConstants.FIELD_START_TIME + " = ?";
 		String[] selectionArgs = new String[] { String.valueOf( channelId ), String.valueOf( startTime.getMillis() ) };
 
+		selection = appendLocationUrl( selection, ProgramConstants.TABLE_NAME_RECORDED );
+		
 		Program program = findOne( ProgramConstants.CONTENT_URI_RECORDED, null, selection, selectionArgs, null );
 		if( null != program ) {
 			Log.v( TAG, "findOne : program=" + program.toString() );
@@ -163,7 +172,7 @@ public class RecordedDaoHelper extends ProgramDaoHelper {
 
 //		deleteAll();
 		
-		int loaded = load( ProgramConstants.CONTENT_URI_RECORDED, programs );
+		int loaded = load( ProgramConstants.CONTENT_URI_RECORDED, programs, ProgramConstants.TABLE_NAME_RECORDED );
 		Log.d( TAG, "load : loaded=" + loaded );
 		
 		mProgramGroupDaoHelper.load( programs );

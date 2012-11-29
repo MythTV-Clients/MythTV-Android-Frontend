@@ -95,7 +95,7 @@ public class RecordingRulesFragment extends MythtvListFragment {
 		super.onActivityCreated( savedInstanceState );
 
 		mChannelDaoHelper = new ChannelDaoHelper( getActivity() );
-		mMenuHelper = new MenuHelper( getActivity() );
+		mMenuHelper = MenuHelper.newInstance( getActivity() );
 		
 		setHasOptionsMenu( true );
 		setRetainInstance( true );
@@ -264,7 +264,7 @@ public class RecordingRulesFragment extends MythtvListFragment {
 			RecRule rule = getItem( position );
 			String channel = "[Any]";
 			if( rule.getChanId() > 0 ) {
-				ChannelInfo channelInfo = mChannelDaoHelper.findOne( (long) rule.getChanId() );
+				ChannelInfo channelInfo = mChannelDaoHelper.findByChannelId( (long) rule.getChanId() );
 				if( null != channelInfo && channelInfo.getChannelId() > -1 ) {
 					channel = channelInfo.getChannelNumber();
 				}

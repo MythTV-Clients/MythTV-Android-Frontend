@@ -33,7 +33,11 @@ public class RunningServiceHelper {
 	
 	private Context mContext;
 	
-	public RunningServiceHelper( Context context ) {
+	public static RunningServiceHelper newInstance( Context context ) {
+		return new RunningServiceHelper( context );
+	}
+	
+	protected RunningServiceHelper( Context context ) {
 		mContext = context;
 	}
 	

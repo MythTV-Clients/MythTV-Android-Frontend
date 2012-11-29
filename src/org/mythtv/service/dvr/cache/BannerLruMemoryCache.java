@@ -52,7 +52,7 @@ public class BannerLruMemoryCache extends LruCache<String, BitmapDrawable> {
 		Log.v( TAG, "initialize : enter" );
 
 		mContext = context;
-		mFileHelper = new FileHelper( mContext );
+		mFileHelper = FileHelper.newInstance( mContext );
 		
 		mResources = mContext.getResources();
 		

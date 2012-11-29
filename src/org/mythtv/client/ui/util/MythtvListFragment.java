@@ -42,7 +42,7 @@ public class MythtvListFragment extends ListFragment {
 	public void onActivityCreated( Bundle savedInstanceState ) {
 		super.onActivityCreated( savedInstanceState );
 
-		mNetworkHelper = new NetworkHelper( getActivity() );
+		mNetworkHelper = NetworkHelper.newInstance( getActivity() );
 	}
 
 	/* (non-Javadoc)

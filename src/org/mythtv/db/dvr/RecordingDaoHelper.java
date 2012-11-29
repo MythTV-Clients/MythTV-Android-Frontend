@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.joda.time.DateTime;
+import org.mythtv.db.AbstractDaoHelper;
 import org.mythtv.services.api.dvr.Recording;
 
 import android.content.ContentUris;
@@ -36,17 +37,15 @@ import android.util.Log;
  * @author Daniel Frey
  *
  */
-public class RecordingDaoHelper {
+public class RecordingDaoHelper extends AbstractDaoHelper {
 
 	private static final String TAG = RecordingDaoHelper.class.getSimpleName();
-	
-	private Context mContext;
 	
 	/**
 	 * @param context
 	 */
 	public RecordingDaoHelper( Context context ) {
-		this.mContext = context;
+		super( context );
 	}
 
 	/**
@@ -191,7 +190,7 @@ public class RecordingDaoHelper {
 		
 		ContentValues[] contentValuesArray = convertRecordingsToContentValuesArray( recordings );
 		if( null != contentValuesArray ) {
-			Log.v( TAG, "processChannels : channels=" + contentValuesArray.length );
+			Log.v( TAG, "load : channels=" + contentValuesArray.length );
 
 			loaded = mContext.getContentResolver().bulkInsert( RecordingConstants.CONTENT_URI, contentValuesArray );
 			Log.v( TAG, "load : loaded=" + loaded );
@@ -286,7 +285,6 @@ public class RecordingDaoHelper {
 		recording.setDuplicateMethod( duplicateMethod );
 		recording.setEncoderId( encoderId );
 		recording.setProfile( profile );
-		//recording.setProgramId();
 		
 //		Log.v( TAG, "convertCursorToRecording : exit" );
 		return recording;
@@ -323,7 +321,7 @@ public class RecordingDaoHelper {
 		values.put( RecordingConstants.FIELD_DUP_METHOD, recording.getDuplicateMethod() );
 		values.put( RecordingConstants.FIELD_ENCODER_ID, recording.getEncoderId() );
 		values.put( RecordingConstants.FIELD_PROFILE, null != recording.getProfile() ? recording.getProfile() : "" );
-		//values.put( RecordingConstants.FIELD_PROGRAM_ID, null );
+		values.put( RecordingConstants.FIELD_LOCATION_URL, mLocationProfile.getUrl() );
 		
 //		Log.v( TAG, "convertRecordingToContentValues : exit" );
 		return values;

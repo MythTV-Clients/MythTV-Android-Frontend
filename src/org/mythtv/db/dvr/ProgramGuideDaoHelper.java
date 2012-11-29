@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.joda.time.DateTime;
+import org.mythtv.db.dvr.programGroup.ProgramGroupConstants;
 import org.mythtv.provider.MythtvProvider;
 import org.mythtv.services.api.dvr.Program;
 
@@ -54,7 +55,9 @@ public class ProgramGuideDaoHelper extends ProgramDaoHelper {
 	public List<Program> findAll() {
 		Log.d( TAG, "findAll : enter" );
 		
-		List<Program> programs = findAll( ProgramConstants.CONTENT_URI_PROGRAM, null, null, null, null );
+		String selection = appendLocationUrl( "", ProgramGroupConstants.TABLE_NAME );
+
+		List<Program> programs = findAll( ProgramConstants.CONTENT_URI_PROGRAM, null, selection, null, null );
 		
 		Log.d( TAG, "findAll : exit" );
 		return programs;
@@ -67,7 +70,12 @@ public class ProgramGuideDaoHelper extends ProgramDaoHelper {
 	public List<Program> findAllByTitle( String title ) {
 		Log.d( TAG, "findAllByTitle : enter" );
 		
-		List<Program> programs = findAll( ProgramConstants.CONTENT_URI_PROGRAM, null, ProgramConstants.FIELD_TITLE + " = ?", new String[] { title }, null );
+		String selection = ProgramConstants.FIELD_TITLE + " = ?";
+		String[] selectionArgs = new String[] { title };
+
+		selection = appendLocationUrl( selection, ProgramGroupConstants.TABLE_NAME );
+		
+		List<Program> programs = findAll( ProgramConstants.CONTENT_URI_PROGRAM, null, selection, selectionArgs, null );
 		if( null != programs && !programs.isEmpty() ) {
 			for( Program program : programs ) {
 				Log.v( TAG, "findAllByTitle : channelId=" + program.getChannelInfo().getChannelId() + ", startTime=" + program.getStartTime().getMillis() + ", program=" + program.toString() );
@@ -102,9 +110,11 @@ public class ProgramGuideDaoHelper extends ProgramDaoHelper {
 	public Program findOne( Long channelId, DateTime startTime ) {
 		Log.d( TAG, "findOne : enter" );
 		
-		String selection = ProgramConstants.TABLE_NAME_RECORDED + "." + ProgramConstants.FIELD_CHANNEL_ID + " = ? AND " + ProgramConstants.TABLE_NAME_RECORDED + "." + ProgramConstants.FIELD_START_TIME + " = ?";
+		String selection = ProgramConstants.TABLE_NAME_PROGRAM + "." + ProgramConstants.FIELD_CHANNEL_ID + " = ? AND " + ProgramConstants.TABLE_NAME_PROGRAM + "." + ProgramConstants.FIELD_START_TIME + " = ?";
 		String[] selectionArgs = new String[] { String.valueOf( channelId ), String.valueOf( startTime.getMillis() ) };
 
+		selection = appendLocationUrl( selection, ProgramGroupConstants.TABLE_NAME );
+		
 		Program program = findOne( ProgramConstants.CONTENT_URI_PROGRAM, null, selection, selectionArgs, null );
 		if( null != program ) {
 			Log.v( TAG, "findOne : program=" + program.toString() );
@@ -176,7 +186,9 @@ public class ProgramGuideDaoHelper extends ProgramDaoHelper {
 
 		String[] programProjection = new String[] { ProgramConstants._ID };
 		String programSelection = ProgramConstants.FIELD_CHANNEL_ID + " = ? AND " + ProgramConstants.FIELD_START_TIME + " = ?";
-
+		
+		programSelection = appendLocationUrl( programSelection, ProgramGroupConstants.TABLE_NAME );
+		
 		for( Program program : programs ) {
 
 			DateTime startTime = new DateTime( program.getStartTime() );

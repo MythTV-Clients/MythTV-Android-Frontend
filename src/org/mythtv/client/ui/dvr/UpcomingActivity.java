@@ -23,9 +23,11 @@ import java.util.List;
 
 import org.joda.time.DateTime;
 import org.mythtv.R;
+import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.util.MenuHelper;
 import org.mythtv.db.dvr.UpcomingDaoHelper;
 import org.mythtv.db.http.EtagDaoHelper;
+import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.dvr.UpcomingDownloadService;
 import org.mythtv.service.util.DateUtils;
 import org.mythtv.service.util.RunningServiceHelper;
@@ -59,10 +61,12 @@ public class UpcomingActivity extends AbstractDvrActivity {
 	private UpcomingDownloadReceiver upcomingDownloadReceiver = new UpcomingDownloadReceiver();
 
 	private EtagDaoHelper mEtagDaoHelper;
-	private MenuHelper mMenuHelper;
+	private LocationProfileDaoHelper mLocationProfileDaoHelper; 
 	private UpcomingDaoHelper mUpcomingDaoHelper;
-	
+			
 	private MythtvUpcomingPagerAdapter mAdapter;
+	
+	private LocationProfile mLocationProfile;
 	
 	/* (non-Javadoc)
 	 * @see android.support.v4.app.FragmentActivity#onCreate(android.os.Bundle)
@@ -73,9 +77,11 @@ public class UpcomingActivity extends AbstractDvrActivity {
 		super.onCreate( savedInstanceState );
 
 		mEtagDaoHelper = new EtagDaoHelper( this );
-		mMenuHelper = new MenuHelper( this );
-		mRunningServiceHelper = new RunningServiceHelper( this );
+		mLocationProfileDaoHelper = new LocationProfileDaoHelper( this );
+		mRunningServiceHelper = RunningServiceHelper.newInstance( this );
 		mUpcomingDaoHelper = new UpcomingDaoHelper( this );
+		
+		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile();
 		
 		setContentView( R.layout.activity_dvr_upcoming );
 
@@ -188,6 +194,10 @@ public class UpcomingActivity extends AbstractDvrActivity {
 		return mUpcomingDaoHelper;
 	}
 	
+	public LocationProfile getLocationProfile() {
+		return mLocationProfile;
+	}
+	
 	// internal helpers
 	
 	private void loadData() {
@@ -258,9 +268,9 @@ public class UpcomingActivity extends AbstractDvrActivity {
 
 			switch( position ) {
 				case 0:
-					return mResources.getString( R.string.upcoming_today );
+					return getMainApplication().getResources().getString( R.string.upcoming_today );
 				case 1:
-					return mResources.getString( R.string.upcoming_tomorrow );
+					return getMainApplication().getResources().getString( R.string.upcoming_tomorrow );
 				default:
                     return DateUtils.getDateWithLocaleFormatting(fragmentHeadings.get(position), getMainApplication().getDateFormat());
 			}

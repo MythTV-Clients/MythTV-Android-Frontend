@@ -21,6 +21,7 @@ package org.mythtv.db.channel;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.mythtv.db.AbstractDaoHelper;
 import org.mythtv.services.api.channel.ChannelInfo;
 
 import android.content.ContentUris;
@@ -35,17 +36,15 @@ import android.util.Log;
  * @author Daniel Frey
  *
  */
-public class ChannelDaoHelper {
+public class ChannelDaoHelper extends AbstractDaoHelper {
 
 	private static final String TAG = ChannelDaoHelper.class.getSimpleName();
-	
-	private Context mContext;
 	
 	/**
 	 * @param context
 	 */
 	public ChannelDaoHelper( Context context ) {
-		this.mContext = context;
+		super( context );
 	}
 
 	/**
@@ -59,6 +58,8 @@ public class ChannelDaoHelper {
 		Log.d( TAG, "findAll : enter" );
 		
 		List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
+		
+		selection = appendLocationUrl( selection, ChannelConstants.TABLE_NAME );
 		
 		Cursor cursor = mContext.getContentResolver().query( ChannelConstants.CONTENT_URI, projection, selection, selectionArgs, sortOrder );
 		while( cursor.moveToNext() ) {
@@ -102,6 +103,8 @@ public class ChannelDaoHelper {
 			uri = ContentUris.withAppendedId( ChannelConstants.CONTENT_URI, id );
 		}
 		
+		selection = appendLocationUrl( selection, ChannelConstants.TABLE_NAME );
+		
 		Cursor cursor = mContext.getContentResolver().query( uri, projection, selection, selectionArgs, sortOrder );
 		if( cursor.moveToFirst() ) {
 			channelInfo = convertCursorToChannelInfo( cursor );
@@ -130,6 +133,25 @@ public class ChannelDaoHelper {
 	}
 
 	/**
+	 * @param channelId
+	 * @return
+	 */
+	public ChannelInfo findByChannelId( Long channelId ) {
+		Log.d( TAG, "findByChannelId : enter" );
+		
+		String selection = ChannelConstants.FIELD_CHAN_ID + " = ?";
+		String[] selectionArgs = new String[] { String.valueOf( channelId ) };
+		
+		ChannelInfo channelInfo = findOne( null, null, selection, selectionArgs, null );
+		if( null != channelInfo ) {
+			Log.v( TAG, "findByChannelId : channelInfo=" + channelInfo.toString() );
+		}
+				
+		Log.d( TAG, "findByChannelId : exit" );
+		return channelInfo;
+	}
+
+	/**
 	 * @param channelInfo
 	 * @return
 	 */
@@ -138,12 +160,19 @@ public class ChannelDaoHelper {
 
 		ContentValues values = convertChannelInfoToContentValues( channelInfo );
 
+		String[] projection = new String[] { ChannelConstants._ID };
+		String selection = ChannelConstants.FIELD_CHAN_ID + " = ?";
+		String[] selectionArgs = new String[] { String.valueOf( channelInfo.getChannelId() ) };
+		
+		selection = appendLocationUrl( selection, ChannelConstants.TABLE_NAME );
+		
 		int updated = -1;
-		Cursor cursor = mContext.getContentResolver().query( ContentUris.withAppendedId( ChannelConstants.CONTENT_URI, channelInfo.getChannelId() ), null, null, null, null );
+		Cursor cursor = mContext.getContentResolver().query( ChannelConstants.CONTENT_URI, projection, selection, selectionArgs, null );
 		if( cursor.moveToFirst() ) {
 			Log.v( TAG, "save : updating existing channel info" );
-
-			updated = mContext.getContentResolver().update( ContentUris.withAppendedId( ChannelConstants.CONTENT_URI, channelInfo.getChannelId() ), values, null, null );
+			long id = cursor.getLong( cursor.getColumnIndexOrThrow( ChannelConstants._ID ) );
+			
+			updated = mContext.getContentResolver().update( ContentUris.withAppendedId( ChannelConstants.CONTENT_URI, id ), values, null, null );
 		}
 		cursor.close();
 		Log.v( TAG, "save : updated=" + updated );
@@ -179,6 +208,25 @@ public class ChannelDaoHelper {
 		return deleted;
 	}
 
+	/**
+	 * @param channelInfo
+	 * @return
+	 */
+	public int delete( ChannelInfo channelInfo ) {
+		Log.d( TAG, "delete : enter" );
+		
+		String selection = ChannelConstants.FIELD_CHAN_ID + " = ?";
+		String[] selectionArgs = new String[] { String.valueOf( channelInfo.getChannelId() ) };
+		
+		selection = appendLocationUrl( selection, ChannelConstants.TABLE_NAME );
+		
+		int deleted = mContext.getContentResolver().delete( ChannelConstants.CONTENT_URI, selection, selectionArgs );
+		Log.v( TAG, "delete : deleted=" + deleted );
+		
+		Log.d( TAG, "delete : exit" );
+		return deleted;
+	}
+
 	public int load( List<ChannelInfo> channelInfos ) {
 		Log.d( TAG, "load : enter" );
 		
@@ -204,12 +252,16 @@ public class ChannelDaoHelper {
 	public ChannelInfo convertCursorToChannelInfo( Cursor cursor ) {
 //		Log.v( TAG, "convertCursorToChannelInfo : enter" );
 
-		long id = -1;
+		long id = -1, channelId = -1;
 		int multiplexId = -1, transportId = -1, serviceId = -1, networkId = -1, atscMajorChannel = -1, atscMinorChannel = -1, frequency = -1, fineTune = -1, sourceId = -1, inputId = -1, commercialFree = -1, useEit = -1, visible = -1;
 		String channelNumber = "", callsign = "", iconUrl = "", channelName = "", format = "", modulation = "", frequencyId = "", frequencyTable = "", sisStandard = "", channelFilters = "", xmltvId = "", defaultAuth = "";
 		
 		if( cursor.getColumnIndex( ChannelConstants.TABLE_NAME + "_" + ChannelConstants._ID ) != -1 ) {
 			id = cursor.getInt( cursor.getColumnIndex( ChannelConstants.TABLE_NAME + "_" + ChannelConstants._ID ) );
+		}
+		
+		if( cursor.getColumnIndex( ChannelConstants.TABLE_NAME + "_" + ChannelConstants.FIELD_CHAN_ID ) != -1 ) {
+			channelId = cursor.getLong( cursor.getColumnIndex( ChannelConstants.TABLE_NAME + "_" + ChannelConstants.FIELD_CHAN_ID ) );
 		}
 		
 		if( cursor.getColumnIndex( ChannelConstants.TABLE_NAME + "_" + ChannelConstants.FIELD_CHAN_NUM ) != -1 ) {
@@ -312,8 +364,12 @@ public class ChannelDaoHelper {
 			defaultAuth = cursor.getString( cursor.getColumnIndex( ChannelConstants.TABLE_NAME + "_" + ChannelConstants.FIELD_DEFAULT_AUTH ) );
 		}
 
+		if( cursor.getColumnIndex( ChannelConstants.TABLE_NAME + "_" + ChannelConstants.FIELD_LOCATION_URL ) != -1 ) {
+			Log.v( TAG, "convertCursorToChannelInfo : locationProfileUrl" + cursor.getString( cursor.getColumnIndex( ChannelConstants.TABLE_NAME + "_" + ChannelConstants.FIELD_LOCATION_URL ) ) );
+		}
+
 		ChannelInfo channelInfo = new ChannelInfo();
-		channelInfo.setChannelId( id );
+		channelInfo.setChannelId( channelId );
 		channelInfo.setChannelNumber( channelNumber );
 		channelInfo.setCallSign( callsign );
 		channelInfo.setIconUrl( iconUrl );
@@ -377,7 +433,7 @@ public class ChannelDaoHelper {
 //		Log.v( TAG, "convertChannelToContentValues : enter" );
 		
 		ContentValues values = new ContentValues();
-		values.put( ChannelConstants._ID, channelInfo.getChannelId() );
+		values.put( ChannelConstants.FIELD_CHAN_ID, channelInfo.getChannelId() );
 		values.put( ChannelConstants.FIELD_CHAN_NUM, channelInfo.getChannelNumber() );
 		values.put( ChannelConstants.FIELD_CALLSIGN, channelInfo.getCallSign() );
 		values.put( ChannelConstants.FIELD_ICON_URL, channelInfo.getIconUrl() );
@@ -403,6 +459,7 @@ public class ChannelDaoHelper {
 		values.put( ChannelConstants.FIELD_VISIBLE, ( channelInfo.isVisable() ? 1 : 0 ) );
 		values.put( ChannelConstants.FIELD_XMLTV_ID, channelInfo.getXmltvId() );
 		values.put( ChannelConstants.FIELD_DEFAULT_AUTH, channelInfo.getDefaultAuth() );
+		values.put( ChannelConstants.FIELD_LOCATION_URL, mLocationProfile.getUrl() );
 		
 //		Log.v( TAG, "convertChannelToContentValues : exit" );
 		return values;

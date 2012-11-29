@@ -95,10 +95,10 @@ public class AwayActivity extends AbstractLocationAwareFragmentActivity {
 			switch( position ) {
 			case 0:
 
-				return mResources.getString( R.string.tab_dvr );
+				return getMainApplication().getResources().getString( R.string.tab_dvr );
 			case 1:
 
-				return mResources.getString( R.string.tab_multimedia );
+				return getMainApplication().getResources().getString( R.string.tab_multimedia );
 			}
 
 			return super.getPageTitle( position );

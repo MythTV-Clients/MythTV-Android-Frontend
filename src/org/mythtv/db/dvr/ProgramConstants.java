@@ -18,16 +18,16 @@
  */
 package org.mythtv.db.dvr;
 
+import org.mythtv.db.AbstractBaseConstants;
 import org.mythtv.provider.MythtvProvider;
 
 import android.net.Uri;
-import android.provider.BaseColumns;
 
 /**
  * @author Daniel Frey
  *
  */
-public class ProgramConstants implements BaseColumns {
+public class ProgramConstants extends AbstractBaseConstants {
 
 	public static final String TABLE_NAME_PROGRAM = "program";
 	public static final String TABLE_NAME_RECORDED = "recorded";
@@ -40,9 +40,6 @@ public class ProgramConstants implements BaseColumns {
 	public static final String INSERT_PROGRAM_ROW, UPDATE_PROGRAM_ROW, INSERT_RECORDED_ROW, UPDATE_RECORDED_ROW, INSERT_UPCOMING_ROW, UPDATE_UPCOMING_ROW;
 	
 	// db fields
-	public static final String FIELD_ID_DATA_TYPE = "INTEGER";
-	public static final String FIELD_ID_PRIMARY_KEY = "PRIMARY KEY AUTOINCREMENT";
-	
 	public static final String FIELD_START_TIME = "START_TIME";
 	public static final String FIELD_START_TIME_DATA_TYPE = "INTEGER";
 
@@ -114,7 +111,7 @@ public class ProgramConstants implements BaseColumns {
 	public static final String FIELD_EPISODE_DATA_TYPE = "TEXT";
 
 	public static final String FIELD_CHANNEL_ID = "CHANNEL_ID";
-	public static final String FIELD_CHANNEL_ID_DATA_TYPE = "TEXT";
+	public static final String FIELD_CHANNEL_ID_DATA_TYPE = "INTEGER";
 
 	public static final String FIELD_RECORD_ID = "RECORD_ID";
 	public static final String FIELD_RECORD_ID_DATA_TYPE = "INTEGER";
@@ -152,11 +149,12 @@ public class ProgramConstants implements BaseColumns {
 		insert.append( FIELD_SEASON ).append( "," );
 		insert.append( FIELD_EPISODE ).append( "," );
 		insert.append( FIELD_CHANNEL_ID ).append( ", " );
-		insert.append( FIELD_RECORD_ID );
+		insert.append( FIELD_RECORD_ID ).append( ", " );
+		insert.append( FIELD_LOCATION_URL );
 		
 		StringBuilder values = new StringBuilder();
 		values.append( " ) " );
-		values.append( "VALUES( ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? )" );
+		values.append( "VALUES( ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? )" );
 		
 		StringBuilder insertProgram = new StringBuilder();
 		insertProgram.append( "INSERT INTO " ).append( TABLE_NAME_PROGRAM ).append( " ( " );
@@ -198,8 +196,9 @@ public class ProgramConstants implements BaseColumns {
 		update.append( FIELD_INETREF ).append( " = ?, " );
 		update.append( FIELD_SEASON ).append( " = ?, " );
 		update.append( FIELD_EPISODE ).append( " = ?, " );
-		update.append( FIELD_CHANNEL_ID ).append( " = ?" );
-		update.append( FIELD_RECORD_ID ).append( " = ?" );
+		update.append( FIELD_CHANNEL_ID ).append( " = ?, " );
+		update.append( FIELD_RECORD_ID ).append( " = ?, " );
+		update.append( FIELD_LOCATION_URL ).append( "= ?" );
 		update.append( " WHERE " );
 		update.append( FIELD_CHANNEL_ID ).append( " = ? AND " );
 		update.append( FIELD_START_TIME ).append( " = ?" );

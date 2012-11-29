@@ -53,7 +53,7 @@ public class MythtvService extends IntentService {
 	public MythtvService( String name ) {
 		super( name );
 		
-		mFileHelper = new FileHelper( this );
+		mFileHelper = FileHelper.newInstance( this );
 
 	}
 
@@ -64,7 +64,7 @@ public class MythtvService extends IntentService {
 	protected void onHandleIntent( Intent intent ) {
 
 		mMainApplication = (MainApplication) MythtvService.this.getApplicationContext();
-		mNetworkHelper = new NetworkHelper( this );
+		mNetworkHelper = NetworkHelper.newInstance( this );
 
 		if ( intent.getAction().equals( ACTION_CONNECT ) ) {
 			Log.v( TAG, "onHandleIntent : checking master backend connection" );

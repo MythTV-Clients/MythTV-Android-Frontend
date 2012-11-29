@@ -42,7 +42,11 @@ public class FileHelper {
 	
 	private Context mContext;
 	
-	public FileHelper( Context context ) {
+	public static FileHelper newInstance( Context context ) {
+		return new FileHelper( context );
+	}
+	
+	protected FileHelper( Context context ) {
 		mContext = context;
 	}
 	
