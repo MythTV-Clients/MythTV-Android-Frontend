@@ -105,6 +105,7 @@ public class EpisodeFragment extends AbstractMythFragment {
 		super.onCreateOptionsMenu( menu, inflater );
 
 		mMenuHelper.watchMenuItem( menu );
+		mMenuHelper.watchOnFrontendMenuItem( menu );
 		mMenuHelper.addMenuItem( menu );
 		mMenuHelper.deleteMenuItem( menu );
 		
@@ -133,6 +134,10 @@ public class EpisodeFragment extends AbstractMythFragment {
 				notConnectedNotify();
 			}
 			
+			return true;
+		case MenuHelper.WATCH_ON_TV_ID:
+//TODO: Show list of zeroconf frontends and send to selection
+//new PlayRecordingOnFrontEndTask().execute("http://192.168.1.106:6547");
 			return true;
 		case MenuHelper.ADD_ID:
 			Log.d( TAG, "onOptionsItemSelected : add selected" );
@@ -345,6 +350,16 @@ public class EpisodeFragment extends AbstractMythFragment {
 
 			Log.v( TAG, "RemoveRecordingTask : onPostExecute - exit" );
 		}
+	}
+	
+	private class PlayRecordingOnFrontEndTask extends AsyncTask<String, Void, ResponseEntity<Bool>> {
+
+		@Override
+		protected ResponseEntity<Bool> doInBackground(String... params) {
+			return getMainApplication().getMythServicesApi().frontendOperations().playRecording(
+					params[0], program.getChannelInfo().getChannelId(), program.getStartTime());
+		}
+		
 	}
 
 }
