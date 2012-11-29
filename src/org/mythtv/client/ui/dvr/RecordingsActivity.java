@@ -22,11 +22,8 @@ import java.util.List;
 
 import org.joda.time.DateTime;
 import org.mythtv.R;
-import org.mythtv.db.dvr.RecordedDaoHelper;
 import org.mythtv.db.dvr.programGroup.ProgramGroup;
-import org.mythtv.db.dvr.programGroup.ProgramGroupDaoHelper;
-import org.mythtv.service.util.FileHelper;
-import org.mythtv.service.util.image.ImageCache;
+import org.mythtv.db.dvr.programGroup.ProgramGroupConstants;
 import org.mythtv.service.util.image.ImageFetcher;
 import org.mythtv.services.api.dvr.Program;
 
@@ -34,7 +31,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.util.DisplayMetrics;
 import android.util.Log;
 
 /**
@@ -45,10 +41,6 @@ public class RecordingsActivity extends AbstractDvrActivity implements Recording
 
 	private static final String TAG = RecordingsActivity.class.getSimpleName();
 	private static final String PROGRAM_GROUP_LIST_TAG = "PROGRAM_GROUP_LIST_TAG";
-	
-	private ImageFetcher mImageFetcher;
-	private ProgramGroupDaoHelper mProgramGroupDaoHelper;
-	private RecordedDaoHelper mRecordedDaoHelper;
 	
 	private boolean mUseMultiplePanes;
 
@@ -64,33 +56,14 @@ public class RecordingsActivity extends AbstractDvrActivity implements Recording
 		Log.v( TAG, "onCreate : enter" );
 		super.onCreate( savedInstanceState );
 
-		mProgramGroupDaoHelper = new ProgramGroupDaoHelper( this );
-		mRecordedDaoHelper = new RecordedDaoHelper( this );
-		
 		setContentView( R.layout.activity_dvr_recordings );
 		
-        // Fetch screen height and width, to use as our max size when loading images as this activity runs full screen
-        final DisplayMetrics displayMetrics = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics( displayMetrics );
-        
-        final int height = displayMetrics.heightPixels;
-        final int width = displayMetrics.widthPixels;
-        Log.v( TAG, "onCreate : device hxw - " + height + " x " + width );
-        
-        int longest = width; //( height < width ? height : width );
-        
-		FileHelper mFileHelper = new FileHelper( this );
-        ImageCache.ImageCacheParams cacheParams = new ImageCache.ImageCacheParams( mFileHelper.getProgramRecordedDataDirectory() );
-        cacheParams.setMemCacheSizePercent( this, 0.25f ); // Set memory cache to 25% of mem class
-
         mRecordingsFragment = (RecordingsFragment) getSupportFragmentManager().findFragmentById( R.id.fragment_dvr_program_groups );
         mRecordingsFragment.setOnProgramGroupListener( this );
 
 		mUseMultiplePanes = ( null != findViewById( R.id.fragment_dvr_program_group ) );
 
 		if( mUseMultiplePanes ) {
-			
-			longest = width / 3;
 			
 			mProgramGroupFragment = (ProgramGroupFragment) getSupportFragmentManager().findFragmentById( R.id.fragment_dvr_program_group );
 			mProgramGroupFragment.setOnEpisodeSelectedListener(this);
@@ -105,52 +78,8 @@ public class RecordingsActivity extends AbstractDvrActivity implements Recording
 		
 		}
 		
-        mImageFetcher = new ImageFetcher( this, longest );
-        mImageFetcher.addImageCache( getSupportFragmentManager(), cacheParams );
-        mImageFetcher.setImageFadeIn( false );
-
         Log.v( TAG, "onCreate : exit" );
 	}
-
-	/* (non-Javadoc)
-	 * @see android.support.v4.app.FragmentActivity#onResume()
-	 */
-	@Override
-	protected void onResume() {
-		Log.v( TAG, "onResume : enter" );
-		super.onResume();
-		
-        mImageFetcher.setExitTasksEarly( false );
-
-		Log.v( TAG, "onResume : exit" );
-	}
-
-    /* (non-Javadoc)
-     * @see android.support.v4.app.FragmentActivity#onPause()
-     */
-    @Override
-    protected void onPause() {
-		Log.v( TAG, "onPause : enter" );
-        super.onPause();
-
-        mImageFetcher.setExitTasksEarly(true);
-        mImageFetcher.flushCache();
-
-        Log.v( TAG, "onPause : enter" );
-    }
-
-    /* (non-Javadoc)
-     * @see android.support.v4.app.FragmentActivity#onDestroy()
-     */
-    @Override
-    protected void onDestroy() {
-		Log.v( TAG, "onDestroy : enter" );
-		super.onDestroy();
-        
-		mImageFetcher.closeCache();
-
-        Log.v( TAG, "onDestroy : exit" );
-    }
 
     /* (non-Javadoc)
      * @see org.mythtv.client.ui.dvr.RecordingsFragment.OnProgramGroupListener#onProgramGroupSelected(org.mythtv.db.dvr.programGroup.ProgramGroup)
@@ -216,7 +145,7 @@ public class RecordingsActivity extends AbstractDvrActivity implements Recording
 			Log.v( TAG, "onProgramGroupSelected : starting program group activity" );
 
 			Intent i = new Intent( this, ProgramGroupActivity.class );
-			i.putExtra( ProgramGroupActivity.EXTRA_PROGRAM_GROUP_KEY, programGroup.getProgramGroup() );
+			i.putExtra( ProgramGroupConstants.FIELD_TITLE, programGroup.getTitle() );
 			startActivity( i );
 		}
 
@@ -260,20 +189,6 @@ public class RecordingsActivity extends AbstractDvrActivity implements Recording
      */
     public ImageFetcher getImageFetcher() {
         return mImageFetcher;
-    }
-
-    /**
-     * @return
-     */
-    public ProgramGroupDaoHelper getProgramGroupDaoHelper() {
-    	return mProgramGroupDaoHelper;
-    }
-    
-    /**
-     * @return
-     */
-    public RecordedDaoHelper getRecordedDaoHelper() {
-    	return mRecordedDaoHelper;
     }
 
     /**

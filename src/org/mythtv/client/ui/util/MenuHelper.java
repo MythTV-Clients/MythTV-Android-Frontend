@@ -63,13 +63,35 @@ public class MenuHelper {
 	private NetworkHelper mNetworkHelper;
 	private Resources mResources;
 	
-	public MenuHelper( Context context ) {
+	public static MenuHelper newInstance( Context context ) {
+		return new MenuHelper( context );
+	}
+	
+	protected MenuHelper( Context context ) {
 		this.mContext = context;
 		
 		mResources = mContext.getResources();
-		mNetworkHelper = new NetworkHelper( mContext );
+		mNetworkHelper = NetworkHelper.newInstance( mContext );
 	}
 	
+	/**
+	 * Build About MenuItem
+	 * 
+	 * @param menu
+	 * @return
+	 */
+	@TargetApi( Build.VERSION_CODES.HONEYCOMB )
+	public MenuItem prefMenuItem( Menu menu ) {
+		
+	    MenuItem menuItem = menu.add( Menu.NONE, EDIT_ID, Menu.NONE, mResources.getString( R.string.menu_prefs ) );
+    	menuItem.setIcon( android.R.drawable.ic_menu_preferences );
+	    if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
+	    	menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
+	    }
+
+	    return menuItem;
+	}
+
 	/**
 	 * Build About MenuItem
 	 * 

@@ -21,20 +21,15 @@ package org.mythtv.client.ui;
 import org.mythtv.R;
 import org.mythtv.client.ui.preferences.MythtvPreferenceActivity;
 import org.mythtv.client.ui.preferences.MythtvPreferenceActivityHC;
-import org.mythtv.service.UpgradeCleanupService;
+import org.mythtv.client.ui.util.MenuHelper;
+import org.mythtv.service.util.NetworkHelper;
 
 import android.annotation.TargetApi;
-import android.app.ProgressDialog;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo.State;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -44,47 +39,32 @@ import android.widget.Button;
  * @author Daniel Frey
  *
  */
-public class LocationActivity extends AbstractMythtvFragmentActivity {
+public class LocationActivity extends FragmentActivity {
 
 	private static final String TAG = LocationActivity.class.getSimpleName();
-	private static final int EDIT_ID = Menu.FIRST + 100;
 
-	private UpgradeCleanupReceiver upgradeCleanupReceiver = new UpgradeCleanupReceiver();
+	private MenuHelper mMenuHelper;
+	private NetworkHelper mNetworkHelper;
 	
 	private Button home, away;
 	
-	private ProgressDialog mProgressDialog;
-
+	/* (non-Javadoc)
+	 * @see org.mythtv.client.ui.AbstractMythtvFragmentActivity#onCreate(android.os.Bundle)
+	 */
 	@Override
 	protected void onCreate( Bundle savedInstanceState ) {
 		Log.d( TAG, "onCreate : enter" );
-
 		super.onCreate( savedInstanceState );
 
+		mMenuHelper = MenuHelper.newInstance( this );
+		mNetworkHelper = NetworkHelper.newInstance( this );
+		
 		setContentView( R.layout.activity_location );
 		
 		home = (Button) findViewById( R.id.btn_home );
 		away = (Button) findViewById( R.id.btn_away );
 		
-		mProgressDialog = new ProgressDialog( this );
-		
 		Log.d( TAG, "onCreate : exit" );
-	}
-
-	/* (non-Javadoc)
-	 * @see android.support.v4.app.FragmentActivity#onStart()
-	 */
-	@Override
-	protected void onStart() {
-		Log.d( TAG, "onStart : enter" );
-		super.onStart();
-
-		IntentFilter upgradeCleanupFilter = new IntentFilter( UpgradeCleanupService.ACTION_PROGRAMS_CLEANUP );
-		upgradeCleanupFilter.addAction( UpgradeCleanupService.ACTION_PROGRESS );
-		upgradeCleanupFilter.addAction( UpgradeCleanupService.ACTION_COMPLETE );
-        registerReceiver( upgradeCleanupReceiver, upgradeCleanupFilter );
-
-		Log.d( TAG, "onStart : exit" );
 	}
 
 	/* (non-Javadoc)
@@ -101,34 +81,11 @@ public class LocationActivity extends AbstractMythtvFragmentActivity {
 		away.setEnabled( false );
 		away.setVisibility( View.VISIBLE );
 
-		startService( new Intent( UpgradeCleanupService.ACTION_PROGRAMS_CLEANUP ) );
-		
 		setupButtons();
 		
 	    Log.d( TAG, "onResume : exit" );
 	}
 	
-	/* (non-Javadoc)
-	 * @see android.support.v4.app.FragmentActivity#onStop()
-	 */
-	@Override
-	protected void onStop() {
-		Log.d( TAG, "onStop : enter" );
-		super.onStop();
-
-		// Unregister for broadcast
-		if( null != upgradeCleanupReceiver ) {
-			try {
-				unregisterReceiver( upgradeCleanupReceiver );
-				upgradeCleanupReceiver = null;
-			} catch( IllegalArgumentException e ) {
-				Log.e( TAG, e.getLocalizedMessage(), e );
-			}
-		}
-
-		Log.d( TAG, "onStop : exit" );
-	}
-
 	/* (non-Javadoc)
 	 * @see android.app.Activity#onCreateOptionsMenu(android.view.Menu)
 	 */
@@ -137,12 +94,10 @@ public class LocationActivity extends AbstractMythtvFragmentActivity {
 	public boolean onCreateOptionsMenu( Menu menu ) {
 		Log.d( TAG, "onCreateOptionsMenu : enter" );
 
-	    MenuItem prefs = menu.add( Menu.NONE, EDIT_ID, Menu.NONE, "Prefs" );
-	    if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-	    	prefs.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
-	    	prefs.setIcon( android.R.drawable.ic_menu_preferences );
-	    }
-	    
+		mMenuHelper.prefMenuItem( menu );
+		mMenuHelper.aboutMenuItem( menu );
+		mMenuHelper.helpSubMenu( menu );
+
 		Log.d( TAG, "onCreateOptionsMenu : exit" );
 		return super.onCreateOptionsMenu( menu );
 	}
@@ -155,7 +110,7 @@ public class LocationActivity extends AbstractMythtvFragmentActivity {
 		Log.d( TAG, "onOptionsItemSelected : enter" );
 
 		switch( item.getItemId() ) {
-		case EDIT_ID:
+		case MenuHelper.EDIT_ID:
 			Log.d( TAG, "onOptionsItemSelected : prefs selected" );
 
 		    if( Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB ) {
@@ -165,6 +120,32 @@ public class LocationActivity extends AbstractMythtvFragmentActivity {
 		    }
 		    
 	        return true;
+
+		case MenuHelper.ABOUT_ID:
+			Log.d( TAG, "onOptionsItemSelected : about selected" );
+
+			mMenuHelper.handleAboutMenu();
+		    
+	        return true;
+	    
+		case MenuHelper.FAQ_ID:
+			
+			mMenuHelper.handleFaqMenu();
+			
+			return true;
+
+		case MenuHelper.TROUBLESHOOT_ID:
+			
+			mMenuHelper.handleTroubleshootMenu();
+			
+			return true;
+		
+		case MenuHelper.ISSUES_ID:
+
+			mMenuHelper.handleIssuesMenu();
+			
+			return true;
+		
 		}
 
 		Log.d( TAG, "onOptionsItemSelected : exit" );
@@ -176,11 +157,8 @@ public class LocationActivity extends AbstractMythtvFragmentActivity {
 	private void setupButtons() {
 		Log.v( TAG, "setupButtons : enter" );
 		
-		ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService( Context.CONNECTIVITY_SERVICE );
-
 		//wifi
-		State wifi = connectivityManager.getNetworkInfo( 1 ).getState();
-		if( wifi == State.CONNECTED || wifi == State.CONNECTING ) {
+		if( mNetworkHelper.isNetworkConnected() ) {
 			Log.d( TAG, "onResume : enabling home" );
 
 			home.setEnabled( true );
@@ -199,39 +177,4 @@ public class LocationActivity extends AbstractMythtvFragmentActivity {
 		Log.v( TAG, "setupButtons : exit" );
 	}
 	
-	private class UpgradeCleanupReceiver extends BroadcastReceiver {
-
-		@Override
-		public void onReceive( Context context, Intent intent ) {
-			
-	        if ( intent.getAction().equals( UpgradeCleanupService.ACTION_PROGRESS ) ) {
-	        	Log.i( TAG, "UpgradeCleanupReceiver.onReceive : progess=" + intent.getStringExtra( UpgradeCleanupService.EXTRA_PROGESS ) );
-	        	
-	        	// add processing dialog here
-	    		mProgressDialog = ProgressDialog.show( LocationActivity.this, "Please wait...", "Upgrading...", true );
-	    		mProgressDialog.getWindow().setGravity( Gravity.TOP );
-	    		mProgressDialog.setCancelable( false );
-	        	
-	        }
-
-	        if ( intent.getAction().equals( UpgradeCleanupService.ACTION_COMPLETE ) ) {
-	        	Log.i( TAG, "UpgradeCleanupReceiver.onReceive : complete=" + intent.getStringExtra( UpgradeCleanupService.EXTRA_COMPLETE ) );
-	        	
-	        	if( null != intent.getStringExtra( UpgradeCleanupService.EXTRA_COMPLETE ) && !"".equals( intent.getStringExtra( UpgradeCleanupService.EXTRA_COMPLETE ) ) ) {
-
-	        		// remove processing dialog here
-	        	    if( mProgressDialog!=null ) {
-	        			mProgressDialog.dismiss();
-	        			mProgressDialog = null;
-	        		}
-
-	        	}
-
-	        	setupButtons();
-	        }
-
-		}
-		
-	}
-
 }

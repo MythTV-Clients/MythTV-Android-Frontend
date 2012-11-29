@@ -48,7 +48,9 @@ public class UpcomingDaoHelper extends ProgramDaoHelper {
 	public List<Program> findAll() {
 		Log.d( TAG, "findAll : enter" );
 		
-		List<Program> programs = findAll( ProgramConstants.CONTENT_URI_UPCOMING, null, null, null, null );
+		String selection = appendLocationUrl( "", ProgramConstants.TABLE_NAME_UPCOMING );
+
+		List<Program> programs = findAll( ProgramConstants.CONTENT_URI_UPCOMING, null, selection, null, null );
 		
 		Log.d( TAG, "findAll : exit" );
 		return programs;
@@ -61,7 +63,12 @@ public class UpcomingDaoHelper extends ProgramDaoHelper {
 	public List<Program> findAllByTitle( String title ) {
 		Log.d( TAG, "findAllByTitle : enter" );
 		
-		List<Program> programs = findAll( ProgramConstants.CONTENT_URI_UPCOMING, null, ProgramConstants.FIELD_TITLE + " = ?", new String[] { title }, null );
+		String selection = ProgramConstants.FIELD_TITLE + " = ?";
+		String[] selectionArgs = new String[] { title };
+
+		selection = appendLocationUrl( selection, ProgramConstants.TABLE_NAME_UPCOMING );
+		
+		List<Program> programs = findAll( ProgramConstants.CONTENT_URI_UPCOMING, null, selection, selectionArgs, null );
 		if( null != programs && !programs.isEmpty() ) {
 			for( Program program : programs ) {
 				Log.v( TAG, "findAllByTitle : channelId=" + program.getChannelInfo().getChannelId() + ", startTime=" + program.getStartTime().getMillis() + ", program=" + program.toString() );
@@ -99,6 +106,8 @@ public class UpcomingDaoHelper extends ProgramDaoHelper {
 		String selection = ProgramConstants.TABLE_NAME_RECORDED + "." + ProgramConstants.FIELD_CHANNEL_ID + " = ? AND " + ProgramConstants.TABLE_NAME_RECORDED + "." + ProgramConstants.FIELD_START_TIME + " = ?";
 		String[] selectionArgs = new String[] { String.valueOf( channelId ), String.valueOf( startTime.getMillis() ) };
 
+		selection = appendLocationUrl( selection, ProgramConstants.TABLE_NAME_UPCOMING );
+		
 		Program program = findOne( ProgramConstants.CONTENT_URI_UPCOMING, null, selection, selectionArgs, null );
 		if( null != program ) {
 			Log.v( TAG, "findOne : program=" + program.toString() );
@@ -156,7 +165,7 @@ public class UpcomingDaoHelper extends ProgramDaoHelper {
 	public int load( List<Program> programs ) throws RemoteException, OperationApplicationException {
 		Log.d( TAG, "load : enter" );
 
-		int loaded = load( ProgramConstants.CONTENT_URI_UPCOMING, programs );
+		int loaded = load( ProgramConstants.CONTENT_URI_UPCOMING, programs, ProgramConstants.TABLE_NAME_UPCOMING );
 		Log.d( TAG, "load : loaded=" + loaded );
 		
 		Log.d( TAG, "load : exit" );

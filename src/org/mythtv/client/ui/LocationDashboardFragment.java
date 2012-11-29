@@ -20,7 +20,6 @@ package org.mythtv.client.ui;
 
 import org.mythtv.R;
 import org.mythtv.service.MythtvService;
-import org.mythtv.service.util.RunningServiceHelper;
 
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
@@ -38,8 +37,6 @@ public class LocationDashboardFragment extends AbstractMythFragment {
 
 	private final static String TAG = LocationDashboardFragment.class.getSimpleName();
 
-	private RunningServiceHelper mRunningServiceHelper;
-	
 	private ConnectReceiver connectReceiver = new ConnectReceiver();
 	private String connectedProfile;
 	
@@ -50,8 +47,6 @@ public class LocationDashboardFragment extends AbstractMythFragment {
 	public void onActivityCreated( Bundle savedInstanceState ) {
 		Log.v( TAG, "onActivityCreated : enter" );
 		super.onActivityCreated( savedInstanceState );
-		
-		mRunningServiceHelper = new RunningServiceHelper( getActivity() );
 		
 		Log.v( TAG, "onActivityCreated : exit" );
 	}
@@ -70,7 +65,6 @@ public class LocationDashboardFragment extends AbstractMythFragment {
 			public void onClick( View view ) {
 				Log.v( TAG, "home.onClick : enter" );
 				
-				if( !mRunningServiceHelper.isServiceRunning( "org.mythtv.service.MythtvService" ) ) {
 					if( null == getMainApplication().getSelectedHomeLocationProfile() ) {
 						
 						AlertDialog.Builder builder = new AlertDialog.Builder( getActivity() );
@@ -91,7 +85,6 @@ public class LocationDashboardFragment extends AbstractMythFragment {
 
 						getActivity().startService( new Intent( MythtvService.ACTION_CONNECT ) );
 					}
-				}
 			
 				Log.v( TAG, "home.onClick : exit" );
 			}
@@ -102,7 +95,6 @@ public class LocationDashboardFragment extends AbstractMythFragment {
 			public void onClick( View view ) {
 				Log.v( TAG, "away.onClick : enter" );
 
-				if( !mRunningServiceHelper.isServiceRunning( "org.mythtv.service.MythtvService" ) ) {
 					if( null == getMainApplication().getSelectedAwayLocationProfile() ) {
 						
 						AlertDialog.Builder builder = new AlertDialog.Builder( getActivity() );
@@ -123,7 +115,6 @@ public class LocationDashboardFragment extends AbstractMythFragment {
 						
 						getActivity().startService( new Intent( MythtvService.ACTION_CONNECT ) );
 					}
-				}
 
 				Log.v( TAG, "away.onClick : exit" );
 			}
@@ -178,7 +169,7 @@ public class LocationDashboardFragment extends AbstractMythFragment {
 	}
 	
 	private void connectAwayLocation() {
-		Log.i( TAG, "connectHomeLocation : starting away dashboard" );
+		Log.i( TAG, "connectAwayLocation : starting away dashboard" );
 
 		startActivity( new Intent( getActivity(), AwayActivity.class ) );
 	}

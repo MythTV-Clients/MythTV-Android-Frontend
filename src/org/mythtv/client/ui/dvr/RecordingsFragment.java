@@ -20,6 +20,7 @@ package org.mythtv.client.ui.dvr;
 
 import org.joda.time.DateTime;
 import org.mythtv.R;
+import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.util.MenuHelper;
 import org.mythtv.client.ui.util.MythtvListFragment;
 import org.mythtv.client.ui.util.ProgramHelper;
@@ -41,7 +42,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -68,7 +68,7 @@ import android.widget.Toast;
 public class RecordingsFragment extends MythtvListFragment implements LoaderManager.LoaderCallbacks<Cursor>  {
 
 	private static final String TAG = RecordingsFragment.class.getSimpleName();
-
+	
 	private OnProgramGroupListener listener = null;
 	private ProgramGroupCursorAdapter adapter;
 	
@@ -81,7 +81,7 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 	private RunningServiceHelper mRunningServiceHelper;
 
 	private ImageFetcher mImageFetcher;
-	
+
 	/* (non-Javadoc)
 	 * @see android.support.v4.app.LoaderManager.LoaderCallbacks#onCreateLoader(int, android.os.Bundle)
 	 */
@@ -89,12 +89,11 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 	public Loader<Cursor> onCreateLoader( int id, Bundle args ) {
 		Log.v( TAG, "onCreateLoader : enter" );
 		
+		LocationProfile locationProfile = ( (AbstractDvrActivity) getActivity() ).getLocationProfile();
+		
 		String[] projection = null;
-		
-		String selection = null;
-		
-		String[] selectionArgs = null;
-		
+		String selection = ProgramGroupConstants.FIELD_LOCATION_URL + " = ?";
+		String[] selectionArgs = new String[] { locationProfile.getUrl() };
 		String sortOrder = ProgramGroupConstants.FIELD_PROGRAM_GROUP;
 		
 	    CursorLoader cursorLoader = new CursorLoader( getActivity(), ProgramGroupConstants.CONTENT_URI, projection, selection, selectionArgs, sortOrder );
@@ -137,16 +136,15 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 		Log.v( TAG, "onActivityCreated : enter" );
 		super.onActivityCreated( savedInstanceState );
 
-		mProgramHelper = ProgramHelper.createInstance( getActivity() );
+		mProgramHelper = ProgramHelper.createInstance( getActivity().getApplicationContext() );
 
 		mEtagDaoHelper = new EtagDaoHelper( getActivity() );
-		mMenuHelper = new MenuHelper( getActivity() );
-		mProgramGroupDaoHelper = new ProgramGroupDaoHelper( getActivity() );
-		mRunningServiceHelper = new RunningServiceHelper( getActivity() );
 	
-        if( RecordingsActivity.class.isInstance( getActivity() ) ) {
-            mImageFetcher = ( (RecordingsActivity) getActivity() ).getImageFetcher();
-        }
+        mImageFetcher = ( (AbstractDvrActivity) getActivity() ).getImageFetcher();
+		mProgramGroupDaoHelper = ( (AbstractDvrActivity) getActivity() ).getProgramGroupDaoHelper();
+
+		mMenuHelper = ( (AbstractDvrActivity) getActivity() ).getMenuHelper();
+		mRunningServiceHelper = ( (AbstractDvrActivity) getActivity() ).getRunningServiceHelper();
 
 		setHasOptionsMenu( true );
 		setRetainInstance( true );
@@ -292,8 +290,8 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 	@Override
 	public void onListItemClick( ListView l, View v, int position, long id ) {
 		Log.v( TAG, "onListItemClick : enter" );
-
 		super.onListItemClick( l, v, position, id );
+
 		Log.v( TAG, "onListItemClick : position=" + position + ", id=" + id );
 
 		ProgramGroup programGroup = mProgramGroupDaoHelper.findOne( id );		
@@ -415,24 +413,5 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 		}
 		
 	}
-
-//	private class BannerDownloadReceiver extends BroadcastReceiver {
-//
-//		@Override
-//		public void onReceive( Context context, Intent intent ) {
-//			
-//	        if ( intent.getAction().equals( BannerDownloadService.ACTION_COMPLETE ) ) {
-//	        	Log.i( TAG, "BannerDownloadReceiver.onReceive : complete=" + intent.getStringExtra( BannerDownloadService.EXTRA_COMPLETE ) );
-//	        	
-//	        	if( null != intent.getStringExtra( BannerDownloadService.EXTRA_COMPLETE_FILENAME ) && !"".equals( intent.getStringExtra( BannerDownloadService.EXTRA_COMPLETE_FILENAME ) ) ) {
-//	        		imageCache.remove( intent.getStringExtra( BannerDownloadService.EXTRA_COMPLETE_FILENAME ) );
-//	        	}
-//
-//	        	adapter.notifyDataSetChanged();
-//	        }
-//
-//		}
-//		
-//	}
 
 }

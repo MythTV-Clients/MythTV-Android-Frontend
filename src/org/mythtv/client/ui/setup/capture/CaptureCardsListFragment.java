@@ -134,13 +134,13 @@ public class CaptureCardsListFragment extends ListFragment {
 	private void refreshCaptureCards() {	
 		Log.v( TAG, "refreshCaptureCards : enter" );
 
-		if( null == mainApplication.getCaptureCards() ) {
-			Log.v( TAG, "refreshCaptureCards : exit, refreshProgramGroups is empty" );
-			return;
-		}
+//		if( null == mainApplication.getCaptureCards() ) {
+//			Log.v( TAG, "refreshCaptureCards : exit, refreshProgramGroups is empty" );
+//			return;
+//		}
 		
 		// Populate List
-		setListAdapter( new ArrayAdapter<String>( getActivity(), android.R.layout.simple_list_item_activated_1, mainApplication.getCaptureCards() ) );
+//		setListAdapter( new ArrayAdapter<String>( getActivity(), android.R.layout.simple_list_item_activated_1, mainApplication.getCaptureCards() ) );
 
         if( mDualPane ) {
             // In dual-pane mode, the list view highlights the selected item.
@@ -211,8 +211,8 @@ public class CaptureCardsListFragment extends ListFragment {
 				Collections.sort( sortedCaptureCards, String.CASE_INSENSITIVE_ORDER );
 			}
 			
-			mainApplication.setCaptureCards( sortedCaptureCards );
-			mainApplication.setCurrentCaptureCards( sortedResult );
+//			mainApplication.setCaptureCards( sortedCaptureCards );
+//			mainApplication.setCurrentCaptureCards( sortedResult );
 			
 			refreshCaptureCards();
 

@@ -26,19 +26,17 @@ import org.mythtv.client.ui.dvr.DvrDashboardFragment;
 import org.mythtv.client.ui.frontends.MythmoteActivity;
 import org.mythtv.client.ui.media.MediaDashboardFragment;
 import org.mythtv.client.ui.util.MenuHelper;
+import org.mythtv.service.util.FileHelper;
+import org.mythtv.service.util.NetworkHelper;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 
 /**
@@ -50,6 +48,7 @@ public class HomeActivity extends AbstractLocationAwareFragmentActivity {
 	private final static String TAG = HomeActivity.class.getSimpleName();
 
 	private MenuHelper mMenuHelper;
+	private NetworkHelper mNetworkHelper;
 	
 	/* (non-Javadoc)
 	 * @see org.mythtv.client.ui.AbstractLocationAwareFragmentActivity#onCreate(android.os.Bundle)
@@ -59,7 +58,8 @@ public class HomeActivity extends AbstractLocationAwareFragmentActivity {
 		Log.d( TAG, "onCreate : enter" );
 		super.onCreate( savedInstanceState );
 
-		mMenuHelper = new MenuHelper( this );
+		mMenuHelper = MenuHelper.newInstance( this );
+		mNetworkHelper = NetworkHelper.newInstance( this );
 		
 		setContentView( R.layout.activity_home );
 
@@ -121,19 +121,19 @@ public class HomeActivity extends AbstractLocationAwareFragmentActivity {
 		case MenuHelper.ABOUT_ID:
 			Log.d( TAG, "onOptionsItemSelected : about selected" );
 
-		    mMenuHelper.handleAboutMenu();
+			mMenuHelper.handleAboutMenu();
 		    
 	        return true;
 	    
 		case MenuHelper.FAQ_ID:
 			
-		    mMenuHelper.handleFaqMenu();
+			mMenuHelper.handleFaqMenu();
 			
 			return true;
 
 		case MenuHelper.TROUBLESHOOT_ID:
 			
-		    mMenuHelper.handleTroubleshootMenu();
+			mMenuHelper.handleTroubleshootMenu();
 			
 			return true;
 		
@@ -180,9 +180,9 @@ public class HomeActivity extends AbstractLocationAwareFragmentActivity {
 
 			switch( position ) {
 			case 0:
-				return mResources.getString( R.string.tab_dvr );
+				return getMainApplication().getResources().getString( R.string.tab_dvr );
 			case 1:
-				return mResources.getString( R.string.tab_multimedia );
+				return getMainApplication().getResources().getString( R.string.tab_multimedia );
 			}
 
 			return super.getPageTitle( position );

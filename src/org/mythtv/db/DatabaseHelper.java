@@ -47,10 +47,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	private static final String TAG = DatabaseHelper.class.getSimpleName();
 	
 	private static final String DATABASE_NAME = "mythtvdb";
-	private static final int DATABASE_VERSION = 81;
+	private static final int DATABASE_VERSION = 86;
 
 	public DatabaseHelper( Context context ) {
 		super( context, DATABASE_NAME, null, DATABASE_VERSION );
+		Log.v( TAG, "initialize : enter" );
+
+		Log.v( TAG, "initialize : exit" );
 	}
 	
 	/* (non-Javadoc)
@@ -103,8 +106,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	public void onUpgrade( SQLiteDatabase db, int oldVersion, int newVersion ) {
 		Log.v( TAG, "onUpgrade : enter" );
 
-		if( oldVersion < 81 ) {
-			Log.v( TAG, "onUpgrade : upgrading to db version 81" );
+		if( oldVersion < 86 ) {
+			Log.v( TAG, "onUpgrade : upgrading to db version 86" );
 
 			onCreate( db );
 
@@ -225,34 +228,34 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		}
 		db.execSQL( sql );
 
-//		ContentValues values = new ContentValues();
-//
-//		values.put( LocationProfileConstants.FIELD_TYPE, "HOME" );
-//		values.put( LocationProfileConstants.FIELD_NAME, "Home" );
-//		values.put( LocationProfileConstants.FIELD_URL, "http://192.168.10.200:6544/" );
-//		values.put( LocationProfileConstants.FIELD_SELECTED, 1 );
-//		db.insert( LocationProfileConstants.TABLE_NAME, null, values );
-//
-//		values = new ContentValues();
-//		values.put( LocationProfileConstants.FIELD_TYPE, "AWAY" );
-//		values.put( LocationProfileConstants.FIELD_NAME, "Emulator" );
-//		values.put( LocationProfileConstants.FIELD_URL, "http://10.0.2.2:6544/" );
-//		values.put( LocationProfileConstants.FIELD_SELECTED, 1 );
-//		db.insert( LocationProfileConstants.TABLE_NAME, null, values );
-//		
-//		values = new ContentValues();
-//		values.put( LocationProfileConstants.FIELD_TYPE, "AWAY" );
-//		values.put( LocationProfileConstants.FIELD_NAME, "Home" );
-//		values.put( LocationProfileConstants.FIELD_URL, "http://192.168.10.200:6544/" );
-//		values.put( LocationProfileConstants.FIELD_SELECTED, 0 );
-//		db.insert( LocationProfileConstants.TABLE_NAME, null, values );
-//		
-//		values = new ContentValues();
-//		values.put( LocationProfileConstants.FIELD_TYPE, "AWAY" );
-//		values.put( LocationProfileConstants.FIELD_NAME, "Tunnel" );
-//		values.put( LocationProfileConstants.FIELD_URL, "http://localhost:6544/" );
-//		values.put( LocationProfileConstants.FIELD_SELECTED, 1 );
-//		db.insert( LocationProfileConstants.TABLE_NAME, null, values );
+		ContentValues values = new ContentValues();
+
+		values.put( LocationProfileConstants.FIELD_TYPE, "HOME" );
+		values.put( LocationProfileConstants.FIELD_NAME, "Home" );
+		values.put( LocationProfileConstants.FIELD_URL, "http://192.168.10.200:6544/" );
+		values.put( LocationProfileConstants.FIELD_SELECTED, 1 );
+		db.insert( LocationProfileConstants.TABLE_NAME, null, values );
+
+		values = new ContentValues();
+		values.put( LocationProfileConstants.FIELD_TYPE, "AWAY" );
+		values.put( LocationProfileConstants.FIELD_NAME, "Emulator" );
+		values.put( LocationProfileConstants.FIELD_URL, "http://10.0.2.2:6544/" );
+		values.put( LocationProfileConstants.FIELD_SELECTED, 1 );
+		db.insert( LocationProfileConstants.TABLE_NAME, null, values );
+		
+		values = new ContentValues();
+		values.put( LocationProfileConstants.FIELD_TYPE, "AWAY" );
+		values.put( LocationProfileConstants.FIELD_NAME, "Home" );
+		values.put( LocationProfileConstants.FIELD_URL, "http://192.168.10.200:6544/" );
+		values.put( LocationProfileConstants.FIELD_SELECTED, 0 );
+		db.insert( LocationProfileConstants.TABLE_NAME, null, values );
+		
+		values = new ContentValues();
+		values.put( LocationProfileConstants.FIELD_TYPE, "AWAY" );
+		values.put( LocationProfileConstants.FIELD_NAME, "Tunnel" );
+		values.put( LocationProfileConstants.FIELD_URL, "http://localhost:6544/" );
+		values.put( LocationProfileConstants.FIELD_SELECTED, 1 );
+		db.insert( LocationProfileConstants.TABLE_NAME, null, values );
 		
 		Log.v( TAG, "createLocationProfiles : exit" );
 	}
@@ -460,7 +463,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		sqlBuilder.append( ProgramConstants.FIELD_SEASON ).append( " " ).append( ProgramConstants.FIELD_SEASON_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( ProgramConstants.FIELD_EPISODE ).append( " " ).append( ProgramConstants.FIELD_EPISODE_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( ProgramConstants.FIELD_CHANNEL_ID ).append( " " ).append( ProgramConstants.FIELD_CHANNEL_ID_DATA_TYPE ).append( ", " );
-		sqlBuilder.append( ProgramConstants.FIELD_RECORD_ID ).append( " " ).append( ProgramConstants.FIELD_RECORD_ID_DATA_TYPE );
+		sqlBuilder.append( ProgramConstants.FIELD_RECORD_ID ).append( " " ).append( ProgramConstants.FIELD_RECORD_ID_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ProgramConstants.FIELD_LOCATION_URL ).append( " " ).append( ProgramConstants.FIELD_LOCATION_URL_DATA_TYPE );
 		sqlBuilder.append( ");" );
 		String sql = sqlBuilder.toString();
 		if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
@@ -487,6 +491,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		StringBuilder sqlBuilder = new StringBuilder();
 		sqlBuilder.append( "CREATE TABLE " + ChannelConstants.TABLE_NAME + " (" );
 		sqlBuilder.append( ChannelConstants._ID ).append( " " ).append( ChannelConstants.FIELD_ID_DATA_TYPE ).append( " " ).append( ChannelConstants.FIELD_ID_PRIMARY_KEY ).append( ", " );
+		sqlBuilder.append( ChannelConstants.FIELD_CHAN_ID ).append( " " ).append( ChannelConstants.FIELD_CHAN_ID_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( ChannelConstants.FIELD_CHAN_NUM ).append( " " ).append( ChannelConstants.FIELD_CHAN_NUM_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( ChannelConstants.FIELD_CALLSIGN ).append( " " ).append( ChannelConstants.FIELD_CALLSIGN_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( ChannelConstants.FIELD_ICON_URL ).append( " " ).append( ChannelConstants.FIELD_ICON_URL_DATA_TYPE ).append( ", " );
@@ -511,7 +516,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		sqlBuilder.append( ChannelConstants.FIELD_USE_EIT ).append( " " ).append( ChannelConstants.FIELD_USE_EIT_DATA_TYPE ).append( " default " ).append( ChannelConstants.FIELD_USE_EIT_DEFAULT ).append( ", " );
 		sqlBuilder.append( ChannelConstants.FIELD_VISIBLE ).append( " " ).append( ChannelConstants.FIELD_VISIBLE_DATA_TYPE ).append( " default " ).append( ChannelConstants.FIELD_VISIBLE_DEFAULT ).append( ", " );
 		sqlBuilder.append( ChannelConstants.FIELD_XMLTV_ID ).append( " " ).append( ChannelConstants.FIELD_XMLTV_ID_DATA_TYPE ).append( ", " );
-		sqlBuilder.append( ChannelConstants.FIELD_DEFAULT_AUTH ).append( " " ).append( ChannelConstants.FIELD_DEFAULT_AUTH_DATA_TYPE );
+		sqlBuilder.append( ChannelConstants.FIELD_DEFAULT_AUTH ).append( " " ).append( ChannelConstants.FIELD_DEFAULT_AUTH_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ChannelConstants.FIELD_LOCATION_URL ).append( " " ).append( ChannelConstants.FIELD_LOCATION_URL_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( "UNIQUE(" ).append( ChannelConstants.FIELD_CHAN_ID ).append( ", " ).append( ChannelConstants.FIELD_LOCATION_URL ).append( ")" );
 		sqlBuilder.append( ");" );
 		String sql = sqlBuilder.toString();
 		if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
@@ -539,7 +546,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		sqlBuilder.append( ProgramGroupConstants.FIELD_PROGRAM_GROUP ).append( " " ).append( ProgramGroupConstants.FIELD_PROGRAM_GROUP_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( ProgramGroupConstants.FIELD_TITLE ).append( " " ).append( ProgramGroupConstants.FIELD_TITLE_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( ProgramGroupConstants.FIELD_CATEGORY ).append( " " ).append( ProgramGroupConstants.FIELD_CATEGORY_DATA_TYPE ).append( ", " );
-		sqlBuilder.append( ProgramGroupConstants.FIELD_INETREF ).append( " " ).append( ProgramGroupConstants.FIELD_INETREF_DATA_TYPE );
+		sqlBuilder.append( ProgramGroupConstants.FIELD_INETREF ).append( " " ).append( ProgramGroupConstants.FIELD_INETREF_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ProgramGroupConstants.FIELD_LOCATION_URL ).append( " " ).append( ProgramGroupConstants.FIELD_LOCATION_URL_DATA_TYPE );
 		sqlBuilder.append( ");" );
 		String sql = sqlBuilder.toString();
 		if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
@@ -577,7 +585,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		sqlBuilder.append( RecordingConstants.FIELD_DUP_METHOD ).append( " " ).append( RecordingConstants.FIELD_DUP_METHOD_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( RecordingConstants.FIELD_ENCODER_ID ).append( " " ).append( RecordingConstants.FIELD_ENCODER_ID_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( RecordingConstants.FIELD_PROFILE ).append( " " ).append( RecordingConstants.FIELD_PROFILE_DATA_TYPE ).append( ", " );
-		sqlBuilder.append( RecordingConstants.FIELD_PROGRAM_ID ).append( " " ).append( RecordingConstants.FIELD_PROGRAM_ID_DATA_TYPE );
+		sqlBuilder.append( RecordingConstants.FIELD_PROGRAM_ID ).append( " " ).append( RecordingConstants.FIELD_PROGRAM_ID_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingConstants.FIELD_LOCATION_URL ).append( " " ).append( RecordingConstants.FIELD_LOCATION_URL );
 		sqlBuilder.append( ");" );
 		String sql = sqlBuilder.toString();
 		if( Log.isLoggable( TAG, Log.VERBOSE ) ) {

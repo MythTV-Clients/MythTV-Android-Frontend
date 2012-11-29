@@ -20,11 +20,9 @@ package org.mythtv.client.ui;
 
 import org.mythtv.client.MainApplication;
 import org.mythtv.client.ui.util.MenuHelper;
-import org.mythtv.service.util.NetworkHelper;
 
 import android.annotation.TargetApi;
 import android.app.ActionBar;
-import android.content.res.Resources;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -40,11 +38,7 @@ public abstract class AbstractMythtvFragmentActivity extends FragmentActivity im
 
 	protected static final String TAG = AbstractMythtvFragmentActivity.class.getSimpleName();
 
-	protected Resources mResources;
-
-	protected MenuHelper mMenuHelper;
-	protected NetworkHelper mNetworkHelper;
-	
+	private MenuHelper mMenuHelper;
 	
 	//***************************************
     // MythActivity methods
@@ -58,6 +52,9 @@ public abstract class AbstractMythtvFragmentActivity extends FragmentActivity im
     // FragmentActivity methods
     //***************************************
 	/* (non-Javadoc)
+	 * @see android.app.Activity#onCreateOptionsMenu(android.view.Menu)
+	 */
+	/* (non-Javadoc)
 	 * @see android.support.v4.app.FragmentActivity#onCreate(android.os.Bundle)
 	 */
 	@Override
@@ -65,17 +62,11 @@ public abstract class AbstractMythtvFragmentActivity extends FragmentActivity im
 		Log.v( TAG, "onCreate : enter" );
 		super.onCreate( savedInstanceState );
 
-		mResources = getResources();
-		
-		mMenuHelper = new MenuHelper( this );
-		mNetworkHelper = new NetworkHelper( this );
+		mMenuHelper = MenuHelper.newInstance( this );
 		
 		Log.v( TAG, "onCreate : exit" );
 	}
 
-	/* (non-Javadoc)
-	 * @see android.app.Activity#onCreateOptionsMenu(android.view.Menu)
-	 */
 	@TargetApi( 11 )
 	@Override
 	public boolean onCreateOptionsMenu( Menu menu ) {
@@ -99,19 +90,19 @@ public abstract class AbstractMythtvFragmentActivity extends FragmentActivity im
 		case MenuHelper.ABOUT_ID:
 			Log.d( TAG, "onOptionsItemSelected : about selected" );
 
-		    mMenuHelper.handleAboutMenu();
+			mMenuHelper.handleAboutMenu();
 		    
 	        return true;
 	    
 		case MenuHelper.FAQ_ID:
 			
-		    mMenuHelper.handleFaqMenu();
+			mMenuHelper.handleFaqMenu();
 			
 			return true;
 
 		case MenuHelper.TROUBLESHOOT_ID:
 			
-		    mMenuHelper.handleTroubleshootMenu();
+			mMenuHelper.handleTroubleshootMenu();
 			
 			return true;
 		

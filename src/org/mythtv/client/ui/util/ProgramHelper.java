@@ -32,8 +32,6 @@ import android.content.res.Resources;
  */
 public class ProgramHelper {
 
-	private static String TAG = ProgramHelper.class.getSimpleName();
-	
 	private static enum Category {
 		ACTION( "Action", mResources.getColor( R.color.program_category_Action ) ),
 		ADULT( "Adult", mResources.getColor( R.color.program_category_Adult ) ),
@@ -122,7 +120,7 @@ public class ProgramHelper {
 
 	protected ProgramHelper( Context context ) {
 		mContext = context;
-		mResources = context.getResources();
+		mResources = mContext.getResources();
 	}
 	
 	public int getCategoryColor( String category ) {

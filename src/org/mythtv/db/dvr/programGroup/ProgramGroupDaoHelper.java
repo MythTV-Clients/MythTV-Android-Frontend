@@ -23,7 +23,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.dvr.ProgramConstants;
+import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.services.api.dvr.Program;
 import org.mythtv.services.utils.ArticleCleaner;
 
@@ -43,9 +45,19 @@ public class ProgramGroupDaoHelper {
 	private static final String TAG = ProgramGroupDaoHelper.class.getSimpleName();
 	
 	private Context mContext;
+	private LocationProfileDaoHelper mLocationProfileDaoHelper;
+	
+	private LocationProfile mLocationProfile;
 	
 	public ProgramGroupDaoHelper( Context context ) {
 		this.mContext = context;
+		
+		mLocationProfileDaoHelper = new LocationProfileDaoHelper( mContext );
+		
+		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile();
+		if( null == mLocationProfile ) {
+			throw new RuntimeException( "no connected profile found" );
+		}
 	}
 	
 	/**
@@ -54,9 +66,12 @@ public class ProgramGroupDaoHelper {
 	public List<ProgramGroup> findAll() {
 		Log.v( TAG, "findAll : enter" );
 		
+		String selection = ProgramGroupConstants.FIELD_LOCATION_URL + " = ?";
+		String[] selectionArgs = new String[] { mLocationProfile.getUrl() };
+
 		List<ProgramGroup> programGroups = new ArrayList<ProgramGroup>();
 		
-		Cursor cursor = mContext.getContentResolver().query( ProgramGroupConstants.CONTENT_URI, null, null, null, ProgramGroupConstants.FIELD_PROGRAM_GROUP );
+		Cursor cursor = mContext.getContentResolver().query( ProgramGroupConstants.CONTENT_URI, null, selection, selectionArgs, ProgramGroupConstants.FIELD_PROGRAM_GROUP );
 		while( cursor.moveToNext() ) {
 			ProgramGroup programGroup = convertCursorToProgramGroup( cursor );
 			programGroups.add( programGroup );
@@ -89,9 +104,12 @@ public class ProgramGroupDaoHelper {
 	public ProgramGroup findByTitle( String title ) {
 		Log.v( TAG, "findOne : enter" );
 		
+		String selection = ProgramGroupConstants.FIELD_TITLE + " = ? AND " + ProgramGroupConstants.FIELD_LOCATION_URL + " = ?";
+		String[] selectionArgs = new String[] { title, mLocationProfile.getUrl() };
+
 		ProgramGroup programGroup = null;
 		
-		Cursor cursor = mContext.getContentResolver().query( ProgramGroupConstants.CONTENT_URI, null, ProgramGroupConstants.FIELD_TITLE + " = ?", new String[] { title }, null );
+		Cursor cursor = mContext.getContentResolver().query( ProgramGroupConstants.CONTENT_URI, null, selection, selectionArgs, null );
 		if( cursor.moveToFirst() ) {
 			programGroup = convertCursorToProgramGroup( cursor );
 		}
@@ -111,8 +129,8 @@ public class ProgramGroupDaoHelper {
 		ContentValues values = convertProgramGroupToContentValues( programGroup );
 
 		String[] projection = new String[] { ProgramConstants._ID };
-		String selection = ProgramGroupConstants.FIELD_PROGRAM_GROUP + " = ?";
-		String[] selectionArgs = new String[] { programGroup.getProgramGroup() };
+		String selection = ProgramGroupConstants.FIELD_PROGRAM_GROUP + " = ? AND " + ProgramGroupConstants.FIELD_LOCATION_URL + " = ?";
+		String[] selectionArgs = new String[] { programGroup.getProgramGroup(), mLocationProfile.getUrl() };
 		
 		int updated = -1;
 		Cursor cursor = mContext.getContentResolver().query( ProgramGroupConstants.CONTENT_URI, projection, selection, selectionArgs, null );
@@ -164,6 +182,8 @@ public class ProgramGroupDaoHelper {
 
 	public int load( List<Program> programs ) {
 		Log.v( TAG, "load : enter" );
+		
+		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile();
 		
 		deleteAll();
 		
@@ -236,6 +256,10 @@ public class ProgramGroupDaoHelper {
 			inetref = cursor.getString( cursor.getColumnIndex( ProgramGroupConstants.FIELD_INETREF ) );
 		}
 
+		if( cursor.getColumnIndex( ProgramGroupConstants.FIELD_LOCATION_URL ) != -1 ) {
+			Log.v( TAG, "convertCursorToProgramGroup : locationProfileUrl=" + cursor.getString( cursor.getColumnIndex( ProgramGroupConstants.FIELD_LOCATION_URL ) ) );
+		}
+
 		ProgramGroup group = new ProgramGroup();
 		group.setId( id );
 		group.setProgramGroup( programGroup );
@@ -283,6 +307,7 @@ public class ProgramGroupDaoHelper {
 		values.put( ProgramGroupConstants.FIELD_TITLE, null != programGroup.getTitle() ? programGroup.getTitle() : "" );
 		values.put( ProgramGroupConstants.FIELD_CATEGORY, null != programGroup.getCategory() ? programGroup.getCategory() : "" );
 		values.put( ProgramGroupConstants.FIELD_INETREF, null != programGroup.getInetref() ? programGroup.getInetref() : "" );
+		values.put( ProgramGroupConstants.FIELD_LOCATION_URL, mLocationProfile.getUrl() );
 		
 		return values;
 	}

@@ -21,6 +21,7 @@ package org.mythtv.client.ui.dvr;
 import org.joda.time.DateTime;
 import org.mythtv.R;
 import org.mythtv.client.MainApplication;
+import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.util.MythtvListFragment;
 import org.mythtv.client.ui.util.ProgramHelper;
 import org.mythtv.db.dvr.ProgramConstants;
@@ -63,7 +64,7 @@ public class ProgramGroupFragment extends MythtvListFragment implements LoaderMa
 	
 	private OnEpisodeSelectedListener mEpisodeListener;
 	
-	private static ProgramHelper mProgramHelper; 
+	private static ProgramHelper mProgramHelper;
 	private RecordedDaoHelper mRecordedDaoHelper;
 	
 	private ProgramGroup programGroup;
@@ -76,11 +77,14 @@ public class ProgramGroupFragment extends MythtvListFragment implements LoaderMa
 	@Override
 	public Loader<Cursor> onCreateLoader( int id, Bundle args ) {
 		Log.v( TAG, "onCreateLoader : enter" );
+
+		LocationProfile locationProfile = ( (AbstractDvrActivity) getActivity() ).getLocationProfile();
 		
 		String[] projection = { ProgramConstants._ID, ProgramConstants.FIELD_TITLE, ProgramConstants.FIELD_SUB_TITLE, ProgramConstants.FIELD_CATEGORY, ProgramConstants.FIELD_START_TIME };
-		String[] selectionArgs = { ( null != programGroup && null != programGroup.getTitle() ? programGroup.getTitle() : "" ) };
+		String selection = ProgramConstants.FIELD_TITLE + " = ? AND " + ProgramConstants.TABLE_NAME_RECORDED + "." + ProgramConstants.FIELD_LOCATION_URL + " = ?";
+		String[] selectionArgs = { ( null != programGroup && null != programGroup.getTitle() ? programGroup.getTitle() : "" ), locationProfile.getUrl() };
 		 
-	    CursorLoader cursorLoader = new CursorLoader( getActivity(), ProgramConstants.CONTENT_URI_RECORDED, projection, ProgramConstants.FIELD_TITLE + " = ?", selectionArgs, ProgramConstants.FIELD_SEASON + " DESC ," + ProgramConstants.FIELD_EPISODE + " DESC" );
+	    CursorLoader cursorLoader = new CursorLoader( getActivity(), ProgramConstants.CONTENT_URI_RECORDED, projection, selection, selectionArgs, ProgramConstants.FIELD_SEASON + " DESC ," + ProgramConstants.FIELD_EPISODE + " DESC" );
 	    
 	    Log.v( TAG, "onCreateLoader : exit" );
 		return cursorLoader;
@@ -121,15 +125,19 @@ public class ProgramGroupFragment extends MythtvListFragment implements LoaderMa
 		return super.onCreateView( inflater, container, savedInstanceState );
 	}
 
+	/* (non-Javadoc)
+	 * @see org.mythtv.client.ui.util.MythtvListFragment#onActivityCreated(android.os.Bundle)
+	 */
 	@Override
 	public void onActivityCreated( Bundle savedInstanceState ) {
 		Log.i( TAG, "onActivityCreated : enter" );
 		super.onActivityCreated( savedInstanceState );
 	    
-		mRecordedDaoHelper = new RecordedDaoHelper( getActivity() );
 		mProgramHelper = ProgramHelper.createInstance( getActivity() );
 		
-	    mAdapter = new ProgramCursorAdapter(
+		mRecordedDaoHelper = ( (AbstractDvrActivity) getActivity() ).getRecordedDaoHelper();
+		
+		mAdapter = new ProgramCursorAdapter(
 	            getActivity().getApplicationContext(), R.layout.program_row,
 	            null, new String[] { ProgramConstants.FIELD_SUB_TITLE }, new int[] { R.id.program_sub_title },
 	            CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER );
@@ -141,6 +149,17 @@ public class ProgramGroupFragment extends MythtvListFragment implements LoaderMa
 	    Log.i( TAG, "onActivityCreated : exit" );
 	}
 
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.Fragment#onSaveInstanceState(android.os.Bundle)
+	 */
+	@Override
+    public void onSaveInstanceState( Bundle outState ) {
+		Log.i( TAG, "onSaveInstanceState : enter" );
+		super.onSaveInstanceState(outState);
+        
+		Log.i( TAG, "onSaveInstanceState : exit" );
+    }
+	
 	@Override
 	public void onListItemClick( ListView l, View v, int position, long id ) {
 		Log.v( TAG, "onListItemClick : enter" );

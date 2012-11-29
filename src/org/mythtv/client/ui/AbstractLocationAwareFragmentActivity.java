@@ -63,14 +63,11 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 	@Override
 	protected void onCreate( Bundle savedInstanceState ) {
 		Log.v( TAG, "onCreate : enter" );
-
 		super.onCreate( savedInstanceState );
-		
-		mFileHelper = new FileHelper( this );
-		mRunningServiceHelper = new RunningServiceHelper( this );
-		
-		mResources = getResources();
 
+		mFileHelper = FileHelper.newInstance( this );
+		mRunningServiceHelper = RunningServiceHelper.newInstance( this );
+		
 		setupActionBar();
 
 		Log.v( TAG, "onCreate : exit" );

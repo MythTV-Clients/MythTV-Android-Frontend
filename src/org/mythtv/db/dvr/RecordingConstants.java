@@ -18,16 +18,16 @@
  */
 package org.mythtv.db.dvr;
 
+import org.mythtv.db.AbstractBaseConstants;
 import org.mythtv.provider.MythtvProvider;
 
 import android.net.Uri;
-import android.provider.BaseColumns;
 
 /**
  * @author Daniel Frey
  *
  */
-public class RecordingConstants implements BaseColumns {
+public class RecordingConstants  extends AbstractBaseConstants {
 
 	public static final String TABLE_NAME = "recording";
 	
@@ -36,9 +36,6 @@ public class RecordingConstants implements BaseColumns {
 	public static final String INSERT_ROW, UPDATE_ROW;
 
 	// db fields
-	public static final String FIELD_ID_DATA_TYPE = "INTEGER";
-	public static final String FIELD_ID_PRIMARY_KEY = "PRIMARY KEY AUTOINCREMENT";
-
 	public static final String FIELD_STATUS = "STATUS";
 	public static final String FIELD_STATUS_DATA_TYPE = "INTEGER";
 
@@ -103,11 +100,12 @@ public class RecordingConstants implements BaseColumns {
 		insert.append( FIELD_ENCODER_ID ).append( "," );
 		insert.append( FIELD_PROGRAM_ID ).append( "," );
 		insert.append( FIELD_PROFILE ).append( "," );
-		insert.append( FIELD_PROGRAM_ID );
+		insert.append( FIELD_PROGRAM_ID ).append( "," );
+		insert.append( FIELD_LOCATION_URL );
 		
 		StringBuilder values = new StringBuilder();
 		values.append( " ) " );
-		values.append( "VALUES( ?,?,?,?,?,?,?,?,?,?,?,?,?,?,? )" );
+		values.append( "VALUES( ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? )" );
 		
 		StringBuilder insertRecording = new StringBuilder();
 		insertRecording.append( "INSERT INTO " ).append( TABLE_NAME ).append( " ( " );
@@ -130,7 +128,8 @@ public class RecordingConstants implements BaseColumns {
 		update.append( FIELD_ENCODER_ID ).append( " = ?, " );
 		update.append( FIELD_PROGRAM_ID ).append( " = ?, " );
 		update.append( FIELD_PROFILE ).append( " = ?, " );
-		update.append( FIELD_PROGRAM_ID ).append( " = ? " );
+		update.append( FIELD_PROGRAM_ID ).append( " = ?, " );
+		update.append( FIELD_LOCATION_URL ).append( " = ? " );
 		update.append( " WHERE " );
 		update.append( _ID ).append( " = ?" );
 		
