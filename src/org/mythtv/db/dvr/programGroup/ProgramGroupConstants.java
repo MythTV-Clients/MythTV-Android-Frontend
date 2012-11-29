@@ -18,25 +18,22 @@
  */
 package org.mythtv.db.dvr.programGroup;
 
+import org.mythtv.db.AbstractBaseConstants;
 import org.mythtv.provider.MythtvProvider;
 
 import android.net.Uri;
-import android.provider.BaseColumns;
 
 /**
  * @author Daniel Frey
  *
  */
-public class ProgramGroupConstants implements BaseColumns {
+public class ProgramGroupConstants extends AbstractBaseConstants {
 
 	public static final String TABLE_NAME = "program_group";
 
 	public static final Uri CONTENT_URI = Uri.parse( "content://" + MythtvProvider.AUTHORITY + "/" + TABLE_NAME );
 
 	public static final String INSERT_ROW, UPDATE_ROW;
-
-	public static final String FIELD_ID_DATA_TYPE = "INTEGER";
-	public static final String FIELD_ID_PRIMARY_KEY = "PRIMARY KEY AUTOINCREMENT";
 
 	public static final String FIELD_PROGRAM_GROUP = "PROGRAM_GROUP";
 	public static final String FIELD_PROGRAM_GROUP_DATA_TYPE = "TEXT";
@@ -49,9 +46,6 @@ public class ProgramGroupConstants implements BaseColumns {
 	
 	public static final String FIELD_INETREF = "INETREF";
 	public static final String FIELD_INETREF_DATA_TYPE = "TEXT";
-
-	public static final String FIELD_LOCATION_URL = "LOCATION_URL";
-	public static final String FIELD_LOCATION_URL_DATA_TYPE = "TEXT";
 
 	static {
 		StringBuilder insert = new StringBuilder();

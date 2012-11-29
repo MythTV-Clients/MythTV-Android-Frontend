@@ -47,7 +47,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	private static final String TAG = DatabaseHelper.class.getSimpleName();
 	
 	private static final String DATABASE_NAME = "mythtvdb";
-	private static final int DATABASE_VERSION = 86;
+	private static final int DATABASE_VERSION = 87;
 
 	public DatabaseHelper( Context context ) {
 		super( context, DATABASE_NAME, null, DATABASE_VERSION );
@@ -106,8 +106,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	public void onUpgrade( SQLiteDatabase db, int oldVersion, int newVersion ) {
 		Log.v( TAG, "onUpgrade : enter" );
 
-		if( oldVersion < 86 ) {
-			Log.v( TAG, "onUpgrade : upgrading to db version 86" );
+		if( oldVersion < 87 ) {
+			Log.v( TAG, "onUpgrade : upgrading to db version 87" );
 
 			onCreate( db );
 
@@ -199,7 +199,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		sqlBuilder.append( EtagConstants.FIELD_ENDPOINT ).append( " " ).append( EtagConstants.FIELD_ENDPOINT_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( EtagConstants.FIELD_VALUE ).append( " " ).append( EtagConstants.FIELD_VALUE_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( EtagConstants.FIELD_DATA_ID ).append( " " ).append( EtagConstants.FIELD_DATA_ID_DATA_TYPE ).append( " default" ).append( EtagConstants.FIELD_DATA_ID_DEFAULT ).append( ", " );
-		sqlBuilder.append( EtagConstants.FIELD_DATE ).append( " " ).append( EtagConstants.FIELD_DATE_DATA_TYPE );
+		sqlBuilder.append( EtagConstants.FIELD_DATE ).append( " " ).append( EtagConstants.FIELD_DATE_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( EtagConstants.FIELD_LOCATION_URL ).append( " " ).append( EtagConstants.FIELD_LOCATION_URL_DATA_TYPE );
 		sqlBuilder.append( ");" );
 		String sql = sqlBuilder.toString();
 		if( Log.isLoggable( TAG, Log.VERBOSE ) ) {

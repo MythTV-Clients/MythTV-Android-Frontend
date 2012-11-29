@@ -18,16 +18,16 @@
  */
 package org.mythtv.db.http;
 
+import org.mythtv.db.AbstractBaseConstants;
 import org.mythtv.provider.MythtvProvider;
 
 import android.net.Uri;
-import android.provider.BaseColumns;
 
 /**
  * @author Daniel Frey
  *
  */
-public class EtagConstants implements BaseColumns {
+public class EtagConstants extends AbstractBaseConstants {
 
 	public static final String TABLE_NAME = "etag";
 
@@ -36,9 +36,6 @@ public class EtagConstants implements BaseColumns {
 	public static final String INSERT_ETAG_ROW, UPDATE_ETAG_ROW;
 	
 	// db fields
-	public static final String FIELD_ID_DATA_TYPE = "INTEGER";
-	public static final String FIELD_ID_PRIMARY_KEY = "PRIMARY KEY AUTOINCREMENT";
-	
 	public static final String FIELD_ENDPOINT = "ENDPOINT";
 	public static final String FIELD_ENDPOINT_DATA_TYPE = "TEXT NOT NULL";
 
@@ -57,11 +54,12 @@ public class EtagConstants implements BaseColumns {
 		StringBuilder insert = new StringBuilder();
 		insert.append( FIELD_VALUE ).append( "," );
 		insert.append( FIELD_DATA_ID ).append( "," );
-		insert.append( FIELD_DATE );
+		insert.append( FIELD_DATE ).append( "," );
+		insert.append( FIELD_LOCATION_URL );
 		
 		StringBuilder values = new StringBuilder();
 		values.append( " ) " );
-		values.append( "VALUES( ?,?,? )" );
+		values.append( "VALUES( ?,?,?,? )" );
 		
 		StringBuilder insertEtag = new StringBuilder();
 		insertEtag.append( "INSERT INTO " ).append( TABLE_NAME ).append( " ( " );
@@ -72,7 +70,8 @@ public class EtagConstants implements BaseColumns {
 		StringBuilder update = new StringBuilder();
 		update.append( FIELD_VALUE ).append( " = ?, " );
 		update.append( FIELD_DATA_ID ).append( " = ?, " );
-		update.append( FIELD_DATE ).append( " = ?" );
+		update.append( FIELD_DATE ).append( " = ?, " );
+		update.append( FIELD_LOCATION_URL ).append( " = ?" );
 		update.append( " WHERE " );
 		update.append( _ID ).append( " = ?" );
 		

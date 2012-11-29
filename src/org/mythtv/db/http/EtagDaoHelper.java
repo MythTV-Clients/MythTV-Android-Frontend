@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.joda.time.DateTime;
+import org.mythtv.db.AbstractDaoHelper;
 import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.channel.impl.ChannelTemplate.Endpoint;
 
@@ -37,17 +38,15 @@ import android.util.Log;
  * @author Daniel Frey
  *
  */
-public class EtagDaoHelper {
+public class EtagDaoHelper extends AbstractDaoHelper {
 
 	private static final String TAG = EtagDaoHelper.class.getSimpleName();
-	
-	private Context mContext;
 	
 	/**
 	 * @param context
 	 */
 	public EtagDaoHelper( Context context ) {
-		this.mContext = context;
+		super( context );
 	}
 
 	/**
@@ -62,6 +61,8 @@ public class EtagDaoHelper {
 		
 		List<ETagInfo> etagInfos = new ArrayList<ETagInfo>();
 		
+		selection = appendLocationUrl( selection, EtagConstants.TABLE_NAME );
+
 		Cursor cursor = mContext.getContentResolver().query( EtagConstants.CONTENT_URI, projection, selection, selectionArgs, sortOrder );
 		while( cursor.moveToNext() ) {
 			ETagInfo etagInfo = convertCursorToETagInfo( cursor );
@@ -103,6 +104,8 @@ public class EtagDaoHelper {
 			uri = ContentUris.withAppendedId( EtagConstants.CONTENT_URI, id );
 		}
 		
+		selection = appendLocationUrl( selection, EtagConstants.TABLE_NAME );
+
 		Cursor cursor = mContext.getContentResolver().query( uri, projection, selection, selectionArgs, sortOrder );
 		if( cursor.moveToFirst() ) {
 			etagInfo = convertCursorToETagInfo( cursor );
@@ -163,6 +166,8 @@ public class EtagDaoHelper {
 			selectionArgs = new String[] { endpoint, dataId };
 		}
 		
+		selection = appendLocationUrl( selection, EtagConstants.TABLE_NAME );
+
 		DateTime etag = null;
 		Cursor cursor = mContext.getContentResolver().query( EtagConstants.CONTENT_URI, new String[] { EtagConstants.FIELD_DATE }, selection, selectionArgs, null );
 		if( cursor.moveToFirst() ) {
@@ -193,6 +198,8 @@ public class EtagDaoHelper {
 			selectionArgs = new String[] { endpoint, dataId };
 		}
 		
+		selection = appendLocationUrl( selection, EtagConstants.TABLE_NAME );
+
 		int updated = -1;
 		Cursor cursor = mContext.getContentResolver().query( EtagConstants.CONTENT_URI, new String[] { EtagConstants._ID }, selection, selectionArgs, null );
 		if( cursor.moveToFirst() ) {
@@ -243,6 +250,8 @@ public class EtagDaoHelper {
 			selectionArgs = new String[] { endpoint.name(), dataId };
 		}
 		
+		selection = appendLocationUrl( selection, EtagConstants.TABLE_NAME );
+
 		int deleted = mContext.getContentResolver().delete( EtagConstants.CONTENT_URI, selection, selectionArgs );
 		Log.v( TAG, "delete : deleted=" + deleted );
 		
@@ -326,6 +335,7 @@ public class EtagDaoHelper {
 		values.put( EtagConstants.FIELD_VALUE, etag.getETag() );
 		values.put( EtagConstants.FIELD_DATA_ID, null != dataId ? dataId : "" );
 		values.put( EtagConstants.FIELD_DATE, ( new DateTime() ).getMillis() );
+		values.put( EtagConstants.FIELD_LOCATION_URL, mLocationProfile.getUrl() );
 		
 //		Log.v( TAG, "convertChannelToContentValues : exit" );
 		return values;

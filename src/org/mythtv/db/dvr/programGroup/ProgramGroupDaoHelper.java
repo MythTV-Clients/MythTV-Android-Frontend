@@ -23,9 +23,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.mythtv.client.ui.preferences.LocationProfile;
+import org.mythtv.db.AbstractDaoHelper;
 import org.mythtv.db.dvr.ProgramConstants;
-import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.services.api.dvr.Program;
 import org.mythtv.services.utils.ArticleCleaner;
 
@@ -40,24 +39,12 @@ import android.util.Log;
  * @author Daniel Frey
  *
  */
-public class ProgramGroupDaoHelper {
+public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 
 	private static final String TAG = ProgramGroupDaoHelper.class.getSimpleName();
 	
-	private Context mContext;
-	private LocationProfileDaoHelper mLocationProfileDaoHelper;
-	
-	private LocationProfile mLocationProfile;
-	
 	public ProgramGroupDaoHelper( Context context ) {
-		this.mContext = context;
-		
-		mLocationProfileDaoHelper = new LocationProfileDaoHelper( mContext );
-		
-		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile();
-		if( null == mLocationProfile ) {
-			throw new RuntimeException( "no connected profile found" );
-		}
+		super( context );
 	}
 	
 	/**
