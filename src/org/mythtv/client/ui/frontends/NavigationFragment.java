@@ -19,6 +19,7 @@
 package org.mythtv.client.ui.frontends;
 
 import org.mythtv.R;
+import org.mythtv.client.ui.frontends.AbstractFrontendFragment.SendActionTask;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -40,7 +41,7 @@ public class NavigationFragment extends AbstractFrontendFragment implements OnCl
 		//inflate fragment layout
 		View view = inflater.inflate(R.layout.fragment_mythmote_navigation, container, false);
 		
-		//set onclick listener for each button
+		//set onclick listener for nav buttons
 		((ImageButton)view.findViewById(R.id.imageButton_nav_info)).setOnClickListener(this);
 		((ImageButton)view.findViewById(R.id.imageButton_nav_up)).setOnClickListener(this);
 		((ImageButton)view.findViewById(R.id.imageButton_nav_tvguide)).setOnClickListener(this);
@@ -50,6 +51,26 @@ public class NavigationFragment extends AbstractFrontendFragment implements OnCl
 		((ImageButton)view.findViewById(R.id.imageButton_nav_cancel)).setOnClickListener(this);
 		((ImageButton)view.findViewById(R.id.imageButton_nav_down)).setOnClickListener(this);
 		((ImageButton)view.findViewById(R.id.imageButton_nav_menu)).setOnClickListener(this);
+		
+		//set onclick listener for channel buttons
+		((ImageButton)view.findViewById(R.id.imageButton_ch_up)).setOnClickListener(this);
+		((ImageButton)view.findViewById(R.id.imageButton_ch_last)).setOnClickListener(this);
+		((ImageButton)view.findViewById(R.id.imageButton_ch_down)).setOnClickListener(this);
+		
+		//set onclick listener for volume buttons
+		((ImageButton)view.findViewById(R.id.imageButton_vol_up)).setOnClickListener(this);
+		((ImageButton)view.findViewById(R.id.imageButton_vol_mute)).setOnClickListener(this);
+		((ImageButton)view.findViewById(R.id.imageButton_vol_down)).setOnClickListener(this);
+		
+		//set onclick listener for media control buttons
+		((ImageButton)view.findViewById(R.id.imageButton_mediactrl_rec)).setOnClickListener(this);
+		((ImageButton)view.findViewById(R.id.imageButton_mediactrl_stop)).setOnClickListener(this);
+		((ImageButton)view.findViewById(R.id.imageButton_mediactrl_pause)).setOnClickListener(this);
+		((ImageButton)view.findViewById(R.id.imageButton_mediactrl_play)).setOnClickListener(this);
+		((ImageButton)view.findViewById(R.id.imageButton_mediactrl_prev)).setOnClickListener(this);
+		((ImageButton)view.findViewById(R.id.imageButton_mediactrl_rew)).setOnClickListener(this);
+		((ImageButton)view.findViewById(R.id.imageButton_mediactrl_ff)).setOnClickListener(this);
+		((ImageButton)view.findViewById(R.id.imageButton_mediactrl_next)).setOnClickListener(this);
 		
 		return view;
 	}
@@ -99,6 +120,66 @@ public class NavigationFragment extends AbstractFrontendFragment implements OnCl
 		case R.id.imageButton_nav_menu:
 			new SendActionTask().execute(fe.getUrl(), "MENU");
 			break;
+			
+			
+		case R.id.imageButton_ch_up:
+			new SendActionTask().execute(fe.getUrl(), "CHANNELUP");
+			break;
+			
+		case R.id.imageButton_ch_last:
+			new SendActionTask().execute(fe.getUrl(), "PREVCHAN");
+			break;
+			
+		case R.id.imageButton_ch_down:
+			new SendActionTask().execute(fe.getUrl(), "CHANNELDOWN");
+			break;
+			
+			
+		case R.id.imageButton_vol_up:
+			new SendActionTask().execute(fe.getUrl(), "VOLUMEUP");
+			break;
+			
+		case R.id.imageButton_vol_mute:
+			new SendActionTask().execute(fe.getUrl(), "MUTE");
+			break;
+			
+		case R.id.imageButton_vol_down:
+			new SendActionTask().execute(fe.getUrl(), "VOLUMEDOWN");
+			break;
+			
+			
+		case R.id.imageButton_mediactrl_rec:
+			new SendActionTask().execute(fe.getUrl(), "TOGGLERECORD");
+			break;
+			
+		case R.id.imageButton_mediactrl_stop:
+			new SendActionTask().execute(fe.getUrl(), "STOPPLAYBACK");
+			break;
+			
+		case R.id.imageButton_mediactrl_pause:
+			new SendActionTask().execute(fe.getUrl(), "PAUSE");
+			break;
+			
+		case R.id.imageButton_mediactrl_play:
+			new SendActionTask().execute(fe.getUrl(), "PLAYBACK");
+			break;
+			
+		case R.id.imageButton_mediactrl_prev:
+			new SendActionTask().execute(fe.getUrl(), "JUMPRWND");
+			break;
+			
+		case R.id.imageButton_mediactrl_rew:
+			new SendActionTask().execute(fe.getUrl(), "RWNDSTICKY");
+			break;
+			
+		case R.id.imageButton_mediactrl_ff:
+			new SendActionTask().execute(fe.getUrl(), "FFWDSTICKY");
+			break;
+			
+		case R.id.imageButton_mediactrl_next:
+			new SendActionTask().execute(fe.getUrl(), "JUMPFFWD");
+			break;
+			
 		};
 		
 	}

@@ -197,6 +197,7 @@
     <string name="frontends_scan_error_message">No MythTV Frontends could be found on your network.  Please make sure you are connected to Wifi on your Home Network.</string>
 	<string name="mythmote_page_navigation">Navigation</string>
 	<string name="mythmote_page_numbers">Numbers</string>
+	<string name="mythmote_page_actionlist">Action List</string>
     
     <!-- Setup Dashboard Buttons -->
 	<string name="setup_title">Setup</string>

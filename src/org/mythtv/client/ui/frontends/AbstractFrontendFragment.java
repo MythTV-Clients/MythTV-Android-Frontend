@@ -82,7 +82,7 @@ public class AbstractFrontendFragment extends Fragment {
 		return (MainApplication) getActivity().getApplicationContext();
 	}
 
-	private void showAlertDialog( final CharSequence title, final CharSequence message ) {
+	protected void showAlertDialog( final CharSequence title, final CharSequence message ) {
 		this.getActivity().runOnUiThread( new Runnable() {
 
 			@Override
