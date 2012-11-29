@@ -56,7 +56,8 @@ public class MenuHelper {
 	public static final int DELETE_ID = Menu.FIRST + 203;
 	public static final int WATCH_ID = Menu.FIRST + 204;
 	public static final int ADD_ID = Menu.FIRST + 205;
-
+	public static final int WATCH_ON_TV_ID = Menu.FIRST + 206;
+	
 	private static final String TAG = MenuHelper.class.getSimpleName();
 	
 	private Context mContext;
@@ -347,6 +348,28 @@ public class MenuHelper {
 		if( mNetworkHelper.isNetworkConnected() ) {
 			MenuItem menuItem = menu.add( Menu.NONE, WATCH_ID, Menu.NONE, mResources.getString( R.string.menu_watch ) );
 			menuItem.setIcon( android.R.drawable.ic_menu_view );
+			if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
+				menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
+			}
+
+			return menuItem;
+		}
+		
+		return null;
+	}
+	
+	/**
+	 * Build Watch On Frontend MenuItem
+	 * 
+	 * @param menu
+	 * @return
+	 */
+	@TargetApi( Build.VERSION_CODES.HONEYCOMB )
+	public MenuItem watchOnFrontendMenuItem( Menu menu ) {
+		
+		if( mNetworkHelper.isNetworkConnected() ) {
+			MenuItem menuItem = menu.add( Menu.NONE, WATCH_ON_TV_ID, Menu.NONE, mResources.getString( R.string.menu_watch ) );
+			menuItem.setIcon( android.R.drawable.ic_menu_send );
 			if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
 				menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
 			}
