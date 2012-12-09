@@ -266,31 +266,12 @@ public class EtagDaoHelper extends AbstractDaoHelper {
 	public ETagInfo convertCursorToETagInfo( Cursor cursor ) {
 //		Log.v( TAG, "convertCursorToETagInfo : enter" );
 
-		long id = -1;
-		int dataId = -1;
-		String endpoint = "", value = "";
-		DateTime date = null;
-		
-		if( cursor.getColumnIndex( EtagConstants._ID ) != -1 ) {
-			id = cursor.getInt( cursor.getColumnIndex( EtagConstants._ID ) );
-		}
-		
-		if( cursor.getColumnIndex( EtagConstants.FIELD_ENDPOINT ) != -1 ) {
-			endpoint = cursor.getString( cursor.getColumnIndex( EtagConstants.FIELD_ENDPOINT ) );
-		}
+		String value = "";
 		
 		if( cursor.getColumnIndex( EtagConstants.FIELD_VALUE ) != -1 ) {
 			value = cursor.getString( cursor.getColumnIndex( EtagConstants.FIELD_VALUE ) );
 		}
 		
-		if( cursor.getColumnIndex( EtagConstants.FIELD_DATA_ID ) != -1 ) {
-			dataId = cursor.getInt( cursor.getColumnIndex( EtagConstants.FIELD_DATA_ID ) );
-		}
-		
-		if( cursor.getColumnIndex( EtagConstants.FIELD_DATE ) != -1 ) {
-			date = new DateTime( cursor.getLong( cursor.getColumnIndex( EtagConstants.FIELD_DATE ) ) );
-		}
-
 		ETagInfo etagInfo = ETagInfo.createEmptyETag();
 		etagInfo.setETag( value );
 		
