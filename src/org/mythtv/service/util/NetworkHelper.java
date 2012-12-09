@@ -23,6 +23,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
 
 import android.content.Context;
@@ -103,4 +104,36 @@ public class NetworkHelper {
 		return false;
 	}
 	
+	public boolean isMasterBackendConnected( LocationProfile profile ) {
+		Log.v( TAG, "isMasterBackendConnected : enter" );
+		Log.v( TAG, "isMasterBackendConnected : profile=" + profile.toString() );
+		
+		if( isNetworkConnected() ) {
+			
+			try {
+			
+				URL url = new URL( profile.getUrl() );
+
+				HttpURLConnection urlc = (HttpURLConnection) url.openConnection();
+				urlc.setRequestProperty( "User-Agent", "Android Application:MythTV_Android_Frontent" );
+				urlc.setRequestProperty( "Connection", "close" );
+				urlc.setConnectTimeout( 1000 * 10 ); // mTimeout is in seconds
+				urlc.connect();
+				if( urlc.getResponseCode() == 200 ) {
+					Log.v( TAG, "isMasterBackendConnected : exit" );
+					
+					return true;
+				}
+			} catch( MalformedURLException e ) {
+				Log.w( TAG, "isMasterBackendConnected : error, connecting with backend url", e );
+			} catch( IOException e ) {
+				Log.w( TAG, "isMasterBackendConnected : error, connecting to backend", e );
+			}
+
+		}
+		
+		Log.v( TAG, "isMasterBackendConnected : exit, master backend could not be reached" );
+		return false;
+	}
+
 }
