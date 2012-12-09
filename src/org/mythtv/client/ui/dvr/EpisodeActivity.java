@@ -51,7 +51,7 @@ public class EpisodeActivity extends AbstractDvrActivity implements EpisodeFragm
 		setContentView( R.layout.activity_dvr_episode );
 		
 		Bundle args = getIntent().getExtras();
-		Long channelId = args.getLong( ProgramConstants.FIELD_CHANNEL_ID, -1 );
+		int channelId = args.getInt( ProgramConstants.FIELD_CHANNEL_ID, -1 );
 		Long startTime = args.getLong( ProgramConstants.FIELD_START_TIME, -1 );
 		
 		episodeFragment = (EpisodeFragment) getSupportFragmentManager().findFragmentById( R.id.fragment_dvr_episode );
@@ -70,7 +70,7 @@ public class EpisodeActivity extends AbstractDvrActivity implements EpisodeFragm
 		Log.v( TAG, "onOptionsItemSelected : enter" );
 
 		Bundle args = getIntent().getExtras();
-		Long channelId = args.getLong( ProgramConstants.FIELD_CHANNEL_ID, -1 );
+		int channelId = args.getInt( ProgramConstants.FIELD_CHANNEL_ID, -1 );
 		Long startTime = args.getLong( ProgramConstants.FIELD_START_TIME, -1 );
 		Program program = mRecordedDaoHelper.findOne( channelId, new DateTime( startTime ) );
 		
