@@ -19,10 +19,7 @@
 package org.mythtv.client.ui.frontends;
 
 import org.mythtv.client.ui.AbstractMythtvFragmentActivity;
-import org.mythtv.client.ui.AwayActivity;
-import org.mythtv.client.ui.HomeActivity;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
