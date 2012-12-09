@@ -125,7 +125,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 	 * @param startTime
 	 * @return
 	 */
-	public abstract Program findOne( Long channelId, DateTime startTime );
+	public abstract Program findOne( int channelId, DateTime startTime );
 
 	/**
 	 * @param uri
@@ -543,8 +543,8 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		values.put( ProgramConstants.FIELD_INETREF, null != program.getInetref() ? program.getInetref() : "" );
 		values.put( ProgramConstants.FIELD_SEASON, null != program.getSeason() ? program.getSeason() : "" );
 		values.put( ProgramConstants.FIELD_EPISODE, null != program.getEpisode() ? program.getEpisode() : "" );
-		values.put( ProgramConstants.FIELD_CHANNEL_ID, null != program.getChannelInfo() && null != program.getChannelInfo().getChannelId() ? program.getChannelInfo().getChannelId() : -1 );
-		values.put( ProgramConstants.FIELD_RECORD_ID, null != program.getRecording() && null != program.getRecording().getRecordId() ? program.getRecording().getRecordId() : -1 );
+		values.put( ProgramConstants.FIELD_CHANNEL_ID, null != program.getChannelInfo() ? program.getChannelInfo().getChannelId() : -1 );
+		values.put( ProgramConstants.FIELD_RECORD_ID, null != program.getRecording() ? program.getRecording().getRecordId() : -1 );
 		values.put( ProgramConstants.FIELD_LOCATION_URL, mLocationProfile.getUrl() );
 		
 		return values;
