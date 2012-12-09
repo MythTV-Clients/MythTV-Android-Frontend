@@ -36,7 +36,6 @@ import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 /**
@@ -46,8 +45,6 @@ import android.widget.ListView;
 public class CaptureCardsListFragment extends ListFragment {
 
 	private static final String TAG = CaptureCardsListFragment.class.getSimpleName();
-	
-	private MainApplication mainApplication;
 	
     private int mCurrentCaptureCard = 0;
     boolean mDualPane;
@@ -61,8 +58,6 @@ public class CaptureCardsListFragment extends ListFragment {
 		
 		super.onActivityCreated( savedInstanceState );
 
-		mainApplication = (MainApplication) getActivity().getApplicationContext();
-		
 		downloadCaptureCards();
 		
         if( null != savedInstanceState ) {
