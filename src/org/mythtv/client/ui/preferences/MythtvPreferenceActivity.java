@@ -651,7 +651,7 @@ public class MythtvPreferenceActivity extends PreferenceActivity implements Serv
 			Log.v( TAG, "selectLocationProfile : enter" );
 
 			final String[] names = new String[ profiles.size() ];
-			final int[] ids = new int[ profiles.size() ];
+			final long[] ids = new long[ profiles.size() ];
 			
 			for( int i = 0; i < profiles.size(); i++) {
 				LocationProfile profile = profiles.get( i );
@@ -741,7 +741,7 @@ public class MythtvPreferenceActivity extends PreferenceActivity implements Serv
 		 * @param id
 		 * @param type
 		 */
-		protected static void saveSelectedLocationProfile( final Context context, final int id, final LocationType type ) {
+		protected static void saveSelectedLocationProfile( final Context context, final long id, final LocationType type ) {
 			Log.v( TAG, "saveSelectedLocationProfile : enter" );
 
 			switch( type ) {
@@ -788,7 +788,7 @@ public class MythtvPreferenceActivity extends PreferenceActivity implements Serv
 			Log.v( TAG, "deleteLocationProfile : enter" );
 
 			final String[] names = new String[ profiles.size() ];
-			final int[] ids = new int[ profiles.size() ];
+			final long[] ids = new long[ profiles.size() ];
 			
 			for( int i = 0; i < profiles.size(); i++) {
 				LocationProfile profile = profiles.get( i );

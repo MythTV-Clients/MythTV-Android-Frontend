@@ -23,9 +23,16 @@ import org.mythtv.client.ui.AbstractMythtvFragmentActivity;
 import org.mythtv.client.ui.preferences.LocationProfile.LocationType;
 import org.mythtv.db.preferences.LocationProfileConstants;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
+import org.mythtv.service.preferences.PreferencesRecordedDownloadService;
+import org.mythtv.service.util.RunningServiceHelper;
 
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -42,25 +49,49 @@ public class LocationProfileEditor extends AbstractMythtvFragmentActivity {
 
 	private static final String TAG = LocationProfileEditor.class.getSimpleName();
 
+    private PreferencesRecordedDownloadReceiver receiver = new PreferencesRecordedDownloadReceiver();
+
+    private ProgressDialog mProgressDialog;
+    
 	private LocationProfileDaoHelper mLocationProfileDaoHelper;
+	private RunningServiceHelper mRunningServiceHelper;
 	
 	private LocationProfile profile;
 
+	/* (non-Javadoc)
+	 * @see android.app.Activity#onStart()
+	 */
+	@Override
+	public void onStart() {
+		Log.v( TAG, "onStart : enter" );
+		super.onStart();
+
+		IntentFilter preferencesRecordedDownloadFilter = new IntentFilter( PreferencesRecordedDownloadService.ACTION_DOWNLOAD );
+		preferencesRecordedDownloadFilter.addAction( PreferencesRecordedDownloadService.ACTION_COMPLETE );
+        registerReceiver( receiver, preferencesRecordedDownloadFilter );
+
+		Log.v( TAG, "onStart : enter" );
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mythtv.client.ui.AbstractMythtvFragmentActivity#onCreate(android.os.Bundle)
+	 */
 	@Override
 	public void onCreate( Bundle savedInstanceState ) {
 		Log.v( TAG, "onCreate : enter" );
 		super.onCreate( savedInstanceState );
 
 		mLocationProfileDaoHelper = new LocationProfileDaoHelper( this );
+		mRunningServiceHelper = RunningServiceHelper.newInstance( this );
 		
 		setContentView( this.getLayoutInflater().inflate( R.layout.preference_location_profile_editor, null ) );
 
 		setupSaveButtonEvent( R.id.btnPreferenceLocationProfileSave );
 		setupCancelButtonEvent( R.id.btnPreferenceLocationProfileCancel );
 
-		int id = getIntent().getIntExtra( LocationProfileConstants._ID, -1 );
+		long id = getIntent().getLongExtra( LocationProfileConstants._ID, -1 );
 
-		profile = mLocationProfileDaoHelper.findOne( (long) id );
+		profile = mLocationProfileDaoHelper.findOne( id );
 		if( null == profile ) {
 			profile = new LocationProfile();
 			
@@ -69,11 +100,32 @@ public class LocationProfileEditor extends AbstractMythtvFragmentActivity {
 			profile.setName( getIntent().getStringExtra( LocationProfileConstants.FIELD_NAME ) );
 			profile.setUrl( getIntent().getStringExtra( LocationProfileConstants.FIELD_URL ) );
 			profile.setSelected( 0 != getIntent().getIntExtra( LocationProfileConstants.FIELD_SELECTED, 0 ) );
+			profile.setWolAddress( getIntent().getStringExtra( LocationProfileConstants.FIELD_WOL_ADDRESS ) );
 		}
 		
 		setUiFromLocationProfile();
 
 		Log.v( TAG, "onCreate : exit" );
+	}
+
+	/* (non-Javadoc)
+	 * @see android.preference.PreferenceActivity#onStop()
+	 */
+	@Override
+	public void onStop() {
+		Log.v( TAG, "onStop : enter" );
+		super.onStop();
+
+		// Unregister for broadcast
+		if( null != receiver ) {
+			try {
+				unregisterReceiver( receiver );
+			} catch( IllegalArgumentException e ) {
+				Log.e( TAG, e.getLocalizedMessage(), e );
+			}
+		}
+
+		Log.v( TAG, "onStop : exit" );
 	}
 
 	// internal helpers
@@ -83,6 +135,7 @@ public class LocationProfileEditor extends AbstractMythtvFragmentActivity {
 
 		setName( profile.getName() );
 		setUrl( profile.getUrl() );
+		setWolAddress( profile.getWolAddress() );
 
 		Log.v( TAG, "setUiFromLocationProfile : exit" );
 	}
@@ -115,6 +168,14 @@ public class LocationProfileEditor extends AbstractMythtvFragmentActivity {
 
 	private final void setUrl( String url ) {
 		setTextBoxText( R.id.preference_location_profile_edit_text_url, url );
+	}
+
+	private final String getWolAddress() {
+		return getTextBoxText( R.id.preference_location_profile_edit_text_wol );
+	}
+
+	private final void setWolAddress( String wolAddress ) {
+		setTextBoxText( R.id.preference_location_profile_edit_text_wol, wolAddress );
 	}
 
 	private final String getTextBoxText( int textBoxViewId ) {
@@ -171,7 +232,15 @@ public class LocationProfileEditor extends AbstractMythtvFragmentActivity {
 		if( save() ) {
 			Log.v( TAG, "saveAndExit : save completed successfully" );
 
-			finish();
+			if( !mRunningServiceHelper.isServiceRunning( "org.mythtv.service.preferences.PreferencesRecordedDownloadService" ) ) {
+				
+				mProgressDialog = ProgressDialog.show( this, getResources().getString( R.string.please_wait ), getResources().getString( R.string.preferences_profile_loading ), true, false );
+				
+				Intent intent = new Intent( PreferencesRecordedDownloadService.ACTION_DOWNLOAD );
+				intent.putExtra( LocationProfileConstants._ID, profile.getId() );
+				startService( intent );
+			}
+
 		}
 		
 		Log.v( TAG, "saveAndExit : exit" );
@@ -190,7 +259,8 @@ public class LocationProfileEditor extends AbstractMythtvFragmentActivity {
 
 		profile.setName( getName() );
 		profile.setUrl( getUrl() );
-
+		profile.setWolAddress( getWolAddress() );
+		
 		AlertDialog.Builder builder = new AlertDialog.Builder( this );
 		builder.setTitle( R.string.preference_edit_error_dialog_title );
 		builder.setNeutralButton( R.string.btn_ok, new DialogInterface.OnClickListener() {
@@ -212,14 +282,39 @@ public class LocationProfileEditor extends AbstractMythtvFragmentActivity {
 		} else {
 			Log.v( TAG, "save : proceeding to save" );
 
-			retVal = mLocationProfileDaoHelper.save( profile );
-			if( retVal ) {
+			long id = mLocationProfileDaoHelper.save( profile );
+			if( id > 0 ) {
 				Log.i( TAG, "save : LocationProfile saved!" );
+				
+				profile.setId( id );
+				retVal = true;
 			}
 		}
 
 		Log.v( TAG, "save : exit" );
 		return retVal;
+	}
+
+	private class PreferencesRecordedDownloadReceiver extends BroadcastReceiver {
+
+		@Override
+		public void onReceive( Context context, Intent intent ) {
+        	Log.i( TAG, "PreferencesRecordedDownloadReceiver.onReceive : enter" );
+			
+	        if ( intent.getAction().equals( PreferencesRecordedDownloadService.ACTION_COMPLETE ) ) {
+	        	Log.i( TAG, "PreferencesRecordedDownloadReceiver.onReceive : complete=" + intent.getStringExtra( PreferencesRecordedDownloadService.EXTRA_COMPLETE ) );
+	        }
+
+		    if( mProgressDialog != null ) {
+		    	mProgressDialog.dismiss();
+		    	mProgressDialog = null;
+			}
+
+		    finish();
+	        
+        	Log.i( TAG, "PreferencesRecordedDownloadReceiver.onReceive : exit" );
+		}
+		
 	}
 
 }

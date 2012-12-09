@@ -25,6 +25,7 @@ import java.util.List;
 
 import javax.jmdns.JmDNS;
 import javax.jmdns.ServiceEvent;
+import javax.jmdns.ServiceInfo;
 import javax.jmdns.ServiceListener;
 
 import org.mythtv.R;
@@ -214,6 +215,7 @@ public class MythtvPreferenceActivityHC extends PreferenceActivity {
 				intent.putExtra( LocationProfileConstants.FIELD_NAME, profile.getName() );
 				intent.putExtra( LocationProfileConstants.FIELD_URL, profile.getUrl() );
 				intent.putExtra( LocationProfileConstants.FIELD_SELECTED, ( profile.isSelected() ? 1 : 0 ) );
+				intent.putExtra( LocationProfileConstants.FIELD_WOL_ADDRESS, profile.getWolAddress() );
 			}
 
 			// start activity
@@ -259,7 +261,7 @@ public class MythtvPreferenceActivityHC extends PreferenceActivity {
 			Log.v( TAG, "selectLocationProfile : enter" );
 
 			final String[] names = new String[ profiles.size() ];
-			final int[] ids = new int[ profiles.size() ];
+			final long[] ids = new long[ profiles.size() ];
 			
 			for( int i = 0; i < profiles.size(); i++) {
 				LocationProfile profile = profiles.get( i );
@@ -349,7 +351,7 @@ public class MythtvPreferenceActivityHC extends PreferenceActivity {
 		 * @param id
 		 * @param type
 		 */
-		protected static void saveSelectedLocationProfile( final Context context, final int id, final LocationType type ) {
+		protected static void saveSelectedLocationProfile( final Context context, final long id, final LocationType type ) {
 			Log.v( TAG, "saveSelectedLocationProfile : enter" );
 
 			switch( type ) {
@@ -396,7 +398,7 @@ public class MythtvPreferenceActivityHC extends PreferenceActivity {
 			Log.v( TAG, "deleteLocationProfile : enter" );
 
 			final String[] names = new String[ profiles.size() ];
-			final int[] ids = new int[ profiles.size() ];
+			final long[] ids = new long[ profiles.size() ];
 			
 			for( int i = 0; i < profiles.size(); i++) {
 				LocationProfile profile = profiles.get( i );
@@ -492,9 +494,10 @@ public class MythtvPreferenceActivityHC extends PreferenceActivity {
 			Log.v( TAG, "serviceAdded : enter" );
 
 			Log.v( TAG, "serviceAdded : " + event.getDNS().getServiceInfo( event.getType(), event.getName() ).toString() );
-			
-			final String hostname = event.getDNS().getServiceInfo( event.getType(), event.getName() ).getInet4Address().getHostAddress();
-			final int port = event.getDNS().getServiceInfo( event.getType(), event.getName() ).getPort();
+
+			ServiceInfo info = event.getDNS().getServiceInfo( event.getType(), event.getName() );
+			final String hostname = info.getInet4Address().getHostAddress();
+			final int port = info.getPort();
 			Log.v( TAG, "serviceAdded : masterbackend=" + ( "http://" + hostname + ":" + port + "/" ) );
 
 			LocationProfile profile = new LocationProfile();

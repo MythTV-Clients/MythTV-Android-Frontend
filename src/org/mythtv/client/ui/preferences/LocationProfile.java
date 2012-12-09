@@ -26,26 +26,29 @@ public class LocationProfile {
 
 	public static enum LocationType{ HOME, AWAY };
 	
-	private int id;
+	private long id;
 	private LocationType type;
 	private String name;
 	private String url;
 	private boolean selected;
 	private boolean connected;
+	private String version;
+	private String protocolVersion;
+	private String wolAddress;
 	
 	public LocationProfile() { }
 
 	/**
 	 * @return the id
 	 */
-	public int getId() {
+	public long getId() {
 		return id;
 	}
 
 	/**
 	 * @param id the id to set
 	 */
-	public void setId( int id ) {
+	public void setId( long id ) {
 		this.id = id;
 	}
 
@@ -119,6 +122,48 @@ public class LocationProfile {
 		this.connected = connected;
 	}
 
+	/**
+	 * @return the version
+	 */
+	public String getVersion() {
+		return version;
+	}
+
+	/**
+	 * @param version the version to set
+	 */
+	public void setVersion( String version ) {
+		this.version = version;
+	}
+
+	/**
+	 * @return the protocolVersion
+	 */
+	public String getProtocolVersion() {
+		return protocolVersion;
+	}
+
+	/**
+	 * @param protocolVersion the protocolVersion to set
+	 */
+	public void setProtocolVersion( String protocolVersion ) {
+		this.protocolVersion = protocolVersion;
+	}
+
+	/**
+	 * @return the wolAddress
+	 */
+	public String getWolAddress() {
+		return wolAddress;
+	}
+
+	/**
+	 * @param wolAddress the wolAddress to set
+	 */
+	public void setWolAddress( String wolAddress ) {
+		this.wolAddress = wolAddress;
+	}
+
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
@@ -148,8 +193,26 @@ public class LocationProfile {
 			builder.append( ", " );
 		}
 		
+		if( version != null ) {
+			builder.append( "version=" );
+			builder.append( version );
+			builder.append( ", " );
+		}
+		
+		if( protocolVersion != null ) {
+			builder.append( "protocolVersion=" );
+			builder.append( protocolVersion );
+			builder.append( ", " );
+		}
+		
+		if( wolAddress != null ) {
+			builder.append( "wolAddress=" );
+			builder.append( wolAddress );
+		}
+		
 		builder.append( "selected=" );
 		builder.append( selected );
+		builder.append( ", " );
 		
 		builder.append( "connected=" );
 		builder.append( connected );
