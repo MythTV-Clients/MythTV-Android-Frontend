@@ -58,7 +58,23 @@
                 android:id="@+id/preference_location_profile_edit_text_url"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:hint="@string/preference_location_profile_edit_text_url_hint" >
+                android:hint="@string/preference_location_profile_edit_text_url_hint"
+                android:inputType="textUri" >
+            </EditText>
+
+            <TextView
+                android:id="@+id/preference_location_profile_text_view_wol"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/preference_location_profile_text_view_wol" >
+            </TextView>
+
+            <EditText
+                android:id="@+id/preference_location_profile_edit_text_wol"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:hint="@string/preference_location_profile_edit_text_wol_hint"
+                android:inputType="textUri" >
             </EditText>
 
             <TableRow
