@@ -100,7 +100,7 @@ public class UpcomingDaoHelper extends ProgramDaoHelper {
 	 * @see org.mythtv.db.dvr.ProgramDaoHelper#findOne(int, org.joda.time.DateTime)
 	 */
 	@Override
-	public Program findOne( Long channelId, DateTime startTime ) {
+	public Program findOne( int channelId, DateTime startTime ) {
 		Log.d( TAG, "findOne : enter" );
 		
 		String selection = ProgramConstants.TABLE_NAME_RECORDED + "." + ProgramConstants.FIELD_CHANNEL_ID + " = ? AND " + ProgramConstants.TABLE_NAME_RECORDED + "." + ProgramConstants.FIELD_START_TIME + " = ?";
