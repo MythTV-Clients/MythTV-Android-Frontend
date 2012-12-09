@@ -82,7 +82,7 @@ public class VideoActivity extends AbstractDvrActivity {
 	    setupActionBar();
 	    
 
-	    Long channelId = getIntent().getLongExtra( EXTRA_CHANNEL_ID, -1 );
+	    int channelId = getIntent().getIntExtra( EXTRA_CHANNEL_ID, -1 );
 	    Long startTime = getIntent().getLongExtra( EXTRA_START_TIME, -1 );
 
 	    Program program = mRecordedDaoHelper.findOne( channelId, new DateTime( startTime ) );
