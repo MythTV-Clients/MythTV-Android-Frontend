@@ -31,7 +31,9 @@
     <string name="exception">Exception</string>
 	<string name="close">Close</string>
 	
-    <string name="data_loading">Mythtv for Android is currently loading data from your backend. Please try again later.</string>
+	<string name="please_wait">Please wait&#8230;</string>
+	
+	<string name="data_loading">Mythtv for Android is currently loading data from your backend. Please try again later.</string>
 	
     <!-- Menus -->
 	<string name="menu_about">About</string>
@@ -54,6 +56,7 @@
 	<string name="preferences_unset">No value selected</string>
 	<string name="preferences_profiles">Profiles</string>
 	<string name="preferences_profile_delete">Delete Profile</string>
+	<string name="preferences_profile_loading">Retrieving Master Backend Details&#8230;</string>
 	<string name="preference_home_profiles">Home Profiles</string>
 	<string name="preference_home_profiles_summary">Modify your home profile settings</string>
 	<string name="preference_home_profiles_select">Select Home Profile</string>
@@ -104,7 +107,10 @@
 	<string name="preference_location_profile_text_view_url">MythTV Master Backend Address:</string>
 	<string name="preference_location_profile_edit_text_url_hint">http://192.168.10.200:6544/</string>
 	<string name="preference_location_profile_text_view_url_error_invalid">Invalid MythTV Master Backend Address</string>
-		
+	<string name="preference_location_profile_text_view_wol">WOL Address (Optional):</string>
+	<string name="preference_location_profile_edit_text_wol_hint">AA:BB:CC:DD:EE:FF</string>
+	<string name="preference_location_profile_text_view_wol_error_invalid">Invalid MAC Address</string>
+			
 	<string name="preference_playback_profile_text_view_name">Name:</string>
 	<string name="preference_playback_profile_edit_text_name_hint">High Quality</string>
 	<string name="preference_playback_profile_text_view_name_error_invalid">Invalid Name</string>
