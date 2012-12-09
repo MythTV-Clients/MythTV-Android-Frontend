@@ -189,7 +189,7 @@ public class EpisodeFragment extends AbstractMythFragment {
 		return super.onOptionsItemSelected( item );
 	}
 
-	public void loadEpisode( Long channelId, DateTime startTime ) {
+	public void loadEpisode( int channelId, DateTime startTime ) {
 		Log.v( TAG, "loadEpisode : enter" );
 
 		if( null == mRecordedDaoHelper ) {
