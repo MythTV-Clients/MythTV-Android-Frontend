@@ -59,12 +59,17 @@ public class LocationProfileConstants implements BaseColumns {
 	public static final String FIELD_CONNECTED_DATA_TYPE = "INTEGER";
 	public static final String FIELD_CONNECTED_DEFAULT = "0";
 
-	// queries
-	public static final String SELECT_LOCATION_PROFILE =
-			"select " +
-				"lp._id, lp.type, lp.name, lp.url, lp.selected " +
-			"from " +
-				"location_profile lp";
+	public static final String FIELD_VERSION = "VERSION";
+	public static final String FIELD_VERSION_DATA_TYPE = "TEXT";
+	public static final String FIELD_VERSION_DEFAULT = "";
+
+	public static final String FIELD_PROTOCOL_VERSION = "PROTOCOL_VERSION";
+	public static final String FIELD_PROTOCOL_VERSION_DATA_TYPE = "TEXT";
+	public static final String FIELD_PROTOCOL_VERSION_DEFAULT = "";
+
+	public static final String FIELD_WOL_ADDRESS = "WOL_ADDRESS";
+	public static final String FIELD_WOL_ADDRESS_DATA_TYPE = "TEXT";
+	public static final String FIELD_WOL_ADDRESS_DEFAULT = "";
 
 	static {
 	
@@ -75,20 +80,26 @@ public class LocationProfileConstants implements BaseColumns {
 		insert.append( FIELD_NAME ).append( "," );
 		insert.append( FIELD_URL ).append( "," );
 		insert.append( FIELD_SELECTED ).append( "," );
-		insert.append( FIELD_CONNECTED );
+		insert.append( FIELD_CONNECTED ).append( "," );
+		insert.append( FIELD_VERSION ).append( "," );
+		insert.append( FIELD_PROTOCOL_VERSION ).append( "," );
+		insert.append( FIELD_WOL_ADDRESS );
 		insert.append( " ) " );
-		insert.append( "VALUES( ?,?,?,?,? )" );
+		insert.append( "VALUES( ?,?,?,?,?,?,?,? )" );
 		
 		INSERT_ROW = insert.toString();
 
 		StringBuilder update = new StringBuilder();
 		
 		update.append( "UPDATE " ).append( TABLE_NAME ).append( " SET " );
-		update.append( FIELD_TYPE ).append( " = ? " );
-		update.append( FIELD_NAME ).append( " = ? " );
-		update.append( FIELD_URL ).append( " = ? " );
-		update.append( FIELD_SELECTED ).append( " = ?" );
-		update.append( FIELD_CONNECTED ).append( " = ?" );
+		update.append( FIELD_TYPE ).append( " = ?, " );
+		update.append( FIELD_NAME ).append( " = ?, " );
+		update.append( FIELD_URL ).append( " = ?, " );
+		update.append( FIELD_SELECTED ).append( " = ?, " );
+		update.append( FIELD_CONNECTED ).append( " = ?, " );
+		update.append( FIELD_VERSION ).append( " = ?, " );
+		update.append( FIELD_PROTOCOL_VERSION ).append( " = ?, " );
+		update.append( FIELD_WOL_ADDRESS ).append( " = ? " );
 		update.append( "WHERE " );
 		update.append( _ID ).append( " = ?" );
 		

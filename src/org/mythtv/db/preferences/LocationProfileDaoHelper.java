@@ -116,17 +116,17 @@ public class LocationProfileDaoHelper {
 	 * @param profile
 	 * @return
 	 */
-	public boolean save( LocationProfile profile ) {
+	public long save( LocationProfile profile ) {
 		Log.d( TAG, "save : enter" );
 
-		boolean ret = false;
+		long ret = 0;
 		
 		ContentValues values = convertProfileToContentValues( profile );
 
 		if( profile.getId() == -1 ) {
 			Uri inserted = mContext.getContentResolver().insert( LocationProfileConstants.CONTENT_URI, values );
 			if( null != inserted ) {
-				ret = true;
+				ret = ContentUris.parseId( inserted );
 
 				Cursor profiles = mContext.getContentResolver().query( inserted, new String[] { LocationProfileConstants._ID }, LocationProfileConstants.FIELD_TYPE + " = ?", new String[] { profile.getType().name() }, null );
 				if( profiles.getCount() == 1 ) {
@@ -148,14 +148,14 @@ public class LocationProfileDaoHelper {
 
 			int count = mContext.getContentResolver().update( ContentUris.withAppendedId( LocationProfileConstants.CONTENT_URI, profile.getId() ), values, null, null );
 			if( count > 0 ) {
-				ret = true;
+				ret = profile.getId();
 			}
 		} else {
 			Log.v( TAG, "save : saving new location profile" );
 
 			Uri inserted = mContext.getContentResolver().insert( LocationProfileConstants.CONTENT_URI, values );
 			if( null != inserted ) {
-				ret = true;
+				ret = ContentUris.parseId( inserted );
 
 				Cursor profiles = mContext.getContentResolver().query( LocationProfileConstants.CONTENT_URI, new String[] { LocationProfileConstants._ID }, LocationProfileConstants.FIELD_TYPE + " = ?", new String[] { profile.getType().name() }, null );
 				if( profiles.getCount() == 1 ) {
@@ -198,13 +198,18 @@ public class LocationProfileDaoHelper {
 	 */
 	public boolean setSelectedLocationProfile( Long profileId ) {
 		Log.d( TAG, "setSelectedLocationProfile : enter" );
+
+		boolean saved = false;
 		
 		LocationProfile profile = findOne( profileId );
 
 		resetSelectedProfiles( profile.getType() );
 		
 		profile.setSelected( true );
-		boolean saved = save( profile );
+		long id = save( profile );
+		if( id != 0 ) {
+			saved = true;
+		}
 		
 		Log.d( TAG, "setSelectedLocationProfile : exit" );
 		return saved;
@@ -241,11 +246,16 @@ public class LocationProfileDaoHelper {
 	public boolean setConnectedLocationProfile( Long profileId ) {
 		Log.d( TAG, "setConnectedLocationProfile : enter" );
 		
+		boolean saved = false;
+
 		resetConnectedProfiles();
 		
 		LocationProfile profile = findOne( profileId );
 		profile.setConnected( true );
-		boolean saved = save( profile );
+		long id = save( profile );
+		if( id != 0 ) {
+			saved = true;
+		}
 		
 		Log.d( TAG, "setConnectedLocationProfile : exit" );
 		return saved;
@@ -280,6 +290,9 @@ public class LocationProfileDaoHelper {
 		values.put( LocationProfileConstants.FIELD_URL, profile.getUrl() );
 		values.put( LocationProfileConstants.FIELD_SELECTED, profile.isSelected() ? 1 : 0 );
 		values.put( LocationProfileConstants.FIELD_CONNECTED, profile.isConnected() ? 1 : 0 );
+		values.put( LocationProfileConstants.FIELD_VERSION, profile.getVersion() );
+		values.put( LocationProfileConstants.FIELD_PROTOCOL_VERSION, profile.getProtocolVersion() );
+		values.put( LocationProfileConstants.FIELD_WOL_ADDRESS, profile.getWolAddress() );
 		
 		Log.v( TAG, "convertProfileToContentValues : exit" );
 		return values;
@@ -288,12 +301,44 @@ public class LocationProfileDaoHelper {
 	private LocationProfile convertCursorToLocationProfile( Cursor cursor ) {
 		Log.v( TAG, "convertCursorToLocationProfile : enter" );
 		
-		int id = cursor.getInt( cursor.getColumnIndexOrThrow( LocationProfileConstants._ID ) );
-		String type = cursor.getString( cursor.getColumnIndexOrThrow( LocationProfileConstants.FIELD_TYPE ) );
-		String name = cursor.getString( cursor.getColumnIndexOrThrow( LocationProfileConstants.FIELD_NAME ) );
-		String url = cursor.getString( cursor.getColumnIndexOrThrow( LocationProfileConstants.FIELD_URL ) );
-		int selected = cursor.getInt( cursor.getColumnIndexOrThrow( LocationProfileConstants.FIELD_SELECTED ) );
-		int connected = cursor.getInt( cursor.getColumnIndexOrThrow( LocationProfileConstants.FIELD_CONNECTED ) );
+		int id = -1, selected = -1, connected = -1;
+		String type = "", name = "", url = "", version = "", protocolVersion = "", wolAddress = "";
+		
+		if( cursor.getColumnIndex( LocationProfileConstants._ID ) > -1 ) {
+			id = cursor.getInt( cursor.getColumnIndexOrThrow( LocationProfileConstants._ID ) );
+		}
+		
+		if( cursor.getColumnIndex( LocationProfileConstants.FIELD_TYPE ) > -1 ) {
+			type = cursor.getString( cursor.getColumnIndexOrThrow( LocationProfileConstants.FIELD_TYPE ) );
+		}
+		
+		if( cursor.getColumnIndex( LocationProfileConstants.FIELD_NAME ) > -1 ) {
+			name = cursor.getString( cursor.getColumnIndexOrThrow( LocationProfileConstants.FIELD_NAME ) );
+		}
+		
+		if( cursor.getColumnIndex( LocationProfileConstants.FIELD_URL ) > -1 ) {
+			url = cursor.getString( cursor.getColumnIndexOrThrow( LocationProfileConstants.FIELD_URL ) );
+		}
+		
+		if( cursor.getColumnIndex( LocationProfileConstants.FIELD_SELECTED ) > -1 ) {
+			selected = cursor.getInt( cursor.getColumnIndexOrThrow( LocationProfileConstants.FIELD_SELECTED ) );
+		}
+		
+		if( cursor.getColumnIndex( LocationProfileConstants.FIELD_CONNECTED ) > -1 ) {
+			connected = cursor.getInt( cursor.getColumnIndexOrThrow( LocationProfileConstants.FIELD_CONNECTED ) );
+		}
+		
+		if( cursor.getColumnIndex( LocationProfileConstants.FIELD_VERSION ) > -1 ) {
+			version = cursor.getString( cursor.getColumnIndexOrThrow( LocationProfileConstants.FIELD_VERSION ) );
+		}
+		
+		if( cursor.getColumnIndex( LocationProfileConstants.FIELD_PROTOCOL_VERSION ) > -1 ) {
+			protocolVersion = cursor.getString( cursor.getColumnIndexOrThrow( LocationProfileConstants.FIELD_PROTOCOL_VERSION ) );
+		}
+		
+		if( cursor.getColumnIndex( LocationProfileConstants.FIELD_WOL_ADDRESS ) > -1 ) {
+			wolAddress = cursor.getString( cursor.getColumnIndexOrThrow( LocationProfileConstants.FIELD_WOL_ADDRESS ) );
+		}
 		
 		LocationProfile profile = new LocationProfile();
 		profile.setId( id );
@@ -302,6 +347,9 @@ public class LocationProfileDaoHelper {
 		profile.setUrl( url );
 		profile.setSelected( 1 == selected ? true : false );
 		profile.setConnected( 1 == connected ? true : false );
+		profile.setVersion( version );
+		profile.setProtocolVersion( protocolVersion );
+		profile.setWolAddress( wolAddress );
 		
 		Log.v( TAG, "convertCursorToLocationProfile : exit" );
 		return profile;
