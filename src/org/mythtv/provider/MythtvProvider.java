@@ -1232,18 +1232,18 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 					SQLiteStatement insert = db.compileStatement( RecordingConstants.INSERT_ROW );
 				
 					for( ContentValues value : values ) {
-						insert.bindString( 1, value.getAsString( RecordingConstants._ID ) );
-						insert.bindLong( 2, value.getAsLong( RecordingConstants.FIELD_STATUS ) );
-						insert.bindLong( 3, value.getAsLong( RecordingConstants.FIELD_PRIORITY ) );
-						insert.bindLong( 4, value.getAsLong( RecordingConstants.FIELD_START_TS ) );
-						insert.bindLong( 5, value.getAsLong( RecordingConstants.FIELD_END_TS ) );
+						insert.bindLong( 1, value.getAsLong( RecordingConstants._ID ) );
+						insert.bindLong( 2, value.getAsInteger( RecordingConstants.FIELD_STATUS ) );
+						insert.bindLong( 3, value.getAsInteger( RecordingConstants.FIELD_PRIORITY ) );
+						insert.bindLong( 4, value.getAsInteger( RecordingConstants.FIELD_START_TS ) );
+						insert.bindLong( 5, value.getAsInteger( RecordingConstants.FIELD_END_TS ) );
 						insert.bindString( 6, value.getAsString( RecordingConstants.FIELD_REC_GROUP ) );
 						insert.bindString( 7, value.getAsString( RecordingConstants.FIELD_PLAY_GROUP ) );
 						insert.bindString( 8, value.getAsString( RecordingConstants.FIELD_STORAGE_GROUP ) );
-						insert.bindLong( 9, value.getAsLong( RecordingConstants.FIELD_REC_TYPE ) );
-						insert.bindLong( 10, value.getAsLong( RecordingConstants.FIELD_DUP_IN_TYPE ) );
-						insert.bindLong( 11, value.getAsLong( RecordingConstants.FIELD_DUP_METHOD ) );
-						insert.bindLong( 12, value.getAsLong( RecordingConstants.FIELD_ENCODER_ID ) );
+						insert.bindLong( 9, value.getAsInteger( RecordingConstants.FIELD_REC_TYPE ) );
+						insert.bindLong( 10, value.getAsInteger( RecordingConstants.FIELD_DUP_IN_TYPE ) );
+						insert.bindLong( 11, value.getAsInteger( RecordingConstants.FIELD_DUP_METHOD ) );
+						insert.bindLong( 12, value.getAsInteger( RecordingConstants.FIELD_ENCODER_ID ) );
 						insert.bindString( 13, value.getAsString( RecordingConstants.FIELD_PROFILE ) );
 						insert.bindString( 14, value.getAsString( RecordingConstants.FIELD_LOCATION_URL ) );
 						insert.execute();
