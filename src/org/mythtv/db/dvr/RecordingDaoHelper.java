@@ -208,14 +208,9 @@ public class RecordingDaoHelper extends AbstractDaoHelper {
 	public Recording convertCursorToRecording( Cursor cursor ) {
 //		Log.v( TAG, "convertCursorToRecording : enter" );
 
-		long id = -1, recordId = -1;
-		int status = -1, priority = -1, recordingType = -1, duplicateInType = -1, duplicateMethod = -1, encoderId = -1;
+		int recordId = -1, status = -1, priority = -1, recordingType = -1, duplicateInType = -1, duplicateMethod = -1, encoderId = -1;
 		String recordingGroup = "", playGroup = "", storageGroup = "", profile = "";
 		DateTime startTimestamp = null, endTimestamp = null;
-		
-		if( cursor.getColumnIndex( RecordingConstants.TABLE_NAME + "_" + RecordingConstants._ID ) != -1 ) {
-			id = cursor.getInt( cursor.getColumnIndex( RecordingConstants.TABLE_NAME + "_" + RecordingConstants._ID ) );
-		}
 		
 		if( cursor.getColumnIndex( RecordingConstants.TABLE_NAME + "_" + RecordingConstants.FIELD_STATUS ) != -1 ) {
 			status = cursor.getInt( cursor.getColumnIndex( RecordingConstants.TABLE_NAME + "_" + RecordingConstants.FIELD_STATUS ) );
@@ -234,7 +229,7 @@ public class RecordingDaoHelper extends AbstractDaoHelper {
 		}
 		
 		if( cursor.getColumnIndex( RecordingConstants.TABLE_NAME + "_" + RecordingConstants.FIELD_RECORD_ID ) != -1 ) {
-			recordId = cursor.getLong( cursor.getColumnIndex( RecordingConstants.TABLE_NAME + "_" + RecordingConstants.FIELD_RECORD_ID ) );
+			recordId = cursor.getInt( cursor.getColumnIndex( RecordingConstants.TABLE_NAME + "_" + RecordingConstants.FIELD_RECORD_ID ) );
 		}
 		
 		if( cursor.getColumnIndex( RecordingConstants.TABLE_NAME + "_" + RecordingConstants.FIELD_REC_GROUP ) != -1 ) {
@@ -271,7 +266,6 @@ public class RecordingDaoHelper extends AbstractDaoHelper {
 		
 
 		Recording recording = new Recording();
-		recording.setRecordId( id );
 		recording.setStatus( status );
 		recording.setPriority( priority );
 		recording.setStartTimestamp( startTimestamp );
