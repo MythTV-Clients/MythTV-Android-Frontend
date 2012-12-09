@@ -19,7 +19,6 @@
 package org.mythtv.client.ui.frontends;
 
 import org.mythtv.R;
-import org.mythtv.client.ui.frontends.AbstractFrontendFragment.SendActionTask;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
