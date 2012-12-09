@@ -136,6 +136,12 @@
             </intent-filter>
         </service>
 		
+		<service android:name=".service.preferences.PreferencesRecordedDownloadService" android:process=":preferencesRecorded" android:exported="false">
+			<intent-filter>
+                <action android:name="org.mythtv.background.preferencesRecordedDownload.ACTION_DOWNLOAD" />
+            </intent-filter>
+        </service>
+		
 		<service android:name=".service.dvr.BannerDownloadService" android:process=":banner" android:exported="false">
 			<intent-filter>
                 <action
