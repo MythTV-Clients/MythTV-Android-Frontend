@@ -26,7 +26,6 @@ import org.mythtv.client.ui.dvr.DvrDashboardFragment;
 import org.mythtv.client.ui.frontends.MythmoteActivity;
 import org.mythtv.client.ui.media.MediaDashboardFragment;
 import org.mythtv.client.ui.util.MenuHelper;
-import org.mythtv.service.util.FileHelper;
 import org.mythtv.service.util.NetworkHelper;
 
 import android.content.Intent;
