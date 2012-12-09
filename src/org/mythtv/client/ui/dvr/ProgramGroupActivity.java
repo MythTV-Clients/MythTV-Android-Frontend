@@ -106,7 +106,7 @@ public class ProgramGroupActivity extends AbstractDvrActivity implements Program
 	 * as part of the RecordingsActivity. 
 	 */
 	@Override
-	public void onEpisodeSelected( Long channelId, DateTime startTime ) {
+	public void onEpisodeSelected( int channelId, DateTime startTime ) {
 		Log.v( TAG, "onEpisodeSelect : enter" );
 
 		Log.v( TAG, "onEpisodeSelect : starting episode activity" );
