@@ -111,6 +111,15 @@ public class MainApplication extends Application {
 		return provider.getApi();
 	}
 
+	public MythServices getMythServicesApi( LocationProfile profile ) {
+		Log.v( TAG, "getMythServicesApi : enter" );
+		
+		MythServicesServiceProvider provider = new MythServicesServiceProvider( profile.getUrl() );
+		
+		Log.v( TAG, "getMythServicesApi : exit" );
+		return provider.getApi();
+	}
+
 	/**
 	 * @return the mObjectMapper
 	 */
