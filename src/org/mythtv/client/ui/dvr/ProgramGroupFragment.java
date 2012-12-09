@@ -57,7 +57,7 @@ public class ProgramGroupFragment extends MythtvListFragment implements LoaderMa
 	
 	public interface OnEpisodeSelectedListener
 	{
-		void onEpisodeSelected( Long channelId, DateTime startTime );
+		void onEpisodeSelected( int channelId, DateTime startTime );
 	}
 	
 	private ProgramCursorAdapter mAdapter;
@@ -173,7 +173,7 @@ public class ProgramGroupFragment extends MythtvListFragment implements LoaderMa
 			Log.v( TAG, "onListItemClick : selecting episode" );
 			Log.v( TAG, "onListItemClick : program=" + program.toString() );
 			
-			mEpisodeListener.onEpisodeSelected( (long) program.getChannelInfo().getChannelId(), program.getStartTime() );
+			mEpisodeListener.onEpisodeSelected( program.getChannelInfo().getChannelId(), program.getStartTime() );
 		}
 
 		Log.v( TAG, "onListItemClick : exit" );
