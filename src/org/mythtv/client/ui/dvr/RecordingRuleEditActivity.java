@@ -20,7 +20,6 @@ package org.mythtv.client.ui.dvr;
 
 import org.mythtv.R;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
