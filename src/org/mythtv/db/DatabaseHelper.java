@@ -47,7 +47,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	private static final String TAG = DatabaseHelper.class.getSimpleName();
 	
 	private static final String DATABASE_NAME = "mythtvdb";
-	private static final int DATABASE_VERSION = 87;
+	private static final int DATABASE_VERSION = 92;
 
 	public DatabaseHelper( Context context ) {
 		super( context, DATABASE_NAME, null, DATABASE_VERSION );
@@ -106,8 +106,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	public void onUpgrade( SQLiteDatabase db, int oldVersion, int newVersion ) {
 		Log.v( TAG, "onUpgrade : enter" );
 
-		if( oldVersion < 87 ) {
-			Log.v( TAG, "onUpgrade : upgrading to db version 87" );
+		if( oldVersion < 92 ) {
+			Log.v( TAG, "onUpgrade : upgrading to db version 92" );
 
 			onCreate( db );
 
@@ -220,8 +220,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		sqlBuilder.append( LocationProfileConstants.FIELD_TYPE ).append( " " ).append( LocationProfileConstants.FIELD_TYPE_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( LocationProfileConstants.FIELD_NAME ).append( " " ).append( LocationProfileConstants.FIELD_NAME_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( LocationProfileConstants.FIELD_URL ).append( " " ).append( LocationProfileConstants.FIELD_URL_DATA_TYPE ).append( ", " );
-		sqlBuilder.append( LocationProfileConstants.FIELD_SELECTED ).append( " " ).append( LocationProfileConstants.FIELD_SELECTED_DATA_TYPE ).append( " default" ).append( LocationProfileConstants.FIELD_SELECTED_DEFAULT ).append( ", " );
-		sqlBuilder.append( LocationProfileConstants.FIELD_CONNECTED ).append( " " ).append( LocationProfileConstants.FIELD_CONNECTED_DATA_TYPE ).append( " default" ).append( LocationProfileConstants.FIELD_CONNECTED_DEFAULT );
+		sqlBuilder.append( LocationProfileConstants.FIELD_SELECTED ).append( " " ).append( LocationProfileConstants.FIELD_SELECTED_DATA_TYPE ).append( " default " ).append( LocationProfileConstants.FIELD_SELECTED_DEFAULT ).append( ", " );
+		sqlBuilder.append( LocationProfileConstants.FIELD_CONNECTED ).append( " " ).append( LocationProfileConstants.FIELD_CONNECTED_DATA_TYPE ).append( " default " ).append( LocationProfileConstants.FIELD_CONNECTED_DEFAULT ).append( ", " );
+		sqlBuilder.append( LocationProfileConstants.FIELD_VERSION ).append( " " ).append( LocationProfileConstants.FIELD_VERSION_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( LocationProfileConstants.FIELD_PROTOCOL_VERSION ).append( " " ).append( LocationProfileConstants.FIELD_PROTOCOL_VERSION_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( LocationProfileConstants.FIELD_WOL_ADDRESS ).append( " " ).append( LocationProfileConstants.FIELD_WOL_ADDRESS_DATA_TYPE );
 		sqlBuilder.append( ");" );
 		String sql = sqlBuilder.toString();
 		if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
@@ -229,34 +232,46 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		}
 		db.execSQL( sql );
 
-		ContentValues values = new ContentValues();
-
-		values.put( LocationProfileConstants.FIELD_TYPE, "HOME" );
-		values.put( LocationProfileConstants.FIELD_NAME, "Home" );
-		values.put( LocationProfileConstants.FIELD_URL, "http://192.168.10.200:6544/" );
-		values.put( LocationProfileConstants.FIELD_SELECTED, 1 );
-		db.insert( LocationProfileConstants.TABLE_NAME, null, values );
-
-		values = new ContentValues();
-		values.put( LocationProfileConstants.FIELD_TYPE, "AWAY" );
-		values.put( LocationProfileConstants.FIELD_NAME, "Emulator" );
-		values.put( LocationProfileConstants.FIELD_URL, "http://10.0.2.2:6544/" );
-		values.put( LocationProfileConstants.FIELD_SELECTED, 1 );
-		db.insert( LocationProfileConstants.TABLE_NAME, null, values );
-		
-		values = new ContentValues();
-		values.put( LocationProfileConstants.FIELD_TYPE, "AWAY" );
-		values.put( LocationProfileConstants.FIELD_NAME, "Home" );
-		values.put( LocationProfileConstants.FIELD_URL, "http://192.168.10.200:6544/" );
-		values.put( LocationProfileConstants.FIELD_SELECTED, 0 );
-		db.insert( LocationProfileConstants.TABLE_NAME, null, values );
-		
-		values = new ContentValues();
-		values.put( LocationProfileConstants.FIELD_TYPE, "AWAY" );
-		values.put( LocationProfileConstants.FIELD_NAME, "Tunnel" );
-		values.put( LocationProfileConstants.FIELD_URL, "http://localhost:6544/" );
-		values.put( LocationProfileConstants.FIELD_SELECTED, 1 );
-		db.insert( LocationProfileConstants.TABLE_NAME, null, values );
+//		ContentValues values = new ContentValues();
+//
+//		values.put( LocationProfileConstants.FIELD_TYPE, "HOME" );
+//		values.put( LocationProfileConstants.FIELD_NAME, "Home" );
+//		values.put( LocationProfileConstants.FIELD_URL, "http://192.168.10.200:6544/" );
+//		values.put( LocationProfileConstants.FIELD_SELECTED, 1 );
+//		values.put( LocationProfileConstants.FIELD_VERSION, "0.26" );
+//		values.put( LocationProfileConstants.FIELD_PROTOCOL_VERSION, "75" );
+//		values.put( LocationProfileConstants.FIELD_WOL_ADDRESS, "50:e5:49:d9:02:db" );
+//		db.insert( LocationProfileConstants.TABLE_NAME, null, values );
+//
+//		values = new ContentValues();
+//		values.put( LocationProfileConstants.FIELD_TYPE, "AWAY" );
+//		values.put( LocationProfileConstants.FIELD_NAME, "Emulator" );
+//		values.put( LocationProfileConstants.FIELD_URL, "http://10.0.2.2:6544/" );
+//		values.put( LocationProfileConstants.FIELD_SELECTED, 1 );
+//		values.put( LocationProfileConstants.FIELD_VERSION, "0.26" );
+//		values.put( LocationProfileConstants.FIELD_PROTOCOL_VERSION, "75" );
+//		values.put( LocationProfileConstants.FIELD_WOL_ADDRESS, "" );
+//		db.insert( LocationProfileConstants.TABLE_NAME, null, values );
+//		
+//		values = new ContentValues();
+//		values.put( LocationProfileConstants.FIELD_TYPE, "AWAY" );
+//		values.put( LocationProfileConstants.FIELD_NAME, "Home" );
+//		values.put( LocationProfileConstants.FIELD_URL, "http://192.168.10.200:6544/" );
+//		values.put( LocationProfileConstants.FIELD_SELECTED, 0 );
+//		values.put( LocationProfileConstants.FIELD_VERSION, "0.26" );
+//		values.put( LocationProfileConstants.FIELD_PROTOCOL_VERSION, "75" );
+//		values.put( LocationProfileConstants.FIELD_WOL_ADDRESS, "" );
+//		db.insert( LocationProfileConstants.TABLE_NAME, null, values );
+//		
+//		values = new ContentValues();
+//		values.put( LocationProfileConstants.FIELD_TYPE, "AWAY" );
+//		values.put( LocationProfileConstants.FIELD_NAME, "Tunnel" );
+//		values.put( LocationProfileConstants.FIELD_URL, "http://localhost:6544/" );
+//		values.put( LocationProfileConstants.FIELD_SELECTED, 0 );
+//		values.put( LocationProfileConstants.FIELD_VERSION, "0.26" );
+//		values.put( LocationProfileConstants.FIELD_PROTOCOL_VERSION, "75" );
+//		values.put( LocationProfileConstants.FIELD_WOL_ADDRESS, "" );
+//		db.insert( LocationProfileConstants.TABLE_NAME, null, values );
 		
 		Log.v( TAG, "createLocationProfiles : exit" );
 	}
