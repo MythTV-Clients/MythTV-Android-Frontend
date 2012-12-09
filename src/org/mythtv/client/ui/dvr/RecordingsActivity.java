@@ -160,7 +160,7 @@ public class RecordingsActivity extends AbstractDvrActivity implements Recording
 	 * 
 	 */
 	@Override
-	public void onEpisodeSelected( Long channelId, DateTime startTime ) {
+	public void onEpisodeSelected( int channelId, DateTime startTime ) {
 		Log.v( TAG, "onEpisodeSelect : enter" );
 		
 		//check if we're hosting multiple fragments and have the episode fragment
