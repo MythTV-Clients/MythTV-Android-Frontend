@@ -56,8 +56,8 @@ public class RecordingRuleFragment extends AbstractMythFragment {
 	private static final String TAG = RecordingRuleFragment.class.getSimpleName();
 	
 	private ChannelDaoHelper mChannelDaoHelper;
-	private MenuHelper mMenuHelper = ( (AbstractDvrActivity) getActivity() ).getMenuHelper();
-	private NetworkHelper mNetworkHelper = ( (AbstractDvrActivity) getActivity() ).getNetworkHelper();
+	private MenuHelper mMenuHelper;
+	private NetworkHelper mNetworkHelper;
 	private ProgramHelper mProgramHelper;
 	private Integer mRecordingRuleId;
 	
@@ -123,7 +123,13 @@ public class RecordingRuleFragment extends AbstractMythFragment {
 		mRecordingRuleId = recordingRuleId;
 
 		if( null != getActivity() ) {
+
+			if( null == mNetworkHelper ) {
+				mNetworkHelper = ( (AbstractDvrActivity) getActivity() ).getNetworkHelper();
+			}
+
 			new DownloadRecordingRuleTask().execute( mRecordingRuleId );
+		
 		}
 		
 		Log.v( TAG, "loadRecordingRule : exit" );
@@ -135,6 +141,8 @@ public class RecordingRuleFragment extends AbstractMythFragment {
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		Log.v( TAG, "onCreateOptionsMenu : enter" );
+
+		mMenuHelper = ( (AbstractDvrActivity) getActivity() ).getMenuHelper();
 
 		mMenuHelper.editMenuItem( menu );
 		mMenuHelper.deleteMenuItem( menu );
