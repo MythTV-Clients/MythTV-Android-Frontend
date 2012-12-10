@@ -121,8 +121,6 @@ public class ChannelDownloadService extends MythtvService {
 				if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
 					sendNotification();
 					
-					mChannelDaoHelper.deleteAll();
-					
 					VideoSourceList videoSourceList = responseEntity.getBody();
 					
 					if( null != videoSourceList ) {
