@@ -316,7 +316,7 @@ public class EtagDaoHelper extends AbstractDaoHelper {
 		values.put( EtagConstants.FIELD_VALUE, etag.getETag() );
 		values.put( EtagConstants.FIELD_DATA_ID, null != dataId ? dataId : "" );
 		values.put( EtagConstants.FIELD_DATE, ( new DateTime() ).getMillis() );
-		values.put( EtagConstants.FIELD_LOCATION_URL, mLocationProfile.getUrl() );
+		values.put( EtagConstants.FIELD_HOSTNAME, mLocationProfile.getHostname() );
 		
 //		Log.v( TAG, "convertChannelToContentValues : exit" );
 		return values;

@@ -359,8 +359,8 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 			defaultAuth = cursor.getString( cursor.getColumnIndex( ChannelConstants.TABLE_NAME + "_" + ChannelConstants.FIELD_DEFAULT_AUTH ) );
 		}
 
-		if( cursor.getColumnIndex( ChannelConstants.TABLE_NAME + "_" + ChannelConstants.FIELD_LOCATION_URL ) != -1 ) {
-			Log.v( TAG, "convertCursorToChannelInfo : locationProfileUrl" + cursor.getString( cursor.getColumnIndex( ChannelConstants.TABLE_NAME + "_" + ChannelConstants.FIELD_LOCATION_URL ) ) );
+		if( cursor.getColumnIndex( ChannelConstants.TABLE_NAME + "_" + ChannelConstants.FIELD_HOSTNAME ) != -1 ) {
+			Log.v( TAG, "convertCursorToChannelInfo : hostname" + cursor.getString( cursor.getColumnIndex( ChannelConstants.TABLE_NAME + "_" + ChannelConstants.FIELD_HOSTNAME ) ) );
 		}
 
 		ChannelInfo channelInfo = new ChannelInfo();
@@ -454,7 +454,7 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 		values.put( ChannelConstants.FIELD_VISIBLE, ( channelInfo.isVisable() ? 1 : 0 ) );
 		values.put( ChannelConstants.FIELD_XMLTV_ID, channelInfo.getXmltvId() );
 		values.put( ChannelConstants.FIELD_DEFAULT_AUTH, channelInfo.getDefaultAuth() );
-		values.put( ChannelConstants.FIELD_LOCATION_URL, mLocationProfile.getUrl() );
+		values.put( ChannelConstants.FIELD_HOSTNAME, mLocationProfile.getHostname() );
 		
 //		Log.v( TAG, "convertChannelToContentValues : exit" );
 		return values;

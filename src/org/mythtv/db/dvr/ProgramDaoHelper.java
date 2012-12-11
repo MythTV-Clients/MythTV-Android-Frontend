@@ -271,7 +271,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 			if( null != program.getRecording() ) {
 				
 				String[] recordingProjection = new String[] { ProgramConstants._ID };
-				String recordingSelection = RecordingConstants.FIELD_RECORD_ID + " = ? AND " + RecordingConstants.FIELD_START_TS + " = ? AND " + RecordingConstants.FIELD_LOCATION_URL + " = ?";
+				String recordingSelection = RecordingConstants.FIELD_RECORD_ID + " = ? AND " + RecordingConstants.FIELD_START_TS + " = ? AND " + RecordingConstants.FIELD_HOSTNAME + " = ?";
 
 				ContentValues recordingValues = mRecordingDaoHelper.convertRecordingToContentValues( program.getRecording() );
 				Cursor recordingCursor = mContext.getContentResolver().query( RecordingConstants.CONTENT_URI, recordingProjection, recordingSelection, new String[] { String.valueOf( program.getRecording().getRecordId() ), String.valueOf( program.getRecording().getStartTimestamp().getMillis() ), mLocationProfile.getUrl() }, null );
@@ -545,7 +545,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		values.put( ProgramConstants.FIELD_EPISODE, null != program.getEpisode() ? program.getEpisode() : "" );
 		values.put( ProgramConstants.FIELD_CHANNEL_ID, null != program.getChannelInfo() ? program.getChannelInfo().getChannelId() : -1 );
 		values.put( ProgramConstants.FIELD_RECORD_ID, null != program.getRecording() ? program.getRecording().getRecordId() : -1 );
-		values.put( ProgramConstants.FIELD_LOCATION_URL, mLocationProfile.getUrl() );
+		values.put( ProgramConstants.FIELD_HOSTNAME, mLocationProfile.getHostname() );
 		
 		return values;
 	}

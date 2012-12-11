@@ -30,6 +30,7 @@ import org.mythtv.client.ui.preferences.LocationProfile.LocationType;
 import org.mythtv.client.ui.preferences.PlaybackProfile;
 import org.mythtv.db.dvr.RecordedDaoHelper;
 import org.mythtv.services.api.ETagInfo;
+import org.mythtv.services.api.StringWrapper;
 import org.mythtv.services.api.content.LiveStreamInfo;
 import org.mythtv.services.api.content.LiveStreamInfoWrapper;
 import org.mythtv.services.api.dvr.Program;
@@ -242,7 +243,7 @@ public class VideoActivity extends AbstractDvrActivity {
 		protected ResponseEntity<LiveStreamInfoWrapper> doInBackground( String... params ) {
 			Log.v( TAG, "CreateStreamTask : enter" );
 
-			ResponseEntity<String> hostname = getMainApplication().getMythServicesApi().mythOperations().getHostName();
+			ResponseEntity<StringWrapper> hostname = getMainApplication().getMythServicesApi().mythOperations().getHostName();
 			if( null == hostname || "".equals( hostname ) ) {
 				return null;
 			}
@@ -310,7 +311,7 @@ public class VideoActivity extends AbstractDvrActivity {
 		protected ResponseEntity<LiveStreamInfoWrapper> doInBackground( Void... params ) {
 			Log.v( TAG, "UpdateStreamInfoTask : enter" );
 
-			ResponseEntity<String> hostname = getMainApplication().getMythServicesApi().mythOperations().getHostName();
+			ResponseEntity<StringWrapper> hostname = getMainApplication().getMythServicesApi().mythOperations().getHostName();
 			if( null == hostname || "".equals( hostname ) ) {
 				return null;
 			}
@@ -364,7 +365,7 @@ public class VideoActivity extends AbstractDvrActivity {
 		protected LiveStreamInfo doInBackground( Void... params ) {
 			Log.v( TAG, "RemoveStreamTask : enter" );
 
-			ResponseEntity<String> hostname = getMainApplication().getMythServicesApi().mythOperations().getHostName();
+			ResponseEntity<StringWrapper> hostname = getMainApplication().getMythServicesApi().mythOperations().getHostName();
 			if( null == hostname || "".equals( hostname ) ) {
 				return null;
 			}

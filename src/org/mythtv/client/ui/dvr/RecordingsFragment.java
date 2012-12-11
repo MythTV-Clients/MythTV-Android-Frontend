@@ -92,8 +92,8 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 		LocationProfile locationProfile = ( (AbstractDvrActivity) getActivity() ).getLocationProfile();
 		
 		String[] projection = null;
-		String selection = ProgramGroupConstants.FIELD_LOCATION_URL + " = ?";
-		String[] selectionArgs = new String[] { locationProfile.getUrl() };
+		String selection = ProgramGroupConstants.FIELD_HOSTNAME + " = ?";
+		String[] selectionArgs = new String[] { locationProfile.getHostname() };
 		String sortOrder = ProgramGroupConstants.FIELD_PROGRAM_GROUP;
 		
 	    CursorLoader cursorLoader = new CursorLoader( getActivity(), ProgramGroupConstants.CONTENT_URI, projection, selection, selectionArgs, sortOrder );

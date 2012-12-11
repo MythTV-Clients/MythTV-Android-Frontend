@@ -55,7 +55,7 @@ public class EtagConstants extends AbstractBaseConstants {
 		insert.append( FIELD_VALUE ).append( "," );
 		insert.append( FIELD_DATA_ID ).append( "," );
 		insert.append( FIELD_DATE ).append( "," );
-		insert.append( FIELD_LOCATION_URL );
+		insert.append( FIELD_HOSTNAME );
 		
 		StringBuilder values = new StringBuilder();
 		values.append( " ) " );
@@ -71,7 +71,7 @@ public class EtagConstants extends AbstractBaseConstants {
 		update.append( FIELD_VALUE ).append( " = ?, " );
 		update.append( FIELD_DATA_ID ).append( " = ?, " );
 		update.append( FIELD_DATE ).append( " = ?, " );
-		update.append( FIELD_LOCATION_URL ).append( " = ?" );
+		update.append( FIELD_HOSTNAME ).append( " = ?" );
 		update.append( " WHERE " );
 		update.append( _ID ).append( " = ?" );
 		

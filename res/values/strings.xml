@@ -221,4 +221,6 @@
 	<string name="notification_sync_channels">Syncing Channels</string>
 	<string name="notification_not_connected">MythTV Master Backend is not connected!</string>
 	
+	<string name="test_title">Test Title</string>
+	
 </resources>

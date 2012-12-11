@@ -26,15 +26,16 @@ public abstract class AbstractDaoHelper {
 		
 		mLocationProfileDaoHelper = new LocationProfileDaoHelper( mContext );
 		
+		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile();
 	}
 	
 	protected String appendLocationUrl( String selection, String table ) {
 		
 		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile();
 
-		return ( !TextUtils.isEmpty( table ) ? ( table + "." ) : "" ) + AbstractBaseConstants.FIELD_LOCATION_URL
+		return ( !TextUtils.isEmpty( table ) ? ( table + "." ) : "" ) + AbstractBaseConstants.FIELD_HOSTNAME
 				+ " = '"
-				+ mLocationProfile.getUrl()
+				+ mLocationProfile.getHostname()
 				+ "'"
 				+ ( !TextUtils.isEmpty( selection ) ? " AND (" + selection + ')' : "" );
 	}

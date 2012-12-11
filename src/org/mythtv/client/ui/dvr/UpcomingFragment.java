@@ -90,9 +90,9 @@ public class UpcomingFragment extends MythtvListFragment implements LoaderManage
         
 		String[] projection = { ProgramConstants._ID, ProgramConstants.FIELD_TITLE, ProgramConstants.FIELD_SUB_TITLE, ProgramConstants.FIELD_START_TIME, ProgramConstants.FIELD_CATEGORY };
 		
-		String selection = ProgramConstants.FIELD_START_TIME + " > ? AND " + ProgramConstants.FIELD_START_TIME + " <= ? AND " + ProgramConstants.FIELD_START_TIME + " >= ? AND " + ProgramConstants.TABLE_NAME_UPCOMING + "." + ProgramConstants.FIELD_LOCATION_URL + " = ?";
+		String selection = ProgramConstants.FIELD_START_TIME + " > ? AND " + ProgramConstants.FIELD_START_TIME + " <= ? AND " + ProgramConstants.FIELD_START_TIME + " >= ? AND " + ProgramConstants.TABLE_NAME_UPCOMING + "." + ProgramConstants.FIELD_HOSTNAME + " = ?";
 		
-		String[] selectionArgs = new String[] { String.valueOf( startDay.getMillis() ), String.valueOf( endDay.getMillis() ), String.valueOf( now.getMillis() ), locationProfile.getUrl() };
+		String[] selectionArgs = new String[] { String.valueOf( startDay.getMillis() ), String.valueOf( endDay.getMillis() ), String.valueOf( now.getMillis() ), locationProfile.getHostname() };
 		
 	    CursorLoader cursorLoader = new CursorLoader( getActivity(), ProgramConstants.CONTENT_URI_UPCOMING, projection, selection, selectionArgs, ProgramConstants.FIELD_START_TIME );
 		

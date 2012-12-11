@@ -24,7 +24,11 @@ import org.mythtv.client.ui.preferences.LocationProfile.LocationType;
 import org.mythtv.db.preferences.LocationProfileConstants;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.preferences.PreferencesRecordedDownloadService;
+import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.service.util.RunningServiceHelper;
+import org.mythtv.services.api.StringWrapper;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -33,6 +37,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -54,6 +59,7 @@ public class LocationProfileEditor extends AbstractMythtvFragmentActivity {
     private ProgressDialog mProgressDialog;
     
 	private LocationProfileDaoHelper mLocationProfileDaoHelper;
+	private NetworkHelper mNetworkHelper;
 	private RunningServiceHelper mRunningServiceHelper;
 	
 	private LocationProfile profile;
@@ -82,6 +88,7 @@ public class LocationProfileEditor extends AbstractMythtvFragmentActivity {
 		super.onCreate( savedInstanceState );
 
 		mLocationProfileDaoHelper = new LocationProfileDaoHelper( this );
+		mNetworkHelper = NetworkHelper.newInstance( this );
 		mRunningServiceHelper = RunningServiceHelper.newInstance( this );
 		
 		setContentView( this.getLayoutInflater().inflate( R.layout.preference_location_profile_editor, null ) );
@@ -305,14 +312,66 @@ public class LocationProfileEditor extends AbstractMythtvFragmentActivity {
 	        	Log.i( TAG, "PreferencesRecordedDownloadReceiver.onReceive : complete=" + intent.getStringExtra( PreferencesRecordedDownloadService.EXTRA_COMPLETE ) );
 	        }
 
-		    if( mProgressDialog != null ) {
-		    	mProgressDialog.dismiss();
-		    	mProgressDialog = null;
-			}
-
-		    finish();
+	        new GetHostnameTask().execute();
 	        
         	Log.i( TAG, "PreferencesRecordedDownloadReceiver.onReceive : exit" );
+		}
+		
+	}
+
+	private class GetHostnameTask extends AsyncTask<Void, Void, ResponseEntity<StringWrapper>> {
+
+		/* (non-Javadoc)
+		 * @see android.os.AsyncTask#doInBackground(Params[])
+		 */
+		@Override
+		protected ResponseEntity<StringWrapper> doInBackground( Void... params ) {
+			
+			if( !mNetworkHelper.isMasterBackendConnected( profile ) ) {
+				return null;
+			}
+
+			return getMainApplication().getMythServicesApi( profile ).mythOperations().getHostName();
+		}
+
+		/* (non-Javadoc)
+		 * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
+		 */
+		@Override
+		protected void onPostExecute( ResponseEntity<StringWrapper> result ) {
+			
+			if( null != result ) {
+				
+				if( result.getStatusCode().equals( HttpStatus.OK ) ) {
+					Log.v( TAG, "GetHostnameTask.onPostExecute : saving hostname '" + result.getBody().getString() + "'" );
+					
+					profile = mLocationProfileDaoHelper.findOne( profile.getId() );
+					
+					profile.setHostname( result.getBody().getString() );
+					
+					mLocationProfileDaoHelper.save( profile );
+					Log.v( TAG, "profile=" + profile.toString() );
+					
+				    if( mProgressDialog != null ) {
+				    	mProgressDialog.dismiss();
+				    	mProgressDialog = null;
+					}
+
+				    finish();
+			        
+				    return;
+				}
+				
+			}
+			
+			AlertDialog.Builder builder = new AlertDialog.Builder( LocationProfileEditor.this );
+			builder.setTitle( R.string.preference_edit_error_dialog_title );
+			builder.setNeutralButton( R.string.btn_ok, new DialogInterface.OnClickListener() {
+
+				public void onClick( DialogInterface dialog, int which ) { }
+				
+			});
+			
 		}
 		
 	}

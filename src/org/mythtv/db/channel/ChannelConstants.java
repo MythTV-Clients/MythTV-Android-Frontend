@@ -153,7 +153,7 @@ public class ChannelConstants extends AbstractBaseConstants {
 		sb.append( FIELD_VISIBLE ).append( "," );
 		sb.append( FIELD_XMLTV_ID ).append( "," );
 		sb.append( FIELD_DEFAULT_AUTH ).append( "," );
-		sb.append( FIELD_LOCATION_URL );
+		sb.append( FIELD_HOSTNAME );
 		sb.append( " ) " );
 		sb.append( "VALUES( ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? )" );
 		

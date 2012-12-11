@@ -53,8 +53,8 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 	public List<ProgramGroup> findAll() {
 		Log.v( TAG, "findAll : enter" );
 		
-		String selection = ProgramGroupConstants.FIELD_LOCATION_URL + " = ?";
-		String[] selectionArgs = new String[] { mLocationProfile.getUrl() };
+		String selection = ProgramGroupConstants.FIELD_HOSTNAME + " = ?";
+		String[] selectionArgs = new String[] { mLocationProfile.getHostname() };
 
 		List<ProgramGroup> programGroups = new ArrayList<ProgramGroup>();
 		
@@ -91,8 +91,8 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 	public ProgramGroup findByTitle( String title ) {
 		Log.v( TAG, "findOne : enter" );
 		
-		String selection = ProgramGroupConstants.FIELD_TITLE + " = ? AND " + ProgramGroupConstants.FIELD_LOCATION_URL + " = ?";
-		String[] selectionArgs = new String[] { title, mLocationProfile.getUrl() };
+		String selection = ProgramGroupConstants.FIELD_TITLE + " = ? AND " + ProgramGroupConstants.FIELD_HOSTNAME + " = ?";
+		String[] selectionArgs = new String[] { title, mLocationProfile.getHostname() };
 
 		ProgramGroup programGroup = null;
 		
@@ -116,7 +116,7 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 		ContentValues values = convertProgramGroupToContentValues( programGroup );
 
 		String[] projection = new String[] { ProgramConstants._ID };
-		String selection = ProgramGroupConstants.FIELD_PROGRAM_GROUP + " = ? AND " + ProgramGroupConstants.FIELD_LOCATION_URL + " = ?";
+		String selection = ProgramGroupConstants.FIELD_PROGRAM_GROUP + " = ? AND " + ProgramGroupConstants.FIELD_HOSTNAME + " = ?";
 		String[] selectionArgs = new String[] { programGroup.getProgramGroup(), mLocationProfile.getUrl() };
 		
 		int updated = -1;
@@ -243,8 +243,8 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 			inetref = cursor.getString( cursor.getColumnIndex( ProgramGroupConstants.FIELD_INETREF ) );
 		}
 
-		if( cursor.getColumnIndex( ProgramGroupConstants.FIELD_LOCATION_URL ) != -1 ) {
-			Log.v( TAG, "convertCursorToProgramGroup : locationProfileUrl=" + cursor.getString( cursor.getColumnIndex( ProgramGroupConstants.FIELD_LOCATION_URL ) ) );
+		if( cursor.getColumnIndex( ProgramGroupConstants.FIELD_HOSTNAME ) != -1 ) {
+			Log.v( TAG, "convertCursorToProgramGroup : hostname=" + cursor.getString( cursor.getColumnIndex( ProgramGroupConstants.FIELD_HOSTNAME ) ) );
 		}
 
 		ProgramGroup group = new ProgramGroup();
@@ -294,7 +294,7 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 		values.put( ProgramGroupConstants.FIELD_TITLE, null != programGroup.getTitle() ? programGroup.getTitle() : "" );
 		values.put( ProgramGroupConstants.FIELD_CATEGORY, null != programGroup.getCategory() ? programGroup.getCategory() : "" );
 		values.put( ProgramGroupConstants.FIELD_INETREF, null != programGroup.getInetref() ? programGroup.getInetref() : "" );
-		values.put( ProgramGroupConstants.FIELD_LOCATION_URL, mLocationProfile.getUrl() );
+		values.put( ProgramGroupConstants.FIELD_HOSTNAME, mLocationProfile.getHostname() );
 		
 		return values;
 	}

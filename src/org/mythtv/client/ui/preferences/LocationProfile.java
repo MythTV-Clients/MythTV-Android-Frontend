@@ -35,6 +35,7 @@ public class LocationProfile {
 	private String version;
 	private String protocolVersion;
 	private String wolAddress;
+	private String hostname;
 	
 	public LocationProfile() { }
 
@@ -164,6 +165,20 @@ public class LocationProfile {
 		this.wolAddress = wolAddress;
 	}
 
+	/**
+	 * @return the hostname
+	 */
+	public String getHostname() {
+		return hostname;
+	}
+
+	/**
+	 * @param hostname the hostname to set
+	 */
+	public void setHostname( String hostname ) {
+		this.hostname = hostname;
+	}
+
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
@@ -208,6 +223,13 @@ public class LocationProfile {
 		if( wolAddress != null ) {
 			builder.append( "wolAddress=" );
 			builder.append( wolAddress );
+			builder.append( ", " );
+		}
+		
+		if( hostname != null ) {
+			builder.append( "hostname=" );
+			builder.append( hostname );
+			builder.append( ", " );
 		}
 		
 		builder.append( "selected=" );

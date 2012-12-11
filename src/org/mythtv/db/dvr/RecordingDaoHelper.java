@@ -315,7 +315,7 @@ public class RecordingDaoHelper extends AbstractDaoHelper {
 		values.put( RecordingConstants.FIELD_DUP_METHOD, recording.getDuplicateMethod() );
 		values.put( RecordingConstants.FIELD_ENCODER_ID, recording.getEncoderId() );
 		values.put( RecordingConstants.FIELD_PROFILE, null != recording.getProfile() ? recording.getProfile() : "" );
-		values.put( RecordingConstants.FIELD_LOCATION_URL, mLocationProfile.getUrl() );
+		values.put( RecordingConstants.FIELD_HOSTNAME, mLocationProfile.getHostname() );
 		
 //		Log.v( TAG, "convertRecordingToContentValues : exit" );
 		return values;

@@ -293,6 +293,7 @@ public class LocationProfileDaoHelper {
 		values.put( LocationProfileConstants.FIELD_VERSION, profile.getVersion() );
 		values.put( LocationProfileConstants.FIELD_PROTOCOL_VERSION, profile.getProtocolVersion() );
 		values.put( LocationProfileConstants.FIELD_WOL_ADDRESS, profile.getWolAddress() );
+		values.put( LocationProfileConstants.FIELD_HOSTNAME, profile.getHostname() );
 		
 		Log.v( TAG, "convertProfileToContentValues : exit" );
 		return values;
@@ -302,7 +303,7 @@ public class LocationProfileDaoHelper {
 		Log.v( TAG, "convertCursorToLocationProfile : enter" );
 		
 		int id = -1, selected = -1, connected = -1;
-		String type = "", name = "", url = "", version = "", protocolVersion = "", wolAddress = "";
+		String type = "", name = "", url = "", version = "", protocolVersion = "", wolAddress = "", hostname = "";
 		
 		if( cursor.getColumnIndex( LocationProfileConstants._ID ) > -1 ) {
 			id = cursor.getInt( cursor.getColumnIndexOrThrow( LocationProfileConstants._ID ) );
@@ -340,6 +341,10 @@ public class LocationProfileDaoHelper {
 			wolAddress = cursor.getString( cursor.getColumnIndexOrThrow( LocationProfileConstants.FIELD_WOL_ADDRESS ) );
 		}
 		
+		if( cursor.getColumnIndex( LocationProfileConstants.FIELD_HOSTNAME ) > -1 ) {
+			hostname = cursor.getString( cursor.getColumnIndexOrThrow( LocationProfileConstants.FIELD_HOSTNAME ) );
+		}
+
 		LocationProfile profile = new LocationProfile();
 		profile.setId( id );
 		profile.setType( LocationType.valueOf( type ) );
@@ -350,6 +355,7 @@ public class LocationProfileDaoHelper {
 		profile.setVersion( version );
 		profile.setProtocolVersion( protocolVersion );
 		profile.setWolAddress( wolAddress );
+		profile.setHostname( hostname );
 		
 		Log.v( TAG, "convertCursorToLocationProfile : exit" );
 		return profile;

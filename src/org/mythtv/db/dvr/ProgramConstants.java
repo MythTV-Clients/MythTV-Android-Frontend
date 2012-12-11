@@ -150,7 +150,7 @@ public class ProgramConstants extends AbstractBaseConstants {
 		insert.append( FIELD_EPISODE ).append( "," );
 		insert.append( FIELD_CHANNEL_ID ).append( ", " );
 		insert.append( FIELD_RECORD_ID ).append( ", " );
-		insert.append( FIELD_LOCATION_URL );
+		insert.append( FIELD_HOSTNAME );
 		
 		StringBuilder values = new StringBuilder();
 		values.append( " ) " );
@@ -198,7 +198,7 @@ public class ProgramConstants extends AbstractBaseConstants {
 		update.append( FIELD_EPISODE ).append( " = ?, " );
 		update.append( FIELD_CHANNEL_ID ).append( " = ?, " );
 		update.append( FIELD_RECORD_ID ).append( " = ?, " );
-		update.append( FIELD_LOCATION_URL ).append( "= ?" );
+		update.append( FIELD_HOSTNAME ).append( "= ?" );
 		update.append( " WHERE " );
 		update.append( FIELD_CHANNEL_ID ).append( " = ? AND " );
 		update.append( FIELD_START_TIME ).append( " = ?" );
