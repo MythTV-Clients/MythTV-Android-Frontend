@@ -73,7 +73,44 @@ This tags the repository at a point in time where it can be reverted for testing
 ====================================
 
 
-Mythtv for Android and Zeroconf
-===============================
+Mythtv Android Frontend and Zeroconf
+====================================
 Please see the section titles: What are the requirements for Mythtv for Android and Zeroconf?
 in https://github.com/MythTV-Clients/MythTV-Android-Frontend/wiki/FAQ
+
+Running MythTV Android Frontend in an emulator (and examining the database)
+===========================================================================
+
+1. In eclipse, open the Android Virtual Device Emulator.
+
+ start the emulator.png<https://docs.google.com/file/d/0B4KM23cDPRz_bEk2clY0bGl2Sjg/edit>
+
+2. Create a new AVD, if one doesn't already exist.  There are now profiles
+for most nexus devices on there.
+
+3. Start the AVD.
+
+ android virtual device manager.png<https://docs.google.com/file/d/0B4KM23cDPRz_a2ZQUGw2TnpRNnc/edit>
+
+4. In Eclipse, right-click the root of the Mythtv for Android app and
+select Run As -> Android Application,  Select the AVD if prompted.
+
+5. Let the app install and download all the data.  You will need to create
+an Away profile with the IP address of one of your backends.
+
+ emulator running.png<https://docs.google.com/file/d/0B4KM23cDPRz_X3podlVGRHRHSTA/edit>
+
+5. In eclipse, switch to the DDMS perspective.
+
+ start ddms.png<https://docs.google.com/file/d/0B4KM23cDPRz_X2g4V3U1czNnSms/edit>
+
+6. Select the emulator instance on the left.
+
+7. Navigate down to data/data/org.mythtv/databases on the right pane in the
+file browser.
+
+ location of db.png<https://docs.google.com/file/d/0B4KM23cDPRz_U0NzbVZvdDN5ZVE/edit>
+
+8. Select the Pull a file from device button in the top right-corner of the
+file browser. You can use sqlitebrowser to examine the database. Use your
+distribution's package manager to get a copy of sqlitebrowser.
