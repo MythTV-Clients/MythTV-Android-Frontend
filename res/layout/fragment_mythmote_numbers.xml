@@ -22,7 +22,7 @@
 <TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_margin="10px"
+    android:background="#000000"
     android:stretchColumns="0,1,2"
     android:weightSum="100" >
 
@@ -35,18 +35,31 @@
             android:id="@+id/numbers_button1"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
+            android:layout_marginBottom="1dp"
+            android:layout_marginLeft="1dp"
+            android:layout_marginRight="1dp"
+            android:layout_marginTop="1dp"
+            android:background="@drawable/mythmote_button"
             android:text="1" />
 
         <Button
             android:id="@+id/numbers_button2"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
+            android:layout_marginBottom="1dp"
+            android:layout_marginRight="1dp"
+            android:layout_marginTop="1dp"
+            android:background="@drawable/mythmote_button"
             android:text="2" />
 
         <Button
             android:id="@+id/numbers_button3"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
+            android:layout_marginBottom="1dp"
+            android:layout_marginRight="1dp"
+            android:layout_marginTop="1dp"
+            android:background="@drawable/mythmote_button"
             android:text="3" />
 
     </TableRow>
@@ -60,18 +73,28 @@
             android:id="@+id/numbers_button4"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
+            android:layout_marginBottom="1dp"
+            android:layout_marginLeft="1dp"
+            android:layout_marginRight="1dp"
+            android:background="@drawable/mythmote_button"
             android:text="4" />
 
         <Button
             android:id="@+id/numbers_button5"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
+            android:layout_marginBottom="1dp"
+            android:layout_marginRight="1dp"
+            android:background="@drawable/mythmote_button"
             android:text="5" />
 
         <Button
             android:id="@+id/numbers_button6"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
+            android:layout_marginBottom="1dp"
+            android:layout_marginRight="1dp"
+            android:background="@drawable/mythmote_button"
             android:text="6" />
 
     </TableRow>
@@ -85,18 +108,28 @@
             android:id="@+id/numbers_button7"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
+            android:layout_marginBottom="1dp"
+            android:layout_marginLeft="1dp"
+            android:layout_marginRight="1dp"
+            android:background="@drawable/mythmote_button"
             android:text="7" />
 
         <Button
             android:id="@+id/numbers_button8"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
+            android:layout_marginBottom="1dp"
+            android:layout_marginRight="1dp"
+            android:background="@drawable/mythmote_button"
             android:text="8" />
 
         <Button
             android:id="@+id/numbers_button9"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
+            android:layout_marginBottom="1dp"
+            android:layout_marginRight="1dp"
+            android:background="@drawable/mythmote_button"
             android:text="9" />
 
     </TableRow>
@@ -110,18 +143,28 @@
             android:id="@+id/numbers_button_backspace"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
+            android:layout_marginBottom="1dp"
+            android:layout_marginLeft="1dp"
+            android:layout_marginRight="1dp"
+            android:background="@drawable/mythmote_button"
             android:text="Delete" />
 
         <Button
             android:id="@+id/numbers_button0"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
+            android:layout_marginBottom="1dp"
+            android:layout_marginRight="1dp"
+            android:background="@drawable/mythmote_button"
             android:text="0" />
 
         <Button
             android:id="@+id/numbers_button_enter"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
+            android:layout_marginBottom="1dp"
+            android:layout_marginRight="1dp"
+            android:background="@drawable/mythmote_button"
             android:text="Enter" />
 
     </TableRow>
