@@ -63,6 +63,8 @@ public class RecordingRulesFragment extends MythtvListFragment {
 
 	private static final String TAG = RecordingRulesFragment.class.getSimpleName();
 
+	private NotificationHelper mNotificationHelper;
+
 	private OnRecordingRuleListener listener = null;
 	private RecordingRuleAdapter adapter;
 
@@ -93,6 +95,8 @@ public class RecordingRulesFragment extends MythtvListFragment {
 	public void onActivityCreated( Bundle savedInstanceState ) {
 		Log.v( TAG, "onActivityCreated : enter" );
 		super.onActivityCreated( savedInstanceState );
+
+		mNotificationHelper = new NotificationHelper( getActivity() );
 
 		mChannelDaoHelper = new ChannelDaoHelper( getActivity() );
 		mMenuHelper = MenuHelper.newInstance( getActivity() );
@@ -135,6 +139,8 @@ public class RecordingRulesFragment extends MythtvListFragment {
 		case MenuHelper.REFRESH_ID:
 			Log.d( TAG, "onOptionsItemSelected : refresh selected" );
 
+			adapter.refresh();
+			
 	        return true;
 		}
 		
@@ -192,7 +198,6 @@ public class RecordingRulesFragment extends MythtvListFragment {
 		private List<RecRule> rules = new ArrayList<RecRule>();
 
 		private ProgramHelper mProgramHelper;
-		private NotificationHelper mNotificationHelper;
 
 		public RecordingRuleAdapter( Context context ) {
 			
@@ -200,7 +205,6 @@ public class RecordingRulesFragment extends MythtvListFragment {
 			mInflater = LayoutInflater.from( context );
 			
 			mProgramHelper = ProgramHelper.createInstance( context );
-			mNotificationHelper = new NotificationHelper( context );
 			
 			if( null == rules || rules.isEmpty() ) {
 				new DownloadRecordingRulesTask().execute();
@@ -243,6 +247,9 @@ public class RecordingRulesFragment extends MythtvListFragment {
 			return 0;
 		}
 
+		/* (non-Javadoc)
+		 * @see android.widget.Adapter#getView(int, android.view.View, android.view.ViewGroup)
+		 */
 		@Override
 		public View getView( int position, View convertView, ViewGroup parent ) {
 
@@ -262,6 +269,8 @@ public class RecordingRulesFragment extends MythtvListFragment {
 			}
 			
 			RecRule rule = getItem( position );
+			Log.v( TAG, "rule=" + rule.toString() );
+			
 			String channel = "[Any]";
 			if( rule.getChanId() > 0 ) {
 				ChannelInfo channelInfo = mChannelDaoHelper.findByChannelId( (long) rule.getChanId() );
@@ -280,6 +289,10 @@ public class RecordingRulesFragment extends MythtvListFragment {
 			mHolder.active.setOnCheckedChangeListener(sRuleCheckChangeListener);
 			
 			return convertView;
+		}
+		
+		public void refresh() {
+			new DownloadRecordingRulesTask().execute();
 		}
 		
 		private class ViewHolder {
