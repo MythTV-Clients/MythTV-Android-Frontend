@@ -231,6 +231,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		}
 		
 		int loaded = -1;
+		int count = 0;
 		
 		ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
 		
@@ -246,7 +247,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 			ContentValues programValues = convertProgramToContentValues( program );
 			Cursor programCursor = mContext.getContentResolver().query( uri, programProjection, programSelection, new String[] { String.valueOf( program.getChannelInfo().getChannelId() ), String.valueOf( startTime.getMillis() ) }, null );
 			if( programCursor.moveToFirst() ) {
-				Log.v( TAG, "load : UPDATE channel=" + program.getChannelInfo().getChannelNumber() + ", startTime=" + DateUtils.dateTimeFormatterPretty.print( startTime ) );
+				//Log.v( TAG, "load : UPDATE channel=" + program.getChannelInfo().getChannelNumber() + ", startTime=" + DateUtils.dateTimeFormatterPretty.print( startTime ) );
 
 				Long id = programCursor.getLong( programCursor.getColumnIndexOrThrow( ProgramConstants._ID ) );
 				ops.add( 
@@ -257,7 +258,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 					);
 				
 			} else {
-				Log.v( TAG, "load : INSERT channel=" + program.getChannelInfo().getChannelNumber() + ", startTime=" + DateUtils.dateTimeFormatterPretty.print( startTime ) );
+				//Log.v( TAG, "load : INSERT channel=" + program.getChannelInfo().getChannelNumber() + ", startTime=" + DateUtils.dateTimeFormatterPretty.print( startTime ) );
 
 				ops.add(  
 						ContentProviderOperation.newInsert( uri )
@@ -267,7 +268,8 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 					);
 			}
 			programCursor.close();
-
+			count++;
+			
 			if( null != program.getRecording() ) {
 				
 				String[] recordingProjection = new String[] { ProgramConstants._ID };
@@ -276,7 +278,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 				ContentValues recordingValues = mRecordingDaoHelper.convertRecordingToContentValues( program.getRecording() );
 				Cursor recordingCursor = mContext.getContentResolver().query( RecordingConstants.CONTENT_URI, recordingProjection, recordingSelection, new String[] { String.valueOf( program.getRecording().getRecordId() ), String.valueOf( program.getRecording().getStartTimestamp().getMillis() ), mLocationProfile.getUrl() }, null );
 				if( recordingCursor.moveToFirst() ) {
-					Log.v( TAG, "load : UPDATE recording=" + program.getRecording().getRecordId() + ", startTime=" + DateUtils.dateTimeFormatterPretty.print( program.getRecording().getStartTimestamp() ) );
+					//Log.v( TAG, "load : UPDATE recording=" + program.getRecording().getRecordId() + ", startTime=" + DateUtils.dateTimeFormatterPretty.print( program.getRecording().getStartTimestamp() ) );
 
 					ops.add( 
 						ContentProviderOperation.newUpdate( ContentUris.withAppendedId( RecordingConstants.CONTENT_URI, program.getRecording().getRecordId() ) )
@@ -285,7 +287,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 						.build()
 					);
 				} else {
-					Log.v( TAG, "load : INSERT recording=" + program.getRecording().getRecordId() + ", startTime=" + DateUtils.dateTimeFormatterPretty.print( program.getRecording().getStartTimestamp() ) );
+					//Log.v( TAG, "load : INSERT recording=" + program.getRecording().getRecordId() + ", startTime=" + DateUtils.dateTimeFormatterPretty.print( program.getRecording().getStartTimestamp() ) );
 
 					ops.add(  
 						ContentProviderOperation.newInsert( RecordingConstants.CONTENT_URI )
@@ -295,19 +297,37 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 					);
 				}
 				recordingCursor.close();
+				count++;
 			}
 			
 			if( recorded.containsKey( program.getFilename() ) ) {
 				recorded.remove( program.getFilename() );
 			}
 
+			if( count > 100 ) {
+				Log.v( TAG, "process : applying batch for '" + count + "' transactions" );
+				
+				if( !ops.isEmpty() ) {
+					//Log.v( TAG, "process : applying batch '" + channel.getCallSign() + "'" );
+					
+					ContentProviderResult[] results = mContext.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
+					loaded += results.length;
+					
+					if( results.length > 0 ) {
+						ops.clear();
+					}
+				}
+
+				count = -1;
+			}
+			
 		}
 		
 		for( Program program : recorded.values() ) {
 
 			DateTime startTime = new DateTime( program.getStartTime() );
 			
-			Log.v( TAG, "load : DELETET channel=" + program.getChannelInfo().getChannelNumber() + ", startTime=" + DateUtils.dateTimeFormatterPretty.print( startTime ) );
+			//Log.v( TAG, "load : DELETE Recording - channel=" + program.getChannelInfo().getChannelNumber() + ", startTime=" + DateUtils.dateTimeFormatterPretty.print( startTime ) );
 			
 			ops.add(  
 				ContentProviderOperation.newDelete( uri )
@@ -315,13 +335,31 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 				.withYieldAllowed( true )
 				.build()
 			);
+			
+			if( count > 100 ) {
+				Log.v( TAG, "process : applying batch for '" + count + "' transactions" );
+				
+				if( !ops.isEmpty() ) {
+					
+					ContentProviderResult[] results = mContext.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
+					loaded += results.length;
+					
+					if( results.length > 0 ) {
+						ops.clear();
+					}
+
+				}
+
+				count = -1;
+			}
+
 		}
 		
 		if( !ops.isEmpty() ) {
-			//Log.v( TAG, "process : applying batch '" + channel.getCallSign() + "'" );
+			Log.v( TAG, "process : applying batch for '" + count + "' transactions" );
 			
 			ContentProviderResult[] results = mContext.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
-			loaded = results.length;
+			loaded += results.length;
 		}
 
 		Log.v( TAG, "load : exit" );

@@ -154,6 +154,10 @@ public class RecordedDownloadService extends MythtvService {
 		if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
 			ProgramList programList = responseEntity.getBody();
 
+//			Log.v( TAG, "download : loaded local file" );
+//			File recorded = new File( mFileHelper.getProgramRecordedDataDirectory(), "GetRecordedList.json" );
+//			programList = mMainApplication.getObjectMapper().readValue( recorded, ProgramList.class );
+			
 			if( null != programList.getPrograms() ) {
 				cleanup();
 

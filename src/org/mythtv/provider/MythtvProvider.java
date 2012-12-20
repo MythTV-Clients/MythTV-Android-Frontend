@@ -534,7 +534,7 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 	@TargetApi( Build.VERSION_CODES.HONEYCOMB )
 	@Override
 	public Cursor query( Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder ) {
-		Log.v( TAG, "query : enter" );
+		//Log.v( TAG, "query : enter" );
 
 		final SQLiteDatabase db = database.getReadableDatabase();
 		
