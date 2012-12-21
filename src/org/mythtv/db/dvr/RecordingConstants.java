@@ -98,14 +98,13 @@ public class RecordingConstants  extends AbstractBaseConstants {
 		insert.append( FIELD_DUP_IN_TYPE ).append( "," );
 		insert.append( FIELD_DUP_METHOD ).append( "," );
 		insert.append( FIELD_ENCODER_ID ).append( "," );
-		insert.append( FIELD_PROGRAM_ID ).append( "," );
 		insert.append( FIELD_PROFILE ).append( "," );
 		insert.append( FIELD_PROGRAM_ID ).append( "," );
 		insert.append( FIELD_HOSTNAME );
 		
 		StringBuilder values = new StringBuilder();
 		values.append( " ) " );
-		values.append( "VALUES( ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? )" );
+		values.append( "VALUES( ?,?,?,?,?,?,?,?,?,?,?,?,?,?,? )" );
 		
 		StringBuilder insertRecording = new StringBuilder();
 		insertRecording.append( "INSERT INTO " ).append( TABLE_NAME ).append( " ( " );
@@ -126,7 +125,6 @@ public class RecordingConstants  extends AbstractBaseConstants {
 		update.append( FIELD_DUP_IN_TYPE ).append( " = ?, " );
 		update.append( FIELD_DUP_METHOD ).append( " = ?, " );
 		update.append( FIELD_ENCODER_ID ).append( " = ?, " );
-		update.append( FIELD_PROGRAM_ID ).append( " = ?, " );
 		update.append( FIELD_PROFILE ).append( " = ?, " );
 		update.append( FIELD_PROGRAM_ID ).append( " = ?, " );
 		update.append( FIELD_HOSTNAME ).append( " = ? " );

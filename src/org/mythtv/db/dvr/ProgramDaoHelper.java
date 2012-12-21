@@ -224,7 +224,8 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 	 */
 	protected int load( Uri uri, List<Program> programs, String table ) throws RemoteException, OperationApplicationException {
 		Log.v( TAG, "load : enter" );
-				
+		
+		// load all existing programs
 		Map<String, Program> recorded = new HashMap<String, Program>();
 		for( Program program : findAll( uri, null, null, null, null ) ) {
 			recorded.put( program.getFilename(), program );
@@ -239,7 +240,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		String programSelection = ProgramConstants.FIELD_CHANNEL_ID + " = ? AND " + ProgramConstants.FIELD_START_TIME + " = ?";
 
 		programSelection = appendLocationUrl( programSelection, table );
-
+		
 		for( Program program : programs ) {
 
 			DateTime startTime = new DateTime( program.getStartTime() );
@@ -247,7 +248,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 			ContentValues programValues = convertProgramToContentValues( program );
 			Cursor programCursor = mContext.getContentResolver().query( uri, programProjection, programSelection, new String[] { String.valueOf( program.getChannelInfo().getChannelId() ), String.valueOf( startTime.getMillis() ) }, null );
 			if( programCursor.moveToFirst() ) {
-				//Log.v( TAG, "load : UPDATE channel=" + program.getChannelInfo().getChannelNumber() + ", startTime=" + DateUtils.dateTimeFormatterPretty.print( startTime ) );
+				//Log.v( TAG, "load : UPDATE PROGRAM channel=" + program.getChannelInfo().getChannelNumber() + ", startTime=" + DateUtils.dateTimeFormatterPretty.print( startTime ) + "(" + startTime + ")" );
 
 				Long id = programCursor.getLong( programCursor.getColumnIndexOrThrow( ProgramConstants._ID ) );
 				ops.add( 
@@ -258,7 +259,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 					);
 				
 			} else {
-				//Log.v( TAG, "load : INSERT channel=" + program.getChannelInfo().getChannelNumber() + ", startTime=" + DateUtils.dateTimeFormatterPretty.print( startTime ) );
+				//Log.v( TAG, "load : INSERT PROGRAM channel=" + program.getChannelInfo().getChannelNumber() + ", startTime=" + DateUtils.dateTimeFormatterPretty.print( startTime ) + "(" + startTime + ")" );
 
 				ops.add(  
 						ContentProviderOperation.newInsert( uri )
@@ -272,22 +273,22 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 			
 			if( null != program.getRecording() ) {
 				
-				String[] recordingProjection = new String[] { ProgramConstants._ID };
+				String[] recordingProjection = new String[] { RecordingConstants._ID };
 				String recordingSelection = RecordingConstants.FIELD_RECORD_ID + " = ? AND " + RecordingConstants.FIELD_START_TS + " = ? AND " + RecordingConstants.FIELD_HOSTNAME + " = ?";
-
+				
 				ContentValues recordingValues = mRecordingDaoHelper.convertRecordingToContentValues( program.getRecording() );
-				Cursor recordingCursor = mContext.getContentResolver().query( RecordingConstants.CONTENT_URI, recordingProjection, recordingSelection, new String[] { String.valueOf( program.getRecording().getRecordId() ), String.valueOf( program.getRecording().getStartTimestamp().getMillis() ), mLocationProfile.getUrl() }, null );
+				Cursor recordingCursor = mContext.getContentResolver().query( RecordingConstants.CONTENT_URI, recordingProjection, recordingSelection, new String[] { String.valueOf( program.getRecording().getRecordId() ), String.valueOf( program.getRecording().getStartTimestamp().getMillis() ), mLocationProfile.getHostname() }, null );
 				if( recordingCursor.moveToFirst() ) {
-					//Log.v( TAG, "load : UPDATE recording=" + program.getRecording().getRecordId() + ", startTime=" + DateUtils.dateTimeFormatterPretty.print( program.getRecording().getStartTimestamp() ) );
-
-					ops.add( 
-						ContentProviderOperation.newUpdate( ContentUris.withAppendedId( RecordingConstants.CONTENT_URI, program.getRecording().getRecordId() ) )
-						.withValues( recordingValues )
-						.withYieldAllowed( true )
-						.build()
-					);
+//					Log.v( TAG, "load : UPDATE RECORDING recording=" + program.getRecording().getRecordId() + ", startTime=" + DateUtils.dateTimeFormatterPretty.print( program.getRecording().getStartTimestamp() ) );
+//
+//					ops.add( 
+//						ContentProviderOperation.newUpdate( ContentUris.withAppendedId( RecordingConstants.CONTENT_URI, program.getRecording().getRecordId() ) )
+//						.withValues( recordingValues )
+//						.withYieldAllowed( true )
+//						.build()
+//					);
 				} else {
-					//Log.v( TAG, "load : INSERT recording=" + program.getRecording().getRecordId() + ", startTime=" + DateUtils.dateTimeFormatterPretty.print( program.getRecording().getStartTimestamp() ) );
+					//Log.v( TAG, "load : INSERT RECORDING recording=" + program.getRecording().getRecordId() + ", startTime=" + DateUtils.dateTimeFormatterPretty.print( program.getRecording().getStartTimestamp() ) );
 
 					ops.add(  
 						ContentProviderOperation.newInsert( RecordingConstants.CONTENT_URI )
@@ -327,7 +328,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 
 			DateTime startTime = new DateTime( program.getStartTime() );
 			
-			//Log.v( TAG, "load : DELETE Recording - channel=" + program.getChannelInfo().getChannelNumber() + ", startTime=" + DateUtils.dateTimeFormatterPretty.print( startTime ) );
+			//Log.v( TAG, "load : DELETE PROGRAM - channel=" + program.getChannelInfo().getChannelNumber() + ", startTime=" + DateUtils.dateTimeFormatterPretty.print( startTime ) );
 			
 			ops.add(  
 				ContentProviderOperation.newDelete( uri )
