@@ -288,7 +288,7 @@ public class ImageFetcher extends ImageResizer {
         } catch (final IOException e) {
             Log.e(TAG, "Error in downloadBitmap - " + e);
         } catch (final MythServiceApiRuntimeException e) {
-            Log.e(TAG, "Error in downloadBitmap - " + e);
+            Log.w(TAG, "Error in downloadBitmap - " + e);
         } finally {
             try {
                 if (out != null) {
