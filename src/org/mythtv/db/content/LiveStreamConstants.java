@@ -55,7 +55,7 @@ public class LiveStreamConstants extends AbstractBaseConstants {
 	public static final String FIELD_PERCENT_COMPLETE_DATA_TYPE = "INTEGER";
 	
 	public static final String FIELD_CREATED = "CREATED";
-	public static final String FIELD_CREATED_TYPE = "INTEGER";
+	public static final String FIELD_CREATED_DATA_TYPE = "INTEGER";
 	
 	public static final String FIELD_LAST_MODIFIED = "LAST_MODIFIED";
 	public static final String FIELD_LAST_MODIFIED_DATA_TYPE = "TEXT";
