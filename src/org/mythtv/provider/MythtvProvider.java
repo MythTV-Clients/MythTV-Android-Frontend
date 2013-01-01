@@ -24,6 +24,7 @@ import java.util.Map;
 
 import org.mythtv.db.DatabaseHelper;
 import org.mythtv.db.channel.ChannelConstants;
+import org.mythtv.db.content.LiveStreamConstants;
 import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.db.dvr.RecordingConstants;
 import org.mythtv.db.dvr.programGroup.ProgramGroupConstants;
@@ -85,6 +86,11 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 	private static final int RECORDING 					= 140;
 	private static final int RECORDING_ID				= 141;
 
+	private static final String LIVE_STREAM_CONTENT_TYPE = "vnd.mythtv.cursor.dir/org.mythtv.liveStream";
+	private static final String LIVE_STREAM_CONTENT_ITEM_TYPE = "vnd.mythtv.cursor.item/org.mythtv.liveStream";
+	private static final int LIVE_STREAM 				= 150;
+	private static final int LIVE_STREAM_ID				= 151;
+
 	private static final String CHANNEL_CONTENT_TYPE = "vnd.mythtv.cursor.dir/org.mythtv.channel";
 	private static final String CHANNEL_CONTENT_ITEM_TYPE = "vnd.mythtv.cursor.item/org.mythtv.channel";
 	private static final int CHANNELS 					= 200;
@@ -123,6 +129,8 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 		URI_MATCHER.addURI( AUTHORITY, ProgramGroupConstants.TABLE_NAME + "/#", PROGRAM_GROUP_ID );
 		URI_MATCHER.addURI( AUTHORITY, RecordingConstants.TABLE_NAME, RECORDING );
 		URI_MATCHER.addURI( AUTHORITY, RecordingConstants.TABLE_NAME + "/#", RECORDING_ID );
+		URI_MATCHER.addURI( AUTHORITY, LiveStreamConstants.TABLE_NAME, LIVE_STREAM );
+		URI_MATCHER.addURI( AUTHORITY, LiveStreamConstants.TABLE_NAME + "/#", LIVE_STREAM_ID );
 		URI_MATCHER.addURI( AUTHORITY, ChannelConstants.TABLE_NAME, CHANNELS );
 		URI_MATCHER.addURI( AUTHORITY, ChannelConstants.TABLE_NAME + "/#", CHANNEL_ID );
 		URI_MATCHER.addURI( AUTHORITY, EtagConstants.TABLE_NAME, ETAGS );
@@ -188,6 +196,12 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 			
 			case RECORDING_ID:
 				return RECORDING_CONTENT_ITEM_TYPE;
+			
+			case LIVE_STREAM:
+				return LIVE_STREAM_CONTENT_TYPE;
+			
+			case LIVE_STREAM_ID:
+				return LIVE_STREAM_CONTENT_ITEM_TYPE;
 			
 			case CHANNELS:
 				return CHANNEL_CONTENT_TYPE;
@@ -327,6 +341,25 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 			case RECORDING_ID:
 				
 				deleted = db.delete( RecordingConstants.TABLE_NAME, RecordingConstants._ID
+						+ "="
+						+ Long.toString( ContentUris.parseId( uri ) )
+						+ ( !TextUtils.isEmpty( selection ) ? " AND (" + selection + ')' : "" ), selectionArgs );
+				
+				getContext().getContentResolver().notifyChange( uri, null );
+				
+				return deleted;
+
+			case LIVE_STREAM:
+
+				deleted = db.delete( LiveStreamConstants.TABLE_NAME, selection, selectionArgs );
+				
+				getContext().getContentResolver().notifyChange( uri, null );
+				
+				return deleted;
+
+			case LIVE_STREAM_ID:
+				
+				deleted = db.delete( LiveStreamConstants.TABLE_NAME, RecordingConstants._ID
 						+ "="
 						+ Long.toString( ContentUris.parseId( uri ) )
 						+ ( !TextUtils.isEmpty( selection ) ? " AND (" + selection + ')' : "" ), selectionArgs );
@@ -487,6 +520,14 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				
 				return newUri;
 	
+			case LIVE_STREAM:
+
+				newUri = ContentUris.withAppendedId( LiveStreamConstants.CONTENT_URI, db.insertOrThrow( LiveStreamConstants.TABLE_NAME, null, values ) );
+				
+				getContext().getContentResolver().notifyChange( newUri, null );
+				
+				return newUri;
+	
 			case CHANNELS:
 				newUri = ContentUris.withAppendedId( ChannelConstants.CONTENT_URI, db.insertOrThrow( ChannelConstants.TABLE_NAME, null, values ) );
 				
@@ -571,6 +612,21 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				sb.append( ProgramConstants.TABLE_NAME_RECORDED ).append( "." ).append( ProgramConstants.FIELD_RECORD_ID );
 				sb.append( " AND " );
 				sb.append( RecordingConstants.TABLE_NAME ).append( "." ).append( RecordingConstants.FIELD_HOSTNAME );
+				sb.append( " = ");
+				sb.append( ProgramConstants.TABLE_NAME_RECORDED ).append( "." ).append( ProgramConstants.FIELD_HOSTNAME );
+				sb.append( ")" );
+				sb.append( " LEFT OUTER JOIN " );
+				sb.append( LiveStreamConstants.TABLE_NAME );
+				sb.append( " ON (" );
+				sb.append( LiveStreamConstants.TABLE_NAME ).append( "." ).append( LiveStreamConstants.FIELD_START_TIME );
+				sb.append( " = ");
+				sb.append( ProgramConstants.TABLE_NAME_RECORDED ).append( "." ).append( ProgramConstants.FIELD_START_TIME );
+				sb.append( " AND " );
+				sb.append( LiveStreamConstants.TABLE_NAME ).append( "." ).append( LiveStreamConstants.FIELD_CHAN_ID );
+				sb.append( " = ");
+				sb.append( ProgramConstants.TABLE_NAME_RECORDED ).append( "." ).append( ProgramConstants.FIELD_CHANNEL_ID );
+				sb.append( " AND " );
+				sb.append( LiveStreamConstants.TABLE_NAME ).append( "." ).append( LiveStreamConstants.FIELD_HOSTNAME );
 				sb.append( " = ");
 				sb.append( ProgramConstants.TABLE_NAME_RECORDED ).append( "." ).append( ProgramConstants.FIELD_HOSTNAME );
 				sb.append( ")" );
@@ -845,6 +901,37 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				
 				return cursor;
 	
+			case LIVE_STREAM:
+				
+				sb.append( LiveStreamConstants.TABLE_NAME );
+				
+				queryBuilder.setTables( sb.toString() );
+				queryBuilder.setProjectionMap( mLiveStreamColumnMap );
+				
+//				System.out.println( queryBuilder.buildQuery( null, selection, null, null, sortOrder, null ) );
+				
+				cursor = queryBuilder.query( db, null, selection, selectionArgs, null, null, sortOrder );
+				
+				cursor.setNotificationUri( getContext().getContentResolver(), uri );
+				
+				return cursor;
+	
+			case LIVE_STREAM_ID:
+				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
+
+				sb.append( LiveStreamConstants.TABLE_NAME );
+				
+				queryBuilder.setTables( sb.toString() );
+				queryBuilder.setProjectionMap( mLiveStreamColumnMap );
+				
+//				System.out.println( queryBuilder.buildQuery( null, selection, null, null, sortOrder, null ) );
+				
+				cursor = queryBuilder.query( db, null, selection, selectionArgs, null, null, sortOrder );
+				
+				cursor.setNotificationUri( getContext().getContentResolver(), uri );
+				
+				return cursor;
+	
 			case CHANNELS:
 				
 				sb.append( ChannelConstants.TABLE_NAME );
@@ -1035,6 +1122,22 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
 
 				affected = db.update( RecordingConstants.TABLE_NAME, values, selection , selectionArgs );
+				
+				getContext().getContentResolver().notifyChange( uri, null );
+				
+				return affected;
+
+			case LIVE_STREAM:
+				affected = db.update( LiveStreamConstants.TABLE_NAME, values, selection , selectionArgs );
+				
+				getContext().getContentResolver().notifyChange( uri, null );
+				
+				return affected;
+
+			case LIVE_STREAM_ID:
+				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
+
+				affected = db.update( LiveStreamConstants.TABLE_NAME, values, selection , selectionArgs );
 				
 				getContext().getContentResolver().notifyChange( uri, null );
 				
@@ -1438,6 +1541,22 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 		return columnMap;
 	}
 	
+	private static final Map<String, String> mLiveStreamColumnMap = buildLiveStreamColumnMap( new HashMap<String, String>() );
+	private static Map<String, String> buildLiveStreamColumnMap( Map<String, String> columnMap ) {
+		if( null == columnMap ) {
+			columnMap = new HashMap<String, String>();
+		}
+		
+		String channelProjection[] = LiveStreamConstants.COLUMN_MAP;
+		for( String col : channelProjection ) {
+
+			String qualifiedCol = ChannelConstants.TABLE_NAME + "." + col;
+			columnMap.put( qualifiedCol, qualifiedCol + " as " + LiveStreamConstants.TABLE_NAME + "_" + col );
+		}
+		
+		return columnMap;
+	}
+
 	private static final Map<String, String> mChannelColumnMap = buildChannelColumnMap( new HashMap<String, String>() );
 	private static Map<String, String> buildChannelColumnMap( Map<String, String> columnMap ) {
 		if( null == columnMap ) {
