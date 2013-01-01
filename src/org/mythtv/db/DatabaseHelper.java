@@ -660,6 +660,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		sqlBuilder.append( LiveStreamConstants.FIELD_AUDIO_ONLY_BITRATE ).append( " " ).append( LiveStreamConstants.FIELD_AUDIO_ONLY_BITRATE_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( LiveStreamConstants.FIELD_START_TIME ).append( " " ).append( LiveStreamConstants.FIELD_START_TIME_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( LiveStreamConstants.FIELD_CHAN_ID ).append( " " ).append( LiveStreamConstants.FIELD_CHAN_ID_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( LiveStreamConstants.FIELD_HOSTNAME ).append( " " ).append( LiveStreamConstants.FIELD_HOSTNAME ).append( ", " );
 		sqlBuilder.append( "UNIQUE(" ).append( LiveStreamConstants.FIELD_START_TIME ).append( ", " ).append( LiveStreamConstants.FIELD_CHAN_ID ).append( ", " ).append( LiveStreamConstants.FIELD_HOSTNAME ).append( ")" );
 		sqlBuilder.append( ");" );
 		String sql = sqlBuilder.toString();
