@@ -1489,7 +1489,11 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 			columnMap.put( qualifiedCol, qualifiedCol );
 		}
 		
-		return buildProgramColumnMap( columnMap );
+		columnMap = buildProgramColumnMap( columnMap );
+		
+		columnMap = buildLiveStreamColumnMap( columnMap );
+
+		return columnMap;
 	}
 
 	private static final Map<String, String> mUpcomingColumnMap = buildUpcomingColumnMap();
@@ -1506,8 +1510,6 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 		
 		columnMap = buildProgramColumnMap( columnMap );
 		
-		columnMap = buildLiveStreamColumnMap( columnMap );
-
 		return columnMap;
 	}
 
@@ -1554,7 +1556,7 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 		String channelProjection[] = LiveStreamConstants.COLUMN_MAP;
 		for( String col : channelProjection ) {
 
-			String qualifiedCol = ChannelConstants.TABLE_NAME + "." + col;
+			String qualifiedCol = LiveStreamConstants.TABLE_NAME + "." + col;
 			columnMap.put( qualifiedCol, qualifiedCol + " as " + LiveStreamConstants.TABLE_NAME + "_" + col );
 		}
 		
