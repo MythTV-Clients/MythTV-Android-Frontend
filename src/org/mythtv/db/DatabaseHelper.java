@@ -22,6 +22,7 @@ import static android.provider.BaseColumns._ID;
 
 import org.joda.time.DateTime;
 import org.mythtv.db.channel.ChannelConstants;
+import org.mythtv.db.content.LiveStreamConstants;
 import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.db.dvr.RecordingConstants;
 import org.mythtv.db.dvr.programGroup.ProgramGroupConstants;
@@ -47,7 +48,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	private static final String TAG = DatabaseHelper.class.getSimpleName();
 	
 	private static final String DATABASE_NAME = "mythtvdb";
-	private static final int DATABASE_VERSION = 101;
+	private static final int DATABASE_VERSION = 102;
 
 	public DatabaseHelper( Context context ) {
 		super( context, DATABASE_NAME, null, DATABASE_VERSION );
@@ -93,6 +94,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		dropRecording( db );
 		createRecording( db );
 
+		dropLiveStream( db );
+		createLiveStream( db );
+		
 		dropCleanup( db );
 		createCleanup( db );
 		
@@ -106,8 +110,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	public void onUpgrade( SQLiteDatabase db, int oldVersion, int newVersion ) {
 		Log.v( TAG, "onUpgrade : enter" );
 
-		if( oldVersion < 101 ) {
-			Log.v( TAG, "onUpgrade : upgrading to db version 101" );
+		if( oldVersion < 102 ) {
+			Log.v( TAG, "onUpgrade : upgrading to db version 102" );
 
 			onCreate( db );
 
@@ -625,4 +629,55 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		Log.v( TAG, "dropRecording : exit" );
 	}
 	
+	private void createLiveStream( SQLiteDatabase db ) {
+		Log.v( TAG, "createLiveStream : enter" );
+		
+		StringBuilder sqlBuilder = new StringBuilder();
+		sqlBuilder.append( "CREATE TABLE " + LiveStreamConstants.TABLE_NAME + " (" );
+		sqlBuilder.append( LiveStreamConstants._ID ).append( " " ).append( ChannelConstants.FIELD_ID_DATA_TYPE ).append( " " ).append( ChannelConstants.FIELD_ID_PRIMARY_KEY ).append( ", " );
+		sqlBuilder.append( LiveStreamConstants.FIELD_ID ).append( " " ).append( LiveStreamConstants.FIELD_ID_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( LiveStreamConstants.FIELD_WIDTH ).append( " " ).append( LiveStreamConstants.FIELD_WIDTH_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( LiveStreamConstants.FIELD_HEIGHT ).append( " " ).append( LiveStreamConstants.FIELD_HEIGHT_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( LiveStreamConstants.FIELD_BITRATE ).append( " " ).append( LiveStreamConstants.FIELD_BITRATE_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( LiveStreamConstants.FIELD_AUDIO_BITRATE ).append( " " ).append( LiveStreamConstants.FIELD_AUDIO_BITRATE_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( LiveStreamConstants.FIELD_SEGMENT_SIZE ).append( " " ).append( LiveStreamConstants.FIELD_SEGMENT_SIZE_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( LiveStreamConstants.FIELD_MAX_SEGMENTS ).append( " " ).append( LiveStreamConstants.FIELD_MAX_SEGMENTS_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( LiveStreamConstants.FIELD_START_SEGMENT ).append( " " ).append( LiveStreamConstants.FIELD_START_SEGMENT_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( LiveStreamConstants.FIELD_CURRENT_SEGMENT ).append( " " ).append( LiveStreamConstants.FIELD_CURRENT_SEGMENT_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( LiveStreamConstants.FIELD_SEGMENT_COUNT ).append( " " ).append( LiveStreamConstants.FIELD_SEGMENT_COUNT_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( LiveStreamConstants.FIELD_PERCENT_COMPLETE ).append( " " ).append( LiveStreamConstants.FIELD_PERCENT_COMPLETE_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( LiveStreamConstants.FIELD_CREATED ).append( " " ).append( LiveStreamConstants.FIELD_CREATED_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( LiveStreamConstants.FIELD_LAST_MODIFIED ).append( " " ).append( LiveStreamConstants.FIELD_LAST_MODIFIED_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( LiveStreamConstants.FIELD_RELATIVE_URL ).append( " " ).append( LiveStreamConstants.FIELD_RELATIVE_URL_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( LiveStreamConstants.FIELD_FULL_URL ).append( " " ).append( LiveStreamConstants.FIELD_FULL_URL_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( LiveStreamConstants.FIELD_STATUS_STR ).append( " " ).append( LiveStreamConstants.FIELD_STATUS_STR_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( LiveStreamConstants.FIELD_STATUS_INT ).append( " " ).append( LiveStreamConstants.FIELD_STATUS_INT_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( LiveStreamConstants.FIELD_STATUS_MESSAGE ).append( " " ).append( LiveStreamConstants.FIELD_STATUS_MESSAGE_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( LiveStreamConstants.FIELD_SOURCE_FILE ).append( " " ).append( LiveStreamConstants.FIELD_SOURCE_FILE_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( LiveStreamConstants.FIELD_SOURCE_HOST ).append( " " ).append( LiveStreamConstants.FIELD_SOURCE_HOST_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( LiveStreamConstants.FIELD_SOURCE_WIDTH ).append( " " ).append( LiveStreamConstants.FIELD_SOURCE_WIDTH_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( LiveStreamConstants.FIELD_SOURCE_HEIGHT ).append( " " ).append( LiveStreamConstants.FIELD_SOURCE_HEIGHT_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( LiveStreamConstants.FIELD_AUDIO_ONLY_BITRATE ).append( " " ).append( LiveStreamConstants.FIELD_AUDIO_ONLY_BITRATE_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( LiveStreamConstants.FIELD_START_TIME ).append( " " ).append( LiveStreamConstants.FIELD_START_TIME_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( LiveStreamConstants.FIELD_CHAN_ID ).append( " " ).append( LiveStreamConstants.FIELD_CHAN_ID_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( "UNIQUE(" ).append( LiveStreamConstants.FIELD_START_TIME ).append( ", " ).append( LiveStreamConstants.FIELD_CHAN_ID ).append( ", " ).append( LiveStreamConstants.FIELD_HOSTNAME ).append( ")" );
+		sqlBuilder.append( ");" );
+		String sql = sqlBuilder.toString();
+		if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
+			Log.v( TAG, "createLiveStream : sql=" + sql );
+		}
+		db.execSQL( sql );
+	
+		Log.v( TAG, "createLiveStream : exit" );
+	}
+	
+	private void dropLiveStream( SQLiteDatabase db ) {
+		Log.v( TAG, "dropLiveStream : enter" );
+		
+		db.execSQL( "DROP TABLE IF EXISTS " + LiveStreamConstants.TABLE_NAME );
+		
+		Log.v( TAG, "dropLiveStream : exit" );
+	}
+	
+
 }
