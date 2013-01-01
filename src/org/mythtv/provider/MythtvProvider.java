@@ -1504,7 +1504,11 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 			columnMap.put( qualifiedCol, qualifiedCol );
 		}
 		
-		return buildProgramColumnMap( columnMap );
+		columnMap = buildProgramColumnMap( columnMap );
+		
+		columnMap = buildLiveStreamColumnMap( columnMap );
+
+		return columnMap;
 	}
 
 	private static final Map<String, String> mProgramColumnMap = buildProgramColumnMap();
