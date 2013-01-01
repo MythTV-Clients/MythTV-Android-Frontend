@@ -237,7 +237,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
 		
 		String[] programProjection = new String[] { ProgramConstants._ID };
-		String programSelection = ProgramConstants.FIELD_CHANNEL_ID + " = ? AND " + ProgramConstants.FIELD_START_TIME + " = ?";
+		String programSelection = table + "." + ProgramConstants.FIELD_CHANNEL_ID + " = ? AND " + table + "." + ProgramConstants.FIELD_START_TIME + " = ?";
 
 		programSelection = appendLocationUrl( programSelection, table );
 		
