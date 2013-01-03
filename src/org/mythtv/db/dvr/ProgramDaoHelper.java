@@ -26,9 +26,12 @@ import java.util.Map;
 import org.joda.time.DateTime;
 import org.mythtv.db.AbstractDaoHelper;
 import org.mythtv.db.channel.ChannelDaoHelper;
+import org.mythtv.db.content.LiveStreamConstants;
+import org.mythtv.db.content.LiveStreamDaoHelper;
 import org.mythtv.provider.MythtvProvider;
 import org.mythtv.service.util.DateUtils;
 import org.mythtv.services.api.channel.ChannelInfo;
+import org.mythtv.services.api.content.LiveStreamInfo;
 import org.mythtv.services.api.dvr.Program;
 
 import android.content.ContentProviderOperation;
@@ -51,12 +54,14 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 	protected static final String TAG = ProgramDaoHelper.class.getSimpleName();
 	
 	protected ChannelDaoHelper mChannelDaoHelper;
+	protected LiveStreamDaoHelper mLiveStreamDaoHelper;
 	protected RecordingDaoHelper mRecordingDaoHelper;
 	
 	protected ProgramDaoHelper( Context context ) {
 		super( context );
 		
 		mChannelDaoHelper = new ChannelDaoHelper( context );
+		mLiveStreamDaoHelper = new LiveStreamDaoHelper( context );
 		mRecordingDaoHelper = new RecordingDaoHelper( context );
 		
 	}
@@ -141,7 +146,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		String selection = ProgramConstants.FIELD_CHANNEL_ID + " = ? AND " + ProgramConstants.FIELD_START_TIME + " = ?";
 		String[] selectionArgs = new String[] { String.valueOf( program.getChannelInfo().getChannelId() ), String.valueOf( program.getStartTime().getMillis() ) };
 		
-		selection = appendLocationUrl( selection, null );
+		selection = appendLocationHostname( selection, null );
 
 		int updated = -1;
 		Cursor cursor = mContext.getContentResolver().query( uri, projection, selection, selectionArgs, null );
@@ -199,7 +204,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		String selection = ProgramConstants.FIELD_CHANNEL_ID + " = ? AND " + ProgramConstants.FIELD_START_TIME + " = ?";
 		String[] selectionArgs = new String[] { String.valueOf( program.getChannelInfo().getChannelId() ), String.valueOf( program.getStartTime().getMillis() ) };
 
-		selection = appendLocationUrl( selection, null );
+		selection = appendLocationHostname( selection, null );
 
 		int deleted = mContext.getContentResolver().delete( uri, selection, selectionArgs );
 		Log.v( TAG, "delete : deleted=" + deleted );
@@ -239,7 +244,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		String[] programProjection = new String[] { ProgramConstants._ID };
 		String programSelection = table + "." + ProgramConstants.FIELD_CHANNEL_ID + " = ? AND " + table + "." + ProgramConstants.FIELD_START_TIME + " = ?";
 
-		programSelection = appendLocationUrl( programSelection, table );
+		programSelection = appendLocationHostname( programSelection, table );
 		
 		for( Program program : programs ) {
 
@@ -387,6 +392,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		float stars = 0.0f;
 		
 		ChannelInfo channelInfo = null;
+		LiveStreamInfo liveStreamInfo = null;
 		
 //		if( cursor.getColumnIndex( ProgramConstants._ID ) != -1 ) {
 //			id = cursor.getLong( cursor.getColumnIndex( ProgramConstants._ID ) );
@@ -486,6 +492,10 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		
 		if( cursor.getColumnIndex( ProgramConstants.FIELD_CHANNEL_ID ) != -1 ) {
 			channelInfo = mChannelDaoHelper.convertCursorToChannelInfo( cursor );
+		}
+		
+		if( cursor.getColumnIndex( LiveStreamConstants.TABLE_NAME + "_" + LiveStreamConstants.FIELD_ID ) != -1 ) {
+			liveStreamInfo = mLiveStreamDaoHelper.convertCursorToLiveStreamInfo( cursor );
 		}
 		
 //		if( cursor.getColumnIndex( ProgramConstants.FIELD_ ) != -1 ) {

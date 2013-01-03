@@ -59,7 +59,7 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 		
 		List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
 		
-		selection = appendLocationUrl( selection, ChannelConstants.TABLE_NAME );
+		selection = appendLocationHostname( selection, ChannelConstants.TABLE_NAME );
 		
 		Cursor cursor = mContext.getContentResolver().query( ChannelConstants.CONTENT_URI, projection, selection, selectionArgs, sortOrder );
 		while( cursor.moveToNext() ) {
@@ -103,7 +103,7 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 			uri = ContentUris.withAppendedId( ChannelConstants.CONTENT_URI, id );
 		}
 		
-		selection = appendLocationUrl( selection, ChannelConstants.TABLE_NAME );
+		selection = appendLocationHostname( selection, ChannelConstants.TABLE_NAME );
 		
 		Cursor cursor = mContext.getContentResolver().query( uri, projection, selection, selectionArgs, sortOrder );
 		if( cursor.moveToFirst() ) {
@@ -164,7 +164,7 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 		String selection = ChannelConstants.FIELD_CHAN_ID + " = ?";
 		String[] selectionArgs = new String[] { String.valueOf( channelInfo.getChannelId() ) };
 		
-		selection = appendLocationUrl( selection, ChannelConstants.TABLE_NAME );
+		selection = appendLocationHostname( selection, ChannelConstants.TABLE_NAME );
 		
 		int updated = -1;
 		Cursor cursor = mContext.getContentResolver().query( ChannelConstants.CONTENT_URI, projection, selection, selectionArgs, null );
@@ -218,7 +218,7 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 		String selection = ChannelConstants.FIELD_CHAN_ID + " = ?";
 		String[] selectionArgs = new String[] { String.valueOf( channelInfo.getChannelId() ) };
 		
-		selection = appendLocationUrl( selection, ChannelConstants.TABLE_NAME );
+		selection = appendLocationHostname( selection, ChannelConstants.TABLE_NAME );
 		
 		int deleted = mContext.getContentResolver().delete( ChannelConstants.CONTENT_URI, selection, selectionArgs );
 		Log.v( TAG, "delete : deleted=" + deleted );

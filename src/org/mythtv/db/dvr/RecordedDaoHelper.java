@@ -53,7 +53,7 @@ public class RecordedDaoHelper extends ProgramDaoHelper {
 	public List<Program> findAll() {
 		Log.d( TAG, "findAll : enter" );
 
-		String selection = appendLocationUrl( "", ProgramConstants.TABLE_NAME_RECORDED );
+		String selection = appendLocationHostname( "", ProgramConstants.TABLE_NAME_RECORDED );
 		
 		List<Program> programs = findAll( ProgramConstants.CONTENT_URI_RECORDED, null, selection, null, null );
 		
@@ -71,7 +71,7 @@ public class RecordedDaoHelper extends ProgramDaoHelper {
 		String selection = ProgramConstants.FIELD_TITLE + " = ?";
 		String[] selectionArgs = new String[] { title };
 
-		selection = appendLocationUrl( selection, ProgramConstants.TABLE_NAME_RECORDED );
+		selection = appendLocationHostname( selection, ProgramConstants.TABLE_NAME_RECORDED );
 		
 		List<Program> programs = findAll( ProgramConstants.CONTENT_URI_RECORDED, null, selection, selectionArgs, null );
 		if( null != programs && !programs.isEmpty() ) {
@@ -111,7 +111,7 @@ public class RecordedDaoHelper extends ProgramDaoHelper {
 		String selection = ProgramConstants.TABLE_NAME_RECORDED + "." + ProgramConstants.FIELD_CHANNEL_ID + " = ? AND " + ProgramConstants.TABLE_NAME_RECORDED + "." + ProgramConstants.FIELD_START_TIME + " = ?";
 		String[] selectionArgs = new String[] { String.valueOf( channelId ), String.valueOf( startTime.getMillis() ) };
 
-		selection = appendLocationUrl( selection, ProgramConstants.TABLE_NAME_RECORDED );
+		selection = appendLocationHostname( selection, ProgramConstants.TABLE_NAME_RECORDED );
 		
 		Program program = findOne( ProgramConstants.CONTENT_URI_RECORDED, null, selection, selectionArgs, null );
 		if( null != program ) {

@@ -47,7 +47,7 @@ public abstract class AbstractDaoHelper {
 		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile();
 	}
 	
-	protected String appendLocationUrl( String selection, String table ) {
+	protected String appendLocationHostname( String selection, String table ) {
 		
 		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile();
 

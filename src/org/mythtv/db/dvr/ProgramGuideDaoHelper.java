@@ -55,7 +55,7 @@ public class ProgramGuideDaoHelper extends ProgramDaoHelper {
 	public List<Program> findAll() {
 		Log.d( TAG, "findAll : enter" );
 		
-		String selection = appendLocationUrl( "", ProgramGroupConstants.TABLE_NAME );
+		String selection = appendLocationHostname( "", ProgramGroupConstants.TABLE_NAME );
 
 		List<Program> programs = findAll( ProgramConstants.CONTENT_URI_PROGRAM, null, selection, null, null );
 		
@@ -73,7 +73,7 @@ public class ProgramGuideDaoHelper extends ProgramDaoHelper {
 		String selection = ProgramConstants.FIELD_TITLE + " = ?";
 		String[] selectionArgs = new String[] { title };
 
-		selection = appendLocationUrl( selection, ProgramGroupConstants.TABLE_NAME );
+		selection = appendLocationHostname( selection, ProgramGroupConstants.TABLE_NAME );
 		
 		List<Program> programs = findAll( ProgramConstants.CONTENT_URI_PROGRAM, null, selection, selectionArgs, null );
 		if( null != programs && !programs.isEmpty() ) {
@@ -113,7 +113,7 @@ public class ProgramGuideDaoHelper extends ProgramDaoHelper {
 		String selection = ProgramConstants.TABLE_NAME_PROGRAM + "." + ProgramConstants.FIELD_CHANNEL_ID + " = ? AND " + ProgramConstants.TABLE_NAME_PROGRAM + "." + ProgramConstants.FIELD_START_TIME + " = ?";
 		String[] selectionArgs = new String[] { String.valueOf( channelId ), String.valueOf( startTime.getMillis() ) };
 
-		selection = appendLocationUrl( selection, ProgramGroupConstants.TABLE_NAME );
+		selection = appendLocationHostname( selection, ProgramGroupConstants.TABLE_NAME );
 		
 		Program program = findOne( ProgramConstants.CONTENT_URI_PROGRAM, null, selection, selectionArgs, null );
 		if( null != program ) {
@@ -187,7 +187,7 @@ public class ProgramGuideDaoHelper extends ProgramDaoHelper {
 		String[] programProjection = new String[] { ProgramConstants._ID };
 		String programSelection = ProgramConstants.FIELD_CHANNEL_ID + " = ? AND " + ProgramConstants.FIELD_START_TIME + " = ?";
 		
-		programSelection = appendLocationUrl( programSelection, ProgramGroupConstants.TABLE_NAME );
+		programSelection = appendLocationHostname( programSelection, ProgramGroupConstants.TABLE_NAME );
 		
 		for( Program program : programs ) {
 

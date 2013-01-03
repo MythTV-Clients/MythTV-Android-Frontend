@@ -61,7 +61,7 @@ public class EtagDaoHelper extends AbstractDaoHelper {
 		
 		List<ETagInfo> etagInfos = new ArrayList<ETagInfo>();
 		
-		selection = appendLocationUrl( selection, EtagConstants.TABLE_NAME );
+		selection = appendLocationHostname( selection, EtagConstants.TABLE_NAME );
 
 		Cursor cursor = mContext.getContentResolver().query( EtagConstants.CONTENT_URI, projection, selection, selectionArgs, sortOrder );
 		while( cursor.moveToNext() ) {
@@ -104,7 +104,7 @@ public class EtagDaoHelper extends AbstractDaoHelper {
 			uri = ContentUris.withAppendedId( EtagConstants.CONTENT_URI, id );
 		}
 		
-		selection = appendLocationUrl( selection, EtagConstants.TABLE_NAME );
+		selection = appendLocationHostname( selection, EtagConstants.TABLE_NAME );
 
 		Cursor cursor = mContext.getContentResolver().query( uri, projection, selection, selectionArgs, sortOrder );
 		if( cursor.moveToFirst() ) {
@@ -166,7 +166,7 @@ public class EtagDaoHelper extends AbstractDaoHelper {
 			selectionArgs = new String[] { endpoint, dataId };
 		}
 		
-		selection = appendLocationUrl( selection, EtagConstants.TABLE_NAME );
+		selection = appendLocationHostname( selection, EtagConstants.TABLE_NAME );
 
 		DateTime etag = null;
 		Cursor cursor = mContext.getContentResolver().query( EtagConstants.CONTENT_URI, new String[] { EtagConstants.FIELD_DATE }, selection, selectionArgs, null );
@@ -198,7 +198,7 @@ public class EtagDaoHelper extends AbstractDaoHelper {
 			selectionArgs = new String[] { endpoint, dataId };
 		}
 		
-		selection = appendLocationUrl( selection, EtagConstants.TABLE_NAME );
+		selection = appendLocationHostname( selection, EtagConstants.TABLE_NAME );
 
 		int updated = -1;
 		Cursor cursor = mContext.getContentResolver().query( EtagConstants.CONTENT_URI, new String[] { EtagConstants._ID }, selection, selectionArgs, null );
@@ -250,7 +250,7 @@ public class EtagDaoHelper extends AbstractDaoHelper {
 			selectionArgs = new String[] { endpoint.name(), dataId };
 		}
 		
-		selection = appendLocationUrl( selection, EtagConstants.TABLE_NAME );
+		selection = appendLocationHostname( selection, EtagConstants.TABLE_NAME );
 
 		int deleted = mContext.getContentResolver().delete( EtagConstants.CONTENT_URI, selection, selectionArgs );
 		Log.v( TAG, "delete : deleted=" + deleted );

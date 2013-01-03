@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.joda.time.DateTime;
 import org.mythtv.db.AbstractDaoHelper;
+import org.mythtv.services.api.channel.ChannelInfo;
 import org.mythtv.services.api.content.LiveStreamInfo;
 import org.mythtv.services.api.dvr.Program;
 
@@ -42,7 +43,7 @@ public class LiveStreamDaoHelper extends AbstractDaoHelper {
 		
 		List<LiveStreamInfo> liveStreamInfos = new ArrayList<LiveStreamInfo>();
 		
-		selection = appendLocationUrl( selection, LiveStreamConstants.TABLE_NAME );
+		selection = appendLocationHostname( selection, LiveStreamConstants.TABLE_NAME );
 		
 		Cursor cursor = mContext.getContentResolver().query( LiveStreamConstants.CONTENT_URI, projection, selection, selectionArgs, sortOrder );
 		while( cursor.moveToNext() ) {
@@ -86,7 +87,7 @@ public class LiveStreamDaoHelper extends AbstractDaoHelper {
 			uri = ContentUris.withAppendedId( LiveStreamConstants.CONTENT_URI, id );
 		}
 		
-		selection = appendLocationUrl( selection, LiveStreamConstants.TABLE_NAME );
+		selection = appendLocationHostname( selection, LiveStreamConstants.TABLE_NAME );
 		
 		Cursor cursor = mContext.getContentResolver().query( uri, projection, selection, selectionArgs, sortOrder );
 		if( cursor.moveToFirst() ) {
@@ -143,11 +144,11 @@ public class LiveStreamDaoHelper extends AbstractDaoHelper {
 
 		ContentValues values = convertLiveStreamInfoToContentValues( liveStreamInfo, program );
 
-		String[] projection = new String[] { LiveStreamConstants._ID };
-		String selection = LiveStreamConstants.FIELD_CHAN_ID + " = ?";
+		String[] projection = new String[] { LiveStreamConstants.FIELD_ID };
+		String selection = LiveStreamConstants.FIELD_ID + " = ?";
 		String[] selectionArgs = new String[] { String.valueOf( liveStreamInfo.getId() ) };
 		
-		selection = appendLocationUrl( selection, LiveStreamConstants.TABLE_NAME );
+		selection = appendLocationHostname( selection, LiveStreamConstants.TABLE_NAME );
 		
 		int updated = -1;
 		Cursor cursor = mContext.getContentResolver().query( LiveStreamConstants.CONTENT_URI, projection, selection, selectionArgs, null );
@@ -156,6 +157,12 @@ public class LiveStreamDaoHelper extends AbstractDaoHelper {
 			long id = cursor.getLong( cursor.getColumnIndexOrThrow( LiveStreamConstants._ID ) );
 			
 			updated = mContext.getContentResolver().update( ContentUris.withAppendedId( LiveStreamConstants.CONTENT_URI, id ), values, null, null );
+		} else {
+			Log.v( TAG, "save : inserting new liveStream info" );
+			Uri url = mContext.getContentResolver().insert( LiveStreamConstants.CONTENT_URI, values );
+			if( ContentUris.parseId( url ) > 0 ) {
+				updated = 1;
+			}
 		}
 		cursor.close();
 		Log.v( TAG, "save : updated=" + updated );
@@ -198,10 +205,10 @@ public class LiveStreamDaoHelper extends AbstractDaoHelper {
 	public int delete( LiveStreamInfo liveStreamInfo ) {
 		Log.d( TAG, "delete : enter" );
 		
-		String selection = LiveStreamConstants.FIELD_CHAN_ID + " = ?";
+		String selection = LiveStreamConstants.FIELD_ID + " = ?";
 		String[] selectionArgs = new String[] { String.valueOf( liveStreamInfo.getId() ) };
 		
-		selection = appendLocationUrl( selection, LiveStreamConstants.TABLE_NAME );
+		selection = appendLocationHostname( selection, LiveStreamConstants.TABLE_NAME );
 		
 		int deleted = mContext.getContentResolver().delete( LiveStreamConstants.CONTENT_URI, selection, selectionArgs );
 		Log.v( TAG, "delete : deleted=" + deleted );
@@ -210,24 +217,24 @@ public class LiveStreamDaoHelper extends AbstractDaoHelper {
 		return deleted;
 	}
 
-//	public int load( List<LiveStreamInfo> liveStreamInfos ) {
-//		Log.d( TAG, "load : enter" );
-//		
-//		int loaded = -1;
-//		
-//		ContentValues[] contentValuesArray = convertLiveStreamInfosToContentValuesArray( liveStreamInfos );
-//		if( null != contentValuesArray ) {
-//			Log.v( TAG, "processLiveStreams : liveStreams=" + contentValuesArray.length );
-//
-//			loaded = mContext.getContentResolver().bulkInsert( LiveStreamConstants.CONTENT_URI, contentValuesArray );
-//			Log.v( TAG, "load : loaded=" + loaded );
-//		}
-//		
-//		
-//		Log.d( TAG, "load : exit" );
-//		return loaded;
-//	}
-//	
+	public int load( List<LiveStreamInfo> liveStreamInfos ) {
+		Log.d( TAG, "load : enter" );
+		
+		int loaded = -1;
+		
+		ContentValues[] contentValuesArray = convertLiveStreamInfosToContentValuesArray( liveStreamInfos );
+		if( null != contentValuesArray ) {
+			Log.v( TAG, "processLiveStreams : liveStreams=" + contentValuesArray.length );
+
+			loaded = mContext.getContentResolver().bulkInsert( LiveStreamConstants.CONTENT_URI, contentValuesArray );
+			Log.v( TAG, "load : loaded=" + loaded );
+		}
+		
+		
+		Log.d( TAG, "load : exit" );
+		return loaded;
+	}
+	
 	/**
 	 * @param cursor
 	 * @return
@@ -374,32 +381,48 @@ public class LiveStreamDaoHelper extends AbstractDaoHelper {
 
 	// internal helpers
 
-//	private ContentValues[] convertLiveStreamInfosToContentValuesArray( final List<LiveStreamInfo> liveStreamInfos ) {
-//		Log.v( TAG, "convertLiveStreamInfosToContentValuesArray : enter" );
-//		
-//		if( null != liveStreamInfos && !liveStreamInfos.isEmpty() ) {
-//			
-//			ContentValues contentValues;
-//			List<ContentValues> contentValuesArray = new ArrayList<ContentValues>();
-//
-//			for( LiveStreamInfo liveStreamInfo : liveStreamInfos ) {
-//
-//				contentValues = convertLiveStreamInfoToContentValues( liveStreamInfo );
-//				contentValuesArray.add( contentValues );
-//				
-//			}			
-//			
-//			if( !contentValuesArray.isEmpty() ) {
-//				
-//				Log.v( TAG, "convertLiveStreamInfosToContentValuesArray : exit" );
-//				return contentValuesArray.toArray( new ContentValues[ contentValuesArray.size() ] );
-//			}
-//			
-//		}
-//		
-//		Log.v( TAG, "convertLiveStreamInfosToContentValuesArray : exit, no liveStreamInfos to convert" );
-//		return null;
-//	}
+	private ContentValues[] convertLiveStreamInfosToContentValuesArray( final List<LiveStreamInfo> liveStreamInfos ) {
+		Log.v( TAG, "convertLiveStreamInfosToContentValuesArray : enter" );
+		
+		if( null != liveStreamInfos && !liveStreamInfos.isEmpty() ) {
+			
+			ContentValues contentValues;
+			List<ContentValues> contentValuesArray = new ArrayList<ContentValues>();
+
+			for( LiveStreamInfo liveStreamInfo : liveStreamInfos ) {
+
+				Program program = new Program();
+				
+				String sourcefile = liveStreamInfo.getSourceFile();
+				sourcefile = sourcefile.substring( sourcefile.lastIndexOf( '/' ) );
+				sourcefile = sourcefile.substring( 0, sourcefile.indexOf( '.' ) - 1 );
+				String[] sourceFileParts = sourcefile.split( "_" );
+				
+				Integer channelId = Integer.parseInt( sourceFileParts[ 0 ] );
+				DateTime startTime = new DateTime( Long.parseLong( sourceFileParts[ 1 ] ) );
+				
+				program.setStartTime( startTime );
+				
+				ChannelInfo channelInfo = new ChannelInfo();
+				channelInfo.setChannelId( channelId );
+				program.setChannelInfo( channelInfo );
+				
+				contentValues = convertLiveStreamInfoToContentValues( liveStreamInfo, program );
+				contentValuesArray.add( contentValues );
+				
+			}			
+			
+			if( !contentValuesArray.isEmpty() ) {
+				
+				Log.v( TAG, "convertLiveStreamInfosToContentValuesArray : exit" );
+				return contentValuesArray.toArray( new ContentValues[ contentValuesArray.size() ] );
+			}
+			
+		}
+		
+		Log.v( TAG, "convertLiveStreamInfosToContentValuesArray : exit, no liveStreamInfos to convert" );
+		return null;
+	}
 
 	private ContentValues convertLiveStreamInfoToContentValues( final LiveStreamInfo liveStreamInfo, final Program program ) {
 //		Log.v( TAG, "convertLiveStreamToContentValues : enter" );
