@@ -672,6 +672,21 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				sb.append( " = ");
 				sb.append( ProgramConstants.TABLE_NAME_RECORDED ).append( "." ).append( ProgramConstants.FIELD_HOSTNAME );
 				sb.append( ")" );
+				sb.append( " LEFT OUTER JOIN " );
+				sb.append( LiveStreamConstants.TABLE_NAME );
+				sb.append( " ON (" );
+				sb.append( LiveStreamConstants.TABLE_NAME ).append( "." ).append( LiveStreamConstants.FIELD_START_TIME );
+				sb.append( " = ");
+				sb.append( ProgramConstants.TABLE_NAME_RECORDED ).append( "." ).append( ProgramConstants.FIELD_START_TIME );
+				sb.append( " AND " );
+				sb.append( LiveStreamConstants.TABLE_NAME ).append( "." ).append( LiveStreamConstants.FIELD_CHAN_ID );
+				sb.append( " = ");
+				sb.append( ProgramConstants.TABLE_NAME_RECORDED ).append( "." ).append( ProgramConstants.FIELD_CHANNEL_ID );
+				sb.append( " AND " );
+				sb.append( LiveStreamConstants.TABLE_NAME ).append( "." ).append( LiveStreamConstants.FIELD_HOSTNAME );
+				sb.append( " = ");
+				sb.append( ProgramConstants.TABLE_NAME_RECORDED ).append( "." ).append( ProgramConstants.FIELD_HOSTNAME );
+				sb.append( ")" );
 				
 				queryBuilder.setTables( sb.toString() );
 				queryBuilder.setProjectionMap( mRecordedColumnMap );
