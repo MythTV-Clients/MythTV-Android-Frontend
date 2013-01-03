@@ -57,6 +57,7 @@ public class MenuHelper {
 	public static final int WATCH_ID = Menu.FIRST + 204;
 	public static final int ADD_ID = Menu.FIRST + 205;
 	public static final int WATCH_ON_TV_ID = Menu.FIRST + 206;
+	public static final int CLEAR_ID = Menu.FIRST + 207;
 	
 	private static final String TAG = MenuHelper.class.getSimpleName();
 	
@@ -414,6 +415,22 @@ public class MenuHelper {
 		if( mNetworkHelper.isNetworkConnected() ) {
 			MenuItem menuItem = menu.add( Menu.NONE, ADD_ID, Menu.NONE, mResources.getString( R.string.menu_add ) );
 			menuItem.setIcon( android.R.drawable.ic_menu_add );
+			if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
+				menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
+			}
+
+			return menuItem;
+		}
+		
+		return null;
+	}
+
+	@TargetApi( Build.VERSION_CODES.HONEYCOMB )
+	public MenuItem clearMenuItem( Menu menu ) {
+		
+		if( mNetworkHelper.isNetworkConnected() ) {
+			MenuItem menuItem = menu.add( Menu.NONE, CLEAR_ID, Menu.NONE, mResources.getString( R.string.menu_clear ) );
+			menuItem.setIcon( android.R.drawable.ic_menu_close_clear_cancel );
 			if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
 				menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
 			}
