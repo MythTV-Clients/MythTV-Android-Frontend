@@ -18,6 +18,8 @@
  */
 package org.mythtv.client;
 
+import java.util.logging.Level;
+
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.preferences.PlaybackProfile;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
@@ -104,7 +106,7 @@ public class MainApplication extends Application {
 		Log.v( TAG, "getMythServicesApi : enter" );
 		
 		if( null == provider ) {
-			provider = new MythServicesServiceProvider( getMasterBackend() );
+			provider = new MythServicesServiceProvider( getMasterBackend(), Level.FINE );
 		}
 		
 		Log.v( TAG, "getMythServicesApi : exit" );

@@ -177,6 +177,11 @@
     <string name="episode_alert_delete_button_cancel">Cancel</string>
     <string name="episode_alert_delete_button_delete">Delete</string>
     
+    <string name="episode_alert_remove_title">Remove HLS Stream&#8230;</string>
+    <string name="episode_alert_remove_message">Are you sure you want to remove this HLS Stream?</string>
+    <string name="episode_alert_remove_button_cancel">Cancel</string>
+    <string name="episode_alert_remove_button_delete">Remove</string>
+    
     <!-- Recording Rule -->
     <string name="chkbox_rec_rule_active">Recording Rule Active</string>
     <string name="chkbox_rec_rule_auto_comm_flag">Auto Commercial Flag</string>
