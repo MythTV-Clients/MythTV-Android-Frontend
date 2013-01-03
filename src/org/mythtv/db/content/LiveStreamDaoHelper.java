@@ -110,8 +110,7 @@ public class LiveStreamDaoHelper extends AbstractDaoHelper {
 		if( null != liveStreamInfo ) {
 			Log.v( TAG, "findOne : liveStreamInfo=" + liveStreamInfo.toString() );
 		}
-		
-		
+				
 		Log.d( TAG, "findOne : exit" );
 		return liveStreamInfo;
 	}
@@ -123,7 +122,7 @@ public class LiveStreamDaoHelper extends AbstractDaoHelper {
 	public LiveStreamInfo findByLiveStreamId( Long liveStreamId ) {
 		Log.d( TAG, "findByLiveStreamId : enter" );
 		
-		String selection = LiveStreamConstants.FIELD_CHAN_ID + " = ?";
+		String selection = LiveStreamConstants.FIELD_ID + " = ?";
 		String[] selectionArgs = new String[] { String.valueOf( liveStreamId ) };
 		
 		LiveStreamInfo liveStreamInfo = findOne( null, null, selection, selectionArgs, null );
@@ -132,6 +131,21 @@ public class LiveStreamDaoHelper extends AbstractDaoHelper {
 		}
 				
 		Log.d( TAG, "findByLiveStreamId : exit" );
+		return liveStreamInfo;
+	}
+
+	public LiveStreamInfo findByProgram( Program program ) {
+		Log.d( TAG, "findByProgram : enter" );
+		
+		String selection = LiveStreamConstants.FIELD_CHAN_ID + " = ? AND " + LiveStreamConstants.FIELD_START_TIME + " = ?";
+		String[] selectionArgs = new String[] { String.valueOf( program.getChannelInfo().getChannelId() ), String.valueOf( program.getStartTime().getMillis() ) };
+		
+		LiveStreamInfo liveStreamInfo = findOne( null, null, selection, selectionArgs, null );
+		if( null != liveStreamInfo ) {
+			Log.v( TAG, "findByProgram : liveStreamInfo=" + liveStreamInfo.toString() );
+		}
+				
+		Log.d( TAG, "findByProgram : exit" );
 		return liveStreamInfo;
 	}
 
@@ -144,7 +158,7 @@ public class LiveStreamDaoHelper extends AbstractDaoHelper {
 
 		ContentValues values = convertLiveStreamInfoToContentValues( liveStreamInfo, program );
 
-		String[] projection = new String[] { LiveStreamConstants.FIELD_ID };
+		String[] projection = new String[] { LiveStreamConstants.TABLE_NAME + "_" + LiveStreamConstants._ID };
 		String selection = LiveStreamConstants.FIELD_ID + " = ?";
 		String[] selectionArgs = new String[] { String.valueOf( liveStreamInfo.getId() ) };
 		
@@ -154,7 +168,7 @@ public class LiveStreamDaoHelper extends AbstractDaoHelper {
 		Cursor cursor = mContext.getContentResolver().query( LiveStreamConstants.CONTENT_URI, projection, selection, selectionArgs, null );
 		if( cursor.moveToFirst() ) {
 			Log.v( TAG, "save : updating existing liveStream info" );
-			long id = cursor.getLong( cursor.getColumnIndexOrThrow( LiveStreamConstants._ID ) );
+			long id = cursor.getLong( cursor.getColumnIndexOrThrow( LiveStreamConstants.TABLE_NAME + "_" + LiveStreamConstants._ID ) );
 			
 			updated = mContext.getContentResolver().update( ContentUris.withAppendedId( LiveStreamConstants.CONTENT_URI, id ), values, null, null );
 		} else {
