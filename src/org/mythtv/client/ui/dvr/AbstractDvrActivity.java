@@ -21,6 +21,7 @@ package org.mythtv.client.ui.dvr;
 import org.mythtv.client.ui.AbstractMythtvFragmentActivity;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.util.MenuHelper;
+import org.mythtv.db.content.LiveStreamDaoHelper;
 import org.mythtv.db.dvr.RecordedDaoHelper;
 import org.mythtv.db.dvr.programGroup.ProgramGroupDaoHelper;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
@@ -46,6 +47,7 @@ public abstract class AbstractDvrActivity extends AbstractMythtvFragmentActivity
 
 	protected FileHelper mFileHelper;
 	protected ImageFetcher mImageFetcher;
+	protected LiveStreamDaoHelper mLiveStreamDaoHelper;
 	protected LocationProfileDaoHelper mLocationDaoHelper;
 	protected MenuHelper mMenuHelper;
 	protected NetworkHelper mNetworkHelper;
@@ -66,6 +68,7 @@ public abstract class AbstractDvrActivity extends AbstractMythtvFragmentActivity
 		setupActionBar();
 
 		mFileHelper = FileHelper.newInstance( this );
+		mLiveStreamDaoHelper = new LiveStreamDaoHelper( this );
 		mLocationDaoHelper = new LocationProfileDaoHelper( this );
 		mMenuHelper = MenuHelper.newInstance( this );
 		mNetworkHelper = NetworkHelper.newInstance( this );
@@ -161,6 +164,10 @@ public abstract class AbstractDvrActivity extends AbstractMythtvFragmentActivity
 		return mImageFetcher;
 	}
 
+	public LiveStreamDaoHelper getLiveStreamDaoHelper() {
+		return mLiveStreamDaoHelper;
+	}
+	
 	/**
 	 * @return the mLocationProfile
 	 */
