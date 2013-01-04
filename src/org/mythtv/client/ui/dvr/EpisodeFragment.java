@@ -46,6 +46,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.AsyncTask.Status;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
@@ -78,6 +79,9 @@ public class EpisodeFragment extends AbstractMythFragment {
 	private TextView hlsView;
 	
 	private MenuItem addHlsMenuItem = null, clearHlsMenuItem;
+	
+	private CreateStreamTask createStreamTask = null;
+	private UpdateStreamInfoTask updateStreamInfoTask = null;
 	
 	@Override
 	public View onCreateView( LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState ) {
@@ -150,7 +154,8 @@ public class EpisodeFragment extends AbstractMythFragment {
 			if( mNetworkHelper.isNetworkConnected() ) {
 				
 				if( null == liveStreamInfo ) {
-					new CreateStreamTask().execute( true );
+					createStreamTask = new CreateStreamTask();
+					createStreamTask.execute( true );
 				} else {
 
 					Intent playerIntent = new Intent( getActivity(), VideoActivity.class );
@@ -177,7 +182,8 @@ public class EpisodeFragment extends AbstractMythFragment {
 
 			if( mNetworkHelper.isNetworkConnected() ) {
 				
-				new CreateStreamTask().execute( false );
+				createStreamTask = new CreateStreamTask();
+				createStreamTask.execute( false );
 			
 				Toast.makeText( getActivity(), "Episode added to HLS Playlist", Toast.LENGTH_SHORT ).show();
 
@@ -202,6 +208,18 @@ public class EpisodeFragment extends AbstractMythFragment {
 						@Override
 						public void onClick( DialogInterface dialog, int which ) {
 							
+							if( null != createStreamTask && Status.FINISHED != createStreamTask.getStatus() ) {
+								Log.d( TAG, "onClick : cancelling create stream task" );
+
+								createStreamTask.cancel( true );
+							}
+							
+							if( null != updateStreamInfoTask && Status.FINISHED != updateStreamInfoTask.getStatus() ) {
+								Log.d( TAG, "onClick : cancelling update stream task" );
+
+								updateStreamInfoTask.cancel( true );
+							}
+
 							new RemoveStreamTask().execute();
 							
 						}
@@ -231,6 +249,22 @@ public class EpisodeFragment extends AbstractMythFragment {
 						
 						@Override
 						public void onClick( DialogInterface dialog, int which ) {
+							
+							if( null != createStreamTask && Status.FINISHED != createStreamTask.getStatus() ) {
+								Log.d( TAG, "onClick : cancelling create stream task" );
+
+								createStreamTask.cancel( true );
+							}
+							
+							if( null != updateStreamInfoTask && Status.FINISHED != updateStreamInfoTask.getStatus() ) {
+								Log.d( TAG, "onClick : cancelling update stream task" );
+
+								updateStreamInfoTask.cancel( true );
+							}
+							
+							if( null != liveStreamInfo ) {
+								new RemoveStreamTask().execute();
+							}
 							
 							new RemoveRecordingTask().execute();
 							
@@ -611,10 +645,14 @@ public class EpisodeFragment extends AbstractMythFragment {
 			try {
 				Log.v( TAG, "UpdateStreamInfoTask : api" );
 				
-				if( liveStreamInfo.getPercentComplete() <= 100 ) {
-					Thread.sleep( 10000 );
-					ETagInfo eTag = ETagInfo.createEmptyETag();
-					return getMainApplication().getMythServicesApi().contentOperations().getLiveStream( liveStreamInfo.getId(), eTag );
+				if( null != liveStreamInfo ) {
+					if( liveStreamInfo.getPercentComplete() <= 100 ) {
+						Thread.sleep( 10000 );
+						ETagInfo eTag = ETagInfo.createEmptyETag();
+					
+						Log.v( TAG, "UpdateStreamInfoTask : exit" );
+						return getMainApplication().getMythServicesApi().contentOperations().getLiveStream( liveStreamInfo.getId(), eTag );
+					}
 				}
 			} catch( Exception e ) {
 				Log.v( TAG, "UpdateStreamInfoTask : error" );
@@ -622,7 +660,7 @@ public class EpisodeFragment extends AbstractMythFragment {
 				this.e = e;
 			}
 
-			Log.v( TAG, "UpdateStreamInfoTask : exit" );
+			Log.v( TAG, "UpdateStreamInfoTask : exit, task in error or was cancelled by user" );
 			return null;
 		}
 
@@ -671,7 +709,10 @@ public class EpisodeFragment extends AbstractMythFragment {
 			try {
 				Log.v( TAG, "RemoveStreamTask : api" );
 				
-				return getMainApplication().getMythServicesApi().contentOperations().removeLiveStream( liveStreamInfo.getId() );
+				if( null != liveStreamInfo ) {
+					return getMainApplication().getMythServicesApi().contentOperations().removeLiveStream( liveStreamInfo.getId() );
+				}
+				
 			} catch( Exception e ) {
 				Log.v( TAG, "RemoveStreamTask : error" );
 
