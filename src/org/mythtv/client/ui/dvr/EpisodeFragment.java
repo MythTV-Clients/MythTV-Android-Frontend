@@ -149,11 +149,17 @@ public class EpisodeFragment extends AbstractMythFragment {
 
 			if( mNetworkHelper.isNetworkConnected() ) {
 				
-				Intent playerIntent = new Intent( getActivity(), VideoActivity.class );
-				playerIntent.putExtra( VideoActivity.EXTRA_CHANNEL_ID, program.getChannelInfo().getChannelId() );
-				playerIntent.putExtra( VideoActivity.EXTRA_START_TIME, program.getStartTime().getMillis() );
-				startActivity( playerIntent );
-			
+				if( null == liveStreamInfo ) {
+					new CreateStreamTask().execute( true );
+				} else {
+
+					Intent playerIntent = new Intent( getActivity(), VideoActivity.class );
+					playerIntent.putExtra( VideoActivity.EXTRA_CHANNEL_ID, program.getChannelInfo().getChannelId() );
+					playerIntent.putExtra( VideoActivity.EXTRA_START_TIME, program.getStartTime().getMillis() );
+					startActivity( playerIntent );
+				
+				}
+				
 			} else {
 				notConnectedNotify();
 			}
@@ -171,7 +177,7 @@ public class EpisodeFragment extends AbstractMythFragment {
 
 			if( mNetworkHelper.isNetworkConnected() ) {
 				
-				new CreateStreamTask().execute();
+				new CreateStreamTask().execute( false );
 			
 				Toast.makeText( getActivity(), "Episode added to HLS Playlist", Toast.LENGTH_SHORT ).show();
 
@@ -499,16 +505,20 @@ public class EpisodeFragment extends AbstractMythFragment {
 		
 	}
 
-	private class CreateStreamTask extends AsyncTask<Void, Void, ResponseEntity<LiveStreamInfoWrapper>> {
+	private class CreateStreamTask extends AsyncTask<Boolean, Void, ResponseEntity<LiveStreamInfoWrapper>> {
 
+		private boolean startVideo;
+		
 		private Exception e = null;
 
 		private PlaybackProfile selectedPlaybackProfile;
 
 		@Override
-		protected ResponseEntity<LiveStreamInfoWrapper> doInBackground( Void... params ) {
+		protected ResponseEntity<LiveStreamInfoWrapper> doInBackground( Boolean... params ) {
 			Log.v( TAG, "CreateStreamTask : enter" );
 
+			startVideo = params[ 0 ];
+			
 			try {
 				Log.v( TAG, "CreateStreamTask : api" );
 				
@@ -557,6 +567,15 @@ public class EpisodeFragment extends AbstractMythFragment {
 						
 						updateHlsDetails();
 						updateHlsMenuButtons();
+						
+						if( startVideo ) {
+							
+							Intent playerIntent = new Intent( getActivity(), VideoActivity.class );
+							playerIntent.putExtra( VideoActivity.EXTRA_CHANNEL_ID, program.getChannelInfo().getChannelId() );
+							playerIntent.putExtra( VideoActivity.EXTRA_START_TIME, program.getStartTime().getMillis() );
+							startActivity( playerIntent );
+
+						}
 					}
 				}
 			} else {
