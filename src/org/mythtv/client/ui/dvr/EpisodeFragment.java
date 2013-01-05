@@ -222,13 +222,13 @@ public class EpisodeFragment extends AbstractMythFragment {
 
 							new RemoveStreamTask().execute();
 							
+							Toast.makeText( getActivity(), "Episode removed from HLS Playlist", Toast.LENGTH_SHORT ).show();
+							
 						}
 					} )
 					.setNegativeButton( R.string.episode_alert_remove_button_cancel, null )
 					.show();
 			
-				Toast.makeText( getActivity(), "Episode removed from HLS Playlist", Toast.LENGTH_SHORT ).show();
-				
 				updateHlsMenuButtons();
 			} else {
 				notConnectedNotify();
