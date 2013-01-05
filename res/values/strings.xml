@@ -220,6 +220,13 @@
     <string name="loading_recordings_msg_str">Loading Recordings…</string>
     <string name="loading_upcoming_recordings_msg_str">Loading Upcoming Recordings…</string>
 
+    <!-- Video Playback Dialog -->
+    <string name="video_playback_title">Video Playback Warning</string>
+    <string name="video_playback_message">Video Playback Warning Message. Warnings go here for playback and multiple gestures for Fast Forward and Rewind, etc.</string>
+    <string name="video_playback_doNotDisplay">Do not display this warning again</string>
+    <string name="video_playback_button_play">Start</string>
+    <string name="video_playback_button_cancel">Cancel</string>
+    
     <!-- Notification Strings -->
     <string name="notification_sync_program_guide">Syncing Program Guide</string>
     <string name="notification_sync_recordings">Syncing Recorded Programs</string>

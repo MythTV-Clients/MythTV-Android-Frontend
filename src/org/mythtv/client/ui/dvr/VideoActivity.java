@@ -32,11 +32,18 @@ import org.springframework.http.ResponseEntity;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 
 /**
  * @author John Baab
@@ -45,6 +52,8 @@ import android.util.Log;
 public class VideoActivity extends AbstractDvrActivity {
 
 	private static final String TAG = VideoActivity.class.getSimpleName();
+	private static final String DISMISS = "org.mythtv.videoActivity.dismissDialog";
+	
 	public static final String EXTRA_CHANNEL_ID = "org.mythtv.client.ui.dvr.programGroup.EXTRA_CHANNEL_ID";
 	public static final String EXTRA_START_TIME = "org.mythtv.client.ui.dvr.programGroup.EXTRA_START_TIME";
 	
@@ -56,6 +65,8 @@ public class VideoActivity extends AbstractDvrActivity {
 	
 	private Program program = null;
 	private LiveStreamInfo liveStreamInfo = null;
+	
+	private SharedPreferences preferences = null;
 	
 	// ***************************************
 	// Activity methods
@@ -71,6 +82,8 @@ public class VideoActivity extends AbstractDvrActivity {
 		Log.v( TAG, "onCreate : enter" );
 		super.onCreate( savedInstanceState );
 
+		preferences = getSharedPreferences( getString( R.string.app_name ), Context.MODE_PRIVATE );
+		
 		mLiveStreamDaoHelper = new LiveStreamDaoHelper( this );
 		mNetworkHelper = NetworkHelper.newInstance( this );
 		mRecordedDaoHelper = new RecordedDaoHelper( this );
@@ -174,15 +187,70 @@ public class VideoActivity extends AbstractDvrActivity {
 			progressDialog = null;
 		}
 	    
-	    Intent tostart = new Intent( Intent.ACTION_VIEW );
+	    final Intent tostart = new Intent( Intent.ACTION_VIEW );
 //	    tostart.setFlags( Intent.FLAG_ACTIVITY_NEW_TASK );
 //	    tostart.setDataAndType( Uri.parse(url), "application/x-mpegurl" );
 //	    tostart.setDataAndType( Uri.parse(url), "application/vnd.apple.mpegurl" );
 	    tostart.setDataAndType( Uri.parse( url ), "video/*" );
 
-        startActivity( Intent.createChooser( tostart, "Play Recording" ) );
+	    if( !preferences.getBoolean( DISMISS, false ) ) {
+			Log.v( TAG, "startVideo : displaying warning" );
+	    
+			View dismissView = View.inflate( this, R.layout.dismiss_checkbox, null );
+			CheckBox dismiss = (CheckBox) dismissView.findViewById( R.id.dismiss );
+			dismiss.setOnCheckedChangeListener( new OnCheckedChangeListener() {
+
+			    @Override
+			    public void onCheckedChanged( CompoundButton buttonView, boolean isChecked ) {
+
+			    	setDismissPreferences( isChecked );
+			    	
+			    }
+			    
+			});
+			dismiss.setText( getString( R.string.video_playback_doNotDisplay ) );
+
+			AlertDialog.Builder builder = new AlertDialog.Builder( this );
+	    	builder
+	    	.setTitle( R.string.video_playback_title )
+	    	.setMessage( R.string.video_playback_message )
+	    	.setView( dismissView )
+	    	.setPositiveButton( R.string.video_playback_button_play, new DialogInterface.OnClickListener() {
+
+	    		@Override
+	    		public void onClick( DialogInterface dialog, int which ) {
+
+	    			startActivity( tostart );
+
+	    		}
+	    	} )
+	    	.setNegativeButton( R.string.video_playback_button_cancel, new DialogInterface.OnClickListener() {
+
+	    		@Override
+	    		public void onClick( DialogInterface dialog, int which ) {
+	    		
+	    			finish();
+	    		
+	    		}
+	    		
+	    	} )
+	    	.show();
+	    } else {
+			Log.v( TAG, "startVideo : not displaying warning" );
+
+	        startActivity( tostart );
+
+	    }
 	    
 		Log.v( TAG, "startVideo : exit" );
+	}
+	
+	private void setDismissPreferences( boolean isChecked ) {
+		
+		SharedPreferences.Editor editor = preferences.edit();
+		editor.putBoolean( DISMISS, isChecked );
+		editor.commit();
+		
 	}
 	
 	private void exceptionDialolg( Throwable t ) {
