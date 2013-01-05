@@ -41,14 +41,14 @@
             android:id="@+id/fragment_dvr_episode"
             android:layout_width="match_parent"
             android:layout_height="0dip"
-            android:layout_weight="0.60"
+            android:layout_weight="0.70"
             class="org.mythtv.client.ui.dvr.EpisodeFragment" />
 
         <fragment
             android:id="@+id/fragment_dvr_program_group"
             android:layout_width="match_parent"
             android:layout_height="0dip"
-            android:layout_weight="0.40"
+            android:layout_weight="0.30"
             class="org.mythtv.client.ui.dvr.ProgramGroupFragment" />
     </LinearLayout>
 
