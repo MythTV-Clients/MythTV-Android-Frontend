@@ -77,8 +77,6 @@ public class VideoActivity extends AbstractDvrActivity {
 		
 	    setContentView( R.layout.activity_video );
 	    
-	    setupActionBar();
-	    
 	    int channelId = getIntent().getIntExtra( EXTRA_CHANNEL_ID, -1 );
 	    Long startTime = getIntent().getLongExtra( EXTRA_START_TIME, -1 );
 
