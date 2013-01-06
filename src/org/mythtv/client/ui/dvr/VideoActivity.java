@@ -32,7 +32,6 @@ import org.springframework.http.ResponseEntity;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -66,8 +65,6 @@ public class VideoActivity extends AbstractDvrActivity {
 	private Program program = null;
 	private LiveStreamInfo liveStreamInfo = null;
 	
-	private SharedPreferences preferences = null;
-	
 	// ***************************************
 	// Activity methods
 	// ***************************************
@@ -82,8 +79,6 @@ public class VideoActivity extends AbstractDvrActivity {
 		Log.v( TAG, "onCreate : enter" );
 		super.onCreate( savedInstanceState );
 
-		preferences = getSharedPreferences( getString( R.string.app_name ), Context.MODE_PRIVATE );
-		
 		mLiveStreamDaoHelper = new LiveStreamDaoHelper( this );
 		mNetworkHelper = NetworkHelper.newInstance( this );
 		mRecordedDaoHelper = new RecordedDaoHelper( this );

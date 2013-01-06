@@ -18,6 +18,7 @@
  */
 package org.mythtv.client.ui.dvr;
 
+import org.mythtv.R;
 import org.mythtv.client.ui.AbstractMythtvFragmentActivity;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.util.MenuHelper;
@@ -31,6 +32,8 @@ import org.mythtv.service.util.RunningServiceHelper;
 import org.mythtv.service.util.image.ImageCache;
 import org.mythtv.service.util.image.ImageFetcher;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -44,6 +47,8 @@ import android.view.MenuItem;
 public abstract class AbstractDvrActivity extends AbstractMythtvFragmentActivity {
 
 	protected static final String TAG = AbstractDvrActivity.class.getSimpleName();
+
+	protected SharedPreferences preferences = null;
 
 	protected FileHelper mFileHelper;
 	protected ImageFetcher mImageFetcher;
@@ -67,6 +72,8 @@ public abstract class AbstractDvrActivity extends AbstractMythtvFragmentActivity
 
 		setupActionBar();
 
+		preferences = getSharedPreferences( getString( R.string.app_name ), Context.MODE_PRIVATE );
+		
 		mFileHelper = FileHelper.newInstance( this );
 		mLiveStreamDaoHelper = new LiveStreamDaoHelper( this );
 		mLocationDaoHelper = new LocationProfileDaoHelper( this );
@@ -157,6 +164,13 @@ public abstract class AbstractDvrActivity extends AbstractMythtvFragmentActivity
 		return super.onOptionsItemSelected( item );
 	}
 
+	/**
+	 * @return the preferences
+	 */
+	public SharedPreferences getSharedPreferences() {
+		return preferences;
+	}
+	
 	/**
 	 * @return the mImageFetcher
 	 */

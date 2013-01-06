@@ -182,6 +182,12 @@
     <string name="episode_alert_remove_button_cancel">Cancel</string>
     <string name="episode_alert_remove_button_delete">Remove</string>
     
+    <string name="episode_add_title">HLS Live Stream Warning</string>
+    <string name="episode_add_message">HLS Live Stream Warning Message. Adding too many HLS Processing Jobs on your MythTV Master Backend can severely impact its performance.  Be cautious when adding too many HLS Live Stream jobs.</string>
+    <string name="episode_add_doNotDisplay">Do not display this warning again</string>
+    <string name="episode_add_button_play">Process</string>
+    <string name="episode_add_button_cancel">Cancel</string>
+    
     <!-- Recording Rule -->
     <string name="chkbox_rec_rule_active">Recording Rule Active</string>
     <string name="chkbox_rec_rule_auto_comm_flag">Auto Commercial Flag</string>

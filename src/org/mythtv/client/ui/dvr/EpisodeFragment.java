@@ -45,6 +45,7 @@ import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.AsyncTask.Status;
 import android.os.Bundle;
@@ -56,14 +57,18 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 
 public class EpisodeFragment extends AbstractMythFragment {
 
 	private static final String TAG = EpisodeFragment.class.getSimpleName();
-
+	private static final String DISMISS_ADD = "org.mythtv.episodeFragment.dismissAddDialog";
+	
 	private OnEpisodeActionListener listener = null;
 
 	private LiveStreamDaoHelper mLiveStreamDaoHelper;
@@ -82,6 +87,8 @@ public class EpisodeFragment extends AbstractMythFragment {
 	
 	private CreateStreamTask createStreamTask = null;
 	private UpdateStreamInfoTask updateStreamInfoTask = null;
+	
+	private SharedPreferences preferences = null;
 	
 	@Override
 	public View onCreateView( LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState ) {
@@ -103,6 +110,8 @@ public class EpisodeFragment extends AbstractMythFragment {
 		Log.v( TAG, "onActivityCreated : enter" );
 		super.onActivityCreated( savedInstanceState );
 
+		preferences = ( (AbstractDvrActivity) getActivity() ).getSharedPreferences();
+		
 		mLiveStreamDaoHelper = ( (AbstractDvrActivity) getActivity() ).getLiveStreamDaoHelper();
 		mMenuHelper = ( (AbstractDvrActivity) getActivity() ).getMenuHelper();
 		mNetworkHelper = ( (AbstractDvrActivity) getActivity() ).getNetworkHelper();
@@ -182,12 +191,55 @@ public class EpisodeFragment extends AbstractMythFragment {
 
 			if( mNetworkHelper.isNetworkConnected() ) {
 				
-				createStreamTask = new CreateStreamTask();
-				createStreamTask.execute( false );
-			
-				Toast.makeText( getActivity(), "Episode added to HLS Playlist", Toast.LENGTH_SHORT ).show();
+				if( !preferences.getBoolean( DISMISS_ADD, false ) ) {
+					
+					View dismissView = View.inflate( getActivity(), R.layout.dismiss_checkbox, null );
+					CheckBox dismiss = (CheckBox) dismissView.findViewById( R.id.dismiss );
+					dismiss.setOnCheckedChangeListener( new OnCheckedChangeListener() {
 
-				updateHlsMenuButtons();
+					    @Override
+					    public void onCheckedChanged( CompoundButton buttonView, boolean isChecked ) {
+
+					    	setDismissAddPreference( isChecked );
+					    	
+					    }
+					    
+					});
+					dismiss.setText( getString( R.string.episode_add_doNotDisplay ) );
+
+					AlertDialog.Builder builder = new AlertDialog.Builder( getActivity() );
+			    	builder
+			    	.setTitle( R.string.episode_add_title )
+			    	.setMessage( R.string.episode_add_message )
+			    	.setView( dismissView )
+			    	.setPositiveButton( R.string.episode_add_button_play, new DialogInterface.OnClickListener() {
+
+			    		@Override
+			    		public void onClick( DialogInterface dialog, int which ) {
+
+							createStreamTask = new CreateStreamTask();
+							createStreamTask.execute( false );
+						
+							Toast.makeText( getActivity(), "Episode will be available for future viewing when processing is complete.", Toast.LENGTH_SHORT ).show();
+
+							updateHlsMenuButtons();
+
+			    		}
+			    	} )
+			    	.setNegativeButton( R.string.episode_add_button_cancel, null )
+			    	.show();
+
+				} else {
+					
+					createStreamTask = new CreateStreamTask();
+					createStreamTask.execute( false );
+				
+					Toast.makeText( getActivity(), "Episode will be available for future viewing when processing is complete.", Toast.LENGTH_SHORT ).show();
+
+					updateHlsMenuButtons();
+
+				}
+				
 			} else {
 				notConnectedNotify();
 			}
@@ -366,6 +418,14 @@ public class EpisodeFragment extends AbstractMythFragment {
 
 	// internal helpers
 	
+	private void setDismissAddPreference( boolean isChecked ) {
+		
+		SharedPreferences.Editor editor = preferences.edit();
+		editor.putBoolean( DISMISS_ADD, isChecked );
+		editor.commit();
+		
+	}
+	
 	private void updateHlsDetails() {
 		Log.v( TAG, "updateHlsDetails : enter" );
 		
@@ -376,7 +436,7 @@ public class EpisodeFragment extends AbstractMythFragment {
         	if( liveStreamInfo.getPercentComplete() == 100 ) {
         		hlsView.setText( "WATCH IT NOW!" );
         	} else if( liveStreamInfo.getPercentComplete() >= 0 ) {
-        		hlsView.setText( "Transcode " + liveStreamInfo.getPercentComplete() + "%" );
+        		hlsView.setText( "Processing " + liveStreamInfo.getPercentComplete() + "%" );
         		
         		new UpdateStreamInfoTask().execute();
         	} else {
