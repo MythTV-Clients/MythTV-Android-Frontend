@@ -180,14 +180,14 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 	public boolean onOptionsItemSelected( MenuItem item ) {
 		Log.v( TAG, "onOptionsItemSelected : enter" );
 
-		switch( item.getItemId() ) {
-			case android.R.id.home:
-				// app icon in action bar clicked; go home
-				Intent intent = new Intent( this, LocationActivity.class );
-				intent.addFlags( Intent.FLAG_ACTIVITY_CLEAR_TOP );
-				startActivity( intent );
-				return true;
-		}
+//		switch( item.getItemId() ) {
+//			case android.R.id.home:
+//				// app icon in action bar clicked; go home
+//				Intent intent = new Intent( this, LocationActivity.class );
+//				intent.addFlags( Intent.FLAG_ACTIVITY_CLEAR_TOP );
+//				startActivity( intent );
+//				return true;
+//		}
 
 		Log.v( TAG, "onOptionsItemSelected : exit" );
 		return super.onOptionsItemSelected( item );

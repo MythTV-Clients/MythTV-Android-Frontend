@@ -18,17 +18,34 @@
  */
 package org.mythtv.client.ui;
 
+import org.mythtv.R;
 import org.mythtv.client.MainApplication;
 import org.mythtv.client.ui.util.MenuHelper;
 
+import android.animation.Animator;
+import android.animation.Animator.AnimatorListener;
+import android.animation.LayoutTransition;
+import android.animation.ValueAnimator;
+import android.animation.ValueAnimator.AnimatorUpdateListener;
 import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
+import android.view.ViewParent;
+import android.view.animation.TranslateAnimation;
+import android.widget.Button;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 
 /**
  * @author Daniel Frey
@@ -39,6 +56,7 @@ public abstract class AbstractMythtvFragmentActivity extends FragmentActivity im
 	protected static final String TAG = AbstractMythtvFragmentActivity.class.getSimpleName();
 
 	private MenuHelper mMenuHelper;
+	private int mMenuWidth = 500;
 	
 	//***************************************
     // MythActivity methods
@@ -87,6 +105,9 @@ public abstract class AbstractMythtvFragmentActivity extends FragmentActivity im
 		Log.d( TAG, "onOptionsItemSelected : enter" );
 
 		switch( item.getItemId() ) {
+		case android.R.id.home:
+			return toggleMainMenuVisibility();
+			
 		case MenuHelper.ABOUT_ID:
 			Log.d( TAG, "onOptionsItemSelected : about selected" );
 
@@ -118,6 +139,48 @@ public abstract class AbstractMythtvFragmentActivity extends FragmentActivity im
 		return super.onOptionsItemSelected( item );
 	}
 
+
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
+	private boolean toggleMainMenuVisibility() {
+		
+		final FrameLayout menuContainer = (FrameLayout)this.findViewById(R.id.frame_layout_main_menu);
+		if(null != menuContainer){
+			if(menuContainer.getWidth() > 0){
+				if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
+					ValueAnimator animator = ValueAnimator.ofInt(menuContainer.getWidth(), 0);
+					animator.addUpdateListener(new AnimatorUpdateListener(){
+
+						@Override
+						public void onAnimationUpdate(ValueAnimator animation) {
+							Integer w = (Integer)animation.getAnimatedValue();
+							menuContainer.setLayoutParams(new LinearLayout.LayoutParams(w, LayoutParams.MATCH_PARENT));
+						}});
+					animator.start();
+				}else{
+					menuContainer.setLayoutParams(new LinearLayout.LayoutParams(0, LayoutParams.MATCH_PARENT));
+				}
+				return true;
+			}else{
+				if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
+					ValueAnimator animator = ValueAnimator.ofInt(0, mMenuWidth);
+					animator.addUpdateListener(new AnimatorUpdateListener(){
+
+						@Override
+						public void onAnimationUpdate(ValueAnimator animation) {
+							Integer w = (Integer)animation.getAnimatedValue();
+							menuContainer.setLayoutParams(new LinearLayout.LayoutParams(w, LayoutParams.MATCH_PARENT));
+						}});
+					animator.start();
+				}else{
+					menuContainer.setLayoutParams(new LinearLayout.LayoutParams(mMenuWidth, LayoutParams.MATCH_PARENT));
+				}
+				return true;
+			}
+		}
+		
+		return false;
+	}
+
 	// internal helpers
 	
 	@TargetApi( 11 )
@@ -130,6 +193,43 @@ public abstract class AbstractMythtvFragmentActivity extends FragmentActivity im
 		}
 		
 		Log.v( TAG, "setupActionBar : exit" );
+	}
+	
+	@Override
+	public void setContentView(int layoutResID) {
+		
+		//inflate main activity layout
+		View mainLayout = getLayoutInflater().inflate(R.layout.activity_main, null);
+	
+		//get main menu framelayout
+		FrameLayout menu = (FrameLayout) mainLayout.findViewById(R.id.frame_layout_main_menu);
+		
+		//get framgment manager and start a transaction
+		FragmentManager fragMgr = this.getSupportFragmentManager();
+		FragmentTransaction fTran = fragMgr.beginTransaction();
+		
+		//Setup main menu fragment
+		Fragment mainMenuFrag = fragMgr.findFragmentById(R.layout.fragment_main_menu);
+		if (null == mainMenuFrag) {
+			mainMenuFrag = Fragment.instantiate(this, MainMenuFragment.class.getName());
+			fTran.add(R.id.frame_layout_main_menu, mainMenuFrag);
+		}else{
+			fTran.replace(R.id.frame_layout_main_menu, mainMenuFrag);
+		}
+		
+		//finalize fragment transaction
+		//fTran.commit();
+		//this fixes an exception caused by a bug in support library.
+		fTran.commitAllowingStateLoss();
+		
+		FrameLayout content = (FrameLayout) mainLayout.findViewById(R.id.frame_layout_main_ui);
+	    
+	    // Setting the content of layout your provided to the act_content frame
+	    getLayoutInflater().inflate(layoutResID, content, true); 
+	    
+	    //set our new main layout
+	    super.setContentView(mainLayout);
+		
 	}
 
 }
