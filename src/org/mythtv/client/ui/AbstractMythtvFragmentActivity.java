@@ -56,7 +56,6 @@ public abstract class AbstractMythtvFragmentActivity extends FragmentActivity im
 	protected static final String TAG = AbstractMythtvFragmentActivity.class.getSimpleName();
 
 	private MenuHelper mMenuHelper;
-	private int mMenuWidth = 500;
 	
 	//***************************************
     // MythActivity methods
@@ -143,36 +142,41 @@ public abstract class AbstractMythtvFragmentActivity extends FragmentActivity im
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	private boolean toggleMainMenuVisibility() {
 		
-		final FrameLayout menuContainer = (FrameLayout)this.findViewById(R.id.frame_layout_main_menu);
-		if(null != menuContainer){
-			if(menuContainer.getWidth() > 0){
+		//get menu and content containers
+		final FrameLayout menu = (FrameLayout) this.findViewById(R.id.frame_layout_main_menu);
+		final FrameLayout content = (FrameLayout)this.findViewById(R.id.frame_layout_main_ui);
+		
+		//check that we received them
+		if(null != content && null != menu){
+			
+			//animator that moves content panel 
+			AnimatorUpdateListener translateContentListener = new AnimatorUpdateListener(){
+				@Override
+				public void onAnimationUpdate(ValueAnimator animation) {
+					Float w = (Float)animation.getAnimatedValue();
+					content.setX(w);
+				}
+			};
+			
+			//show/hide
+			if(content.getX() > 0){
 				if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-					ValueAnimator animator = ValueAnimator.ofInt(menuContainer.getWidth(), 0);
-					animator.addUpdateListener(new AnimatorUpdateListener(){
-
-						@Override
-						public void onAnimationUpdate(ValueAnimator animation) {
-							Integer w = (Integer)animation.getAnimatedValue();
-							menuContainer.setLayoutParams(new LinearLayout.LayoutParams(w, LayoutParams.MATCH_PARENT));
-						}});
+					ValueAnimator animator = ValueAnimator.ofFloat(content.getX(), 0);
+					animator.setDuration(200);
+					animator.addUpdateListener(translateContentListener);
 					animator.start();
 				}else{
-					menuContainer.setLayoutParams(new LinearLayout.LayoutParams(0, LayoutParams.MATCH_PARENT));
+					content.setX(0f);
 				}
 				return true;
 			}else{
 				if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-					ValueAnimator animator = ValueAnimator.ofInt(0, mMenuWidth);
-					animator.addUpdateListener(new AnimatorUpdateListener(){
-
-						@Override
-						public void onAnimationUpdate(ValueAnimator animation) {
-							Integer w = (Integer)animation.getAnimatedValue();
-							menuContainer.setLayoutParams(new LinearLayout.LayoutParams(w, LayoutParams.MATCH_PARENT));
-						}});
+					ValueAnimator animator = ValueAnimator.ofFloat(0, menu.getWidth());
+					animator.setDuration(200);
+					animator.addUpdateListener(translateContentListener);
 					animator.start();
 				}else{
-					menuContainer.setLayoutParams(new LinearLayout.LayoutParams(mMenuWidth, LayoutParams.MATCH_PARENT));
+					content.setX(menu.getWidth());
 				}
 				return true;
 			}
