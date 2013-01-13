@@ -34,6 +34,7 @@
     <color name="accent_1">#ff2d3f44</color>
     <color name="hyperlink">#ffff549f</color>
     <color name="background_1">#ffffffff</color>
+    <color name="background_main_menu">#737373</color>
 
     <color name="whats_on_separator">#4d000000</color>
 
