@@ -32,7 +32,13 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
     // MythActivity methods
     //***************************************
 	public MainApplication getMainApplication() {
-		return (MainApplication) getActivity().getApplicationContext();
+		
+		if( null != getActivity() ) {
+			return (MainApplication) getActivity().getApplicationContext();
+		} else {
+			return null;
+		}
+	
 	}
 
 }
