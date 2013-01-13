@@ -24,15 +24,18 @@ import java.util.List;
 import java.util.Map;
 
 import org.joda.time.DateTime;
+import org.mythtv.client.MainApplication;
 import org.mythtv.db.AbstractDaoHelper;
 import org.mythtv.db.channel.ChannelDaoHelper;
 import org.mythtv.db.content.LiveStreamConstants;
 import org.mythtv.db.content.LiveStreamDaoHelper;
 import org.mythtv.provider.MythtvProvider;
 import org.mythtv.service.util.DateUtils;
+import org.mythtv.services.api.Bool;
 import org.mythtv.services.api.channel.ChannelInfo;
 import org.mythtv.services.api.content.LiveStreamInfo;
 import org.mythtv.services.api.dvr.Program;
+import org.springframework.http.ResponseEntity;
 
 import android.content.ContentProviderOperation;
 import android.content.ContentProviderResult;
@@ -42,6 +45,7 @@ import android.content.Context;
 import android.content.OperationApplicationException;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.RemoteException;
 import android.util.Log;
 
@@ -53,12 +57,16 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 
 	protected static final String TAG = ProgramDaoHelper.class.getSimpleName();
 	
+	protected MainApplication mMainApplication;
+	
 	protected ChannelDaoHelper mChannelDaoHelper;
 	protected LiveStreamDaoHelper mLiveStreamDaoHelper;
 	protected RecordingDaoHelper mRecordingDaoHelper;
 	
 	protected ProgramDaoHelper( Context context ) {
 		super( context );
+		
+		mMainApplication = (MainApplication) context.getApplicationContext();
 		
 		mChannelDaoHelper = new ChannelDaoHelper( context );
 		mLiveStreamDaoHelper = new LiveStreamDaoHelper( context );
@@ -230,7 +238,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 	protected int load( Uri uri, List<Program> programs, String table ) throws RemoteException, OperationApplicationException {
 		Log.v( TAG, "load : enter" );
 		
-		// load all existing programs
+		Log.v( TAG, "load : find all existing recordings" );
 		Map<String, Program> recorded = new HashMap<String, Program>();
 		for( Program program : findAll( uri, null, null, null, null ) ) {
 			recorded.put( program.getFilename(), program );
@@ -275,6 +283,16 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 			}
 			programCursor.close();
 			count++;
+			
+			if( null != program.getChannelInfo() ) {
+				
+				if( null == mChannelDaoHelper.findByChannelId( (long) program.getChannelInfo().getChannelId() ) ) {
+					Log.v( TAG, "load : adding non-existent channel" );
+
+					mChannelDaoHelper.save( program.getChannelInfo() );
+				}
+				
+			}
 			
 			if( null != program.getRecording() ) {
 				
@@ -329,8 +347,19 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 			
 		}
 		
+		Log.v( TAG, "load : remove deleted recordings" );
 		for( Program program : recorded.values() ) {
 
+			// Delete any live stream details
+			LiveStreamInfo liveStreamInfo = mLiveStreamDaoHelper.findByProgram( program );
+			if( null != liveStreamInfo ) {
+				Log.v( TAG, "load : remove live stream" );
+				
+				new RemoveStreamTask().execute( liveStreamInfo );
+				
+				mLiveStreamDaoHelper.delete( liveStreamInfo );
+			}
+			
 			DateTime startTime = new DateTime( program.getStartTime() );
 			
 			//Log.v( TAG, "load : DELETE PROGRAM - channel=" + program.getChannelInfo().getChannelNumber() + ", startTime=" + DateUtils.dateTimeFormatterPretty.print( startTime ) );
@@ -597,6 +626,55 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		values.put( ProgramConstants.FIELD_HOSTNAME, mLocationProfile.getHostname() );
 		
 		return values;
+	}
+
+	private class RemoveStreamTask extends AsyncTask<LiveStreamInfo, Void, ResponseEntity<Bool>> {
+
+		private Exception e = null;
+
+		@Override
+		protected ResponseEntity<Bool> doInBackground( LiveStreamInfo... params ) {
+			Log.v( TAG, "RemoveStreamTask : enter" );
+
+			try {
+				Log.v( TAG, "RemoveStreamTask : api" );
+				
+				LiveStreamInfo liveStreamInfo = params[ 0 ];
+				
+				if( null != liveStreamInfo ) {
+					return mMainApplication.getMythServicesApi().contentOperations().removeLiveStream( liveStreamInfo.getId() );
+				}
+				
+			} catch( Exception e ) {
+				Log.v( TAG, "RemoveStreamTask : error" );
+
+				this.e = e;
+			}
+
+			Log.v( TAG, "RemoveStreamTask : exit" );
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute( ResponseEntity<Bool> result ) {
+			Log.v( TAG, "RemoveStreamTask onPostExecute : enter" );
+
+			if( null == e ) {
+				Log.v( TAG, "RemoveStreamTask onPostExecute : no error occurred" );
+				
+				if( null != result ) {
+					
+					if( result.getBody().getBool().booleanValue() ) {
+						Log.v( TAG, "RemoveStreamTask onPostExecute : live stream removed" );
+					}
+					
+				}
+			} else {
+				Log.e( TAG, "error removing live stream", e );
+			}
+
+			Log.v( TAG, "RemoveStreamTask onPostExecute : exit" );
+		}
 	}
 
 }

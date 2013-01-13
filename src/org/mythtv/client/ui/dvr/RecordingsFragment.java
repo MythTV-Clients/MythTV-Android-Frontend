@@ -319,7 +319,11 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 	}
 
 	public void notifyDeleted() {
+		Log.v( TAG, "notifyDeleted : enter" );
+		
 		getLoaderManager().restartLoader( 0, null, this );
+
+		Log.v( TAG, "notifyDeleted : exit" );
 	}
 	
 	// internal helpers
