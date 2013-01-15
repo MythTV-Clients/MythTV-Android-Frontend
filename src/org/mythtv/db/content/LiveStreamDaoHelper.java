@@ -453,8 +453,8 @@ public class LiveStreamDaoHelper extends AbstractDaoHelper {
 		values.put( LiveStreamConstants.FIELD_CURRENT_SEGMENT, liveStreamInfo.getCurrentSegment() );
 		values.put( LiveStreamConstants.FIELD_SEGMENT_COUNT, liveStreamInfo.getSegmentCount() );
 		values.put( LiveStreamConstants.FIELD_PERCENT_COMPLETE, liveStreamInfo.getPercentComplete() );
-		values.put( LiveStreamConstants.FIELD_CREATED, liveStreamInfo.getCreated().getMillis() );
-		values.put( LiveStreamConstants.FIELD_LAST_MODIFIED, liveStreamInfo.getLastModified().getMillis() );
+		values.put( LiveStreamConstants.FIELD_CREATED, null != liveStreamInfo.getCreated() ? liveStreamInfo.getCreated().getMillis() : -1 );
+		values.put( LiveStreamConstants.FIELD_LAST_MODIFIED, null != liveStreamInfo.getLastModified() ? liveStreamInfo.getLastModified().getMillis() : -1 );
 		values.put( LiveStreamConstants.FIELD_RELATIVE_URL, liveStreamInfo.getRelativeUrl() );
 		values.put( LiveStreamConstants.FIELD_FULL_URL, liveStreamInfo.getFullUrl() );
 		values.put( LiveStreamConstants.FIELD_STATUS_STR, liveStreamInfo.getStatusStr() );

@@ -98,9 +98,9 @@ public class RecordingsActivity extends AbstractDvrActivity implements Recording
 		
 		List<Program> programs = mRecordedDaoHelper.findAllByTitle( programGroup.getTitle() );
 		if( null == programs || programs.isEmpty() ) {
-			Log.d( TAG, "onProgramGroupSelected : exit, no programs in programGroup" );
+			Log.d( TAG, "onProgramGroupSelected : no programs in programGroup" );
 
-			return;
+			mRecordedDaoHelper.findAll();
 		}
 
 		selectedProgram = programs.get( 0 );
@@ -176,10 +176,24 @@ public class RecordingsActivity extends AbstractDvrActivity implements Recording
 	 * @see org.mythtv.client.ui.dvr.EpisodeFragment.OnEpisodeActionListener#onEpisodeDeleted(java.lang.String)
 	 */
 	@Override
-	public void onEpisodeDeleted( String programGroup ) {
+	public void onEpisodeDeleted( ProgramGroup programGroup ) {
 		Log.v( TAG, "onEpisodeDeleted : enter" );
 
 		mRecordingsFragment.notifyDeleted();
+		
+		selectedProgramGroup = programGroup;
+		selectedProgram = null;
+		
+		List<Program> programs = mRecordedDaoHelper.findAllByTitle( programGroup.getTitle() );
+		if( null == programs || programs.isEmpty() ) {
+			Log.d( TAG, "onProgramGroupSelected : exit, no programs in programGroup" );
+
+			programs = mRecordedDaoHelper.findAll();
+		}
+
+		selectedProgram = programs.get( 0 );
+
+		onEpisodeSelected( selectedProgram.getChannelInfo().getChannelId(), selectedProgram.getStartTime() );
 		
 		Log.v( TAG, "onEpisodeDeleted : exit" );
 	}

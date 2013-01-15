@@ -170,8 +170,6 @@ public class RecordedDaoHelper extends ProgramDaoHelper {
 	public int load( List<Program> programs ) throws RemoteException, OperationApplicationException {
 		Log.d( TAG, "load : enter" );
 
-//		deleteAll();
-		
 		int loaded = load( ProgramConstants.CONTENT_URI_RECORDED, programs, ProgramConstants.TABLE_NAME_RECORDED );
 		Log.d( TAG, "load : loaded=" + loaded );
 		

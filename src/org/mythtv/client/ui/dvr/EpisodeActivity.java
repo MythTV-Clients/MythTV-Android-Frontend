@@ -21,6 +21,7 @@ package org.mythtv.client.ui.dvr;
 import org.joda.time.DateTime;
 import org.mythtv.R;
 import org.mythtv.db.dvr.ProgramConstants;
+import org.mythtv.db.dvr.programGroup.ProgramGroup;
 import org.mythtv.db.dvr.programGroup.ProgramGroupConstants;
 import org.mythtv.services.api.dvr.Program;
 
@@ -95,7 +96,7 @@ public class EpisodeActivity extends AbstractDvrActivity implements EpisodeFragm
 	 * @see org.mythtv.client.ui.dvr.EpisodeFragment.OnEpisodeActionListener#onEpisodeDeleted(java.lang.String)
 	 */
 	@Override
-	public void onEpisodeDeleted( String programGroup ) {
+	public void onEpisodeDeleted( ProgramGroup programGroup ) {
 		Log.v( TAG, "onEpisodeDeleted : enter" );
 		
 		Intent intent = new Intent( this, ProgramGroupActivity.class );

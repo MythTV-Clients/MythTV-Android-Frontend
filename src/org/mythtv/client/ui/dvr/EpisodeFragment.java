@@ -125,6 +125,51 @@ public class EpisodeFragment extends AbstractMythFragment {
 	}
 
 	/* (non-Javadoc)
+	 * @see android.support.v4.app.Fragment#onStop()
+	 */
+	@Override
+	public void onStop() {
+		Log.v( TAG, "onStop : enter" );
+		super.onStop();
+
+		Log.v( TAG, "onStop : exit" );
+	}
+
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.Fragment#onDestroyView()
+	 */
+	@Override
+	public void onDestroyView() {
+		Log.v( TAG, "onDestroyView : enter" );
+		super.onDestroyView();
+
+		Log.v( TAG, "onDestroyView : exit" );
+	}
+
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.Fragment#onDestroy()
+	 */
+	@Override
+	public void onDestroy() {
+		Log.v( TAG, "onDestroy : enter" );
+		super.onDestroy();
+
+		if( null != createStreamTask && Status.FINISHED != createStreamTask.getStatus() ) {
+			Log.d( TAG, "onDestroy : cancelling create stream task" );
+
+			createStreamTask.cancel( true );
+		}
+		
+		if( null != updateStreamInfoTask && Status.FINISHED != updateStreamInfoTask.getStatus() ) {
+			Log.d( TAG, "onDestroy : cancelling update stream task" );
+
+			updateStreamInfoTask.cancel( true );
+		}
+
+		Log.v( TAG, "onDestroy : exit" );
+	}
+
+	/* (non-Javadoc)
 	 * @see android.support.v4.app.Fragment#onCreateOptionsMenu(android.view.Menu, android.view.MenuInflater)
 	 */
 	@TargetApi( 11 )
@@ -339,6 +384,18 @@ public class EpisodeFragment extends AbstractMythFragment {
 	public void loadEpisode( int channelId, DateTime startTime ) {
 		Log.v( TAG, "loadEpisode : enter" );
 
+		if( null != createStreamTask && Status.FINISHED != createStreamTask.getStatus() ) {
+			Log.d( TAG, "loadEpisode : cancelling create stream task" );
+
+			createStreamTask.cancel( true );
+		}
+		
+		if( null != updateStreamInfoTask && Status.FINISHED != updateStreamInfoTask.getStatus() ) {
+			Log.d( TAG, "loadEpisode : cancelling update stream task" );
+
+			updateStreamInfoTask.cancel( true );
+		}
+
 		program = null;
 		liveStreamInfo = null;
 		
@@ -413,7 +470,7 @@ public class EpisodeFragment extends AbstractMythFragment {
 	}
 
 	public interface OnEpisodeActionListener {
-		void onEpisodeDeleted( String programGroup );
+		void onEpisodeDeleted( ProgramGroup programGroup );
 	}
 
 	// internal helpers
@@ -569,7 +626,7 @@ public class EpisodeFragment extends AbstractMythFragment {
 								}
 							}
 							
-							listener.onEpisodeDeleted( programGroupName );
+							listener.onEpisodeDeleted( programGroup );
 							
 						}
 						
@@ -710,8 +767,11 @@ public class EpisodeFragment extends AbstractMythFragment {
 						Thread.sleep( 10000 );
 						ETagInfo eTag = ETagInfo.createEmptyETag();
 					
-						Log.v( TAG, "UpdateStreamInfoTask : exit" );
-						return getMainApplication().getMythServicesApi().contentOperations().getLiveStream( liveStreamInfo.getId(), eTag );
+						if( null != getMainApplication() ) {
+							Log.v( TAG, "UpdateStreamInfoTask : exit" );
+							
+							return getMainApplication().getMythServicesApi().contentOperations().getLiveStream( liveStreamInfo.getId(), eTag );
+						}
 					}
 				}
 			} catch( Exception e ) {
@@ -740,7 +800,7 @@ public class EpisodeFragment extends AbstractMythFragment {
 						liveStreamInfo = result.getBody().getLiveStreamInfo();
 						mLiveStreamDaoHelper.save( liveStreamInfo, program );
 						
-						if( liveStreamInfo.getPercentComplete() <= 100 ) {
+						if( liveStreamInfo.getPercentComplete() < 100 ) {
 							new UpdateStreamInfoTask().execute();
 						}
 						
@@ -801,6 +861,13 @@ public class EpisodeFragment extends AbstractMythFragment {
 						Log.v( TAG, "RemoveStreamTask onPostExecute : live stream removed" );
 					}
 					
+				} else {
+					
+					mLiveStreamDaoHelper.delete( liveStreamInfo );
+					
+					updateHlsDetails();
+					
+					Log.v( TAG, "RemoveStreamTask onPostExecute : live stream removed" );
 				}
 			} else {
 				Log.e( TAG, "error removing live stream", e );

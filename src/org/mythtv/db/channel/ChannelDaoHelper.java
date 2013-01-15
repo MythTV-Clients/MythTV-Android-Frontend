@@ -173,6 +173,14 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 			long id = cursor.getLong( cursor.getColumnIndexOrThrow( ChannelConstants._ID ) );
 			
 			updated = mContext.getContentResolver().update( ContentUris.withAppendedId( ChannelConstants.CONTENT_URI, id ), values, null, null );
+		} else {
+			Log.v( TAG, "save : inserting new channel info" );
+			
+			Uri inserted = mContext.getContentResolver().insert( ChannelConstants.CONTENT_URI, values );
+			if( null != inserted ) {
+				updated = 1;
+			}
+			
 		}
 		cursor.close();
 		Log.v( TAG, "save : updated=" + updated );
