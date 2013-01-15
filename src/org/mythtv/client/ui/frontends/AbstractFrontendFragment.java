@@ -22,6 +22,8 @@ import java.util.Timer;
 
 import org.mythtv.R;
 import org.mythtv.client.MainApplication;
+import org.mythtv.client.ui.AbstractMythFragment;
+import org.mythtv.client.ui.MainMenuFragment;
 import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.frontend.FrontendStatus;
 import org.springframework.http.HttpStatus;
@@ -37,7 +39,7 @@ import android.util.Log;
  * @author pot8oe
  * 
  */
-public class AbstractFrontendFragment extends Fragment {
+public class AbstractFrontendFragment extends AbstractMythFragment {
 
 	private final static String TAG = "AbstractFrontendFragment";
 	private final static int STATUS_CHECK_INTERVAL_MS = 10000;
@@ -53,9 +55,7 @@ public class AbstractFrontendFragment extends Fragment {
 			sGetStatusTask = new GetStatusTask();
 
 			// kick it off with a status request
-			final FrontendsFragment frontends = (FrontendsFragment) getFragmentManager().findFragmentById(
-					R.id.frontends_fragment );
-			final Frontend fe = frontends.getSelectedFrontend();
+			final Frontend fe = MainMenuFragment.getSelectedFrontend();
 			// sGetStatusTask.execute(fe.getUrl());
 		}
 
@@ -82,19 +82,7 @@ public class AbstractFrontendFragment extends Fragment {
 		return (MainApplication) getActivity().getApplicationContext();
 	}
 
-	protected void showAlertDialog( final CharSequence title, final CharSequence message ) {
-		this.getActivity().runOnUiThread( new Runnable() {
-
-			@Override
-			public void run() {
-				AlertDialog.Builder builder = new AlertDialog.Builder( getActivity() );
-				builder.setTitle( title );
-				builder.setMessage( message );
-				builder.show();
-			}
-
-		} );
-	}
+	
 
 	/**
 	 * When calling execute there must be 1 paramter: Frontend URL
