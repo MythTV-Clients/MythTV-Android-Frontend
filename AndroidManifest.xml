@@ -29,8 +29,15 @@
   	<uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    
+    <!-- Read income phone numbers to post caller ID to frontend as a message -->
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    
+    <!-- Mythmote fragments will keep the screen on -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+    
+    <!-- Match incoming number to contact name when posting caller ID to frontend as a message  
+    <uses-permission android:name="android.permission.READ_CONTACTS" />-->
 
     <supports-screens 
         android:anyDensity="true"

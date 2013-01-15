@@ -149,8 +149,6 @@ public class MainMenuFragment extends AbstractMythFragment implements ServiceLis
 
 		Log.v(TAG, "scanForFrontends : exit");
 	}
-	
-	
 
 	private class ScanFrontendsTask extends AsyncTask<Void, Void, Void> {
 
@@ -255,95 +253,95 @@ public class MainMenuFragment extends AbstractMythFragment implements ServiceLis
 
 
 	// ***************************************
-		// JMDNS ServiceListener methods
-		// ***************************************
+	// JMDNS ServiceListener methods
+	// ***************************************
 
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see javax.jmdns.ServiceListener#serviceAdded(javax.jmdns.ServiceEvent)
-		 */
-		@SuppressWarnings("deprecation")
-		public void serviceAdded(ServiceEvent event) {
-			Log.v(TAG, "serviceAdded : enter");
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.jmdns.ServiceListener#serviceAdded(javax.jmdns.ServiceEvent)
+	 */
+	@SuppressWarnings("deprecation")
+	public void serviceAdded(ServiceEvent event) {
+		Log.v(TAG, "serviceAdded : enter");
 
-			Log.v(TAG,
-					"serviceAdded : "
-							+ event.getDNS()
-									.getServiceInfo(event.getType(),
-											event.getName()).toString());
+		Log.v(TAG,
+				"serviceAdded : "
+						+ event.getDNS()
+								.getServiceInfo(event.getType(),
+										event.getName()).toString());
 
-			final String hostname = event.getDNS()
-					.getServiceInfo(event.getType(), event.getName())
-					.getInet4Address().getHostAddress();
-			final int port = event.getDNS()
-					.getServiceInfo(event.getType(), event.getName()).getPort();
-			Log.v(TAG, "serviceAdded : masterbackend="
-					+ ("http://" + hostname + ":" + port + "/"));
+		final String hostname = event.getDNS()
+				.getServiceInfo(event.getType(), event.getName())
+				.getInet4Address().getHostAddress();
+		final int port = event.getDNS()
+				.getServiceInfo(event.getType(), event.getName()).getPort();
+		Log.v(TAG, "serviceAdded : masterbackend="
+				+ ("http://" + hostname + ":" + port + "/"));
 
-			// Dont' do both adds
-			final Frontend fe = new Frontend(event.getName(), "http://" + hostname + ":"
-					+ port + "/");
-			
-			
-			this.getActivity().runOnUiThread(new Runnable(){
-
-				@Override
-				public void run() {
-					//frontends.add(fe);
-					adapter.add(fe);
-				}});
-			
-			Log.v(TAG, "serviceAdded : exit");
-		}
-
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see javax.jmdns.ServiceListener#serviceRemoved(javax.jmdns.ServiceEvent)
-		 */
-		public void serviceRemoved(ServiceEvent event) {
-			// Log.v( TAG, "serviceRemoved : enter" );
-			//
-			// Log.v( TAG, "serviceRemoved : event=" + event.toString() );
-			//
-			// Log.v( TAG, "serviceRemoved : exit" );
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see
-		 * javax.jmdns.ServiceListener#serviceResolved(javax.jmdns.ServiceEvent)
-		 */
-		public void serviceResolved(ServiceEvent event) {
-			// Log.v( TAG, "serviceResolved : enter" );
-			//
-			// Log.v( TAG, "serviceResolved : event=" + event.toString() );
-			//
-			// Log.v( TAG, "serviceResolved : exit" );
-		}
-
+		// Dont' do both adds
+		final Frontend fe = new Frontend(event.getName(), "http://" + hostname + ":"
+				+ port + "/");
 		
 		
-		private class FrontendAdapter extends ArrayAdapter<Frontend> {
+		this.getActivity().runOnUiThread(new Runnable(){
 
-			private final String TAG = FrontendAdapter.class.getSimpleName();
+			@Override
+			public void run() {
+				//frontends.add(fe);
+				adapter.add(fe);
+			}});
+		
+		Log.v(TAG, "serviceAdded : exit");
+	}
 
-			private int layoutResourceId;
-			private List<Frontend> frontends = null;
 
-			FrontendAdapter(Context context, int layoutResourceId,
-					List<Frontend> frontends) {
-				super(context, layoutResourceId, frontends);
-				Log.v(TAG, "initialize : enter");
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.jmdns.ServiceListener#serviceRemoved(javax.jmdns.ServiceEvent)
+	 */
+	public void serviceRemoved(ServiceEvent event) {
+		// Log.v( TAG, "serviceRemoved : enter" );
+		//
+		// Log.v( TAG, "serviceRemoved : event=" + event.toString() );
+		//
+		// Log.v( TAG, "serviceRemoved : exit" );
+	}
 
-				this.layoutResourceId = layoutResourceId;
-				this.frontends = frontends;
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * javax.jmdns.ServiceListener#serviceResolved(javax.jmdns.ServiceEvent)
+	 */
+	public void serviceResolved(ServiceEvent event) {
+		// Log.v( TAG, "serviceResolved : enter" );
+		//
+		// Log.v( TAG, "serviceResolved : event=" + event.toString() );
+		//
+		// Log.v( TAG, "serviceResolved : exit" );
+	}
 
-				Log.v(TAG, "initialize : exit");
-			}
+	
+	
+	private class FrontendAdapter extends ArrayAdapter<Frontend> {
+
+		private final String TAG = FrontendAdapter.class.getSimpleName();
+
+		private int layoutResourceId;
+		private List<Frontend> frontends = null;
+
+		FrontendAdapter(Context context, int layoutResourceId,
+				List<Frontend> frontends) {
+			super(context, layoutResourceId, frontends);
+			Log.v(TAG, "initialize : enter");
+
+			this.layoutResourceId = layoutResourceId;
+			this.frontends = frontends;
+
+			Log.v(TAG, "initialize : exit");
+		}
 
 //			 @Override
 //			 public int getCount() {
@@ -359,81 +357,81 @@ public class MainMenuFragment extends AbstractMythFragment implements ServiceLis
 //			 public long getItemId( int position ) {
 //				 return position;
 //			 }
-			
-			@Override
-			public View getView(int position, View convertView, ViewGroup parent) {
-				return getFrontendView(position, convertView, parent);
-			}
+		
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+			return getFrontendView(position, convertView, parent);
+		}
 
-			@Override
-			public View getDropDownView(int position, View convertView, ViewGroup parent) {
-				return getFrontendView(position, convertView, parent);
-			}
+		@Override
+		public View getDropDownView(int position, View convertView, ViewGroup parent) {
+			return getFrontendView(position, convertView, parent);
+		}
+		
+		
+		
+		private View getFrontendView(int position, View convertView, ViewGroup parent){
+			Log.v(TAG, "getFrontendView : enter");
 			
-			
-			
-			private View getFrontendView(int position, View convertView, ViewGroup parent){
-				Log.v(TAG, "getFrontendView : enter");
+			View row = convertView;
+			FrontendHolder holder = null;
+
+			if (row == null) {
+				Log.v(TAG, "getFrontendView : row is null");
+
+				LayoutInflater inflater = getActivity().getLayoutInflater();
+
+				row = inflater.inflate(layoutResourceId, parent, false);
+
+				holder = new FrontendHolder();
+				holder.name = (TextView) row.findViewById(R.id.frontend_name);
+				holder.url = (TextView) row.findViewById(R.id.frontend_url);
 				
-				View row = convertView;
-				FrontendHolder holder = null;
-
-				if (row == null) {
-					Log.v(TAG, "getFrontendView : row is null");
-
-					LayoutInflater inflater = getActivity().getLayoutInflater();
-
-					row = inflater.inflate(layoutResourceId, parent, false);
-
-					holder = new FrontendHolder();
-					holder.name = (TextView) row.findViewById(R.id.frontend_name);
-					holder.url = (TextView) row.findViewById(R.id.frontend_url);
-					
-					row.setTag(holder);
-				} else {
-					holder = (FrontendHolder) row.getTag();
-				}
-
-				Frontend frontend = frontends.get(position);
-
-				holder.name.setText(frontend.getName());
-				holder.url.setText(frontend.getUrl());
-
-				Log.v(TAG, "getFrontendView : exit");
-				return row;
-			}
-			
-			
-
-			class FrontendHolder {
-				TextView name;
-				TextView url;
+				row.setTag(holder);
+			} else {
+				holder = (FrontendHolder) row.getTag();
 			}
 
+			Frontend frontend = frontends.get(position);
+
+			holder.name.setText(frontend.getName());
+			holder.url.setText(frontend.getUrl());
+
+			Log.v(TAG, "getFrontendView : exit");
+			return row;
 		}
 		
 		
-		
-		/**
-		 * When calling execute there must be 2 paramters. Frontend URL Message
-		 * 
-		 * @author pot8oe
-		 * 
-		 */
-		protected class SendMessageTask extends AsyncTask<String, Void, Void> {
 
-			@Override
-			protected Void doInBackground( String... params ) {
-
-				try {
-					getMainApplication().getMythServicesApi().frontendOperations().sendMessage( params[ 0 ], params[ 1 ] );
-				} catch( Exception e ) {
-					Log.e( TAG, e.getMessage() );
-					showAlertDialog( "Send Message Error", e.getMessage() );
-				}
-				return null;
-			}
+		class FrontendHolder {
+			TextView name;
+			TextView url;
 		}
+
+	}
+	
+	
+	
+	/**
+	 * When calling execute there must be 2 paramters. Frontend URL Message
+	 * 
+	 * @author pot8oe
+	 * 
+	 */
+	protected class SendMessageTask extends AsyncTask<String, Void, Void> {
+
+		@Override
+		protected Void doInBackground( String... params ) {
+
+			try {
+				getMainApplication().getMythServicesApi().frontendOperations().sendMessage( params[ 0 ], params[ 1 ] );
+			} catch( Exception e ) {
+				Log.e( TAG, e.getMessage() );
+				showAlertDialog( "Send Message Error", e.getMessage() );
+			}
+			return null;
+		}
+	}
 
 	
 }
