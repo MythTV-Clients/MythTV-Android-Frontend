@@ -21,6 +21,7 @@ package org.mythtv.client.ui.frontends;
 import java.util.List;
 
 import org.mythtv.R;
+import org.mythtv.client.ui.MainMenuFragment;
 import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.frontend.Action;
 import org.mythtv.services.api.frontend.FrontendActionList;
@@ -56,8 +57,7 @@ public class MythmoteActionListFragment extends AbstractFrontendFragment{
 		
 		mListView = (ListView)mView.findViewById(R.id.listViewMythmoteActionList);
 		
-		final FrontendsFragment frontends = (FrontendsFragment) getFragmentManager().findFragmentById( R.id.frontends_fragment );
-		final Frontend fe = frontends.getSelectedFrontend();
+		final Frontend fe = MainMenuFragment.getSelectedFrontend();
 		
 		//exit if we don't have a frontend
 		if(null != fe){

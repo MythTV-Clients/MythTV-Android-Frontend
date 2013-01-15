@@ -6,7 +6,12 @@
     android:background="@color/background_main_menu" >
     
 <TextView  android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:text="Main Menu layout placeholder" />
+
+<Spinner android:id="@+id/spinner_frontends"
+        android:layout_width="match_parent"
+    	android:layout_height="wrap_content"
+    	android:prompt="@string/frontends_prompt" />
 
 </LinearLayout>

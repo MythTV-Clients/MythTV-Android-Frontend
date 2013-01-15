@@ -20,6 +20,7 @@ package org.mythtv.client.ui;
 
 import org.mythtv.client.MainApplication;
 
+import android.app.AlertDialog;
 import android.support.v4.app.Fragment;
 
 /**
@@ -41,4 +42,17 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
 	
 	}
 
+	protected void showAlertDialog( final CharSequence title, final CharSequence message ) {
+		this.getActivity().runOnUiThread( new Runnable() {
+
+			@Override
+			public void run() {
+				AlertDialog.Builder builder = new AlertDialog.Builder( getActivity() );
+				builder.setTitle( title );
+				builder.setMessage( message );
+				builder.show();
+			}
+
+		} );
+	}
 }
