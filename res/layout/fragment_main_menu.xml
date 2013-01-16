@@ -26,7 +26,22 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@color/background_main_menu"
-    android:stretchColumns="1">
+    android:stretchColumns="1"> 
+    
+    <TableRow >
+        <LinearLayout android:layout_span="2" android:layout_margin="10dp">
+            <TextView android:layout_width="wrap_content"
+		          android:layout_height="match_parent"
+		          android:text="V"
+		          android:gravity="left"
+		          android:textAppearance="?android:attr/textAppearanceLarge"/>
+		      <TextView android:layout_width="match_parent"
+		          android:layout_height="match_parent"
+		          android:text="@string/app_version"
+		          android:gravity="left"
+		          android:textAppearance="?android:attr/textAppearanceLarge"/>
+		</LinearLayout>
+    </TableRow>
     
     <TableRow >
         <ImageButton android:contentDescription="Preference"
@@ -34,19 +49,18 @@
 	    	android:layout_height="match_parent"
 	    	android:background="@drawable/main_menu_image_button"
 	    	android:src="@drawable/ic_menu_preferences"
-	    	android:padding="10dip"
-	    	/>
+	    	android:padding="10dip"/>
 
         <ToggleButton
             android:id="@+id/toggleButtonIsAway"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
+            android:layout_margin="5dp"
             android:background="@drawable/main_menu_home_away_button"
-            android:checked="true"
-            android:text=""
-            android:textOff=""
-            android:textOn="" />
+            android:checked="false"
+            android:textColor="#e2e2e2"
+            android:textOff="@string/btn_home"
+            android:textOn="@string/btn_away" />
 
     </TableRow>
     
@@ -61,7 +75,8 @@
 		<Spinner android:id="@+id/spinner_frontends"
 		        android:layout_width="match_parent"
 		    	android:layout_height="wrap_content"
-		    	android:prompt="@string/frontends_prompt" />
+		    	android:prompt="@string/frontends_prompt"
+		    	 />
     </TableRow>
     
 </TableLayout>
