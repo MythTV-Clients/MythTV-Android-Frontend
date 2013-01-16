@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+
+    This file is part of MythTV Android Frontend
+
+    MythTV Android Frontend is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MythTV Android Frontend is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MythTV Android Frontend.  If not, see <http://www.gnu.org/licenses/>.
+
+    This software can be found at <https://github.com/MythTV-Clients/MythTV-Android-Frontend/>
+
+-->
+
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android" >
+    
+    <item>
+		<shape android:dither="true"
+		    android:shape="rectangle" >
+			
+		    <gradient
+		        android:startColor="#acacac"
+		        android:endColor="#2d3f44"
+		        android:angle="135"/>
+		    
+		    <stroke
+		        android:width="2dip"
+		        android:color="#2d3f44" />
+
+		    <corners android:radius="10dip" />
+		    
+		</shape>
+	</item>
+	
+    <item >
+		<inset android:drawable="@drawable/transparent_rectangle"
+		    android:insetTop="10dip"
+		    android:insetBottom="10dip"
+		    android:insetLeft="10dip"
+		    android:insetRight="10dip" />
+	</item>
+	
+    <item>
+        <bitmap android:src="@drawable/ic_home_default" 
+            android:gravity="left|fill_vertical" 
+            android:antialias="true" />
+    </item>
+    
+    <item>
+       <bitmap android:src="@drawable/ic_away_selected" 
+           android:gravity="right|fill_vertical" 
+           android:antialias="true"/>
+    </item>
+    
+    <item>
+        <rotate android:fromDegrees="115"
+            android:toDegrees="115" >
+			<shape android:shape="line" >
+			    
+			    <stroke
+			        android:width="2dip"
+			        android:color="#2d3f44" />
+			    
+			</shape>
+		</rotate>
+		
+	</item>
+
+</layer-list>

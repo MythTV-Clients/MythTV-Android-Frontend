@@ -20,19 +20,21 @@
 
 -->
 
-<shape xmlns:android="http://schemas.android.com/apk/res/android"
-    android:dither="true"
-    android:shape="rectangle" >
 
-
-    <gradient
-        android:angle="90"
-        android:centerColor="#adcbdb"
-        android:endColor="#2d3f44"
-        android:startColor="#576a71" />
-
-    <stroke
-        android:width="1dp"
-        android:color="#2d3f44" />
-
-</shape>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    
+    <!-- pressed -->
+    <item android:state_pressed="true"
+          android:drawable="@drawable/main_menu_image_button_pressed" /> 
+    
+    <!-- focused -->
+    <item android:state_focused="true"
+          android:drawable="@drawable/main_menu_image_button_focused" /> 
+    
+    <!-- hovered -->
+    <item android:state_hovered="true"
+          android:drawable="@drawable/main_menu_image_button_focused" /> 
+          
+    <!-- default -->
+    <item android:drawable="@drawable/main_menu_image_button_normal" /> 
+</selector>
