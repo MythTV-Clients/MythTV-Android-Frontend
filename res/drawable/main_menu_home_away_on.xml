@@ -17,7 +17,7 @@
     along with MythTV Android Frontend.  If not, see <http://www.gnu.org/licenses/>.
 
     This software can be found at <https://github.com/MythTV-Clients/MythTV-Android-Frontend/>
-
+"#2d3f44"
 -->
 
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android" >
@@ -25,18 +25,15 @@
     <item>
 		<shape android:dither="true"
 		    android:shape="rectangle" >
-			
-		    <gradient
-		        android:startColor="#acacac"
-		        android:endColor="#2d3f44"
-		        android:angle="135"/>
-		    
+		    <gradient android:startColor="#acacac"
+		        android:endColor="#8a8a8a"
+		        android:angle="270"/>
 		    <stroke
 		        android:width="2dip"
-		        android:color="#2d3f44" />
-
+		        android:color="#4f6166" />
 		    <corners android:radius="10dip" />
-		    
+			<!-- Make sure a min of 100 width -->
+		    <size android:width="100dip" android:height="50dip" />
 		</shape>
 	</item>
 	
@@ -44,34 +41,35 @@
 		<inset android:drawable="@drawable/transparent_rectangle"
 		    android:insetTop="10dip"
 		    android:insetBottom="10dip"
-		    android:insetLeft="10dip"
-		    android:insetRight="10dip" />
+		    android:insetLeft="14dip"
+		    android:insetRight="20dip" />
 	</item>
 	
     <item>
-        <bitmap android:src="@drawable/ic_home_default" 
-            android:gravity="left|fill_vertical" 
+        <bitmap android:src="@drawable/ic_home_toggle_off" 
+            android:gravity="left" 
             android:antialias="true" />
     </item>
+
+    <item >
+		<inset android:drawable="@drawable/transparent_rectangle"
+		    android:insetTop="-8dip"
+		    android:insetBottom="-8dip"
+		    android:insetLeft="30dip"
+		    android:insetRight="-18dip"/>
+	</item>
     
+    <item android:drawable="@drawable/toggle_button_selector" />
+    
+    <item >
+		<inset android:drawable="@drawable/transparent_rectangle"
+		    android:insetRight="12dip"/>
+	</item>
+	
     <item>
-       <bitmap android:src="@drawable/ic_away_selected" 
-           android:gravity="right|fill_vertical" 
+       <bitmap android:src="@drawable/ic_away_toggle_on" 
+           android:gravity="right" 
            android:antialias="true"/>
     </item>
-    
-    <item>
-        <rotate android:fromDegrees="115"
-            android:toDegrees="115" >
-			<shape android:shape="line" >
-			    
-			    <stroke
-			        android:width="2dip"
-			        android:color="#2d3f44" />
-			    
-			</shape>
-		</rotate>
-		
-	</item>
 
 </layer-list>

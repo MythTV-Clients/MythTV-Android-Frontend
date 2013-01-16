@@ -25,53 +25,50 @@
     <item>
 		<shape android:dither="true"
 		    android:shape="rectangle" >
-		    
-		    <gradient
-		        android:startColor="#acacac"
-		        android:endColor="#2d3f44"
-		        android:angle="45"/>
-		    
+		    <gradient android:startColor="#acacac"
+		        android:endColor="#8a8a8a"
+		        android:angle="270"/>
 		    <stroke
 		        android:width="2dip"
-		        android:color="#2d3f44" />
-		    
-		    <corners android:radius="10dip" />
-		    
+		        android:color="#4f6166" />
+		    <corners android:radius="10dp" />
+			<!-- Make sure a min of 100 width -->
+		    <size android:width="100dp" android:height="50dp" />
 		</shape>
 	</item>
 	
     <item >
 		<inset android:drawable="@drawable/transparent_rectangle"
-		    android:insetTop="10dip"
-		    android:insetBottom="10dip"
-		    android:insetLeft="10dip"
-		    android:insetRight="10dip" />
+		    android:insetTop="10dp"
+		    android:insetBottom="10dp"
+		    android:insetLeft="20dp"
+		    android:insetRight="14dp" />
 	</item>
 	
-	<item>
-        <bitmap android:src="@drawable/ic_home_selected"
-            android:gravity="left|fill_vertical"
-            android:antialias="true" />
-    </item>
-    
-	<item>
-       <bitmap android:src="@drawable/ic_away_default"
-           android:gravity="right|fill_vertical"
+    <item>
+       <bitmap android:src="@drawable/ic_away_toggle_off"
+           android:gravity="right"
            android:antialias="true"/>
     </item>
-    
-    <item>
-        <rotate android:fromDegrees="65"
-            android:toDegrees="65" >
-			<shape android:shape="line" >
-			    
-			    <stroke
-			        android:width="2dip"
-			        android:color="#2d3f44" />
-			    
-			</shape>
-		</rotate>
-		
+
+    <item >
+		<inset android:drawable="@drawable/transparent_rectangle"
+		    android:insetTop="-8dp"
+		    android:insetBottom="-8dp"
+		    android:insetLeft="-18dp"
+		    android:insetRight="30dp"/>
 	</item>
+    
+    <item android:drawable="@drawable/toggle_button_selector" />
+    
+    <item >
+		<inset android:drawable="@drawable/transparent_rectangle"
+		    android:insetLeft="12dp"/>
+	</item>
+	
+    <item>
+        <bitmap android:src="@drawable/ic_home_toggle_on"
+            android:gravity="left" />
+    </item>
 
 </layer-list>
