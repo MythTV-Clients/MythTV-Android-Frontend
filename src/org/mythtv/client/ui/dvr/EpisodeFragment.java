@@ -587,7 +587,7 @@ public class EpisodeFragment extends AbstractMythFragment {
 			try {
 				Log.v( TAG, "RemoveRecordingTask : api" );
 				
-				removed = getMainApplication().getMythServicesApi().dvrOperations().removeRecorded( program.getChannelInfo().getChannelId(), program.getStartTime() );
+				removed = getMainApplication().getMythServicesApi().dvrOperations().removeRecorded( program.getChannelInfo().getChannelId(), program.getRecording().getStartTimestamp() );
 			} catch( Exception e ) {
 				Log.v( TAG, "CreateStreamTask : error" );
 
