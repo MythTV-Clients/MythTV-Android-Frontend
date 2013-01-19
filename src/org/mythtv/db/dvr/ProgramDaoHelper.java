@@ -35,6 +35,7 @@ import org.mythtv.services.api.Bool;
 import org.mythtv.services.api.channel.ChannelInfo;
 import org.mythtv.services.api.content.LiveStreamInfo;
 import org.mythtv.services.api.dvr.Program;
+import org.mythtv.services.api.dvr.Recording;
 import org.springframework.http.ResponseEntity;
 
 import android.content.ContentProviderOperation;
@@ -421,6 +422,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		float stars = 0.0f;
 		
 		ChannelInfo channelInfo = null;
+		Recording recording = null;
 		LiveStreamInfo liveStreamInfo = null;
 		
 //		if( cursor.getColumnIndex( ProgramConstants._ID ) != -1 ) {
@@ -523,6 +525,10 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 			channelInfo = mChannelDaoHelper.convertCursorToChannelInfo( cursor );
 		}
 		
+		if( cursor.getColumnIndex( ProgramConstants.FIELD_RECORD_ID ) != -1 ) {
+			recording = mRecordingDaoHelper.convertCursorToRecording( cursor );
+		}
+		
 		if( cursor.getColumnIndex( LiveStreamConstants.TABLE_NAME + "_" + LiveStreamConstants.FIELD_ID ) != -1 ) {
 			liveStreamInfo = mLiveStreamDaoHelper.convertCursorToLiveStreamInfo( cursor );
 		}
@@ -556,6 +562,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		program.setSeason( season );
 		program.setEpisode( episode );
 		program.setChannelInfo( channelInfo );
+		program.setRecording( recording );
 //		program.set;
 //		program.set;
 		
