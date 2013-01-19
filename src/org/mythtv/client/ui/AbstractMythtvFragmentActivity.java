@@ -159,21 +159,24 @@ public abstract class AbstractMythtvFragmentActivity extends FragmentActivity im
 				}
 			};
 			
+			
+			ValueAnimator scaleAnimator = ValueAnimator.ofFloat(1f, 1.05f);
+			scaleAnimator.setDuration(200);
+			scaleAnimator.setRepeatCount(1);
+			scaleAnimator.setRepeatMode(ValueAnimator.REVERSE);
+			scaleAnimator.addUpdateListener(scaleContentListener);
+
 			//show/hide
 			if(content.getX() > 0){
 				//HIDE
 				if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
 					ValueAnimator transAnimator = ValueAnimator.ofFloat(content.getX(), 0);
 					transAnimator.setDuration(300);
+					transAnimator.setStartDelay(100);
 					transAnimator.addUpdateListener(translateContentListener);
-					
-					ValueAnimator scaleAnimator = ValueAnimator.ofFloat(content.getScaleX(), 1f);
-					scaleAnimator.setDuration(200);
-					scaleAnimator.setStartDelay(200);
-					scaleAnimator.addUpdateListener(scaleContentListener);
-					
-					transAnimator.start();
+
 					scaleAnimator.start();
+					transAnimator.start();
 				}else{
 					content.setX(0f);
 				}
@@ -185,11 +188,7 @@ public abstract class AbstractMythtvFragmentActivity extends FragmentActivity im
 					transAnimator.setDuration(300);
 					transAnimator.setStartDelay(100);
 					transAnimator.addUpdateListener(translateContentListener);
-					
-					ValueAnimator scaleAnimator = ValueAnimator.ofFloat(1f, 1.1f);
-					scaleAnimator.setDuration(200);
-					scaleAnimator.addUpdateListener(scaleContentListener);
-					
+
 					scaleAnimator.start();
 					transAnimator.start();
 				}else{
