@@ -1055,7 +1055,7 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 	 */
 	@Override
 	public int update( Uri uri, ContentValues values, String selection, String[] selectionArgs ) {
-		Log.v( TAG, "update : enter" );
+		//Log.v( TAG, "update : enter" );
 
 		final SQLiteDatabase db = database.getWritableDatabase();
 
@@ -1437,7 +1437,7 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 	 */
 	@Override
 	public ContentProviderResult[] applyBatch( ArrayList<ContentProviderOperation> operations )	throws OperationApplicationException {
-		Log.v( TAG, "applyBatch : enter" );
+		//Log.v( TAG, "applyBatch : enter" );
 
 		final SQLiteDatabase db = database.getWritableDatabase();
 		db.beginTransaction();

@@ -40,6 +40,8 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.OperationApplicationException;
+import android.os.RemoteException;
 import android.util.Log;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
@@ -207,7 +209,7 @@ public class ChannelDownloadService extends MythtvService {
 		Log.v( TAG, "cleanup : exit" );
 	}
 
-	private void process( ChannelInfos channelInfos ) throws JsonGenerationException, JsonMappingException, IOException {
+	private void process( ChannelInfos channelInfos ) throws JsonGenerationException, JsonMappingException, IOException, RemoteException, OperationApplicationException {
 		Log.v( TAG, "process : enter" );
 		
 		mMainApplication.getObjectMapper().writeValue( new File( channelDirectory, CHANNELS_FILE ), channelInfos );
