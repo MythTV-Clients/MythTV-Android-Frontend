@@ -152,13 +152,6 @@ public abstract class AbstractDvrActivity extends AbstractMythtvFragmentActivity
 	public boolean onOptionsItemSelected( MenuItem item ) {
 		Log.v( TAG, "onOptionsItemSelected : enter" );
 
-		switch( item.getItemId() ) {
-			case android.R.id.home:
-			
-				finish();
-				
-				return true;
-		}
 
 		Log.v( TAG, "onOptionsItemSelected : exit" );
 		return super.onOptionsItemSelected( item );
