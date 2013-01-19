@@ -89,9 +89,6 @@ public class ProgramConstants extends AbstractBaseConstants {
 	public static final String FIELD_PROGRAM_FLAGS = "PROGRAM_FLAGS";
 	public static final String FIELD_PROGRAM_FLAGS_DATA_TYPE = "TEXT";
 	
-	public static final String FIELD_HOSTNAME = "HOSTNAME";
-	public static final String FIELD_HOSTNAME_DATA_TYPE = "TEXT";
-	
 	public static final String FIELD_FILENAME = "FILENAME";
 	public static final String FIELD_FILENAME_DATA_TYPE = "TEXT";
 	
@@ -149,12 +146,11 @@ public class ProgramConstants extends AbstractBaseConstants {
 		insert.append( FIELD_SEASON ).append( "," );
 		insert.append( FIELD_EPISODE ).append( "," );
 		insert.append( FIELD_CHANNEL_ID ).append( ", " );
-		insert.append( FIELD_RECORD_ID ).append( ", " );
-		insert.append( FIELD_HOSTNAME );
+		insert.append( FIELD_RECORD_ID );
 		
 		StringBuilder values = new StringBuilder();
 		values.append( " ) " );
-		values.append( "VALUES( ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? )" );
+		values.append( "VALUES( ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? )" );
 		
 		StringBuilder insertProgram = new StringBuilder();
 		insertProgram.append( "INSERT INTO " ).append( TABLE_NAME_PROGRAM ).append( " ( " );
@@ -189,7 +185,6 @@ public class ProgramConstants extends AbstractBaseConstants {
 		update.append( FIELD_FILE_SIZE ).append( " = ?, " );
 		update.append( FIELD_LAST_MODIFIED ).append( " = ?, " );
 		update.append( FIELD_PROGRAM_FLAGS ).append( " = ?, " );
-		update.append( FIELD_HOSTNAME ).append( " = ?, " );
 		update.append( FIELD_FILENAME ).append( " = ?, " );
 		update.append( FIELD_AIR_DATE ).append( " = ?, " );
 		update.append( FIELD_DESCRIPTION ).append( " = ?, " );

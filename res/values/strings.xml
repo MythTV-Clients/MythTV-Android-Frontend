@@ -190,6 +190,11 @@
     <string name="episode_add_button_play">Process</string>
     <string name="episode_add_button_cancel">Cancel</string>
     
+    <string name="episode_watch_title">Use HLS?</string>
+    <string name="episode_watch_message">Recordings can be streamed directly from your master backend or processed as an HTTP Live Stream.  HLS makes the recording available for when you are away from your home network. *NOTE* It is recommended to use HLS for MPEG2 HD recordings.</string>
+    <string name="episode_watch_button_hls">Play with HLS</string>
+    <string name="episode_watch_button_raw">Play Recoding</string>
+    
     <!-- Recording Rule -->
     <string name="chkbox_rec_rule_active">Recording Rule Active</string>
     <string name="chkbox_rec_rule_auto_comm_flag">Auto Commercial Flag</string>

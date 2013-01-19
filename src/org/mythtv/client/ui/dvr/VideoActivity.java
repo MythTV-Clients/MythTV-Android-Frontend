@@ -55,6 +55,7 @@ public class VideoActivity extends AbstractDvrActivity {
 	
 	public static final String EXTRA_CHANNEL_ID = "org.mythtv.client.ui.dvr.programGroup.EXTRA_CHANNEL_ID";
 	public static final String EXTRA_START_TIME = "org.mythtv.client.ui.dvr.programGroup.EXTRA_START_TIME";
+	public static final String EXTRA_RAW = "org.mythtv.client.ui.dvr.programGroup.EXTRA_RAW";
 	
 	private ProgressDialog progressDialog;
 
@@ -87,15 +88,25 @@ public class VideoActivity extends AbstractDvrActivity {
 	    
 	    int channelId = getIntent().getIntExtra( EXTRA_CHANNEL_ID, -1 );
 	    Long startTime = getIntent().getLongExtra( EXTRA_START_TIME, -1 );
-
+	    boolean raw = getIntent().getBooleanExtra( EXTRA_RAW, false );
+	    
 	    program = mRecordedDaoHelper.findOne( channelId, new DateTime( startTime ) );
 	    liveStreamInfo = mLiveStreamDaoHelper.findByProgram( program );
 	    
 	    if( null != program ) {
 
-	    	progressDialog = ProgressDialog.show( this, "Please wait...", "Retrieving video...", true, true );
+	    	if( raw ) {
+	    		
+	    		startVideo( true );
+	    		
+	    	} else {
+	    		
+	    		progressDialog = ProgressDialog.show( this, "Please wait...", "Retrieving video...", true, true );
     		
-	    	checkLiveStreamInfo();
+	    		checkLiveStreamInfo();
+	    	
+	    	}
+	    	
 	    }
 	    
 		Log.v( TAG, "onCreate : exit" );
@@ -169,12 +180,20 @@ public class VideoActivity extends AbstractDvrActivity {
 
 	// internal helpers
 	
-	private void startVideo() {
+	private void startVideo( boolean raw ) {
 		Log.v( TAG, "startVideo : enter" );
+		
+		Log.v( TAG, "startVideo : program=" + program.toString() );
 		
 		String temp = getMainApplication().getMasterBackend();
 		temp = temp.replaceAll( "/$", "" );
-		String url = temp + liveStreamInfo.getRelativeUrl();
+		String url = "";
+		if( raw ) {
+			url = temp + "/Content/GetFile?StorageGroup=" + program.getRecording().getStorageGroup() + "&FileName=" + program.getFilename();
+		} else {
+			url = temp + liveStreamInfo.getRelativeUrl();
+		}
+		
 	    Log.v( TAG, "URL: " + url );
 	    
 	    if( null != progressDialog ) {
@@ -269,7 +288,7 @@ public class VideoActivity extends AbstractDvrActivity {
 		} else {
 			Log.v( TAG, "checkLiveStreamInfo : starting video playback" );
 
-			startVideo();
+			startVideo( false );
 			
 		}
 
@@ -333,7 +352,7 @@ public class VideoActivity extends AbstractDvrActivity {
 						if( liveStreamInfo.getStatusInt() < 2 || liveStreamInfo.getCurrentSegment() <= 2 ) {
 							new UpdateStreamInfoTask().execute();
 						} else {
-							startVideo();
+							startVideo( false );
 						}
 
 					}

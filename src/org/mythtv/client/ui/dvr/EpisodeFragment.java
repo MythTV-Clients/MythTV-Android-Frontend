@@ -23,6 +23,7 @@ import java.util.List;
 import org.joda.time.DateTime;
 import org.mythtv.R;
 import org.mythtv.client.ui.AbstractMythFragment;
+import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.preferences.LocationProfile.LocationType;
 import org.mythtv.client.ui.preferences.PlaybackProfile;
 import org.mythtv.client.ui.util.MenuHelper;
@@ -59,10 +60,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.CompoundButton.OnCheckedChangeListener;
 
 public class EpisodeFragment extends AbstractMythFragment {
 
@@ -207,16 +208,69 @@ public class EpisodeFragment extends AbstractMythFragment {
 
 			if( mNetworkHelper.isNetworkConnected() ) {
 				
-				if( null == liveStreamInfo ) {
-					createStreamTask = new CreateStreamTask();
-					createStreamTask.execute( true );
-				} else {
+				LocationProfile mLocationProfile = getMainApplication().getConnectedLocationProfile();
+				if( mLocationProfile.getType().equals( LocationType.HOME ) ) {
+					
+					AlertDialog.Builder builder = new AlertDialog.Builder( getActivity() );
+			    	builder
+			    	.setTitle( R.string.episode_watch_title )
+			    	.setMessage( R.string.episode_watch_message )
+			    	.setPositiveButton( R.string.episode_watch_button_hls, new DialogInterface.OnClickListener() {
 
-					Intent playerIntent = new Intent( getActivity(), VideoActivity.class );
-					playerIntent.putExtra( VideoActivity.EXTRA_CHANNEL_ID, program.getChannelInfo().getChannelId() );
-					playerIntent.putExtra( VideoActivity.EXTRA_START_TIME, program.getStartTime().getMillis() );
-					startActivity( playerIntent );
-				
+			    		@Override
+			    		public void onClick( DialogInterface dialog, int which ) {
+
+							if( null == liveStreamInfo ) {
+								
+								createStreamTask = new CreateStreamTask();
+								createStreamTask.execute( true );
+							
+							} else {
+
+								Intent playerIntent = new Intent( getActivity(), VideoActivity.class );
+								playerIntent.putExtra( VideoActivity.EXTRA_CHANNEL_ID, program.getChannelInfo().getChannelId() );
+								playerIntent.putExtra( VideoActivity.EXTRA_START_TIME, program.getStartTime().getMillis() );
+								playerIntent.putExtra( VideoActivity.EXTRA_RAW, false );
+								startActivity( playerIntent );
+							
+							}
+
+			    		}
+			    	
+			    	})
+			    	.setNegativeButton( R.string.episode_watch_button_raw, new DialogInterface.OnClickListener() {
+			    		
+			    		@Override
+			    		public void onClick( DialogInterface dialog, int which ) {
+
+							Intent playerIntent = new Intent( getActivity(), VideoActivity.class );
+							playerIntent.putExtra( VideoActivity.EXTRA_CHANNEL_ID, program.getChannelInfo().getChannelId() );
+							playerIntent.putExtra( VideoActivity.EXTRA_START_TIME, program.getStartTime().getMillis() );
+							playerIntent.putExtra( VideoActivity.EXTRA_RAW, true );
+							startActivity( playerIntent );
+
+			    		}
+			    		
+			    	})
+			    	.show();
+
+				} else {
+					
+					if( null == liveStreamInfo ) {
+					
+						createStreamTask = new CreateStreamTask();
+						createStreamTask.execute( true );
+					
+					} else {
+
+						Intent playerIntent = new Intent( getActivity(), VideoActivity.class );
+						playerIntent.putExtra( VideoActivity.EXTRA_CHANNEL_ID, program.getChannelInfo().getChannelId() );
+						playerIntent.putExtra( VideoActivity.EXTRA_START_TIME, program.getStartTime().getMillis() );
+						playerIntent.putExtra( VideoActivity.EXTRA_RAW, false );
+						startActivity( playerIntent );
+					
+					}
+					
 				}
 				
 			} else {
@@ -587,7 +641,7 @@ public class EpisodeFragment extends AbstractMythFragment {
 			try {
 				Log.v( TAG, "RemoveRecordingTask : api" );
 				
-				removed = getMainApplication().getMythServicesApi().dvrOperations().removeRecorded( program.getChannelInfo().getChannelId(), program.getStartTime() );
+				removed = getMainApplication().getMythServicesApi().dvrOperations().removeRecorded( program.getChannelInfo().getChannelId(), program.getRecording().getStartTimestamp() );
 			} catch( Exception e ) {
 				Log.v( TAG, "CreateStreamTask : error" );
 
