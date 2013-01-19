@@ -22,9 +22,6 @@ import org.mythtv.R;
 import org.mythtv.client.MainApplication;
 import org.mythtv.client.ui.util.MenuHelper;
 
-import android.animation.Animator;
-import android.animation.Animator.AnimatorListener;
-import android.animation.LayoutTransition;
 import android.animation.ValueAnimator;
 import android.animation.ValueAnimator.AnimatorUpdateListener;
 import android.annotation.TargetApi;
@@ -39,13 +36,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
-import android.view.ViewParent;
-import android.view.animation.TranslateAnimation;
-import android.widget.Button;
 import android.widget.FrameLayout;
-import android.widget.LinearLayout;
 
 /**
  * @author Daniel Frey
@@ -158,23 +149,49 @@ public abstract class AbstractMythtvFragmentActivity extends FragmentActivity im
 				}
 			};
 			
+			//animator that scales content panel 
+			AnimatorUpdateListener scaleContentListener = new AnimatorUpdateListener(){
+				@Override
+				public void onAnimationUpdate(ValueAnimator animation) {
+					Float w = (Float)animation.getAnimatedValue();
+					content.setScaleX(w);
+					content.setScaleY(w);
+				}
+			};
+			
 			//show/hide
 			if(content.getX() > 0){
+				//HIDE
 				if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-					ValueAnimator animator = ValueAnimator.ofFloat(content.getX(), 0);
-					animator.setDuration(200);
-					animator.addUpdateListener(translateContentListener);
-					animator.start();
+					ValueAnimator transAnimator = ValueAnimator.ofFloat(content.getX(), 0);
+					transAnimator.setDuration(300);
+					transAnimator.addUpdateListener(translateContentListener);
+					
+					ValueAnimator scaleAnimator = ValueAnimator.ofFloat(content.getScaleX(), 1f);
+					scaleAnimator.setDuration(200);
+					scaleAnimator.setStartDelay(200);
+					scaleAnimator.addUpdateListener(scaleContentListener);
+					
+					transAnimator.start();
+					scaleAnimator.start();
 				}else{
 					content.setX(0f);
 				}
 				return true;
 			}else{
 				if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-					ValueAnimator animator = ValueAnimator.ofFloat(0, menu.getWidth());
-					animator.setDuration(200);
-					animator.addUpdateListener(translateContentListener);
-					animator.start();
+					//SHOW
+					ValueAnimator transAnimator = ValueAnimator.ofFloat(0, menu.getWidth());
+					transAnimator.setDuration(300);
+					transAnimator.setStartDelay(100);
+					transAnimator.addUpdateListener(translateContentListener);
+					
+					ValueAnimator scaleAnimator = ValueAnimator.ofFloat(1f, 1.1f);
+					scaleAnimator.setDuration(200);
+					scaleAnimator.addUpdateListener(scaleContentListener);
+					
+					scaleAnimator.start();
+					transAnimator.start();
 				}else{
 					content.setX(menu.getWidth());
 				}
