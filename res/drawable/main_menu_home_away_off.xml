@@ -27,13 +27,13 @@
 		    android:shape="rectangle" >
 		    <gradient android:startColor="#acacac"
 		        android:endColor="#8a8a8a"
-		        android:angle="270"/>
+		        android:angle="90"/>
 		    <stroke
 		        android:width="2dip"
 		        android:color="#4f6166" />
 		    <corners android:radius="10dp" />
 			<!-- Make sure a min of 100 width -->
-		    <size android:width="100dp" android:height="50dp" />
+		    <size android:width="125dp" android:height="40dp" />
 		</shape>
 	</item>
 	

@@ -27,22 +27,22 @@
 		    android:shape="rectangle" >
 		    <gradient android:startColor="#acacac"
 		        android:endColor="#8a8a8a"
-		        android:angle="270"/>
+		        android:angle="90"/>
 		    <stroke
-		        android:width="2dip"
+		        android:width="2dp"
 		        android:color="#4f6166" />
-		    <corners android:radius="10dip" />
+		    <corners android:radius="10dp" />
 			<!-- Make sure a min of 100 width -->
-		    <size android:width="100dip" android:height="50dip" />
+		    <size android:width="125dp" android:height="40dp" />
 		</shape>
 	</item>
 	
     <item >
 		<inset android:drawable="@drawable/transparent_rectangle"
-		    android:insetTop="10dip"
-		    android:insetBottom="10dip"
-		    android:insetLeft="14dip"
-		    android:insetRight="20dip" />
+		    android:insetTop="10dp"
+		    android:insetBottom="10dp"
+		    android:insetLeft="14dp"
+		    android:insetRight="20dp" />
 	</item>
 	
     <item>
@@ -53,17 +53,17 @@
 
     <item >
 		<inset android:drawable="@drawable/transparent_rectangle"
-		    android:insetTop="-8dip"
-		    android:insetBottom="-8dip"
-		    android:insetLeft="30dip"
-		    android:insetRight="-18dip"/>
+		    android:insetTop="-8dp"
+		    android:insetBottom="-8dp"
+		    android:insetLeft="30dp"
+		    android:insetRight="-18dp"/>
 	</item>
     
     <item android:drawable="@drawable/toggle_button_selector" />
     
     <item >
 		<inset android:drawable="@drawable/transparent_rectangle"
-		    android:insetRight="12dip"/>
+		    android:insetRight="12dp"/>
 	</item>
 	
     <item>
