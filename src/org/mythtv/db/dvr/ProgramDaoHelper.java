@@ -606,7 +606,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 
 		// If one timestamp is bad, leave them both set to 0.
 		if( null == program.getStartTime() || null == program.getEndTime() )
-			Log.w(TAG, "convertProgramToContentValues : null starttime and or endtime" + program.getTitle() + "," + program.getSubTitle());
+			Log.w(TAG, "convertProgramToContentValues : null starttime and or endtime" );
 		else {
 			startTime = new DateTime( program.getStartTime().getMillis() );
 			endTime = new DateTime( program.getEndTime().getMillis() );
