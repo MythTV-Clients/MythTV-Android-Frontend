@@ -601,9 +601,17 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 
 	protected ContentValues convertProgramToContentValues( final Program program ) {
 		
-		DateTime startTime = new DateTime( program.getStartTime().getMillis() );
-		DateTime endTime = new DateTime( program.getEndTime().getMillis() );
-		
+		DateTime startTime = new DateTime( 0 );
+		DateTime endTime = new DateTime( 0 );
+
+		// If one timestamp is bad, leave them both set to 0.
+		if( null == program.getStartTime() || null == program.getEndTime() )
+			Log.w(TAG, "convertProgramToContentValues : null starttime and or endtime" + program.getTitle() + "," + program.getSubTitle());
+		else {
+			startTime = new DateTime( program.getStartTime().getMillis() );
+			endTime = new DateTime( program.getEndTime().getMillis() );
+		}
+
 		ContentValues values = new ContentValues();
 		values.put( ProgramConstants.FIELD_START_TIME, startTime.getMillis() );
 		values.put( ProgramConstants.FIELD_END_TIME, endTime.getMillis() );
