@@ -165,7 +165,7 @@ public class RecordedDownloadService extends MythtvService {
 				process( programList.getPrograms() );	
 
 				if( null != etag.getETag() ) {
-					Log.i( TAG, "download : saving etag: " etag.getETag() );
+					Log.i( TAG, "download : saving etag: " + etag.getETag() );
 					mEtagDaoHelper.save( etag, Endpoint.GET_RECORDED_LIST.name(), "" );
 				}
 
