@@ -160,6 +160,7 @@ public class RecordedDownloadService extends MythtvService {
 		ResponseEntity<ProgramList> responseEntity = mMainApplication.getMythServicesApi( locationProfile ).dvrOperations().getRecordedList( etag );
 
 		if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
+			Log.i( TAG, "download : " + Endpoint.GET_RECORDED_LIST.getEndpoint() + " returned 200 OK" );
 			ProgramList programList = responseEntity.getBody();
 
 //			Log.v( TAG, "download : loaded local file" );
@@ -172,12 +173,8 @@ public class RecordedDownloadService extends MythtvService {
 				process( programList.getPrograms() );	
 
 				if( null != etag.getETag() ) {
-					Log.i( TAG, "download : " + Endpoint.GET_RECORDED_LIST.getEndpoint() + " returned 200 OK" );
-
-					if( null != etag.getETag() ) {
-						mEtagDaoHelper.save( etag, Endpoint.GET_RECORDED_LIST.name(), "" );
-					}
-
+					Log.i( TAG, "download : saving etag: " + etag.getETag() );
+					mEtagDaoHelper.save( etag, Endpoint.GET_RECORDED_LIST.name(), "" );
 				}
 
 			}
