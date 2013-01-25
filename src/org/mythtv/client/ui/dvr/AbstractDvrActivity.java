@@ -53,14 +53,12 @@ public abstract class AbstractDvrActivity extends AbstractMythtvFragmentActivity
 	protected FileHelper mFileHelper;
 	protected ImageFetcher mImageFetcher;
 	protected LiveStreamDaoHelper mLiveStreamDaoHelper;
-	protected LocationProfileDaoHelper mLocationDaoHelper;
+	protected LocationProfileDaoHelper mLocationProfileDaoHelper;
 	protected MenuHelper mMenuHelper;
 	protected NetworkHelper mNetworkHelper;
 	protected ProgramGroupDaoHelper mProgramGroupDaoHelper;
 	protected RecordedDaoHelper mRecordedDaoHelper;
 	protected RunningServiceHelper mRunningServiceHelper;
-	
-	protected LocationProfile mLocationProfile;
 	
 	/* (non-Javadoc)
 	 * @see android.support.v4.app.FragmentActivity#onCreate(android.os.Bundle)
@@ -76,14 +74,12 @@ public abstract class AbstractDvrActivity extends AbstractMythtvFragmentActivity
 		
 		mFileHelper = FileHelper.newInstance( this );
 		mLiveStreamDaoHelper = new LiveStreamDaoHelper( this );
-		mLocationDaoHelper = new LocationProfileDaoHelper( this );
+		mLocationProfileDaoHelper = new LocationProfileDaoHelper( this );
 		mMenuHelper = MenuHelper.newInstance( this );
 		mNetworkHelper = NetworkHelper.newInstance( this );
 		mProgramGroupDaoHelper = new ProgramGroupDaoHelper( this );
 		mRecordedDaoHelper = new RecordedDaoHelper( this );
 		mRunningServiceHelper = RunningServiceHelper.newInstance( this );
-		
-		mLocationProfile = mLocationDaoHelper.findConnectedProfile();
 		
         // Fetch screen height and width, to use as our max size when loading images as this activity runs full screen
         final DisplayMetrics displayMetrics = new DisplayMetrics();
@@ -183,17 +179,10 @@ public abstract class AbstractDvrActivity extends AbstractMythtvFragmentActivity
 	}
 	
 	/**
-	 * @return the mLocationProfile
+	 * @return the mLocationProfileDaoHelper
 	 */
-	public LocationProfile getLocationProfile() {
-		return mLocationProfile;
-	}
-
-	/**
-	 * @return the mLocationDaoHelper
-	 */
-	public LocationProfileDaoHelper getLocationDaoHelper() {
-		return mLocationDaoHelper;
+	public LocationProfileDaoHelper getLocationProfileDaoHelper() {
+		return mLocationProfileDaoHelper;
 	}
 
 	/**

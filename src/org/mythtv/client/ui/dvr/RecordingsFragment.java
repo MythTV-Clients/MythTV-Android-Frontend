@@ -29,6 +29,7 @@ import org.mythtv.db.dvr.programGroup.ProgramGroupConstants;
 import org.mythtv.db.dvr.programGroup.ProgramGroupDaoHelper;
 import org.mythtv.db.http.EtagConstants;
 import org.mythtv.db.http.EtagDaoHelper;
+import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.dvr.RecordedDownloadService;
 import org.mythtv.service.util.RunningServiceHelper;
 import org.mythtv.service.util.image.ImageFetcher;
@@ -76,6 +77,7 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 
 	private static ProgramHelper mProgramHelper;
 	private EtagDaoHelper mEtagDaoHelper;
+	private LocationProfileDaoHelper mLocationProfileDaoHelper;
 	private MenuHelper mMenuHelper;
 	private ProgramGroupDaoHelper mProgramGroupDaoHelper;
 	private RunningServiceHelper mRunningServiceHelper;
@@ -89,7 +91,9 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 	public Loader<Cursor> onCreateLoader( int id, Bundle args ) {
 		Log.v( TAG, "onCreateLoader : enter" );
 		
-		LocationProfile locationProfile = ( (AbstractDvrActivity) getActivity() ).getLocationProfile();
+		mLocationProfileDaoHelper = ( (AbstractDvrActivity) getActivity() ).getLocationProfileDaoHelper();
+		LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile();
+		Log.v( TAG, "onCreateLoader : loading recorded for profile " + locationProfile.getHostname() + " [" + locationProfile.getUrl() + "]" );
 		
 		String[] projection = null;
 		String selection = ProgramGroupConstants.FIELD_HOSTNAME + " = ?";

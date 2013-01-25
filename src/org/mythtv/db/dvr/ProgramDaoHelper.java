@@ -239,9 +239,14 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 	protected int load( Uri uri, List<Program> programs, String table ) throws RemoteException, OperationApplicationException {
 		Log.v( TAG, "load : enter" );
 		
-		Log.v( TAG, "load : find all existing recordings" );
+		Log.v( TAG, "load : find all existing recordings, table=" + table );
+		String recordedSelection = "";
+		
+		recordedSelection = appendLocationHostname( recordedSelection, table );
+		Log.v( TAG, "load : recordedSelection=" + recordedSelection );
+		
 		Map<String, Program> recorded = new HashMap<String, Program>();
-		for( Program program : findAll( uri, null, null, null, null ) ) {
+		for( Program program : findAll( uri, null, recordedSelection, null, null ) ) {
 			recorded.put( program.getFilename(), program );
 		}
 		
@@ -602,7 +607,10 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 	protected ContentValues convertProgramToContentValues( final Program program ) {
 		
 		DateTime startTime = new DateTime( program.getStartTime().getMillis() );
-		DateTime endTime = new DateTime( program.getEndTime().getMillis() );
+		DateTime endTime = new DateTime();
+		if( null != program.getEndTime() ) {
+			endTime = new DateTime( program.getEndTime().getMillis() );
+		}
 		
 		ContentValues values = new ContentValues();
 		values.put( ProgramConstants.FIELD_START_TIME, startTime.getMillis() );

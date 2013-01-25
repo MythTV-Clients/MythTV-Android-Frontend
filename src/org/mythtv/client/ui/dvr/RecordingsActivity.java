@@ -103,7 +103,9 @@ public class RecordingsActivity extends AbstractDvrActivity implements Recording
 			mRecordedDaoHelper.findAll();
 		}
 
-		selectedProgram = programs.get( 0 );
+		if( null != programs && !programs.isEmpty() ) {
+			selectedProgram = programs.get( 0 );
+		}
 		
 		if( null != findViewById( R.id.fragment_dvr_program_group ) ) {
 			FragmentManager manager = getSupportFragmentManager();
@@ -139,7 +141,9 @@ public class RecordingsActivity extends AbstractDvrActivity implements Recording
 				mProgramGroupFragment.loadProgramGroup( programGroup );
 			}
 
-			onEpisodeSelected( selectedProgram.getChannelInfo().getChannelId(), selectedProgram.getStartTime() );
+			if( null != selectedProgram ) {
+				onEpisodeSelected( selectedProgram.getChannelInfo().getChannelId(), selectedProgram.getStartTime() );
+			}
 			
 		} else {
 			Log.v( TAG, "onProgramGroupSelected : starting program group activity" );

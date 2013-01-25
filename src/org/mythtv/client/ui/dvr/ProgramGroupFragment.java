@@ -27,6 +27,7 @@ import org.mythtv.client.ui.util.ProgramHelper;
 import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.db.dvr.RecordedDaoHelper;
 import org.mythtv.db.dvr.programGroup.ProgramGroup;
+import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.util.DateUtils;
 import org.mythtv.services.api.dvr.Program;
 
@@ -65,6 +66,7 @@ public class ProgramGroupFragment extends MythtvListFragment implements LoaderMa
 	private OnEpisodeSelectedListener mEpisodeListener;
 	
 	private static ProgramHelper mProgramHelper;
+	private LocationProfileDaoHelper mLocationProfileDaoHelper;
 	private RecordedDaoHelper mRecordedDaoHelper;
 	
 	private ProgramGroup programGroup;
@@ -78,7 +80,8 @@ public class ProgramGroupFragment extends MythtvListFragment implements LoaderMa
 	public Loader<Cursor> onCreateLoader( int id, Bundle args ) {
 		Log.v( TAG, "onCreateLoader : enter" );
 
-		LocationProfile locationProfile = ( (AbstractDvrActivity) getActivity() ).getLocationProfile();
+		mLocationProfileDaoHelper = ( (AbstractDvrActivity) getActivity() ).getLocationProfileDaoHelper();
+		LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile();
 		
 		String[] projection = { ProgramConstants._ID, ProgramConstants.FIELD_TITLE, ProgramConstants.FIELD_SUB_TITLE, ProgramConstants.FIELD_CATEGORY, ProgramConstants.FIELD_START_TIME };
 		String selection = ProgramConstants.FIELD_TITLE + " = ? AND " + ProgramConstants.TABLE_NAME_RECORDED + "." + ProgramConstants.FIELD_HOSTNAME + " = ?";
