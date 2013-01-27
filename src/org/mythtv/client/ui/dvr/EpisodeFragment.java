@@ -632,7 +632,7 @@ public class EpisodeFragment extends AbstractMythFragment {
 
 		@Override
 		protected ResponseEntity<Bool> doInBackground( Void... params ) {
-			Log.v( TAG, "CreateStreamTask : enter" );
+			Log.v( TAG, "RemoveRecordingTask : enter" );
 
 			if( !mNetworkHelper.isMasterBackendConnected() ) {
 				return null;
@@ -643,14 +643,14 @@ public class EpisodeFragment extends AbstractMythFragment {
 			try {
 				Log.v( TAG, "RemoveRecordingTask : api" );
 				
-				removed = getMainApplication().getMythServicesApi().dvrOperations().removeRecorded( program.getChannelInfo().getChannelId(), program.getRecording().getStartTimestamp() );
+				removed = getMainApplication().getMythServicesApi().dvrOperations().removeRecorded( program.getChannelInfo().getChannelId(), program.getStartTime() );
 			} catch( Exception e ) {
-				Log.v( TAG, "CreateStreamTask : error" );
+				Log.v( TAG, "RemoveRecordingTask : error" );
 
 				this.e = e;
 			}
 
-			Log.v( TAG, "CreateStreamTask : exit" );
+			Log.v( TAG, "RemoveRecordingTask : exit" );
 			return removed;
 		}
 
