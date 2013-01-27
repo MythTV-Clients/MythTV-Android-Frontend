@@ -168,7 +168,10 @@ public abstract class AbstractMythtvFragmentActivity extends FragmentActivity im
 
 			//show/hide
 			if(content.getX() > 0){
-				//HIDE
+				//HIDE Menu
+				
+				//menu.setVisibility(View.INVISIBLE);
+				
 				if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
 					ValueAnimator transAnimator = ValueAnimator.ofFloat(content.getX(), 0);
 					transAnimator.setDuration(300);
@@ -182,8 +185,11 @@ public abstract class AbstractMythtvFragmentActivity extends FragmentActivity im
 				}
 				return true;
 			}else{
+				//SHOW Menu
+				
+				//menu.setVisibility(View.VISIBLE);
+				
 				if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-					//SHOW
 					ValueAnimator transAnimator = ValueAnimator.ofFloat(0, menu.getWidth());
 					transAnimator.setDuration(300);
 					transAnimator.setStartDelay(100);
