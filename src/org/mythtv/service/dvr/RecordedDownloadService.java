@@ -23,8 +23,10 @@ import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
 import org.mythtv.R;
+import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.dvr.RecordedDaoHelper;
 import org.mythtv.db.http.EtagDaoHelper;
+import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.MythtvService;
 import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.dvr.ProgramList;
@@ -53,7 +55,8 @@ public class RecordedDownloadService extends MythtvService {
 
 	private static final String TAG = RecordedDownloadService.class.getSimpleName();
 
-	public static final String RECORDED_FILE = "recorded.json";
+	private static final String RECORDED_FILE_PREFIX = "recorded_";
+	private static final String RECORDED_FILE_EXT = ".json";
 	
     public static final String ACTION_DOWNLOAD = "org.mythtv.background.recordedDownload.ACTION_DOWNLOAD";
     public static final String ACTION_PROGRESS = "org.mythtv.background.recordedDownload.ACTION_PROGRESS";
@@ -72,6 +75,7 @@ public class RecordedDownloadService extends MythtvService {
 	private File recordedDirectory = null;
 	private RecordedDaoHelper mRecordedDaoHelper;
 	private EtagDaoHelper mEtagDaoHelper;
+	private LocationProfileDaoHelper mLocationProfileDaoHelper;
 	
 	public RecordedDownloadService() {
 		super( "RecordedDownloadService" );
@@ -89,6 +93,7 @@ public class RecordedDownloadService extends MythtvService {
 		
 		mRecordedDaoHelper = new RecordedDaoHelper( this );
 		mEtagDaoHelper = new EtagDaoHelper( this );
+		mLocationProfileDaoHelper = new LocationProfileDaoHelper( this );
 		
 		recordedDirectory = mFileHelper.getProgramRecordedDataDirectory();
 		if( null == recordedDirectory || !recordedDirectory.exists() ) {
@@ -147,11 +152,15 @@ public class RecordedDownloadService extends MythtvService {
 	private void download() throws Exception {
 		Log.v( TAG, "download : enter" );
 
+		LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile();
+		Log.v( TAG, "download : get recorded for host [" + locationProfile.getHostname() + ":" + locationProfile.getUrl() + "]" );
+
 		ETagInfo etag = mEtagDaoHelper.findByEndpointAndDataId( Endpoint.GET_RECORDED_LIST.name(), "" );
 		
-		ResponseEntity<ProgramList> responseEntity = mMainApplication.getMythServicesApi().dvrOperations().getRecordedList( etag );
+		ResponseEntity<ProgramList> responseEntity = mMainApplication.getMythServicesApi( locationProfile ).dvrOperations().getRecordedList( etag );
 
 		if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
+			Log.i( TAG, "download : " + Endpoint.GET_RECORDED_LIST.getEndpoint() + " returned 200 OK" );
 			ProgramList programList = responseEntity.getBody();
 
 //			Log.v( TAG, "download : loaded local file" );
@@ -159,17 +168,13 @@ public class RecordedDownloadService extends MythtvService {
 //			programList = mMainApplication.getObjectMapper().readValue( recorded, ProgramList.class );
 			
 			if( null != programList.getPrograms() ) {
-				cleanup();
+				//cleanup();
 
 				process( programList.getPrograms() );	
 
 				if( null != etag.getETag() ) {
-					Log.i( TAG, "download : " + Endpoint.GET_RECORDED_LIST.getEndpoint() + " returned 200 OK" );
-
-					if( null != etag.getETag() ) {
-						mEtagDaoHelper.save( etag, Endpoint.GET_RECORDED_LIST.name(), "" );
-					}
-
+					Log.i( TAG, "download : saving etag: " + etag.getETag() );
+					mEtagDaoHelper.save( etag, Endpoint.GET_RECORDED_LIST.name(), "" );
 				}
 
 			}
@@ -199,7 +204,11 @@ public class RecordedDownloadService extends MythtvService {
 	private void process( Programs programs ) throws JsonGenerationException, JsonMappingException, IOException, RemoteException, OperationApplicationException {
 		Log.v( TAG, "process : enter" );
 		
-		mMainApplication.getObjectMapper().writeValue( new File( recordedDirectory, RECORDED_FILE ), programs );
+		LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile();
+		Log.v( TAG, "process : saving recorded for host [" + locationProfile.getHostname() + ":" + locationProfile.getUrl() + "]" );
+		
+		mMainApplication.getObjectMapper().writeValue( new File( recordedDirectory, RECORDED_FILE_PREFIX + locationProfile.getHostname() + RECORDED_FILE_EXT ), programs );
+		Log.v( TAG, "process : saved recorded to " + recordedDirectory.getAbsolutePath() );
 
 		int programsAdded = mRecordedDaoHelper.load( programs.getPrograms() );
 		Log.v( TAG, "process : programsAdded=" + programsAdded );

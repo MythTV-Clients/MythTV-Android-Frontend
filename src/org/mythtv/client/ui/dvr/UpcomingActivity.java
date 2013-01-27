@@ -66,8 +66,6 @@ public class UpcomingActivity extends AbstractDvrActivity {
 			
 	private MythtvUpcomingPagerAdapter mAdapter;
 	
-	private LocationProfile mLocationProfile;
-	
 	/* (non-Javadoc)
 	 * @see android.support.v4.app.FragmentActivity#onCreate(android.os.Bundle)
 	 */
@@ -80,8 +78,6 @@ public class UpcomingActivity extends AbstractDvrActivity {
 		mLocationProfileDaoHelper = new LocationProfileDaoHelper( this );
 		mRunningServiceHelper = RunningServiceHelper.newInstance( this );
 		mUpcomingDaoHelper = new UpcomingDaoHelper( this );
-		
-		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile();
 		
 		setContentView( R.layout.activity_dvr_upcoming );
 
@@ -192,10 +188,6 @@ public class UpcomingActivity extends AbstractDvrActivity {
 	 */
 	public UpcomingDaoHelper getUpcomingDaoHelper() {
 		return mUpcomingDaoHelper;
-	}
-	
-	public LocationProfile getLocationProfile() {
-		return mLocationProfile;
 	}
 	
 	// internal helpers

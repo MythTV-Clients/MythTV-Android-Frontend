@@ -23,8 +23,10 @@ import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
 import org.mythtv.R;
+import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.channel.ChannelDaoHelper;
 import org.mythtv.db.http.EtagDaoHelper;
+import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.MythtvService;
 import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.channel.ChannelInfoList;
@@ -55,8 +57,8 @@ public class ChannelDownloadService extends MythtvService {
 
 	private static final String TAG = ChannelDownloadService.class.getSimpleName();
 
-	public static final String CHANNELS_FILE = "channels.json";
-	public static final String CALLSIGN_EXT = ".jpg";
+	private static final String CHANNELS_FILE_PREFIX = "channels_";
+	private static final String CHANNELS_FILE_EXT = ".json";
 	
     public static final String ACTION_DOWNLOAD = "org.mythtv.background.channelDownload.ACTION_DOWNLOAD";
     public static final String ACTION_PROGRESS = "org.mythtv.background.channelDownload.ACTION_PROGRESS";
@@ -73,6 +75,7 @@ public class ChannelDownloadService extends MythtvService {
 	
 	private File channelDirectory = null;
 	private ChannelDaoHelper mChannelDaoHelper;
+	private LocationProfileDaoHelper mLocationProfileDaoHelper;
 	private EtagDaoHelper mEtagDaoHelper;
 	
 	public ChannelDownloadService() {
@@ -88,6 +91,7 @@ public class ChannelDownloadService extends MythtvService {
 		super.onHandleIntent( intent );
 		
 		mChannelDaoHelper = new ChannelDaoHelper( this );
+		mLocationProfileDaoHelper = new LocationProfileDaoHelper( this );
 		mEtagDaoHelper = new EtagDaoHelper( this );
 		
 		channelDirectory = mFileHelper.getChannelDataDirectory();
@@ -116,17 +120,20 @@ public class ChannelDownloadService extends MythtvService {
 
     		boolean passed = true;
     		
+    		LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile();
+    		Log.v( TAG, "onHandleIntent : get video sources for host [" + locationProfile.getHostname() + ":" + locationProfile.getUrl() + "]" );
+
     		try {
     			ETagInfo etag = mEtagDaoHelper.findByEndpointAndDataId( Endpoint.GET_VIDEO_SOURCE_LIST.name(), null );
     			
-				ResponseEntity<VideoSourceList> responseEntity = mMainApplication.getMythServicesApi().channelOperations().getVideoSourceList( etag );
+				ResponseEntity<VideoSourceList> responseEntity = mMainApplication.getMythServicesApi( locationProfile ).channelOperations().getVideoSourceList( etag );
 				if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
 					sendNotification();
 					
 					VideoSourceList videoSourceList = responseEntity.getBody();
 					
 					if( null != videoSourceList ) {
-	    				cleanup();
+//	    				cleanup();
 						
 						for( VideoSource videoSource : videoSourceList.getVideoSources().getVideoSources() ) {
 
@@ -169,9 +176,12 @@ public class ChannelDownloadService extends MythtvService {
 	private void download( int sourceId ) throws Exception {
 		Log.v( TAG, "download : enter" );
 
+		LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile();
+		Log.v( TAG, "download : get recorded for host [" + locationProfile.getHostname() + ":" + locationProfile.getUrl() + "]" );
+
 		ETagInfo etag = mEtagDaoHelper.findByEndpointAndDataId( Endpoint.GET_CHANNEL_INFO_LIST.name(), String.valueOf( sourceId ) );
 		
-		ResponseEntity<ChannelInfoList> responseEntity = mMainApplication.getMythServicesApi().channelOperations().getChannelInfoList( sourceId, 1, -1, etag );
+		ResponseEntity<ChannelInfoList> responseEntity = mMainApplication.getMythServicesApi( locationProfile ).channelOperations().getChannelInfoList( sourceId, 1, -1, etag );
 
 		if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
 			ChannelInfoList channelInfoList = responseEntity.getBody();
@@ -212,7 +222,11 @@ public class ChannelDownloadService extends MythtvService {
 	private void process( ChannelInfos channelInfos ) throws JsonGenerationException, JsonMappingException, IOException, RemoteException, OperationApplicationException {
 		Log.v( TAG, "process : enter" );
 		
-		mMainApplication.getObjectMapper().writeValue( new File( channelDirectory, CHANNELS_FILE ), channelInfos );
+		LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile();
+		Log.v( TAG, "process : saving recorded for host [" + locationProfile.getHostname() + ":" + locationProfile.getUrl() + "]" );
+
+		mMainApplication.getObjectMapper().writeValue( new File( channelDirectory, CHANNELS_FILE_PREFIX + locationProfile.getHostname() + CHANNELS_FILE_EXT ), channelInfos );
+		Log.v( TAG, "process : saved channels to " + channelDirectory.getAbsolutePath() );
 
 		if( null != channelInfos ) {
 			

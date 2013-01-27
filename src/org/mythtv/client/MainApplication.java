@@ -105,9 +105,7 @@ public class MainApplication extends Application {
 	public MythServices getMythServicesApi() {
 		Log.v( TAG, "getMythServicesApi : enter" );
 		
-		if( null == provider ) {
-			provider = new MythServicesServiceProvider( getMasterBackend(), Level.FINE );
-		}
+		provider = new MythServicesServiceProvider( getMasterBackend(), Level.FINE );
 		
 		Log.v( TAG, "getMythServicesApi : exit" );
 		return provider.getApi();

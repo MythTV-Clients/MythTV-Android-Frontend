@@ -19,20 +19,25 @@
 package org.mythtv.db.dvr.programGroup;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
 import org.mythtv.db.AbstractDaoHelper;
-import org.mythtv.db.dvr.ProgramConstants;
+import org.mythtv.provider.MythtvProvider;
 import org.mythtv.services.api.dvr.Program;
 import org.mythtv.services.utils.ArticleCleaner;
 
+import android.content.ContentProviderOperation;
+import android.content.ContentProviderResult;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.OperationApplicationException;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.RemoteException;
 import android.util.Log;
 
 /**
@@ -53,9 +58,11 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 	public List<ProgramGroup> findAll() {
 		Log.v( TAG, "findAll : enter" );
 		
-		String selection = ProgramGroupConstants.FIELD_HOSTNAME + " = ?";
-		String[] selectionArgs = new String[] { mLocationProfile.getHostname() };
+		String selection = "";
+		String[] selectionArgs = null;
 
+		selection = appendLocationHostname( selection, null );
+		
 		List<ProgramGroup> programGroups = new ArrayList<ProgramGroup>();
 		
 		Cursor cursor = mContext.getContentResolver().query( ProgramGroupConstants.CONTENT_URI, null, selection, selectionArgs, ProgramGroupConstants.FIELD_PROGRAM_GROUP );
@@ -91,9 +98,11 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 	public ProgramGroup findByTitle( String title ) {
 		Log.v( TAG, "findOne : enter" );
 		
-		String selection = ProgramGroupConstants.FIELD_TITLE + " = ? AND " + ProgramGroupConstants.FIELD_HOSTNAME + " = ?";
-		String[] selectionArgs = new String[] { title, mLocationProfile.getHostname() };
+		String selection = ProgramGroupConstants.FIELD_TITLE + " = ?";
+		String[] selectionArgs = new String[] { title };
 
+		selection = appendLocationHostname( selection, null );
+		
 		ProgramGroup programGroup = null;
 		
 		Cursor cursor = mContext.getContentResolver().query( ProgramGroupConstants.CONTENT_URI, null, selection, selectionArgs, null );
@@ -115,10 +124,12 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 
 		ContentValues values = convertProgramGroupToContentValues( programGroup );
 
-		String[] projection = new String[] { ProgramConstants._ID };
-		String selection = ProgramGroupConstants.FIELD_PROGRAM_GROUP + " = ? AND " + ProgramGroupConstants.FIELD_HOSTNAME + " = ?";
-		String[] selectionArgs = new String[] { programGroup.getProgramGroup(), mLocationProfile.getUrl() };
+		String[] projection = new String[] { ProgramGroupConstants._ID };
+		String selection = ProgramGroupConstants.FIELD_PROGRAM_GROUP + " = ?";
+		String[] selectionArgs = new String[] { programGroup.getProgramGroup() };
 		
+		selection = appendLocationHostname( selection, null );
+
 		int updated = -1;
 		Cursor cursor = mContext.getContentResolver().query( ProgramGroupConstants.CONTENT_URI, projection, selection, selectionArgs, null );
 		if( cursor.moveToFirst() ) {
@@ -146,7 +157,11 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 	public int deleteAll() {
 		Log.v( TAG, "deleteAll : enter" );
 		
-		int deleted = mContext.getContentResolver().delete( ProgramGroupConstants.CONTENT_URI, null, null );
+		String selection = "";
+		
+		selection = appendLocationHostname( selection, null );
+		
+		int deleted = mContext.getContentResolver().delete( ProgramGroupConstants.CONTENT_URI, selection, null );
 		Log.v( TAG, "deleteAll : deleted=" + deleted );
 		
 		Log.v( TAG, "deleteAll : exit" );
@@ -167,13 +182,17 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 		return deleted;
 	}
 
-	public int load( List<Program> programs ) {
+	public int load( List<Program> programs ) throws RemoteException, OperationApplicationException {
 		Log.v( TAG, "load : enter" );
 		
 		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile();
 		
-		deleteAll();
-		
+		Log.v( TAG, "load : find all existing recordings" );
+		Map<String, ProgramGroup> existing = new HashMap<String, ProgramGroup>();
+		for( ProgramGroup programGroup : findAll() ) {
+			existing.put( programGroup.getProgramGroup(), programGroup );
+		}
+
 		Map<String, ProgramGroup> programGroups = new TreeMap<String, ProgramGroup>();
 		for( Program program : programs ) {
 			
@@ -190,6 +209,7 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 						programGroup.setInetref( program.getInetref() );
 						
 						programGroups.put( cleaned, programGroup );
+						existing.remove( cleaned );
 					}
 
 				}
@@ -199,16 +219,96 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 		}
 		
 		int loaded = -1;
-		
-		ContentValues[] contentValuesArray = convertProgramGroupsToContentValuesArray( new ArrayList<ProgramGroup>( programGroups.values() ) );
-		if( null != contentValuesArray ) {
-			Log.v( TAG, "load : programGroups=" + contentValuesArray.length );
+		int count = 0;
 
-			loaded = mContext.getContentResolver().bulkInsert( ProgramGroupConstants.CONTENT_URI, contentValuesArray );
-			Log.v( TAG, "load : loaded=" + loaded );
+		ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
+		
+		String[] programGroupProjection = new String[] { ProgramGroupConstants._ID };
+		String programGroupSelection = ProgramGroupConstants.FIELD_PROGRAM_GROUP + " = ?";
+
+		programGroupSelection = appendLocationHostname( programGroupSelection, null );
+
+		for( String key : programGroups.keySet() ) {
+			ProgramGroup programGroup = programGroups.get( key );
+			
+			ContentValues programValues = convertProgramGroupToContentValues( programGroup );
+			Cursor programGroupCursor = mContext.getContentResolver().query( ProgramGroupConstants.CONTENT_URI, programGroupProjection, programGroupSelection, new String[] { key }, null );
+			if( programGroupCursor.moveToFirst() ) {
+
+				Long id = programGroupCursor.getLong( programGroupCursor.getColumnIndexOrThrow( ProgramGroupConstants._ID ) );
+				ops.add( 
+						ContentProviderOperation.newUpdate( ContentUris.withAppendedId( ProgramGroupConstants.CONTENT_URI, id ) )
+							.withValues( programValues )
+							.withYieldAllowed( true )
+							.build()
+					);
+				
+			} else {
+
+				ops.add(  
+						ContentProviderOperation.newInsert( ProgramGroupConstants.CONTENT_URI )
+							.withValues( programValues )
+							.withYieldAllowed( true )
+							.build()
+					);
+			}
+			programGroupCursor.close();
+			count++;
+
+			if( count > 100 ) {
+				Log.v( TAG, "process : applying batch for '" + count + "' transactions" );
+				
+				if( !ops.isEmpty() ) {
+					
+					ContentProviderResult[] results = mContext.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
+					loaded += results.length;
+					
+					if( results.length > 0 ) {
+						ops.clear();
+					}
+				}
+
+				count = -1;
+			}
+
 		}
 		
-		
+		Log.v( TAG, "load : remove deleted program groups" );
+		for( String key : existing.keySet() ) {
+
+			ops.add(  
+				ContentProviderOperation.newDelete( ProgramGroupConstants.CONTENT_URI )
+				.withSelection( programGroupSelection, new String[] { key } )
+				.withYieldAllowed( true )
+				.build()
+			);
+			
+			if( count > 100 ) {
+				Log.v( TAG, "process : applying batch for '" + count + "' transactions" );
+				
+				if( !ops.isEmpty() ) {
+					
+					ContentProviderResult[] results = mContext.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
+					loaded += results.length;
+					
+					if( results.length > 0 ) {
+						ops.clear();
+					}
+
+				}
+
+				count = -1;
+			}
+
+		}
+
+		if( !ops.isEmpty() ) {
+			Log.v( TAG, "process : applying batch for '" + count + "' transactions" );
+			
+			ContentProviderResult[] results = mContext.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
+			loaded += results.length;
+		}
+
 		Log.v( TAG, "load : exit" );
 		return loaded;
 	}

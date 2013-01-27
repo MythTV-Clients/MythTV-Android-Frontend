@@ -270,6 +270,10 @@ public class ImageFetcher extends ImageResizer {
     public boolean downloadUrlToStream(String inetref, String type, OutputStream outputStream) {
         disableConnectionReuseIfNecessary();
         
+		if( !mNetworkHelper.isMasterBackendConnected() ) {
+			return false;
+		}
+
         BufferedOutputStream out = null;
 
         try {

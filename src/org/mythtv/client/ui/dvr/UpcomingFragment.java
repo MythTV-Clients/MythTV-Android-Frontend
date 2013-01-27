@@ -26,6 +26,7 @@ import org.mythtv.client.ui.util.MythtvListFragment;
 import org.mythtv.client.ui.util.ProgramHelper;
 import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.db.dvr.UpcomingDaoHelper;
+import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.util.DateUtils;
 import org.mythtv.services.api.dvr.Program;
 
@@ -56,6 +57,7 @@ public class UpcomingFragment extends MythtvListFragment implements LoaderManage
 
     private MainApplication mainApplication;
 
+    private LocationProfileDaoHelper mLocationProfileDaoHelper;
 	private ProgramHelper mProgramHelper;
 	private UpcomingDaoHelper mUpcomingDaoHelper;
 	
@@ -86,11 +88,13 @@ public class UpcomingFragment extends MythtvListFragment implements LoaderManage
 
         mainApplication = getMainApplication();
 
-        LocationProfile locationProfile = ( (UpcomingActivity) getActivity() ).getLocationProfile();
-        
+		mLocationProfileDaoHelper = ( (AbstractDvrActivity) getActivity() ).getLocationProfileDaoHelper();
+		LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile();
+		Log.v( TAG, "onCreateLoader : loading upcoming for profile " + locationProfile.getHostname() + " [" + locationProfile.getUrl() + "]" );
+
 		String[] projection = { ProgramConstants._ID, ProgramConstants.FIELD_TITLE, ProgramConstants.FIELD_SUB_TITLE, ProgramConstants.FIELD_START_TIME, ProgramConstants.FIELD_CATEGORY };
 		
-		String selection = ProgramConstants.FIELD_START_TIME + " > ? AND " + ProgramConstants.FIELD_START_TIME + " <= ? AND " + ProgramConstants.FIELD_START_TIME + " >= ? AND " + ProgramConstants.TABLE_NAME_UPCOMING + "." + ProgramConstants.FIELD_HOSTNAME + " = ?";
+		String selection = ProgramConstants.FIELD_START_TIME + " >= ? AND " + ProgramConstants.FIELD_START_TIME + " < ? AND " + ProgramConstants.FIELD_START_TIME + " >= ? AND " + ProgramConstants.TABLE_NAME_UPCOMING + "." + ProgramConstants.FIELD_HOSTNAME + " = ?";
 		
 		String[] selectionArgs = new String[] { String.valueOf( startDay.getMillis() ), String.valueOf( endDay.getMillis() ), String.valueOf( now.getMillis() ), locationProfile.getHostname() };
 		

@@ -311,6 +311,8 @@ public class EtagDaoHelper extends AbstractDaoHelper {
 	private ContentValues convertETagInfoToContentValues( final ETagInfo etag, final String endpoint, final String dataId ) {
 //		Log.v( TAG, "convertChannelToContentValues : enter" );
 		
+		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile();
+		
 		ContentValues values = new ContentValues();
 		values.put( EtagConstants.FIELD_ENDPOINT, endpoint );
 		values.put( EtagConstants.FIELD_VALUE, etag.getETag() );

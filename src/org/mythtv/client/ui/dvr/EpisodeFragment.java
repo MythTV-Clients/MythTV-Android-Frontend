@@ -185,11 +185,15 @@ public class EpisodeFragment extends AbstractMythFragment {
 		clearHlsMenuItem = mMenuHelper.clearMenuItem( menu );
 		mMenuHelper.deleteMenuItem( menu );
 		
-		addHlsMenuItem.setTitle( getString( R.string.menu_add ) + " HLS Stream" );
-
-		clearHlsMenuItem.setTitle( getString( R.string.menu_clear ) + " HLS Stream" );
-		clearHlsMenuItem.setVisible( false );
-
+		if( null != addHlsMenuItem ) {
+			addHlsMenuItem.setTitle( getString( R.string.menu_add ) + " HLS Stream" );
+		}
+		
+		if( null != clearHlsMenuItem ) {
+			clearHlsMenuItem.setTitle( getString( R.string.menu_clear ) + " HLS Stream" );
+			clearHlsMenuItem.setVisible( false );
+		}
+		
 		updateHlsMenuButtons();
 		
 		Log.v( TAG, "onCreateOptionsMenu : exit" );
@@ -478,16 +482,14 @@ public class EpisodeFragment extends AbstractMythFragment {
 
 			// coverart
 			ImageView iView = (ImageView) activity.findViewById( R.id.imageView_episode_coverart );
+			iView.setImageDrawable( null );
+			
 			if( null != program.getInetref() && !"".equals( program.getInetref() ) ) {
 				if( null != mImageFetcher ) {
 					mImageFetcher.loadImage( program.getInetref(), "Coverart", iView, null );
-				} else {
-					iView.setImageDrawable( null );
 				}
-			} else {
-				iView.setImageDrawable( null );
 			}
-
+			
 			// title
 			TextView tView = (TextView) activity.findViewById( R.id.textView_episode_title );
 			tView.setText( program.getTitle() );

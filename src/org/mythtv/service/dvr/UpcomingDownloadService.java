@@ -24,8 +24,10 @@ import java.text.DecimalFormat;
 
 import org.apache.commons.io.FileUtils;
 import org.mythtv.R;
+import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.dvr.UpcomingDaoHelper;
 import org.mythtv.db.http.EtagDaoHelper;
+import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.MythtvService;
 import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.dvr.ProgramList;
@@ -55,8 +57,8 @@ public class UpcomingDownloadService extends MythtvService {
 	private static final String TAG = UpcomingDownloadService.class.getSimpleName();
 	private static final DecimalFormat formatter = new DecimalFormat( "###" );
 
-	public static final String UPCOMING_FILE = "upcoming.json";
-	public static final String UPCOMING_FILE_EXT = "-upcoming.json";
+	private static final String UPCOMING_FILE_PREFIX = "upcoming_";
+	private static final String UPCOMING_FILE_EXT = ".json";
 	
     public static final String ACTION_DOWNLOAD = "org.mythtv.background.upcomingDownload.ACTION_DOWNLOAD";
     public static final String ACTION_PROGRESS = "org.mythtv.background.upcomingDownload.ACTION_PROGRESS";
@@ -78,7 +80,8 @@ public class UpcomingDownloadService extends MythtvService {
 
 	private UpcomingDaoHelper mUpcomingDaoHelper;
 	private EtagDaoHelper mEtagDaoHelper;
-	
+	private LocationProfileDaoHelper mLocationProfileDaoHelper;
+
 	public UpcomingDownloadService() {
 		super( "UpcomingDownloadService" );
 	}
@@ -93,6 +96,7 @@ public class UpcomingDownloadService extends MythtvService {
 		
 		mUpcomingDaoHelper = new UpcomingDaoHelper( this );
 		mEtagDaoHelper = new EtagDaoHelper( this );
+		mLocationProfileDaoHelper = new LocationProfileDaoHelper( this );
 		
 		upcomingDirectory = mFileHelper.getProgramUpcomingDataDirectory();
 		if( null == upcomingDirectory || !upcomingDirectory.exists() ) {
@@ -151,6 +155,9 @@ public class UpcomingDownloadService extends MythtvService {
 	private void download() throws Exception {
 		Log.v( TAG, "download : enter" );
 		
+		LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile();
+		Log.v( TAG, "download : get upcoming for host [" + locationProfile.getHostname() + ":" + locationProfile.getUrl() + "]" );
+
 		ETagInfo etag = mEtagDaoHelper.findByEndpointAndDataId( Endpoint.GET_UPCOMING_LIST.name(), "" );
 
 		ResponseEntity<ProgramList> responseEntity = mMainApplication.getMythServicesApi().dvrOperations().getUpcomingList( -1, -1, false, etag );
@@ -162,7 +169,7 @@ public class UpcomingDownloadService extends MythtvService {
 				
 				if( null != programList.getPrograms() ) {
 					
-					cleanup();
+//					cleanup();
 				
 					process( programList.getPrograms() );
 				
@@ -199,8 +206,12 @@ public class UpcomingDownloadService extends MythtvService {
 	private void process( Programs programs ) throws JsonGenerationException, JsonMappingException, IOException, RemoteException, OperationApplicationException {
 		Log.v( TAG, "process : enter" );
 		
-		mMainApplication.getObjectMapper().writeValue( new File( upcomingDirectory, UPCOMING_FILE ), programs );
+		LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile();
+		Log.v( TAG, "process : saving upcoming for host [" + locationProfile.getHostname() + ":" + locationProfile.getUrl() + "]" );
 
+		mMainApplication.getObjectMapper().writeValue( new File( upcomingDirectory, UPCOMING_FILE_PREFIX + locationProfile.getHostname() + UPCOMING_FILE_EXT ), programs );
+		Log.v( TAG, "process : saved upcoming to " + upcomingDirectory.getAbsolutePath() );
+		
 		int programsAdded = mUpcomingDaoHelper.load( programs.getPrograms() );
 		Log.v( TAG, "process : programsAdded=" + programsAdded );
 

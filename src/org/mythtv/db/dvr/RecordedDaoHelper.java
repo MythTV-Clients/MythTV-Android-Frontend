@@ -54,6 +54,7 @@ public class RecordedDaoHelper extends ProgramDaoHelper {
 		Log.d( TAG, "findAll : enter" );
 
 		String selection = appendLocationHostname( "", ProgramConstants.TABLE_NAME_RECORDED );
+		Log.d( TAG, "findAll : selection=" + selection );
 		
 		List<Program> programs = findAll( ProgramConstants.CONTENT_URI_RECORDED, null, selection, null, null );
 		
@@ -70,7 +71,8 @@ public class RecordedDaoHelper extends ProgramDaoHelper {
 		
 		String selection = ProgramConstants.FIELD_TITLE + " = ?";
 		String[] selectionArgs = new String[] { title };
-
+		Log.d( TAG, "findAllByTitle : title=" + title );
+		
 		selection = appendLocationHostname( selection, ProgramConstants.TABLE_NAME_RECORDED );
 		
 		List<Program> programs = findAll( ProgramConstants.CONTENT_URI_RECORDED, null, selection, selectionArgs, null );

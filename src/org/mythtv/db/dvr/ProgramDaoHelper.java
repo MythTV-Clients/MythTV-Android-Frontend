@@ -239,9 +239,14 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 	protected int load( Uri uri, List<Program> programs, String table ) throws RemoteException, OperationApplicationException {
 		Log.v( TAG, "load : enter" );
 		
-		Log.v( TAG, "load : find all existing recordings" );
+		Log.v( TAG, "load : find all existing recordings, table=" + table );
+		String recordedSelection = "";
+		
+		recordedSelection = appendLocationHostname( recordedSelection, table );
+		Log.v( TAG, "load : recordedSelection=" + recordedSelection );
+		
 		Map<String, Program> recorded = new HashMap<String, Program>();
-		for( Program program : findAll( uri, null, null, null, null ) ) {
+		for( Program program : findAll( uri, null, recordedSelection, null, null ) ) {
 			recorded.put( program.getFilename(), program );
 		}
 		
@@ -601,9 +606,17 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 
 	protected ContentValues convertProgramToContentValues( final Program program ) {
 		
-		DateTime startTime = new DateTime( program.getStartTime().getMillis() );
-		DateTime endTime = new DateTime( program.getEndTime().getMillis() );
-		
+		DateTime startTime = new DateTime( 0 );
+		DateTime endTime = new DateTime( 0 );
+
+		// If one timestamp is bad, leave them both set to 0.
+		if( null == program.getStartTime() || null == program.getEndTime() )
+			Log.w(TAG, "convertProgramToContentValues : null starttime and or endtime" );
+		else {
+			startTime = new DateTime( program.getStartTime().getMillis() );
+			endTime = new DateTime( program.getEndTime().getMillis() );
+		}
+
 		ContentValues values = new ContentValues();
 		values.put( ProgramConstants.FIELD_START_TIME, startTime.getMillis() );
 		values.put( ProgramConstants.FIELD_END_TIME, endTime.getMillis() );
