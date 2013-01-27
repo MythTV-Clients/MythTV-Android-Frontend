@@ -21,62 +21,148 @@
 
 -->
 
-<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@color/background_main_menu"
-    android:stretchColumns="1"> 
+    android:background="@color/background_main_menu">
     
-    <TableRow >
-        <LinearLayout android:layout_span="2" android:layout_margin="10dp">
-            <TextView android:layout_width="wrap_content"
-		          android:layout_height="match_parent"
-		          android:text="V"
-		          android:gravity="left"
-		          android:textAppearance="?android:attr/textAppearanceLarge"/>
-		      <TextView android:layout_width="match_parent"
-		          android:layout_height="match_parent"
-		          android:text="@string/app_version"
-		          android:gravity="left"
-		          android:textAppearance="?android:attr/textAppearanceLarge"/>
-		</LinearLayout>
-    </TableRow>
-    
-    <TableRow >
-        <ImageButton android:contentDescription="Preference"
-            android:layout_width="wrap_content"
-	    	android:layout_height="match_parent"
-	    	android:background="@drawable/main_menu_image_button"
-	    	android:src="@drawable/ic_menu_preferences"
-	    	android:padding="10dip"/>
+	<LinearLayout
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+	    android:orientation="vertical"
+	    android:paddingLeft="16dp"
+	    android:paddingRight="16dp" >
 
-        <ToggleButton
-            android:id="@+id/toggleButtonIsAway"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="5dp"
-            android:background="@drawable/main_menu_home_away_button"
-            android:checked="false"
-            android:textColor="#e2e2e2"
-            android:textOff="@string/btn_home"
-            android:textOn="@string/btn_away" />
+	    <RelativeLayout
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:paddingTop="16dp" >
 
-    </TableRow>
-    
-    <TableRow >
-        <ImageButton android:contentDescription="MythMote"
-		    android:layout_width="wrap_content"
-		    android:layout_height="match_parent"
-		    android:background="@drawable/main_menu_image_button"
-		    android:src="@drawable/ic_menu_mythmote_default"
-		    android:padding="10dip" />
-		
-		<Spinner android:id="@+id/spinner_frontends"
+	        <ImageView
+	            android:id="@+id/hLine_mainmenu_version"
+	            android:layout_width="match_parent"
+	            android:layout_height="5dp"
+	            android:layout_alignParentBottom="true"
+	            android:background="@drawable/main_menu_horizontal_line" />
+
+	        <LinearLayout
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:paddingBottom="2dp"
+	            android:layout_alignParentBottom="true"
+	            android:layout_alignParentLeft="true"
+	            android:orientation="horizontal" >
+
+	            <TextView
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+	                android:gravity="bottom"
+	                android:text="V"
+	                android:textAppearance="?android:attr/textAppearanceLarge" />
+
+	            <TextView
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+	                android:gravity="bottom"
+	                android:text="@string/app_version"
+	                android:textAppearance="?android:attr/textAppearanceLarge" />
+	        </LinearLayout>
+
+	        <ImageButton
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:layout_marginBottom="5dp"
+	            android:layout_alignParentRight="true"
+	            android:background="@drawable/main_menu_image_button"
+	            android:contentDescription="Preference"
+	            android:paddingTop="10dp"
+	            android:paddingRight="10dip"
+	            android:paddingLeft="10dp"
+	            android:paddingBottom="2dp"
+	            android:src="@drawable/ic_menu_preferences" />
+	    </RelativeLayout>
+
+	    <LinearLayout
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_marginTop="16dp"
+	        android:orientation="vertical" >
+
+		    <LinearLayout
 		        android:layout_width="match_parent"
-		    	android:layout_height="wrap_content"
-		    	android:prompt="@string/frontends_prompt"
-		    	 />
-    </TableRow>
-    
-</TableLayout>
+		        android:layout_height="wrap_content" >
+	
+		        <ToggleButton
+		            android:id="@+id/toggleButtonIsAway"
+		            android:layout_width="150dp"
+		            android:layout_height="wrap_content"
+		            android:background="@drawable/main_menu_home_away_button"
+		            android:checked="false"
+		            android:textColor="#e2e2e2"
+		            android:textOff="@string/btn_home"
+		            android:textOn="@string/btn_away" />
+	
+		        <TextView
+		            android:id="@+id/textViewMainMenuConnectionStatus"
+		            android:layout_width="match_parent"
+		            android:layout_height="match_parent"
+		            android:layout_gravity="center"
+		            android:layout_margin="5dp"
+		            android:text="Connected" />
+
+		    </LinearLayout>
+		    
+		    <ImageView
+		        android:layout_width="match_parent"
+		        android:layout_height="5dp"
+		        android:background="@drawable/main_menu_horizontal_line" />
+		    
+		</LinearLayout>
+	    
+
+	    
+	    
+	   	<!-- Frontend spinner line -->
+
+	   	<LinearLayout
+	   	    android:layout_width="match_parent"
+	   	    android:layout_height="wrap_content"
+	   	    android:layout_marginTop="16dp"
+	   	    android:orientation="vertical" >
+		    
+		    <LinearLayout
+		        android:layout_width="match_parent"
+		        android:layout_height="wrap_content"
+		        android:orientation="horizontal">
+		        
+		        <Spinner
+		            android:id="@+id/spinner_frontends"
+		            android:layout_width="0dp"
+		            android:layout_height="wrap_content"
+		            android:layout_weight="1"
+		            android:prompt="@string/frontends_prompt" />
+		        
+		        <ImageButton
+		            android:layout_width="wrap_content"
+		            android:layout_height="match_parent"
+		            android:background="@drawable/main_menu_image_button"
+		            android:contentDescription="MythMote"
+		            android:paddingLeft="10dip"
+		            android:paddingRight="10dp"
+		            android:paddingTop="10dip"
+		            android:src="@drawable/ic_menu_mythmote_default" />
+	
+		    </LinearLayout>
+		    
+		    <ImageView
+			        android:layout_width="match_parent"
+			        android:layout_height="5dp"
+			        android:background="@drawable/main_menu_horizontal_line" />
+		    
+	    </LinearLayout>
+	    
+	    
+	    
+	</LinearLayout>
+
+</ScrollView>
