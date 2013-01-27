@@ -18,6 +18,8 @@ package org.mythtv.service.util.image;
 
 import java.lang.ref.WeakReference;
 
+import org.mythtv.service.util.NetworkHelper;
+
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -52,6 +54,8 @@ public abstract class ImageWorker {
 
     protected Resources mResources;
 
+    protected NetworkHelper mNetworkHelper;
+    
     private static final int MESSAGE_CLEAR = 0;
     private static final int MESSAGE_INIT_DISK_CACHE = 1;
     private static final int MESSAGE_FLUSH = 2;
@@ -59,6 +63,8 @@ public abstract class ImageWorker {
 
     protected ImageWorker(Context context) {
         mResources = context.getResources();
+        
+        mNetworkHelper = NetworkHelper.newInstance( context );
     }
 
     /**

@@ -376,7 +376,7 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 			mHolder.programGroup.setText( programGroup.getTitle() );
 			mHolder.category.setBackgroundColor( mProgramHelper.getCategoryColor( programGroup.getCategory() ) );
 
-            mImageFetcher.loadImage( programGroup.getInetref(), "Banner", mHolder.programGroupBanner, mHolder.programGroup );
+			mImageFetcher.loadImage( programGroup.getInetref(), "Banner", mHolder.programGroupBanner, mHolder.programGroup );
 		}
 
 	}
