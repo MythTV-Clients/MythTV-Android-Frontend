@@ -36,6 +36,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.Animation;
 import android.widget.FrameLayout;
 
 /**
@@ -165,12 +166,10 @@ public abstract class AbstractMythtvFragmentActivity extends FragmentActivity im
 			scaleAnimator.setRepeatCount(1);
 			scaleAnimator.setRepeatMode(ValueAnimator.REVERSE);
 			scaleAnimator.addUpdateListener(scaleContentListener);
-
+			
 			//show/hide
 			if(content.getX() > 0){
 				//HIDE Menu
-				
-				//menu.setVisibility(View.INVISIBLE);
 				
 				if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
 					ValueAnimator transAnimator = ValueAnimator.ofFloat(content.getX(), 0);
@@ -186,8 +185,6 @@ public abstract class AbstractMythtvFragmentActivity extends FragmentActivity im
 				return true;
 			}else{
 				//SHOW Menu
-				
-				//menu.setVisibility(View.VISIBLE);
 				
 				if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
 					ValueAnimator transAnimator = ValueAnimator.ofFloat(0, menu.getWidth());
