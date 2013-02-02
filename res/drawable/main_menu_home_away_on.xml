@@ -32,8 +32,8 @@
 		        android:width="2dp"
 		        android:color="#4f6166" />
 		    <corners android:radius="10dp" />
-			<!-- Make sure a min of 100 width -->
-		    <size android:width="125dp" android:height="40dp" />
+			<!-- Make sure a min of 100 width-->
+		    <size android:width="155dp" android:height="40dp" /> 
 		</shape>
 	</item>
 	
