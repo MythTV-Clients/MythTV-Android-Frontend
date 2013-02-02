@@ -30,25 +30,50 @@
 	    android:layout_width="match_parent"
 	    android:layout_height="wrap_content"
 	    android:orientation="vertical"
-	    android:paddingLeft="16dp"
-	    android:paddingRight="16dp" >
+	    android:paddingLeft="8dp"
+	    android:paddingRight="8dp">
 
+	    <!-- Home/AWay - connetion status -->
+
+	    <LinearLayout
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_marginTop="16dp"
+	        android:orientation="vertical" >
+	
+		        <ToggleButton
+		            android:id="@+id/toggleButtonIsAway"
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content"
+		            android:layout_gravity="center"
+		            android:layout_marginBottom="2dp"
+		            android:background="@drawable/main_menu_home_away_button"
+		            android:checked="false"
+		            android:textColor="@color/text_main_menu"
+		            android:textOff="@string/btn_home"
+		            android:textOn="@string/btn_away" />
+		    
+		    <ImageView
+		        android:layout_width="match_parent"
+		        android:layout_height="5dp"
+		        android:background="@drawable/main_menu_horizontal_line" />
+		    
+		</LinearLayout>
+	    
+	    
+	    
+	    
+	    <!-- Version and preferences -->
 	    <RelativeLayout
 	        android:layout_width="match_parent"
 	        android:layout_height="wrap_content"
-	        android:paddingTop="16dp" >
-
-	        <ImageView
-	            android:id="@+id/hLine_mainmenu_version"
-	            android:layout_width="match_parent"
-	            android:layout_height="5dp"
-	            android:layout_alignParentBottom="true"
-	            android:background="@drawable/main_menu_horizontal_line" />
+	        android:layout_marginTop="16dp" >
 
 	        <LinearLayout
 	            android:layout_width="wrap_content"
 	            android:layout_height="wrap_content"
-	            android:paddingBottom="2dp"
+	            android:paddingBottom="4dp"
+	            android:paddingLeft="8dp"
 	            android:layout_alignParentBottom="true"
 	            android:layout_alignParentLeft="true"
 	            android:orientation="horizontal" >
@@ -58,66 +83,39 @@
 	                android:layout_height="wrap_content"
 	                android:gravity="bottom"
 	                android:text="V"
-	                android:textAppearance="?android:attr/textAppearanceLarge" />
+	                android:textAppearance="?android:attr/textAppearanceLarge"
+	                android:textColor="@color/text_main_menu" />
 
 	            <TextView
 	                android:layout_width="wrap_content"
 	                android:layout_height="wrap_content"
 	                android:gravity="bottom"
 	                android:text="@string/app_version"
-	                android:textAppearance="?android:attr/textAppearanceLarge" />
+	                android:textAppearance="?android:attr/textAppearanceLarge"
+	                android:textColor="@color/text_main_menu" />
 	        </LinearLayout>
 
 	        <ImageButton
 	            android:layout_width="wrap_content"
 	            android:layout_height="wrap_content"
-	            android:layout_marginBottom="5dp"
+	            android:layout_marginBottom="15dp"
 	            android:layout_alignParentRight="true"
 	            android:background="@drawable/main_menu_image_button"
 	            android:contentDescription="Preference"
-	            android:paddingTop="10dp"
-	            android:paddingRight="10dip"
-	            android:paddingLeft="10dp"
-	            android:paddingBottom="2dp"
 	            android:src="@drawable/ic_menu_preferences" />
+	        
+	        <ImageView
+	            android:id="@+id/hLine_mainmenu_version"
+	            android:layout_width="match_parent"
+	            android:layout_height="5dp"
+	            android:layout_alignParentBottom="true"
+	            android:background="@drawable/main_menu_horizontal_line" />
+	        
 	    </RelativeLayout>
+	    
+	    
+	    
 
-	    <LinearLayout
-	        android:layout_width="match_parent"
-	        android:layout_height="wrap_content"
-	        android:layout_marginTop="16dp"
-	        android:orientation="vertical" >
-
-		    <LinearLayout
-		        android:layout_width="match_parent"
-		        android:layout_height="wrap_content" >
-	
-		        <ToggleButton
-		            android:id="@+id/toggleButtonIsAway"
-		            android:layout_width="150dp"
-		            android:layout_height="wrap_content"
-		            android:background="@drawable/main_menu_home_away_button"
-		            android:checked="false"
-		            android:textColor="#e2e2e2"
-		            android:textOff="@string/btn_home"
-		            android:textOn="@string/btn_away" />
-	
-		        <TextView
-		            android:id="@+id/textViewMainMenuConnectionStatus"
-		            android:layout_width="match_parent"
-		            android:layout_height="match_parent"
-		            android:layout_gravity="center"
-		            android:layout_margin="5dp"
-		            android:text="Connected" />
-
-		    </LinearLayout>
-		    
-		    <ImageView
-		        android:layout_width="match_parent"
-		        android:layout_height="5dp"
-		        android:background="@drawable/main_menu_horizontal_line" />
-		    
-		</LinearLayout>
 	    
 
 	    
@@ -133,18 +131,23 @@
 		    <LinearLayout
 		        android:layout_width="match_parent"
 		        android:layout_height="wrap_content"
-		        android:orientation="horizontal">
+		        android:orientation="horizontal"
+		        android:layout_marginLeft="8dp"
+		        android:layout_marginRight="8dp">
 		        
 		        <Spinner
 		            android:id="@+id/spinner_frontends"
 		            android:layout_width="0dp"
 		            android:layout_height="wrap_content"
 		            android:layout_weight="1"
-		            android:prompt="@string/frontends_prompt" />
+		            android:prompt="@string/frontends_prompt"
+		            android:textColor="@color/text_main_menu" />
 		        
 		        <ImageButton
 		            android:layout_width="wrap_content"
-		            android:layout_height="match_parent"
+		            android:layout_height="wrap_content"
+		            android:layout_marginBottom="5dp"
+		            android:layout_gravity="bottom"
 		            android:background="@drawable/main_menu_image_button"
 		            android:contentDescription="MythMote"
 		            android:paddingLeft="10dip"
