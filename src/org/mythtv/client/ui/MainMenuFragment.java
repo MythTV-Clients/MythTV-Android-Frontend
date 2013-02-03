@@ -10,6 +10,11 @@ import javax.jmdns.ServiceEvent;
 import javax.jmdns.ServiceListener;
 
 import org.mythtv.R;
+import org.mythtv.client.ui.dvr.GuideActivity;
+import org.mythtv.client.ui.dvr.RecordingRulesActivity;
+import org.mythtv.client.ui.dvr.RecordingsActivity;
+import org.mythtv.client.ui.dvr.UpcomingActivity;
+import org.mythtv.client.ui.dvr.VideoActivity;
 import org.mythtv.client.ui.frontends.Frontend;
 import org.mythtv.client.ui.frontends.MythmoteActivity;
 import org.mythtv.client.ui.preferences.MythtvPreferenceActivity;
@@ -44,6 +49,7 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 
 public class MainMenuFragment extends AbstractMythFragment implements ServiceListener, OnItemSelectedListener{
@@ -147,21 +153,31 @@ public class MainMenuFragment extends AbstractMythFragment implements ServiceLis
 			Button btn = (Button)v;
 			String btnTxt = btn.getText().toString();
 			
-			//find button action based on the display string
-			if(getString(R.string.btn_guide).equals(btnTxt)){
-				
-			}else if(getString(R.string.btn_music).equals(btnTxt)){
-				
-			}else if(getString(R.string.btn_pictures).equals(btnTxt)){
-				
-			}else if(getString(R.string.btn_recording_rules).equals(btnTxt)){
-				
-			}else if(getString(R.string.btn_recordings).equals(btnTxt)){
-				
-			}else if(getString(R.string.btn_upcoming).equals(btnTxt)){
-				
-			}else if(getString(R.string.btn_videos).equals(btnTxt)){
-				
+			// find button action based on the display string
+			if (getString(R.string.btn_guide).equals(btnTxt)
+					&& !getActivity().getClass().equals(GuideActivity.class)) {
+				startActivity(new Intent(getActivity(), GuideActivity.class));
+			} else if (getString(R.string.btn_music).equals(btnTxt)
+				/*	&& !getActivity().getClass().equals(MusicActivity.class) */) {
+				//startActivity(new Intent(getActivity(), MusicActivity.class));
+				Toast.makeText( getActivity(), "Music - Coming Soon!", Toast.LENGTH_SHORT ).show();
+			} else if (getString(R.string.btn_pictures).equals(btnTxt)
+				/*	&& !getActivity().getClass().equals(PicturesActivity.class) */) {
+				//startActivity(new Intent(getActivity(), PicturesActivity.class));
+				Toast.makeText( getActivity(), "Pictures - Coming Soon!", Toast.LENGTH_SHORT ).show();
+			} else if (getString(R.string.btn_recording_rules).equals(btnTxt)
+					&& !getActivity().getClass().equals(RecordingRulesActivity.class)) {
+				startActivity(new Intent(getActivity(), RecordingRulesActivity.class));
+			} else if (getString(R.string.btn_recordings).equals(btnTxt)
+					&& !getActivity().getClass().equals(RecordingsActivity.class)) {
+				startActivity(new Intent(getActivity(), RecordingsActivity.class));
+			} else if (getString(R.string.btn_upcoming).equals(btnTxt)
+					&& !getActivity().getClass().equals(UpcomingActivity.class)) {
+				startActivity(new Intent(getActivity(), UpcomingActivity.class));
+			} else if (getString(R.string.btn_videos).equals(btnTxt)
+					&& !getActivity().getClass().equals(VideoActivity.class)) {
+				//startActivity(new Intent(getActivity(), VideoActivity.class));
+				Toast.makeText( getActivity(), "Video - Coming Soon!", Toast.LENGTH_SHORT ).show();
 			}
 		}
 	};
