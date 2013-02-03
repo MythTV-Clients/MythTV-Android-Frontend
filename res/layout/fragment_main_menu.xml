@@ -38,17 +38,17 @@
 	        android:layout_height="wrap_content"
 	        android:orientation="vertical" >
 	
-		        <ToggleButton
-		            android:id="@+id/toggleButtonIsAway"
-		            android:layout_width="wrap_content"
-		            android:layout_height="wrap_content"
-		            android:layout_gravity="center"
-		            android:layout_margin="16dp"
-		            android:background="@drawable/main_menu_home_away_button"
-		            android:checked="false"
-		            android:textColor="@color/text_main_menu"
-		            android:textOff="@string/btn_home"
-		            android:textOn="@string/btn_away" />
+	        <ToggleButton
+	            android:id="@+id/toggleButtonIsAway"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:layout_gravity="center"
+	            android:layout_margin="16dp"
+	            android:background="@drawable/main_menu_home_away_button"
+	            android:checked="false"
+	            android:textColor="@color/text_main_menu"
+	            android:textOff="@string/btn_home"
+	            android:textOn="@string/btn_away" />
 		    
 		    <ImageView
 		        android:layout_width="match_parent"
@@ -154,8 +154,117 @@
 		    
 	    </LinearLayout>
 	    
-	    
-	    
-	</LinearLayout>
+	    <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableLeft="@drawable/dvr_btn_guide"
+            android:drawablePadding="16dp"
+            android:gravity="left|center"
+            android:padding="16dp"
+            android:text="@string/btn_guide"
+            android:textColor="@color/text_main_menu"
+            android:background="@drawable/main_menu_image_button" />
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:background="@drawable/main_menu_horizontal_line" />
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableLeft="@drawable/dvr_btn_recordings"
+            android:drawablePadding="16dp"
+            android:gravity="left|center"
+            android:padding="16dp"
+            android:text="@string/btn_recordings"
+            android:textColor="@color/text_main_menu"
+            android:background="@drawable/main_menu_image_button" />
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:background="@drawable/main_menu_horizontal_line" />
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableLeft="@drawable/dvr_btn_recording_rules"
+            android:drawablePadding="16dp"
+            android:gravity="left|center"
+            android:padding="16dp"
+            android:text="@string/btn_recording_rules"
+            android:textColor="@color/text_main_menu"
+            android:background="@drawable/main_menu_image_button" />
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:background="@drawable/main_menu_horizontal_line" />
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableLeft="@drawable/dvr_btn_upcoming"
+            android:drawablePadding="16dp"
+            android:gravity="left|center"
+            android:padding="16dp"
+            android:text="@string/btn_upcoming"
+            android:textColor="@color/text_main_menu"
+            android:background="@drawable/main_menu_image_button" />
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:background="@drawable/main_menu_horizontal_line" />
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableLeft="@drawable/media_btn_music"
+            android:drawablePadding="16dp"
+            android:gravity="left|center"
+            android:padding="16dp"
+            android:text="@string/btn_music"
+            android:textColor="@color/text_main_menu"
+            android:background="@drawable/main_menu_image_button" />
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:background="@drawable/main_menu_horizontal_line" />
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableLeft="@drawable/media_btn_pictures"
+            android:drawablePadding="16dp"
+            android:gravity="left|center"
+            android:padding="16dp"
+            android:text="@string/btn_pictures"
+            android:textColor="@color/text_main_menu"
+            android:background="@drawable/main_menu_image_button" />
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:background="@drawable/main_menu_horizontal_line" />
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableLeft="@drawable/media_btn_videos"
+            android:drawablePadding="16dp"
+            android:gravity="left|center"
+            android:padding="16dp"
+            android:text="@string/btn_videos"
+            android:textColor="@color/text_main_menu"
+            android:background="@drawable/main_menu_image_button" />
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:background="@drawable/main_menu_horizontal_line" />
+</LinearLayout>
 
 </ScrollView>
