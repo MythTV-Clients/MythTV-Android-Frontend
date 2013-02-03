@@ -86,6 +86,7 @@
 	                android:textColor="@color/text_main_menu" />
 	            
 	            <ImageButton
+	                android:id="@+id/imagebutton_main_menu_preferences"
 	                android:layout_width="wrap_content"
 	                android:layout_height="wrap_content"
 	                android:layout_gravity="bottom"
@@ -137,6 +138,7 @@
 		            android:popupBackground="@color/popup_background_main_menu"  />
 		        
 		        <ImageButton
+		            android:id="@+id/imagebutton_main_menu_mythmote"
 		            android:layout_width="wrap_content"
 		            android:layout_height="wrap_content"
 		            android:layout_gravity="center"
@@ -154,7 +156,11 @@
 		    
 	    </LinearLayout>
 	    
+	   	
+	   	<!-- Guid Button -->
+	   	
 	    <Button
+	        android:id="@+id/button_main_menu_guide"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:drawableLeft="@drawable/dvr_btn_guide"
@@ -170,7 +176,11 @@
             android:layout_height="2dp"
             android:background="@drawable/main_menu_horizontal_line" />
 
+        
+        <!-- recordings Button -->
+	   	
         <Button
+            android:id="@+id/button_main_menu_recordings"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:drawableLeft="@drawable/dvr_btn_recordings"
@@ -186,7 +196,11 @@
             android:layout_height="2dp"
             android:background="@drawable/main_menu_horizontal_line" />
 
+        
+        <!-- rules Button -->
+	   	
         <Button
+            android:id="@+id/button_main_menu_recording_rules"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:drawableLeft="@drawable/dvr_btn_recording_rules"
@@ -202,7 +216,11 @@
             android:layout_height="2dp"
             android:background="@drawable/main_menu_horizontal_line" />
 
+        
+        <!-- upcoming Button -->
+	   	
         <Button
+            android:id="@+id/button_main_menu_upcoming"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:drawableLeft="@drawable/dvr_btn_upcoming"
@@ -218,7 +236,11 @@
             android:layout_height="2dp"
             android:background="@drawable/main_menu_horizontal_line" />
 
+        
+        <!-- music Button -->
+	   	
         <Button
+            android:id="@+id/button_main_menu_music"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:drawableLeft="@drawable/media_btn_music"
@@ -234,7 +256,11 @@
             android:layout_height="2dp"
             android:background="@drawable/main_menu_horizontal_line" />
 
+        
+        <!-- pictures Button -->
+	   	
         <Button
+            android:id="@+id/button_main_menu_pictures"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:drawableLeft="@drawable/media_btn_pictures"
@@ -250,7 +276,11 @@
             android:layout_height="2dp"
             android:background="@drawable/main_menu_horizontal_line" />
 
+        
+        <!-- videos Button -->
+	   	
         <Button
+            android:id="@+id/button_main_menu_videos"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:drawableLeft="@drawable/media_btn_videos"

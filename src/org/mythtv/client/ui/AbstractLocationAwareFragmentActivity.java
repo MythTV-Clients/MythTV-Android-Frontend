@@ -68,8 +68,6 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 		mFileHelper = FileHelper.newInstance( this );
 		mRunningServiceHelper = RunningServiceHelper.newInstance( this );
 		
-		setupActionBar();
-
 		Log.v( TAG, "onCreate : exit" );
 	}
 

@@ -21,6 +21,7 @@ package org.mythtv.client.ui;
 import org.mythtv.R;
 import org.mythtv.client.MainApplication;
 import org.mythtv.client.ui.util.MenuHelper;
+import org.mythtv.service.util.NetworkHelper;
 
 import android.animation.ValueAnimator;
 import android.animation.ValueAnimator.AnimatorUpdateListener;
@@ -36,8 +37,10 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup.LayoutParams;
 import android.view.animation.Animation;
 import android.widget.FrameLayout;
+import android.widget.RelativeLayout;
 
 /**
  * @author Daniel Frey
@@ -47,7 +50,9 @@ public abstract class AbstractMythtvFragmentActivity extends FragmentActivity im
 
 	protected static final String TAG = AbstractMythtvFragmentActivity.class.getSimpleName();
 
-	private MenuHelper mMenuHelper;
+	private boolean mMenuVisible = false;
+	protected MenuHelper mMenuHelper;
+	protected NetworkHelper mNetworkHelper;
 	
 	//***************************************
     // MythActivity methods
@@ -72,6 +77,9 @@ public abstract class AbstractMythtvFragmentActivity extends FragmentActivity im
 		super.onCreate( savedInstanceState );
 
 		mMenuHelper = MenuHelper.newInstance( this );
+		mNetworkHelper = NetworkHelper.newInstance( this );
+		
+		setupActionBar();
 		
 		Log.v( TAG, "onCreate : exit" );
 	}
@@ -129,6 +137,29 @@ public abstract class AbstractMythtvFragmentActivity extends FragmentActivity im
 		Log.d( TAG, "onOptionsItemSelected : exit" );
 		return super.onOptionsItemSelected( item );
 	}
+	
+	/* (non-Javadoc)
+	 * @see android.app.Activity#onResume()
+	 */
+	@Override
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
+	protected void onResume() {
+		
+		final FrameLayout content = (FrameLayout)this.findViewById(R.id.frame_layout_main_ui);
+		
+		if(null != content && this.mMenuVisible){
+			if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
+				toggleMainMenuVisibility();
+			} else {
+				RelativeLayout.LayoutParams params = (android.widget.RelativeLayout.LayoutParams) content.getLayoutParams();
+				params.leftMargin = 0;
+				content.setLayoutParams(params);
+			}
+		}
+	
+		
+		super.onResume();
+	}
 
 
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
@@ -180,8 +211,12 @@ public abstract class AbstractMythtvFragmentActivity extends FragmentActivity im
 					scaleAnimator.start();
 					transAnimator.start();
 				}else{
-					content.setX(0f);
+					FrameLayout.LayoutParams params = (android.widget.FrameLayout.LayoutParams) content.getLayoutParams();
+					params.leftMargin = 0;
+					content.setLayoutParams(params);
 				}
+				
+				mMenuVisible = false;
 				return true;
 			}else{
 				//SHOW Menu
@@ -195,8 +230,12 @@ public abstract class AbstractMythtvFragmentActivity extends FragmentActivity im
 					scaleAnimator.start();
 					transAnimator.start();
 				}else{
-					content.setX(menu.getWidth());
+					FrameLayout.LayoutParams params = (android.widget.FrameLayout.LayoutParams) content.getLayoutParams();
+					params.leftMargin = menu.getWidth();
+					content.setLayoutParams(params);
 				}
+				
+				mMenuVisible = true;
 				return true;
 			}
 		}
@@ -253,6 +292,10 @@ public abstract class AbstractMythtvFragmentActivity extends FragmentActivity im
 	    //set our new main layout
 	    super.setContentView(mainLayout);
 		
+	}
+	
+	public boolean isMainMenuVisible(){
+		return this.mMenuVisible;
 	}
 
 }

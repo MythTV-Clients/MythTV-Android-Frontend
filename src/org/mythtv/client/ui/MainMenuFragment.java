@@ -11,26 +11,40 @@ import javax.jmdns.ServiceListener;
 
 import org.mythtv.R;
 import org.mythtv.client.ui.frontends.Frontend;
+import org.mythtv.client.ui.frontends.MythmoteActivity;
+import org.mythtv.client.ui.preferences.MythtvPreferenceActivity;
+import org.mythtv.client.ui.preferences.MythtvPreferenceActivityHC;
+import org.mythtv.service.MythtvService;
+import org.mythtv.service.util.NetworkHelper;
 
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.support.v4.content.IntentCompat;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.net.wifi.WifiManager.MulticastLock;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 
 public class MainMenuFragment extends AbstractMythFragment implements ServiceListener, OnItemSelectedListener{
 
@@ -46,6 +60,111 @@ public class MainMenuFragment extends AbstractMythFragment implements ServiceLis
 	
 	
 	private FrontendAdapter adapter = null;
+	private NetworkHelper mNetworkHelper = null;
+	
+	
+	private OnCheckedChangeListener homeAwayCheckedChanged = new OnCheckedChangeListener(){
+
+		@Override
+		public void onCheckedChanged(CompoundButton buttonView,
+				boolean isChecked) {
+			
+			
+			if(!isChecked){ //isChecked - false - home
+				
+				if( null == getMainApplication().getSelectedHomeLocationProfile() ) {
+					
+					AlertDialog.Builder builder = new AlertDialog.Builder( getActivity() );
+					builder.setTitle( R.string.location_alert_error_title );
+					builder.setNeutralButton( R.string.btn_ok, new DialogInterface.OnClickListener() {
+
+						public void onClick( DialogInterface dialog, int which ) { }
+						
+					});
+					builder.setMessage( R.string.location_alert_error_home_message );
+					builder.show();
+
+				} else {
+					getMainApplication().connectSelectedHomeLocationProfile();
+					
+					//here i think we need to re-start ourself and do not need to fire this intent
+					//This intent was used in LocationDashboardFragment to start HomeActivity
+					getActivity().startService( new Intent( MythtvService.ACTION_CONNECT ) );
+				}
+				
+			}else{ //ischecked - true - away
+				
+				if( null == getMainApplication().getSelectedAwayLocationProfile() ) {
+					
+					AlertDialog.Builder builder = new AlertDialog.Builder( getActivity() );
+					builder.setTitle( R.string.location_alert_error_title );
+					builder.setNeutralButton( R.string.btn_ok, new DialogInterface.OnClickListener() {
+
+						public void onClick( DialogInterface dialog, int which ) { }
+						
+					});
+					builder.setMessage( R.string.location_alert_error_away_message );
+					builder.show();
+
+				} else {
+					getMainApplication().connectSelectedAwayLocationProfile();
+					
+					//here i think we need to re-start ourself and do not need to fire this intent
+					//This intent was used in LocationDashboardFragment to start AwayActivity
+					getActivity().startService( new Intent( MythtvService.ACTION_CONNECT ) );
+				}
+			}
+			
+		}
+		
+	};
+	
+	private OnClickListener preferenceButtonOnClick = new OnClickListener(){
+		@Override
+		public void onClick(View v) {
+			if( Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB ) {
+				startActivity( new Intent( getActivity(), MythtvPreferenceActivity.class ) );
+		    } else {
+		    	startActivity( new Intent( getActivity(), MythtvPreferenceActivityHC.class ) );
+		    }
+		}
+	};
+	
+	private OnClickListener mythmoteButtonOnClick = new OnClickListener(){
+		@Override
+		public void onClick(View v) {
+			if( mNetworkHelper.isNetworkConnected() && !getActivity().getClass().equals(MythmoteActivity.class) ) {
+				startActivity( new Intent( getActivity(), MythmoteActivity.class ) );
+			}
+		}
+	};
+	
+	private OnClickListener activityButtonOnClick = new OnClickListener(){
+		@Override
+		public void onClick(View v) {
+			
+			//get button text
+			Button btn = (Button)v;
+			String btnTxt = btn.getText().toString();
+			
+			//find button action based on the display string
+			if(getString(R.string.btn_guide).equals(btnTxt)){
+				
+			}else if(getString(R.string.btn_music).equals(btnTxt)){
+				
+			}else if(getString(R.string.btn_pictures).equals(btnTxt)){
+				
+			}else if(getString(R.string.btn_recording_rules).equals(btnTxt)){
+				
+			}else if(getString(R.string.btn_recordings).equals(btnTxt)){
+				
+			}else if(getString(R.string.btn_upcoming).equals(btnTxt)){
+				
+			}else if(getString(R.string.btn_videos).equals(btnTxt)){
+				
+			}
+		}
+	};
 	
 	
 	
@@ -71,6 +190,8 @@ public class MainMenuFragment extends AbstractMythFragment implements ServiceLis
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+		mNetworkHelper = NetworkHelper.newInstance(getActivity());
 		
 		adapter = new FrontendAdapter(getActivity(), R.layout.frontend_row, MainMenuFragment.GetFrontends());
 		
@@ -99,6 +220,9 @@ public class MainMenuFragment extends AbstractMythFragment implements ServiceLis
 		
 		View mainMenuView = inflater.inflate(R.layout.fragment_main_menu, container, false);
 		
+		ToggleButton toggleIsAway = (ToggleButton)mainMenuView.findViewById(R.id.toggleButtonIsAway); 
+		toggleIsAway.setOnCheckedChangeListener(this.homeAwayCheckedChanged);
+		
 		//set version string - we only do this to prepend the 'V'
 		TextView tView = (TextView)mainMenuView.findViewById(R.id.textview_mainmenu_version);
 		tView.setText("V" + this.getString(R.string.app_version));
@@ -108,6 +232,29 @@ public class MainMenuFragment extends AbstractMythFragment implements ServiceLis
 		spinner.setAdapter(adapter);
 		spinner.setOnItemSelectedListener(this);
 		
+		//set preference button click listener
+		ImageButton prefButton = (ImageButton)mainMenuView.findViewById(R.id.imagebutton_main_menu_preferences);
+		prefButton.setOnClickListener(this.preferenceButtonOnClick);
+		
+		//set mythmote button click listener
+		ImageButton mmButton = (ImageButton)mainMenuView.findViewById(R.id.imagebutton_main_menu_mythmote);
+		mmButton.setOnClickListener(this.mythmoteButtonOnClick);
+		
+		//set activities button click listeners
+		Button aBtn = (Button)mainMenuView.findViewById(R.id.button_main_menu_guide);
+		aBtn.setOnClickListener(this.activityButtonOnClick);
+		aBtn = (Button)mainMenuView.findViewById(R.id.button_main_menu_music);
+		aBtn.setOnClickListener(this.activityButtonOnClick);
+		aBtn = (Button)mainMenuView.findViewById(R.id.button_main_menu_pictures);
+		aBtn.setOnClickListener(this.activityButtonOnClick);
+		aBtn = (Button)mainMenuView.findViewById(R.id.button_main_menu_recording_rules);
+		aBtn.setOnClickListener(this.activityButtonOnClick);
+		aBtn = (Button)mainMenuView.findViewById(R.id.button_main_menu_recordings);
+		aBtn.setOnClickListener(this.activityButtonOnClick);
+		aBtn = (Button)mainMenuView.findViewById(R.id.button_main_menu_upcoming);
+		aBtn.setOnClickListener(this.activityButtonOnClick);
+		aBtn = (Button)mainMenuView.findViewById(R.id.button_main_menu_videos);
+		aBtn.setOnClickListener(this.activityButtonOnClick);
 		
 		return mainMenuView; 
 	}

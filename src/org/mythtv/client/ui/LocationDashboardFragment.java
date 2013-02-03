@@ -165,13 +165,13 @@ public class LocationDashboardFragment extends AbstractMythFragment {
 	private void connectHomeLocation() {
 		Log.i( TAG, "connectHomeLocation : starting home dashboard" );
 		
-		startActivity( new Intent( getActivity(), HomeActivity.class ) );
+//		startActivity( new Intent( getActivity(), HomeActivity.class ) );
 	}
 	
 	private void connectAwayLocation() {
 		Log.i( TAG, "connectAwayLocation : starting away dashboard" );
 
-		startActivity( new Intent( getActivity(), AwayActivity.class ) );
+//		startActivity( new Intent( getActivity(), AwayActivity.class ) );
 	}
 
 	private class ConnectReceiver extends BroadcastReceiver {
