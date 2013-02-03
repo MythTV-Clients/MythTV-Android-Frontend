@@ -17,7 +17,7 @@
     along with MythTV Android Frontend.  If not, see <http://www.gnu.org/licenses/>.
 
     This software can be found at <https://github.com/MythTV-Clients/MythTV-Android-Frontend/>
-
+#4f6166
 -->
 
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android" >
@@ -29,8 +29,8 @@
 		        android:endColor="#8a8a8a"
 		        android:angle="90"/>
 		    <stroke
-		        android:width="2dip"
-		        android:color="#4f6166" />
+		        android:width="1dp"
+		        android:color="#232323" />
 		    <corners android:radius="10dp" />
 			<!-- Make sure a min of 100 width -->
 		    <size android:width="155dp" android:height="40dp" />
