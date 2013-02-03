@@ -29,16 +29,13 @@
 	<LinearLayout
 	    android:layout_width="match_parent"
 	    android:layout_height="wrap_content"
-	    android:orientation="vertical"
-	    android:paddingLeft="8dp"
-	    android:paddingRight="8dp">
+	    android:orientation="vertical">
 
 	    <!-- Home/AWay - connetion status -->
 
 	    <LinearLayout
 	        android:layout_width="match_parent"
 	        android:layout_height="wrap_content"
-	        android:layout_marginTop="16dp"
 	        android:orientation="vertical" >
 	
 		        <ToggleButton
@@ -46,7 +43,7 @@
 		            android:layout_width="wrap_content"
 		            android:layout_height="wrap_content"
 		            android:layout_gravity="center"
-		            android:layout_marginBottom="2dp"
+		            android:layout_margin="16dp"
 		            android:background="@drawable/main_menu_home_away_button"
 		            android:checked="false"
 		            android:textColor="@color/text_main_menu"
@@ -55,7 +52,7 @@
 		    
 		    <ImageView
 		        android:layout_width="match_parent"
-		        android:layout_height="5dp"
+		        android:layout_height="2dp"
 		        android:background="@drawable/main_menu_horizontal_line" />
 		    
 		</LinearLayout>
@@ -64,54 +61,49 @@
 	    
 	    
 	    <!-- Version and preferences -->
-	    <RelativeLayout
+
+	    <LinearLayout
 	        android:layout_width="match_parent"
 	        android:layout_height="wrap_content"
-	        android:layout_marginTop="16dp" >
+	        android:orientation="vertical" >
 
 	        <LinearLayout
-	            android:layout_width="wrap_content"
+	            android:layout_width="match_parent"
 	            android:layout_height="wrap_content"
-	            android:paddingBottom="4dp"
-	            android:paddingLeft="8dp"
-	            android:layout_alignParentBottom="true"
-	            android:layout_alignParentLeft="true"
+	            android:layout_margin="16dp"
 	            android:orientation="horizontal" >
 
-	            <TextView
-	                android:layout_width="wrap_content"
-	                android:layout_height="wrap_content"
-	                android:gravity="bottom"
-	                android:text="V"
-	                android:textAppearance="?android:attr/textAppearanceLarge"
-	                android:textColor="@color/text_main_menu" />
 
 	            <TextView
-	                android:layout_width="wrap_content"
+	                android:id="@+id/textview_mainmenu_version"
+	                android:layout_width="0dp"
 	                android:layout_height="wrap_content"
+	                android:layout_weight="1"
 	                android:gravity="bottom"
+	                android:layout_gravity="bottom"
 	                android:text="@string/app_version"
 	                android:textAppearance="?android:attr/textAppearanceLarge"
 	                android:textColor="@color/text_main_menu" />
+	            
+	            <ImageButton
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+	                android:layout_gravity="bottom"
+	                android:background="@drawable/main_menu_image_button"
+	                android:contentDescription="Preference"
+	                android:src="@drawable/ic_menu_preferences" />
+	            
 	        </LinearLayout>
 
-	        <ImageButton
-	            android:layout_width="wrap_content"
-	            android:layout_height="wrap_content"
-	            android:layout_marginBottom="15dp"
-	            android:layout_alignParentRight="true"
-	            android:background="@drawable/main_menu_image_button"
-	            android:contentDescription="Preference"
-	            android:src="@drawable/ic_menu_preferences" />
+	        
 	        
 	        <ImageView
 	            android:id="@+id/hLine_mainmenu_version"
 	            android:layout_width="match_parent"
-	            android:layout_height="5dp"
-	            android:layout_alignParentBottom="true"
+	            android:layout_height="2dp"
 	            android:background="@drawable/main_menu_horizontal_line" />
 	        
-	    </RelativeLayout>
+	    </LinearLayout>
 	    
 	    
 	    
@@ -125,15 +117,16 @@
 	   	<LinearLayout
 	   	    android:layout_width="match_parent"
 	   	    android:layout_height="wrap_content"
-	   	    android:layout_marginTop="16dp"
 	   	    android:orientation="vertical" >
 		    
 		    <LinearLayout
 		        android:layout_width="match_parent"
 		        android:layout_height="wrap_content"
 		        android:orientation="horizontal"
-		        android:layout_marginLeft="8dp"
-		        android:layout_marginRight="8dp">
+		        android:layout_marginTop="16dp"
+	            android:layout_marginBottom="16dp"
+	            android:layout_marginRight="16dp"
+	            android:layout_marginLeft="10dp">
 		        
 		        <Spinner
 		            android:id="@+id/spinner_frontends"
@@ -141,25 +134,22 @@
 		            android:layout_height="wrap_content"
 		            android:layout_weight="1"
 		            android:prompt="@string/frontends_prompt"
-		            android:textColor="@color/text_main_menu" />
+		            android:popupBackground="@color/popup_background_main_menu"  />
 		        
 		        <ImageButton
 		            android:layout_width="wrap_content"
 		            android:layout_height="wrap_content"
-		            android:layout_marginBottom="5dp"
-		            android:layout_gravity="bottom"
+		            android:layout_gravity="center"
+		            android:padding="4dp"
 		            android:background="@drawable/main_menu_image_button"
 		            android:contentDescription="MythMote"
-		            android:paddingLeft="10dip"
-		            android:paddingRight="10dp"
-		            android:paddingTop="10dip"
 		            android:src="@drawable/ic_menu_mythmote_default" />
 	
 		    </LinearLayout>
 		    
 		    <ImageView
 			        android:layout_width="match_parent"
-			        android:layout_height="5dp"
+			        android:layout_height="2dp"
 			        android:background="@drawable/main_menu_horizontal_line" />
 		    
 	    </LinearLayout>

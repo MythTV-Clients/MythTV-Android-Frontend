@@ -99,9 +99,15 @@ public class MainMenuFragment extends AbstractMythFragment implements ServiceLis
 		
 		View mainMenuView = inflater.inflate(R.layout.fragment_main_menu, container, false);
 		
+		//set version string - we only do this to prepend the 'V'
+		TextView tView = (TextView)mainMenuView.findViewById(R.id.textview_mainmenu_version);
+		tView.setText("V" + this.getString(R.string.app_version));
+		
+		//set frontends spinner
 		Spinner spinner = (Spinner)mainMenuView.findViewById(R.id.spinner_frontends);
 		spinner.setAdapter(adapter);
 		spinner.setOnItemSelectedListener(this);
+		
 		
 		return mainMenuView; 
 	}

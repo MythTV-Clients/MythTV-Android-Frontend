@@ -3,8 +3,8 @@
     android:shape="line" >
     
     <stroke
-        android:width="1dip"
-        android:color="#353535"/>
-    <size android:height="5dp" android:width="10dp"/>
+        android:width="0.5dip"
+        android:color="@color/horizontal_line_main_menu"/>
+    <size android:height="0.5dp" android:width="10dp"/>
 
 </shape>
