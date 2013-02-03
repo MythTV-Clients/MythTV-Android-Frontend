@@ -129,10 +129,10 @@ public class MythmoteActivity extends AbstractFrontendsActivity {
 			fragmentArrayList.add(num);
 			headerArrayList.add(this.getString(R.string.mythmote_page_numbers));
 			
-			//mythmote action list fragment
-			Fragment actions = Fragment.instantiate(this, MythmoteActionListFragment.class.getName());
-			fragmentArrayList.add(actions);
-			headerArrayList.add(this.getString(R.string.mythmote_page_actionlist));
+//			//mythmote action list fragment
+//			Fragment actions = Fragment.instantiate(this, MythmoteActionListFragment.class.getName());
+//			fragmentArrayList.add(actions);
+//			headerArrayList.add(this.getString(R.string.mythmote_page_actionlist));
 			
 			//set pager adapter and initial item
 			pager.setAdapter(new MythmotePagerAdapter(this.getSupportFragmentManager()));
