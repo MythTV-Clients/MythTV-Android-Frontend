@@ -62,6 +62,7 @@ public class LocationProfileEditor extends AbstractMythtvFragmentActivity {
 	private NetworkHelper mNetworkHelper;
 	private RunningServiceHelper mRunningServiceHelper;
 	
+	private boolean isNew = false;
 	private LocationProfile profile;
 
 	/* (non-Javadoc)
@@ -100,6 +101,7 @@ public class LocationProfileEditor extends AbstractMythtvFragmentActivity {
 
 		profile = mLocationProfileDaoHelper.findOne( id );
 		if( null == profile ) {
+			isNew = true;
 			profile = new LocationProfile();
 			
 			profile.setId( id );
@@ -241,7 +243,7 @@ public class LocationProfileEditor extends AbstractMythtvFragmentActivity {
 
 			if( !mRunningServiceHelper.isServiceRunning( "org.mythtv.service.preferences.PreferencesRecordedDownloadService" ) ) {
 				
-				mProgressDialog = ProgressDialog.show( this, getResources().getString( R.string.please_wait ), getResources().getString( R.string.preferences_profile_loading ), true, false );
+				mProgressDialog = ProgressDialog.show( LocationProfileEditor.this, getResources().getString( R.string.please_wait ), getResources().getString( R.string.preferences_profile_loading ), true, false );
 				
 				Intent intent = new Intent( PreferencesRecordedDownloadService.ACTION_DOWNLOAD );
 				intent.putExtra( LocationProfileConstants._ID, profile.getId() );
@@ -261,12 +263,19 @@ public class LocationProfileEditor extends AbstractMythtvFragmentActivity {
 		if( null == profile ) {
 			Log.v( TAG, "save : creating new Location Profile" );
 
+			isNew = true;
 			profile = new LocationProfile();
 		}
-
+		Log.v( TAG, "save : isNew=" + isNew );
+		
 		profile.setName( getName() );
 		profile.setUrl( getUrl() );
 		profile.setWolAddress( getWolAddress() );
+		
+		LocationProfile existing = null;
+		if( isNew ) {
+			existing = mLocationProfileDaoHelper.findByLocationTypeAndUrl( profile.getType(), profile.getUrl() );
+		}
 		
 		AlertDialog.Builder builder = new AlertDialog.Builder( this );
 		builder.setTitle( R.string.preference_edit_error_dialog_title );
@@ -286,16 +295,15 @@ public class LocationProfileEditor extends AbstractMythtvFragmentActivity {
 
 			builder.setMessage( R.string.preference_location_profile_text_view_url_error_invalid );
 			builder.show();
+		} else if( null != existing ) {
+			Log.v( TAG, "save : url exists" );
+			
+			builder.setMessage( R.string.preference_location_profile_text_view_url_error_already_exists );
+			builder.show();
 		} else {
 			Log.v( TAG, "save : proceeding to save" );
 
-			long id = mLocationProfileDaoHelper.save( profile );
-			if( id > 0 ) {
-				Log.i( TAG, "save : LocationProfile saved!" );
-				
-				profile.setId( id );
-				retVal = true;
-			}
+			retVal = true;
 		}
 
 		Log.v( TAG, "save : exit" );
@@ -345,18 +353,11 @@ public class LocationProfileEditor extends AbstractMythtvFragmentActivity {
 				if( result.getStatusCode().equals( HttpStatus.OK ) ) {
 					Log.v( TAG, "GetHostnameTask.onPostExecute : saving hostname '" + result.getBody().getString() + "'" );
 					
-					profile = mLocationProfileDaoHelper.findOne( profile.getId() );
-					
 					profile.setHostname( result.getBody().getString() );
 					
 					mLocationProfileDaoHelper.save( profile );
 					Log.v( TAG, "profile=" + profile.toString() );
 					
-				    if( mProgressDialog != null ) {
-				    	mProgressDialog.dismiss();
-				    	mProgressDialog = null;
-					}
-
 				    finish();
 			        
 				    return;
@@ -364,6 +365,11 @@ public class LocationProfileEditor extends AbstractMythtvFragmentActivity {
 				
 			}
 			
+		    if( mProgressDialog != null ) {
+		    	mProgressDialog.dismiss();
+		    	mProgressDialog = null;
+			}
+
 			AlertDialog.Builder builder = new AlertDialog.Builder( LocationProfileEditor.this );
 			builder.setTitle( R.string.preference_edit_error_dialog_title );
 			builder.setNeutralButton( R.string.btn_ok, new DialogInterface.OnClickListener() {
@@ -372,6 +378,8 @@ public class LocationProfileEditor extends AbstractMythtvFragmentActivity {
 				
 			});
 			
+			builder.setMessage( R.string.preference_location_profile_not_connected );
+			builder.show();
 		}
 		
 	}

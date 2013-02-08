@@ -216,6 +216,53 @@ public class LocationProfileDaoHelper {
 	}
 	
 	/**
+	 * @param type
+	 * @param url
+	 * @return
+	 */
+	public LocationProfile findByLocationTypeAndUrl( LocationType type, String url ) {
+		Log.d( TAG, "findByLocationTypeAndUrl : enter" );
+		
+		LocationProfile profile = null;
+		
+		String selection = LocationProfileConstants.FIELD_TYPE + " = ? AND " + LocationProfileConstants.FIELD_URL + " = ?";
+		String[] selectionArgs = new String[] { type.name(), url };
+		
+		Cursor cursor = mContext.getContentResolver().query( LocationProfileConstants.CONTENT_URI, null, selection, selectionArgs, null );
+		if( cursor.moveToNext() ) {
+			profile = convertCursorToLocationProfile( cursor );
+		}
+		cursor.close();
+		
+		Log.d( TAG, "findByLocationTypeAndUrl : exit" );
+		return profile;
+	}
+
+	/**
+	 * @return
+	 */
+	public LocationProfile findHomeProfileByUrl( String url ) {
+		Log.d( TAG, "findHomeProfileByUrl : enter" );
+		
+		LocationProfile profile = findByLocationTypeAndUrl( LocationType.HOME, url );
+		
+		Log.d( TAG, "findHomeProfileByUrl : exit" );
+		return profile;
+	}
+
+	/**
+	 * @return
+	 */
+	public LocationProfile findAwayProfileByUrl( String url ) {
+		Log.d( TAG, "findAwayProfileByUrl : enter" );
+		
+		LocationProfile profile = findByLocationTypeAndUrl( LocationType.AWAY, url );
+		
+		Log.d( TAG, "findAwayProfileByUrl : exit" );
+		return profile;
+	}
+
+	/**
 	 * @return
 	 */
 	public LocationProfile findSelectedHomeProfile() {
