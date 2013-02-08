@@ -101,7 +101,11 @@ public class VideoActivity extends AbstractDvrActivity {
 	    		
 	    	} else {
 	    		
-	    		progressDialog = ProgressDialog.show( this, "Please wait...", "Retrieving video...", true, true );
+	    		try {
+	    			progressDialog = ProgressDialog.show( this, "Please wait...", "Retrieving video...", true, true );
+	    		} catch( Exception e ) {
+	    			Log.w( TAG, "onCreate : error", e );
+	    		}
     		
 	    		checkLiveStreamInfo();
 	    	
@@ -164,6 +168,11 @@ public class VideoActivity extends AbstractDvrActivity {
 		Log.v( TAG, "onDestroy : enter" );
 		super.onDestroy();
 
+		if( null != progressDialog && progressDialog.isShowing() ) {
+			progressDialog.dismiss();
+		}
+		progressDialog = null;
+		
 		Log.v( TAG, "onDestroy : exit" );
 	}
 	
