@@ -102,7 +102,7 @@ public class VideoActivity extends AbstractDvrActivity {
 	    	} else {
 	    		
 	    		try {
-	    			progressDialog = ProgressDialog.show( this, "Please wait...", "Retrieving video...", true, true );
+	    			progressDialog = ProgressDialog.show( VideoActivity.this, "Please wait...", "Retrieving video...", true, true );
 	    		} catch( Exception e ) {
 	    			Log.w( TAG, "onCreate : error", e );
 	    		}
