@@ -110,10 +110,12 @@
 	<string name="preference_location_profile_text_view_url">MythTV Master Backend Address:</string>
 	<string name="preference_location_profile_edit_text_url_hint">http://192.168.10.200:6544/</string>
 	<string name="preference_location_profile_text_view_url_error_invalid">Invalid MythTV Master Backend Address</string>
+	<string name="preference_location_profile_text_view_url_error_already_exists">MythTV Master Backend Address already setup</string>
 	<string name="preference_location_profile_text_view_wol">WOL Address (Optional):</string>
 	<string name="preference_location_profile_edit_text_wol_hint">AA:BB:CC:DD:EE:FF</string>
 	<string name="preference_location_profile_text_view_wol_error_invalid">Invalid MAC Address</string>
-			
+	<string name="preference_location_profile_not_connected">Master Backend could not be reached, please check your network settings</string>
+				
 	<string name="preference_playback_profile_text_view_name">Name:</string>
 	<string name="preference_playback_profile_edit_text_name_hint">High Quality</string>
 	<string name="preference_playback_profile_text_view_name_error_invalid">Invalid Name</string>
