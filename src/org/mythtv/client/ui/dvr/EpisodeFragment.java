@@ -508,7 +508,7 @@ public class EpisodeFragment extends AbstractMythFragment {
 
 			// airdate
 			tView = (TextView) activity.findViewById( R.id.textView_episode_airdate );
-            tView.setText(DateUtils.getDateTimeUsingLocaleFormattingPretty(program.getStartTime(), getMainApplication().getDateFormat(), getMainApplication().getClockType()));
+            tView.setText( DateUtils.getDateTimeUsingLocaleFormattingPretty(program.getStartTime(), getMainApplication().getDateFormat(), getMainApplication().getClockType() ) );
 
             hlsView = (TextView) activity.findViewById( R.id.textView_episode_hls );
             updateHlsDetails();
@@ -643,7 +643,7 @@ public class EpisodeFragment extends AbstractMythFragment {
 			try {
 				Log.v( TAG, "RemoveRecordingTask : api" );
 				
-				removed = getMainApplication().getMythServicesApi().dvrOperations().removeRecorded( program.getChannelInfo().getChannelId(), program.getStartTime() );
+				removed = getMainApplication().getMythServicesApi().dvrOperations().removeRecorded( program.getChannelInfo().getChannelId(), program.getRecording().getStartTimestamp() );
 			} catch( Exception e ) {
 				Log.v( TAG, "RemoveRecordingTask : error" );
 

@@ -603,7 +603,7 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				sb.append( " LEFT OUTER JOIN " );
 				sb.append( RecordingConstants.TABLE_NAME );
 				sb.append( " ON (" );
-				sb.append( RecordingConstants.TABLE_NAME ).append( "." ).append( RecordingConstants.FIELD_START_TS );
+				sb.append( RecordingConstants.TABLE_NAME ).append( "." ).append( RecordingConstants.FIELD_START_TIME );
 				sb.append( " = ");
 				sb.append( ProgramConstants.TABLE_NAME_RECORDED ).append( "." ).append( ProgramConstants.FIELD_START_TIME );
 				sb.append( " AND " );
@@ -660,7 +660,7 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				sb.append( " LEFT OUTER JOIN " );
 				sb.append( RecordingConstants.TABLE_NAME );
 				sb.append( " ON (" );
-				sb.append( RecordingConstants.TABLE_NAME ).append( "." ).append( RecordingConstants.FIELD_START_TS );
+				sb.append( RecordingConstants.TABLE_NAME ).append( "." ).append( RecordingConstants.FIELD_START_TIME );
 				sb.append( " = ");
 				sb.append( ProgramConstants.TABLE_NAME_RECORDED ).append( "." ).append( ProgramConstants.FIELD_START_TIME );
 				sb.append( " AND " );
@@ -716,7 +716,7 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				sb.append( " LEFT OUTER JOIN " );
 				sb.append( RecordingConstants.TABLE_NAME );
 				sb.append( " ON (" );
-				sb.append( RecordingConstants.TABLE_NAME ).append( "." ).append( RecordingConstants.FIELD_START_TS );
+				sb.append( RecordingConstants.TABLE_NAME ).append( "." ).append( RecordingConstants.FIELD_START_TIME );
 				sb.append( " = ");
 				sb.append( ProgramConstants.TABLE_NAME_UPCOMING ).append( "." ).append( ProgramConstants.FIELD_START_TIME );
 				sb.append( " AND " );
@@ -763,7 +763,7 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				sb.append( " LEFT OUTER JOIN " );
 				sb.append( RecordingConstants.TABLE_NAME );
 				sb.append( " ON (" );
-				sb.append( RecordingConstants.TABLE_NAME ).append( "." ).append( RecordingConstants.FIELD_START_TS );
+				sb.append( RecordingConstants.TABLE_NAME ).append( "." ).append( RecordingConstants.FIELD_START_TIME );
 				sb.append( " = ");
 				sb.append( ProgramConstants.TABLE_NAME_UPCOMING ).append( "." ).append( ProgramConstants.FIELD_START_TIME );
 				sb.append( " AND " );
@@ -804,7 +804,7 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				sb.append( " LEFT OUTER JOIN " );
 				sb.append( RecordingConstants.TABLE_NAME );
 				sb.append( " ON (" );
-				sb.append( RecordingConstants.TABLE_NAME ).append( "." ).append( RecordingConstants.FIELD_START_TS );
+				sb.append( RecordingConstants.TABLE_NAME ).append( "." ).append( RecordingConstants.FIELD_START_TIME );
 				sb.append( " = ");
 				sb.append( ProgramConstants.TABLE_NAME_PROGRAM ).append( "." ).append( ProgramConstants.FIELD_START_TIME );
 				sb.append( " AND " );
@@ -846,7 +846,7 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				sb.append( " LEFT OUTER JOIN " );
 				sb.append( RecordingConstants.TABLE_NAME );
 				sb.append( " ON (" );
-				sb.append( RecordingConstants.TABLE_NAME ).append( "." ).append( RecordingConstants.FIELD_START_TS );
+				sb.append( RecordingConstants.TABLE_NAME ).append( "." ).append( RecordingConstants.FIELD_START_TIME );
 				sb.append( " = ");
 				sb.append( ProgramConstants.TABLE_NAME_PROGRAM ).append( "." ).append( ProgramConstants.FIELD_START_TIME );
 				sb.append( " AND " );
@@ -1365,7 +1365,8 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 						insert.bindLong( 11, value.getAsInteger( RecordingConstants.FIELD_DUP_METHOD ) );
 						insert.bindLong( 12, value.getAsInteger( RecordingConstants.FIELD_ENCODER_ID ) );
 						insert.bindString( 13, value.getAsString( RecordingConstants.FIELD_PROFILE ) );
-						insert.bindString( 14, value.getAsString( RecordingConstants.FIELD_HOSTNAME ) );
+						insert.bindString( 14, value.getAsString( RecordingConstants.FIELD_START_TIME ) );
+						insert.bindString( 15, value.getAsString( RecordingConstants.FIELD_HOSTNAME ) );
 						insert.execute();
 					}
 					db.setTransactionSuccessful();

@@ -305,19 +305,22 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 				String[] recordingProjection = new String[] { RecordingConstants._ID };
 				String recordingSelection = RecordingConstants.FIELD_RECORD_ID + " = ? AND " + RecordingConstants.FIELD_START_TS + " = ? AND " + RecordingConstants.FIELD_HOSTNAME + " = ?";
 				
-				ContentValues recordingValues = mRecordingDaoHelper.convertRecordingToContentValues( program.getRecording() );
-				Cursor recordingCursor = mContext.getContentResolver().query( RecordingConstants.CONTENT_URI, recordingProjection, recordingSelection, new String[] { String.valueOf( program.getRecording().getRecordId() ), String.valueOf( program.getRecording().getStartTimestamp().getMillis() ), mLocationProfile.getHostname() }, null );
+				Log.v( TAG, "load : recording=" + program.getRecording().toString() );
+				DateTime startTimestamp = new DateTime( program.getRecording().getStartTimestamp().getMillis() );
+				
+				ContentValues recordingValues = mRecordingDaoHelper.convertRecordingToContentValues( program.getRecording(), program.getStartTime() );
+				Cursor recordingCursor = mContext.getContentResolver().query( RecordingConstants.CONTENT_URI, recordingProjection, recordingSelection, new String[] { String.valueOf( program.getRecording().getRecordId() ), String.valueOf( startTimestamp.getMillis() ), mLocationProfile.getHostname() }, null );
 				if( recordingCursor.moveToFirst() ) {
-//					Log.v( TAG, "load : UPDATE RECORDING recording=" + program.getRecording().getRecordId() + ", startTime=" + DateUtils.dateTimeFormatterPretty.print( program.getRecording().getStartTimestamp() ) );
-//
-//					ops.add( 
-//						ContentProviderOperation.newUpdate( ContentUris.withAppendedId( RecordingConstants.CONTENT_URI, program.getRecording().getRecordId() ) )
-//						.withValues( recordingValues )
-//						.withYieldAllowed( true )
-//						.build()
-//					);
+					Log.v( TAG, "load : UPDATE RECORDING program=" + program.getTitle() + ", recording=" + program.getRecording().getRecordId() + ", startTime=" + DateUtils.dateTimeFormatterPretty.print( startTimestamp ) );
+
+					ops.add( 
+						ContentProviderOperation.newUpdate( ContentUris.withAppendedId( RecordingConstants.CONTENT_URI, program.getRecording().getRecordId() ) )
+						.withValues( recordingValues )
+						.withYieldAllowed( true )
+						.build()
+					);
 				} else {
-					//Log.v( TAG, "load : INSERT RECORDING recording=" + program.getRecording().getRecordId() + ", startTime=" + DateUtils.dateTimeFormatterPretty.print( program.getRecording().getStartTimestamp() ) );
+					Log.v( TAG, "load : INSERT RECORDING program=" + program.getTitle() + ", recording=" + program.getRecording().getRecordId() + ", startTime=" + DateUtils.dateTimeFormatterPretty.print( startTimestamp ) );
 
 					ops.add(  
 						ContentProviderOperation.newInsert( RecordingConstants.CONTENT_URI )
