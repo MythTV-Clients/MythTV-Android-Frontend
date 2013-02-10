@@ -1,8 +1,8 @@
 package org.mythtv.client.ui;
 
 import org.mythtv.R;
-import org.mythtv.client.ui.MainMenuFragment.CloseMenuRequestedListener;
-import org.mythtv.client.ui.dvr.RecordingsFragment;
+import org.mythtv.client.ui.MainMenuFragment.ContentFragmentRequestedListener;
+import org.mythtv.client.ui.dvr.GuideFragment;
 import org.mythtv.client.ui.util.MenuHelper;
 import org.mythtv.service.util.NetworkHelper;
 
@@ -18,11 +18,18 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.widget.FrameLayout;
 
-public class MainActivity extends AbstractMythtvFragmentActivity{
 
+/**
+ * 
+ * @author Thomas G. Kenny Jr
+ *
+ */
+public class MainActivity extends AbstractMythtvFragmentActivity implements ContentFragmentRequestedListener{
+
+	public static final String TAG = MainActivity.class.getName();
 	
-
 	private boolean mMenuVisible = false;
+
 	
 	@Override
 	protected void onCreate( Bundle savedInstanceState ) {
@@ -45,12 +52,7 @@ public class MainActivity extends AbstractMythtvFragmentActivity{
 		MainMenuFragment mainMenuFrag = (MainMenuFragment)fragMgr.findFragmentById(R.layout.fragment_main_menu);
 		if (null == mainMenuFrag) {
 			mainMenuFrag = (MainMenuFragment)Fragment.instantiate(this, MainMenuFragment.class.getName());
-			mainMenuFrag.setCloseRequestedListener(new CloseMenuRequestedListener(){
-
-				@Override
-				public void OnMenuCloseRequested(MainMenuFragment mainMenu) {
-					hideMainMenu();
-				}});
+			mainMenuFrag.setContentFragmentRequestedListener(this);
 			fTran.add(R.id.frame_layout_main_menu, mainMenuFrag);
 		}else{
 			fTran.replace(R.id.frame_layout_main_menu, mainMenuFrag);
@@ -258,6 +260,43 @@ public class MainActivity extends AbstractMythtvFragmentActivity{
 	
 	public boolean isMainMenuVisible(){
 		return this.mMenuVisible;
+	}
+
+
+	@Override
+	public void OnFragmentRequested(int fragmentId, String fragmentClassName) {
+	
+		//find fragment and instantiate if necessary
+		Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_dvr_guide);
+		if (null == fragment)
+			fragment = Fragment.instantiate(this, fragmentClassName);
+		
+		//call into overload
+		OnFragmentRequested(fragment);
+	}
+
+
+	@Override
+	public void OnFragmentRequested(Fragment fragment) {
+		
+		if(null == fragment){
+			Log.e(TAG, "OnFragmentRequested(fragment) argument null.");
+		}
+		
+		//get framgment manager and start a transaction
+		FragmentManager fragMgr = getSupportFragmentManager();
+		FragmentTransaction fTran = fragMgr.beginTransaction();
+		
+		//replace content fragment with this one
+		fTran.replace(R.id.frame_layout_main_ui, fragment);
+		
+		//finalize fragment transaction
+		//fTran.commit();
+		//this fixes an exception caused by a bug in support library.
+		fTran.commitAllowingStateLoss();
+		
+		//hide menu
+		this.hideMainMenu();
 	}
 	
 	
