@@ -128,29 +128,29 @@ public class RecordingDaoHelper extends AbstractDaoHelper {
 	 * @param recording
 	 * @return
 	 */
-	public int save( Recording recording ) {
-		Log.d( TAG, "save : enter" );
-
-		ContentValues values = convertRecordingToContentValues( recording );
-
-		int updated = -1;
-		Cursor cursor = mContext.getContentResolver().query( ContentUris.withAppendedId( RecordingConstants.CONTENT_URI, recording.getRecordId() ), null, null, null, null );
-		if( cursor.moveToFirst() ) {
-			Log.v( TAG, "save : updating existing channel info" );
-
-			updated = mContext.getContentResolver().update( ContentUris.withAppendedId( RecordingConstants.CONTENT_URI, recording.getRecordId() ), values, null, null );
-		} else {
-			Uri inserted = mContext.getContentResolver().insert( ContentUris.withAppendedId( RecordingConstants.CONTENT_URI, recording.getRecordId() ), values );
-			if( null != inserted ) {
-				updated = 1;
-			}
-		}
-		cursor.close();
-		Log.v( TAG, "save : updated=" + updated );
-
-		Log.d( TAG, "save : exit" );
-		return updated;
-	}
+//	public int save( Recording recording ) {
+//		Log.d( TAG, "save : enter" );
+//
+//		ContentValues values = convertRecordingToContentValues( recording );
+//
+//		int updated = -1;
+//		Cursor cursor = mContext.getContentResolver().query( ContentUris.withAppendedId( RecordingConstants.CONTENT_URI, recording.getRecordId() ), null, null, null, null );
+//		if( cursor.moveToFirst() ) {
+//			Log.v( TAG, "save : updating existing channel info" );
+//
+//			updated = mContext.getContentResolver().update( ContentUris.withAppendedId( RecordingConstants.CONTENT_URI, recording.getRecordId() ), values, null, null );
+//		} else {
+//			Uri inserted = mContext.getContentResolver().insert( ContentUris.withAppendedId( RecordingConstants.CONTENT_URI, recording.getRecordId() ), values );
+//			if( null != inserted ) {
+//				updated = 1;
+//			}
+//		}
+//		cursor.close();
+//		Log.v( TAG, "save : updated=" + updated );
+//
+//		Log.d( TAG, "save : exit" );
+//		return updated;
+//	}
 
 	/**
 	 * @return
@@ -183,23 +183,23 @@ public class RecordingDaoHelper extends AbstractDaoHelper {
 	 * @param recordings
 	 * @return
 	 */
-	public int load( List<Recording> recordings ) {
-		Log.d( TAG, "load : enter" );
-		
-		int loaded = -1;
-		
-		ContentValues[] contentValuesArray = convertRecordingsToContentValuesArray( recordings );
-		if( null != contentValuesArray ) {
-			Log.v( TAG, "load : channels=" + contentValuesArray.length );
-
-			loaded = mContext.getContentResolver().bulkInsert( RecordingConstants.CONTENT_URI, contentValuesArray );
-			Log.v( TAG, "load : loaded=" + loaded );
-		}
-		
-		
-		Log.d( TAG, "load : exit" );
-		return loaded;
-	}
+//	public int load( List<Recording> recordings ) {
+//		Log.d( TAG, "load : enter" );
+//		
+//		int loaded = -1;
+//		
+//		ContentValues[] contentValuesArray = convertRecordingsToContentValuesArray( recordings );
+//		if( null != contentValuesArray ) {
+//			Log.v( TAG, "load : channels=" + contentValuesArray.length );
+//
+//			loaded = mContext.getContentResolver().bulkInsert( RecordingConstants.CONTENT_URI, contentValuesArray );
+//			Log.v( TAG, "load : loaded=" + loaded );
+//		}
+//		
+//		
+//		Log.d( TAG, "load : exit" );
+//		return loaded;
+//	}
 	
 	/**
 	 * @param cursor
@@ -288,13 +288,14 @@ public class RecordingDaoHelper extends AbstractDaoHelper {
 	 * @param recording
 	 * @return
 	 */
-	public ContentValues convertRecordingToContentValues( final Recording recording ) {
+	public ContentValues convertRecordingToContentValues( final Recording recording, final DateTime startTime ) {
 //		Log.v( TAG, "convertRecordingToContentValues : enter" );
 		
 		DateTime startTimestamp = null;
 		if( null != recording.getStartTimestamp() ) {
 			startTimestamp = new DateTime( recording.getStartTimestamp().getMillis() );
 		}
+		Log.v( TAG, "convertRecordingToContentValues : startTimestamp = " + startTimestamp.toString() );
 		
 		DateTime endTimestamp = null;
 		if( null != recording.getStartTimestamp() ) {
@@ -315,6 +316,7 @@ public class RecordingDaoHelper extends AbstractDaoHelper {
 		values.put( RecordingConstants.FIELD_DUP_METHOD, recording.getDuplicateMethod() );
 		values.put( RecordingConstants.FIELD_ENCODER_ID, recording.getEncoderId() );
 		values.put( RecordingConstants.FIELD_PROFILE, null != recording.getProfile() ? recording.getProfile() : "" );
+		values.put( RecordingConstants.FIELD_START_TIME, startTime.getMillis() );
 		values.put( RecordingConstants.FIELD_HOSTNAME, mLocationProfile.getHostname() );
 		
 //		Log.v( TAG, "convertRecordingToContentValues : exit" );
@@ -323,31 +325,31 @@ public class RecordingDaoHelper extends AbstractDaoHelper {
 
 	// internal helpers
 
-	private ContentValues[] convertRecordingsToContentValuesArray( final List<Recording> recordings ) {
+//	private ContentValues[] convertRecordingsToContentValuesArray( final List<Recording> recordings ) {
 //		Log.v( TAG, "convertRecordingsToContentValuesArray : enter" );
-		
-		if( null != recordings && !recordings.isEmpty() ) {
-			
-			ContentValues contentValues;
-			List<ContentValues> contentValuesArray = new ArrayList<ContentValues>();
-
-			for( Recording recording : recordings ) {
-
-				contentValues = convertRecordingToContentValues( recording );
-				contentValuesArray.add( contentValues );
-
-			}			
-			
-			if( !contentValuesArray.isEmpty() ) {
-				
+//		
+//		if( null != recordings && !recordings.isEmpty() ) {
+//			
+//			ContentValues contentValues;
+//			List<ContentValues> contentValuesArray = new ArrayList<ContentValues>();
+//
+//			for( Recording recording : recordings ) {
+//
+//				contentValues = convertRecordingToContentValues( recording );
+//				contentValuesArray.add( contentValues );
+//
+//			}			
+//			
+//			if( !contentValuesArray.isEmpty() ) {
+//				
 //				Log.v( TAG, "convertRecordingsToContentValuesArray : exit" );
-				return contentValuesArray.toArray( new ContentValues[ contentValuesArray.size() ] );
-			}
-			
-		}
-		
+//				return contentValuesArray.toArray( new ContentValues[ contentValuesArray.size() ] );
+//			}
+//			
+//		}
+//		
 //		Log.v( TAG, "convertRecordingsToContentValuesArray : exit, no recordings to convert" );
-		return null;
-	}
+//		return null;
+//	}
 
 }

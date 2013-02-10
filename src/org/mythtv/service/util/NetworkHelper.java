@@ -30,6 +30,8 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.util.Log;
+import java.io.BufferedInputStream;
+import java.io.InputStream;
 
 /**
  * @author Daniel Frey
@@ -80,7 +82,7 @@ public class NetworkHelper {
 					return false;
 				}
 				
-				URL url = new URL( mLocationProfileDaoHelper.findConnectedProfile().getUrl() );
+				URL url = new URL( mLocationProfileDaoHelper.findConnectedProfile().getUrl() + "Myth/GetHostName" );
 
 				HttpURLConnection urlc = (HttpURLConnection) url.openConnection();
 				urlc.setRequestProperty( "User-Agent", "Android Application:MythTV_Android_Frontent" );
@@ -88,6 +90,9 @@ public class NetworkHelper {
 				urlc.setConnectTimeout( 1000 * 10 ); // mTimeout is in seconds
 				urlc.connect();
 				if( urlc.getResponseCode() == 200 ) {
+					InputStream in = new BufferedInputStream(urlc.getInputStream());
+					byte[] hostname = new byte[ 128 ];
+					while( in.read( hostname , 0, 128 ) > 0 );
 					Log.v( TAG, "isMasterBackendConnected : exit" );
 					
 					return true;
@@ -112,7 +117,7 @@ public class NetworkHelper {
 			
 			try {
 			
-				URL url = new URL( profile.getUrl() );
+				URL url = new URL( profile.getUrl() + "Myth/GetHostName" );
 
 				HttpURLConnection urlc = (HttpURLConnection) url.openConnection();
 				urlc.setRequestProperty( "User-Agent", "Android Application:MythTV_Android_Frontent" );
@@ -120,6 +125,9 @@ public class NetworkHelper {
 				urlc.setConnectTimeout( 1000 * 10 ); // mTimeout is in seconds
 				urlc.connect();
 				if( urlc.getResponseCode() == 200 ) {
+					InputStream in = new BufferedInputStream(urlc.getInputStream());
+					byte[] hostname = new byte[ 128 ];
+					while( in.read( hostname , 0, 128 ) > 0 );
 					Log.v( TAG, "isMasterBackendConnected : exit" );
 					
 					return true;
