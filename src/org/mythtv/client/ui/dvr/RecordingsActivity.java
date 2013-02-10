@@ -24,7 +24,6 @@ import org.joda.time.DateTime;
 import org.mythtv.R;
 import org.mythtv.db.dvr.programGroup.ProgramGroup;
 import org.mythtv.db.dvr.programGroup.ProgramGroupConstants;
-import org.mythtv.service.util.image.ImageFetcher;
 import org.mythtv.services.api.dvr.Program;
 
 import android.content.Intent;
@@ -201,13 +200,6 @@ public class RecordingsActivity extends AbstractDvrActivity implements Recording
 		
 		Log.v( TAG, "onEpisodeDeleted : exit" );
 	}
-
-    /**
-     * @return
-     */
-    public ImageFetcher getImageFetcher() {
-        return mImageFetcher;
-    }
 
     /**
      * @return

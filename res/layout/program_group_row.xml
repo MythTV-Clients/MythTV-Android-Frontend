@@ -37,7 +37,17 @@
         	android:layout_height="fill_parent"
         	android:background="#ff0000" />
         
-    	<TextView
+    	<ImageView 
+  			android:id="@+id/program_group_row_banner"
+  			android:layout_width="match_parent"
+  			android:layout_height="wrap_content"
+  			android:gravity="center_vertical"
+  			android:layout_marginLeft="4dip"
+  			android:minHeight="?android:attr/listPreferredItemHeight"
+  			android:contentDescription="Program Group Row"
+   	    />
+    	
+        <TextView
   			android:id="@+id/program_group_row"
   			android:layout_width="match_parent"
   			android:layout_height="wrap_content"
@@ -48,16 +58,6 @@
   			android:minHeight="?android:attr/listPreferredItemHeight"
 		/>
 
-    	<ImageView 
-  			android:id="@+id/program_group_row_banner"
-  			android:layout_width="match_parent"
-  			android:layout_height="wrap_content"
-  			android:gravity="center_vertical"
-  			android:layout_marginLeft="4dip"
-  			android:minHeight="?android:attr/listPreferredItemHeight"
-			android:visibility="gone"
-   	    />
-    	
 	</LinearLayout>
 
 </LinearLayout>

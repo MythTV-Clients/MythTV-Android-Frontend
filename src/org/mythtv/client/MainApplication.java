@@ -27,12 +27,19 @@ import org.mythtv.db.preferences.PlaybackProfileDaoHelper;
 import org.mythtv.services.api.MythServices;
 import org.mythtv.services.connect.MythServicesServiceProvider;
 
+import android.app.ActivityManager;
 import android.app.Application;
+import android.content.Context;
+import android.os.Build;
 import android.provider.Settings;
 import android.util.Log;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
+import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
 
 /**
  * @author Daniel Frey
@@ -64,6 +71,8 @@ public class MainApplication extends Application {
 	public void onCreate() {
 		Log.v( TAG, "onCreate : enter" );
 		super.onCreate();
+		
+		initImageLoader( getApplicationContext() );
 		
 		mLocationProfileDaoHelper = new LocationProfileDaoHelper( this );
 		mPlaybackProfileDaoHelper = new PlaybackProfileDaoHelper( this );
@@ -120,6 +129,32 @@ public class MainApplication extends Application {
 		return provider.getApi();
 	}
 
+	public static void initImageLoader( Context context ) {
+		int memoryCacheSize;
+		if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.ECLAIR ) {
+			int memClass = ( (ActivityManager) context.getSystemService( Context.ACTIVITY_SERVICE ) ).getMemoryClass();
+			memoryCacheSize = (memClass / 8) * 1024 * 1024; // 1/8 of app memory limit 
+		} else {
+			memoryCacheSize = 2 * 1024 * 1024;
+		}
+
+		// This configuration tuning is custom. You can tune every option, you may tune some of them, 
+		// or you can create default configuration by
+		//  ImageLoaderConfiguration.createDefault(this);
+		// method.
+		ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder( context )
+			.threadPriority( Thread.NORM_PRIORITY - 2 )
+			.memoryCacheSize( memoryCacheSize )
+			.denyCacheImageMultipleSizesInMemory()
+			.discCacheFileNameGenerator( new Md5FileNameGenerator() )
+			.tasksProcessingOrder( QueueProcessingType.LIFO )
+			.enableLogging() // Not necessary in common
+			.build();
+		
+		// Initialize ImageLoader with configuration.
+		ImageLoader.getInstance().init( config );
+	}
+	
 	/**
 	 * @return the mObjectMapper
 	 */
