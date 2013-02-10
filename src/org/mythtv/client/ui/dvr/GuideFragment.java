@@ -139,7 +139,9 @@ public class GuideFragment extends AbstractMythFragment implements OnClickListen
 		cache = new ProgramGuideLruMemoryCache( getActivity() );
 
 		date = DateUtils.getEndOfDay( new DateTime() );
-		updateDateHeader();
+
+//this causes an exception when GuideFragment is added to the content view using a FragmentTransaction.
+//updateDateHeader();
 		
 		Log.v( TAG, "onActivityCreated : exit" );
 	}
@@ -151,21 +153,23 @@ public class GuideFragment extends AbstractMythFragment implements OnClickListen
 	public void onClick( View v ) {
 		Log.v( TAG, "onClick : enter" );
 		
-		switch( v.getId() ) {
-			case R.id.guide_previous :
-				Log.v( TAG, "onClick : selected previous button" );
-
-				date = DateUtils.getPreviousDay( date );
-				
-				break;
-			case R.id.guide_next :
-				Log.v( TAG, "onClick : selected next button" );
-
-				date = DateUtils.getNextDay( date );
-				
-				break;
+		if(null != v){
+			switch( v.getId() ) {
+				case R.id.guide_previous :
+					Log.v( TAG, "onClick : selected previous button" );
+	
+					date = DateUtils.getPreviousDay( date );
+					
+					break;
+				case R.id.guide_next :
+					Log.v( TAG, "onClick : selected next button" );
+	
+					date = DateUtils.getNextDay( date );
+					
+					break;
+			}
 		}
-
+		
 		updateDateHeader();
 		
 		Log.v( TAG, "onClick : enter" );

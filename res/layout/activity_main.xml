@@ -6,7 +6,8 @@
 	
 	<FrameLayout android:id="@+id/frame_layout_main_menu"
 		android:layout_width="300dip"
-		android:layout_height="match_parent" />
+		android:layout_height="match_parent"
+		android:layout_marginLeft="-300dip" />
 	
 	<FrameLayout android:id="@+id/frame_layout_main_ui"
 		android:layout_width="match_parent"
