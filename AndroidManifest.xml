@@ -58,7 +58,7 @@
         android:allowBackup="true">
 
 		<activity 
-			android:name=".client.ui.WelcomeActivity">
+			android:name=".client.ui.MainActivity">
 			
 			<intent-filter>
                 <action android:name="android.intent.action.MAIN" />

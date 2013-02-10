@@ -11,8 +11,11 @@ import javax.jmdns.ServiceListener;
 
 import org.mythtv.R;
 import org.mythtv.client.ui.dvr.GuideActivity;
+import org.mythtv.client.ui.dvr.GuideFragment;
 import org.mythtv.client.ui.dvr.RecordingRulesActivity;
+import org.mythtv.client.ui.dvr.RecordingRulesFragment;
 import org.mythtv.client.ui.dvr.RecordingsActivity;
+import org.mythtv.client.ui.dvr.RecordingsFragment;
 import org.mythtv.client.ui.dvr.UpcomingActivity;
 import org.mythtv.client.ui.dvr.VideoActivity;
 import org.mythtv.client.ui.frontends.Frontend;
@@ -26,6 +29,9 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.IntentCompat;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
@@ -46,6 +52,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -55,6 +62,12 @@ import android.widget.ToggleButton;
 public class MainMenuFragment extends AbstractMythFragment implements ServiceListener, OnItemSelectedListener{
 
 	private final static String TAG = MainMenuFragment.class.getSimpleName();
+	
+	public interface CloseMenuRequestedListener
+	{
+		public void OnMenuCloseRequested(MainMenuFragment mainMenu);
+	}
+	
 	
 	private static TelephonyManager sTelManager;
 	private static List<Frontend> frontends = new ArrayList<Frontend>();
@@ -67,6 +80,10 @@ public class MainMenuFragment extends AbstractMythFragment implements ServiceLis
 	
 	private FrontendAdapter adapter = null;
 	private NetworkHelper mNetworkHelper = null;
+	private CloseMenuRequestedListener mCloseRequestedListener;
+	
+	
+	
 	
 	
 	private OnCheckedChangeListener homeAwayCheckedChanged = new OnCheckedChangeListener(){
@@ -149,36 +166,75 @@ public class MainMenuFragment extends AbstractMythFragment implements ServiceLis
 		@Override
 		public void onClick(View v) {
 			
+			//get content framelayout
+			FrameLayout content = (FrameLayout) getActivity().findViewById(R.id.frame_layout_main_ui);
+			if(null == content) return;
+			
 			//get button text
 			Button btn = (Button)v;
 			String btnTxt = btn.getText().toString();
 			
+			//get framgment manager and start a transaction
+			FragmentManager fragMgr = getFragmentManager();
+			FragmentTransaction fTran = fragMgr.beginTransaction();
+			
 			// find button action based on the display string
-			if (getString(R.string.btn_guide).equals(btnTxt)
-					&& !getActivity().getClass().equals(GuideActivity.class)) {
-				startActivity(new Intent(getActivity(), GuideActivity.class));
-			} else if (getString(R.string.btn_music).equals(btnTxt)
-				/*	&& !getActivity().getClass().equals(MusicActivity.class) */) {
+			if (getString(R.string.btn_guide).equals(btnTxt)) {
+				
+				GuideFragment fragment = (GuideFragment)fragMgr.findFragmentById(R.id.fragment_dvr_guide);
+				if (null == fragment)
+					fragment = (GuideFragment)Fragment.instantiate(getActivity(), GuideFragment.class.getName());
+				
+				fTran.replace(R.id.frame_layout_main_ui, fragment);
+				
+			} else if (getString(R.string.btn_music).equals(btnTxt)) {
+				
 				//startActivity(new Intent(getActivity(), MusicActivity.class));
 				Toast.makeText( getActivity(), "Music - Coming Soon!", Toast.LENGTH_SHORT ).show();
-			} else if (getString(R.string.btn_pictures).equals(btnTxt)
-				/*	&& !getActivity().getClass().equals(PicturesActivity.class) */) {
+				
+			} else if (getString(R.string.btn_pictures).equals(btnTxt)) {
+				
 				//startActivity(new Intent(getActivity(), PicturesActivity.class));
 				Toast.makeText( getActivity(), "Pictures - Coming Soon!", Toast.LENGTH_SHORT ).show();
-			} else if (getString(R.string.btn_recording_rules).equals(btnTxt)
-					&& !getActivity().getClass().equals(RecordingRulesActivity.class)) {
-				startActivity(new Intent(getActivity(), RecordingRulesActivity.class));
-			} else if (getString(R.string.btn_recordings).equals(btnTxt)
-					&& !getActivity().getClass().equals(RecordingsActivity.class)) {
-				startActivity(new Intent(getActivity(), RecordingsActivity.class));
-			} else if (getString(R.string.btn_upcoming).equals(btnTxt)
-					&& !getActivity().getClass().equals(UpcomingActivity.class)) {
-				startActivity(new Intent(getActivity(), UpcomingActivity.class));
-			} else if (getString(R.string.btn_videos).equals(btnTxt)
-					&& !getActivity().getClass().equals(VideoActivity.class)) {
+				
+			} else if (getString(R.string.btn_recording_rules).equals(btnTxt)) {
+				
+				Fragment fragment = fragMgr.findFragmentById(R.id.fragment_dvr_recording_rules);
+				if (null == fragment)
+					fragment = Fragment.instantiate(getActivity(), RecordingRulesFragment.class.getName());
+					
+				fTran.replace(R.id.frame_layout_main_ui, fragment);
+				
+			} else if (getString(R.string.btn_recordings).equals(btnTxt)) {
+				
+				Fragment fragment = fragMgr.findFragmentById(R.id.fragment_dvr_program_groups);
+				if (null == fragment)
+					fragment = Fragment.instantiate(getActivity(), RecordingsFragment.class.getName());
+					
+				fTran.replace(R.id.frame_layout_main_ui, fragment);
+				
+			} else if (getString(R.string.btn_upcoming).equals(btnTxt)) {
+				
+				Fragment fragment = fragMgr.findFragmentById(R.id.fragment_dvr_upcoming);
+				if (null == fragment)
+					fragment = Fragment.instantiate(getActivity(), UpcomingActivity.class.getName());
+					
+				fTran.replace(R.id.frame_layout_main_ui, fragment);
+				
+			} else if (getString(R.string.btn_videos).equals(btnTxt)) {
+				
 				//startActivity(new Intent(getActivity(), VideoActivity.class));
 				Toast.makeText( getActivity(), "Video - Coming Soon!", Toast.LENGTH_SHORT ).show();
+				
 			}
+			
+			//finalize fragment transaction
+			//fTran.commit();
+			//this fixes an exception caused by a bug in support library.
+			fTran.commitAllowingStateLoss();
+			
+			//tell the owner to close the main menu
+			requestMenuClose();
 		}
 	};
 	
@@ -417,6 +473,19 @@ public class MainMenuFragment extends AbstractMythFragment implements ServiceLis
 		mLock = null;
 
 		Log.v(TAG, "stopProbe : exit");
+	}
+	
+	
+	/**
+	 * Call this to tell the containing activity it's time to close the menu 
+	 */
+	private void requestMenuClose(){
+		if( null != mCloseRequestedListener)
+			mCloseRequestedListener.OnMenuCloseRequested(this);
+	}
+	
+	public void setCloseRequestedListener(CloseMenuRequestedListener listener){
+		mCloseRequestedListener = listener;
 	}
 
 

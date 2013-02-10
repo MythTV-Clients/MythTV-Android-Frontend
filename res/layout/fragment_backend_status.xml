@@ -4,9 +4,9 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
     
-<TextView 
+<TextView
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center"
-    android:text="Welcome.. What do we want here?"/>
+    android:text="Backend Status placeholder"/>
+
 </LinearLayout>

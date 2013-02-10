@@ -38,6 +38,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
+import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
@@ -50,7 +51,7 @@ public abstract class AbstractMythtvFragmentActivity extends FragmentActivity im
 
 	protected static final String TAG = AbstractMythtvFragmentActivity.class.getSimpleName();
 
-	private boolean mMenuVisible = false;
+
 	protected MenuHelper mMenuHelper;
 	protected NetworkHelper mNetworkHelper;
 	
@@ -103,10 +104,7 @@ public abstract class AbstractMythtvFragmentActivity extends FragmentActivity im
 	public boolean onOptionsItemSelected( MenuItem item ) {
 		Log.d( TAG, "onOptionsItemSelected : enter" );
 
-		switch( item.getItemId() ) {
-		case android.R.id.home:
-			return toggleMainMenuVisibility();
-			
+		switch( item.getItemId() ) {			
 		case MenuHelper.ABOUT_ID:
 			Log.d( TAG, "onOptionsItemSelected : about selected" );
 
@@ -137,111 +135,7 @@ public abstract class AbstractMythtvFragmentActivity extends FragmentActivity im
 		Log.d( TAG, "onOptionsItemSelected : exit" );
 		return super.onOptionsItemSelected( item );
 	}
-	
-	/* (non-Javadoc)
-	 * @see android.app.Activity#onResume()
-	 */
-	@Override
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
-	protected void onResume() {
-		
-		final FrameLayout content = (FrameLayout)this.findViewById(R.id.frame_layout_main_ui);
-		
-		if(null != content && this.mMenuVisible){
-			if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-				toggleMainMenuVisibility();
-			} else {
-				RelativeLayout.LayoutParams params = (android.widget.RelativeLayout.LayoutParams) content.getLayoutParams();
-				params.leftMargin = 0;
-				content.setLayoutParams(params);
-			}
-		}
-	
-		
-		super.onResume();
-	}
 
-
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
-	private boolean toggleMainMenuVisibility() {
-		
-		//get menu and content containers
-		final FrameLayout menu = (FrameLayout) this.findViewById(R.id.frame_layout_main_menu);
-		final FrameLayout content = (FrameLayout)this.findViewById(R.id.frame_layout_main_ui);
-		
-		//check that we received them
-		if(null != content && null != menu){
-			
-			//animator that moves content panel 
-			AnimatorUpdateListener translateContentListener = new AnimatorUpdateListener(){
-				@Override
-				public void onAnimationUpdate(ValueAnimator animation) {
-					Float w = (Float)animation.getAnimatedValue();
-					content.setX(w);
-				}
-			};
-			
-			//animator that scales content panel 
-			AnimatorUpdateListener scaleContentListener = new AnimatorUpdateListener(){
-				@Override
-				public void onAnimationUpdate(ValueAnimator animation) {
-					Float w = (Float)animation.getAnimatedValue();
-					content.setScaleX(w);
-					content.setScaleY(w);
-				}
-			};
-			
-			
-			ValueAnimator scaleAnimator = ValueAnimator.ofFloat(1f, 1.05f);
-			scaleAnimator.setDuration(200);
-			scaleAnimator.setRepeatCount(1);
-			scaleAnimator.setRepeatMode(ValueAnimator.REVERSE);
-			scaleAnimator.addUpdateListener(scaleContentListener);
-			
-			//show/hide
-			if(content.getX() > 0){
-				//HIDE Menu
-				
-				if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-					ValueAnimator transAnimator = ValueAnimator.ofFloat(content.getX(), 0);
-					transAnimator.setDuration(300);
-					transAnimator.setStartDelay(100);
-					transAnimator.addUpdateListener(translateContentListener);
-
-					scaleAnimator.start();
-					transAnimator.start();
-				}else{
-					FrameLayout.LayoutParams params = (android.widget.FrameLayout.LayoutParams) content.getLayoutParams();
-					params.leftMargin = 0;
-					content.setLayoutParams(params);
-				}
-				
-				mMenuVisible = false;
-				return true;
-			}else{
-				//SHOW Menu
-				
-				if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-					ValueAnimator transAnimator = ValueAnimator.ofFloat(0, menu.getWidth());
-					transAnimator.setDuration(300);
-					transAnimator.setStartDelay(100);
-					transAnimator.addUpdateListener(translateContentListener);
-
-					scaleAnimator.start();
-					transAnimator.start();
-				}else{
-					FrameLayout.LayoutParams params = (android.widget.FrameLayout.LayoutParams) content.getLayoutParams();
-					params.leftMargin = menu.getWidth();
-					content.setLayoutParams(params);
-				}
-				
-				mMenuVisible = true;
-				return true;
-			}
-		}
-		
-		return false;
-	}
 
 	// internal helpers
 	
@@ -257,45 +151,48 @@ public abstract class AbstractMythtvFragmentActivity extends FragmentActivity im
 		Log.v( TAG, "setupActionBar : exit" );
 	}
 	
-	@Override
-	public void setContentView(int layoutResID) {
-		
-		//inflate main activity layout
-		View mainLayout = getLayoutInflater().inflate(R.layout.activity_main, null);
+//	@Override
+//	public void setContentView(int layoutResID) {
+//		
+//		//inflate main activity layout
+//		View mainLayout = getLayoutInflater().inflate(R.layout.activity_main, null);
+//	
+//		//get main menu framelayout
+//		FrameLayout menu = (FrameLayout) mainLayout.findViewById(R.id.frame_layout_main_menu);
+//		
+//		//get framgment manager and start a transaction
+//		FragmentManager fragMgr = this.getSupportFragmentManager();
+//		FragmentTransaction fTran = fragMgr.beginTransaction();
+//		
+//		fTran.setTransition(FragmentTransaction.TRANSIT_NONE);
+//		
+//		//Setup main menu fragment
+//		Fragment mainMenuFrag = fragMgr.findFragmentById(R.layout.fragment_main_menu);
+//		if (null == mainMenuFrag) {
+//			mainMenuFrag = Fragment.instantiate(this, MainMenuFragment.class.getName());
+//			fTran.add(R.id.frame_layout_main_menu, mainMenuFrag);
+//		}else{
+//			fTran.replace(R.id.frame_layout_main_menu, mainMenuFrag);
+//		}
+//		
+//		menu.setEnabled(false);
+//		
+//		//finalize fragment transaction
+//		//fTran.commit();
+//		//this fixes an exception caused by a bug in support library.
+//		fTran.commitAllowingStateLoss();
+//		
+//		FrameLayout content = (FrameLayout) mainLayout.findViewById(R.id.frame_layout_main_ui);
+//	    
+//	    // Setting the content of layout your provided to the act_content frame
+//		mInitialContentlayoutResID = layoutResID;
+//	    getLayoutInflater().inflate(layoutResID, content, true); 
+//	    
+//	    //set our new main layout
+//	    super.setContentView(mainLayout);
+//		
+//	}
 	
-		//get main menu framelayout
-		FrameLayout menu = (FrameLayout) mainLayout.findViewById(R.id.frame_layout_main_menu);
-		
-		//get framgment manager and start a transaction
-		FragmentManager fragMgr = this.getSupportFragmentManager();
-		FragmentTransaction fTran = fragMgr.beginTransaction();
-		
-		//Setup main menu fragment
-		Fragment mainMenuFrag = fragMgr.findFragmentById(R.layout.fragment_main_menu);
-		if (null == mainMenuFrag) {
-			mainMenuFrag = Fragment.instantiate(this, MainMenuFragment.class.getName());
-			fTran.add(R.id.frame_layout_main_menu, mainMenuFrag);
-		}else{
-			fTran.replace(R.id.frame_layout_main_menu, mainMenuFrag);
-		}
-		
-		//finalize fragment transaction
-		//fTran.commit();
-		//this fixes an exception caused by a bug in support library.
-		fTran.commitAllowingStateLoss();
-		
-		FrameLayout content = (FrameLayout) mainLayout.findViewById(R.id.frame_layout_main_ui);
-	    
-	    // Setting the content of layout your provided to the act_content frame
-	    getLayoutInflater().inflate(layoutResID, content, true); 
-	    
-	    //set our new main layout
-	    super.setContentView(mainLayout);
-		
-	}
 	
-	public boolean isMainMenuVisible(){
-		return this.mMenuVisible;
-	}
 
 }
