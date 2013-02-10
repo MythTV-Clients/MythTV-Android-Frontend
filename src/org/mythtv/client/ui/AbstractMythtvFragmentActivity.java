@@ -150,49 +150,6 @@ public abstract class AbstractMythtvFragmentActivity extends FragmentActivity im
 		
 		Log.v( TAG, "setupActionBar : exit" );
 	}
-	
-//	@Override
-//	public void setContentView(int layoutResID) {
-//		
-//		//inflate main activity layout
-//		View mainLayout = getLayoutInflater().inflate(R.layout.activity_main, null);
-//	
-//		//get main menu framelayout
-//		FrameLayout menu = (FrameLayout) mainLayout.findViewById(R.id.frame_layout_main_menu);
-//		
-//		//get framgment manager and start a transaction
-//		FragmentManager fragMgr = this.getSupportFragmentManager();
-//		FragmentTransaction fTran = fragMgr.beginTransaction();
-//		
-//		fTran.setTransition(FragmentTransaction.TRANSIT_NONE);
-//		
-//		//Setup main menu fragment
-//		Fragment mainMenuFrag = fragMgr.findFragmentById(R.layout.fragment_main_menu);
-//		if (null == mainMenuFrag) {
-//			mainMenuFrag = Fragment.instantiate(this, MainMenuFragment.class.getName());
-//			fTran.add(R.id.frame_layout_main_menu, mainMenuFrag);
-//		}else{
-//			fTran.replace(R.id.frame_layout_main_menu, mainMenuFrag);
-//		}
-//		
-//		menu.setEnabled(false);
-//		
-//		//finalize fragment transaction
-//		//fTran.commit();
-//		//this fixes an exception caused by a bug in support library.
-//		fTran.commitAllowingStateLoss();
-//		
-//		FrameLayout content = (FrameLayout) mainLayout.findViewById(R.id.frame_layout_main_ui);
-//	    
-//	    // Setting the content of layout your provided to the act_content frame
-//		mInitialContentlayoutResID = layoutResID;
-//	    getLayoutInflater().inflate(layoutResID, content, true); 
-//	    
-//	    //set our new main layout
-//	    super.setContentView(mainLayout);
-//		
-//	}
-	
-	
+
 
 }
