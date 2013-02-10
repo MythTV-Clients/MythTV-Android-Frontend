@@ -20,7 +20,6 @@ package org.mythtv.client.ui.dvr;
 
 import org.mythtv.R;
 import org.mythtv.client.ui.AbstractMythtvFragmentActivity;
-import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.util.MenuHelper;
 import org.mythtv.db.content.LiveStreamDaoHelper;
 import org.mythtv.db.dvr.RecordedDaoHelper;
@@ -29,13 +28,10 @@ import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.util.FileHelper;
 import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.service.util.RunningServiceHelper;
-import org.mythtv.service.util.image.ImageCache;
-import org.mythtv.service.util.image.ImageFetcher;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MenuItem;
 
@@ -51,7 +47,6 @@ public abstract class AbstractDvrActivity extends AbstractMythtvFragmentActivity
 	protected SharedPreferences preferences = null;
 
 	protected FileHelper mFileHelper;
-	protected ImageFetcher mImageFetcher;
 	protected LiveStreamDaoHelper mLiveStreamDaoHelper;
 	protected LocationProfileDaoHelper mLocationProfileDaoHelper;
 	protected MenuHelper mMenuHelper;
@@ -81,23 +76,6 @@ public abstract class AbstractDvrActivity extends AbstractMythtvFragmentActivity
 		mRecordedDaoHelper = new RecordedDaoHelper( this );
 		mRunningServiceHelper = RunningServiceHelper.newInstance( this );
 		
-        // Fetch screen height and width, to use as our max size when loading images as this activity runs full screen
-        final DisplayMetrics displayMetrics = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics( displayMetrics );
-        
-        final int height = displayMetrics.heightPixels;
-        final int width = displayMetrics.widthPixels;
-        Log.v( TAG, "onCreate : device hxw - " + height + " x " + width );
-        
-        int longest = width; //( height < width ? height : width );
-        
-        ImageCache.ImageCacheParams cacheParams = new ImageCache.ImageCacheParams( mFileHelper.getProgramRecordedDataDirectory() );
-        cacheParams.setMemCacheSizePercent( this, 0.25f ); // Set memory cache to 25% of mem class
-
-        mImageFetcher = new ImageFetcher( this, longest );
-        mImageFetcher.addImageCache( getSupportFragmentManager(), cacheParams );
-        mImageFetcher.setImageFadeIn( false );
-
 		Log.v( TAG, "onCreate : exit" );
 	}
 	
@@ -109,8 +87,6 @@ public abstract class AbstractDvrActivity extends AbstractMythtvFragmentActivity
 		Log.v( TAG, "onResume : enter" );
 		super.onResume();
 		
-        mImageFetcher.setExitTasksEarly( false );
-
 		Log.v( TAG, "onResume : exit" );
 	}
 
@@ -121,9 +97,6 @@ public abstract class AbstractDvrActivity extends AbstractMythtvFragmentActivity
     protected void onPause() {
 		Log.v( TAG, "onPause : enter" );
         super.onPause();
-
-        mImageFetcher.setExitTasksEarly(true);
-        mImageFetcher.flushCache();
 
         Log.v( TAG, "onPause : enter" );
     }
@@ -136,8 +109,6 @@ public abstract class AbstractDvrActivity extends AbstractMythtvFragmentActivity
 		Log.v( TAG, "onDestroy : enter" );
 		super.onDestroy();
         
-		mImageFetcher.closeCache();
-
         Log.v( TAG, "onDestroy : exit" );
     }
 
@@ -167,13 +138,6 @@ public abstract class AbstractDvrActivity extends AbstractMythtvFragmentActivity
 		return preferences;
 	}
 	
-	/**
-	 * @return the mImageFetcher
-	 */
-	public ImageFetcher getImageFetcher() {
-		return mImageFetcher;
-	}
-
 	public LiveStreamDaoHelper getLiveStreamDaoHelper() {
 		return mLiveStreamDaoHelper;
 	}

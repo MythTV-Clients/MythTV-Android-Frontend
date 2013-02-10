@@ -31,9 +31,9 @@ import org.mythtv.db.content.LiveStreamDaoHelper;
 import org.mythtv.db.dvr.RecordedDaoHelper;
 import org.mythtv.db.dvr.programGroup.ProgramGroup;
 import org.mythtv.db.dvr.programGroup.ProgramGroupDaoHelper;
+import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.util.DateUtils;
 import org.mythtv.service.util.NetworkHelper;
-import org.mythtv.service.util.image.ImageFetcher;
 import org.mythtv.services.api.Bool;
 import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.content.LiveStreamInfo;
@@ -47,6 +47,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.AsyncTask.Status;
 import android.os.Bundle;
@@ -65,6 +66,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.FailReason;
+import com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener;
+
 public class EpisodeFragment extends AbstractMythFragment {
 
 	private static final String TAG = EpisodeFragment.class.getSimpleName();
@@ -73,11 +79,11 @@ public class EpisodeFragment extends AbstractMythFragment {
 	private OnEpisodeActionListener listener = null;
 
 	private LiveStreamDaoHelper mLiveStreamDaoHelper;
+	private LocationProfileDaoHelper mLocationProfileDaoHelper;
 	private MenuHelper mMenuHelper;
 	private NetworkHelper mNetworkHelper;
 	private ProgramGroupDaoHelper mProgramGroupDaoHelper; 
 	private RecordedDaoHelper mRecordedDaoHelper; 
-	private ImageFetcher mImageFetcher;
 
 	private Program program;
 	private LiveStreamInfo liveStreamInfo;
@@ -89,6 +95,9 @@ public class EpisodeFragment extends AbstractMythFragment {
 	private CreateStreamTask createStreamTask = null;
 	private UpdateStreamInfoTask updateStreamInfoTask = null;
 	
+	private ImageLoader imageLoader = ImageLoader.getInstance();
+	private DisplayImageOptions options;
+
 	private SharedPreferences preferences = null;
 	
 	@Override
@@ -113,7 +122,17 @@ public class EpisodeFragment extends AbstractMythFragment {
 
 		preferences = ( (AbstractDvrActivity) getActivity() ).getSharedPreferences();
 		
+		options = new DisplayImageOptions.Builder()
+//			.showStubImage( R.drawable.ic_stub )
+//			.showImageForEmptyUri( R.drawable.ic_empty )
+//			.showImageOnFail( R.drawable.ic_error )
+			.cacheInMemory()
+			.cacheOnDisc()
+//			.displayer( new RoundedBitmapDisplayer( 20 ) )
+			.build();
+
 		mLiveStreamDaoHelper = ( (AbstractDvrActivity) getActivity() ).getLiveStreamDaoHelper();
+		mLocationProfileDaoHelper = ( (AbstractDvrActivity) getActivity() ).getLocationProfileDaoHelper();
 		mMenuHelper = ( (AbstractDvrActivity) getActivity() ).getMenuHelper();
 		mNetworkHelper = ( (AbstractDvrActivity) getActivity() ).getNetworkHelper();
 		mProgramGroupDaoHelper = ( (AbstractDvrActivity) getActivity() ).getProgramGroupDaoHelper();
@@ -457,12 +476,12 @@ public class EpisodeFragment extends AbstractMythFragment {
 		program = null;
 		liveStreamInfo = null;
 		
-		if( null == mImageFetcher ) {
-            mImageFetcher = ( (AbstractDvrActivity) getActivity() ).getImageFetcher();
-		}
-		
 		if( null == mLiveStreamDaoHelper ) {
 			mLiveStreamDaoHelper = ( (AbstractDvrActivity) getActivity() ).getLiveStreamDaoHelper();
+		}
+		
+		if( null == mLocationProfileDaoHelper ) {
+			mLocationProfileDaoHelper = ( (AbstractDvrActivity) getActivity() ).getLocationProfileDaoHelper();
 		}
 		
 		if( null == mNetworkHelper ) {
@@ -481,13 +500,32 @@ public class EpisodeFragment extends AbstractMythFragment {
 			FragmentActivity activity = this.getActivity();
 
 			// coverart
-			ImageView iView = (ImageView) activity.findViewById( R.id.imageView_episode_coverart );
+			final ImageView iView = (ImageView) activity.findViewById( R.id.imageView_episode_coverart );
 			iView.setImageDrawable( null );
 			
 			if( null != program.getInetref() && !"".equals( program.getInetref() ) ) {
-				if( null != mImageFetcher ) {
-					mImageFetcher.loadImage( program.getInetref(), "Coverart", iView, null );
-				}
+
+				String imageUri = mLocationProfileDaoHelper.findConnectedProfile().getUrl() + "Content/GetRecordingArtwork?Type=Coverart&Inetref=" + program.getInetref();
+				imageLoader.displayImage( imageUri, iView, options, new SimpleImageLoadingListener() {
+
+					/* (non-Javadoc)
+					 * @see com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener#onLoadingComplete(android.graphics.Bitmap)
+					 */
+					@Override
+					public void onLoadingComplete( Bitmap loadedImage ) {
+				        iView.setVisibility( View.VISIBLE );
+					}
+
+					/* (non-Javadoc)
+					 * @see com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener#onLoadingFailed(com.nostra13.universalimageloader.core.assist.FailReason)
+					 */
+					@Override
+					public void onLoadingFailed( FailReason failReason ) {
+				        iView.setVisibility( View.GONE );
+					}
+					
+				});
+
 			}
 			
 			// title
