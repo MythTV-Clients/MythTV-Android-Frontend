@@ -303,13 +303,13 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 			if( null != program.getRecording() ) {
 				
 				String[] recordingProjection = new String[] { RecordingConstants._ID };
-				String recordingSelection = RecordingConstants.FIELD_RECORD_ID + " = ? AND " + RecordingConstants.FIELD_START_TS + " = ? AND " + RecordingConstants.FIELD_HOSTNAME + " = ?";
+				String recordingSelection = RecordingConstants.FIELD_RECORD_ID + " = ? AND " + RecordingConstants.FIELD_START_TIME + " = ? AND " + RecordingConstants.FIELD_HOSTNAME + " = ?";
 				
 				Log.v( TAG, "load : recording=" + program.getRecording().toString() );
 				DateTime startTimestamp = new DateTime( program.getRecording().getStartTimestamp().getMillis() );
 				
 				ContentValues recordingValues = mRecordingDaoHelper.convertRecordingToContentValues( program.getRecording(), program.getStartTime() );
-				Cursor recordingCursor = mContext.getContentResolver().query( RecordingConstants.CONTENT_URI, recordingProjection, recordingSelection, new String[] { String.valueOf( program.getRecording().getRecordId() ), String.valueOf( startTimestamp.getMillis() ), mLocationProfile.getHostname() }, null );
+				Cursor recordingCursor = mContext.getContentResolver().query( RecordingConstants.CONTENT_URI, recordingProjection, recordingSelection, new String[] { String.valueOf( program.getRecording().getRecordId() ), String.valueOf( program.getStartTime().getMillis() ), mLocationProfile.getHostname() }, null );
 				if( recordingCursor.moveToFirst() ) {
 					Log.v( TAG, "load : UPDATE RECORDING program=" + program.getTitle() + ", recording=" + program.getRecording().getRecordId() + ", startTime=" + DateUtils.dateTimeFormatterPretty.print( startTimestamp ) );
 
