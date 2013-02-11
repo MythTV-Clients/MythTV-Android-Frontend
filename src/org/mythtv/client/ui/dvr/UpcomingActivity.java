@@ -23,6 +23,7 @@ import java.util.List;
 
 import org.joda.time.DateTime;
 import org.mythtv.R;
+import org.mythtv.client.ui.AbstractMythtvFragmentActivity;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.util.MenuHelper;
 import org.mythtv.db.dvr.UpcomingDaoHelper;
@@ -52,7 +53,7 @@ import android.widget.Toast;
  * @author Daniel Frey
  *
  */
-public class UpcomingActivity extends AbstractDvrActivity {
+public class UpcomingActivity extends AbstractMythtvFragmentActivity {
 
 	private static final String TAG = UpcomingActivity.class.getSimpleName();
 

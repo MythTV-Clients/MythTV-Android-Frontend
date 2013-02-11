@@ -19,6 +19,7 @@
 package org.mythtv.client.ui.dvr;
 
 import org.mythtv.R;
+import org.mythtv.client.ui.AbstractMythtvFragmentActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -30,7 +31,7 @@ import android.util.Log;
  * @author Daniel Frey
  *
  */
-public class RecordingRulesActivity extends AbstractDvrActivity implements RecordingRulesFragment.OnRecordingRuleListener {
+public class RecordingRulesActivity extends AbstractMythtvFragmentActivity implements RecordingRulesFragment.OnRecordingRuleListener {
 
 	private static final String TAG = RecordingRulesActivity.class.getSimpleName();
 	

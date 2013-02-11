@@ -20,6 +20,7 @@ package org.mythtv.client.ui.dvr;
 	
 import org.joda.time.DateTime;
 import org.mythtv.R;
+import org.mythtv.client.ui.AbstractMythtvFragmentActivity;
 import org.mythtv.db.content.LiveStreamDaoHelper;
 import org.mythtv.db.dvr.RecordedDaoHelper;
 import org.mythtv.service.util.NetworkHelper;
@@ -48,7 +49,7 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
  * @author John Baab
  * 
  */
-public class VideoActivity extends AbstractDvrActivity {
+public class VideoActivity extends AbstractMythtvFragmentActivity {
 
 	private static final String TAG = VideoActivity.class.getSimpleName();
 	private static final String DISMISS = "org.mythtv.videoActivity.dismissDialog";

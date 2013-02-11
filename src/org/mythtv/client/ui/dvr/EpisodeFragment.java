@@ -23,6 +23,7 @@ import java.util.List;
 import org.joda.time.DateTime;
 import org.mythtv.R;
 import org.mythtv.client.ui.AbstractMythFragment;
+import org.mythtv.client.ui.AbstractMythtvFragmentActivity;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.preferences.LocationProfile.LocationType;
 import org.mythtv.client.ui.preferences.PlaybackProfile;
@@ -120,23 +121,13 @@ public class EpisodeFragment extends AbstractMythFragment {
 		Log.v( TAG, "onActivityCreated : enter" );
 		super.onActivityCreated( savedInstanceState );
 
-		preferences = ( (AbstractDvrActivity) getActivity() ).getSharedPreferences();
+		preferences = ( (AbstractMythtvFragmentActivity) getActivity() ).getSharedPreferences();
 		
-		options = new DisplayImageOptions.Builder()
-//			.showStubImage( R.drawable.ic_stub )
-//			.showImageForEmptyUri( R.drawable.ic_empty )
-//			.showImageOnFail( R.drawable.ic_error )
-			.cacheInMemory()
-			.cacheOnDisc()
-//			.displayer( new RoundedBitmapDisplayer( 20 ) )
-			.build();
-
-		mLiveStreamDaoHelper = ( (AbstractDvrActivity) getActivity() ).getLiveStreamDaoHelper();
-		mLocationProfileDaoHelper = ( (AbstractDvrActivity) getActivity() ).getLocationProfileDaoHelper();
-		mMenuHelper = ( (AbstractDvrActivity) getActivity() ).getMenuHelper();
-		mNetworkHelper = ( (AbstractDvrActivity) getActivity() ).getNetworkHelper();
-		mProgramGroupDaoHelper = ( (AbstractDvrActivity) getActivity() ).getProgramGroupDaoHelper();
-		mRecordedDaoHelper = ( (AbstractDvrActivity) getActivity() ).getRecordedDaoHelper();
+		mLiveStreamDaoHelper = ( (AbstractMythtvFragmentActivity) getActivity() ).getLiveStreamDaoHelper();
+		mMenuHelper = ( (AbstractMythtvFragmentActivity) getActivity() ).getMenuHelper();
+		mNetworkHelper = ( (AbstractMythtvFragmentActivity) getActivity() ).getNetworkHelper();
+		mProgramGroupDaoHelper = ( (AbstractMythtvFragmentActivity) getActivity() ).getProgramGroupDaoHelper();
+		mRecordedDaoHelper = ( (AbstractMythtvFragmentActivity) getActivity() ).getRecordedDaoHelper();
 		
 		setHasOptionsMenu( true );
 		setRetainInstance( true );
@@ -476,8 +467,12 @@ public class EpisodeFragment extends AbstractMythFragment {
 		program = null;
 		liveStreamInfo = null;
 		
+		if( null == mImageFetcher ) {
+            mImageFetcher = ( (AbstractMythtvFragmentActivity) getActivity() ).getImageFetcher();
+		}
+		
 		if( null == mLiveStreamDaoHelper ) {
-			mLiveStreamDaoHelper = ( (AbstractDvrActivity) getActivity() ).getLiveStreamDaoHelper();
+			mLiveStreamDaoHelper = ( (AbstractMythtvFragmentActivity) getActivity() ).getLiveStreamDaoHelper();
 		}
 		
 		if( null == mLocationProfileDaoHelper ) {
@@ -485,11 +480,11 @@ public class EpisodeFragment extends AbstractMythFragment {
 		}
 		
 		if( null == mNetworkHelper ) {
-			mNetworkHelper = ( (AbstractDvrActivity) getActivity() ).getNetworkHelper();
+			mNetworkHelper = ( (AbstractMythtvFragmentActivity) getActivity() ).getNetworkHelper();
 		}
 		
 		if( null == mRecordedDaoHelper ) {
-			mRecordedDaoHelper = ( (AbstractDvrActivity) getActivity() ).getRecordedDaoHelper();
+			mRecordedDaoHelper = ( (AbstractMythtvFragmentActivity) getActivity() ).getRecordedDaoHelper();
 		}
 		
 		Log.v( TAG, "loadEpisode : channelId=" + channelId + ", startTime=" + DateUtils.dateTimeFormatterPretty.print( startTime ) );

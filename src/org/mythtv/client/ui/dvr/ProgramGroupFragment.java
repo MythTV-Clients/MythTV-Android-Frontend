@@ -21,6 +21,7 @@ package org.mythtv.client.ui.dvr;
 import org.joda.time.DateTime;
 import org.mythtv.R;
 import org.mythtv.client.MainApplication;
+import org.mythtv.client.ui.AbstractMythtvFragmentActivity;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.util.MythtvListFragment;
 import org.mythtv.client.ui.util.ProgramHelper;
@@ -80,7 +81,7 @@ public class ProgramGroupFragment extends MythtvListFragment implements LoaderMa
 	public Loader<Cursor> onCreateLoader( int id, Bundle args ) {
 		Log.v( TAG, "onCreateLoader : enter" );
 
-		mLocationProfileDaoHelper = ( (AbstractDvrActivity) getActivity() ).getLocationProfileDaoHelper();
+		mLocationProfileDaoHelper = ( (AbstractMythtvFragmentActivity) getActivity() ).getLocationProfileDaoHelper();
 		LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile();
 		
 		String[] projection = { ProgramConstants._ID, ProgramConstants.FIELD_TITLE, ProgramConstants.FIELD_SUB_TITLE, ProgramConstants.FIELD_CATEGORY, ProgramConstants.FIELD_START_TIME };
@@ -138,7 +139,7 @@ public class ProgramGroupFragment extends MythtvListFragment implements LoaderMa
 	    
 		mProgramHelper = ProgramHelper.createInstance( getActivity() );
 		
-		mRecordedDaoHelper = ( (AbstractDvrActivity) getActivity() ).getRecordedDaoHelper();
+		mRecordedDaoHelper = ( (AbstractMythtvFragmentActivity) getActivity() ).getRecordedDaoHelper();
 		
 		mAdapter = new ProgramCursorAdapter(
 	            getActivity().getApplicationContext(), R.layout.program_row,

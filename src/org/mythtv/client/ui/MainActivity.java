@@ -289,6 +289,7 @@ public class MainActivity extends AbstractMythtvFragmentActivity implements Cont
 		
 		//replace content fragment with this one
 		fTran.replace(R.id.frame_layout_main_ui, fragment);
+		fTran.addToBackStack(null);
 		
 		//finalize fragment transaction
 		//fTran.commit();
