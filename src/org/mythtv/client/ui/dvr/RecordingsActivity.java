@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.joda.time.DateTime;
 import org.mythtv.R;
+import org.mythtv.client.ui.AbstractMythtvFragmentActivity;
 import org.mythtv.db.dvr.programGroup.ProgramGroup;
 import org.mythtv.db.dvr.programGroup.ProgramGroupConstants;
 import org.mythtv.service.util.image.ImageFetcher;
@@ -37,7 +38,7 @@ import android.util.Log;
  * @author Daniel Frey
  * 
  */
-public class RecordingsActivity extends AbstractDvrActivity implements RecordingsFragment.OnProgramGroupListener, ProgramGroupFragment.OnEpisodeSelectedListener, EpisodeFragment.OnEpisodeActionListener {
+public class RecordingsActivity extends AbstractMythtvFragmentActivity implements RecordingsFragment.OnProgramGroupListener, ProgramGroupFragment.OnEpisodeSelectedListener, EpisodeFragment.OnEpisodeActionListener {
 
 	private static final String TAG = RecordingsActivity.class.getSimpleName();
 	private static final String PROGRAM_GROUP_LIST_TAG = "PROGRAM_GROUP_LIST_TAG";

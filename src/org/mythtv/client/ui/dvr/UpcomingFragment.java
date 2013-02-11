@@ -21,6 +21,7 @@ package org.mythtv.client.ui.dvr;
 import org.joda.time.DateTime;
 import org.mythtv.R;
 import org.mythtv.client.MainApplication;
+import org.mythtv.client.ui.AbstractMythtvFragmentActivity;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.util.MythtvListFragment;
 import org.mythtv.client.ui.util.ProgramHelper;
@@ -88,7 +89,7 @@ public class UpcomingFragment extends MythtvListFragment implements LoaderManage
 
         mainApplication = getMainApplication();
 
-		mLocationProfileDaoHelper = ( (AbstractDvrActivity) getActivity() ).getLocationProfileDaoHelper();
+		mLocationProfileDaoHelper = ( (AbstractMythtvFragmentActivity) getActivity() ).getLocationProfileDaoHelper();
 		LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile();
 		Log.v( TAG, "onCreateLoader : loading upcoming for profile " + locationProfile.getHostname() + " [" + locationProfile.getUrl() + "]" );
 

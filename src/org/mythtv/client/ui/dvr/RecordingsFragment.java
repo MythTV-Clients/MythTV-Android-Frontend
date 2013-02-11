@@ -20,6 +20,7 @@ package org.mythtv.client.ui.dvr;
 
 import org.joda.time.DateTime;
 import org.mythtv.R;
+import org.mythtv.client.ui.AbstractMythtvFragmentActivity;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.util.MenuHelper;
 import org.mythtv.client.ui.util.MythtvListFragment;
@@ -91,7 +92,7 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 	public Loader<Cursor> onCreateLoader( int id, Bundle args ) {
 		Log.v( TAG, "onCreateLoader : enter" );
 		
-		mLocationProfileDaoHelper = ( (AbstractDvrActivity) getActivity() ).getLocationProfileDaoHelper();
+		mLocationProfileDaoHelper = ( (AbstractMythtvFragmentActivity) getActivity() ).getLocationProfileDaoHelper();
 		LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile();
 		Log.v( TAG, "onCreateLoader : loading recorded for profile " + locationProfile.getHostname() + " [" + locationProfile.getUrl() + "]" );
 		
@@ -144,11 +145,11 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 
 		mEtagDaoHelper = new EtagDaoHelper( getActivity() );
 	
-        mImageFetcher = ( (AbstractDvrActivity) getActivity() ).getImageFetcher();
-		mProgramGroupDaoHelper = ( (AbstractDvrActivity) getActivity() ).getProgramGroupDaoHelper();
+        mImageFetcher = ( (AbstractMythtvFragmentActivity) getActivity() ).getImageFetcher();
+		mProgramGroupDaoHelper = ( (AbstractMythtvFragmentActivity) getActivity() ).getProgramGroupDaoHelper();
 
-		mMenuHelper = ( (AbstractDvrActivity) getActivity() ).getMenuHelper();
-		mRunningServiceHelper = ( (AbstractDvrActivity) getActivity() ).getRunningServiceHelper();
+		mMenuHelper = ( (AbstractMythtvFragmentActivity) getActivity() ).getMenuHelper();
+		mRunningServiceHelper = ( (AbstractMythtvFragmentActivity) getActivity() ).getRunningServiceHelper();
 
 		setHasOptionsMenu( true );
 		setRetainInstance( true );

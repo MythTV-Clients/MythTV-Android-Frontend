@@ -23,6 +23,7 @@ package org.mythtv.client.ui.dvr;
 
 import org.mythtv.R;
 import org.mythtv.client.ui.AbstractMythFragment;
+import org.mythtv.client.ui.AbstractMythtvFragmentActivity;
 import org.mythtv.client.ui.util.MenuHelper;
 import org.mythtv.client.ui.util.ProgramHelper;
 import org.mythtv.db.channel.ChannelDaoHelper;
@@ -125,7 +126,7 @@ public class RecordingRuleFragment extends AbstractMythFragment {
 		if( null != getActivity() ) {
 
 			if( null == mNetworkHelper ) {
-				mNetworkHelper = ( (AbstractDvrActivity) getActivity() ).getNetworkHelper();
+				mNetworkHelper = ( (AbstractMythtvFragmentActivity) getActivity() ).getNetworkHelper();
 			}
 
 			new DownloadRecordingRuleTask().execute( mRecordingRuleId );
@@ -142,7 +143,7 @@ public class RecordingRuleFragment extends AbstractMythFragment {
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		Log.v( TAG, "onCreateOptionsMenu : enter" );
 
-		mMenuHelper = ( (AbstractDvrActivity) getActivity() ).getMenuHelper();
+		mMenuHelper = ( (AbstractMythtvFragmentActivity) getActivity() ).getMenuHelper();
 
 		mMenuHelper.editMenuItem( menu );
 		mMenuHelper.deleteMenuItem( menu );

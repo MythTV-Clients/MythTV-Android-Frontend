@@ -20,6 +20,7 @@ package org.mythtv.client.ui.dvr;
 
 import org.joda.time.DateTime;
 import org.mythtv.R;
+import org.mythtv.client.ui.AbstractMythtvFragmentActivity;
 import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.db.dvr.programGroup.ProgramGroup;
 import org.mythtv.db.dvr.programGroup.ProgramGroupConstants;
@@ -34,7 +35,7 @@ import android.view.MenuItem;
  * @author John Baab
  * 
  */
-public class ProgramGroupActivity extends AbstractDvrActivity implements ProgramGroupFragment.OnEpisodeSelectedListener {
+public class ProgramGroupActivity extends AbstractMythtvFragmentActivity implements ProgramGroupFragment.OnEpisodeSelectedListener {
 
 	private static final String TAG = ProgramGroupActivity.class.getSimpleName();
 
