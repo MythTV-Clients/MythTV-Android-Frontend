@@ -302,25 +302,26 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 			
 			if( null != program.getRecording() ) {
 				
-				String[] recordingProjection = new String[] { RecordingConstants._ID };
+				String[] recordingProjection = new String[] { RecordingConstants.TABLE_NAME + "_" + RecordingConstants._ID };
 				String recordingSelection = RecordingConstants.FIELD_RECORD_ID + " = ? AND " + RecordingConstants.FIELD_START_TIME + " = ? AND " + RecordingConstants.FIELD_HOSTNAME + " = ?";
+				String[] recordingSelectionArgs = new String[] { String.valueOf( program.getRecording().getRecordId() ), String.valueOf( program.getStartTime().getMillis() ), mLocationProfile.getHostname() };
 				
 				Log.v( TAG, "load : recording=" + program.getRecording().toString() );
-				DateTime startTimestamp = new DateTime( program.getRecording().getStartTimestamp().getMillis() );
 				
 				ContentValues recordingValues = mRecordingDaoHelper.convertRecordingToContentValues( program.getRecording(), program.getStartTime() );
-				Cursor recordingCursor = mContext.getContentResolver().query( RecordingConstants.CONTENT_URI, recordingProjection, recordingSelection, new String[] { String.valueOf( program.getRecording().getRecordId() ), String.valueOf( program.getStartTime().getMillis() ), mLocationProfile.getHostname() }, null );
+				Cursor recordingCursor = mContext.getContentResolver().query( RecordingConstants.CONTENT_URI, recordingProjection, recordingSelection, recordingSelectionArgs, null );
 				if( recordingCursor.moveToFirst() ) {
-					Log.v( TAG, "load : UPDATE RECORDING program=" + program.getTitle() + ", recording=" + program.getRecording().getRecordId() + ", startTime=" + DateUtils.dateTimeFormatterPretty.print( startTimestamp ) );
+					Log.v( TAG, "load : UPDATE RECORDING program=" + program.getTitle() + ", recording=" + program.getRecording().getRecordId() );
 
+					Long id = recordingCursor.getLong( recordingCursor.getColumnIndexOrThrow( RecordingConstants.TABLE_NAME + "_" + RecordingConstants._ID ) );					
 					ops.add( 
-						ContentProviderOperation.newUpdate( ContentUris.withAppendedId( RecordingConstants.CONTENT_URI, program.getRecording().getRecordId() ) )
+						ContentProviderOperation.newUpdate( ContentUris.withAppendedId( RecordingConstants.CONTENT_URI, id ) )
 						.withValues( recordingValues )
 						.withYieldAllowed( true )
 						.build()
 					);
 				} else {
-					Log.v( TAG, "load : INSERT RECORDING program=" + program.getTitle() + ", recording=" + program.getRecording().getRecordId() + ", startTime=" + DateUtils.dateTimeFormatterPretty.print( startTimestamp ) );
+					Log.v( TAG, "load : INSERT RECORDING program=" + program.getTitle() + ", recording=" + program.getRecording().getRecordId() );
 
 					ops.add(  
 						ContentProviderOperation.newInsert( RecordingConstants.CONTENT_URI )
@@ -358,7 +359,8 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		
 		Log.v( TAG, "load : remove deleted recordings" );
 		for( Program program : recorded.values() ) {
-
+			Log.v( TAG, "load : remove deleted recording - " + program.getTitle() + " [" + program.getSubTitle() + "]" );
+			
 			// Delete any live stream details
 			LiveStreamInfo liveStreamInfo = mLiveStreamDaoHelper.findByProgram( program );
 			if( null != liveStreamInfo ) {
@@ -369,17 +371,26 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 				mLiveStreamDaoHelper.delete( liveStreamInfo );
 			}
 			
-			DateTime startTime = new DateTime( program.getStartTime() );
+			if( null != program.getRecording() ) {
+				Log.v( TAG, "load : remove recording" );
+				
+				ops.add(  
+					ContentProviderOperation.newDelete( RecordingConstants.CONTENT_URI )
+					.withSelection( RecordingConstants.FIELD_RECORD_ID + " = ? AND " + RecordingConstants.FIELD_START_TIME + " = ? AND " + RecordingConstants.FIELD_HOSTNAME + " = ?", new String[] { String.valueOf( program.getRecording().getRecordId() ), String.valueOf( program.getStartTime().getMillis() ), mLocationProfile.getHostname() } )
+					.withYieldAllowed( true )
+					.build()
+				);
+
+			}
 			
-			//Log.v( TAG, "load : DELETE PROGRAM - channel=" + program.getChannelInfo().getChannelNumber() + ", startTime=" + DateUtils.dateTimeFormatterPretty.print( startTime ) );
-			
+			Log.v( TAG, "load : remove program" );
 			ops.add(  
 				ContentProviderOperation.newDelete( uri )
 				.withSelection( ProgramConstants.FIELD_FILENAME + " = ?", new String[] { program.getFilename() } )
 				.withYieldAllowed( true )
 				.build()
 			);
-			
+
 			if( count > 100 ) {
 				Log.v( TAG, "process : applying batch for '" + count + "' transactions" );
 				
