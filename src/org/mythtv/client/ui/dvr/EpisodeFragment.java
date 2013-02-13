@@ -122,8 +122,18 @@ public class EpisodeFragment extends AbstractMythFragment {
 		super.onActivityCreated( savedInstanceState );
 
 		preferences = ( (AbstractMythtvFragmentActivity) getActivity() ).getSharedPreferences();
-		
+
+		options = new DisplayImageOptions.Builder()
+//			.showStubImage( R.drawable.ic_stub )
+//			.showImageForEmptyUri( R.drawable.ic_empty )
+//			.showImageOnFail( R.drawable.ic_error )
+			.cacheInMemory()
+			.cacheOnDisc()
+//			.displayer( new RoundedBitmapDisplayer( 20 ) )
+			.build();
+
 		mLiveStreamDaoHelper = ( (AbstractMythtvFragmentActivity) getActivity() ).getLiveStreamDaoHelper();
+		mLocationProfileDaoHelper = ( (AbstractMythtvFragmentActivity) getActivity() ).getLocationProfileDaoHelper();
 		mMenuHelper = ( (AbstractMythtvFragmentActivity) getActivity() ).getMenuHelper();
 		mNetworkHelper = ( (AbstractMythtvFragmentActivity) getActivity() ).getNetworkHelper();
 		mProgramGroupDaoHelper = ( (AbstractMythtvFragmentActivity) getActivity() ).getProgramGroupDaoHelper();
@@ -467,16 +477,12 @@ public class EpisodeFragment extends AbstractMythFragment {
 		program = null;
 		liveStreamInfo = null;
 		
-		if( null == mImageFetcher ) {
-            mImageFetcher = ( (AbstractMythtvFragmentActivity) getActivity() ).getImageFetcher();
-		}
-		
 		if( null == mLiveStreamDaoHelper ) {
 			mLiveStreamDaoHelper = ( (AbstractMythtvFragmentActivity) getActivity() ).getLiveStreamDaoHelper();
 		}
 		
 		if( null == mLocationProfileDaoHelper ) {
-			mLocationProfileDaoHelper = ( (AbstractDvrActivity) getActivity() ).getLocationProfileDaoHelper();
+			mLocationProfileDaoHelper = ( (AbstractMythtvFragmentActivity) getActivity() ).getLocationProfileDaoHelper();
 		}
 		
 		if( null == mNetworkHelper ) {
