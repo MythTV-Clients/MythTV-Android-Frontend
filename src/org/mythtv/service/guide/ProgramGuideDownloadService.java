@@ -19,6 +19,7 @@
 package org.mythtv.service.guide;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.text.DecimalFormat;
 
@@ -137,7 +138,16 @@ public class ProgramGuideDownloadService extends MythtvService {
 			return;
 		}
 		
-		if( programGuideCache.list().length < MAX_HOURS ) {
+		FilenameFilter filter = new FilenameFilter() {
+	    
+			public boolean accept( File directory, String fileName ) {
+	            return fileName.startsWith( mLocationProfile.getHostname() + "_" ) &&
+	            		fileName.endsWith( FILENAME_EXT );
+	        }
+			
+	    };
+		
+	    if( programGuideCache.list( filter ).length < MAX_HOURS ) {
 
 			mNotificationManager = (NotificationManager) getSystemService( Context.NOTIFICATION_SERVICE );
 
