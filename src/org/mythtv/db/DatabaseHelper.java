@@ -48,7 +48,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	private static final String TAG = DatabaseHelper.class.getSimpleName();
 	
 	private static final String DATABASE_NAME = "mythtvdb";
-	private static final int DATABASE_VERSION = 106;
+	private static final int DATABASE_VERSION = 105;
 
 	public DatabaseHelper( Context context ) {
 		super( context, DATABASE_NAME, null, DATABASE_VERSION );
@@ -110,8 +110,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	public void onUpgrade( SQLiteDatabase db, int oldVersion, int newVersion ) {
 		Log.v( TAG, "onUpgrade : enter" );
 
-		if( oldVersion < 106 ) {
-			Log.v( TAG, "onUpgrade : upgrading to db version 106" );
+		if( oldVersion < 105 ) {
+			Log.v( TAG, "onUpgrade : upgrading to db version 105" );
 
 			onCreate( db );
 

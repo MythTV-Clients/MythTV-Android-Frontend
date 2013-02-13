@@ -28,8 +28,6 @@ import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.util.FileHelper;
 import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.service.util.RunningServiceHelper;
-import org.mythtv.service.util.image.ImageCache;
-import org.mythtv.service.util.image.ImageFetcher;
 
 import android.annotation.TargetApi;
 import android.app.ActionBar;
@@ -53,7 +51,6 @@ public abstract class AbstractMythtvFragmentActivity extends FragmentActivity im
 
 	protected SharedPreferences preferences = null;
 	protected FileHelper mFileHelper;
-	protected ImageFetcher mImageFetcher;
 	protected LiveStreamDaoHelper mLiveStreamDaoHelper;
 	protected LocationProfileDaoHelper mLocationProfileDaoHelper;
 	protected MenuHelper mMenuHelper;
@@ -104,58 +101,10 @@ public abstract class AbstractMythtvFragmentActivity extends FragmentActivity im
         final int height = displayMetrics.heightPixels;
         final int width = displayMetrics.widthPixels;
         Log.v( TAG, "onCreate : device hxw - " + height + " x " + width );
-        
-        int longest = width; //( height < width ? height : width );
-        
-        ImageCache.ImageCacheParams cacheParams = new ImageCache.ImageCacheParams( mFileHelper.getProgramRecordedDataDirectory() );
-        cacheParams.setMemCacheSizePercent( this, 0.25f ); // Set memory cache to 25% of mem class
-
-        mImageFetcher = new ImageFetcher( this, longest );
-        mImageFetcher.addImageCache( getSupportFragmentManager(), cacheParams );
-        mImageFetcher.setImageFadeIn( false );
 		
 		Log.v( TAG, "onCreate : exit" );
 	}
-	
-	/* (non-Javadoc)
-	 * @see android.support.v4.app.FragmentActivity#onResume()
-	 */
-	@Override
-	protected void onResume() {
-		Log.v( TAG, "onResume : enter" );
-		super.onResume();
-		
-        mImageFetcher.setExitTasksEarly( false );
 
-		Log.v( TAG, "onResume : exit" );
-	}
-
-    /* (non-Javadoc)
-     * @see android.support.v4.app.FragmentActivity#onPause()
-     */
-    @Override
-    protected void onPause() {
-		Log.v( TAG, "onPause : enter" );
-        super.onPause();
-
-        mImageFetcher.setExitTasksEarly(true);
-        mImageFetcher.flushCache();
-
-        Log.v( TAG, "onPause : enter" );
-    }
-
-    /* (non-Javadoc)
-     * @see android.support.v4.app.FragmentActivity#onDestroy()
-     */
-    @Override
-    protected void onDestroy() {
-		Log.v( TAG, "onDestroy : enter" );
-		super.onDestroy();
-        
-		mImageFetcher.closeCache();
-
-        Log.v( TAG, "onDestroy : exit" );
-    }
 
 	@TargetApi( 11 )
 	@Override
@@ -214,13 +163,6 @@ public abstract class AbstractMythtvFragmentActivity extends FragmentActivity im
 	 */
 	public SharedPreferences getSharedPreferences() {
 		return preferences;
-	}
-	
-	/**
-	 * @return the mImageFetcher
-	 */
-	public ImageFetcher getImageFetcher() {
-		return mImageFetcher;
 	}
 
 	public LiveStreamDaoHelper getLiveStreamDaoHelper() {
