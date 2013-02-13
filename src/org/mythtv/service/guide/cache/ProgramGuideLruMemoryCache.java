@@ -27,9 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.joda.time.DateTime;
-import org.mythtv.service.MythtvService;
 import org.mythtv.service.guide.ProgramGuideDownloadService;
-import org.mythtv.service.util.DateUtils;
 import org.mythtv.service.util.FileHelper;
 import org.mythtv.services.api.channel.ChannelInfo;
 import org.mythtv.services.api.dvr.Program;
@@ -48,7 +46,7 @@ import com.fasterxml.jackson.datatype.joda.JodaModule;
  * @author Daniel Frey
  *
  */
-public class ProgramGuideLruMemoryCache extends LruCache<DateTime, ProgramGuide> {
+public class ProgramGuideLruMemoryCache extends LruCache<String, ProgramGuide> {
 
 	private static final String TAG = ProgramGuideLruMemoryCache.class.getSimpleName();
 	
@@ -74,14 +72,13 @@ public class ProgramGuideLruMemoryCache extends LruCache<DateTime, ProgramGuide>
 	 * @see android.support.v4.util.LruCache#create(java.lang.Object)
 	 */
 	@Override
-	protected ProgramGuide create( DateTime key ) {
+	protected ProgramGuide create( String key ) {
 		Log.v( TAG, "create : enter" );
 
 		File programGuideCache = mFileHelper.getProgramGuideDataDirectory();
 		if( programGuideCache.exists() ) {
 
-			String sStart = DateUtils.fileDateTimeFormatter.print( key );
-			String filename = sStart + MythtvService.FILENAME_EXT;
+			String filename = key + ProgramGuideDownloadService.FILENAME_EXT;
 			Log.v( TAG, "create : loading data from file " + filename );
 			
 			File file = new File( programGuideCache, filename );
@@ -110,13 +107,12 @@ public class ProgramGuideLruMemoryCache extends LruCache<DateTime, ProgramGuide>
 	 * @see android.support.v4.util.LruCache#sizeOf(java.lang.Object, java.lang.Object)
 	 */
 	@Override
-	protected int sizeOf( DateTime key, ProgramGuide value ) {
+	protected int sizeOf( String key, ProgramGuide value ) {
 		
 		File programGuideCache = mFileHelper.getProgramGuideDataDirectory();
 		if( programGuideCache.exists() ) {
 
-			String sStart = DateUtils.fileDateTimeFormatter.print( key );
-			String filename = sStart + ProgramGuideDownloadService.FILENAME_EXT;
+			String filename = key + ProgramGuideDownloadService.FILENAME_EXT;
 			
 			File file = new File( programGuideCache, filename );
 			if( file.exists() ) {

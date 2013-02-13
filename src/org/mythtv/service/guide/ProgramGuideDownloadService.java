@@ -24,6 +24,8 @@ import java.text.DecimalFormat;
 
 import org.joda.time.DateTime;
 import org.mythtv.R;
+import org.mythtv.client.ui.preferences.LocationProfile;
+import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.MythtvService;
 import org.mythtv.service.util.DateUtils;
 import org.mythtv.services.api.ETagInfo;
@@ -69,6 +71,9 @@ public class ProgramGuideDownloadService extends MythtvService {
 	private PendingIntent mContentIntent = null;
 	private int notificationId = 1000;
 	
+	private LocationProfileDaoHelper mLocationProfileDaoHelper;
+	private LocationProfile mLocationProfile;
+	
 	private File programGuideCache = null;
 	
 	public ProgramGuideDownloadService() {
@@ -109,6 +114,9 @@ public class ProgramGuideDownloadService extends MythtvService {
 		Log.d( TAG, "onHandleIntent : enter" );
 		super.onHandleIntent( intent );
 		
+		mLocationProfileDaoHelper = new LocationProfileDaoHelper( this );
+		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile();
+		
 		programGuideCache = mFileHelper.getProgramGuideDataDirectory();
 		if( null == programGuideCache || !programGuideCache.exists() ) {
 			Intent completeIntent = new Intent( ACTION_COMPLETE );
@@ -146,8 +154,8 @@ public class ProgramGuideDownloadService extends MythtvService {
 
 					for( int currentHour = 0; currentHour < MAX_HOURS; currentHour++ ) {
 
-						File file = new File( programGuideCache, DateUtils.fileDateTimeFormatter.print( start ) + FILENAME_EXT );
-						if( !file.exists() ) {
+						File file = new File( programGuideCache, mLocationProfile.getHostname() + "_" + DateUtils.fileDateTimeFormatter.print( start ) + FILENAME_EXT );
+						if( !file.exists() || file.length() == 0 ) {
 
 							if( !mNetworkHelper.isMasterBackendConnected() ) {
 								Log.d( TAG, "onHandleIntent : exit, Master Backend unreachable" );
