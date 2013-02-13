@@ -134,6 +134,11 @@ public class LocationProfileEditor extends AbstractMythtvFragmentActivity {
 			}
 		}
 
+		if( mProgressDialog != null ) {
+			mProgressDialog.dismiss();
+			mProgressDialog = null;
+	    }
+
 		Log.v( TAG, "onStop : exit" );
 	}
 

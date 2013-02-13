@@ -133,13 +133,30 @@ public class MythtvPreferenceActivity extends PreferenceActivity implements Serv
 		final int port = event.getDNS().getServiceInfo( event.getType(), event.getName() ).getPort();
 		Log.v( TAG, "serviceAdded : masterbackend=" + ( "http://" + hostname + ":" + port + "/" ) );
 
-		LocationProfile profile = new LocationProfile();
-		profile.setId( -1 );
-		profile.setType( LocationType.HOME );
-		profile.setName( event.getName() );
-		profile.setUrl( "http://" + hostname + ":" + port + "/" );
+		if( null != hostname && !"".equals( hostname ) ) {
+			
+			LocationProfile profile = new LocationProfile();
+			profile.setId( -1 );
+			profile.setType( LocationType.HOME );
+			profile.setName( event.getName() );
+			profile.setUrl( "http://" + hostname + ":" + port + "/" );
 		
-		showLocationProfileEditDialog( this, profile );
+			showLocationProfileEditDialog( this, profile );
+		
+		} else {
+
+			AlertDialog.Builder builder = new AlertDialog.Builder( this );
+			builder.setTitle( R.string.preference_edit_error_dialog_title );
+			builder.setNeutralButton( R.string.btn_ok, new DialogInterface.OnClickListener() {
+
+				public void onClick( DialogInterface dialog, int which ) { }
+				
+			});
+
+			builder.setMessage( R.string.preference_home_profiles_scan_error_message );
+			builder.show();
+
+		}
 
 		Log.v( TAG, "serviceAdded : exit" );
 	}

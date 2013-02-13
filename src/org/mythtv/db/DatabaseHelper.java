@@ -48,7 +48,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	private static final String TAG = DatabaseHelper.class.getSimpleName();
 	
 	private static final String DATABASE_NAME = "mythtvdb";
-	private static final int DATABASE_VERSION = 103;
+	private static final int DATABASE_VERSION = 105;
 
 	public DatabaseHelper( Context context ) {
 		super( context, DATABASE_NAME, null, DATABASE_VERSION );
@@ -110,8 +110,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	public void onUpgrade( SQLiteDatabase db, int oldVersion, int newVersion ) {
 		Log.v( TAG, "onUpgrade : enter" );
 
-		if( oldVersion < 103 ) {
-			Log.v( TAG, "onUpgrade : upgrading to db version 103" );
+		if( oldVersion < 105 ) {
+			Log.v( TAG, "onUpgrade : upgrading to db version 105" );
 
 			onCreate( db );
 
@@ -611,7 +611,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		sqlBuilder.append( RecordingConstants.FIELD_PROFILE ).append( " " ).append( RecordingConstants.FIELD_PROFILE_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( RecordingConstants.FIELD_PROGRAM_ID ).append( " " ).append( RecordingConstants.FIELD_PROGRAM_ID_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( RecordingConstants.FIELD_START_TIME ).append( " " ).append( RecordingConstants.FIELD_START_TIME_DATA_TYPE ).append( ", " );
-		sqlBuilder.append( RecordingConstants.FIELD_HOSTNAME ).append( " " ).append( RecordingConstants.FIELD_HOSTNAME );
+		sqlBuilder.append( RecordingConstants.FIELD_HOSTNAME ).append( " " ).append( RecordingConstants.FIELD_HOSTNAME ).append( ", " );
+		sqlBuilder.append( "UNIQUE(" ).append( RecordingConstants.FIELD_RECORD_ID ).append( ", " ).append( RecordingConstants.FIELD_START_TIME ).append( ", " ).append( RecordingConstants.FIELD_HOSTNAME ).append( ")" );
 		sqlBuilder.append( ");" );
 		String sql = sqlBuilder.toString();
 		if( Log.isLoggable( TAG, Log.VERBOSE ) ) {

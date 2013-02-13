@@ -500,13 +500,30 @@ public class MythtvPreferenceActivityHC extends PreferenceActivity {
 			final int port = info.getPort();
 			Log.v( TAG, "serviceAdded : masterbackend=" + ( "http://" + hostname + ":" + port + "/" ) );
 
-			LocationProfile profile = new LocationProfile();
-			profile.setId( -1 );
-			profile.setType( LocationType.HOME );
-			profile.setName( event.getName() );
-			profile.setUrl( "http://" + hostname + ":" + port + "/" );
+			if( null != hostname && !hostname.isEmpty() ) {
 			
-			showLocationProfileEditDialog( getActivity(), profile );
+				LocationProfile profile = new LocationProfile();
+				profile.setId( -1 );
+				profile.setType( LocationType.HOME );
+				profile.setName( event.getName() );
+				profile.setUrl( "http://" + hostname + ":" + port + "/" );
+			
+				showLocationProfileEditDialog( getActivity(), profile );
+			
+			} else {
+
+				AlertDialog.Builder builder = new AlertDialog.Builder( getActivity() );
+				builder.setTitle( R.string.preference_edit_error_dialog_title );
+				builder.setNeutralButton( R.string.btn_ok, new DialogInterface.OnClickListener() {
+
+					public void onClick( DialogInterface dialog, int which ) { }
+					
+				});
+
+				builder.setMessage( R.string.preference_home_profiles_scan_error_message );
+				builder.show();
+
+			}
 
 			Log.v( TAG, "serviceAdded : exit" );
 		}
