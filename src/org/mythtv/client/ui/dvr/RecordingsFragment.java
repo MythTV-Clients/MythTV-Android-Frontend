@@ -33,7 +33,6 @@ import org.mythtv.db.http.EtagDaoHelper;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.dvr.RecordedDownloadService;
 import org.mythtv.service.util.RunningServiceHelper;
-import org.mythtv.service.util.image.ImageFetcher;
 import org.mythtv.services.api.dvr.impl.DvrTemplate.Endpoint;
 
 import android.annotation.TargetApi;
@@ -43,6 +42,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
@@ -56,12 +56,18 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.FailReason;
+import com.nostra13.universalimageloader.core.assist.PauseOnScrollListener;
+import com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener;
+import com.nostra13.universalimageloader.core.display.RoundedBitmapDisplayer;
 
 /**
  * @author Daniel Frey
@@ -83,7 +89,8 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 	private ProgramGroupDaoHelper mProgramGroupDaoHelper;
 	private RunningServiceHelper mRunningServiceHelper;
 
-	private ImageFetcher mImageFetcher;
+	private ImageLoader imageLoader = ImageLoader.getInstance();
+	private DisplayImageOptions options;
 
 	/* (non-Javadoc)
 	 * @see android.support.v4.app.LoaderManager.LoaderCallbacks#onCreateLoader(int, android.os.Bundle)
@@ -141,11 +148,19 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 		Log.v( TAG, "onActivityCreated : enter" );
 		super.onActivityCreated( savedInstanceState );
 
+		options = new DisplayImageOptions.Builder()
+//			.showStubImage( R.drawable.ic_stub )
+//			.showImageForEmptyUri( R.drawable.ic_empty )
+//			.showImageOnFail( R.drawable.ic_error )
+			.cacheInMemory()
+			.cacheOnDisc()
+//			.displayer( new RoundedBitmapDisplayer( 20 ) )
+			.build();
+		
 		mProgramHelper = ProgramHelper.createInstance( getActivity().getApplicationContext() );
 
 		mEtagDaoHelper = new EtagDaoHelper( getActivity() );
 	
-        mImageFetcher = ( (AbstractMythtvFragmentActivity) getActivity() ).getImageFetcher();
 		mProgramGroupDaoHelper = ( (AbstractMythtvFragmentActivity) getActivity() ).getProgramGroupDaoHelper();
 
 		mMenuHelper = ( (AbstractMythtvFragmentActivity) getActivity() ).getMenuHelper();
@@ -160,24 +175,7 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 
 		getLoaderManager().initLoader( 0, null, this );
 		
-		getListView().setOnScrollListener( new AbsListView.OnScrollListener() {
-            
-			@Override
-            public void onScrollStateChanged( AbsListView absListView, int scrollState ) {
-
-				// Pause fetcher to ensure smoother scrolling when flinging
-                if( scrollState == AbsListView.OnScrollListener.SCROLL_STATE_FLING ) {
-                    mImageFetcher.setPauseWork( true );
-                } else {
-                    mImageFetcher.setPauseWork( false );
-                }
-                
-            }
-
-            @Override
-            public void onScroll( AbsListView absListView, int firstVisibleItem, int visibleItemCount, int totalItemCount ) { }
-            
-        });
+		getListView().setOnScrollListener( new PauseOnScrollListener( false, true ) );
 		
 		Log.v( TAG, "onActivityCreated : exit" );
 	}
@@ -372,12 +370,34 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 
 			ProgramGroup programGroup = mProgramGroupDaoHelper.convertCursorToProgramGroup( cursor );
 
-	        ViewHolder mHolder = (ViewHolder) view.getTag();
+	        final ViewHolder mHolder = (ViewHolder) view.getTag();
 			
 			mHolder.programGroup.setText( programGroup.getTitle() );
 			mHolder.category.setBackgroundColor( mProgramHelper.getCategoryColor( programGroup.getCategory() ) );
 
-			mImageFetcher.loadImage( programGroup.getInetref(), "Banner", mHolder.programGroupBanner, mHolder.programGroup );
+			String imageUri = mLocationProfileDaoHelper.findConnectedProfile().getUrl() + "Content/GetRecordingArtwork?Type=Banner&Inetref=" + programGroup.getInetref();
+			imageLoader.displayImage( imageUri, mHolder.programGroupBanner, options, new SimpleImageLoadingListener() {
+
+				/* (non-Javadoc)
+				 * @see com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener#onLoadingComplete(android.graphics.Bitmap)
+				 */
+				@Override
+				public void onLoadingComplete( Bitmap loadedImage ) {
+			        mHolder.programGroup.setVisibility( View.GONE );
+			        mHolder.programGroupBanner.setVisibility( View.VISIBLE );
+				}
+
+				/* (non-Javadoc)
+				 * @see com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener#onLoadingFailed(com.nostra13.universalimageloader.core.assist.FailReason)
+				 */
+				@Override
+				public void onLoadingFailed( FailReason failReason ) {
+			        mHolder.programGroup.setVisibility( View.VISIBLE );
+			        mHolder.programGroupBanner.setVisibility( View.GONE );
+				}
+				
+			});
+			
 		}
 
 	}
