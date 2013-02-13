@@ -19,11 +19,14 @@
 package org.mythtv.service.guide;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import org.joda.time.DateTime;
+import org.mythtv.client.ui.preferences.LocationProfile;
+import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.MythtvService;
 
 import android.content.Intent;
@@ -43,6 +46,9 @@ public class ProgramGuideCleanupService extends MythtvService {
     public static final String EXTRA_COMPLETE = "COMPLETE";
     public static final String EXTRA_COMPLETE_COUNT = "COMPLETE_COUNT";
 
+    private LocationProfileDaoHelper mLocationProfileDaoHelper;
+    private LocationProfile mLocationProfile;
+    
 	public ProgramGuideCleanupService() {
 		super( "ProgamGuideDownloadService" );
 	}
@@ -54,6 +60,9 @@ public class ProgramGuideCleanupService extends MythtvService {
 	protected void onHandleIntent( Intent intent ) {
 		Log.d( TAG, "onHandleIntent : enter" );
 
+		mLocationProfileDaoHelper = new LocationProfileDaoHelper( this );
+		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile();
+		
         if ( intent.getAction().equals( ACTION_CLEANUP ) ) {
     		Log.i( TAG, "onHandleIntent : CLEANUP action selected" );
 
@@ -79,7 +88,16 @@ public class ProgramGuideCleanupService extends MythtvService {
 		if( null != programGuideCache && programGuideCache.exists() ) {
 			Log.v( TAG, "cleanup : found program guide cache" );
 			
-			List<String> filenames = Arrays.asList( programGuideCache.list() );
+			FilenameFilter filter = new FilenameFilter() {
+			    
+				public boolean accept( File directory, String fileName ) {
+		            return fileName.startsWith( mLocationProfile.getHostname() + "_" ) &&
+		            		fileName.endsWith( FILENAME_EXT );
+		        }
+				
+		    };
+			
+			List<String> filenames = Arrays.asList( programGuideCache.list( filter ) );
 			Collections.sort( filenames );
 			for( String filename : filenames ) {
 				DateTime file = new DateTime( filename.substring( filename.indexOf( '_' ) + 1, filename.lastIndexOf( 'T' ) ) );
