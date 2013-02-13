@@ -215,10 +215,9 @@ public class ProgramGuideDownloadService extends MythtvService {
 		end = end.withTime( start.getHourOfDay(), 59, 59, 999 );
 		Log.i( TAG, "download : starting download for " + DateUtils.dateTimeFormatter.print( start ) + ", end time=" + DateUtils.dateTimeFormatter.print( end ) );
 
-		ETagInfo etag = ETagInfo.createEmptyETag();
-		ResponseEntity<ProgramGuideWrapper> responseEntity = mMainApplication.getMythServicesApi().guideOperations().getProgramGuide( start, end, 1, -1, false, etag );
-
 		try {
+			ETagInfo etag = ETagInfo.createEmptyETag();
+			ResponseEntity<ProgramGuideWrapper> responseEntity = mMainApplication.getMythServicesApi().guideOperations().getProgramGuide( start, end, 1, -1, false, etag );
 
 			if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
 				ProgramGuideWrapper programGuide = responseEntity.getBody();
