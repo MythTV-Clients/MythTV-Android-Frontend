@@ -125,9 +125,12 @@ public class ChannelDownloadService extends MythtvService {
 
     		try {
     			ETagInfo etag = mEtagDaoHelper.findByEndpointAndDataId( Endpoint.GET_VIDEO_SOURCE_LIST.name(), null );
+    			Log.i( TAG, "onHandleIntent : etag=" + etag.getETag() );
     			
 				ResponseEntity<VideoSourceList> responseEntity = mMainApplication.getMythServicesApi( locationProfile ).channelOperations().getVideoSourceList( etag );
 				if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
+					Log.i( TAG, "onHandleIntent : response returned HTTP 200" );
+					
 					sendNotification();
 					
 					VideoSourceList videoSourceList = responseEntity.getBody();
@@ -136,7 +139,8 @@ public class ChannelDownloadService extends MythtvService {
 //	    				cleanup();
 						
 						for( VideoSource videoSource : videoSourceList.getVideoSources().getVideoSources() ) {
-
+							Log.i( TAG, "onHandleIntent : videoSource=" + videoSource.toString() );
+							
 							download( videoSource.getId() );
 						}
 
@@ -149,6 +153,8 @@ public class ChannelDownloadService extends MythtvService {
 				}					
 			
 				if( responseEntity.getStatusCode().equals( HttpStatus.NOT_MODIFIED ) ) {
+					Log.i( TAG, "onHandleIntent : response returned HTTP 304" );
+					
 					mEtagDaoHelper.save( etag, Endpoint.GET_VIDEO_SOURCE_LIST.name(), null );
 				}
 				

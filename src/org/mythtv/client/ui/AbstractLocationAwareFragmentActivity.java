@@ -19,7 +19,10 @@
 package org.mythtv.client.ui;
 
 import java.io.File;
+import java.io.FilenameFilter;
 
+import org.mythtv.client.ui.preferences.LocationProfile;
+import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.channel.ChannelDownloadService;
 import org.mythtv.service.guide.ProgramGuideCleanupService;
 import org.mythtv.service.guide.ProgramGuideDownloadService;
@@ -45,6 +48,8 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 	protected static final String TAG = AbstractLocationAwareFragmentActivity.class.getSimpleName();
 
 	private FileHelper mFileHelper;
+	private LocationProfileDaoHelper mLocationProfileDaoHelper;
+	private LocationProfile mLocationProfile;
 	private RunningServiceHelper mRunningServiceHelper;
 	
 	private ChannelDownloadReceiver channelDownloadReceiver = new ChannelDownloadReceiver();
@@ -66,7 +71,10 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 		super.onCreate( savedInstanceState );
 
 		mFileHelper = FileHelper.newInstance( this );
+		mLocationProfileDaoHelper = new LocationProfileDaoHelper( this );
 		mRunningServiceHelper = RunningServiceHelper.newInstance( this );
+		
+		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile();
 		
 		setupActionBar();
 
@@ -270,11 +278,20 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 	        	Log.i( TAG, "ProgramGuideCleanupReceiver.onReceive : " + intent.getStringExtra( ProgramGuideCleanupService.EXTRA_COMPLETE ) );
 	        	Log.i( TAG, "ProgramGuideCleanupReceiver.onReceive : " + intent.getIntExtra( ProgramGuideCleanupService.EXTRA_COMPLETE_COUNT, 0 ) + " files cleaned up" );
 
+	    		FilenameFilter filter = new FilenameFilter() {
+	    		    
+	    			public boolean accept( File directory, String fileName ) {
+	    	            return fileName.startsWith( mLocationProfile.getHostname() + "_" ) &&
+	    	            		fileName.endsWith( ProgramGuideDownloadService.FILENAME_EXT );
+	    	        }
+	    			
+	    	    };
+	    		
 	        	File programGuideCache = mFileHelper.getProgramGuideDataDirectory();
 	    		if( null != programGuideCache && programGuideCache.exists() ) {
-		        	Log.i( TAG, "ProgramGuideCleanupReceiver.onReceive : programGuide count=" + programGuideCache.list().length );
+		        	Log.i( TAG, "ProgramGuideCleanupReceiver.onReceive : programGuide count=" + programGuideCache.list( filter ).length );
 	    			
-	    			if( programGuideCache.list().length < ProgramGuideDownloadService.MAX_HOURS ) {
+	    			if( programGuideCache.list( filter ).length < ProgramGuideDownloadService.MAX_HOURS ) {
 	    				if( !mRunningServiceHelper.isServiceRunning( "org.mythtv.service.guide.ProgramGuideDownloadService" ) ) {
 		    				startService( new Intent( ProgramGuideDownloadService.ACTION_DOWNLOAD ) );
 	    				}
