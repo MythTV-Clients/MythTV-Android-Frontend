@@ -116,10 +116,26 @@ public class MythtvPreferenceActivity extends PreferenceActivity implements Serv
 		Log.v( TAG, "onResume : exit" );
 	}
 	
+	/* (non-Javadoc)
+	 * @see android.app.Fragment#onPause()
+	 */
+	@Override
+	public void onPause() {
+		Log.v( TAG, "onPause : enter" );
+		super.onPause();
+		
+		if( null != mProgressDialog ) {
+			mProgressDialog.dismiss();
+			mProgressDialog = null;
+		}
+
+		Log.v( TAG, "onPause : exit" );
+	}
+
+
 	// ***************************************
 	// JMDNS ServiceListener methods
 	// ***************************************
-
 
 	/*
 	 * (non-Javadoc)
