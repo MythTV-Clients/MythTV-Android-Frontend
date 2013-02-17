@@ -68,7 +68,6 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.assist.PauseOnScrollListener;
 import com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener;
-import com.nostra13.universalimageloader.core.display.RoundedBitmapDisplayer;
 
 /**
  * @author Daniel Frey
@@ -302,7 +301,8 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 		if( null != programGroup ) {
 			Log.v( TAG, "onListItemClick : selecting program group, programGroup=" + programGroup.toString() );
 
-			listener.onProgramGroupSelected( programGroup );
+			if(null != listener)
+				listener.onProgramGroupSelected( programGroup );
 		}
 		
 		Log.v( TAG, "onListItemClick : exit" );
