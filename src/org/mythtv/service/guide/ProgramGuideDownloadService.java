@@ -19,11 +19,14 @@
 package org.mythtv.service.guide;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.text.DecimalFormat;
 
 import org.joda.time.DateTime;
 import org.mythtv.R;
+import org.mythtv.client.ui.preferences.LocationProfile;
+import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.MythtvService;
 import org.mythtv.service.util.DateUtils;
 import org.mythtv.services.api.ETagInfo;
@@ -69,6 +72,9 @@ public class ProgramGuideDownloadService extends MythtvService {
 	private PendingIntent mContentIntent = null;
 	private int notificationId = 1000;
 	
+	private LocationProfileDaoHelper mLocationProfileDaoHelper;
+	private LocationProfile mLocationProfile;
+	
 	private File programGuideCache = null;
 	
 	public ProgramGuideDownloadService() {
@@ -109,6 +115,9 @@ public class ProgramGuideDownloadService extends MythtvService {
 		Log.d( TAG, "onHandleIntent : enter" );
 		super.onHandleIntent( intent );
 		
+		mLocationProfileDaoHelper = new LocationProfileDaoHelper( this );
+		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile();
+		
 		programGuideCache = mFileHelper.getProgramGuideDataDirectory();
 		if( null == programGuideCache || !programGuideCache.exists() ) {
 			Intent completeIntent = new Intent( ACTION_COMPLETE );
@@ -129,7 +138,16 @@ public class ProgramGuideDownloadService extends MythtvService {
 			return;
 		}
 		
-		if( programGuideCache.list().length < MAX_HOURS ) {
+		FilenameFilter filter = new FilenameFilter() {
+	    
+			public boolean accept( File directory, String fileName ) {
+	            return fileName.startsWith( mLocationProfile.getHostname() + "_" ) &&
+	            		fileName.endsWith( FILENAME_EXT );
+	        }
+			
+	    };
+		
+	    if( programGuideCache.list( filter ).length < MAX_HOURS ) {
 
 			mNotificationManager = (NotificationManager) getSystemService( Context.NOTIFICATION_SERVICE );
 
@@ -146,8 +164,8 @@ public class ProgramGuideDownloadService extends MythtvService {
 
 					for( int currentHour = 0; currentHour < MAX_HOURS; currentHour++ ) {
 
-						File file = new File( programGuideCache, DateUtils.fileDateTimeFormatter.print( start ) + FILENAME_EXT );
-						if( !file.exists() ) {
+						File file = new File( programGuideCache, mLocationProfile.getHostname() + "_" + DateUtils.fileDateTimeFormatter.print( start ) + FILENAME_EXT );
+						if( !file.exists() || file.length() == 0 ) {
 
 							if( !mNetworkHelper.isMasterBackendConnected() ) {
 								Log.d( TAG, "onHandleIntent : exit, Master Backend unreachable" );
@@ -197,10 +215,9 @@ public class ProgramGuideDownloadService extends MythtvService {
 		end = end.withTime( start.getHourOfDay(), 59, 59, 999 );
 		Log.i( TAG, "download : starting download for " + DateUtils.dateTimeFormatter.print( start ) + ", end time=" + DateUtils.dateTimeFormatter.print( end ) );
 
-		ETagInfo etag = ETagInfo.createEmptyETag();
-		ResponseEntity<ProgramGuideWrapper> responseEntity = mMainApplication.getMythServicesApi().guideOperations().getProgramGuide( start, end, 1, -1, false, etag );
-
 		try {
+			ETagInfo etag = ETagInfo.createEmptyETag();
+			ResponseEntity<ProgramGuideWrapper> responseEntity = mMainApplication.getMythServicesApi().guideOperations().getProgramGuide( start, end, 1, -1, false, etag );
 
 			if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
 				ProgramGuideWrapper programGuide = responseEntity.getBody();

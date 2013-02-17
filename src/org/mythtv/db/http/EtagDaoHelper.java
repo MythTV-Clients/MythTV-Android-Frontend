@@ -105,7 +105,8 @@ public class EtagDaoHelper extends AbstractDaoHelper {
 		}
 		
 		selection = appendLocationHostname( selection, EtagConstants.TABLE_NAME );
-
+		Log.i( TAG, "findOne : selection=" + selection );
+		
 		Cursor cursor = mContext.getContentResolver().query( uri, projection, selection, selectionArgs, sortOrder );
 		if( cursor.moveToFirst() ) {
 			etagInfo = convertCursorToETagInfo( cursor );

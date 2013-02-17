@@ -52,7 +52,7 @@
     <application
         android:hardwareAccelerated="true"
         android:name=".client.MainApplication"
-        android:icon="@drawable/ic_launcher"
+        android:icon="@drawable/ic_mythtv_logo_beta_alt"
         android:label="@string/app_name"
         android:theme="@style/Theme.Mythtv"
         android:allowBackup="true">

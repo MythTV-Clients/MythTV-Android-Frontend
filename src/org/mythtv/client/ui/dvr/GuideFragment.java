@@ -26,6 +26,8 @@ import org.joda.time.format.DateTimeFormat;
 import org.mythtv.R;
 import org.mythtv.client.MainApplication;
 import org.mythtv.client.ui.AbstractMythFragment;
+import org.mythtv.client.ui.preferences.LocationProfile;
+import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.guide.ProgramGuideDownloadService;
 import org.mythtv.service.guide.cache.ProgramGuideLruMemoryCache;
 import org.mythtv.service.util.DateUtils;
@@ -41,7 +43,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
-import android.util.TimingLogger;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -69,6 +70,9 @@ public class GuideFragment extends AbstractMythFragment implements OnClickListen
 
 	private ProgramGuideLruMemoryCache cache;
 
+	private LocationProfileDaoHelper mLocationProfileDaoHelper;
+	private LocationProfile mLocationProfile;
+	
 	/* (non-Javadoc)
 	 * @see android.support.v4.app.Fragment#onStart()
 	 */
@@ -135,7 +139,9 @@ public class GuideFragment extends AbstractMythFragment implements OnClickListen
 		super.onActivityCreated( savedInstanceState );
 		
         mainApplication = (MainApplication) getActivity().getApplicationContext();
-
+        mLocationProfileDaoHelper = new LocationProfileDaoHelper( getActivity() );        
+        mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile();
+        
 		cache = new ProgramGuideLruMemoryCache( getActivity() );
 
 		date = DateUtils.getEndOfDay( new DateTime() );
@@ -283,12 +289,13 @@ public class GuideFragment extends AbstractMythFragment implements OnClickListen
 		 */
 		@Override
 		public Fragment getItem( int position ) {
-			TimingLogger tl = new TimingLogger( TAG, "Load ProgramGuide" );
-
+//			Log.v( TAG, "getItem : enter" );
+			
 			DateTime programGuideDate = date.withTime( Integer.parseInt( fragmentHeadings.get( position ) ), 0, 0, 0 );
-			ProgramGuide programGuide = cache.get( programGuideDate );
-            tl.addSplit( "ProgramGuide for " + DateTimeFormat.forPattern(mainApplication.getDateFormat()).print( programGuideDate ) + " loaded" );
+			ProgramGuide programGuide = cache.get( mLocationProfile.getHostname() + "_" + DateUtils.fileDateTimeFormatter.print( programGuideDate ) );
+            Log.v( TAG, "ProgramGuide for " + mLocationProfile.getHostname() + "_" + DateUtils.fileDateTimeFormatter.print( programGuideDate ) + " loaded" );
 
+//			Log.v( TAG, "getItem : exit" );
 			return GuidePagerFragment.newInstance( startDate, fragmentHeadings.get( position ), programGuide );
 		}
 
@@ -320,7 +327,7 @@ public class GuideFragment extends AbstractMythFragment implements OnClickListen
 		        	Log.d( TAG, "ProgramGuideDownloadReceiver.onReceive : progress=" + intent.getStringExtra( ProgramGuideDownloadService.EXTRA_PROGRESS ) );
 		        	
 		        	DateTime updated = new DateTime( intent.getStringExtra( ProgramGuideDownloadService.EXTRA_PROGRESS_DATE ) );
-		        	cache.remove( updated );
+		        	cache.remove( mLocationProfile.getHostname() + "_" + DateUtils.fileDateTimeFormatter.print( updated ) );
 	        	}
 	        	
 	        	if( intent.hasExtra( ProgramGuideDownloadService.EXTRA_PROGRESS_ERROR ) ) {

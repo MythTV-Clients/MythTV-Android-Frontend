@@ -38,6 +38,7 @@ import org.mythtv.db.preferences.PlaybackProfileDaoHelper;
 import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -444,6 +445,8 @@ public class MythtvPreferenceActivityHC extends PreferenceActivity {
 		private static JmDNS zeroConf = null;
 		private static MulticastLock mLock = null;
 
+		private ProgressDialog mProgressDialog;
+
 		/* (non-Javadoc)
 		 * @see android.preference.PreferenceFragment#onCreate(android.os.Bundle)
 		 */
@@ -477,12 +480,27 @@ public class MythtvPreferenceActivityHC extends PreferenceActivity {
 			
 			Log.v( TAG, "onResume : exit" );
 		}
-
 		
+		/* (non-Javadoc)
+		 * @see android.app.Fragment#onPause()
+		 */
+		@Override
+		public void onPause() {
+			Log.v( TAG, "onPause : enter" );
+			super.onPause();
+			
+			if( null != mProgressDialog ) {
+				mProgressDialog.dismiss();
+				mProgressDialog = null;
+			}
+
+			Log.v( TAG, "onPause : exit" );
+		}
+
+
 		// ***************************************
 		// JMDNS ServiceListener methods
 		// ***************************************
-
 
 		/*
 		 * (non-Javadoc)
@@ -493,6 +511,11 @@ public class MythtvPreferenceActivityHC extends PreferenceActivity {
 		public void serviceAdded( ServiceEvent event ) {
 			Log.v( TAG, "serviceAdded : enter" );
 
+			if( null != mProgressDialog ) {
+				mProgressDialog.dismiss();
+				mProgressDialog = null;
+			}
+			
 			Log.v( TAG, "serviceAdded : " + event.getDNS().getServiceInfo( event.getType(), event.getName() ).toString() );
 
 			ServiceInfo info = event.getDNS().getServiceInfo( event.getType(), event.getName() );
@@ -568,6 +591,12 @@ public class MythtvPreferenceActivityHC extends PreferenceActivity {
 				stopProbe();
 			}
 
+    		try {
+    			mProgressDialog = ProgressDialog.show( getActivity(), "Please wait...", "Scanning network for MythTV Backend.", true, false );
+    		} catch( Exception e ) {
+    			Log.w( TAG, "startProbe : error", e );
+    		}
+
 			// figure out our wifi address, otherwise bail
 			WifiManager wifi = (WifiManager) getActivity().getSystemService( Context.WIFI_SERVICE );
 
@@ -594,6 +623,11 @@ public class MythtvPreferenceActivityHC extends PreferenceActivity {
 		 */
 		private void stopProbe() throws IOException {
 			Log.v( TAG, "stopProbe : enter" );
+
+			if( null != mProgressDialog ) {
+				mProgressDialog.dismiss();
+				mProgressDialog = null;
+			}
 
 			zeroConf.removeServiceListener( MYTHTV_MASTER_BACKEND_TYPE, this );
 			zeroConf.close();

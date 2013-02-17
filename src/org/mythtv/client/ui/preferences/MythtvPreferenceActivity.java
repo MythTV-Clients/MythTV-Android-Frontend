@@ -35,6 +35,7 @@ import org.mythtv.db.preferences.PlaybackProfileConstants;
 import org.mythtv.db.preferences.PlaybackProfileDaoHelper;
 
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -79,6 +80,8 @@ public class MythtvPreferenceActivity extends PreferenceActivity implements Serv
 	private static LocationProfileDaoHelper mLocationProfileDaoHelper;
 	private static PlaybackProfileDaoHelper mPlaybackProfileDaoHelper;
 	
+	private ProgressDialog mProgressDialog;
+
 	/* (non-Javadoc)
 	 * @see android.preference.PreferenceActivity#onCreate(android.os.Bundle)
 	 */
@@ -113,10 +116,26 @@ public class MythtvPreferenceActivity extends PreferenceActivity implements Serv
 		Log.v( TAG, "onResume : exit" );
 	}
 	
+	/* (non-Javadoc)
+	 * @see android.app.Fragment#onPause()
+	 */
+	@Override
+	public void onPause() {
+		Log.v( TAG, "onPause : enter" );
+		super.onPause();
+		
+		if( null != mProgressDialog ) {
+			mProgressDialog.dismiss();
+			mProgressDialog = null;
+		}
+
+		Log.v( TAG, "onPause : exit" );
+	}
+
+
 	// ***************************************
 	// JMDNS ServiceListener methods
 	// ***************************************
-
 
 	/*
 	 * (non-Javadoc)
@@ -127,6 +146,11 @@ public class MythtvPreferenceActivity extends PreferenceActivity implements Serv
 	public void serviceAdded( ServiceEvent event ) {
 		Log.v( TAG, "serviceAdded : enter" );
 
+		if( null != mProgressDialog ) {
+			mProgressDialog.dismiss();
+			mProgressDialog = null;
+		}
+		
 		Log.v( TAG, "serviceAdded : " + event.getDNS().getServiceInfo( event.getType(), event.getName() ).toString() );
 		
 		final String hostname = event.getDNS().getServiceInfo( event.getType(), event.getName() ).getInet4Address().getHostAddress();
@@ -197,6 +221,12 @@ public class MythtvPreferenceActivity extends PreferenceActivity implements Serv
 
 		if( zeroConf != null ) {
 			stopProbe();
+		}
+
+		try {
+			mProgressDialog = ProgressDialog.show( this, "Please wait...", "Scanning network for MythTV Backend.", true, false );
+		} catch( Exception e ) {
+			Log.w( TAG, "startProbe : error", e );
 		}
 
 		// figure out our wifi address, otherwise bail
