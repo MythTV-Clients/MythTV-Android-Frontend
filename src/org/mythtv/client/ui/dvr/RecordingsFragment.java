@@ -24,6 +24,7 @@ import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.util.MenuHelper;
 import org.mythtv.client.ui.util.MythtvListFragment;
 import org.mythtv.client.ui.util.ProgramHelper;
+import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.db.dvr.programGroup.ProgramGroup;
 import org.mythtv.db.dvr.programGroup.ProgramGroupConstants;
 import org.mythtv.db.dvr.programGroup.ProgramGroupDaoHelper;
@@ -66,7 +67,6 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.assist.PauseOnScrollListener;
 import com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener;
-import com.nostra13.universalimageloader.core.display.RoundedBitmapDisplayer;
 
 /**
  * @author Daniel Frey
@@ -425,12 +425,19 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 	        if ( intent.getAction().equals( RecordedDownloadService.ACTION_COMPLETE ) ) {
 	        	Log.i( TAG, "RecordedDownloadReceiver.onReceive : complete=" + intent.getStringExtra( RecordedDownloadService.EXTRA_COMPLETE ) );
 	        	
+	        	boolean inError = false;
+	        	Cursor errorCursor = getActivity().getContentResolver().query( ProgramConstants.CONTENT_URI_RECORDED, new String[] { ProgramConstants._ID }, ProgramConstants.FIELD_IN_ERROR + " = ?", new String[] { "1" }, null );
+	        	if( errorCursor.moveToFirst() ) {
+	        		inError = true;
+	        	}
+	        	errorCursor.close();
+	        	
 	        	if( intent.getExtras().containsKey( RecordedDownloadService.EXTRA_COMPLETE_UPTODATE ) ) {
-	        		Toast.makeText( getActivity(), "Recorded Program are up to date!", Toast.LENGTH_SHORT ).show();
+	        		Toast.makeText( getActivity(), "Recorded Program are up to date!" + ( inError ? " (Recordings has errors)" : "" ), Toast.LENGTH_SHORT ).show();
 	        	} else if( intent.getExtras().containsKey( RecordedDownloadService.EXTRA_COMPLETE_OFFLINE ) ) {
 	        		Toast.makeText( getActivity(), "Recorded Programs Update failed because Master Backend is not connected!", Toast.LENGTH_SHORT ).show();
 	        	} else {
-	        		Toast.makeText( getActivity(), "Recorded Programs updated!", Toast.LENGTH_SHORT ).show();
+	        		Toast.makeText( getActivity(), "Recorded Programs updated!" + ( inError ? " (Recordings has errors)" : "" ), Toast.LENGTH_SHORT ).show();
 	        		
 	        		adapter.notifyDataSetChanged();
 	        	}

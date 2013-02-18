@@ -1488,7 +1488,7 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 			insert.bindString( 23, value.getAsString( ProgramConstants.FIELD_EPISODE ) );
 			insert.bindLong( 24, value.getAsInteger( ProgramConstants.FIELD_CHANNEL_ID ) );
 			insert.bindLong( 25, value.getAsInteger( ProgramConstants.FIELD_RECORD_ID ) );
-			insert.bindString( 26, value.getAsString( ProgramConstants.FIELD_HOSTNAME ) );
+			insert.bindLong( 26, value.getAsInteger( ProgramConstants.FIELD_IN_ERROR ) );
 			
 			insert.execute();
 		}

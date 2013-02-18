@@ -84,8 +84,8 @@ public class ProgramGroupFragment extends MythtvListFragment implements LoaderMa
 		LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile();
 		
 		String[] projection = { ProgramConstants._ID, ProgramConstants.FIELD_TITLE, ProgramConstants.FIELD_SUB_TITLE, ProgramConstants.FIELD_CATEGORY, ProgramConstants.FIELD_START_TIME };
-		String selection = ProgramConstants.FIELD_TITLE + " = ? AND " + ProgramConstants.TABLE_NAME_RECORDED + "." + ProgramConstants.FIELD_HOSTNAME + " = ?";
-		String[] selectionArgs = { ( null != programGroup && null != programGroup.getTitle() ? programGroup.getTitle() : "" ), locationProfile.getHostname() };
+		String selection = ProgramConstants.FIELD_TITLE + " = ? AND " + ProgramConstants.TABLE_NAME_RECORDED + "." + ProgramConstants.FIELD_HOSTNAME + " = ? AND " + ProgramConstants.TABLE_NAME_RECORDED + "." + ProgramConstants.FIELD_IN_ERROR + " = ?";
+		String[] selectionArgs = { ( null != programGroup && null != programGroup.getTitle() ? programGroup.getTitle() : "" ), locationProfile.getHostname(), "0" };
 		 
 	    CursorLoader cursorLoader = new CursorLoader( getActivity(), ProgramConstants.CONTENT_URI_RECORDED, projection, selection, selectionArgs, ProgramConstants.FIELD_SEASON + " DESC ," + ProgramConstants.FIELD_EPISODE + " DESC" );
 	    
