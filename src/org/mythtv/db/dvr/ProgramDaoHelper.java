@@ -366,7 +366,18 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 			}
 			
 		}
-		
+
+		if( !ops.isEmpty() ) {
+			Log.v( TAG, "process : applying final batch for '" + count + "' transactions" );
+
+			ContentProviderResult[] results = mContext.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
+			loaded += results.length;
+
+			if( results.length > 0 ) {
+				ops.clear();
+			}
+		}
+
 		Log.v( TAG, "load : remove deleted recordings" );
 		for( Program program : recorded.values() ) {
 			Log.v( TAG, "load : remove deleted recording - " + program.getTitle() + " [" + program.getSubTitle() + "]" );
@@ -421,7 +432,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		}
 		
 		if( !ops.isEmpty() ) {
-			Log.v( TAG, "process : applying batch for '" + count + "' transactions" );
+			Log.v( TAG, "process : applying final batch for '" + count + "' transactions" );
 			
 			ContentProviderResult[] results = mContext.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
 			loaded += results.length;
