@@ -205,12 +205,15 @@ public class RecordingRuleFragment extends AbstractMythFragment {
 		
 		tView = (TextView) getActivity().findViewById( R.id.recording_rule_title );
 		tView.setText( rule.getTitle() );
-		
+
+		tView = (TextView) getActivity().findViewById( R.id.recording_rule_sub_title );
 		if( null != rule.getSubTitle() && rule.getSubTitle() != "" ) {
-			tView = (TextView) getActivity().findViewById( R.id.recording_rule_sub_title );
 			tView.setText( rule.getSubTitle() );
-			tView.setVisibility( View.VISIBLE );
 		}
+		else {
+			tView.setText( "-" );
+		}
+		tView.setVisibility( View.VISIBLE );
 		
 		tView = (TextView) getActivity().findViewById( R.id.recording_rule_category );
 		tView.setText(rule.getCategory());

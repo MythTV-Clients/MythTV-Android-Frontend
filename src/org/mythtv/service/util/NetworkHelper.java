@@ -55,33 +55,38 @@ public class NetworkHelper {
 	}
 	
 	public boolean isNetworkConnected() {
-        Log.v( TAG, "isNetworkConnected : enter" );
-	
-        final ConnectivityManager cm = (ConnectivityManager) mContext.getSystemService( Context.CONNECTIVITY_SERVICE );
-        final NetworkInfo networkInfo = cm.getActiveNetworkInfo();
-        if( networkInfo == null || !networkInfo.isConnectedOrConnecting() ) {
-            Log.e( TAG, "isNetworkConnected : exit, no connection found" );
-            
-            return false;
-        }
+		Log.v( TAG, "isNetworkConnected : enter" );
 
-        Log.v( TAG, "isNetworkConnected : exit" );
-        return true;
+		final ConnectivityManager cm = (ConnectivityManager) mContext.getSystemService( Context.CONNECTIVITY_SERVICE );
+		final NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+		if( networkInfo == null || !networkInfo.isConnectedOrConnecting() ) {
+			Log.e( TAG, "isNetworkConnected : exit, no connection found" );
+
+			return false;
+		}
+
+		Log.v( TAG, "isNetworkConnected : exit" );
+		return true;
 	}
 	
 	public boolean isMasterBackendConnected() {
 		Log.v( TAG, "isMasterBackendConnected : enter" );
-		
-		if( isNetworkConnected() ) {
+
+		if( null == mLocationProfileDaoHelper.findConnectedProfile() ) {
+			Log.e( TAG, "isMasterBackendConnected : exit, no backend selected" );
 			
-			try {
-			
-				if( null == mLocationProfileDaoHelper.findConnectedProfile() ) {
-					Log.e( TAG, "isMasterBackendConnected : exit, no backend selected" );
-					
-					return false;
-				}
+			return false;
+		}
+
+		if( !isNetworkConnected() )
+			return false;
+
+		int attempts = 0;
+		while( attempts++ < 3 ) {
+			Log.v( TAG, "isMasterBackendConnected : attempt = " + attempts );
 				
+			try {
+
 				URL url = new URL( mLocationProfileDaoHelper.findConnectedProfile().getUrl() + "Myth/GetHostName" );
 
 				HttpURLConnection urlc = (HttpURLConnection) url.openConnection();
@@ -110,11 +115,15 @@ public class NetworkHelper {
 	}
 	
 	public boolean isMasterBackendConnected( LocationProfile profile ) {
-		Log.v( TAG, "isMasterBackendConnected : enter" );
 		Log.v( TAG, "isMasterBackendConnected : profile=" + profile.toString() );
 		
-		if( isNetworkConnected() ) {
-			
+		if( !isNetworkConnected() )
+			return false;
+
+		int attempts = 0;
+		while( attempts++ < 3 ) {
+			Log.v( TAG, "isMasterBackendConnected : attempt = " + attempts );
+
 			try {
 			
 				URL url = new URL( profile.getUrl() + "Myth/GetHostName" );

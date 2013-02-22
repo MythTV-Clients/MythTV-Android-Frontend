@@ -260,7 +260,17 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 
 		programSelection = appendLocationHostname( programSelection, table );
 		
+		boolean inError;
+		
 		for( Program program : programs ) {
+
+			if( null == program.getStartTime() || null == program.getEndTime() ) {
+				Log.w(TAG, "convertProgramToContentValues : null starttime and or endtime" );
+			
+				inError = true;
+			} else {
+				inError = false;
+			}
 
 			DateTime startTime = new DateTime( program.getStartTime() );
 			
@@ -300,7 +310,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 				
 			}
 			
-			if( null != program.getRecording() ) {
+			if( !inError && null != program.getRecording() ) {
 				
 				String[] recordingProjection = new String[] { RecordingConstants.TABLE_NAME + "_" + RecordingConstants._ID };
 				String recordingSelection = RecordingConstants.FIELD_RECORD_ID + " = ? AND " + RecordingConstants.FIELD_START_TIME + " = ? AND " + RecordingConstants.FIELD_HOSTNAME + " = ?";
@@ -356,7 +366,18 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 			}
 			
 		}
-		
+
+		if( !ops.isEmpty() ) {
+			Log.v( TAG, "process : applying final batch for '" + count + "' transactions" );
+
+			ContentProviderResult[] results = mContext.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
+			loaded += results.length;
+
+			if( results.length > 0 ) {
+				ops.clear();
+			}
+		}
+
 		Log.v( TAG, "load : remove deleted recordings" );
 		for( Program program : recorded.values() ) {
 			Log.v( TAG, "load : remove deleted recording - " + program.getTitle() + " [" + program.getSubTitle() + "]" );
@@ -411,7 +432,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		}
 		
 		if( !ops.isEmpty() ) {
-			Log.v( TAG, "process : applying batch for '" + count + "' transactions" );
+			Log.v( TAG, "process : applying final batch for '" + count + "' transactions" );
 			
 			ContentProviderResult[] results = mContext.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
 			loaded += results.length;
@@ -620,15 +641,21 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 
 	protected ContentValues convertProgramToContentValues( final Program program ) {
 		
+		boolean inError;
+		
 		DateTime startTime = new DateTime( 0 );
 		DateTime endTime = new DateTime( 0 );
 
 		// If one timestamp is bad, leave them both set to 0.
-		if( null == program.getStartTime() || null == program.getEndTime() )
+		if( null == program.getStartTime() || null == program.getEndTime() ) {
 			Log.w(TAG, "convertProgramToContentValues : null starttime and or endtime" );
-		else {
+		
+			inError = true;
+		} else {
 			startTime = new DateTime( program.getStartTime().getMillis() );
 			endTime = new DateTime( program.getEndTime().getMillis() );
+			
+			inError = false;
 		}
 
 		ContentValues values = new ContentValues();
@@ -657,7 +684,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		values.put( ProgramConstants.FIELD_EPISODE, null != program.getEpisode() ? program.getEpisode() : "" );
 		values.put( ProgramConstants.FIELD_CHANNEL_ID, null != program.getChannelInfo() ? program.getChannelInfo().getChannelId() : -1 );
 		values.put( ProgramConstants.FIELD_RECORD_ID, null != program.getRecording() ? program.getRecording().getRecordId() : -1 );
-		values.put( ProgramConstants.FIELD_HOSTNAME, mLocationProfile.getHostname() );
+		values.put( ProgramConstants.FIELD_IN_ERROR, inError ? 1 : 0 );
 		
 		return values;
 	}

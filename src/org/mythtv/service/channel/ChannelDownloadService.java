@@ -139,7 +139,7 @@ public class ChannelDownloadService extends MythtvService {
 //	    				cleanup();
 						
 						for( VideoSource videoSource : videoSourceList.getVideoSources().getVideoSources() ) {
-							Log.i( TAG, "onHandleIntent : videoSource=" + videoSource.toString() );
+							Log.i( TAG, "onHandleIntent : videoSourceId = '" + videoSource.getId() + '"' );
 							
 							download( videoSource.getId() );
 						}

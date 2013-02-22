@@ -282,7 +282,7 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 			count++;
 
 			if( count > 100 ) {
-				Log.v( TAG, "process : applying batch for '" + count + "' transactions" );
+				Log.v( TAG, "process : applying batch for '" + ( count + 1 ) + "' transactions" );
 				
 				if( !ops.isEmpty() ) {
 					
@@ -298,7 +298,18 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 			}
 
 		}
-		
+
+		if( !ops.isEmpty() ) {
+			Log.v( TAG, "process : applying final batch of '" + ( count + 1 ) + "' transactions" );
+			
+			ContentProviderResult[] results = mContext.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
+			loaded += results.length;
+
+			if( results.length > 0 ) {
+				ops.clear();
+			}
+		}
+
 		Log.d( TAG, "load : exit" );
 		return loaded;
 	}

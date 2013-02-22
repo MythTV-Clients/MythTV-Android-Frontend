@@ -272,7 +272,19 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 			}
 
 		}
+
+		Log.v( TAG, "process : applying final batch for '" + count + "' transactions" );
 		
+		if( !ops.isEmpty() ) {
+
+			ContentProviderResult[] results = mContext.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
+			loaded += results.length;
+
+			if( results.length > 0 ) {
+				ops.clear();
+			}
+		}
+
 		Log.v( TAG, "load : remove deleted program groups" );
 		for( String key : existing.keySet() ) {
 
@@ -303,7 +315,7 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 		}
 
 		if( !ops.isEmpty() ) {
-			Log.v( TAG, "process : applying batch for '" + count + "' transactions" );
+			Log.v( TAG, "process : applying final batch for '" + count + "' transactions" );
 			
 			ContentProviderResult[] results = mContext.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
 			loaded += results.length;
