@@ -59,7 +59,6 @@ public class LocationProfileEditor extends AbstractMythtvFragmentActivity {
     private ProgressDialog mProgressDialog;
     
 	private LocationProfileDaoHelper mLocationProfileDaoHelper;
-	private NetworkHelper mNetworkHelper;
 	private RunningServiceHelper mRunningServiceHelper;
 	
 	private boolean isNew = false;
@@ -89,7 +88,6 @@ public class LocationProfileEditor extends AbstractMythtvFragmentActivity {
 		super.onCreate( savedInstanceState );
 
 		mLocationProfileDaoHelper = new LocationProfileDaoHelper( this );
-		mNetworkHelper = NetworkHelper.newInstance( this );
 		mRunningServiceHelper = RunningServiceHelper.newInstance( this );
 		
 		setContentView( this.getLayoutInflater().inflate( R.layout.preference_location_profile_editor, null ) );
@@ -340,7 +338,7 @@ public class LocationProfileEditor extends AbstractMythtvFragmentActivity {
 		@Override
 		protected ResponseEntity<StringWrapper> doInBackground( Void... params ) {
 			
-			if( !mNetworkHelper.isMasterBackendConnected( profile ) ) {
+			if( !NetworkHelper.getInstance().isMasterBackendConnected( profile ) ) {
 				return null;
 			}
 

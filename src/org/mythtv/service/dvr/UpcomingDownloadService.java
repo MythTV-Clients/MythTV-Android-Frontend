@@ -29,6 +29,7 @@ import org.mythtv.db.dvr.UpcomingDaoHelper;
 import org.mythtv.db.http.EtagDaoHelper;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.MythtvService;
+import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.dvr.ProgramList;
 import org.mythtv.services.api.dvr.Programs;
@@ -108,7 +109,7 @@ public class UpcomingDownloadService extends MythtvService {
 			return;
 		}
 
-		if( !mNetworkHelper.isMasterBackendConnected() ) {
+		if( !NetworkHelper.getInstance().isMasterBackendConnected() ) {
 			Intent completeIntent = new Intent( ACTION_COMPLETE );
 			completeIntent.putExtra( EXTRA_COMPLETE, "Master Backend unreachable" );
 			completeIntent.putExtra( EXTRA_COMPLETE_OFFLINE, Boolean.TRUE );

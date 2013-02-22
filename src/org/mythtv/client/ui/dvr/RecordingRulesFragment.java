@@ -28,6 +28,7 @@ import org.mythtv.client.ui.util.MythtvListFragment;
 import org.mythtv.client.ui.util.ProgramHelper;
 import org.mythtv.db.channel.ChannelDaoHelper;
 import org.mythtv.service.util.DateUtils;
+import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.service.util.NotificationHelper;
 import org.mythtv.service.util.NotificationHelper.NotificationType;
 import org.mythtv.services.api.ETagInfo;
@@ -67,7 +68,6 @@ public class RecordingRulesFragment extends MythtvListFragment {
 
 	private OnRecordingRuleListener listener = null;
 	private RecordingRuleAdapter adapter;
-
 	private ChannelDaoHelper mChannelDaoHelper;
 	private MenuHelper mMenuHelper;
 	
@@ -321,7 +321,7 @@ public class RecordingRulesFragment extends MythtvListFragment {
 				String message = "Retrieving Recording Rules";
 				mNotificationHelper.createNotification( "Mythtv for Android", message, NotificationType.UPLOAD );
 				
-				if( !mNetworkHelper.isMasterBackendConnected() ) {
+				if( !NetworkHelper.getInstance().isMasterBackendConnected() ) {
 					return null;
 				}
 

@@ -61,7 +61,6 @@ public class VideoActivity extends AbstractMythtvFragmentActivity {
 	private ProgressDialog progressDialog;
 
 	private LiveStreamDaoHelper mLiveStreamDaoHelper;
-	private NetworkHelper mNetworkHelper;
 	private RecordedDaoHelper mRecordedDaoHelper;
 	
 	private Program program = null;
@@ -82,7 +81,6 @@ public class VideoActivity extends AbstractMythtvFragmentActivity {
 		super.onCreate( savedInstanceState );
 
 		mLiveStreamDaoHelper = new LiveStreamDaoHelper( this );
-		mNetworkHelper = NetworkHelper.newInstance( this );
 		mRecordedDaoHelper = new RecordedDaoHelper( this );
 		
 	    setContentView( R.layout.activity_video );
@@ -314,7 +312,7 @@ public class VideoActivity extends AbstractMythtvFragmentActivity {
 		protected ResponseEntity<LiveStreamInfoWrapper> doInBackground( Void... params ) {
 			Log.v( TAG, "UpdateStreamInfoTask : enter" );
 
-			if( !mNetworkHelper.isNetworkConnected() ) {
+			if( !NetworkHelper.getInstance().isNetworkConnected() ) {
 				Log.v( TAG, "UpdateStreamInfoTask : exit, not connected" );
 				
 				return null;

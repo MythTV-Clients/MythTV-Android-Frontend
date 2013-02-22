@@ -41,21 +41,62 @@ public class NetworkHelper {
 
 	private static final String TAG = NetworkHelper.class.getSimpleName();
 	
+	private static NetworkHelper singleton = null;
+	
 	private Context mContext;
 	private LocationProfileDaoHelper mLocationProfileDaoHelper;
 	
-	public static NetworkHelper newInstance( Context context ) {
-		return new NetworkHelper( context );
+	/**
+	 * Returns the one and only NetworkHelper. init() must be called before 
+	 * any 
+	 * @return
+	 */
+	public static NetworkHelper getInstance() {
+		if(null == singleton) singleton = new NetworkHelper();
+		return singleton;
 	}
 	
-	protected NetworkHelper( Context context ) {
-		this.mContext = context;
+	/**
+	 * Constructor. No one but getInstance() can do this.
+	 */
+	private NetworkHelper() {
 		
+	}
+	
+	/**
+	 * Must be called once at the beginning of the application. Subsequent 
+	 * calls to this will have no effect.
+	 * @param context
+	 */
+	public void init(Context context){
+		
+		//ignore any additional calls to init
+		if(this.isInitialized()) return;
+		
+		this.mContext = context;
 		this.mLocationProfileDaoHelper = new LocationProfileDaoHelper( mContext );
 	}
 	
+	/**
+	 * Returns true if NetworkHelper has already been initialized
+	 * @return
+	 */
+	public boolean isInitialized(){
+		return null != this.mContext;
+	}
+	
+	/**
+	 * Returns true if a network connection is detected
+	 * @return
+	 */
 	public boolean isNetworkConnected() {
 		Log.v( TAG, "isNetworkConnected : enter" );
+		
+		/* Check if we're not initialized */
+		if(!this.isInitialized()){
+			Log.e(TAG, "NetworkHelper not initialized");
+			return false;
+		}
 
 		final ConnectivityManager cm = (ConnectivityManager) mContext.getSystemService( Context.CONNECTIVITY_SERVICE );
 		final NetworkInfo networkInfo = cm.getActiveNetworkInfo();
@@ -69,8 +110,19 @@ public class NetworkHelper {
 		return true;
 	}
 	
+	/**
+	 * Returns true if a connection can be made to the connected location profile.
+	 * Three attempts are made before a false return.
+	 * @return
+	 */
 	public boolean isMasterBackendConnected() {
 		Log.v( TAG, "isMasterBackendConnected : enter" );
+		
+		/* Check if we're not initialized */
+		if(!this.isInitialized()){
+			Log.e(TAG, "NetworkHelper not initialized");
+			return false;
+		}
 
 		if( null == mLocationProfileDaoHelper.findConnectedProfile() ) {
 			Log.e( TAG, "isMasterBackendConnected : exit, no backend selected" );
@@ -114,8 +166,20 @@ public class NetworkHelper {
 		return false;
 	}
 	
+	/**
+	 * Returns true if a connection can be made to the given location profile.
+	 * Three attempts are made before a false return.
+	 * @param profile
+	 * @return
+	 */
 	public boolean isMasterBackendConnected( LocationProfile profile ) {
 		Log.v( TAG, "isMasterBackendConnected : profile=" + profile.toString() );
+		
+		/* Check if we're not initialized */
+		if(!this.isInitialized()){
+			Log.e(TAG, "NetworkHelper not initialized");
+			return false;
+		}
 		
 		if( !isNetworkConnected() )
 			return false;

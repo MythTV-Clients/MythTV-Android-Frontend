@@ -62,7 +62,6 @@ public class MenuHelper {
 	private static final String TAG = MenuHelper.class.getSimpleName();
 	
 	private Context mContext;
-	private NetworkHelper mNetworkHelper;
 	private Resources mResources;
 	
 	public static MenuHelper newInstance( Context context ) {
@@ -73,7 +72,6 @@ public class MenuHelper {
 		this.mContext = context;
 		
 		mResources = mContext.getResources();
-		mNetworkHelper = NetworkHelper.newInstance( mContext );
 	}
 	
 	/**
@@ -236,7 +234,7 @@ public class MenuHelper {
 	@TargetApi( Build.VERSION_CODES.HONEYCOMB )
 	public MenuItem mythmoteMenuItem( Menu menu ) {
 		
-		if( mNetworkHelper.isNetworkConnected() ) {
+		if( NetworkHelper.getInstance().isNetworkConnected() ) {
 			MenuItem menuItem = menu.add( Menu.NONE, MYTHMOTE_ID, Menu.NONE, mResources.getString( R.string.frontends_title ) );
 			menuItem.setIcon( R.drawable.ic_menu_mythmote_default );
 			if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
@@ -258,7 +256,7 @@ public class MenuHelper {
 	@TargetApi( Build.VERSION_CODES.HONEYCOMB )
 	public MenuItem refreshMenuItem( Menu menu ) {
 		
-		if( mNetworkHelper.isNetworkConnected() ) {
+		if( NetworkHelper.getInstance().isNetworkConnected() ) {
 			MenuItem menuItem = menu.add( Menu.NONE, REFRESH_ID, Menu.NONE, mResources.getString( R.string.menu_refresh ) );
 			menuItem.setIcon( R.drawable.ic_menu_refresh );
 			if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
@@ -280,7 +278,7 @@ public class MenuHelper {
 	@TargetApi( Build.VERSION_CODES.HONEYCOMB )
 	public MenuItem editMenuItem( Menu menu ) {
 		
-		if( mNetworkHelper.isNetworkConnected() ) {
+		if( NetworkHelper.getInstance().isNetworkConnected() ) {
 			MenuItem menuItem = menu.add( Menu.NONE, EDIT_ID, Menu.NONE, mResources.getString( R.string.menu_edit ) );
 			menuItem.setIcon( android.R.drawable.ic_menu_edit );
 			if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
@@ -302,7 +300,7 @@ public class MenuHelper {
 	@TargetApi( Build.VERSION_CODES.HONEYCOMB )
 	public MenuItem saveMenuItem( Menu menu ) {
 		
-		if( mNetworkHelper.isNetworkConnected() ) {
+		if( NetworkHelper.getInstance().isNetworkConnected() ) {
 			MenuItem menuItem = menu.add( Menu.NONE, SAVE_ID, Menu.NONE, mResources.getString( R.string.menu_save ) );
 			menuItem.setIcon( android.R.drawable.ic_menu_save );
 			if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
@@ -324,7 +322,7 @@ public class MenuHelper {
 	@TargetApi( Build.VERSION_CODES.HONEYCOMB )
 	public MenuItem resetMenuItem( Menu menu ) {
 		
-		if( mNetworkHelper.isNetworkConnected() ) {
+		if( NetworkHelper.getInstance().isNetworkConnected() ) {
 			MenuItem menuItem = menu.add( Menu.NONE, RESET_ID, Menu.NONE, mResources.getString( R.string.menu_reset ) );
 			menuItem.setIcon( android.R.drawable.ic_menu_revert );
 			if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
@@ -346,7 +344,7 @@ public class MenuHelper {
 	@TargetApi( Build.VERSION_CODES.HONEYCOMB )
 	public MenuItem deleteMenuItem( Menu menu ) {
 		
-		if( mNetworkHelper.isNetworkConnected() ) {
+		if( NetworkHelper.getInstance().isNetworkConnected() ) {
 			MenuItem menuItem = menu.add( Menu.NONE, DELETE_ID, Menu.NONE, mResources.getString( R.string.menu_delete ) );
 			menuItem.setIcon( android.R.drawable.ic_menu_delete );
 			if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
@@ -368,7 +366,7 @@ public class MenuHelper {
 	@TargetApi( Build.VERSION_CODES.HONEYCOMB )
 	public MenuItem watchMenuItem( Menu menu ) {
 		
-		if( mNetworkHelper.isNetworkConnected() ) {
+		if( NetworkHelper.getInstance().isNetworkConnected() ) {
 			MenuItem menuItem = menu.add( Menu.NONE, WATCH_ID, Menu.NONE, mResources.getString( R.string.menu_watch ) );
 			menuItem.setIcon( android.R.drawable.ic_menu_view );
 			if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
@@ -390,7 +388,7 @@ public class MenuHelper {
 	@TargetApi( Build.VERSION_CODES.HONEYCOMB )
 	public MenuItem watchOnFrontendMenuItem( Menu menu ) {
 		
-		if( mNetworkHelper.isNetworkConnected() ) {
+		if( NetworkHelper.getInstance().isNetworkConnected() ) {
 			MenuItem menuItem = menu.add( Menu.NONE, WATCH_ON_TV_ID, Menu.NONE, mResources.getString( R.string.menu_watch ) );
 			menuItem.setIcon( android.R.drawable.ic_menu_send );
 			if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
@@ -412,7 +410,7 @@ public class MenuHelper {
 	@TargetApi( Build.VERSION_CODES.HONEYCOMB )
 	public MenuItem addMenuItem( Menu menu ) {
 		
-		if( mNetworkHelper.isNetworkConnected() ) {
+		if( NetworkHelper.getInstance().isNetworkConnected() ) {
 			MenuItem menuItem = menu.add( Menu.NONE, ADD_ID, Menu.NONE, mResources.getString( R.string.menu_add ) );
 			menuItem.setIcon( android.R.drawable.ic_menu_add );
 			if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
@@ -428,7 +426,7 @@ public class MenuHelper {
 	@TargetApi( Build.VERSION_CODES.HONEYCOMB )
 	public MenuItem clearMenuItem( Menu menu ) {
 		
-		if( mNetworkHelper.isNetworkConnected() ) {
+		if( NetworkHelper.getInstance().isNetworkConnected() ) {
 			MenuItem menuItem = menu.add( Menu.NONE, CLEAR_ID, Menu.NONE, mResources.getString( R.string.menu_clear ) );
 			menuItem.setIcon( android.R.drawable.ic_menu_close_clear_cancel );
 			if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
@@ -446,7 +444,7 @@ public class MenuHelper {
 	private void startWebActivity( String url ) {
 		Log.v( TAG, "startActivity : enter" );
 
-		if( mNetworkHelper.isNetworkConnected() ) {
+		if( NetworkHelper.getInstance().isNetworkConnected() ) {
 			Intent webIntent = new Intent( Intent.ACTION_VIEW, Uri.parse( url ) );
 			mContext.startActivity( webIntent );
 		} else {

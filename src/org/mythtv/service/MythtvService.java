@@ -38,7 +38,6 @@ public class MythtvService extends IntentService {
     
 	protected FileHelper mFileHelper;
     protected MainApplication mMainApplication;
-    protected NetworkHelper mNetworkHelper;
 	
     public static final String ACTION_CONNECT = "org.mythtv.background.ACTION_CONNECT";
     public static final String ACTION_COMPLETE = "org.mythtv.background.ACTION_COMPLETE";
@@ -64,12 +63,11 @@ public class MythtvService extends IntentService {
 	protected void onHandleIntent( Intent intent ) {
 
 		mMainApplication = (MainApplication) MythtvService.this.getApplicationContext();
-		mNetworkHelper = NetworkHelper.newInstance( this );
 
 		if ( intent.getAction().equals( ACTION_CONNECT ) ) {
 			Log.v( TAG, "onHandleIntent : checking master backend connection" );
 
-			Boolean connected = mNetworkHelper.isMasterBackendConnected();
+			Boolean connected = NetworkHelper.getInstance().isMasterBackendConnected();
 			Log.v( TAG, "onHandleIntent : connected=" + connected );
 
 			Intent completeIntent = new Intent( ACTION_COMPLETE );

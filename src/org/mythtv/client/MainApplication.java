@@ -24,6 +24,7 @@ import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.preferences.PlaybackProfile;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.db.preferences.PlaybackProfileDaoHelper;
+import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.MythServices;
 import org.mythtv.services.connect.MythServicesServiceProvider;
 
@@ -72,7 +73,11 @@ public class MainApplication extends Application {
 		Log.v( TAG, "onCreate : enter" );
 		super.onCreate();
 		
+		//init Image Loader
 		initImageLoader( getApplicationContext() );
+		
+		//Init NetworkHelper
+		NetworkHelper.getInstance().init( this );
 		
 		mLocationProfileDaoHelper = new LocationProfileDaoHelper( this );
 		mPlaybackProfileDaoHelper = new PlaybackProfileDaoHelper( this );

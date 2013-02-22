@@ -84,7 +84,6 @@ public class MainMenuFragment extends AbstractMythFragment implements ServiceLis
 	
 	
 	private FrontendAdapter adapter = null;
-	private NetworkHelper mNetworkHelper = null;
 	private ContentFragmentRequestedListener mContentFragmentRequestedListener;
 	
 	
@@ -161,7 +160,7 @@ public class MainMenuFragment extends AbstractMythFragment implements ServiceLis
 	private OnClickListener mythmoteButtonOnClick = new OnClickListener(){
 		@Override
 		public void onClick(View v) {
-			if( mNetworkHelper.isNetworkConnected() && !getActivity().getClass().equals(MythmoteActivity.class) ) {
+			if( NetworkHelper.getInstance().isNetworkConnected() && !getActivity().getClass().equals(MythmoteActivity.class) ) {
 				startActivity( new Intent( getActivity(), MythmoteActivity.class ) );
 			}
 		}
@@ -218,8 +217,6 @@ public class MainMenuFragment extends AbstractMythFragment implements ServiceLis
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
-		mNetworkHelper = NetworkHelper.newInstance(getActivity());
 		
 		adapter = new FrontendAdapter(getActivity(), R.layout.frontend_row, MainMenuFragment.GetFrontends());
 		
