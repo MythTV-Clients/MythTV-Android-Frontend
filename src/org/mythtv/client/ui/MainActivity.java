@@ -37,7 +37,6 @@ public class MainActivity extends AbstractMythtvFragmentActivity implements Cont
 		super.onCreate( savedInstanceState );
 
 		mMenuHelper = MenuHelper.newInstance( this );
-		mNetworkHelper = NetworkHelper.newInstance( this );
 		
 		this.setContentView(R.layout.activity_main);
 		

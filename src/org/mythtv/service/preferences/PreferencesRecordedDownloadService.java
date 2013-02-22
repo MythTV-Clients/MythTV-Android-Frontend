@@ -22,6 +22,7 @@ import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.preferences.LocationProfileConstants;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.MythtvService;
+import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.dvr.ProgramList;
 import org.mythtv.services.api.dvr.Programs;
@@ -92,7 +93,7 @@ public class PreferencesRecordedDownloadService extends MythtvService {
     			return;
     		}
     		
-    		if( !mNetworkHelper.isMasterBackendConnected( profile ) ) {
+    		if( !NetworkHelper.getInstance().isMasterBackendConnected( profile ) ) {
     			Intent completeIntent = new Intent( ACTION_COMPLETE );
     			completeIntent.putExtra( EXTRA_COMPLETE, "Master Backend not connected" );
     			completeIntent.putExtra( EXTRA_COMPLETE_OFFLINE, Boolean.TRUE );

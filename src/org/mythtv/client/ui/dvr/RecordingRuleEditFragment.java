@@ -61,7 +61,6 @@ public class RecordingRuleEditFragment extends AbstractMythFragment implements O
 	
 	private ChannelDaoHelper mChannelDaoHelper;
 	private MenuHelper mMenuHelper;
-	private NetworkHelper mNetworkHelper;
 	private ProgramHelper mProgramHelper;
 	
 	private boolean mEdited = false;
@@ -184,15 +183,7 @@ public class RecordingRuleEditFragment extends AbstractMythFragment implements O
 	public void loadRecordingRule( Integer recordingRuleId ) {
 		Log.v( TAG, "loadRecordingRule : enter" );
 
-		if( null != getActivity() ) {
-			
-			if( null == mNetworkHelper ) {
-				mNetworkHelper = ( (AbstractMythtvFragmentActivity) getActivity() ).getNetworkHelper();
-			}
-			
-			new DownloadRecordingRuleTask().execute( recordingRuleId );
-		
-		}
+		new DownloadRecordingRuleTask().execute( recordingRuleId );
 		
 		Log.v( TAG, "loadRecordingRule : exit" );
 	}
@@ -336,7 +327,7 @@ public class RecordingRuleEditFragment extends AbstractMythFragment implements O
 		@Override
 		protected ResponseEntity<RecRuleWrapper> doInBackground( Integer... params ) {
 			
-			if( !mNetworkHelper.isMasterBackendConnected() ) {
+			if( !NetworkHelper.getInstance().isMasterBackendConnected() ) {
 				return null;
 			}
 

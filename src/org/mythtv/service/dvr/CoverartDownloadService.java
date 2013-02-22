@@ -24,6 +24,7 @@ import java.io.IOException;
 import org.apache.commons.io.FileUtils;
 import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.service.MythtvService;
+import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.ETagInfo;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -75,7 +76,7 @@ public class CoverartDownloadService extends MythtvService {
 			return;
 		}
 
-		if( !mNetworkHelper.isMasterBackendConnected() ) {
+		if( !NetworkHelper.getInstance().isMasterBackendConnected() ) {
 			Intent completeIntent = new Intent( ACTION_COMPLETE );
 			completeIntent.putExtra( EXTRA_COMPLETE, "Master Backend unreachable" );
 			sendBroadcast( completeIntent );

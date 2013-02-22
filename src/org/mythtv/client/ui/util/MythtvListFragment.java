@@ -32,8 +32,6 @@ import android.widget.ListView;
  */
 public class MythtvListFragment extends ListFragment {
 
-	protected NetworkHelper mNetworkHelper;
-
 	
 	/* (non-Javadoc)
 	 * @see android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
@@ -41,8 +39,6 @@ public class MythtvListFragment extends ListFragment {
 	@Override
 	public void onActivityCreated( Bundle savedInstanceState ) {
 		super.onActivityCreated( savedInstanceState );
-
-		mNetworkHelper = NetworkHelper.newInstance( getActivity() );
 	}
 
 	/* (non-Javadoc)

@@ -29,6 +29,7 @@ import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.MythtvService;
 import org.mythtv.service.util.DateUtils;
+import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.guide.ProgramGuide;
 import org.mythtv.services.api.guide.ProgramGuideWrapper;
@@ -128,7 +129,7 @@ public class ProgramGuideDownloadService extends MythtvService {
 			return;
 		}
 
-		if( !mNetworkHelper.isMasterBackendConnected() ) {
+		if( !NetworkHelper.getInstance().isMasterBackendConnected() ) {
 			Intent completeIntent = new Intent( ACTION_COMPLETE );
 			completeIntent.putExtra( EXTRA_COMPLETE, "Master Backend unreachable" );
 			completeIntent.putExtra( EXTRA_COMPLETE_OFFLINE, Boolean.TRUE );
@@ -167,7 +168,7 @@ public class ProgramGuideDownloadService extends MythtvService {
 						File file = new File( programGuideCache, mLocationProfile.getHostname() + "_" + DateUtils.fileDateTimeFormatter.print( start ) + FILENAME_EXT );
 						if( !file.exists() || file.length() == 0 ) {
 
-							if( !mNetworkHelper.isMasterBackendConnected() ) {
+							if( !NetworkHelper.getInstance().isMasterBackendConnected() ) {
 								Log.d( TAG, "onHandleIntent : exit, Master Backend unreachable" );
 								break;
 							}

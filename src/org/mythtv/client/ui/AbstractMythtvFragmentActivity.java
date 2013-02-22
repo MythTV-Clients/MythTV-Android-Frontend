@@ -54,7 +54,6 @@ public abstract class AbstractMythtvFragmentActivity extends FragmentActivity im
 	protected LiveStreamDaoHelper mLiveStreamDaoHelper;
 	protected LocationProfileDaoHelper mLocationProfileDaoHelper;
 	protected MenuHelper mMenuHelper;
-	protected NetworkHelper mNetworkHelper;
 	protected ProgramGroupDaoHelper mProgramGroupDaoHelper;
 	protected RecordedDaoHelper mRecordedDaoHelper;
 	protected RunningServiceHelper mRunningServiceHelper;
@@ -89,7 +88,6 @@ public abstract class AbstractMythtvFragmentActivity extends FragmentActivity im
 		mLiveStreamDaoHelper = new LiveStreamDaoHelper( this );
 		mLocationProfileDaoHelper = new LocationProfileDaoHelper( this );
 		mMenuHelper = MenuHelper.newInstance( this );
-		mNetworkHelper = NetworkHelper.newInstance( this );
 		mProgramGroupDaoHelper = new ProgramGroupDaoHelper( this );
 		mRecordedDaoHelper = new RecordedDaoHelper( this );
 		mRunningServiceHelper = RunningServiceHelper.newInstance( this );
@@ -181,13 +179,6 @@ public abstract class AbstractMythtvFragmentActivity extends FragmentActivity im
 	 */
 	public MenuHelper getMenuHelper() {
 		return mMenuHelper;
-	}
-
-	/**
-	 * @return the mNetworkHelper
-	 */
-	public NetworkHelper getNetworkHelper() {
-		return mNetworkHelper;
 	}
 
 	/**

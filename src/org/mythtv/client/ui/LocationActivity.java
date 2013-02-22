@@ -44,7 +44,6 @@ public class LocationActivity extends FragmentActivity {
 	private static final String TAG = LocationActivity.class.getSimpleName();
 
 	private MenuHelper mMenuHelper;
-	private NetworkHelper mNetworkHelper;
 	
 	private Button home, away;
 	
@@ -57,7 +56,6 @@ public class LocationActivity extends FragmentActivity {
 		super.onCreate( savedInstanceState );
 
 		mMenuHelper = MenuHelper.newInstance( this );
-		mNetworkHelper = NetworkHelper.newInstance( this );
 		
 		setContentView( R.layout.activity_location );
 		
@@ -158,7 +156,7 @@ public class LocationActivity extends FragmentActivity {
 		Log.v( TAG, "setupButtons : enter" );
 		
 		//wifi
-		if( mNetworkHelper.isNetworkConnected() ) {
+		if( NetworkHelper.getInstance().isNetworkConnected() ) {
 			Log.d( TAG, "onResume : enabling home" );
 
 			home.setEnabled( true );
