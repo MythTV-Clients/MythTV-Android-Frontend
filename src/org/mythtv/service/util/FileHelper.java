@@ -32,6 +32,8 @@ public class FileHelper {
 
 //	private static final String TAG = FileHelper.class.getSimpleName();
 	
+	private static FileHelper singleton;
+	
 	private static final String CHANNEL_DATA = "channel";
 	private static final String PROGRAM_GUIDE_DATA = "programGuide";
 	private static final String PROGRAM_DATA = "program";
@@ -40,18 +42,38 @@ public class FileHelper {
 	private static final String PROGRAM_GROUPS_DATA = "groups";
 	private static final String IMAGE_DATA = "images";
 	
-	private Context mContext;
+	private File mFile = null;
 	
-	public static FileHelper newInstance( Context context ) {
-		return new FileHelper( context );
+	public static FileHelper getInstance() {
+		if(null == singleton) singleton = new FileHelper();
+		return singleton;
 	}
 	
-	protected FileHelper( Context context ) {
-		mContext = context;
+	private FileHelper(){
+		
+	}
+	
+	/**
+	 * Initialized the FileHelper with cache directory
+	 * @param file: getExternalCacheDir() API8+ cache directory
+	 */
+	public void init( File file ) {
+		mFile = file;
+	}
+	
+	/**
+	 * Returns true when 
+	 * @return
+	 */
+	public boolean isInitialized(){
+		return null != mFile;
 	}
 	
 	public File getChannelDataDirectory() {
 //		Log.v( TAG, "getChannelDataDirectory : enter" );
+		
+		/* Check if external cache dir file is initialized */
+		if(!this.isInitialized()) return null;
 		
 		File cacheDir = getRootCacheDirectory();
 		if( null != cacheDir && cacheDir.exists() ) {
@@ -74,6 +96,9 @@ public class FileHelper {
 	public File getProgramGuideDataDirectory() {
 //		Log.v( TAG, "getProgramGuideDataDirectory : enter" );
 		
+		/* Check if external cache dir file is initialized */
+		if(!this.isInitialized()) return null;
+		
 		File cacheDir = getRootCacheDirectory();
 		if( null != cacheDir && cacheDir.exists() ) {
 			
@@ -94,6 +119,9 @@ public class FileHelper {
 	
 	public File getProgramGuideImagesDataDirectory() {
 //		Log.v( TAG, "getProgramGuideImagesDataDirectory : enter" );
+		
+		/* Check if external cache dir file is initialized */
+		if(!this.isInitialized()) return null;
 		
 		File programGuideDir = getProgramGuideDataDirectory();
 		if( null != programGuideDir && programGuideDir.exists() ) {
@@ -116,6 +144,9 @@ public class FileHelper {
 	public File getProgramDataDirectory() {
 //		Log.v( TAG, "getProgramDataDirectory : enter" );
 		
+		/* Check if external cache dir file is initialized */
+		if(!this.isInitialized()) return null;
+		
 		File cacheDir = getRootCacheDirectory();
 		if( null != cacheDir && cacheDir.exists() ) {
 			
@@ -136,6 +167,9 @@ public class FileHelper {
 	
 	public File getProgramUpcomingDataDirectory() {
 //		Log.v( TAG, "getProgramUpcomingDataDirectory : enter" );
+		
+		/* Check if external cache dir file is initialized */
+		if(!this.isInitialized()) return null;
 		
 		File programDir = getProgramDataDirectory();
 		if( null != programDir && programDir.exists() ) {
@@ -158,6 +192,9 @@ public class FileHelper {
 	public File getProgramRecordedDataDirectory() {
 //		Log.v( TAG, "getProgramRecordedDataDirectory : enter" );
 		
+		/* Check if external cache dir file is initialized */
+		if(!this.isInitialized()) return null;
+		
 		File programDir = getProgramDataDirectory();
 		if( null != programDir && programDir.exists() ) {
 			
@@ -179,6 +216,9 @@ public class FileHelper {
 	public File getProgramGroupsDataDirectory() {
 //		Log.v( TAG, "getProgramGroupsDataDirectory : enter" );
 		
+		/* Check if external cache dir file is initialized */
+		if(!this.isInitialized()) return null;
+		
 		File programDir = getProgramDataDirectory();
 		if( null != programDir && programDir.exists() ) {
 			
@@ -199,6 +239,9 @@ public class FileHelper {
 
 	public File getProgramGroupDirectory( String title ) {
 //		Log.v( TAG, "getProgramGroupDirectory : enter" );
+		
+		/* Check if external cache dir file is initialized */
+		if(!this.isInitialized()) return null;
 		
 		String encodedTitle = UrlUtils.encodeUrl( title );
 		
@@ -234,7 +277,7 @@ public class FileHelper {
         if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO ) {
 //    		Log.v( TAG, "getRootCacheDirectory : exit, returning froyo+ cache directory" );
 
-        	return mContext.getExternalCacheDir();
+        	return mFile;
         
         } else {
         	

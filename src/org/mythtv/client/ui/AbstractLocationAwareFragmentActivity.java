@@ -47,7 +47,6 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 
 	protected static final String TAG = AbstractLocationAwareFragmentActivity.class.getSimpleName();
 
-	private FileHelper mFileHelper;
 	private LocationProfileDaoHelper mLocationProfileDaoHelper;
 	private LocationProfile mLocationProfile;
 	private RunningServiceHelper mRunningServiceHelper;
@@ -70,7 +69,6 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 		Log.v( TAG, "onCreate : enter" );
 		super.onCreate( savedInstanceState );
 
-		mFileHelper = FileHelper.newInstance( this );
 		mLocationProfileDaoHelper = new LocationProfileDaoHelper( this );
 		mRunningServiceHelper = RunningServiceHelper.newInstance( this );
 		
@@ -283,7 +281,7 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 	    			
 	    	    };
 	    		
-	        	File programGuideCache = mFileHelper.getProgramGuideDataDirectory();
+	        	File programGuideCache = FileHelper.getInstance().getProgramGuideDataDirectory();
 	    		if( null != programGuideCache && programGuideCache.exists() ) {
 		        	Log.i( TAG, "ProgramGuideCleanupReceiver.onReceive : programGuide count=" + programGuideCache.list( filter ).length );
 	    			
