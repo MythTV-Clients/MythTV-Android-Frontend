@@ -24,6 +24,7 @@ import java.io.IOException;
 import org.apache.commons.io.FileUtils;
 import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.service.MythtvService;
+import org.mythtv.service.util.FileHelper;
 import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.ETagInfo;
 import org.springframework.http.HttpStatus;
@@ -66,7 +67,7 @@ public class BannerDownloadService extends MythtvService {
 		Log.d( TAG, "onHandleIntent : enter" );
 		super.onHandleIntent( intent );
 		
-		programGroupsDirectory = mFileHelper.getProgramGroupsDataDirectory();
+		programGroupsDirectory = FileHelper.getInstance().getProgramGroupsDataDirectory();
 		if( null == programGroupsDirectory || !programGroupsDirectory.exists() ) {
 			Intent completeIntent = new Intent( ACTION_COMPLETE );
 			completeIntent.putExtra( EXTRA_COMPLETE, "Program group location can not be found" );
@@ -115,7 +116,7 @@ public class BannerDownloadService extends MythtvService {
 	        String title = cursor.getString( cursor.getColumnIndexOrThrow( ProgramConstants.FIELD_TITLE ) );
 	        String inetref = cursor.getString( cursor.getColumnIndexOrThrow( ProgramConstants.FIELD_INETREF ) );
 
-			File programGroupDirectory = mFileHelper.getProgramGroupDirectory( title );
+			File programGroupDirectory = FileHelper.getInstance().getProgramGroupDirectory( title );
 
 			File bannerExists = new File( programGroupDirectory, BANNER_FILE );
 			if( bannerExists.exists() ) {

@@ -36,7 +36,6 @@ public class MythtvService extends IntentService {
 	
 	public static final String FILENAME_EXT = ".json";
     
-	protected FileHelper mFileHelper;
     protected MainApplication mMainApplication;
 	
     public static final String ACTION_CONNECT = "org.mythtv.background.ACTION_CONNECT";
@@ -51,8 +50,6 @@ public class MythtvService extends IntentService {
 
 	public MythtvService( String name ) {
 		super( name );
-		
-		mFileHelper = FileHelper.newInstance( this );
 
 	}
 

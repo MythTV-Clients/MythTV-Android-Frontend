@@ -44,15 +44,12 @@ public class BannerLruMemoryCache extends LruCache<String, BitmapDrawable> {
 	
 	private final Context mContext;
 	private final Resources mResources;
-
-    private FileHelper mFileHelper;
 	
 	public BannerLruMemoryCache( Context context ) {
 		super( 4 * 1024 * 1024 );
 		Log.v( TAG, "initialize : enter" );
 
 		mContext = context;
-		mFileHelper = FileHelper.newInstance( mContext );
 		
 		mResources = mContext.getResources();
 		
@@ -66,7 +63,7 @@ public class BannerLruMemoryCache extends LruCache<String, BitmapDrawable> {
 	protected BitmapDrawable create( String key ) {
 		Log.v( TAG, "create : enter" );
 
-		File programGroupDirectory = mFileHelper.getProgramGroupDirectory( key );
+		File programGroupDirectory = FileHelper.getInstance().getProgramGroupDirectory( key );
 		if( programGroupDirectory.exists() ) {
 
 			File image = new File( programGroupDirectory, BannerDownloadService.BANNER_FILE );

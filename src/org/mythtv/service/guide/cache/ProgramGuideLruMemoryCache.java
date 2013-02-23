@@ -52,15 +52,12 @@ public class ProgramGuideLruMemoryCache extends LruCache<String, ProgramGuide> {
 	
 	private final Context mContext;
     private final ObjectMapper mapper;
-
-    private FileHelper mFileHelper;
 	
 	public ProgramGuideLruMemoryCache( Context context ) {
 		super( 12 * 1024 * 1024 );
 		Log.v( TAG, "initialize : enter" );
 
 		mContext = context;
-		mFileHelper = FileHelper.newInstance( mContext );
 		
 		mapper = new ObjectMapper();
 		mapper.registerModule( new JodaModule() );
@@ -75,7 +72,7 @@ public class ProgramGuideLruMemoryCache extends LruCache<String, ProgramGuide> {
 	protected ProgramGuide create( String key ) {
 		Log.v( TAG, "create : enter" );
 
-		File programGuideCache = mFileHelper.getProgramGuideDataDirectory();
+		File programGuideCache = FileHelper.getInstance().getProgramGuideDataDirectory();
 		if( programGuideCache.exists() ) {
 
 			String filename = key + ProgramGuideDownloadService.FILENAME_EXT;
@@ -109,7 +106,7 @@ public class ProgramGuideLruMemoryCache extends LruCache<String, ProgramGuide> {
 	@Override
 	protected int sizeOf( String key, ProgramGuide value ) {
 		
-		File programGuideCache = mFileHelper.getProgramGuideDataDirectory();
+		File programGuideCache = FileHelper.getInstance().getProgramGuideDataDirectory();
 		if( programGuideCache.exists() ) {
 
 			String filename = key + ProgramGuideDownloadService.FILENAME_EXT;

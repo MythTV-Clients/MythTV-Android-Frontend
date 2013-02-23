@@ -24,6 +24,7 @@ import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.preferences.PlaybackProfile;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.db.preferences.PlaybackProfileDaoHelper;
+import org.mythtv.service.util.FileHelper;
 import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.MythServices;
 import org.mythtv.services.connect.MythServicesServiceProvider;
@@ -76,8 +77,9 @@ public class MainApplication extends Application {
 		//init Image Loader
 		initImageLoader( getApplicationContext() );
 		
-		//Init NetworkHelper
+		//Initialize Helpers
 		NetworkHelper.getInstance().init( this );
+		FileHelper.getInstance().init(this.getExternalCacheDir());
 		
 		mLocationProfileDaoHelper = new LocationProfileDaoHelper( this );
 		mPlaybackProfileDaoHelper = new PlaybackProfileDaoHelper( this );

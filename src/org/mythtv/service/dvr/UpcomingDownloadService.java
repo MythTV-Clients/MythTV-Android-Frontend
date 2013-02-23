@@ -29,6 +29,7 @@ import org.mythtv.db.dvr.UpcomingDaoHelper;
 import org.mythtv.db.http.EtagDaoHelper;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.MythtvService;
+import org.mythtv.service.util.FileHelper;
 import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.dvr.ProgramList;
@@ -99,7 +100,7 @@ public class UpcomingDownloadService extends MythtvService {
 		mEtagDaoHelper = new EtagDaoHelper( this );
 		mLocationProfileDaoHelper = new LocationProfileDaoHelper( this );
 		
-		upcomingDirectory = mFileHelper.getProgramUpcomingDataDirectory();
+		upcomingDirectory = FileHelper.getInstance().getProgramUpcomingDataDirectory();
 		if( null == upcomingDirectory || !upcomingDirectory.exists() ) {
 			Intent completeIntent = new Intent( ACTION_COMPLETE );
 			completeIntent.putExtra( EXTRA_COMPLETE, "Program Upcoming location can not be found" );

@@ -28,6 +28,7 @@ import org.joda.time.DateTime;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.MythtvService;
+import org.mythtv.service.util.FileHelper;
 
 import android.content.Intent;
 import android.util.Log;
@@ -84,7 +85,7 @@ public class ProgramGuideCleanupService extends MythtvService {
 		today = today.withTime( 23, 59, 59, 999 );
 		Log.v( TAG, "cleanup : today=" + today.toString() );
 		
-		File programGuideCache = mFileHelper.getProgramGuideDataDirectory();
+		File programGuideCache = FileHelper.getInstance().getProgramGuideDataDirectory();
 		if( null != programGuideCache && programGuideCache.exists() ) {
 			Log.v( TAG, "cleanup : found program guide cache" );
 			

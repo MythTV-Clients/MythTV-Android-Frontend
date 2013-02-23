@@ -29,6 +29,7 @@ import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.MythtvService;
 import org.mythtv.service.util.DateUtils;
+import org.mythtv.service.util.FileHelper;
 import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.guide.ProgramGuide;
@@ -119,7 +120,7 @@ public class ProgramGuideDownloadService extends MythtvService {
 		mLocationProfileDaoHelper = new LocationProfileDaoHelper( this );
 		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile();
 		
-		programGuideCache = mFileHelper.getProgramGuideDataDirectory();
+		programGuideCache = FileHelper.getInstance().getProgramGuideDataDirectory();
 		if( null == programGuideCache || !programGuideCache.exists() ) {
 			Intent completeIntent = new Intent( ACTION_COMPLETE );
 			completeIntent.putExtra( EXTRA_COMPLETE, "Program Guide Cache location can not be found" );

@@ -28,6 +28,7 @@ import org.mythtv.db.channel.ChannelDaoHelper;
 import org.mythtv.db.http.EtagDaoHelper;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.MythtvService;
+import org.mythtv.service.util.FileHelper;
 import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.channel.ChannelInfoList;
@@ -95,7 +96,7 @@ public class ChannelDownloadService extends MythtvService {
 		mLocationProfileDaoHelper = new LocationProfileDaoHelper( this );
 		mEtagDaoHelper = new EtagDaoHelper( this );
 		
-		channelDirectory = mFileHelper.getChannelDataDirectory();
+		channelDirectory = FileHelper.getInstance().getChannelDataDirectory();
 		if( null == channelDirectory || !channelDirectory.exists() ) {
 			Intent completeIntent = new Intent( ACTION_COMPLETE );
 			completeIntent.putExtra( EXTRA_COMPLETE, "Channel location can not be found" );

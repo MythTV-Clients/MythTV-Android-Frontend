@@ -50,7 +50,6 @@ public abstract class AbstractMythtvFragmentActivity extends FragmentActivity im
 	protected static final String TAG = AbstractMythtvFragmentActivity.class.getSimpleName();
 
 	protected SharedPreferences preferences = null;
-	protected FileHelper mFileHelper;
 	protected LiveStreamDaoHelper mLiveStreamDaoHelper;
 	protected LocationProfileDaoHelper mLocationProfileDaoHelper;
 	protected MenuHelper mMenuHelper;
@@ -84,7 +83,6 @@ public abstract class AbstractMythtvFragmentActivity extends FragmentActivity im
 
 		preferences = getSharedPreferences( getString( R.string.app_name ), Context.MODE_PRIVATE );
 		
-		mFileHelper = FileHelper.newInstance( this );
 		mLiveStreamDaoHelper = new LiveStreamDaoHelper( this );
 		mLocationProfileDaoHelper = new LocationProfileDaoHelper( this );
 		mMenuHelper = MenuHelper.newInstance( this );
