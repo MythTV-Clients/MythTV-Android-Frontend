@@ -137,11 +137,12 @@ public class ChannelDownloadService extends MythtvService {
 					
 					if( null != videoSourceList ) {
 //	    				cleanup();
-						
+						int nap = 1000; // 500ms & 1ms fail
 						for( VideoSource videoSource : videoSourceList.getVideoSources().getVideoSources() ) {
 							Log.i( TAG, "onHandleIntent : videoSourceId = '" + videoSource.getId() + '"' );
-							
 							download( videoSource.getId() );
+							Log.i( TAG, "onHandleIntent : sleeping " + nap + " ms" );
+							Thread.sleep( nap );
 						}
 
 					}
