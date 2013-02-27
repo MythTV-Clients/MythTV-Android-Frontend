@@ -19,11 +19,15 @@
 package org.mythtv.db.channel;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.mythtv.db.AbstractDaoHelper;
 import org.mythtv.provider.MythtvProvider;
 import org.mythtv.services.api.channel.ChannelInfo;
+import org.mythtv.services.api.channel.ChannelInfos;
 
 import android.content.ContentProviderOperation;
 import android.content.ContentProviderResult;
@@ -80,7 +84,7 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 	/**
 	 * @return
 	 */
-	public List<ChannelInfo> finalAll() {
+	public List<ChannelInfo> findAll() {
 		Log.d( TAG, "findAll : enter" );
 		
 		List<ChannelInfo> channelInfos = findAll( null, null, null, null );
@@ -240,8 +244,14 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 		return deleted;
 	}
 
-	public int load( List<ChannelInfo> channelInfos ) throws RemoteException, OperationApplicationException {
+	public int load( List<ChannelInfos> allChannelsList ) throws RemoteException, OperationApplicationException {
 		Log.d( TAG, "load : enter" );
+		
+		Log.d( TAG, "load : loading existing channels" );
+		Map<Integer, ChannelInfo> existing = new HashMap<Integer, ChannelInfo>();
+		for( ChannelInfo channelInfo : findAll() ) {
+			existing.put( channelInfo.getChannelId(), channelInfo );
+		}
 		
 		int loaded = -1;
 		int count = 0;
@@ -253,63 +263,109 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 
 		ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
 		
-		for( ChannelInfo channel : channelInfos ) {
+		for( ChannelInfos channelInfos : allChannelsList ) {
+			Log.v( TAG, "load : channelInfos iteration" );
 			
-			ContentValues channelValues = convertChannelInfoToContentValues( channel );
-			Cursor channelCursor = mContext.getContentResolver().query( ChannelConstants.CONTENT_URI, channelProjection, channelSelection, new String[] { String.valueOf( channel.getChannelId() ) }, null );
-			if( channelCursor.moveToFirst() ) {
-				Log.v( TAG, "load : channel already loaded" );
+			for( ChannelInfo channel : channelInfos.getChannelInfos() ) {
 
-				Long id = channelCursor.getLong( channelCursor.getColumnIndexOrThrow( ChannelConstants.TABLE_NAME + "_" + ChannelConstants._ID ) );
-				ops.add( 
+				ContentValues channelValues = convertChannelInfoToContentValues( channel );
+				Cursor channelCursor = mContext.getContentResolver().query( ChannelConstants.CONTENT_URI, channelProjection, channelSelection, new String[] { String.valueOf( channel.getChannelId() ) }, null );
+				if( channelCursor.moveToFirst() ) {
+					Log.v( TAG, "load : channel already loaded" );
+
+					Long id = channelCursor.getLong( channelCursor.getColumnIndexOrThrow( ChannelConstants.TABLE_NAME + "_" + ChannelConstants._ID ) );
+					ops.add( 
 						ContentProviderOperation.newUpdate( ContentUris.withAppendedId( ChannelConstants.CONTENT_URI, id ) )
 							.withValues( channelValues )
 							.withYieldAllowed( true )
 							.build()
 					);
-			
-			} else {
-				
-				ops.add(  
+					
+				} else {
+
+					ops.add(  
 						ContentProviderOperation.newInsert( ChannelConstants.CONTENT_URI )
 							.withValues( channelValues )
 							.withYieldAllowed( true )
 							.build()
 					);
 
-			}
-			channelCursor.close();
-			count++;
+				}
+				channelCursor.close();
+				count++;
 
-			if( count > 100 ) {
-				Log.v( TAG, "process : applying batch for '" + ( count + 1 ) + "' transactions" );
+				if( existing.containsKey( channel.getChannelId() ) ) {
+					existing.remove( channel.getChannelId() );
+				}
 				
-				if( !ops.isEmpty() ) {
-					
-					ContentProviderResult[] results = mContext.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
-					loaded += results.length;
-					
-					if( results.length > 0 ) {
-						ops.clear();
+				if( count > 100 ) {
+					Log.v( TAG, "process : applying batch for '" + ( count + 1 ) + "' transactions" );
+
+					if( !ops.isEmpty() ) {
+
+						ContentProviderResult[] results = mContext.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
+						loaded += results.length;
+
+						if( results.length > 0 ) {
+							ops.clear();
+						}
 					}
+
+					count = -1;
 				}
 
-				count = -1;
 			}
 
-		}
+			if( !existing.isEmpty() ) {
+				Log.v( TAG, "load : deleting channels no longer present on mythtv backend" );
+				
+				for( Entry<Integer, ChannelInfo> entry : existing.entrySet() ) {
+					
+					ChannelInfo channelInfo = entry.getValue();
+					
+					ops.add(  
+						ContentProviderOperation.newDelete( ChannelConstants.CONTENT_URI )
+							.withSelection( ChannelConstants.FIELD_CHAN_ID + " = ?", new String[] { String.valueOf( channelInfo.getChannelId() ) } )
+							.withYieldAllowed( true )
+							.build()
+					);
+					count++;
+					
+					if( count > 100 ) {
+						Log.v( TAG, "process : applying batch for '" + count + "' transactions" );
+							
+						if( !ops.isEmpty() ) {
+								
+							ContentProviderResult[] results = mContext.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
+							loaded += results.length;
+								
+							if( results.length > 0 ) {
+								ops.clear();
+							}
 
-		if( !ops.isEmpty() ) {
-			Log.v( TAG, "process : applying final batch of '" + ( count + 1 ) + "' transactions" );
+						}
+
+						count = -1;
+					}
+					
+				}
+
+			}
 			
-			ContentProviderResult[] results = mContext.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
-			loaded += results.length;
+			if( !ops.isEmpty() ) {
+				Log.v( TAG, "process : applying final batch of '" + ( count + 1 ) + "' transactions" );
 
-			if( results.length > 0 ) {
-				ops.clear();
+				ContentProviderResult[] results = mContext.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
+				loaded += results.length;
+
+				if( results.length > 0 ) {
+					ops.clear();
+				}
+			
 			}
-		}
 
+		}
+		
 		Log.d( TAG, "load : exit" );
 		return loaded;
 	}

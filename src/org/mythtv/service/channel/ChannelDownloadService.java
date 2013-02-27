@@ -20,8 +20,9 @@ package org.mythtv.service.channel;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
-import org.apache.commons.io.FileUtils;
 import org.mythtv.R;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.channel.ChannelDaoHelper;
@@ -136,15 +137,37 @@ public class ChannelDownloadService extends MythtvService {
 					VideoSourceList videoSourceList = responseEntity.getBody();
 					
 					if( null != videoSourceList ) {
-//	    				cleanup();
+
+						// holder for all downloaded channel lists
+						List<ChannelInfos> allChannelLists = new ArrayList<ChannelInfos>();
+						
 						int nap = 1000; // 500ms & 1ms fail
 						for( VideoSource videoSource : videoSourceList.getVideoSources().getVideoSources() ) {
 							Log.i( TAG, "onHandleIntent : videoSourceId = '" + videoSource.getId() + '"' );
-							download( videoSource.getId() );
+							
+							// Download the channel listing, return list
+							Log.i( TAG, "onHandleIntent : downloading channels" );
+							ChannelInfos channelInfos = download( videoSource.getId() );
+							allChannelLists.add( channelInfos );
+							
+							// Save the file locally
+							Log.i( TAG, "onHandleIntent : save the file locally" );
+							process( channelInfos );
+							
+							// wait a second before downloading the next one
 							Log.i( TAG, "onHandleIntent : sleeping " + nap + " ms" );
 							Thread.sleep( nap );
 						}
 
+						// Process the combined lists of downloaded channels
+						if( null != allChannelLists && !allChannelLists.isEmpty() ) {
+							Log.i( TAG, "onHandleIntent : process all channels" );
+
+							int channelsAdded = mChannelDaoHelper.load( allChannelLists );
+							Log.v( TAG, "process : channelsAdded=" + channelsAdded );
+							
+						}
+						
 					}
 
 					if( null != etag.getETag() ) {
@@ -180,7 +203,7 @@ public class ChannelDownloadService extends MythtvService {
 
 	// internal helpers
 	
-	private void download( int sourceId ) throws Exception {
+	private ChannelInfos download( int sourceId ) throws Exception {
 		Log.v( TAG, "download : enter" );
 
 		LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile();
@@ -195,14 +218,16 @@ public class ChannelDownloadService extends MythtvService {
 
 			if( null != channelInfoList ) {
 
-				if( null != channelInfoList.getChannelInfos() ) {
-					process( channelInfoList.getChannelInfos() );
-				}
-
 				if( null != etag.getETag() ) {
 					Log.i( TAG, "download : " + Endpoint.GET_CHANNEL_INFO_LIST.getEndpoint() + " returned 200 OK" );
 
 					mEtagDaoHelper.save( etag, Endpoint.GET_CHANNEL_INFO_LIST.name(), String.valueOf( sourceId ) );
+				}
+
+				if( null != channelInfoList.getChannelInfos() ) {
+					Log.v( TAG, "download : exit, returning channelInfos" );
+
+					return channelInfoList.getChannelInfos();
 				}
 
 			}
@@ -216,14 +241,7 @@ public class ChannelDownloadService extends MythtvService {
 		}
 			
 		Log.v( TAG, "download : exit" );
-	}
-
-	private void cleanup() throws IOException {
-		Log.v( TAG, "cleanup : enter" );
-		
-		FileUtils.cleanDirectory( channelDirectory );
-		
-		Log.v( TAG, "cleanup : exit" );
+		return null;
 	}
 
 	private void process( ChannelInfos channelInfos ) throws JsonGenerationException, JsonMappingException, IOException, RemoteException, OperationApplicationException {
@@ -235,17 +253,6 @@ public class ChannelDownloadService extends MythtvService {
 		mMainApplication.getObjectMapper().writeValue( new File( channelDirectory, CHANNELS_FILE_PREFIX + locationProfile.getHostname() + CHANNELS_FILE_EXT ), channelInfos );
 		Log.v( TAG, "process : saved channels to " + channelDirectory.getAbsolutePath() );
 
-		if( null != channelInfos ) {
-			
-			if( null != channelInfos.getChannelInfos() && !channelInfos.getChannelInfos().isEmpty() ) {
-				
-				int channelsAdded = mChannelDaoHelper.load( channelInfos.getChannelInfos() );
-				Log.v( TAG, "process : channelsAdded=" + channelsAdded );
-			
-			}
-			
-		}
-		
 		Log.v( TAG, "process : exit" );
 	}
 
