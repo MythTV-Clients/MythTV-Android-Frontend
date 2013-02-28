@@ -48,6 +48,7 @@ import android.util.Log;
 public class ChannelDaoHelper extends AbstractDaoHelper {
 
 	private static final String TAG = ChannelDaoHelper.class.getSimpleName();
+	private final static int BATCH_COUNT_LIMIT = 99;
 	
 	/**
 	 * @param context
@@ -253,8 +254,12 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 			existing.put( channelInfo.getChannelId(), channelInfo );
 		}
 		
-		int loaded = -1;
 		int count = 0;
+		int deletecount = 0;
+		int processed = 0;
+		int totalUpdates = 0;
+		int totalInserts = 0;
+		int totalDeletes = 0;
 		
 		String[] channelProjection = new String[] { ChannelConstants.TABLE_NAME + "_" + ChannelConstants._ID };
 		String channelSelection = ChannelConstants.FIELD_CHAN_ID + " = ?";
@@ -264,14 +269,14 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 		ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
 		
 		for( ChannelInfos channelInfos : allChannelsList ) {
-			Log.v( TAG, "load : channelInfos iteration" );
+			Log.v( TAG, "load : channelInfos iteration, channels in this source: " + channelInfos.getTotalAvailable() );
 			
 			for( ChannelInfo channel : channelInfos.getChannelInfos() ) {
 
 				ContentValues channelValues = convertChannelInfoToContentValues( channel );
 				Cursor channelCursor = mContext.getContentResolver().query( ChannelConstants.CONTENT_URI, channelProjection, channelSelection, new String[] { String.valueOf( channel.getChannelId() ) }, null );
 				if( channelCursor.moveToFirst() ) {
-					Log.v( TAG, "load : channel already loaded" );
+					Log.v( TAG, "load : updating channel " + channel.getChannelId() );
 
 					Long id = channelCursor.getLong( channelCursor.getColumnIndexOrThrow( ChannelConstants.TABLE_NAME + "_" + ChannelConstants._ID ) );
 					ops.add( 
@@ -280,8 +285,10 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 							.withYieldAllowed( true )
 							.build()
 					);
-					
+					totalUpdates++;
+
 				} else {
+					Log.v( TAG, "load : adding channel " + channel.getChannelId() );
 
 					ops.add(  
 						ContentProviderOperation.newInsert( ChannelConstants.CONTENT_URI )
@@ -289,6 +296,7 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 							.withYieldAllowed( true )
 							.build()
 					);
+					totalInserts++;
 
 				}
 				channelCursor.close();
@@ -298,20 +306,20 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 					existing.remove( channel.getChannelId() );
 				}
 				
-				if( count > 100 ) {
-					Log.v( TAG, "process : applying batch for '" + ( count + 1 ) + "' transactions" );
+				if( count > BATCH_COUNT_LIMIT ) {
+					Log.v( TAG, "process : batch update/insert" );
 
 					if( !ops.isEmpty() ) {
 
 						ContentProviderResult[] results = mContext.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
-						loaded += results.length;
+						processed += results.length;
 
 						if( results.length > 0 ) {
 							ops.clear();
 						}
 					}
 
-					count = -1;
+					count = 0;
 				}
 
 			}
@@ -322,22 +330,23 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 				for( Entry<Integer, ChannelInfo> entry : existing.entrySet() ) {
 					
 					ChannelInfo channelInfo = entry.getValue();
-					
+					Log.v( TAG, "load : deleting channel " + channelInfo.getChannelId() );
 					ops.add(  
 						ContentProviderOperation.newDelete( ChannelConstants.CONTENT_URI )
 							.withSelection( ChannelConstants.FIELD_CHAN_ID + " = ?", new String[] { String.valueOf( channelInfo.getChannelId() ) } )
 							.withYieldAllowed( true )
 							.build()
 					);
-					count++;
+					deletecount++;
+					totalDeletes++;
 					
-					if( count > 100 ) {
-						Log.v( TAG, "process : applying batch for '" + count + "' transactions" );
+					if( deletecount > BATCH_COUNT_LIMIT ) {
+						Log.v( TAG, "process : batch delete" );
 							
 						if( !ops.isEmpty() ) {
 								
 							ContentProviderResult[] results = mContext.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
-							loaded += results.length;
+							processed += results.length;
 								
 							if( results.length > 0 ) {
 								ops.clear();
@@ -345,7 +354,7 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 
 						}
 
-						count = -1;
+						deletecount = 0;
 					}
 					
 				}
@@ -353,10 +362,10 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 			}
 			
 			if( !ops.isEmpty() ) {
-				Log.v( TAG, "process : applying final batch of '" + ( count + 1 ) + "' transactions" );
+				Log.v( TAG, "process : final batch update|insert / del " + count + "/" + deletecount);
 
 				ContentProviderResult[] results = mContext.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
-				loaded += results.length;
+				processed += results.length;
 
 				if( results.length > 0 ) {
 					ops.clear();
@@ -366,8 +375,11 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 
 		}
 		
+		Log.d( TAG, "load : totalUpdates: " + totalUpdates );
+		Log.d( TAG, "load : totalInserts: " + totalInserts );
+		Log.d( TAG, "load : totalDeletes: " + totalDeletes );
 		Log.d( TAG, "load : exit" );
-		return loaded;
+		return processed;
 	}
 	
 	/**

@@ -143,7 +143,7 @@ public class ChannelDownloadService extends MythtvService {
 						
 						int nap = 1000; // 500ms & 1ms fail
 						for( VideoSource videoSource : videoSourceList.getVideoSources().getVideoSources() ) {
-							Log.i( TAG, "onHandleIntent : videoSourceId = '" + videoSource.getId() + '"' );
+							Log.i( TAG, "onHandleIntent : videoSourceId = '" + videoSource.getId() + "'" );
 							
 							// Download the channel listing, return list
 							Log.i( TAG, "onHandleIntent : downloading channels" );
@@ -163,8 +163,8 @@ public class ChannelDownloadService extends MythtvService {
 						if( null != allChannelLists && !allChannelLists.isEmpty() ) {
 							Log.i( TAG, "onHandleIntent : process all channels" );
 
-							int channelsAdded = mChannelDaoHelper.load( allChannelLists );
-							Log.v( TAG, "process : channelsAdded=" + channelsAdded );
+							int channelsProcessed = mChannelDaoHelper.load( allChannelLists );
+							Log.v( TAG, "process : channelsProcessed=" + channelsProcessed );
 							
 						}
 						
