@@ -125,9 +125,8 @@ public class ChannelDownloadService extends MythtvService {
     		Log.v( TAG, "onHandleIntent : get video sources for host [" + locationProfile.getHostname() + ":" + locationProfile.getUrl() + "]" );
 
     		try {
-    			ETagInfo etag = mEtagDaoHelper.findByEndpointAndDataId( Endpoint.GET_VIDEO_SOURCE_LIST.name(), null );
+    			ETagInfo etag = ETagInfo.createEmptyETag();
     			Log.i( TAG, "onHandleIntent : etag=" + etag.getETag() );
-//    			etag = ETagInfo.createEmptyETag();
     			
 				ResponseEntity<VideoSourceList> responseEntity = mMainApplication.getMythServicesApi( locationProfile ).channelOperations().getVideoSourceList( etag );
 				if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
