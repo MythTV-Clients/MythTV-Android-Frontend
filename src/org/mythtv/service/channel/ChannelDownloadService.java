@@ -211,7 +211,7 @@ public class ChannelDownloadService extends MythtvService {
 
 		ETagInfo etag = mEtagDaoHelper.findByEndpointAndDataId( Endpoint.GET_CHANNEL_INFO_LIST.name(), String.valueOf( sourceId ) );
 		
-		ResponseEntity<ChannelInfoList> responseEntity = mMainApplication.getMythServicesApi( locationProfile ).channelOperations().getChannelInfoList( sourceId, 1, -1, etag );
+		ResponseEntity<ChannelInfoList> responseEntity = mMainApplication.getMythServicesApi( locationProfile ).channelOperations().getChannelInfoList( sourceId, 0, -1, etag );
 
 		if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
 			ChannelInfoList channelInfoList = responseEntity.getBody();

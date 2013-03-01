@@ -334,7 +334,7 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 				if( results.length > 0 ) {
 					ops.clear();
 				}
-			
+				count = 0;
 			}
 
 		}
