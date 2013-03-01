@@ -251,6 +251,7 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 		Log.d( TAG, "load : loading existing channels" );
 		Map<Integer, ChannelInfo> existing = new HashMap<Integer, ChannelInfo>();
 		for( ChannelInfo channelInfo : findAll() ) {
+//			Log.v( TAG, "load : existing channel: " + channelInfo.getChannelId() );
 			existing.put( channelInfo.getChannelId(), channelInfo );
 		}
 		
@@ -324,45 +325,8 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 
 			}
 
-			if( !existing.isEmpty() ) {
-				Log.v( TAG, "load : deleting channels no longer present on mythtv backend" );
-				
-				for( Entry<Integer, ChannelInfo> entry : existing.entrySet() ) {
-					
-					ChannelInfo channelInfo = entry.getValue();
-					Log.v( TAG, "load : deleting channel " + channelInfo.getChannelId() );
-					ops.add(  
-						ContentProviderOperation.newDelete( ChannelConstants.CONTENT_URI )
-							.withSelection( ChannelConstants.FIELD_CHAN_ID + " = ?", new String[] { String.valueOf( channelInfo.getChannelId() ) } )
-							.withYieldAllowed( true )
-							.build()
-					);
-					deletecount++;
-					totalDeletes++;
-					
-					if( deletecount > BATCH_COUNT_LIMIT ) {
-						Log.v( TAG, "process : batch delete" );
-							
-						if( !ops.isEmpty() ) {
-								
-							ContentProviderResult[] results = mContext.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
-							processed += results.length;
-								
-							if( results.length > 0 ) {
-								ops.clear();
-							}
-
-						}
-
-						deletecount = 0;
-					}
-					
-				}
-
-			}
-			
 			if( !ops.isEmpty() ) {
-				Log.v( TAG, "process : final batch update|insert / del " + count + "/" + deletecount);
+				Log.v( TAG, "process : final batch update|insert " + count );
 
 				ContentProviderResult[] results = mContext.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
 				processed += results.length;
@@ -373,6 +337,56 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 			
 			}
 
+		}
+
+		// Done with the updates/inserts, remove any 'stale' channels
+		if( !existing.isEmpty() ) {
+			Log.v( TAG, "load : deleting channels no longer present on mythtv backend" );
+			
+			for( Entry<Integer, ChannelInfo> entry : existing.entrySet() ) {
+				
+				ChannelInfo channelInfo = entry.getValue();
+				Log.v( TAG, "load : deleting channel " + channelInfo.getChannelId() );
+				ops.add(  
+					ContentProviderOperation.newDelete( ChannelConstants.CONTENT_URI )
+						.withSelection( ChannelConstants.FIELD_CHAN_ID + " = ?", new String[] { String.valueOf( channelInfo.getChannelId() ) } )
+						.withYieldAllowed( true )
+						.build()
+				);
+				count++;
+				totalDeletes++;
+				
+				if( deletecount > BATCH_COUNT_LIMIT ) {
+					Log.v( TAG, "process : batch delete" );
+						
+					if( !ops.isEmpty() ) {
+							
+						ContentProviderResult[] results = mContext.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
+						processed += results.length;
+							
+						if( results.length > 0 ) {
+							ops.clear();
+						}
+
+					}
+
+					count = 0;
+				}
+				
+			}
+
+		}	
+
+		if( !ops.isEmpty() ) {
+			Log.v( TAG, "process : final batch deletes " + count + "/" + deletecount);
+
+			ContentProviderResult[] results = mContext.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
+			processed += results.length;
+
+			if( results.length > 0 ) {
+				ops.clear();
+			}
+		
 		}
 		
 		Log.d( TAG, "load : totalUpdates: " + totalUpdates );
