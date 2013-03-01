@@ -127,6 +127,7 @@ public class ChannelDownloadService extends MythtvService {
     		try {
     			ETagInfo etag = mEtagDaoHelper.findByEndpointAndDataId( Endpoint.GET_VIDEO_SOURCE_LIST.name(), null );
     			Log.i( TAG, "onHandleIntent : etag=" + etag.getETag() );
+//    			etag = ETagInfo.createEmptyETag();
     			
 				ResponseEntity<VideoSourceList> responseEntity = mMainApplication.getMythServicesApi( locationProfile ).channelOperations().getVideoSourceList( etag );
 				if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
@@ -210,6 +211,7 @@ public class ChannelDownloadService extends MythtvService {
 		Log.v( TAG, "download : get recorded for host [" + locationProfile.getHostname() + ":" + locationProfile.getUrl() + "]" );
 
 		ETagInfo etag = mEtagDaoHelper.findByEndpointAndDataId( Endpoint.GET_CHANNEL_INFO_LIST.name(), String.valueOf( sourceId ) );
+//		etag = ETagInfo.createEmptyETag();
 		
 		ResponseEntity<ChannelInfoList> responseEntity = mMainApplication.getMythServicesApi( locationProfile ).channelOperations().getChannelInfoList( sourceId, 1, -1, etag );
 
