@@ -24,7 +24,6 @@ import org.mythtv.client.MainApplication;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.util.MythtvListFragment;
 import org.mythtv.client.ui.util.ProgramHelper;
-import org.mythtv.db.channel.ChannelConstants;
 import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.db.dvr.UpcomingDaoHelper;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
@@ -98,8 +97,7 @@ public class UpcomingFragment extends MythtvListFragment implements LoaderManage
 		String selection = ProgramConstants.TABLE_NAME_UPCOMING + "." + ProgramConstants.FIELD_START_TIME + " >= ? AND " + 
 						   ProgramConstants.TABLE_NAME_UPCOMING + "." + ProgramConstants.FIELD_START_TIME + " < ? AND " + 
 						   ProgramConstants.TABLE_NAME_UPCOMING + "." + ProgramConstants.FIELD_START_TIME + " >= ? AND " + 
-						   ProgramConstants.TABLE_NAME_UPCOMING + "." + ProgramConstants.FIELD_HOSTNAME + " = ? AND " +
-						   ChannelConstants.TABLE_NAME + "." + ChannelConstants.FIELD_CHAN_NUM + " IS NOT NULL";
+						   ProgramConstants.TABLE_NAME_UPCOMING + "." + ProgramConstants.FIELD_HOSTNAME + " = ?";
 		
 		String[] selectionArgs = new String[] { String.valueOf( startDay.getMillis() ), String.valueOf( endDay.getMillis() ), String.valueOf( now.getMillis() ), locationProfile.getHostname() };
 		
