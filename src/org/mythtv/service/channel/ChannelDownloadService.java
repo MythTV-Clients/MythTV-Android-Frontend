@@ -126,7 +126,6 @@ public class ChannelDownloadService extends MythtvService {
 
     		try {
     			ETagInfo etag = ETagInfo.createEmptyETag();
-    			Log.i( TAG, "onHandleIntent : etag=" + etag.getETag() );
     			
 				ResponseEntity<VideoSourceList> responseEntity = mMainApplication.getMythServicesApi( locationProfile ).channelOperations().getVideoSourceList( etag );
 				if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
@@ -148,15 +147,19 @@ public class ChannelDownloadService extends MythtvService {
 							// Download the channel listing, return list
 							Log.i( TAG, "onHandleIntent : downloading channels" );
 							ChannelInfos channelInfos = download( videoSource.getId() );
-							allChannelLists.add( channelInfos );
+							if( null != channelInfos ) {
+								allChannelLists.add( channelInfos );
+
+								// Save the file locally
+								Log.i( TAG, "onHandleIntent : save the file locally" );
+								process( videoSource.getId(), channelInfos  );
+							}
 							
-							// Save the file locally
-							Log.i( TAG, "onHandleIntent : save the file locally" );
-							process( channelInfos );
-							
-							// wait a second before downloading the next one
-							Log.i( TAG, "onHandleIntent : sleeping " + nap + " ms" );
-							Thread.sleep( nap );
+							// wait a second before downloading the next one (if there are more than one video source)
+							if(  videoSourceList.getVideoSources().getVideoSources().size() > 1 ) {
+								Log.i( TAG, "onHandleIntent : sleeping " + nap + " ms" );
+								Thread.sleep( nap );
+							}
 						}
 
 						// Process the combined lists of downloaded channels
@@ -170,18 +173,8 @@ public class ChannelDownloadService extends MythtvService {
 						
 					}
 
-					if( null != etag.getETag() ) {
-						mEtagDaoHelper.save( etag, Endpoint.GET_VIDEO_SOURCE_LIST.name(), null );
-					}
-
 				}					
 			
-				if( responseEntity.getStatusCode().equals( HttpStatus.NOT_MODIFIED ) ) {
-					Log.i( TAG, "onHandleIntent : response returned HTTP 304" );
-					
-					mEtagDaoHelper.save( etag, Endpoint.GET_VIDEO_SOURCE_LIST.name(), null );
-				}
-				
 			} catch( Exception e ) {
 				Log.e( TAG, "onHandleIntent : error handling files", e );
 				
@@ -207,16 +200,20 @@ public class ChannelDownloadService extends MythtvService {
 		Log.v( TAG, "download : enter" );
 
 		LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile();
-		Log.v( TAG, "download : get recorded for host [" + locationProfile.getHostname() + ":" + locationProfile.getUrl() + "]" );
+		Log.v( TAG, "download : get recorded for host [" + locationProfile.getHostname() + ":" + locationProfile.getUrl() + ", video source=" + sourceId + "]" );
 
 		ETagInfo etag = mEtagDaoHelper.findByEndpointAndDataId( Endpoint.GET_CHANNEL_INFO_LIST.name(), String.valueOf( sourceId ) );
-		etag = ETagInfo.createEmptyETag();
+		if( etag.isEmptyEtag() ) {
+			Log.v( TAG, "download : creating empty etag" );
+			etag = ETagInfo.createEmptyETag();
+		}
 		
 		ResponseEntity<ChannelInfoList> responseEntity = mMainApplication.getMythServicesApi( locationProfile ).channelOperations().getChannelInfoList( sourceId, 0, -1, etag );
 
 		if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
-			ChannelInfoList channelInfoList = responseEntity.getBody();
+			Log.i( TAG, "download : " + Endpoint.GET_CHANNEL_INFO_LIST.getEndpoint() + " returned 200 OK" );
 
+			ChannelInfoList channelInfoList = responseEntity.getBody();
 			if( null != channelInfoList ) {
 
 				if( null != etag.getETag() ) {
@@ -245,13 +242,13 @@ public class ChannelDownloadService extends MythtvService {
 		return null;
 	}
 
-	private void process( ChannelInfos channelInfos ) throws JsonGenerationException, JsonMappingException, IOException, RemoteException, OperationApplicationException {
+	private void process( int videoSourceId, ChannelInfos channelInfos ) throws JsonGenerationException, JsonMappingException, IOException, RemoteException, OperationApplicationException {
 		Log.v( TAG, "process : enter" );
 		
 		LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile();
 		Log.v( TAG, "process : saving recorded for host [" + locationProfile.getHostname() + ":" + locationProfile.getUrl() + "]" );
 
-		mMainApplication.getObjectMapper().writeValue( new File( channelDirectory, CHANNELS_FILE_PREFIX + locationProfile.getHostname() + CHANNELS_FILE_EXT ), channelInfos );
+		mMainApplication.getObjectMapper().writeValue( new File( channelDirectory, CHANNELS_FILE_PREFIX + videoSourceId + "_" + locationProfile.getHostname() + CHANNELS_FILE_EXT ), channelInfos );
 		Log.v( TAG, "process : saved channels to " + channelDirectory.getAbsolutePath() );
 
 		Log.v( TAG, "process : exit" );
