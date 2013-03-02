@@ -634,7 +634,7 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				queryBuilder.setTables( sb.toString() );
 				queryBuilder.setProjectionMap( mRecordedColumnMap );
 				
-				System.out.println( queryBuilder.buildQuery( null, selection, null, null, sortOrder, null ) );
+//				System.out.println( queryBuilder.buildQuery( null, selection, null, null, sortOrder, null ) );
 				
 				cursor = queryBuilder.query( db, null, selection, selectionArgs, null, null, sortOrder );
 				
@@ -691,7 +691,7 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				queryBuilder.setTables( sb.toString() );
 				queryBuilder.setProjectionMap( mRecordedColumnMap );
 				
-				System.out.println( queryBuilder.buildQuery( null, selection, null, null, sortOrder, null ) );
+//				System.out.println( queryBuilder.buildQuery( null, selection, null, null, sortOrder, null ) );
 				
 				cursor = queryBuilder.query( db, null, selection, selectionArgs, null, null, sortOrder );
 
@@ -732,7 +732,7 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				queryBuilder.setTables( sb.toString() );
 				queryBuilder.setProjectionMap( mUpcomingColumnMap );
 				
-				System.out.println( queryBuilder.buildQuery( null, selection, null, null, sortOrder, null ) );
+//				System.out.println( queryBuilder.buildQuery( null, selection, null, null, sortOrder, null ) );
 				if( null != selectionArgs ) {
 					for( String arg : selectionArgs ) {
 						System.out.println( arg );
@@ -872,7 +872,7 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 	
 			case PROGRAM_GROUP:
 				
-				System.out.println( queryBuilder.buildQuery( null, selection, null, null, sortOrder, null ) );
+//				System.out.println( queryBuilder.buildQuery( null, selection, null, null, sortOrder, null ) );
 
 				cursor = db.query( ProgramGroupConstants.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder );
 				cursor.setNotificationUri( getContext().getContentResolver(), uri );
