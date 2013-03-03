@@ -733,11 +733,11 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				queryBuilder.setProjectionMap( mUpcomingColumnMap );
 				
 //				System.out.println( queryBuilder.buildQuery( null, selection, null, null, sortOrder, null ) );
-				if( null != selectionArgs ) {
-					for( String arg : selectionArgs ) {
-						System.out.println( arg );
-					}
-				}
+//				if( null != selectionArgs ) {
+//					for( String arg : selectionArgs ) {
+//						System.out.println( arg );
+//					}
+//				}
 				
 				cursor = queryBuilder.query( db, null, selection, selectionArgs, null, null, sortOrder );
 
