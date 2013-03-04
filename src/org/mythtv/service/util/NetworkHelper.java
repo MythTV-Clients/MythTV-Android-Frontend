@@ -44,7 +44,7 @@ public class NetworkHelper {
 	private static NetworkHelper singleton = null;
 	
 	private Context mContext;
-	private LocationProfileDaoHelper mLocationProfileDaoHelper;
+	private LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
 	
 	/**
 	 * Returns the one and only NetworkHelper. init() must be called before 
@@ -74,7 +74,6 @@ public class NetworkHelper {
 			return;
 		
 		this.mContext = context;
-		this.mLocationProfileDaoHelper = new LocationProfileDaoHelper( mContext );
 	}
 	
 	/**

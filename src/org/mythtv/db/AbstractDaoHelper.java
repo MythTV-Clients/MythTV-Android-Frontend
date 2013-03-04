@@ -35,14 +35,12 @@ public abstract class AbstractDaoHelper {
 
 	protected Context mContext;
 	
-	protected LocationProfileDaoHelper mLocationProfileDaoHelper;
+	protected LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
 	
 	protected LocationProfile mLocationProfile;
 	
 	public AbstractDaoHelper( Context context ) {
 		this.mContext = context;
-		
-		mLocationProfileDaoHelper = new LocationProfileDaoHelper( mContext );
 		
 		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile();
 	}

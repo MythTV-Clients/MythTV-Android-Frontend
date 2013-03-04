@@ -78,7 +78,7 @@ public class ChannelDownloadService extends MythtvService {
 	
 	private File channelDirectory = null;
 	private ChannelDaoHelper mChannelDaoHelper;
-	private LocationProfileDaoHelper mLocationProfileDaoHelper;
+	private LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
 	private EtagDaoHelper mEtagDaoHelper;
 	
 	public ChannelDownloadService() {
@@ -94,7 +94,6 @@ public class ChannelDownloadService extends MythtvService {
 		super.onHandleIntent( intent );
 		
 		mChannelDaoHelper = new ChannelDaoHelper( this );
-		mLocationProfileDaoHelper = new LocationProfileDaoHelper( this );
 		mEtagDaoHelper = new EtagDaoHelper( this );
 		
 		channelDirectory = FileHelper.getInstance().getChannelDataDirectory();

@@ -70,7 +70,7 @@ public class GuideFragment extends AbstractMythFragment implements OnClickListen
 
 	private ProgramGuideLruMemoryCache cache;
 
-	private LocationProfileDaoHelper mLocationProfileDaoHelper;
+	private LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
 	private LocationProfile mLocationProfile;
 	
 	/* (non-Javadoc)
@@ -139,7 +139,6 @@ public class GuideFragment extends AbstractMythFragment implements OnClickListen
 		super.onActivityCreated( savedInstanceState );
 		
         mainApplication = (MainApplication) getActivity().getApplicationContext();
-        mLocationProfileDaoHelper = new LocationProfileDaoHelper( getActivity() );        
         mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile();
         
 		cache = new ProgramGuideLruMemoryCache( getActivity() );
