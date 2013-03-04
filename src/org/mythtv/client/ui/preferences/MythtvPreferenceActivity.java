@@ -78,7 +78,7 @@ public class MythtvPreferenceActivity extends PreferenceActivity implements Serv
 	private static MulticastLock mLock = null;
 
 	private static LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
-	private static PlaybackProfileDaoHelper mPlaybackProfileDaoHelper;
+	private static PlaybackProfileDaoHelper mPlaybackProfileDaoHelper = PlaybackProfileDaoHelper.getInstance();
 	
 	private ProgressDialog mProgressDialog;
 
@@ -91,8 +91,6 @@ public class MythtvPreferenceActivity extends PreferenceActivity implements Serv
 		Log.v( TAG, "onCreate : enter" );
 		super.onCreate( savedInstanceState );
 
-		mPlaybackProfileDaoHelper = new PlaybackProfileDaoHelper( this );
-		
 		// Load the preferences from an XML resource
         addPreferencesFromResource( R.xml.mythtv_home_profile_preferences );
         addPreferencesFromResource( R.xml.mythtv_home_playback_profile_preferences );

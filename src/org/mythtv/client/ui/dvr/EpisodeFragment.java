@@ -33,6 +33,7 @@ import org.mythtv.db.dvr.RecordedDaoHelper;
 import org.mythtv.db.dvr.programGroup.ProgramGroup;
 import org.mythtv.db.dvr.programGroup.ProgramGroupDaoHelper;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
+import org.mythtv.db.preferences.PlaybackProfileDaoHelper;
 import org.mythtv.service.util.DateUtils;
 import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.Bool;
@@ -80,6 +81,7 @@ public class EpisodeFragment extends AbstractMythFragment {
 	private OnEpisodeActionListener listener = null;
 
 	private LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
+	private PlaybackProfileDaoHelper mPlaybackProfileDaoHelper = PlaybackProfileDaoHelper.getInstance();
 
 	private LiveStreamDaoHelper mLiveStreamDaoHelper;
 	private MenuHelper mMenuHelper;
@@ -761,9 +763,9 @@ public class EpisodeFragment extends AbstractMythFragment {
 				LocationType location = mLocationProfileDaoHelper.findConnectedProfile().getType();
 				
 				if( location.equals( LocationType.HOME ) ) {
-					selectedPlaybackProfile = getMainApplication().getSelectedHomePlaybackProfile();
+					selectedPlaybackProfile = mPlaybackProfileDaoHelper.findSelectedHomeProfile();
 				} else if( location.equals( LocationType.AWAY ) ) {
-					selectedPlaybackProfile = getMainApplication().getSelectedAwayPlaybackProfile();
+					selectedPlaybackProfile = mPlaybackProfileDaoHelper.findSelectedAwayProfile();
 				} else {
 					Log.e( TAG, "Unknown Location!" );
 				}

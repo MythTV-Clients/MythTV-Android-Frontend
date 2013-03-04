@@ -23,6 +23,7 @@ import java.util.List;
 
 import org.mythtv.client.ui.preferences.LocationProfile.LocationType;
 import org.mythtv.client.ui.preferences.PlaybackProfile;
+import org.mythtv.service.util.NetworkHelper;
 
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -39,10 +40,59 @@ public class PlaybackProfileDaoHelper {
 
 	private static final String TAG = PlaybackProfileDaoHelper.class.getSimpleName();
 	
+	private static PlaybackProfileDaoHelper singleton = null;
+
 	private Context mContext;
 	
-	public PlaybackProfileDaoHelper( Context context ) {
+	/**
+	 * Returns the one and only PlaybackProfileDaoHelper. init() must be called before 
+	 * any 
+	 * 
+	 * @return
+	 */
+	public static PlaybackProfileDaoHelper getInstance() {
+		if( null == singleton ) {
+
+			synchronized( NetworkHelper.class ) {
+
+				if( null == singleton ) {
+					singleton = new PlaybackProfileDaoHelper();
+				}
+			
+			}
+
+		}
+		
+		return singleton;
+	}
+	
+	/**
+	 * Constructor. No one but getInstance() can do this.
+	 */
+	private PlaybackProfileDaoHelper() { }
+	
+	/**
+	 * Must be called once at the beginning of the application. Subsequent 
+	 * calls to this will have no effect.
+	 * 
+	 * @param context
+	 */
+	public void init( Context context ) {
+		
+		// ignore any additional calls to init
+		if( this.isInitialized() ) 
+			return;
+		
 		this.mContext = context;
+	}
+	
+	/**
+	 * Returns true if PlaybackProfileDaoHelper has already been initialized
+	 * 
+	 * @return
+	 */
+	public boolean isInitialized(){
+		return null != this.mContext;
 	}
 	
 	/**
@@ -50,6 +100,9 @@ public class PlaybackProfileDaoHelper {
 	 */
 	public List<PlaybackProfile> findAll() {
 		Log.d( TAG, "findAll : enter" );
+		
+		if( !this.isInitialized() ) 
+			throw new RuntimeException( "PlaybackProfileDaoHelper is not initialized" );
 		
 		List<PlaybackProfile> profiles = new ArrayList<PlaybackProfile>();
 		
@@ -95,6 +148,9 @@ public class PlaybackProfileDaoHelper {
 	public PlaybackProfile findOne( Long id ) {
 		Log.d( TAG, "findOne : enter" );
 		
+		if( !this.isInitialized() ) 
+			throw new RuntimeException( "PlaybackProfileDaoHelper is not initialized" );
+		
 		PlaybackProfile profile = null;
 		
 		if( id > 0 ) {
@@ -116,6 +172,9 @@ public class PlaybackProfileDaoHelper {
 	public boolean save( PlaybackProfile profile ) {
 		Log.d( TAG, "save : enter" );
 
+		if( !this.isInitialized() ) 
+			throw new RuntimeException( "PlaybackProfileDaoHelper is not initialized" );
+		
 		boolean ret = false;
 		
 		ContentValues values = convertProfileToContentValues( profile );
@@ -177,6 +236,9 @@ public class PlaybackProfileDaoHelper {
 	 */
 	public boolean delete( Long id ) {
 		Log.d( TAG, "delete : enter" );
+		
+		if( !this.isInitialized() ) 
+			throw new RuntimeException( "PlaybackProfileDaoHelper is not initialized" );
 		
 		boolean ret = false;
 		
@@ -281,6 +343,9 @@ public class PlaybackProfileDaoHelper {
 	private List<PlaybackProfile> findAllByType( LocationType type ) {
 		Log.d( TAG, "findAllByType : enter" );
 		
+		if( !this.isInitialized() ) 
+			throw new RuntimeException( "PlaybackProfileDaoHelper is not initialized" );
+		
 		List<PlaybackProfile> profiles = new ArrayList<PlaybackProfile>();
 		
 		Cursor cursor = mContext.getContentResolver().query( PlaybackProfileConstants.CONTENT_URI, null, PlaybackProfileConstants.FIELD_TYPE + " = ?", new String[] { type.name() }, null );
@@ -297,6 +362,9 @@ public class PlaybackProfileDaoHelper {
 	private PlaybackProfile findSelectedProfile( LocationType type ) {
 		Log.d( TAG, "findSelectedProfile : enter" );
 		
+		if( !this.isInitialized() ) 
+			throw new RuntimeException( "PlaybackProfileDaoHelper is not initialized" );
+		
 		PlaybackProfile profile = null;
 		
 		Cursor cursor = mContext.getContentResolver().query( PlaybackProfileConstants.CONTENT_URI, null, PlaybackProfileConstants.FIELD_TYPE + " = ? AND " + PlaybackProfileConstants.FIELD_SELECTED + " = ?", new String[] { type.name(), "1" }, null );
@@ -312,6 +380,9 @@ public class PlaybackProfileDaoHelper {
 	private boolean resetSelectedProfiles( LocationType type ) {
 		Log.d( TAG, "resetSelectedProfiles : enter" );
 
+		if( !this.isInitialized() ) 
+			throw new RuntimeException( "PlaybackProfileDaoHelper is not initialized" );
+		
 		boolean ret = false;
 		
 		ContentValues values = new ContentValues();

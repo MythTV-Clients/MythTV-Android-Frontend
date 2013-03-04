@@ -66,7 +66,7 @@ public class MythtvPreferenceActivityHC extends PreferenceActivity {
 	private static final String TAG = MythtvPreferenceActivityHC.class.getSimpleName();
 	
 	private static LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
-	private static PlaybackProfileDaoHelper mPlaybackProfileDaoHelper;
+	private static PlaybackProfileDaoHelper mPlaybackProfileDaoHelper = PlaybackProfileDaoHelper.getInstance();
 	
 	/* (non-Javadoc)
 	 * @see android.preference.PreferenceActivity#onBuildHeaders(java.util.List)
@@ -75,8 +75,6 @@ public class MythtvPreferenceActivityHC extends PreferenceActivity {
 	public void onBuildHeaders( List<Header> target ) {
 		Log.v( TAG, "onBuildHeaders : enter" );
 
-		mPlaybackProfileDaoHelper = new PlaybackProfileDaoHelper( this );
-		
 		loadHeadersFromResource( R.xml.mythtv_preference_headers, target );
 
 		Log.v( TAG, "onBuildHeaders : exit" );
