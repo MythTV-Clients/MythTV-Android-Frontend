@@ -23,6 +23,7 @@ import java.util.List;
 
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.preferences.LocationProfile.LocationType;
+import org.mythtv.service.util.NetworkHelper;
 
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -50,7 +51,17 @@ public class LocationProfileDaoHelper {
 	 * @return
 	 */
 	public static LocationProfileDaoHelper getInstance() {
-		if( null == singleton ) singleton = new LocationProfileDaoHelper();
+		if( null == singleton ) {
+
+			synchronized( NetworkHelper.class ) {
+
+				if( null == singleton ) {
+					singleton = new LocationProfileDaoHelper();
+				}
+			
+			}
+
+		}
 		
 		return singleton;
 	}
@@ -404,6 +415,14 @@ public class LocationProfileDaoHelper {
 		return profile;
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#clone()
+	 */
+	@Override
+	public Object clone() throws CloneNotSupportedException {
+		throw new CloneNotSupportedException();
+	}
+	
 	// internal helpers
 	
 	private ContentValues convertProfileToContentValues( LocationProfile profile ) {

@@ -42,7 +42,17 @@ public class RunningServiceHelper {
 	 * @return
 	 */
 	public static RunningServiceHelper getInstance() {
-		if( null == singleton ) singleton = new RunningServiceHelper();
+		if( null == singleton ) {
+
+			synchronized( RunningServiceHelper.class ) {
+
+				if( null == singleton ) {
+					singleton = new RunningServiceHelper();
+				}
+			
+			}
+			
+		}
 		
 		return singleton;
 	}
@@ -98,4 +108,13 @@ public class RunningServiceHelper {
 		Log.v( TAG, "isServiceRunning : exit" );
 		return false;
 	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#clone()
+	 */
+	@Override
+	public Object clone() throws CloneNotSupportedException {
+		throw new CloneNotSupportedException();
+	}
+	
 }
