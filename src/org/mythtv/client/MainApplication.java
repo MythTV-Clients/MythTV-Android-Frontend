@@ -21,7 +21,6 @@ package org.mythtv.client;
 import java.util.logging.Level;
 
 import org.mythtv.client.ui.preferences.LocationProfile;
-import org.mythtv.client.ui.preferences.PlaybackProfile;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.db.preferences.PlaybackProfileDaoHelper;
 import org.mythtv.service.util.FileHelper;
@@ -53,8 +52,6 @@ public class MainApplication extends Application {
 
 	private static final String TAG = MainApplication.class.getSimpleName();
 	
-	private PlaybackProfileDaoHelper mPlaybackProfileDaoHelper;
-	
 	private MythServicesServiceProvider provider;
 	
     private String clockType = "12h";
@@ -79,14 +76,13 @@ public class MainApplication extends Application {
 		
 		//Initialize DAO Helpers
 		LocationProfileDaoHelper.getInstance().init( this );
+		PlaybackProfileDaoHelper.getInstance().init( this );
 		
 		//Initialize Helpers
 		FileHelper.getInstance().init( this.getExternalCacheDir() );
 		NetworkHelper.getInstance().init( this );
 		RunningServiceHelper.getInstance().init( this );
 
-		mPlaybackProfileDaoHelper = new PlaybackProfileDaoHelper( this );
-		
 		String systemClock = Settings.System.getString( getApplicationContext().getContentResolver(), Settings.System.TIME_12_24 );
         if( null != systemClock ) {
         	this.clockType = systemClock;
@@ -175,32 +171,6 @@ public class MainApplication extends Application {
 		return mObjectMapper;
 	}
 	
-	/**
-	 * @return the selectedHomePlaybackProfile
-	 */
-	public PlaybackProfile getSelectedHomePlaybackProfile() {
-		Log.v( TAG, "getSelectedHomePlaybackProfile : enter" );
-
-		PlaybackProfile profile = mPlaybackProfileDaoHelper.findSelectedHomeProfile(); 
-		Log.v( TAG, "getSelectedHomePlaybackProfile : profile=" + profile.toString() );
-		
-		Log.v( TAG, "getSelectedHomePlaybackProfile : exit" );
-		return profile;
-	}
-
-	/**
-	 * @return the selectedAwayPlaybackProfile
-	 */
-	public PlaybackProfile getSelectedAwayPlaybackProfile() {
-		Log.v( TAG, "getSelectedAwayPlaybackProfile : enter" );
-
-		PlaybackProfile profile = mPlaybackProfileDaoHelper.findSelectedAwayProfile(); 
-		Log.v( TAG, "getSelectedAwayPlaybackProfile : profile=" + profile.toString() );
-		
-		Log.v( TAG, "getSelectedAwayPlaybackProfile : exit" );
-		return profile;
-	}
-
     /**
      * @return the current clockType
      */
