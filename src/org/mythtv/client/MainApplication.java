@@ -205,9 +205,9 @@ public class MainApplication extends Application {
      * @return the current clockType
      */
     public String getClockType() {
-		Log.v( TAG, "getClockType : enter" );
+//		Log.v( TAG, "getClockType : enter" );
 		
-		Log.v( TAG, "getClockType : exit" );
+//		Log.v( TAG, "getClockType : exit" );
         return clockType;
     }
 
@@ -215,26 +215,26 @@ public class MainApplication extends Application {
      * @param clockType the current clockType to set
      */
     public void setClockType( String clockType ) {
-		Log.v( TAG, "setClockType : enter" );
+//		Log.v( TAG, "setClockType : enter" );
 
 		this.clockType = clockType;
 
-		Log.v( TAG, "setClockType : exit" );
+//		Log.v( TAG, "setClockType : exit" );
     }
 
     public String getDateFormat() {
-		Log.v( TAG, "getDateFormat : enter" );
+//		Log.v( TAG, "getDateFormat : enter" );
 
-		Log.v( TAG, "getDateFormat : exit" );
+//		Log.v( TAG, "getDateFormat : exit" );
         return dateFormat;
     }
 
     public void setDateFormat( String dateFormat ) {
-		Log.v( TAG, "setDateFormat : enter" );
+//		Log.v( TAG, "setDateFormat : enter" );
 		
         this.dateFormat = dateFormat;
 
-        Log.v( TAG, "setDateFormat : exit" );
+//        Log.v( TAG, "setDateFormat : exit" );
     }
 
 }
