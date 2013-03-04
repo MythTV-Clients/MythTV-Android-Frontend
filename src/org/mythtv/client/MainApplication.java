@@ -124,7 +124,7 @@ public class MainApplication extends Application {
 	public MythServices getMythServicesApi() {
 		Log.v( TAG, "getMythServicesApi : enter" );
 		
-		provider = new MythServicesServiceProvider( getMasterBackend(), Level.FINE );
+		provider = new MythServicesServiceProvider( LocationProfileDaoHelper.getInstance().findConnectedProfile().getUrl(), Level.FINE );
 		
 		Log.v( TAG, "getMythServicesApi : exit" );
 		return provider.getApi();
@@ -174,64 +174,6 @@ public class MainApplication extends Application {
 		Log.v( TAG, "getObjectMapper : exit" );
 		return mObjectMapper;
 	}
-
-//	/**
-//	 * @return the selectedHomeLocationProfile
-//	 */
-//	public LocationProfile getSelectedHomeLocationProfile() {
-//		Log.v( TAG, "getSelectedHomeLocationProfile : enter" );
-//		
-//		LocationProfile profile = mLocationProfileDaoHelper.findSelectedHomeProfile(); 
-//		if( null != profile ) {
-//			Log.v( TAG, "getSelectedHomeLocationProfile : profile=" + profile.toString() );
-//		}
-//		
-//		Log.v( TAG, "getSelectedHomeLocationProfile : exit" );
-//		return profile;
-//	}
-//
-//	/**
-//	 * 
-//	 */
-//	public void connectSelectedHomeLocationProfile() {
-//		Log.v( TAG, "connectSelectedHomeLocationProfile : enter" );
-//		
-//		LocationProfile profile = mLocationProfileDaoHelper.findSelectedHomeProfile(); 
-//		if( null != profile ) {
-//			mLocationProfileDaoHelper.setConnectedLocationProfile( (long) profile.getId() );
-//		}
-//
-//		Log.v( TAG, "connectSelectedHomeLocationProfile : exit" );
-//	}
-//	
-//	/**
-//	 * @return the selectedAwayLocationProfile
-//	 */
-//	public LocationProfile getSelectedAwayLocationProfile() {
-//		Log.v( TAG, "getSelectedAwayLocationProfile : enter" );
-//		
-//		LocationProfile profile = mLocationProfileDaoHelper.findSelectedAwayProfile(); 
-//		if( null != profile ) {
-//			Log.v( TAG, "getSelectedAwayLocationProfile : profile=" + profile.toString() );
-//		}
-//		
-//		Log.v( TAG, "getSelectedAwayLocationProfile : exit" );
-//		return profile;
-//	}
-//
-//	/**
-//	 * 
-//	 */
-//	public void connectSelectedAwayLocationProfile() {
-//		Log.v( TAG, "connectSelectedAwayLocationProfile : enter" );
-//		
-//		LocationProfile profile = mLocationProfileDaoHelper.findSelectedAwayProfile(); 
-//		if( null != profile ) {
-//			mLocationProfileDaoHelper.setConnectedLocationProfile( (long) profile.getId() );
-//		}
-//		
-//		Log.v( TAG, "connectSelectedAwayLocationProfile : exit" );
-//	}
 	
 	/**
 	 * @return the selectedHomePlaybackProfile
@@ -257,24 +199,6 @@ public class MainApplication extends Application {
 		
 		Log.v( TAG, "getSelectedAwayPlaybackProfile : exit" );
 		return profile;
-	}
-
-//	public LocationProfile getConnectedLocationProfile() {
-//		LocationProfile profile = mLocationProfileDaoHelper.findConnectedProfile();
-//
-//		return profile;
-//	}
-
-	/**
-	 * @return the masterBackend
-	 */
-	public String getMasterBackend() {
-//		Log.v( TAG, "getMasterBackend : enter" );
-
-		LocationProfile connectedProfile = LocationProfileDaoHelper.getInstance().findConnectedProfile();
-		
-//		Log.v( TAG, "getMasterBackend : exit" );
-		return connectedProfile.getUrl();
 	}
 
     /**
