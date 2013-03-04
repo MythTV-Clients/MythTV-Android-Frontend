@@ -82,7 +82,7 @@ public class UpcomingDownloadService extends MythtvService {
 
 	private UpcomingDaoHelper mUpcomingDaoHelper;
 	private EtagDaoHelper mEtagDaoHelper;
-	private LocationProfileDaoHelper mLocationProfileDaoHelper;
+	private LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
 
 	public UpcomingDownloadService() {
 		super( "UpcomingDownloadService" );
@@ -98,7 +98,6 @@ public class UpcomingDownloadService extends MythtvService {
 		
 		mUpcomingDaoHelper = new UpcomingDaoHelper( this );
 		mEtagDaoHelper = new EtagDaoHelper( this );
-		mLocationProfileDaoHelper = new LocationProfileDaoHelper( this );
 		
 		upcomingDirectory = FileHelper.getInstance().getProgramUpcomingDataDirectory();
 		if( null == upcomingDirectory || !upcomingDirectory.exists() ) {

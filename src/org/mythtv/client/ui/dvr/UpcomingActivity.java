@@ -27,7 +27,6 @@ import org.mythtv.client.ui.AbstractMythtvFragmentActivity;
 import org.mythtv.client.ui.util.MenuHelper;
 import org.mythtv.db.dvr.UpcomingDaoHelper;
 import org.mythtv.db.http.EtagDaoHelper;
-import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.dvr.UpcomingDownloadService;
 import org.mythtv.service.util.DateUtils;
 import org.mythtv.service.util.RunningServiceHelper;
@@ -61,7 +60,6 @@ public class UpcomingActivity extends AbstractMythtvFragmentActivity {
 	private UpcomingDownloadReceiver upcomingDownloadReceiver = new UpcomingDownloadReceiver();
 
 	private EtagDaoHelper mEtagDaoHelper;
-	private LocationProfileDaoHelper mLocationProfileDaoHelper; 
 	private UpcomingDaoHelper mUpcomingDaoHelper;
 			
 	private MythtvUpcomingPagerAdapter mAdapter;
@@ -77,7 +75,6 @@ public class UpcomingActivity extends AbstractMythtvFragmentActivity {
 		mRunningServiceHelper = RunningServiceHelper.getInstance();
 
 		mEtagDaoHelper = new EtagDaoHelper( this );
-		mLocationProfileDaoHelper = new LocationProfileDaoHelper( this );
 		mUpcomingDaoHelper = new UpcomingDaoHelper( this );
 		
 		setContentView( R.layout.activity_dvr_upcoming );

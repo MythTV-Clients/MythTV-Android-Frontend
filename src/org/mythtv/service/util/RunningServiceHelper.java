@@ -68,7 +68,8 @@ public class RunningServiceHelper {
 	}
 	
 	/**
-	 * Returns true if NetworkHelper has already been initialized
+	 * Returns true if RunningServiceHelper has already been initialized
+	 * 
 	 * @return
 	 */
 	public boolean isInitialized(){
@@ -77,6 +78,10 @@ public class RunningServiceHelper {
 	
 	public boolean isServiceRunning( String serviceName ) {
 		Log.v( TAG, "isServiceRunning : enter" );
+		
+		if( !this.isInitialized() ) 
+			throw new RuntimeException( "RunningServiceHelper is not initialized" );
+		
 		Log.d( TAG, "isServiceRunning : checking for running server '" + serviceName + "'" );
 		
 		ActivityManager manager = (ActivityManager) mContext.getSystemService( Context.ACTIVITY_SERVICE );

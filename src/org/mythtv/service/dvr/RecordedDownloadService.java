@@ -77,7 +77,7 @@ public class RecordedDownloadService extends MythtvService {
 	private File recordedDirectory = null;
 	private RecordedDaoHelper mRecordedDaoHelper;
 	private EtagDaoHelper mEtagDaoHelper;
-	private LocationProfileDaoHelper mLocationProfileDaoHelper;
+	private LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
 	
 	public RecordedDownloadService() {
 		super( "RecordedDownloadService" );
@@ -95,7 +95,6 @@ public class RecordedDownloadService extends MythtvService {
 		
 		mRecordedDaoHelper = new RecordedDaoHelper( this );
 		mEtagDaoHelper = new EtagDaoHelper( this );
-		mLocationProfileDaoHelper = new LocationProfileDaoHelper( this );
 		
 		recordedDirectory = FileHelper.getInstance().getProgramRecordedDataDirectory();
 		if( null == recordedDirectory || !recordedDirectory.exists() ) {

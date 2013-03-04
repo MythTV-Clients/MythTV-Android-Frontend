@@ -50,7 +50,7 @@ public class PreferencesRecordedDownloadService extends MythtvService {
     public static final String EXTRA_COMPLETE_UPTODATE = "COMPLETE_UPTODATE";
     public static final String EXTRA_COMPLETE_OFFLINE = "COMPLETE_OFFLINE";
     
-    private LocationProfileDaoHelper locationProfileDaoHelper;
+    private LocationProfileDaoHelper locationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
     
 	public PreferencesRecordedDownloadService() {
 		super( "PreferencesRecordedDownloadService" );
@@ -81,7 +81,6 @@ public class PreferencesRecordedDownloadService extends MythtvService {
 		if ( intent.getAction().equals( ACTION_DOWNLOAD ) ) {
     		Log.i( TAG, "onHandleIntent : DOWNLOAD action selected" );
 
-    		locationProfileDaoHelper = new LocationProfileDaoHelper( this );
     		LocationProfile profile = locationProfileDaoHelper.findOne( id );
     		if( null == profile ) {
     			Intent completeIntent = new Intent( ACTION_COMPLETE );

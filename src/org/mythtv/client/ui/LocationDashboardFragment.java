@@ -19,6 +19,8 @@
 package org.mythtv.client.ui;
 
 import org.mythtv.R;
+import org.mythtv.client.ui.preferences.LocationProfile;
+import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.MythtvService;
 
 import android.app.AlertDialog;
@@ -37,6 +39,8 @@ public class LocationDashboardFragment extends AbstractMythFragment {
 
 	private final static String TAG = LocationDashboardFragment.class.getSimpleName();
 
+	private LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
+	
 	private ConnectReceiver connectReceiver = new ConnectReceiver();
 	private String connectedProfile;
 	
@@ -65,7 +69,7 @@ public class LocationDashboardFragment extends AbstractMythFragment {
 			public void onClick( View view ) {
 				Log.v( TAG, "home.onClick : enter" );
 				
-					if( null == getMainApplication().getSelectedHomeLocationProfile() ) {
+					if( null == mLocationProfileDaoHelper.findSelectedHomeProfile() ) {
 						
 						AlertDialog.Builder builder = new AlertDialog.Builder( getActivity() );
 						builder.setTitle( R.string.location_alert_error_title );
@@ -79,7 +83,8 @@ public class LocationDashboardFragment extends AbstractMythFragment {
 
 					} else {
 					
-						getMainApplication().connectSelectedHomeLocationProfile();
+						LocationProfile profile = mLocationProfileDaoHelper.findSelectedHomeProfile(); 
+						mLocationProfileDaoHelper.setConnectedLocationProfile( (long) profile.getId() );
 					
 						connectedProfile = "home";
 
@@ -95,7 +100,7 @@ public class LocationDashboardFragment extends AbstractMythFragment {
 			public void onClick( View view ) {
 				Log.v( TAG, "away.onClick : enter" );
 
-					if( null == getMainApplication().getSelectedAwayLocationProfile() ) {
+					if( null == mLocationProfileDaoHelper.findSelectedAwayProfile() ) {
 						
 						AlertDialog.Builder builder = new AlertDialog.Builder( getActivity() );
 						builder.setTitle( R.string.location_alert_error_title );
@@ -109,7 +114,8 @@ public class LocationDashboardFragment extends AbstractMythFragment {
 
 					} else {
 					
-						getMainApplication().connectSelectedAwayLocationProfile();
+						LocationProfile profile = mLocationProfileDaoHelper.findSelectedAwayProfile(); 
+						mLocationProfileDaoHelper.setConnectedLocationProfile( (long) profile.getId() );
 					
 						connectedProfile = "away";
 						

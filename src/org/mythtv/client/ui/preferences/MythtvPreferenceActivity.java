@@ -77,7 +77,7 @@ public class MythtvPreferenceActivity extends PreferenceActivity implements Serv
 	private static JmDNS zeroConf = null;
 	private static MulticastLock mLock = null;
 
-	private static LocationProfileDaoHelper mLocationProfileDaoHelper;
+	private static LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
 	private static PlaybackProfileDaoHelper mPlaybackProfileDaoHelper;
 	
 	private ProgressDialog mProgressDialog;
@@ -91,7 +91,6 @@ public class MythtvPreferenceActivity extends PreferenceActivity implements Serv
 		Log.v( TAG, "onCreate : enter" );
 		super.onCreate( savedInstanceState );
 
-		mLocationProfileDaoHelper = new LocationProfileDaoHelper( this );
 		mPlaybackProfileDaoHelper = new PlaybackProfileDaoHelper( this );
 		
 		// Load the preferences from an XML resource

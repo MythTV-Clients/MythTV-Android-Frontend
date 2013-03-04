@@ -39,13 +39,49 @@ public class LocationProfileDaoHelper {
 
 	private static final String TAG = LocationProfileDaoHelper.class.getSimpleName();
 	
+	private static LocationProfileDaoHelper singleton = null;
+	
 	private Context mContext;
 	
 	/**
+	 * Returns the one and only LocationProfileDaoHelper. init() must be called before 
+	 * any 
+	 * 
+	 * @return
+	 */
+	public static LocationProfileDaoHelper getInstance() {
+		if( null == singleton ) singleton = new LocationProfileDaoHelper();
+		
+		return singleton;
+	}
+	
+	/**
+	 * Constructor. No one but getInstance() can do this.
+	 */
+	private LocationProfileDaoHelper() { }
+	
+	/**
+	 * Must be called once at the beginning of the application. Subsequent 
+	 * calls to this will have no effect.
+	 * 
 	 * @param context
 	 */
-	public LocationProfileDaoHelper( Context context ) {
+	public void init( Context context ) {
+		
+		// ignore any additional calls to init
+		if( this.isInitialized() ) 
+			return;
+		
 		this.mContext = context;
+	}
+	
+	/**
+	 * Returns true if LocationProfileDaoHelper has already been initialized
+	 * 
+	 * @return
+	 */
+	public boolean isInitialized(){
+		return null != this.mContext;
 	}
 	
 	/**
@@ -53,6 +89,9 @@ public class LocationProfileDaoHelper {
 	 */
 	public List<LocationProfile> findAll() {
 		Log.d( TAG, "findAll : enter" );
+		
+		if( !this.isInitialized() ) 
+			throw new RuntimeException( "LocationProfileDaoHelper is not initialized" );
 		
 		List<LocationProfile> profiles = new ArrayList<LocationProfile>();
 		
@@ -73,6 +112,9 @@ public class LocationProfileDaoHelper {
 	public List<LocationProfile> findAllHomeLocationProfiles() {
 		Log.d( TAG, "findAllHomeLocationProfiles : enter" );
 
+		if( !this.isInitialized() ) 
+			throw new RuntimeException( "LocationProfileDaoHelper is not initialized" );
+		
 		List<LocationProfile> profiles = findAllByType( LocationType.HOME );
 
 		Log.d( TAG, "findAllHomeLocationProfiles : exit" );
@@ -85,6 +127,9 @@ public class LocationProfileDaoHelper {
 	public List<LocationProfile> findAllAwayLocationProfiles() {
 		Log.d( TAG, "findAllAwayLocationProfiles : enter" );
 
+		if( !this.isInitialized() ) 
+			throw new RuntimeException( "LocationProfileDaoHelper is not initialized" );
+		
 		List<LocationProfile> profiles = findAllByType( LocationType.AWAY );
 
 		Log.d( TAG, "findAllAwayLocationProfiles : exit" );
@@ -97,6 +142,9 @@ public class LocationProfileDaoHelper {
 	 */
 	public LocationProfile findOne( Long id ) {
 		Log.d( TAG, "findOne : enter" );
+		
+		if( !this.isInitialized() ) 
+			throw new RuntimeException( "LocationProfileDaoHelper is not initialized" );
 		
 		LocationProfile profile = null;
 		
@@ -119,6 +167,9 @@ public class LocationProfileDaoHelper {
 	public long save( LocationProfile profile ) {
 		Log.d( TAG, "save : enter" );
 
+		if( !this.isInitialized() ) 
+			throw new RuntimeException( "LocationProfileDaoHelper is not initialized" );
+		
 		long ret = 0;
 		
 		ContentValues values = convertProfileToContentValues( profile );
@@ -181,6 +232,9 @@ public class LocationProfileDaoHelper {
 	public boolean delete( Long id ) {
 		Log.d( TAG, "delete : enter" );
 		
+		if( !this.isInitialized() ) 
+			throw new RuntimeException( "LocationProfileDaoHelper is not initialized" );
+		
 		boolean ret = false;
 		
 		int deleted = mContext.getContentResolver().delete( ContentUris.withAppendedId( LocationProfileConstants.CONTENT_URI, id ), null, null );
@@ -199,6 +253,9 @@ public class LocationProfileDaoHelper {
 	public boolean setSelectedLocationProfile( Long profileId ) {
 		Log.d( TAG, "setSelectedLocationProfile : enter" );
 
+		if( !this.isInitialized() ) 
+			throw new RuntimeException( "LocationProfileDaoHelper is not initialized" );
+		
 		boolean saved = false;
 		
 		LocationProfile profile = findOne( profileId );
@@ -223,6 +280,9 @@ public class LocationProfileDaoHelper {
 	public LocationProfile findByLocationTypeAndUrl( LocationType type, String url ) {
 		Log.d( TAG, "findByLocationTypeAndUrl : enter" );
 		
+		if( !this.isInitialized() ) 
+			throw new RuntimeException( "LocationProfileDaoHelper is not initialized" );
+		
 		LocationProfile profile = null;
 		
 		String selection = LocationProfileConstants.FIELD_TYPE + " = ? AND " + LocationProfileConstants.FIELD_URL + " = ?";
@@ -244,6 +304,9 @@ public class LocationProfileDaoHelper {
 	public LocationProfile findHomeProfileByUrl( String url ) {
 		Log.d( TAG, "findHomeProfileByUrl : enter" );
 		
+		if( !this.isInitialized() ) 
+			throw new RuntimeException( "LocationProfileDaoHelper is not initialized" );
+		
 		LocationProfile profile = findByLocationTypeAndUrl( LocationType.HOME, url );
 		
 		Log.d( TAG, "findHomeProfileByUrl : exit" );
@@ -255,6 +318,9 @@ public class LocationProfileDaoHelper {
 	 */
 	public LocationProfile findAwayProfileByUrl( String url ) {
 		Log.d( TAG, "findAwayProfileByUrl : enter" );
+		
+		if( !this.isInitialized() ) 
+			throw new RuntimeException( "LocationProfileDaoHelper is not initialized" );
 		
 		LocationProfile profile = findByLocationTypeAndUrl( LocationType.AWAY, url );
 		
@@ -268,6 +334,9 @@ public class LocationProfileDaoHelper {
 	public LocationProfile findSelectedHomeProfile() {
 		Log.d( TAG, "findSelectedHomeProfile : enter" );
 		
+		if( !this.isInitialized() ) 
+			throw new RuntimeException( "LocationProfileDaoHelper is not initialized" );
+		
 		LocationProfile profile = findSelectedProfile( LocationType.HOME );
 		
 		Log.d( TAG, "findSelectedHomeProfile : exit" );
@@ -279,6 +348,9 @@ public class LocationProfileDaoHelper {
 	 */
 	public LocationProfile findSelectedAwayProfile() {
 		Log.d( TAG, "findSelectedAwayProfile : enter" );
+		
+		if( !this.isInitialized() ) 
+			throw new RuntimeException( "LocationProfileDaoHelper is not initialized" );
 		
 		LocationProfile profile = findSelectedProfile( LocationType.AWAY );
 		
@@ -292,6 +364,9 @@ public class LocationProfileDaoHelper {
 	 */
 	public boolean setConnectedLocationProfile( Long profileId ) {
 		Log.d( TAG, "setConnectedLocationProfile : enter" );
+		
+		if( !this.isInitialized() ) 
+			throw new RuntimeException( "LocationProfileDaoHelper is not initialized" );
 		
 		boolean saved = false;
 
@@ -313,6 +388,9 @@ public class LocationProfileDaoHelper {
 	 */
 	public LocationProfile findConnectedProfile() {
 		Log.d( TAG, "findConnectedProfile : enter" );
+		
+		if( !this.isInitialized() ) 
+			throw new RuntimeException( "LocationProfileDaoHelper is not initialized" );
 		
 		LocationProfile profile = null;
 		
@@ -411,6 +489,9 @@ public class LocationProfileDaoHelper {
 	private List<LocationProfile> findAllByType( LocationType type ) {
 		Log.d( TAG, "findAllByType : enter" );
 		
+		if( !this.isInitialized() ) 
+			throw new RuntimeException( "LocationProfileDaoHelper is not initialized" );
+		
 		List<LocationProfile> profiles = new ArrayList<LocationProfile>();
 		
 		Cursor cursor = mContext.getContentResolver().query( LocationProfileConstants.CONTENT_URI, null, LocationProfileConstants.FIELD_TYPE + " = ?", new String[] { type.name() }, null );
@@ -427,6 +508,9 @@ public class LocationProfileDaoHelper {
 	private LocationProfile findSelectedProfile( LocationType type ) {
 		Log.d( TAG, "findSelectedProfile : enter" );
 		
+		if( !this.isInitialized() ) 
+			throw new RuntimeException( "LocationProfileDaoHelper is not initialized" );
+		
 		LocationProfile profile = null;
 		
 		Cursor cursor = mContext.getContentResolver().query( LocationProfileConstants.CONTENT_URI, null, LocationProfileConstants.FIELD_TYPE + " = ? AND " + LocationProfileConstants.FIELD_SELECTED + " = ?", new String[] { type.name(), "1" }, null );
@@ -442,6 +526,9 @@ public class LocationProfileDaoHelper {
 	private boolean resetSelectedProfiles( LocationType type ) {
 		Log.d( TAG, "resetSelectedProfiles : enter" );
 
+		if( !this.isInitialized() ) 
+			throw new RuntimeException( "LocationProfileDaoHelper is not initialized" );
+		
 		boolean ret = false;
 		
 		ContentValues values = new ContentValues();
@@ -458,6 +545,9 @@ public class LocationProfileDaoHelper {
 	private boolean resetConnectedProfiles() {
 		Log.d( TAG, "resetConnectedProfiles : enter" );
 
+		if( !this.isInitialized() ) 
+			throw new RuntimeException( "LocationProfileDaoHelper is not initialized" );
+		
 		boolean ret = false;
 		
 		ContentValues values = new ContentValues();

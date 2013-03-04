@@ -47,7 +47,7 @@ public class ProgramGuideCleanupService extends MythtvService {
     public static final String EXTRA_COMPLETE = "COMPLETE";
     public static final String EXTRA_COMPLETE_COUNT = "COMPLETE_COUNT";
 
-    private LocationProfileDaoHelper mLocationProfileDaoHelper;
+    private LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
     private LocationProfile mLocationProfile;
     
 	public ProgramGuideCleanupService() {
@@ -61,7 +61,6 @@ public class ProgramGuideCleanupService extends MythtvService {
 	protected void onHandleIntent( Intent intent ) {
 		Log.d( TAG, "onHandleIntent : enter" );
 
-		mLocationProfileDaoHelper = new LocationProfileDaoHelper( this );
 		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile();
 		
         if ( intent.getAction().equals( ACTION_CLEANUP ) ) {
