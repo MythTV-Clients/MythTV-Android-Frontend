@@ -61,9 +61,9 @@ public class VideoActivity extends AbstractMythtvFragmentActivity {
 	
 	private ProgressDialog progressDialog;
 
-	private LiveStreamDaoHelper mLiveStreamDaoHelper;
+	private LiveStreamDaoHelper mLiveStreamDaoHelper = LiveStreamDaoHelper.getInstance();
 	private LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
-	private RecordedDaoHelper mRecordedDaoHelper;
+	private RecordedDaoHelper mRecordedDaoHelper = RecordedDaoHelper.getInstance();
 	
 	private Program program = null;
 	private LiveStreamInfo liveStreamInfo = null;
@@ -82,9 +82,6 @@ public class VideoActivity extends AbstractMythtvFragmentActivity {
 		Log.v( TAG, "onCreate : enter" );
 		super.onCreate( savedInstanceState );
 
-		mLiveStreamDaoHelper = new LiveStreamDaoHelper( this );
-		mRecordedDaoHelper = new RecordedDaoHelper( this );
-		
 	    setContentView( R.layout.activity_video );
 	    
 	    int channelId = getIntent().getIntExtra( EXTRA_CHANNEL_ID, -1 );

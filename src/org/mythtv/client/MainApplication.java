@@ -21,6 +21,14 @@ package org.mythtv.client;
 import java.util.logging.Level;
 
 import org.mythtv.client.ui.preferences.LocationProfile;
+import org.mythtv.db.channel.ChannelDaoHelper;
+import org.mythtv.db.content.LiveStreamDaoHelper;
+import org.mythtv.db.dvr.ProgramGuideDaoHelper;
+import org.mythtv.db.dvr.RecordedDaoHelper;
+import org.mythtv.db.dvr.RecordingDaoHelper;
+import org.mythtv.db.dvr.UpcomingDaoHelper;
+import org.mythtv.db.dvr.programGroup.ProgramGroupDaoHelper;
+import org.mythtv.db.http.EtagDaoHelper;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.db.preferences.PlaybackProfileDaoHelper;
 import org.mythtv.service.util.FileHelper;
@@ -75,8 +83,17 @@ public class MainApplication extends Application {
 		initImageLoader( getApplicationContext() );
 		
 		//Initialize DAO Helpers
+		EtagDaoHelper.getInstance().init( this );
 		LocationProfileDaoHelper.getInstance().init( this );
+		ChannelDaoHelper.getInstance().init( this );
+		LiveStreamDaoHelper.getInstance().init( this );
+		RecordingDaoHelper.getInstance().init( this );
 		PlaybackProfileDaoHelper.getInstance().init( this );
+		ProgramGuideDaoHelper.getInstance().init( this );
+		ProgramGroupDaoHelper.getInstance().init( this );
+		
+		RecordedDaoHelper.getInstance().init( this );
+		UpcomingDaoHelper.getInstance().init( this );
 		
 		//Initialize Helpers
 		FileHelper.getInstance().init( this.getExternalCacheDir() );

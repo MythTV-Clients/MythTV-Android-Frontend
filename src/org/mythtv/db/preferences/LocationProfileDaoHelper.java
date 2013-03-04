@@ -23,7 +23,6 @@ import java.util.List;
 
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.preferences.LocationProfile.LocationType;
-import org.mythtv.service.util.NetworkHelper;
 
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -53,7 +52,7 @@ public class LocationProfileDaoHelper {
 	public static LocationProfileDaoHelper getInstance() {
 		if( null == singleton ) {
 
-			synchronized( NetworkHelper.class ) {
+			synchronized( LocationProfileDaoHelper.class ) {
 
 				if( null == singleton ) {
 					singleton = new LocationProfileDaoHelper();

@@ -55,12 +55,12 @@ public class UpcomingActivity extends AbstractMythtvFragmentActivity {
 
 	private static final String TAG = UpcomingActivity.class.getSimpleName();
 
-	private RunningServiceHelper mRunningServiceHelper;
 
 	private UpcomingDownloadReceiver upcomingDownloadReceiver = new UpcomingDownloadReceiver();
 
-	private EtagDaoHelper mEtagDaoHelper;
-	private UpcomingDaoHelper mUpcomingDaoHelper;
+	private EtagDaoHelper mEtagDaoHelper = EtagDaoHelper.getInstance();
+	private RunningServiceHelper mRunningServiceHelper = RunningServiceHelper.getInstance();
+	private UpcomingDaoHelper mUpcomingDaoHelper = UpcomingDaoHelper.getInstance();
 			
 	private MythtvUpcomingPagerAdapter mAdapter;
 	
@@ -72,11 +72,6 @@ public class UpcomingActivity extends AbstractMythtvFragmentActivity {
 		Log.v( TAG, "onCreate : enter" );
 		super.onCreate( savedInstanceState );
 
-		mRunningServiceHelper = RunningServiceHelper.getInstance();
-
-		mEtagDaoHelper = new EtagDaoHelper( this );
-		mUpcomingDaoHelper = new UpcomingDaoHelper( this );
-		
 		setContentView( R.layout.activity_dvr_upcoming );
 
 		setupActionBar();

@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.AbstractDaoHelper;
 import org.mythtv.provider.MythtvProvider;
 import org.mythtv.services.api.channel.ChannelInfo;
@@ -33,7 +34,6 @@ import android.content.ContentProviderOperation;
 import android.content.ContentProviderResult;
 import android.content.ContentUris;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.OperationApplicationException;
 import android.database.Cursor;
 import android.net.Uri;
@@ -48,15 +48,39 @@ import android.util.Log;
 public class ChannelDaoHelper extends AbstractDaoHelper {
 
 	private static final String TAG = ChannelDaoHelper.class.getSimpleName();
-	private final static int BATCH_COUNT_LIMIT = 99;
+	private static final int BATCH_COUNT_LIMIT = 99;
+	
+	private static ChannelDaoHelper singleton = null;
+
+	/**
+	 * Returns the one and only ChannelDaoHelper. init() must be called before 
+	 * any 
+	 * 
+	 * @return
+	 */
+	public static ChannelDaoHelper getInstance() {
+		if( null == singleton ) {
+
+			synchronized( ChannelDaoHelper.class ) {
+
+				if( null == singleton ) {
+					singleton = new ChannelDaoHelper();
+				}
+			
+			}
+
+		}
+		
+		return singleton;
+	}
 	
 	/**
-	 * @param context
+	 * Constructor. No one but getInstance() can do this.
 	 */
-	public ChannelDaoHelper( Context context ) {
-		super( context );
+	private ChannelDaoHelper() {
+		super();
 	}
-
+	
 	/**
 	 * @param projection
 	 * @param selection
@@ -66,6 +90,9 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 	 */
 	public List<ChannelInfo> findAll( String[] projection, String selection, String[] selectionArgs, String sortOrder ) {
 		Log.d( TAG, "findAll : enter" );
+		
+		if( !this.isInitialized() ) 
+			throw new RuntimeException( "ChannelDaoHelper is not initialized" );
 		
 		List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
 		
@@ -104,6 +131,9 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 	 */
 	public ChannelInfo findOne( Long id, String[] projection, String selection, String[] selectionArgs, String sortOrder ) {
 		Log.d( TAG, "findOne : enter" );
+		
+		if( !this.isInitialized() ) 
+			throw new RuntimeException( "ChannelDaoHelper is not initialized" );
 		
 		ChannelInfo channelInfo = null;
 		
@@ -168,6 +198,9 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 	public int save( ChannelInfo channelInfo ) {
 		Log.d( TAG, "save : enter" );
 
+		if( !this.isInitialized() ) 
+			throw new RuntimeException( "ChannelDaoHelper is not initialized" );
+		
 		ContentValues values = convertChannelInfoToContentValues( channelInfo );
 
 		String[] projection = new String[] { ChannelConstants._ID };
@@ -205,6 +238,9 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 	public int deleteAll() {
 		Log.d( TAG, "deleteAll : enter" );
 		
+		if( !this.isInitialized() ) 
+			throw new RuntimeException( "ChannelDaoHelper is not initialized" );
+		
 		int deleted = mContext.getContentResolver().delete( ChannelConstants.CONTENT_URI, null, null );
 		Log.v( TAG, "deleteAll : deleted=" + deleted );
 		
@@ -218,6 +254,9 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 	 */
 	public int delete( Long id ) {
 		Log.d( TAG, "delete : enter" );
+		
+		if( !this.isInitialized() ) 
+			throw new RuntimeException( "ChannelDaoHelper is not initialized" );
 		
 		int deleted = mContext.getContentResolver().delete( ContentUris.withAppendedId( ChannelConstants.CONTENT_URI, id ), null, null );
 		Log.v( TAG, "delete : deleted=" + deleted );
@@ -233,6 +272,9 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 	public int delete( ChannelInfo channelInfo ) {
 		Log.d( TAG, "delete : enter" );
 		
+		if( !this.isInitialized() ) 
+			throw new RuntimeException( "ChannelDaoHelper is not initialized" );
+		
 		String selection = ChannelConstants.FIELD_CHAN_ID + " = ?";
 		String[] selectionArgs = new String[] { String.valueOf( channelInfo.getChannelId() ) };
 		
@@ -247,6 +289,9 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 
 	public int load( List<ChannelInfos> allChannelsList ) throws RemoteException, OperationApplicationException {
 		Log.d( TAG, "load : enter" );
+		
+		if( !this.isInitialized() ) 
+			throw new RuntimeException( "ChannelDaoHelper is not initialized" );
 		
 		Log.d( TAG, "load : loading existing channels" );
 		Map<Integer, ChannelInfo> existing = new HashMap<Integer, ChannelInfo>();
@@ -577,6 +622,8 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 
 	private ContentValues convertChannelInfoToContentValues( final ChannelInfo channelInfo ) {
 //		Log.v( TAG, "convertChannelToContentValues : enter" );
+		
+		LocationProfile mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile();
 		
 		ContentValues values = new ContentValues();
 		values.put( ChannelConstants.FIELD_CHAN_ID, channelInfo.getChannelId() );

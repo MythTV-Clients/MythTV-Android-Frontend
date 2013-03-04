@@ -37,17 +37,36 @@ public abstract class AbstractDaoHelper {
 	
 	protected LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
 	
-	protected LocationProfile mLocationProfile;
-	
-	public AbstractDaoHelper( Context context ) {
-		this.mContext = context;
+	protected AbstractDaoHelper() { }
+
+	/**
+	 * Must be called once at the beginning of the application. Subsequent 
+	 * calls to this will have no effect.
+	 * 
+	 * @param context
+	 */
+	public void init( Context context ) {
 		
-		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile();
+		// ignore any additional calls to init
+		if( this.isInitialized() ) 
+			return;
+		
+		this.mContext = context;
 	}
 	
+	/**
+	 * Returns true if DaoHelper has already been initialized
+	 * 
+	 * @return
+	 */
+	public boolean isInitialized(){
+		return null != this.mContext;
+	}
+	
+
 	protected String appendLocationHostname( String selection, String table ) {
 		
-		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile();
+		LocationProfile mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile();
 
 		return ( !TextUtils.isEmpty( table ) ? ( table + "." ) : "" ) + AbstractBaseConstants.FIELD_HOSTNAME
 				+ " = '"

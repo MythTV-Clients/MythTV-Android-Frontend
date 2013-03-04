@@ -59,7 +59,7 @@ public class RecordingRuleEditFragment extends AbstractMythFragment implements O
 
 	private static final String TAG = RecordingRuleEditFragment.class.getSimpleName();
 	
-	private ChannelDaoHelper mChannelDaoHelper;
+	private ChannelDaoHelper mChannelDaoHelper = ChannelDaoHelper.getInstance();
 	private MenuHelper mMenuHelper;
 	private ProgramHelper mProgramHelper;
 	
@@ -115,7 +115,6 @@ public class RecordingRuleEditFragment extends AbstractMythFragment implements O
 		Log.v( TAG, "onActivityCreated : enter" );
 		super.onActivityCreated( savedInstanceState );
 
-		mChannelDaoHelper = new ChannelDaoHelper( getActivity() );
 		mProgramHelper = ProgramHelper.createInstance( getActivity() );
 		
 		Log.v( TAG, "onActivityCreated : exit" );

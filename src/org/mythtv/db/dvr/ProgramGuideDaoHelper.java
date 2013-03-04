@@ -30,7 +30,6 @@ import android.content.ContentProviderOperation;
 import android.content.ContentProviderResult;
 import android.content.ContentUris;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.OperationApplicationException;
 import android.database.Cursor;
 import android.os.RemoteException;
@@ -44,8 +43,32 @@ public class ProgramGuideDaoHelper extends ProgramDaoHelper {
 
 	private static final String TAG = ProgramGuideDaoHelper.class.getSimpleName();
 	
-	public ProgramGuideDaoHelper( Context context ) {
-		super( context );
+	private static ProgramGuideDaoHelper singleton = null;
+
+	/**
+	 * Returns the one and only ProgramGuideDaoHelper. init() must be called before 
+	 * any 
+	 * 
+	 * @return
+	 */
+	public static ProgramGuideDaoHelper getInstance() {
+		if( null == singleton ) {
+
+			synchronized( ProgramGuideDaoHelper.class ) {
+
+				if( null == singleton ) {
+					singleton = new ProgramGuideDaoHelper();
+				}
+			
+			}
+
+		}
+		
+		return singleton;
+	}
+	
+	private ProgramGuideDaoHelper() {
+		super();
 	}
 
 	/* (non-Javadoc)
@@ -172,6 +195,9 @@ public class ProgramGuideDaoHelper extends ProgramDaoHelper {
 	public int load( List<Program> programs ) throws RemoteException, OperationApplicationException {
 //		Log.d( TAG, "load : enter" );
 
+		if( !this.isInitialized() ) 
+			throw new RuntimeException( "ProgramDaoHelper is not initialized" );
+		
 		int loaded = -1;
 		ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
 

@@ -25,7 +25,6 @@ import org.mythtv.db.dvr.programGroup.ProgramGroupDaoHelper;
 import org.mythtv.services.api.dvr.Program;
 
 import android.content.ContentUris;
-import android.content.Context;
 import android.content.OperationApplicationException;
 import android.os.RemoteException;
 import android.util.Log;
@@ -38,12 +37,34 @@ public class RecordedDaoHelper extends ProgramDaoHelper {
 
 	private static final String TAG = RecordedDaoHelper.class.getSimpleName();
 	
-	private ProgramGroupDaoHelper mProgramGroupDaoHelper;
+	private ProgramGroupDaoHelper mProgramGroupDaoHelper = ProgramGroupDaoHelper.getInstance();
 	
-	public RecordedDaoHelper( Context context ) {
-		super( context );
+	private static RecordedDaoHelper singleton = null;
+
+	/**
+	 * Returns the one and only RecordedDaoHelper. init() must be called before 
+	 * any 
+	 * 
+	 * @return
+	 */
+	public static RecordedDaoHelper getInstance() {
+		if( null == singleton ) {
+
+			synchronized( RecordedDaoHelper.class ) {
+
+				if( null == singleton ) {
+					singleton = new RecordedDaoHelper();
+				}
+			
+			}
+
+		}
 		
-		mProgramGroupDaoHelper = new ProgramGroupDaoHelper( context );
+		return singleton;
+	}
+	
+	private RecordedDaoHelper() {
+		super();
 	}
 
 	/* (non-Javadoc)
