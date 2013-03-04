@@ -48,12 +48,12 @@ public abstract class AbstractMythtvFragmentActivity extends FragmentActivity im
 	protected static final String TAG = AbstractMythtvFragmentActivity.class.getSimpleName();
 
 	protected SharedPreferences preferences = null;
-	protected LiveStreamDaoHelper mLiveStreamDaoHelper;
-	protected LocationProfileDaoHelper mLocationProfileDaoHelper;
+	protected LiveStreamDaoHelper mLiveStreamDaoHelper = LiveStreamDaoHelper.getInstance();
+	protected LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
 	protected MenuHelper mMenuHelper;
-	protected ProgramGroupDaoHelper mProgramGroupDaoHelper;
-	protected RecordedDaoHelper mRecordedDaoHelper;
-	protected RunningServiceHelper mRunningServiceHelper;
+	protected ProgramGroupDaoHelper mProgramGroupDaoHelper = ProgramGroupDaoHelper.getInstance();
+	protected RecordedDaoHelper mRecordedDaoHelper = RecordedDaoHelper.getInstance();
+	protected RunningServiceHelper mRunningServiceHelper = RunningServiceHelper.getInstance();
 	
 	//***************************************
     // MythActivity methods
@@ -81,14 +81,7 @@ public abstract class AbstractMythtvFragmentActivity extends FragmentActivity im
 
 		preferences = getSharedPreferences( getString( R.string.app_name ), Context.MODE_PRIVATE );
 		
-		mRunningServiceHelper = RunningServiceHelper.getInstance();
-		mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
-		
-		mLiveStreamDaoHelper = new LiveStreamDaoHelper( this );
-		
 		mMenuHelper = MenuHelper.newInstance( this );
-		mProgramGroupDaoHelper = new ProgramGroupDaoHelper( this );
-		mRecordedDaoHelper = new RecordedDaoHelper( this );
 		
 		// Fetch screen height and width, to use as our max size when loading images as this activity runs full screen
         final DisplayMetrics displayMetrics = new DisplayMetrics();

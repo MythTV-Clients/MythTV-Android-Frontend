@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.AbstractDaoHelper;
 import org.mythtv.provider.MythtvProvider;
 import org.mythtv.services.api.dvr.Program;
@@ -33,7 +34,6 @@ import android.content.ContentProviderOperation;
 import android.content.ContentProviderResult;
 import android.content.ContentUris;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.OperationApplicationException;
 import android.database.Cursor;
 import android.net.Uri;
@@ -48,15 +48,42 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 
 	private static final String TAG = ProgramGroupDaoHelper.class.getSimpleName();
 	
-	public ProgramGroupDaoHelper( Context context ) {
-		super( context );
+	private static ProgramGroupDaoHelper singleton = null;
+
+	/**
+	 * Returns the one and only ProgramGroupDaoHelper. init() must be called before 
+	 * any 
+	 * 
+	 * @return
+	 */
+	public static ProgramGroupDaoHelper getInstance() {
+		if( null == singleton ) {
+
+			synchronized( ProgramGroupDaoHelper.class ) {
+
+				if( null == singleton ) {
+					singleton = new ProgramGroupDaoHelper();
+				}
+			
+			}
+
+		}
+		
+		return singleton;
 	}
 	
+	private ProgramGroupDaoHelper() {
+		super();
+	}
+
 	/**
 	 * @return
 	 */
 	public List<ProgramGroup> findAll() {
 		Log.v( TAG, "findAll : enter" );
+		
+		if( !this.isInitialized() ) 
+			throw new RuntimeException( "ProgramGroupDaoHelper is not initialized" );
 		
 		String selection = "";
 		String[] selectionArgs = null;
@@ -83,6 +110,9 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 	public ProgramGroup findOne( Long id ) {
 		Log.v( TAG, "findOne : enter" );
 		
+		if( !this.isInitialized() ) 
+			throw new RuntimeException( "ProgramGroupDaoHelper is not initialized" );
+		
 		ProgramGroup programGroup = null;
 		
 		Cursor cursor = mContext.getContentResolver().query( ContentUris.withAppendedId( ProgramGroupConstants.CONTENT_URI, id ), null, null, null, null );
@@ -97,6 +127,9 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 
 	public ProgramGroup findByTitle( String title ) {
 		Log.v( TAG, "findOne : enter" );
+		
+		if( !this.isInitialized() ) 
+			throw new RuntimeException( "ProgramGroupDaoHelper is not initialized" );
 		
 		String selection = ProgramGroupConstants.FIELD_TITLE + " = ?";
 		String[] selectionArgs = new String[] { title };
@@ -122,6 +155,9 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 	protected int save( ProgramGroup programGroup ) {
 		Log.v( TAG, "save : enter" );
 
+		if( !this.isInitialized() ) 
+			throw new RuntimeException( "ProgramGroupDaoHelper is not initialized" );
+		
 		ContentValues values = convertProgramGroupToContentValues( programGroup );
 
 		String[] projection = new String[] { ProgramGroupConstants._ID };
@@ -157,6 +193,9 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 	public int deleteAll() {
 		Log.v( TAG, "deleteAll : enter" );
 		
+		if( !this.isInitialized() ) 
+			throw new RuntimeException( "ProgramGroupDaoHelper is not initialized" );
+		
 		String selection = "";
 		
 		selection = appendLocationHostname( selection, null );
@@ -175,6 +214,9 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 	public int delete( ProgramGroup programGroup ) {
 		Log.v( TAG, "delete : enter" );
 		
+		if( !this.isInitialized() ) 
+			throw new RuntimeException( "ProgramGroupDaoHelper is not initialized" );
+		
 		int deleted = mContext.getContentResolver().delete( ContentUris.withAppendedId( ProgramGroupConstants.CONTENT_URI, programGroup.getId() ), null, null );
 		Log.v( TAG, "delete : deleted=" + deleted );
 		
@@ -185,7 +227,8 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 	public int load( List<Program> programs ) throws RemoteException, OperationApplicationException {
 		Log.v( TAG, "load : enter" );
 		
-		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile();
+		if( !this.isInitialized() ) 
+			throw new RuntimeException( "ProgramGroupDaoHelper is not initialized" );
 		
 		Log.v( TAG, "load : find all existing recordings" );
 		Map<String, ProgramGroup> existing = new HashMap<String, ProgramGroup>();
@@ -400,6 +443,8 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 	}
 
 	private ContentValues convertProgramGroupToContentValues( final ProgramGroup programGroup ) {
+		
+		LocationProfile mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile();
 		
 		ContentValues values = new ContentValues();
 		values.put( ProgramGroupConstants.FIELD_PROGRAM_GROUP, null != programGroup.getTitle() ? ArticleCleaner.clean( programGroup.getTitle() ) : "" );

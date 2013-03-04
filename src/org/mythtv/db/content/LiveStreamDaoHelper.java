@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.joda.time.DateTime;
+import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.AbstractDaoHelper;
 import org.mythtv.services.api.channel.ChannelInfo;
 import org.mythtv.services.api.content.LiveStreamInfo;
@@ -32,7 +33,6 @@ import org.mythtv.services.api.dvr.Program;
 
 import android.content.ContentUris;
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
@@ -45,10 +45,37 @@ public class LiveStreamDaoHelper extends AbstractDaoHelper {
 
 	protected static final String TAG = LiveStreamDaoHelper.class.getSimpleName();
 
-	public LiveStreamDaoHelper( Context context ) {
-		super( context );
-	}
+	private static LiveStreamDaoHelper singleton = null;
 
+	/**
+	 * Returns the one and only LiveStreamDaoHelper. init() must be called before 
+	 * any 
+	 * 
+	 * @return
+	 */
+	public static LiveStreamDaoHelper getInstance() {
+		if( null == singleton ) {
+
+			synchronized( LiveStreamDaoHelper.class ) {
+
+				if( null == singleton ) {
+					singleton = new LiveStreamDaoHelper();
+				}
+			
+			}
+
+		}
+		
+		return singleton;
+	}
+	
+	/**
+	 * Constructor. No one but getInstance() can do this.
+	 */
+	private LiveStreamDaoHelper() {
+		super();
+	}
+	
 	/**
 	 * @param projection
 	 * @param selection
@@ -58,6 +85,9 @@ public class LiveStreamDaoHelper extends AbstractDaoHelper {
 	 */
 	public List<LiveStreamInfo> findAll( String[] projection, String selection, String[] selectionArgs, String sortOrder ) {
 		Log.d( TAG, "findAll : enter" );
+		
+		if( !this.isInitialized() ) 
+			throw new RuntimeException( "LiveStreamDaoHelper is not initialized" );
 		
 		List<LiveStreamInfo> liveStreamInfos = new ArrayList<LiveStreamInfo>();
 		
@@ -96,6 +126,9 @@ public class LiveStreamDaoHelper extends AbstractDaoHelper {
 	 */
 	public LiveStreamInfo findOne( Long id, String[] projection, String selection, String[] selectionArgs, String sortOrder ) {
 		Log.d( TAG, "findOne : enter" );
+		
+		if( !this.isInitialized() ) 
+			throw new RuntimeException( "LiveStreamDaoHelper is not initialized" );
 		
 		LiveStreamInfo liveStreamInfo = null;
 		
@@ -174,6 +207,9 @@ public class LiveStreamDaoHelper extends AbstractDaoHelper {
 	public int save( LiveStreamInfo liveStreamInfo, Program program ) {
 		Log.d( TAG, "save : enter" );
 
+		if( !this.isInitialized() ) 
+			throw new RuntimeException( "LiveStreamDaoHelper is not initialized" );
+		
 		ContentValues values = convertLiveStreamInfoToContentValues( liveStreamInfo, program );
 
 		String[] projection = new String[] { LiveStreamConstants.TABLE_NAME + "_" + LiveStreamConstants._ID };
@@ -209,6 +245,9 @@ public class LiveStreamDaoHelper extends AbstractDaoHelper {
 	public int deleteAll() {
 		Log.d( TAG, "deleteAll : enter" );
 		
+		if( !this.isInitialized() ) 
+			throw new RuntimeException( "LiveStreamDaoHelper is not initialized" );
+		
 		int deleted = mContext.getContentResolver().delete( LiveStreamConstants.CONTENT_URI, null, null );
 		Log.v( TAG, "deleteAll : deleted=" + deleted );
 		
@@ -222,6 +261,9 @@ public class LiveStreamDaoHelper extends AbstractDaoHelper {
 	 */
 	public int delete( Long id ) {
 		Log.d( TAG, "delete : enter" );
+		
+		if( !this.isInitialized() ) 
+			throw new RuntimeException( "LiveStreamDaoHelper is not initialized" );
 		
 		int deleted = mContext.getContentResolver().delete( ContentUris.withAppendedId( LiveStreamConstants.CONTENT_URI, id ), null, null );
 		Log.v( TAG, "delete : deleted=" + deleted );
@@ -237,6 +279,9 @@ public class LiveStreamDaoHelper extends AbstractDaoHelper {
 	public int delete( LiveStreamInfo liveStreamInfo ) {
 		Log.d( TAG, "delete : enter" );
 		
+		if( !this.isInitialized() ) 
+			throw new RuntimeException( "LiveStreamDaoHelper is not initialized" );
+		
 		String selection = LiveStreamConstants.FIELD_ID + " = ?";
 		String[] selectionArgs = new String[] { String.valueOf( liveStreamInfo.getId() ) };
 		
@@ -251,6 +296,9 @@ public class LiveStreamDaoHelper extends AbstractDaoHelper {
 
 	public int load( List<LiveStreamInfo> liveStreamInfos ) {
 		Log.d( TAG, "load : enter" );
+		
+		if( !this.isInitialized() ) 
+			throw new RuntimeException( "LiveStreamDaoHelper is not initialized" );
 		
 		int loaded = -1;
 		
@@ -458,6 +506,8 @@ public class LiveStreamDaoHelper extends AbstractDaoHelper {
 
 	private ContentValues convertLiveStreamInfoToContentValues( final LiveStreamInfo liveStreamInfo, final Program program ) {
 //		Log.v( TAG, "convertLiveStreamToContentValues : enter" );
+		
+		LocationProfile mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile();
 		
 		ContentValues values = new ContentValues();
 		values.put( LiveStreamConstants.FIELD_ID, liveStreamInfo.getId() );

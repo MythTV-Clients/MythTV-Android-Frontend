@@ -83,11 +83,11 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 	private RecordedDownloadReceiver recordedDownloadReceiver = new RecordedDownloadReceiver();
 
 	private static ProgramHelper mProgramHelper;
-	private EtagDaoHelper mEtagDaoHelper;
+	private EtagDaoHelper mEtagDaoHelper = EtagDaoHelper.getInstance();
 	private LocationProfileDaoHelper mLocationProfileDaoHelper;
 	private MenuHelper mMenuHelper;
-	private ProgramGroupDaoHelper mProgramGroupDaoHelper;
-	private RunningServiceHelper mRunningServiceHelper;
+	private ProgramGroupDaoHelper mProgramGroupDaoHelper = ProgramGroupDaoHelper.getInstance();
+	private RunningServiceHelper mRunningServiceHelper = RunningServiceHelper.getInstance();
 
 	private ImageLoader imageLoader = ImageLoader.getInstance();
 	private DisplayImageOptions options;
@@ -159,12 +159,7 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 		
 		mProgramHelper = ProgramHelper.createInstance( getActivity().getApplicationContext() );
 
-		mEtagDaoHelper = new EtagDaoHelper( getActivity() );
-	
-		mProgramGroupDaoHelper = ( (AbstractMythtvFragmentActivity) getActivity() ).getProgramGroupDaoHelper();
-
 		mMenuHelper = ( (AbstractMythtvFragmentActivity) getActivity() ).getMenuHelper();
-		mRunningServiceHelper = ( (AbstractMythtvFragmentActivity) getActivity() ).getRunningServiceHelper();
 
 		setHasOptionsMenu( true );
 		setRetainInstance( true );

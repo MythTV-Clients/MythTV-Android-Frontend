@@ -22,12 +22,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.joda.time.DateTime;
+import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.AbstractDaoHelper;
 import org.mythtv.services.api.dvr.Recording;
 
 import android.content.ContentUris;
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
@@ -41,12 +41,37 @@ public class RecordingDaoHelper extends AbstractDaoHelper {
 
 	private static final String TAG = RecordingDaoHelper.class.getSimpleName();
 	
+	private static RecordingDaoHelper singleton = null;
+
 	/**
-	 * @param context
+	 * Returns the one and only ChannelDaoHelper. init() must be called before 
+	 * any 
+	 * 
+	 * @return
 	 */
-	public RecordingDaoHelper( Context context ) {
-		super( context );
+	public static RecordingDaoHelper getInstance() {
+		if( null == singleton ) {
+
+			synchronized( RecordingDaoHelper.class ) {
+
+				if( null == singleton ) {
+					singleton = new RecordingDaoHelper();
+				}
+			
+			}
+
+		}
+		
+		return singleton;
 	}
+	
+	/**
+	 * Constructor. No one but getInstance() can do this.
+	 */
+	private RecordingDaoHelper() {
+		super();
+	}
+	
 
 	/**
 	 * @param projection
@@ -57,6 +82,9 @@ public class RecordingDaoHelper extends AbstractDaoHelper {
 	 */
 	public List<Recording> findAll( String[] projection, String selection, String[] selectionArgs, String sortOrder ) {
 		Log.d( TAG, "findAll : enter" );
+		
+		if( !this.isInitialized() ) 
+			throw new RuntimeException( "RecordingDaoHelper is not initialized" );
 		
 		List<Recording> recordings = new ArrayList<Recording>();
 		
@@ -93,6 +121,9 @@ public class RecordingDaoHelper extends AbstractDaoHelper {
 	 */
 	public Recording findOne( Long id, String[] projection, String selection, String[] selectionArgs, String sortOrder ) {
 		Log.d( TAG, "findOne : enter" );
+		
+		if( !this.isInitialized() ) 
+			throw new RuntimeException( "RecordingDaoHelper is not initialized" );
 		
 		Recording recording = null;
 		
@@ -158,6 +189,9 @@ public class RecordingDaoHelper extends AbstractDaoHelper {
 	public int deleteAll() {
 		Log.d( TAG, "deleteAll : enter" );
 		
+		if( !this.isInitialized() ) 
+			throw new RuntimeException( "RecordingDaoHelper is not initialized" );
+		
 		int deleted = mContext.getContentResolver().delete( RecordingConstants.CONTENT_URI, null, null );
 		Log.v( TAG, "deleteAll : deleted=" + deleted );
 		
@@ -171,6 +205,9 @@ public class RecordingDaoHelper extends AbstractDaoHelper {
 	 */
 	public int delete( Long id ) {
 		Log.d( TAG, "delete : enter" );
+		
+		if( !this.isInitialized() ) 
+			throw new RuntimeException( "RecordingDaoHelper is not initialized" );
 		
 		int deleted = mContext.getContentResolver().delete( ContentUris.withAppendedId( RecordingConstants.CONTENT_URI, id ), null, null );
 		Log.v( TAG, "delete : deleted=" + deleted );
@@ -290,6 +327,8 @@ public class RecordingDaoHelper extends AbstractDaoHelper {
 	 */
 	public ContentValues convertRecordingToContentValues( final Recording recording, final DateTime startTime ) {
 //		Log.v( TAG, "convertRecordingToContentValues : enter" );
+		
+		LocationProfile mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile();
 		
 		DateTime startTimestamp = null;
 		if( null != recording.getStartTimestamp() ) {

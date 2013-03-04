@@ -53,7 +53,7 @@ public class PlaybackProfileDaoHelper {
 	public static PlaybackProfileDaoHelper getInstance() {
 		if( null == singleton ) {
 
-			synchronized( NetworkHelper.class ) {
+			synchronized( PlaybackProfileDaoHelper.class ) {
 
 				if( null == singleton ) {
 					singleton = new PlaybackProfileDaoHelper();

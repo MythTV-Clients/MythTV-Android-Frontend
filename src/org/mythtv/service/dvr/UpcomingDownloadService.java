@@ -80,8 +80,8 @@ public class UpcomingDownloadService extends MythtvService {
 	
 	private File upcomingDirectory = null;
 
-	private UpcomingDaoHelper mUpcomingDaoHelper;
-	private EtagDaoHelper mEtagDaoHelper;
+	private UpcomingDaoHelper mUpcomingDaoHelper = UpcomingDaoHelper.getInstance();
+	private EtagDaoHelper mEtagDaoHelper = EtagDaoHelper.getInstance();
 	private LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
 
 	public UpcomingDownloadService() {
@@ -95,9 +95,6 @@ public class UpcomingDownloadService extends MythtvService {
 	protected void onHandleIntent( Intent intent ) {
 		Log.d( TAG, "onHandleIntent : enter" );
 		super.onHandleIntent( intent );
-		
-		mUpcomingDaoHelper = new UpcomingDaoHelper( this );
-		mEtagDaoHelper = new EtagDaoHelper( this );
 		
 		upcomingDirectory = FileHelper.getInstance().getProgramUpcomingDataDirectory();
 		if( null == upcomingDirectory || !upcomingDirectory.exists() ) {

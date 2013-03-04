@@ -56,7 +56,7 @@ public class RecordingRuleFragment extends AbstractMythFragment {
 
 	private static final String TAG = RecordingRuleFragment.class.getSimpleName();
 	
-	private ChannelDaoHelper mChannelDaoHelper;
+	private ChannelDaoHelper mChannelDaoHelper = ChannelDaoHelper.getInstance();
 	private MenuHelper mMenuHelper;
 	private ProgramHelper mProgramHelper;
 	private Integer mRecordingRuleId;
@@ -111,7 +111,6 @@ public class RecordingRuleFragment extends AbstractMythFragment {
 		Log.v( TAG, "onActivityCreated : enter" );
 		super.onActivityCreated( savedInstanceState );
 
-		mChannelDaoHelper = new ChannelDaoHelper( getActivity() );
 		mProgramHelper = ProgramHelper.createInstance( getActivity() );
 		
 		Log.v( TAG, "onActivityCreated : exit" );

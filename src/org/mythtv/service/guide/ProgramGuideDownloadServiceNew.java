@@ -76,7 +76,7 @@ public class ProgramGuideDownloadServiceNew extends MythtvService {
 	private PendingIntent mContentIntent = null;
 	private int notificationId = 1001;
 
-	private ProgramGuideDaoHelper mProgramGuideDaoHelper; 
+	private ProgramGuideDaoHelper mProgramGuideDaoHelper = ProgramGuideDaoHelper.getInstance(); 
 	
 	public ProgramGuideDownloadServiceNew() {
 		super( "ProgamGuideDownloadServiceNew" );
@@ -89,8 +89,6 @@ public class ProgramGuideDownloadServiceNew extends MythtvService {
 	protected void onHandleIntent( Intent intent ) {
 		Log.v( TAG, "onHandleIntent : enter" );
 		super.onHandleIntent( intent );
-
-		mProgramGuideDaoHelper = new ProgramGuideDaoHelper( this );
 
 		mNotificationManager = (NotificationManager) getSystemService( Context.NOTIFICATION_SERVICE );
 		
