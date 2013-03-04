@@ -22,7 +22,7 @@
 
 <resources>
     
-    <string name="app_version">1.0.5</string>
+    <string name="app_version">1.20.0</string>
 
     <string name="hello">Hello World!</string>
     <string name="app_name">MythTV Android Frontend</string>
@@ -186,14 +186,14 @@
     <string name="episode_alert_remove_button_cancel">Cancel</string>
     <string name="episode_alert_remove_button_delete">Remove</string>
     
-    <string name="episode_add_title">HLS Live Stream Warning</string>
-    <string name="episode_add_message">HLS Live Stream Warning Message. Adding too many HLS Processing Jobs on your MythTV Master Backend can severely impact its performance.  Be cautious when adding too many HLS Live Stream jobs.</string>
+    <string name="episode_add_title">HTTP Live Stream Warning</string>
+    <string name="episode_add_message">HLS Processing uses a significant amount of MythTV Master Backend processing power. It can severely impact its performance.</string>
     <string name="episode_add_doNotDisplay">Do not display this warning again</string>
     <string name="episode_add_button_play">Process</string>
     <string name="episode_add_button_cancel">Cancel</string>
     
     <string name="episode_watch_title">Use HLS?</string>
-    <string name="episode_watch_message">Recordings can be streamed directly from your master backend or processed as an HTTP Live Stream.  HLS makes the recording available for when you are away from your home network. *NOTE* It is recommended to use HLS for MPEG2 HD recordings.</string>
+    <string name="episode_watch_message">Recordings can be streamed directly from your Master Backend or processed as an HTTP Live Stream.  HLS makes the recording available for when you are away from your home network. *NOTE* HLS is recommended for MPEG2 HD recordings.</string>
     <string name="episode_watch_button_hls">Play with HLS</string>
     <string name="episode_watch_button_raw">Play Recoding</string>
     
@@ -237,7 +237,7 @@
 
     <!-- Video Playback Dialog -->
     <string name="video_playback_title">Video Playback Warning</string>
-    <string name="video_playback_message">Video Playback Warning Message. Warnings go here for playback and multiple gestures for Fast Forward and Rewind, etc.</string>
+    <string name="video_playback_message">Some players don\'t handle multiple gestures (Fast Forward/Rewind&#8230;) well.</string>
     <string name="video_playback_doNotDisplay">Do not display this warning again</string>
     <string name="video_playback_button_play">Start</string>
     <string name="video_playback_button_cancel">Cancel</string>

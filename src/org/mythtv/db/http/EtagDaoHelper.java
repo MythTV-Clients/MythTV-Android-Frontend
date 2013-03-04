@@ -204,7 +204,7 @@ public class EtagDaoHelper extends AbstractDaoHelper {
 		int updated = -1;
 		Cursor cursor = mContext.getContentResolver().query( EtagConstants.CONTENT_URI, new String[] { EtagConstants._ID }, selection, selectionArgs, null );
 		if( cursor.moveToFirst() ) {
-			Log.v( TAG, "save : updating existing channel info" );
+			Log.v( TAG, "save : updating existing etag info" );
 			Long id = cursor.getLong( cursor.getColumnIndexOrThrow( EtagConstants._ID ) );
 
 			updated = mContext.getContentResolver().update( ContentUris.withAppendedId( EtagConstants.CONTENT_URI, id ), values, null, null );

@@ -20,8 +20,9 @@ package org.mythtv.service.channel;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
-import org.apache.commons.io.FileUtils;
 import org.mythtv.R;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.channel.ChannelDaoHelper;
@@ -127,39 +128,55 @@ public class ChannelDownloadService extends MythtvService {
 
     		try {
     			ETagInfo etag = mEtagDaoHelper.findByEndpointAndDataId( Endpoint.GET_VIDEO_SOURCE_LIST.name(), null );
-    			Log.i( TAG, "onHandleIntent : etag=" + etag.getETag() );
     			
 				ResponseEntity<VideoSourceList> responseEntity = mMainApplication.getMythServicesApi( locationProfile ).channelOperations().getVideoSourceList( etag );
 				if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
 					Log.i( TAG, "onHandleIntent : response returned HTTP 200" );
 					
-					sendNotification();
+					//sendNotification();
 					
 					VideoSourceList videoSourceList = responseEntity.getBody();
 					
 					if( null != videoSourceList ) {
-//	    				cleanup();
+
+						// holder for all downloaded channel lists
+						List<ChannelInfos> allChannelLists = new ArrayList<ChannelInfos>();
 						
+						int nap = 1000; // 500ms & 1ms fail
 						for( VideoSource videoSource : videoSourceList.getVideoSources().getVideoSources() ) {
-							Log.i( TAG, "onHandleIntent : videoSourceId = '" + videoSource.getId() + '"' );
+							Log.i( TAG, "onHandleIntent : videoSourceId = '" + videoSource.getId() + "'" );
 							
-							download( videoSource.getId() );
+							// Download the channel listing, return list
+							Log.i( TAG, "onHandleIntent : downloading channels" );
+							ChannelInfos channelInfos = download( videoSource.getId() );
+							if( null != channelInfos ) {
+								allChannelLists.add( channelInfos );
+
+								// Save the file locally
+								Log.i( TAG, "onHandleIntent : save the file locally" );
+								process( videoSource.getId(), channelInfos  );
+							}
+							
+							// wait a second before downloading the next one (if there are more than one video source)
+							if(  videoSourceList.getVideoSources().getVideoSources().size() > 1 ) {
+								Log.i( TAG, "onHandleIntent : sleeping " + nap + " ms" );
+								Thread.sleep( nap );
+							}
 						}
 
-					}
+						// Process the combined lists of downloaded channels
+						if( null != allChannelLists && !allChannelLists.isEmpty() ) {
+							Log.i( TAG, "onHandleIntent : process all channels" );
 
-					if( null != etag.getETag() ) {
-						mEtagDaoHelper.save( etag, Endpoint.GET_VIDEO_SOURCE_LIST.name(), null );
+							int channelsProcessed = mChannelDaoHelper.load( allChannelLists );
+							Log.v( TAG, "process : channelsProcessed=" + channelsProcessed );
+							
+						}
+						
 					}
 
 				}					
 			
-				if( responseEntity.getStatusCode().equals( HttpStatus.NOT_MODIFIED ) ) {
-					Log.i( TAG, "onHandleIntent : response returned HTTP 304" );
-					
-					mEtagDaoHelper.save( etag, Endpoint.GET_VIDEO_SOURCE_LIST.name(), null );
-				}
-				
 			} catch( Exception e ) {
 				Log.e( TAG, "onHandleIntent : error handling files", e );
 				
@@ -181,24 +198,25 @@ public class ChannelDownloadService extends MythtvService {
 
 	// internal helpers
 	
-	private void download( int sourceId ) throws Exception {
+	private ChannelInfos download( int sourceId ) throws Exception {
 		Log.v( TAG, "download : enter" );
 
 		LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile();
-		Log.v( TAG, "download : get recorded for host [" + locationProfile.getHostname() + ":" + locationProfile.getUrl() + "]" );
+		Log.v( TAG, "download : get recorded for host [" + locationProfile.getHostname() + ":" + locationProfile.getUrl() + ", video source=" + sourceId + "]" );
 
-		ETagInfo etag = mEtagDaoHelper.findByEndpointAndDataId( Endpoint.GET_CHANNEL_INFO_LIST.name(), String.valueOf( sourceId ) );
+		ETagInfo etag = ETagInfo.createEmptyETag(); //mEtagDaoHelper.findByEndpointAndDataId( Endpoint.GET_CHANNEL_INFO_LIST.name(), String.valueOf( sourceId ) );
+//		if( etag.isEmptyEtag() ) {
+//			Log.v( TAG, "download : creating empty etag" );
+//			etag = ETagInfo.createEmptyETag();
+//		}
 		
-		ResponseEntity<ChannelInfoList> responseEntity = mMainApplication.getMythServicesApi( locationProfile ).channelOperations().getChannelInfoList( sourceId, 1, -1, etag );
+		ResponseEntity<ChannelInfoList> responseEntity = mMainApplication.getMythServicesApi( locationProfile ).channelOperations().getChannelInfoList( sourceId, 0, -1, etag );
 
 		if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
+			Log.i( TAG, "download : " + Endpoint.GET_CHANNEL_INFO_LIST.getEndpoint() + " returned 200 OK" );
+
 			ChannelInfoList channelInfoList = responseEntity.getBody();
-
 			if( null != channelInfoList ) {
-
-				if( null != channelInfoList.getChannelInfos() ) {
-					process( channelInfoList.getChannelInfos() );
-				}
 
 				if( null != etag.getETag() ) {
 					Log.i( TAG, "download : " + Endpoint.GET_CHANNEL_INFO_LIST.getEndpoint() + " returned 200 OK" );
@@ -206,47 +224,35 @@ public class ChannelDownloadService extends MythtvService {
 					mEtagDaoHelper.save( etag, Endpoint.GET_CHANNEL_INFO_LIST.name(), String.valueOf( sourceId ) );
 				}
 
+				if( null != channelInfoList.getChannelInfos() ) {
+					Log.v( TAG, "download : exit, returning channelInfos" );
+
+					return channelInfoList.getChannelInfos();
+				}
+
 			}
 
 		}
 
-		if( responseEntity.getStatusCode().equals( HttpStatus.NOT_MODIFIED ) ) {
-			Log.i( TAG, "download : " + Endpoint.GET_CHANNEL_INFO_LIST.getEndpoint() + " returned 304 Not Modified" );
-
-			mEtagDaoHelper.save( etag, Endpoint.GET_CHANNEL_INFO_LIST.name(), String.valueOf( sourceId ) );
-		}
+//		if( responseEntity.getStatusCode().equals( HttpStatus.NOT_MODIFIED ) ) {
+//			Log.i( TAG, "download : " + Endpoint.GET_CHANNEL_INFO_LIST.getEndpoint() + " returned 304 Not Modified" );
+//
+//			mEtagDaoHelper.save( etag, Endpoint.GET_CHANNEL_INFO_LIST.name(), String.valueOf( sourceId ) );
+//		}
 			
 		Log.v( TAG, "download : exit" );
+		return null;
 	}
 
-	private void cleanup() throws IOException {
-		Log.v( TAG, "cleanup : enter" );
-		
-		FileUtils.cleanDirectory( channelDirectory );
-		
-		Log.v( TAG, "cleanup : exit" );
-	}
-
-	private void process( ChannelInfos channelInfos ) throws JsonGenerationException, JsonMappingException, IOException, RemoteException, OperationApplicationException {
+	private void process( int videoSourceId, ChannelInfos channelInfos ) throws JsonGenerationException, JsonMappingException, IOException, RemoteException, OperationApplicationException {
 		Log.v( TAG, "process : enter" );
 		
 		LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile();
 		Log.v( TAG, "process : saving recorded for host [" + locationProfile.getHostname() + ":" + locationProfile.getUrl() + "]" );
 
-		mMainApplication.getObjectMapper().writeValue( new File( channelDirectory, CHANNELS_FILE_PREFIX + locationProfile.getHostname() + CHANNELS_FILE_EXT ), channelInfos );
+		mMainApplication.getObjectMapper().writeValue( new File( channelDirectory, CHANNELS_FILE_PREFIX + videoSourceId + "_" + locationProfile.getHostname() + CHANNELS_FILE_EXT ), channelInfos );
 		Log.v( TAG, "process : saved channels to " + channelDirectory.getAbsolutePath() );
 
-		if( null != channelInfos ) {
-			
-			if( null != channelInfos.getChannelInfos() && !channelInfos.getChannelInfos().isEmpty() ) {
-				
-				int channelsAdded = mChannelDaoHelper.load( channelInfos.getChannelInfos() );
-				Log.v( TAG, "process : channelsAdded=" + channelsAdded );
-			
-			}
-			
-		}
-		
 		Log.v( TAG, "process : exit" );
 	}
 
