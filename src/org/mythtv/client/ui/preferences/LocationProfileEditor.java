@@ -87,8 +87,9 @@ public class LocationProfileEditor extends AbstractMythtvFragmentActivity {
 		Log.v( TAG, "onCreate : enter" );
 		super.onCreate( savedInstanceState );
 
+		mRunningServiceHelper = RunningServiceHelper.getInstance();
+
 		mLocationProfileDaoHelper = new LocationProfileDaoHelper( this );
-		mRunningServiceHelper = RunningServiceHelper.newInstance( this );
 		
 		setContentView( this.getLayoutInflater().inflate( R.layout.preference_location_profile_editor, null ) );
 
