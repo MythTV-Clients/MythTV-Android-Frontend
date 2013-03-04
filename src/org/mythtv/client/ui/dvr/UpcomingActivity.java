@@ -24,7 +24,6 @@ import java.util.List;
 import org.joda.time.DateTime;
 import org.mythtv.R;
 import org.mythtv.client.ui.AbstractMythtvFragmentActivity;
-import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.util.MenuHelper;
 import org.mythtv.db.dvr.UpcomingDaoHelper;
 import org.mythtv.db.http.EtagDaoHelper;
@@ -75,9 +74,10 @@ public class UpcomingActivity extends AbstractMythtvFragmentActivity {
 		Log.v( TAG, "onCreate : enter" );
 		super.onCreate( savedInstanceState );
 
+		mRunningServiceHelper = RunningServiceHelper.getInstance();
+
 		mEtagDaoHelper = new EtagDaoHelper( this );
 		mLocationProfileDaoHelper = new LocationProfileDaoHelper( this );
-		mRunningServiceHelper = RunningServiceHelper.newInstance( this );
 		mUpcomingDaoHelper = new UpcomingDaoHelper( this );
 		
 		setContentView( R.layout.activity_dvr_upcoming );

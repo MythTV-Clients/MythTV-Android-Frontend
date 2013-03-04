@@ -83,12 +83,13 @@ public abstract class AbstractMythtvFragmentActivity extends FragmentActivity im
 
 		preferences = getSharedPreferences( getString( R.string.app_name ), Context.MODE_PRIVATE );
 		
+		mRunningServiceHelper = RunningServiceHelper.getInstance();
+
 		mLiveStreamDaoHelper = new LiveStreamDaoHelper( this );
 		mLocationProfileDaoHelper = new LocationProfileDaoHelper( this );
 		mMenuHelper = MenuHelper.newInstance( this );
 		mProgramGroupDaoHelper = new ProgramGroupDaoHelper( this );
 		mRecordedDaoHelper = new RecordedDaoHelper( this );
-		mRunningServiceHelper = RunningServiceHelper.newInstance( this );
 		
 		// Fetch screen height and width, to use as our max size when loading images as this activity runs full screen
         final DisplayMetrics displayMetrics = new DisplayMetrics();
