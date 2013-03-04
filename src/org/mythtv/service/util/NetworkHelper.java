@@ -18,7 +18,9 @@
  */
 package org.mythtv.service.util;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -30,8 +32,6 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.util.Log;
-import java.io.BufferedInputStream;
-import java.io.InputStream;
 
 /**
  * @author Daniel Frey
@@ -52,7 +52,17 @@ public class NetworkHelper {
 	 * @return
 	 */
 	public static NetworkHelper getInstance() {
-		if( null == singleton ) singleton = new NetworkHelper();
+		if( null == singleton ) {
+			
+			synchronized( NetworkHelper.class ) {
+
+				if( null == singleton ) {
+					singleton = new NetworkHelper();
+				}
+			
+			}
+			
+		}
 		
 		return singleton;
 	}
@@ -217,4 +227,12 @@ public class NetworkHelper {
 		return false;
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#clone()
+	 */
+	@Override
+	public Object clone() throws CloneNotSupportedException {
+		throw new CloneNotSupportedException();
+	}
+	
 }

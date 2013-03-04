@@ -44,7 +44,17 @@ public class FileHelper {
 	private File mFile = null;
 	
 	public static FileHelper getInstance() {
-		if( null == singleton ) singleton = new FileHelper();
+		if( null == singleton ) {
+			
+			synchronized( FileHelper.class ) {
+				
+				if( null == singleton ) {
+					singleton = new FileHelper();
+				}
+				
+			}
+			
+		}
 		
 		return singleton;
 	}
@@ -269,6 +279,14 @@ public class FileHelper {
 		return null;
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#clone()
+	 */
+	@Override
+	public Object clone() throws CloneNotSupportedException {
+		throw new CloneNotSupportedException();
+	}
+	
 	// internal helpers
 	
 	private File getRootCacheDirectory() {
