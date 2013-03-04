@@ -16,8 +16,10 @@ import org.mythtv.client.ui.dvr.RecordingsFragment;
 import org.mythtv.client.ui.dvr.UpcomingFragment;
 import org.mythtv.client.ui.frontends.Frontend;
 import org.mythtv.client.ui.frontends.MythmoteActivity;
+import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.preferences.MythtvPreferenceActivity;
 import org.mythtv.client.ui.preferences.MythtvPreferenceActivityHC;
+import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.MythtvService;
 import org.mythtv.service.util.NetworkHelper;
 
@@ -60,6 +62,7 @@ public class MainMenuFragment extends AbstractMythFragment implements ServiceLis
 
 	private final static String TAG = MainMenuFragment.class.getSimpleName();
 	
+	private LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
 
 	/**
 	 * 
@@ -99,7 +102,7 @@ public class MainMenuFragment extends AbstractMythFragment implements ServiceLis
 			
 			if(!isChecked){ //isChecked - false - home
 				
-				if( null == getMainApplication().getSelectedHomeLocationProfile() ) {
+				if( null == mLocationProfileDaoHelper.findSelectedHomeProfile() ) {
 					
 					AlertDialog.Builder builder = new AlertDialog.Builder( getActivity() );
 					builder.setTitle( R.string.location_alert_error_title );
@@ -112,7 +115,8 @@ public class MainMenuFragment extends AbstractMythFragment implements ServiceLis
 					builder.show();
 
 				} else {
-					getMainApplication().connectSelectedHomeLocationProfile();
+					LocationProfile profile = mLocationProfileDaoHelper.findSelectedHomeProfile(); 
+					mLocationProfileDaoHelper.setConnectedLocationProfile( (long) profile.getId() );
 					
 					//here i think we need to re-start ourself and do not need to fire this intent
 					//This intent was used in LocationDashboardFragment to start HomeActivity
@@ -121,7 +125,7 @@ public class MainMenuFragment extends AbstractMythFragment implements ServiceLis
 				
 			}else{ //ischecked - true - away
 				
-				if( null == getMainApplication().getSelectedAwayLocationProfile() ) {
+				if( null == mLocationProfileDaoHelper.findSelectedAwayProfile() ) {
 					
 					AlertDialog.Builder builder = new AlertDialog.Builder( getActivity() );
 					builder.setTitle( R.string.location_alert_error_title );
@@ -134,7 +138,8 @@ public class MainMenuFragment extends AbstractMythFragment implements ServiceLis
 					builder.show();
 
 				} else {
-					getMainApplication().connectSelectedAwayLocationProfile();
+					LocationProfile profile = mLocationProfileDaoHelper.findSelectedAwayProfile(); 
+					mLocationProfileDaoHelper.setConnectedLocationProfile( (long) profile.getId() );
 					
 					//here i think we need to re-start ourself and do not need to fire this intent
 					//This intent was used in LocationDashboardFragment to start AwayActivity

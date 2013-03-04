@@ -58,7 +58,7 @@ public class LocationProfileEditor extends AbstractMythtvFragmentActivity {
 
     private ProgressDialog mProgressDialog;
     
-	private LocationProfileDaoHelper mLocationProfileDaoHelper;
+	private LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
 	private RunningServiceHelper mRunningServiceHelper;
 	
 	private boolean isNew = false;
@@ -87,9 +87,8 @@ public class LocationProfileEditor extends AbstractMythtvFragmentActivity {
 		Log.v( TAG, "onCreate : enter" );
 		super.onCreate( savedInstanceState );
 
-		mLocationProfileDaoHelper = new LocationProfileDaoHelper( this );
-		mRunningServiceHelper = RunningServiceHelper.newInstance( this );
-		
+		mRunningServiceHelper = RunningServiceHelper.getInstance();
+
 		setContentView( this.getLayoutInflater().inflate( R.layout.preference_location_profile_editor, null ) );
 
 		setupSaveButtonEvent( R.id.btnPreferenceLocationProfileSave );

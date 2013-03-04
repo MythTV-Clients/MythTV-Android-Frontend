@@ -25,6 +25,7 @@ import java.util.Map;
 
 import org.joda.time.DateTime;
 import org.mythtv.client.MainApplication;
+import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.AbstractDaoHelper;
 import org.mythtv.db.channel.ChannelDaoHelper;
 import org.mythtv.db.content.LiveStreamConstants;
@@ -60,21 +61,24 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 	
 	protected MainApplication mMainApplication;
 	
-	protected ChannelDaoHelper mChannelDaoHelper;
-	protected LiveStreamDaoHelper mLiveStreamDaoHelper;
-	protected RecordingDaoHelper mRecordingDaoHelper;
+	protected ChannelDaoHelper mChannelDaoHelper = ChannelDaoHelper.getInstance();
+	protected LiveStreamDaoHelper mLiveStreamDaoHelper = LiveStreamDaoHelper.getInstance();
+	protected RecordingDaoHelper mRecordingDaoHelper = RecordingDaoHelper.getInstance();
 	
-	protected ProgramDaoHelper( Context context ) {
-		super( context );
-		
-		mMainApplication = (MainApplication) context.getApplicationContext();
-		
-		mChannelDaoHelper = new ChannelDaoHelper( context );
-		mLiveStreamDaoHelper = new LiveStreamDaoHelper( context );
-		mRecordingDaoHelper = new RecordingDaoHelper( context );
-		
+	protected ProgramDaoHelper() {
+		super();
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.mythtv.db.AbstractDaoHelper#init(android.content.Context)
+	 */
+	@Override
+	public void init( Context context ) {
+		super.init( context );
+		
+		mMainApplication = (MainApplication) context.getApplicationContext();
+	}
+
 	/**
 	 * @param uri
 	 * @param projection
@@ -85,6 +89,9 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 	 */
 	protected List<Program> findAll( Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder ) {
 		Log.v( TAG, "findAll : enter" );
+		
+		if( !this.isInitialized() ) 
+			throw new RuntimeException( "ProgramDaoHelper is not initialized" );
 		
 		List<Program> programs = new ArrayList<Program>();
 		
@@ -114,6 +121,9 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 	 */
 	protected Program findOne( Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder ) {
 		Log.v( TAG, "findOne : enter" );
+		
+		if( !this.isInitialized() ) 
+			throw new RuntimeException( "ProgramDaoHelper is not initialized" );
 		
 		Log.v( TAG, "findOne : selection=" + selection );
 		if( null != selectionArgs ) {
@@ -149,6 +159,9 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 	protected int save( Uri uri, Program program ) {
 		Log.v( TAG, "save : enter" );
 
+		if( !this.isInitialized() ) 
+			throw new RuntimeException( "ProgramDaoHelper is not initialized" );
+		
 		ContentValues values = convertProgramToContentValues( program );
 
 		String[] projection = new String[] { ProgramConstants._ID };
@@ -190,6 +203,9 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 	public int deleteAll( Uri uri ) {
 		Log.v( TAG, "deleteAll : enter" );
 		
+		if( !this.isInitialized() ) 
+			throw new RuntimeException( "ProgramDaoHelper is not initialized" );
+		
 		int deleted = mContext.getContentResolver().delete( uri, null, null );
 		Log.v( TAG, "deleteAll : deleted=" + deleted );
 		
@@ -209,6 +225,9 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 	 */
 	public int delete( Uri uri, Program program ) {
 		Log.v( TAG, "delete : enter" );
+		
+		if( !this.isInitialized() ) 
+			throw new RuntimeException( "ProgramDaoHelper is not initialized" );
 		
 		String selection = ProgramConstants.FIELD_CHANNEL_ID + " = ? AND " + ProgramConstants.FIELD_START_TIME + " = ?";
 		String[] selectionArgs = new String[] { String.valueOf( program.getChannelInfo().getChannelId() ), String.valueOf( program.getStartTime().getMillis() ) };
@@ -239,6 +258,9 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 	protected int load( Uri uri, List<Program> programs, String table ) throws RemoteException, OperationApplicationException {
 		Log.v( TAG, "load : enter" );
 		
+		if( !this.isInitialized() ) 
+			throw new RuntimeException( "ProgramDaoHelper is not initialized" );
+		
 		Log.v( TAG, "load : find all existing recordings, table=" + table );
 		String recordedSelection = "";
 		
@@ -261,6 +283,8 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		programSelection = appendLocationHostname( programSelection, table );
 		
 		boolean inError;
+		
+		LocationProfile mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile();
 		
 		for( Program program : programs ) {
 

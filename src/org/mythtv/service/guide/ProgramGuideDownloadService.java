@@ -74,7 +74,7 @@ public class ProgramGuideDownloadService extends MythtvService {
 	private PendingIntent mContentIntent = null;
 	private int notificationId = 1000;
 	
-	private LocationProfileDaoHelper mLocationProfileDaoHelper;
+	private LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
 	private LocationProfile mLocationProfile;
 	
 	private File programGuideCache = null;
@@ -117,7 +117,6 @@ public class ProgramGuideDownloadService extends MythtvService {
 		Log.d( TAG, "onHandleIntent : enter" );
 		super.onHandleIntent( intent );
 		
-		mLocationProfileDaoHelper = new LocationProfileDaoHelper( this );
 		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile();
 		
 		programGuideCache = FileHelper.getInstance().getProgramGuideDataDirectory();

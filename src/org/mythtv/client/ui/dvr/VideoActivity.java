@@ -23,6 +23,7 @@ import org.mythtv.R;
 import org.mythtv.client.ui.AbstractMythtvFragmentActivity;
 import org.mythtv.db.content.LiveStreamDaoHelper;
 import org.mythtv.db.dvr.RecordedDaoHelper;
+import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.content.LiveStreamInfo;
@@ -60,8 +61,9 @@ public class VideoActivity extends AbstractMythtvFragmentActivity {
 	
 	private ProgressDialog progressDialog;
 
-	private LiveStreamDaoHelper mLiveStreamDaoHelper;
-	private RecordedDaoHelper mRecordedDaoHelper;
+	private LiveStreamDaoHelper mLiveStreamDaoHelper = LiveStreamDaoHelper.getInstance();
+	private LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
+	private RecordedDaoHelper mRecordedDaoHelper = RecordedDaoHelper.getInstance();
 	
 	private Program program = null;
 	private LiveStreamInfo liveStreamInfo = null;
@@ -80,9 +82,6 @@ public class VideoActivity extends AbstractMythtvFragmentActivity {
 		Log.v( TAG, "onCreate : enter" );
 		super.onCreate( savedInstanceState );
 
-		mLiveStreamDaoHelper = new LiveStreamDaoHelper( this );
-		mRecordedDaoHelper = new RecordedDaoHelper( this );
-		
 	    setContentView( R.layout.activity_video );
 	    
 	    int channelId = getIntent().getIntExtra( EXTRA_CHANNEL_ID, -1 );
@@ -193,7 +192,7 @@ public class VideoActivity extends AbstractMythtvFragmentActivity {
 		
 		Log.v( TAG, "startVideo : program=" + program.toString() );
 		
-		String temp = getMainApplication().getMasterBackend();
+		String temp = mLocationProfileDaoHelper.findConnectedProfile().getUrl();
 		temp = temp.replaceAll( "/$", "" );
 		String url = "";
 		if( raw ) {

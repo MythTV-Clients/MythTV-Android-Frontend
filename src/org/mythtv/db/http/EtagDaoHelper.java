@@ -22,13 +22,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.joda.time.DateTime;
+import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.AbstractDaoHelper;
 import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.channel.impl.ChannelTemplate.Endpoint;
 
 import android.content.ContentUris;
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
@@ -42,11 +42,32 @@ public class EtagDaoHelper extends AbstractDaoHelper {
 
 	private static final String TAG = EtagDaoHelper.class.getSimpleName();
 	
+	private static EtagDaoHelper singleton = null;
+
 	/**
-	 * @param context
+	 * Returns the one and only EtagDaoHelper. init() must be called before 
+	 * any 
+	 * 
+	 * @return
 	 */
-	public EtagDaoHelper( Context context ) {
-		super( context );
+	public static EtagDaoHelper getInstance() {
+		if( null == singleton ) {
+
+			synchronized( EtagDaoHelper.class ) {
+
+				if( null == singleton ) {
+					singleton = new EtagDaoHelper();
+				}
+			
+			}
+
+		}
+		
+		return singleton;
+	}
+	
+	private EtagDaoHelper() {
+		super();
 	}
 
 	/**
@@ -58,6 +79,9 @@ public class EtagDaoHelper extends AbstractDaoHelper {
 	 */
 	public List<ETagInfo> findAll( String[] projection, String selection, String[] selectionArgs, String sortOrder ) {
 		Log.d( TAG, "findAll : enter" );
+		
+		if( !this.isInitialized() ) 
+			throw new RuntimeException( "EtagDaoHelper is not initialized" );
 		
 		List<ETagInfo> etagInfos = new ArrayList<ETagInfo>();
 		
@@ -96,6 +120,9 @@ public class EtagDaoHelper extends AbstractDaoHelper {
 	 */
 	public ETagInfo findOne( Long id, String[] projection, String selection, String[] selectionArgs, String sortOrder ) {
 		Log.d( TAG, "findOne : enter" );
+		
+		if( !this.isInitialized() ) 
+			throw new RuntimeException( "EtagDaoHelper is not initialized" );
 		
 		ETagInfo etagInfo = ETagInfo.createEmptyETag();
 		
@@ -157,6 +184,9 @@ public class EtagDaoHelper extends AbstractDaoHelper {
 	public DateTime findDateByEndpointAndDataId( final String endpoint, final String dataId ) {
 		Log.d( TAG, "findDateByEndpointAndDataId : enter" );
 		
+		if( !this.isInitialized() ) 
+			throw new RuntimeException( "EtagDaoHelper is not initialized" );
+		
 		String selection = EtagConstants.FIELD_ENDPOINT + " = ?";
 		if( null != dataId && !"".equals( dataId ) ) {
 			selection += " AND " + EtagConstants.FIELD_DATA_ID + " = ?";
@@ -187,6 +217,9 @@ public class EtagDaoHelper extends AbstractDaoHelper {
 	public int save( final ETagInfo etagInfo, final String endpoint, final String dataId ) {
 		Log.d( TAG, "save : enter" );
 
+		if( !this.isInitialized() ) 
+			throw new RuntimeException( "EtagDaoHelper is not initialized" );
+		
 		ContentValues values = convertETagInfoToContentValues( etagInfo, endpoint, dataId );
 
 		String selection = EtagConstants.FIELD_ENDPOINT + " = ?";
@@ -227,6 +260,9 @@ public class EtagDaoHelper extends AbstractDaoHelper {
 	public int deleteAll() {
 		Log.d( TAG, "deleteAll : enter" );
 		
+		if( !this.isInitialized() ) 
+			throw new RuntimeException( "EtagDaoHelper is not initialized" );
+		
 		int deleted = mContext.getContentResolver().delete( EtagConstants.CONTENT_URI, null, null );
 		Log.v( TAG, "deleteAll : deleted=" + deleted );
 		
@@ -240,6 +276,9 @@ public class EtagDaoHelper extends AbstractDaoHelper {
 	 */
 	public int delete( final Endpoint endpoint, final String dataId  ) {
 		Log.d( TAG, "delete : enter" );
+		
+		if( !this.isInitialized() ) 
+			throw new RuntimeException( "EtagDaoHelper is not initialized" );
 		
 		String selection = EtagConstants.FIELD_ENDPOINT + " = ?";
 		if( null != dataId && !"".equals( dataId ) ) {
@@ -312,7 +351,7 @@ public class EtagDaoHelper extends AbstractDaoHelper {
 	private ContentValues convertETagInfoToContentValues( final ETagInfo etag, final String endpoint, final String dataId ) {
 //		Log.v( TAG, "convertChannelToContentValues : enter" );
 		
-		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile();
+		LocationProfile mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile();
 		
 		ContentValues values = new ContentValues();
 		values.put( EtagConstants.FIELD_ENDPOINT, endpoint );

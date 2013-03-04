@@ -24,11 +24,9 @@ import java.util.List;
 import org.joda.time.DateTime;
 import org.mythtv.R;
 import org.mythtv.client.ui.AbstractMythtvFragmentActivity;
-import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.util.MenuHelper;
 import org.mythtv.db.dvr.UpcomingDaoHelper;
 import org.mythtv.db.http.EtagDaoHelper;
-import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.dvr.UpcomingDownloadService;
 import org.mythtv.service.util.DateUtils;
 import org.mythtv.service.util.RunningServiceHelper;
@@ -57,13 +55,12 @@ public class UpcomingActivity extends AbstractMythtvFragmentActivity {
 
 	private static final String TAG = UpcomingActivity.class.getSimpleName();
 
-	private RunningServiceHelper mRunningServiceHelper;
 
 	private UpcomingDownloadReceiver upcomingDownloadReceiver = new UpcomingDownloadReceiver();
 
-	private EtagDaoHelper mEtagDaoHelper;
-	private LocationProfileDaoHelper mLocationProfileDaoHelper; 
-	private UpcomingDaoHelper mUpcomingDaoHelper;
+	private EtagDaoHelper mEtagDaoHelper = EtagDaoHelper.getInstance();
+	private RunningServiceHelper mRunningServiceHelper = RunningServiceHelper.getInstance();
+	private UpcomingDaoHelper mUpcomingDaoHelper = UpcomingDaoHelper.getInstance();
 			
 	private MythtvUpcomingPagerAdapter mAdapter;
 	
@@ -75,11 +72,6 @@ public class UpcomingActivity extends AbstractMythtvFragmentActivity {
 		Log.v( TAG, "onCreate : enter" );
 		super.onCreate( savedInstanceState );
 
-		mEtagDaoHelper = new EtagDaoHelper( this );
-		mLocationProfileDaoHelper = new LocationProfileDaoHelper( this );
-		mRunningServiceHelper = RunningServiceHelper.newInstance( this );
-		mUpcomingDaoHelper = new UpcomingDaoHelper( this );
-		
 		setContentView( R.layout.activity_dvr_upcoming );
 
 		setupActionBar();

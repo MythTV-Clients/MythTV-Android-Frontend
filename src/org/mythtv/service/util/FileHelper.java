@@ -20,7 +20,6 @@ package org.mythtv.service.util;
 
 import java.io.File;
 
-import android.content.Context;
 import android.os.Build;
 import android.os.Environment;
 
@@ -45,13 +44,22 @@ public class FileHelper {
 	private File mFile = null;
 	
 	public static FileHelper getInstance() {
-		if(null == singleton) singleton = new FileHelper();
+		if( null == singleton ) {
+			
+			synchronized( FileHelper.class ) {
+				
+				if( null == singleton ) {
+					singleton = new FileHelper();
+				}
+				
+			}
+			
+		}
+		
 		return singleton;
 	}
 	
-	private FileHelper(){
-		
-	}
+	private FileHelper() {	}
 	
 	/**
 	 * Initialized the FileHelper with cache directory
@@ -73,8 +81,9 @@ public class FileHelper {
 //		Log.v( TAG, "getChannelDataDirectory : enter" );
 		
 		/* Check if external cache dir file is initialized */
-		if(!this.isInitialized()) return null;
-		
+		if( !this.isInitialized() ) 
+			throw new RuntimeException( "FileHelper not initialized with cache directory" );
+
 		File cacheDir = getRootCacheDirectory();
 		if( null != cacheDir && cacheDir.exists() ) {
 			
@@ -97,8 +106,9 @@ public class FileHelper {
 //		Log.v( TAG, "getProgramGuideDataDirectory : enter" );
 		
 		/* Check if external cache dir file is initialized */
-		if(!this.isInitialized()) return null;
-		
+		if( !this.isInitialized() ) 
+			throw new RuntimeException( "FileHelper not initialized with cache directory" );
+
 		File cacheDir = getRootCacheDirectory();
 		if( null != cacheDir && cacheDir.exists() ) {
 			
@@ -121,8 +131,9 @@ public class FileHelper {
 //		Log.v( TAG, "getProgramGuideImagesDataDirectory : enter" );
 		
 		/* Check if external cache dir file is initialized */
-		if(!this.isInitialized()) return null;
-		
+		if( !this.isInitialized() ) 
+			throw new RuntimeException( "FileHelper not initialized with cache directory" );
+
 		File programGuideDir = getProgramGuideDataDirectory();
 		if( null != programGuideDir && programGuideDir.exists() ) {
 			
@@ -145,8 +156,9 @@ public class FileHelper {
 //		Log.v( TAG, "getProgramDataDirectory : enter" );
 		
 		/* Check if external cache dir file is initialized */
-		if(!this.isInitialized()) return null;
-		
+		if( !this.isInitialized() ) 
+			throw new RuntimeException( "FileHelper not initialized with cache directory" );
+
 		File cacheDir = getRootCacheDirectory();
 		if( null != cacheDir && cacheDir.exists() ) {
 			
@@ -169,8 +181,9 @@ public class FileHelper {
 //		Log.v( TAG, "getProgramUpcomingDataDirectory : enter" );
 		
 		/* Check if external cache dir file is initialized */
-		if(!this.isInitialized()) return null;
-		
+		if( !this.isInitialized() ) 
+			throw new RuntimeException( "FileHelper not initialized with cache directory" );
+	
 		File programDir = getProgramDataDirectory();
 		if( null != programDir && programDir.exists() ) {
 			
@@ -193,7 +206,8 @@ public class FileHelper {
 //		Log.v( TAG, "getProgramRecordedDataDirectory : enter" );
 		
 		/* Check if external cache dir file is initialized */
-		if(!this.isInitialized()) return null;
+		if( !this.isInitialized() ) 
+			throw new RuntimeException( "FileHelper not initialized with cache directory" );
 		
 		File programDir = getProgramDataDirectory();
 		if( null != programDir && programDir.exists() ) {
@@ -217,7 +231,8 @@ public class FileHelper {
 //		Log.v( TAG, "getProgramGroupsDataDirectory : enter" );
 		
 		/* Check if external cache dir file is initialized */
-		if(!this.isInitialized()) return null;
+		if( !this.isInitialized() ) 
+			throw new RuntimeException( "FileHelper not initialized with cache directory" );
 		
 		File programDir = getProgramDataDirectory();
 		if( null != programDir && programDir.exists() ) {
@@ -241,8 +256,9 @@ public class FileHelper {
 //		Log.v( TAG, "getProgramGroupDirectory : enter" );
 		
 		/* Check if external cache dir file is initialized */
-		if(!this.isInitialized()) return null;
-		
+		if( !this.isInitialized() ) 
+			throw new RuntimeException( "FileHelper not initialized with cache directory" );
+			
 		String encodedTitle = UrlUtils.encodeUrl( title );
 		
 		File programGroupsDataDir = getProgramGroupsDataDirectory();
@@ -263,6 +279,14 @@ public class FileHelper {
 		return null;
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#clone()
+	 */
+	@Override
+	public Object clone() throws CloneNotSupportedException {
+		throw new CloneNotSupportedException();
+	}
+	
 	// internal helpers
 	
 	private File getRootCacheDirectory() {

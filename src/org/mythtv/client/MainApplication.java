@@ -21,11 +21,19 @@ package org.mythtv.client;
 import java.util.logging.Level;
 
 import org.mythtv.client.ui.preferences.LocationProfile;
-import org.mythtv.client.ui.preferences.PlaybackProfile;
+import org.mythtv.db.channel.ChannelDaoHelper;
+import org.mythtv.db.content.LiveStreamDaoHelper;
+import org.mythtv.db.dvr.ProgramGuideDaoHelper;
+import org.mythtv.db.dvr.RecordedDaoHelper;
+import org.mythtv.db.dvr.RecordingDaoHelper;
+import org.mythtv.db.dvr.UpcomingDaoHelper;
+import org.mythtv.db.dvr.programGroup.ProgramGroupDaoHelper;
+import org.mythtv.db.http.EtagDaoHelper;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.db.preferences.PlaybackProfileDaoHelper;
 import org.mythtv.service.util.FileHelper;
 import org.mythtv.service.util.NetworkHelper;
+import org.mythtv.service.util.RunningServiceHelper;
 import org.mythtv.services.api.MythServices;
 import org.mythtv.services.connect.MythServicesServiceProvider;
 
@@ -52,9 +60,6 @@ public class MainApplication extends Application {
 
 	private static final String TAG = MainApplication.class.getSimpleName();
 	
-	private LocationProfileDaoHelper mLocationProfileDaoHelper;
-	private PlaybackProfileDaoHelper mPlaybackProfileDaoHelper;
-	
 	private MythServicesServiceProvider provider;
 	
     private String clockType = "12h";
@@ -77,13 +82,24 @@ public class MainApplication extends Application {
 		//init Image Loader
 		initImageLoader( getApplicationContext() );
 		
+		//Initialize DAO Helpers
+		EtagDaoHelper.getInstance().init( this );
+		LocationProfileDaoHelper.getInstance().init( this );
+		ChannelDaoHelper.getInstance().init( this );
+		LiveStreamDaoHelper.getInstance().init( this );
+		RecordingDaoHelper.getInstance().init( this );
+		PlaybackProfileDaoHelper.getInstance().init( this );
+		ProgramGuideDaoHelper.getInstance().init( this );
+		ProgramGroupDaoHelper.getInstance().init( this );
+		
+		RecordedDaoHelper.getInstance().init( this );
+		UpcomingDaoHelper.getInstance().init( this );
+		
 		//Initialize Helpers
+		FileHelper.getInstance().init( this.getExternalCacheDir() );
 		NetworkHelper.getInstance().init( this );
-		FileHelper.getInstance().init(this.getExternalCacheDir());
-		
-		mLocationProfileDaoHelper = new LocationProfileDaoHelper( this );
-		mPlaybackProfileDaoHelper = new PlaybackProfileDaoHelper( this );
-		
+		RunningServiceHelper.getInstance().init( this );
+
 		String systemClock = Settings.System.getString( getApplicationContext().getContentResolver(), Settings.System.TIME_12_24 );
         if( null != systemClock ) {
         	this.clockType = systemClock;
@@ -121,7 +137,7 @@ public class MainApplication extends Application {
 	public MythServices getMythServicesApi() {
 		Log.v( TAG, "getMythServicesApi : enter" );
 		
-		provider = new MythServicesServiceProvider( getMasterBackend(), Level.FINE );
+		provider = new MythServicesServiceProvider( LocationProfileDaoHelper.getInstance().findConnectedProfile().getUrl(), Level.FINE );
 		
 		Log.v( TAG, "getMythServicesApi : exit" );
 		return provider.getApi();
@@ -171,114 +187,14 @@ public class MainApplication extends Application {
 		Log.v( TAG, "getObjectMapper : exit" );
 		return mObjectMapper;
 	}
-
-	/**
-	 * @return the selectedHomeLocationProfile
-	 */
-	public LocationProfile getSelectedHomeLocationProfile() {
-		Log.v( TAG, "getSelectedHomeLocationProfile : enter" );
-		
-		LocationProfile profile = mLocationProfileDaoHelper.findSelectedHomeProfile(); 
-		if( null != profile ) {
-			Log.v( TAG, "getSelectedHomeLocationProfile : profile=" + profile.toString() );
-		}
-		
-		Log.v( TAG, "getSelectedHomeLocationProfile : exit" );
-		return profile;
-	}
-
-	/**
-	 * 
-	 */
-	public void connectSelectedHomeLocationProfile() {
-		Log.v( TAG, "connectSelectedHomeLocationProfile : enter" );
-		
-		LocationProfile profile = mLocationProfileDaoHelper.findSelectedHomeProfile(); 
-		if( null != profile ) {
-			mLocationProfileDaoHelper.setConnectedLocationProfile( (long) profile.getId() );
-		}
-
-		Log.v( TAG, "connectSelectedHomeLocationProfile : exit" );
-	}
 	
-	/**
-	 * @return the selectedAwayLocationProfile
-	 */
-	public LocationProfile getSelectedAwayLocationProfile() {
-		Log.v( TAG, "getSelectedAwayLocationProfile : enter" );
-		
-		LocationProfile profile = mLocationProfileDaoHelper.findSelectedAwayProfile(); 
-		if( null != profile ) {
-			Log.v( TAG, "getSelectedAwayLocationProfile : profile=" + profile.toString() );
-		}
-		
-		Log.v( TAG, "getSelectedAwayLocationProfile : exit" );
-		return profile;
-	}
-
-	/**
-	 * 
-	 */
-	public void connectSelectedAwayLocationProfile() {
-		Log.v( TAG, "connectSelectedAwayLocationProfile : enter" );
-		
-		LocationProfile profile = mLocationProfileDaoHelper.findSelectedAwayProfile(); 
-		if( null != profile ) {
-			mLocationProfileDaoHelper.setConnectedLocationProfile( (long) profile.getId() );
-		}
-		
-		Log.v( TAG, "connectSelectedAwayLocationProfile : exit" );
-	}
-	
-	/**
-	 * @return the selectedHomePlaybackProfile
-	 */
-	public PlaybackProfile getSelectedHomePlaybackProfile() {
-		Log.v( TAG, "getSelectedHomePlaybackProfile : enter" );
-
-		PlaybackProfile profile = mPlaybackProfileDaoHelper.findSelectedHomeProfile(); 
-		Log.v( TAG, "getSelectedHomePlaybackProfile : profile=" + profile.toString() );
-		
-		Log.v( TAG, "getSelectedHomePlaybackProfile : exit" );
-		return profile;
-	}
-
-	/**
-	 * @return the selectedAwayPlaybackProfile
-	 */
-	public PlaybackProfile getSelectedAwayPlaybackProfile() {
-		Log.v( TAG, "getSelectedAwayPlaybackProfile : enter" );
-
-		PlaybackProfile profile = mPlaybackProfileDaoHelper.findSelectedAwayProfile(); 
-		Log.v( TAG, "getSelectedAwayPlaybackProfile : profile=" + profile.toString() );
-		
-		Log.v( TAG, "getSelectedAwayPlaybackProfile : exit" );
-		return profile;
-	}
-
-	public LocationProfile getConnectedLocationProfile() {
-		LocationProfile profile = mLocationProfileDaoHelper.findConnectedProfile();
-
-		return profile;
-	}
-
-	/**
-	 * @return the masterBackend
-	 */
-	public String getMasterBackend() {
-		Log.v( TAG, "getMasterBackend : enter" );
-
-		Log.v( TAG, "getMasterBackend : exit" );
-		return getConnectedLocationProfile().getUrl();
-	}
-
     /**
      * @return the current clockType
      */
     public String getClockType() {
-		Log.v( TAG, "getClockType : enter" );
+//		Log.v( TAG, "getClockType : enter" );
 		
-		Log.v( TAG, "getClockType : exit" );
+//		Log.v( TAG, "getClockType : exit" );
         return clockType;
     }
 
@@ -286,26 +202,26 @@ public class MainApplication extends Application {
      * @param clockType the current clockType to set
      */
     public void setClockType( String clockType ) {
-		Log.v( TAG, "setClockType : enter" );
+//		Log.v( TAG, "setClockType : enter" );
 
 		this.clockType = clockType;
 
-		Log.v( TAG, "setClockType : exit" );
+//		Log.v( TAG, "setClockType : exit" );
     }
 
     public String getDateFormat() {
-		Log.v( TAG, "getDateFormat : enter" );
+//		Log.v( TAG, "getDateFormat : enter" );
 
-		Log.v( TAG, "getDateFormat : exit" );
+//		Log.v( TAG, "getDateFormat : exit" );
         return dateFormat;
     }
 
     public void setDateFormat( String dateFormat ) {
-		Log.v( TAG, "setDateFormat : enter" );
+//		Log.v( TAG, "setDateFormat : enter" );
 		
         this.dateFormat = dateFormat;
 
-        Log.v( TAG, "setDateFormat : exit" );
+//        Log.v( TAG, "setDateFormat : exit" );
     }
 
 }

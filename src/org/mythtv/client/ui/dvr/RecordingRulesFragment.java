@@ -68,7 +68,7 @@ public class RecordingRulesFragment extends MythtvListFragment {
 
 	private OnRecordingRuleListener listener = null;
 	private RecordingRuleAdapter adapter;
-	private ChannelDaoHelper mChannelDaoHelper;
+	private ChannelDaoHelper mChannelDaoHelper = ChannelDaoHelper.getInstance();
 	private MenuHelper mMenuHelper;
 	
 	private MainApplication mainApplication;
@@ -98,7 +98,6 @@ public class RecordingRulesFragment extends MythtvListFragment {
 
 		mNotificationHelper = new NotificationHelper( getActivity() );
 
-		mChannelDaoHelper = new ChannelDaoHelper( getActivity() );
 		mMenuHelper = MenuHelper.newInstance( getActivity() );
 		
 		setHasOptionsMenu( true );

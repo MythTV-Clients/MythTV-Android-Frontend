@@ -18,7 +18,9 @@
  */
 package org.mythtv.service.util;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -30,8 +32,6 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.util.Log;
-import java.io.BufferedInputStream;
-import java.io.InputStream;
 
 /**
  * @author Daniel Frey
@@ -44,7 +44,7 @@ public class NetworkHelper {
 	private static NetworkHelper singleton = null;
 	
 	private Context mContext;
-	private LocationProfileDaoHelper mLocationProfileDaoHelper;
+	private LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
 	
 	/**
 	 * Returns the one and only NetworkHelper. init() must be called before 
@@ -52,29 +52,38 @@ public class NetworkHelper {
 	 * @return
 	 */
 	public static NetworkHelper getInstance() {
-		if(null == singleton) singleton = new NetworkHelper();
+		if( null == singleton ) {
+			
+			synchronized( NetworkHelper.class ) {
+
+				if( null == singleton ) {
+					singleton = new NetworkHelper();
+				}
+			
+			}
+			
+		}
+		
 		return singleton;
 	}
 	
 	/**
 	 * Constructor. No one but getInstance() can do this.
 	 */
-	private NetworkHelper() {
-		
-	}
+	private NetworkHelper() { }
 	
 	/**
 	 * Must be called once at the beginning of the application. Subsequent 
 	 * calls to this will have no effect.
 	 * @param context
 	 */
-	public void init(Context context){
+	public void init( Context context ) {
 		
 		//ignore any additional calls to init
-		if(this.isInitialized()) return;
+		if( this.isInitialized() ) 
+			return;
 		
 		this.mContext = context;
-		this.mLocationProfileDaoHelper = new LocationProfileDaoHelper( mContext );
 	}
 	
 	/**
@@ -90,23 +99,23 @@ public class NetworkHelper {
 	 * @return
 	 */
 	public boolean isNetworkConnected() {
-		Log.v( TAG, "isNetworkConnected : enter" );
+//		Log.v( TAG, "isNetworkConnected : enter" );
 		
 		/* Check if we're not initialized */
-		if(!this.isInitialized()){
-			Log.e(TAG, "NetworkHelper not initialized");
-			return false;
+		if( !this.isInitialized() ) {
+//			Log.e(TAG, "NetworkHelper not initialized");
+			throw new RuntimeException( "NetworkHelper is not initialized" );
 		}
 
 		final ConnectivityManager cm = (ConnectivityManager) mContext.getSystemService( Context.CONNECTIVITY_SERVICE );
 		final NetworkInfo networkInfo = cm.getActiveNetworkInfo();
 		if( networkInfo == null || !networkInfo.isConnectedOrConnecting() ) {
-			Log.e( TAG, "isNetworkConnected : exit, no connection found" );
+			Log.w( TAG, "isNetworkConnected : no network connection found" );
 
 			return false;
 		}
 
-		Log.v( TAG, "isNetworkConnected : exit" );
+//		Log.v( TAG, "isNetworkConnected : exit" );
 		return true;
 	}
 	
@@ -116,26 +125,27 @@ public class NetworkHelper {
 	 * @return
 	 */
 	public boolean isMasterBackendConnected() {
-		Log.v( TAG, "isMasterBackendConnected : enter" );
+//		Log.v( TAG, "isMasterBackendConnected : enter" );
 		
 		/* Check if we're not initialized */
 		if(!this.isInitialized()){
-			Log.e(TAG, "NetworkHelper not initialized");
-			return false;
+//			Log.e(TAG, "NetworkHelper not initialized");
+			throw new RuntimeException( "NetworkHelper is not initialized" );
 		}
 
 		if( null == mLocationProfileDaoHelper.findConnectedProfile() ) {
-			Log.e( TAG, "isMasterBackendConnected : exit, no backend selected" );
+//			Log.e( TAG, "isMasterBackendConnected : exit, no backend selected" );
 			
 			return false;
 		}
 
-		if( !isNetworkConnected() )
+		if( !isNetworkConnected() ) {
 			return false;
-
+		}
+		
 		int attempts = 0;
 		while( attempts++ < 3 ) {
-			Log.v( TAG, "isMasterBackendConnected : attempt = " + attempts );
+//			Log.v( TAG, "isMasterBackendConnected : attempt = " + attempts );
 				
 			try {
 
@@ -150,7 +160,7 @@ public class NetworkHelper {
 					InputStream in = new BufferedInputStream(urlc.getInputStream());
 					byte[] hostname = new byte[ 128 ];
 					while( in.read( hostname , 0, 128 ) > 0 );
-					Log.v( TAG, "isMasterBackendConnected : exit" );
+//					Log.v( TAG, "isMasterBackendConnected : exit" );
 					
 					return true;
 				}
@@ -162,7 +172,7 @@ public class NetworkHelper {
 
 		}
 		
-		Log.v( TAG, "isMasterBackendConnected : exit, master backend could not be reached" );
+		Log.w( TAG, "isMasterBackendConnected : master backend could not be reached" );
 		return false;
 	}
 	
@@ -173,12 +183,12 @@ public class NetworkHelper {
 	 * @return
 	 */
 	public boolean isMasterBackendConnected( LocationProfile profile ) {
-		Log.v( TAG, "isMasterBackendConnected : profile=" + profile.toString() );
+//		Log.v( TAG, "isMasterBackendConnected : profile=" + profile.toString() );
 		
 		/* Check if we're not initialized */
 		if(!this.isInitialized()){
-			Log.e(TAG, "NetworkHelper not initialized");
-			return false;
+//			Log.e(TAG, "NetworkHelper not initialized");
+			throw new RuntimeException( "NetworkHelper is not initialized" );
 		}
 		
 		if( !isNetworkConnected() )
@@ -186,7 +196,7 @@ public class NetworkHelper {
 
 		int attempts = 0;
 		while( attempts++ < 3 ) {
-			Log.v( TAG, "isMasterBackendConnected : attempt = " + attempts );
+//			Log.v( TAG, "isMasterBackendConnected : attempt = " + attempts );
 
 			try {
 			
@@ -201,7 +211,7 @@ public class NetworkHelper {
 					InputStream in = new BufferedInputStream(urlc.getInputStream());
 					byte[] hostname = new byte[ 128 ];
 					while( in.read( hostname , 0, 128 ) > 0 );
-					Log.v( TAG, "isMasterBackendConnected : exit" );
+//					Log.v( TAG, "isMasterBackendConnected : exit" );
 					
 					return true;
 				}
@@ -213,8 +223,16 @@ public class NetworkHelper {
 
 		}
 		
-		Log.v( TAG, "isMasterBackendConnected : exit, master backend could not be reached" );
+		Log.w( TAG, "isMasterBackendConnected : master backend could not be reached" );
 		return false;
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#clone()
+	 */
+	@Override
+	public Object clone() throws CloneNotSupportedException {
+		throw new CloneNotSupportedException();
+	}
+	
 }

@@ -31,18 +31,67 @@ public class RunningServiceHelper {
 
 	private static final String TAG = RunningServiceHelper.class.getSimpleName();
 	
+	private static RunningServiceHelper singleton = null;
+
 	private Context mContext;
 	
-	public static RunningServiceHelper newInstance( Context context ) {
-		return new RunningServiceHelper( context );
+	/**
+	 * Returns the one and only RunningServiceHelper. init() must be called before 
+	 * any 
+	 * 
+	 * @return
+	 */
+	public static RunningServiceHelper getInstance() {
+		if( null == singleton ) {
+
+			synchronized( RunningServiceHelper.class ) {
+
+				if( null == singleton ) {
+					singleton = new RunningServiceHelper();
+				}
+			
+			}
+			
+		}
+		
+		return singleton;
 	}
 	
-	protected RunningServiceHelper( Context context ) {
-		mContext = context;
+	/**
+	 * Constructor. No one but getInstance() can do this.
+	 */
+	private RunningServiceHelper() { }
+	
+	/**
+	 * Must be called once at the beginning of the application. Subsequent 
+	 * calls to this will have no effect.
+	 * 
+	 * @param context
+	 */
+	public void init( Context context ) {
+		
+		// ignore any additional calls to init
+		if( this.isInitialized() ) 
+			return;
+		
+		this.mContext = context;
+	}
+	
+	/**
+	 * Returns true if RunningServiceHelper has already been initialized
+	 * 
+	 * @return
+	 */
+	public boolean isInitialized(){
+		return null != this.mContext;
 	}
 	
 	public boolean isServiceRunning( String serviceName ) {
 		Log.v( TAG, "isServiceRunning : enter" );
+		
+		if( !this.isInitialized() ) 
+			throw new RuntimeException( "RunningServiceHelper is not initialized" );
+		
 		Log.d( TAG, "isServiceRunning : checking for running server '" + serviceName + "'" );
 		
 		ActivityManager manager = (ActivityManager) mContext.getSystemService( Context.ACTIVITY_SERVICE );
@@ -59,4 +108,13 @@ public class RunningServiceHelper {
 		Log.v( TAG, "isServiceRunning : exit" );
 		return false;
 	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#clone()
+	 */
+	@Override
+	public Object clone() throws CloneNotSupportedException {
+		throw new CloneNotSupportedException();
+	}
+	
 }
