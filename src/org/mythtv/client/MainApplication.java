@@ -21,6 +21,7 @@ package org.mythtv.client;
 import java.util.logging.Level;
 
 import org.mythtv.client.ui.preferences.LocationProfile;
+import org.mythtv.client.ui.util.MenuHelper;
 import org.mythtv.client.ui.util.ProgramHelper;
 import org.mythtv.db.channel.ChannelDaoHelper;
 import org.mythtv.db.content.LiveStreamDaoHelper;
@@ -101,6 +102,7 @@ public class MainApplication extends Application {
 		NetworkHelper.getInstance().init( this );
 		RunningServiceHelper.getInstance().init( this );
 		ProgramHelper.getInstance().init( this );
+		MenuHelper.getInstance().init( this );
 
 		String systemClock = Settings.System.getString( getApplicationContext().getContentResolver(), Settings.System.TIME_12_24 );
         if( null != systemClock ) {
