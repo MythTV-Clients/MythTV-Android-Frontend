@@ -2,7 +2,6 @@ package org.mythtv.client.ui;
 
 import org.mythtv.R;
 import org.mythtv.client.ui.MainMenuFragment.ContentFragmentRequestedListener;
-import org.mythtv.client.ui.util.MenuHelper;
 
 import android.animation.ValueAnimator;
 import android.animation.ValueAnimator.AnimatorUpdateListener;
@@ -34,8 +33,6 @@ public class MainActivity extends AbstractMythtvFragmentActivity implements Cont
 		Log.v( TAG, "onCreate : enter" );
 		super.onCreate( savedInstanceState );
 
-		mMenuHelper = MenuHelper.newInstance( this );
-		
 		this.setContentView(R.layout.activity_main);
 		
 		//get main menu framelayout

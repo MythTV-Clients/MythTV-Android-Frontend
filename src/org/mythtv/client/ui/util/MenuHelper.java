@@ -61,17 +61,58 @@ public class MenuHelper {
 	
 	private static final String TAG = MenuHelper.class.getSimpleName();
 	
+	private static MenuHelper singleton = null;
+
 	private Context mContext;
 	private Resources mResources;
 	
-	public static MenuHelper newInstance( Context context ) {
-		return new MenuHelper( context );
+	/**
+	 * Returns the one and only MenuHelper. init() must be called before 
+	 * any 
+	 * @return
+	 */
+	public static MenuHelper getInstance() {
+		if( null == singleton ) {
+			
+			synchronized( MenuHelper.class ) {
+
+				if( null == singleton ) {
+					singleton = new MenuHelper();
+				}
+			
+			}
+			
+		}
+		
+		return singleton;
 	}
 	
-	protected MenuHelper( Context context ) {
-		this.mContext = context;
+	/**
+	 * Constructor. No one but getInstance() can do this.
+	 */
+	private MenuHelper() { }
+	
+	/**
+	 * Must be called once at the beginning of the application. Subsequent 
+	 * calls to this will have no effect.
+	 * @param context
+	 */
+	public void init( Context context ) {
 		
-		mResources = mContext.getResources();
+		//ignore any additional calls to init
+		if( this.isInitialized() ) 
+			return;
+		
+		this.mContext = context;
+		this.mResources = mContext.getResources();
+	}
+	
+	/**
+	 * Returns true if NetworkHelper has already been initialized
+	 * @return
+	 */
+	public boolean isInitialized(){
+		return null != this.mContext;
 	}
 	
 	/**
