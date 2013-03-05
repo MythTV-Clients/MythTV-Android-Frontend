@@ -66,9 +66,9 @@ public class ProgramGroupFragment extends MythtvListFragment implements LoaderMa
 	
 	private OnEpisodeSelectedListener mEpisodeListener;
 	
-	private static ProgramHelper mProgramHelper;
-	private LocationProfileDaoHelper mLocationProfileDaoHelper;
-	private RecordedDaoHelper mRecordedDaoHelper;
+	private static ProgramHelper mProgramHelper = ProgramHelper.getInstance();;
+	private LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
+	private RecordedDaoHelper mRecordedDaoHelper = RecordedDaoHelper.getInstance();
 	
 	private ProgramGroup programGroup;
 	
@@ -137,10 +137,6 @@ public class ProgramGroupFragment extends MythtvListFragment implements LoaderMa
 		Log.i( TAG, "onActivityCreated : enter" );
 		super.onActivityCreated( savedInstanceState );
 	    
-		mProgramHelper = ProgramHelper.createInstance( getActivity() );
-		
-		mRecordedDaoHelper = ( (AbstractMythtvFragmentActivity) getActivity() ).getRecordedDaoHelper();
-		
 		mAdapter = new ProgramCursorAdapter(
 	            getActivity().getApplicationContext(), R.layout.program_row,
 	            null, new String[] { ProgramConstants.FIELD_SUB_TITLE }, new int[] { R.id.program_sub_title },

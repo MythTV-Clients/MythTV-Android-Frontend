@@ -2,9 +2,7 @@ package org.mythtv.client.ui;
 
 import org.mythtv.R;
 import org.mythtv.client.ui.MainMenuFragment.ContentFragmentRequestedListener;
-import org.mythtv.client.ui.dvr.GuideFragment;
 import org.mythtv.client.ui.util.MenuHelper;
-import org.mythtv.service.util.NetworkHelper;
 
 import android.animation.ValueAnimator;
 import android.animation.ValueAnimator.AnimatorUpdateListener;

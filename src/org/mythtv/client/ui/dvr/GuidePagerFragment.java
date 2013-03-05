@@ -30,6 +30,7 @@ import org.mythtv.services.api.channel.ChannelInfo;
 import org.mythtv.services.api.dvr.Program;
 import org.mythtv.services.api.guide.ProgramGuide;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -50,6 +51,7 @@ import android.widget.TextView;
  * @author Daniel Frey
  *
  */
+@SuppressLint( "ValidFragment" )
 public class GuidePagerFragment extends MythtvListFragment {
 
 	private static final String TAG = GuidePagerFragment.class.getSimpleName();
@@ -89,7 +91,7 @@ public class GuidePagerFragment extends MythtvListFragment {
 		super.onActivityCreated( savedInstanceState );
 
         mainApplication = (MainApplication) getActivity().getApplicationContext();
-        mProgramHelper = ProgramHelper.createInstance( getActivity() );
+        mProgramHelper = ProgramHelper.getInstance();
 		
 		setHasOptionsMenu( true );
 		

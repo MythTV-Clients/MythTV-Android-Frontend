@@ -58,7 +58,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -82,7 +81,7 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 	
 	private RecordedDownloadReceiver recordedDownloadReceiver = new RecordedDownloadReceiver();
 
-	private static ProgramHelper mProgramHelper;
+	private static ProgramHelper mProgramHelper = ProgramHelper.getInstance();
 	private EtagDaoHelper mEtagDaoHelper = EtagDaoHelper.getInstance();
 	private LocationProfileDaoHelper mLocationProfileDaoHelper;
 	private MenuHelper mMenuHelper;
@@ -157,8 +156,6 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 //			.displayer( new RoundedBitmapDisplayer( 20 ) )
 			.build();
 		
-		mProgramHelper = ProgramHelper.createInstance( getActivity().getApplicationContext() );
-
 		mMenuHelper = ( (AbstractMythtvFragmentActivity) getActivity() ).getMenuHelper();
 
 		setHasOptionsMenu( true );
@@ -347,7 +344,6 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 	        View view = mInflater.inflate( R.layout.program_group_row, parent, false );
 			
 			ViewHolder refHolder = new ViewHolder();
-			refHolder.programGroupDetail = (LinearLayout) view.findViewById( R.id.program_group_detail );
 			refHolder.category = (View) view.findViewById( R.id.program_group_category );
 			refHolder.programGroup = (TextView) view.findViewById( R.id.program_group_row );
 			refHolder.programGroupBanner = (ImageView) view.findViewById( R.id.program_group_row_banner );
@@ -400,7 +396,6 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 
 	private static class ViewHolder {
 		
-		LinearLayout programGroupDetail;
 		View category;
 		TextView programGroup;
 		ImageView programGroupBanner;
