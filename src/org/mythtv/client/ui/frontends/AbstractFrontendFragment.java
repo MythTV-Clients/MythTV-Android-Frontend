@@ -136,7 +136,7 @@ public class AbstractFrontendFragment extends AbstractMythFragment {
 				getApplicationContext().getMythServicesApi().frontendOperations()
 						.sendMessage( params[ 0 ], params[ 1 ] );
 			} catch( Exception e ) {
-				Log.e( TAG, e.getMessage() );
+				Log.e( TAG, "Error sending message: " +e.getMessage() );
 				showAlertDialog( "Send Message Error", e.getMessage() );
 			}
 			return null;
@@ -159,7 +159,7 @@ public class AbstractFrontendFragment extends AbstractMythFragment {
 				getApplicationContext().getMythServicesApi().frontendOperations()
 						.sendAction( params[ 0 ], params[ 1 ], null, 0, 0 );
 			} catch( Exception e ) {
-				Log.e( TAG, e.getMessage() );
+				Log.e( TAG, "Error sending action: " + e.getMessage() );
 				showAlertDialog( "Send Action Error", e.getMessage() );
 			}
 
