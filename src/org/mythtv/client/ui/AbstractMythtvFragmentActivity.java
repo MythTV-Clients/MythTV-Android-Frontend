@@ -50,7 +50,7 @@ public abstract class AbstractMythtvFragmentActivity extends FragmentActivity im
 	protected SharedPreferences preferences = null;
 	protected LiveStreamDaoHelper mLiveStreamDaoHelper = LiveStreamDaoHelper.getInstance();
 	protected LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
-	protected MenuHelper mMenuHelper;
+	protected MenuHelper mMenuHelper = MenuHelper.getInstance();
 	protected ProgramGroupDaoHelper mProgramGroupDaoHelper = ProgramGroupDaoHelper.getInstance();
 	protected RecordedDaoHelper mRecordedDaoHelper = RecordedDaoHelper.getInstance();
 	protected RunningServiceHelper mRunningServiceHelper = RunningServiceHelper.getInstance();
@@ -80,8 +80,6 @@ public abstract class AbstractMythtvFragmentActivity extends FragmentActivity im
 		setupActionBar();
 
 		preferences = getSharedPreferences( getString( R.string.app_name ), Context.MODE_PRIVATE );
-		
-		mMenuHelper = MenuHelper.newInstance( this );
 		
 		// Fetch screen height and width, to use as our max size when loading images as this activity runs full screen
         final DisplayMetrics displayMetrics = new DisplayMetrics();

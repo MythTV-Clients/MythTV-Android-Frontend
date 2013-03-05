@@ -43,7 +43,7 @@ public class LocationActivity extends FragmentActivity {
 
 	private static final String TAG = LocationActivity.class.getSimpleName();
 
-	private MenuHelper mMenuHelper;
+	private MenuHelper mMenuHelper = MenuHelper.getInstance();
 	
 	private Button home, away;
 	
@@ -55,8 +55,6 @@ public class LocationActivity extends FragmentActivity {
 		Log.d( TAG, "onCreate : enter" );
 		super.onCreate( savedInstanceState );
 
-		mMenuHelper = MenuHelper.newInstance( this );
-		
 		setContentView( R.layout.activity_location );
 		
 		home = (Button) findViewById( R.id.btn_home );
