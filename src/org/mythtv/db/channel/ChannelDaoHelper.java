@@ -34,6 +34,7 @@ import android.content.ContentProviderOperation;
 import android.content.ContentProviderResult;
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.OperationApplicationException;
 import android.database.Cursor;
 import android.net.Uri;
@@ -88,17 +89,17 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 	 * @param sortOrder
 	 * @return
 	 */
-	public List<ChannelInfo> findAll( String[] projection, String selection, String[] selectionArgs, String sortOrder ) {
+	public List<ChannelInfo> findAll( Context context, String[] projection, String selection, String[] selectionArgs, String sortOrder ) {
 		Log.d( TAG, "findAll : enter" );
 		
-		if( !this.isInitialized() ) 
+		if( null == context ) 
 			throw new RuntimeException( "ChannelDaoHelper is not initialized" );
 		
 		List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
 		
-		selection = appendLocationHostname( selection, ChannelConstants.TABLE_NAME );
+		selection = appendLocationHostname( context, selection, ChannelConstants.TABLE_NAME );
 		
-		Cursor cursor = mContext.getContentResolver().query( ChannelConstants.CONTENT_URI, projection, selection, selectionArgs, sortOrder );
+		Cursor cursor = context.getContentResolver().query( ChannelConstants.CONTENT_URI, projection, selection, selectionArgs, sortOrder );
 		while( cursor.moveToNext() ) {
 			ChannelInfo channelInfo = convertCursorToChannelInfo( cursor );
 			channelInfos.add( channelInfo );
@@ -112,10 +113,10 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 	/**
 	 * @return
 	 */
-	public List<ChannelInfo> findAll() {
+	public List<ChannelInfo> findAll( Context context ) {
 		Log.d( TAG, "findAll : enter" );
 		
-		List<ChannelInfo> channelInfos = findAll( null, null, null, null );
+		List<ChannelInfo> channelInfos = findAll( context, null, null, null, null );
 		
 		Log.d( TAG, "findAll : exit" );
 		return channelInfos;
@@ -129,10 +130,10 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 	 * @param sortOrder
 	 * @return
 	 */
-	public ChannelInfo findOne( Long id, String[] projection, String selection, String[] selectionArgs, String sortOrder ) {
+	public ChannelInfo findOne( Context context, Long id, String[] projection, String selection, String[] selectionArgs, String sortOrder ) {
 		Log.d( TAG, "findOne : enter" );
 		
-		if( !this.isInitialized() ) 
+		if( null == context ) 
 			throw new RuntimeException( "ChannelDaoHelper is not initialized" );
 		
 		ChannelInfo channelInfo = null;
@@ -143,9 +144,9 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 			uri = ContentUris.withAppendedId( ChannelConstants.CONTENT_URI, id );
 		}
 		
-		selection = appendLocationHostname( selection, ChannelConstants.TABLE_NAME );
+		selection = appendLocationHostname( context, selection, ChannelConstants.TABLE_NAME );
 		
-		Cursor cursor = mContext.getContentResolver().query( uri, projection, selection, selectionArgs, sortOrder );
+		Cursor cursor = context.getContentResolver().query( uri, projection, selection, selectionArgs, sortOrder );
 		if( cursor.moveToFirst() ) {
 			channelInfo = convertCursorToChannelInfo( cursor );
 		}
@@ -159,10 +160,10 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 	 * @param id
 	 * @return
 	 */
-	public ChannelInfo findOne( Long id ) {
+	public ChannelInfo findOne( Context context, Long id ) {
 		Log.d( TAG, "findOne : enter" );
 		
-		ChannelInfo channelInfo = findOne( id, null, null, null, null );
+		ChannelInfo channelInfo = findOne( context, id, null, null, null, null );
 		if( null != channelInfo ) {
 			Log.v( TAG, "findOne : channelInfo=" + channelInfo.toString() );
 		}
@@ -176,13 +177,13 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 	 * @param channelId
 	 * @return
 	 */
-	public ChannelInfo findByChannelId( Long channelId ) {
+	public ChannelInfo findByChannelId( Context context, Long channelId ) {
 		Log.d( TAG, "findByChannelId : enter" );
 		
 		String selection = ChannelConstants.FIELD_CHAN_ID + " = ?";
 		String[] selectionArgs = new String[] { String.valueOf( channelId ) };
 		
-		ChannelInfo channelInfo = findOne( null, null, selection, selectionArgs, null );
+		ChannelInfo channelInfo = findOne( context, null, null, selection, selectionArgs, null );
 		if( null != channelInfo ) {
 			Log.v( TAG, "findByChannelId : channelInfo=" + channelInfo.toString() );
 		}
@@ -195,10 +196,10 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 	 * @param channelInfo
 	 * @return
 	 */
-	public int save( ChannelInfo channelInfo ) {
+	public int save( Context context, ChannelInfo channelInfo ) {
 		Log.d( TAG, "save : enter" );
 
-		if( !this.isInitialized() ) 
+		if( null == context ) 
 			throw new RuntimeException( "ChannelDaoHelper is not initialized" );
 		
 		ContentValues values = convertChannelInfoToContentValues( channelInfo );
@@ -207,19 +208,19 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 		String selection = ChannelConstants.FIELD_CHAN_ID + " = ?";
 		String[] selectionArgs = new String[] { String.valueOf( channelInfo.getChannelId() ) };
 		
-		selection = appendLocationHostname( selection, ChannelConstants.TABLE_NAME );
+		selection = appendLocationHostname( context, selection, ChannelConstants.TABLE_NAME );
 		
 		int updated = -1;
-		Cursor cursor = mContext.getContentResolver().query( ChannelConstants.CONTENT_URI, projection, selection, selectionArgs, null );
+		Cursor cursor = context.getContentResolver().query( ChannelConstants.CONTENT_URI, projection, selection, selectionArgs, null );
 		if( cursor.moveToFirst() ) {
 			Log.v( TAG, "save : updating existing channel info" );
 			long id = cursor.getLong( cursor.getColumnIndexOrThrow( ChannelConstants._ID ) );
 			
-			updated = mContext.getContentResolver().update( ContentUris.withAppendedId( ChannelConstants.CONTENT_URI, id ), values, null, null );
+			updated = context.getContentResolver().update( ContentUris.withAppendedId( ChannelConstants.CONTENT_URI, id ), values, null, null );
 		} else {
 			Log.v( TAG, "save : inserting new channel info" );
 			
-			Uri inserted = mContext.getContentResolver().insert( ChannelConstants.CONTENT_URI, values );
+			Uri inserted = context.getContentResolver().insert( ChannelConstants.CONTENT_URI, values );
 			if( null != inserted ) {
 				updated = 1;
 			}
@@ -235,13 +236,13 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 	/**
 	 * @return
 	 */
-	public int deleteAll() {
+	public int deleteAll( Context context ) {
 		Log.d( TAG, "deleteAll : enter" );
 		
-		if( !this.isInitialized() ) 
+		if( null == context ) 
 			throw new RuntimeException( "ChannelDaoHelper is not initialized" );
 		
-		int deleted = mContext.getContentResolver().delete( ChannelConstants.CONTENT_URI, null, null );
+		int deleted = context.getContentResolver().delete( ChannelConstants.CONTENT_URI, null, null );
 		Log.v( TAG, "deleteAll : deleted=" + deleted );
 		
 		Log.d( TAG, "deleteAll : exit" );
@@ -252,13 +253,13 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 	 * @param id
 	 * @return
 	 */
-	public int delete( Long id ) {
+	public int delete( Context context, Long id ) {
 		Log.d( TAG, "delete : enter" );
 		
-		if( !this.isInitialized() ) 
+		if( null == context ) 
 			throw new RuntimeException( "ChannelDaoHelper is not initialized" );
 		
-		int deleted = mContext.getContentResolver().delete( ContentUris.withAppendedId( ChannelConstants.CONTENT_URI, id ), null, null );
+		int deleted = context.getContentResolver().delete( ContentUris.withAppendedId( ChannelConstants.CONTENT_URI, id ), null, null );
 		Log.v( TAG, "delete : deleted=" + deleted );
 		
 		Log.d( TAG, "delete : exit" );
@@ -266,36 +267,37 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 	}
 
 	/**
+	 * @param context
 	 * @param channelInfo
 	 * @return
 	 */
-	public int delete( ChannelInfo channelInfo ) {
+	public int delete( Context context, ChannelInfo channelInfo ) {
 		Log.d( TAG, "delete : enter" );
 		
-		if( !this.isInitialized() ) 
+		if( null == context ) 
 			throw new RuntimeException( "ChannelDaoHelper is not initialized" );
 		
 		String selection = ChannelConstants.FIELD_CHAN_ID + " = ?";
 		String[] selectionArgs = new String[] { String.valueOf( channelInfo.getChannelId() ) };
 		
-		selection = appendLocationHostname( selection, ChannelConstants.TABLE_NAME );
+		selection = appendLocationHostname( context, selection, ChannelConstants.TABLE_NAME );
 		
-		int deleted = mContext.getContentResolver().delete( ChannelConstants.CONTENT_URI, selection, selectionArgs );
+		int deleted = context.getContentResolver().delete( ChannelConstants.CONTENT_URI, selection, selectionArgs );
 		Log.v( TAG, "delete : deleted=" + deleted );
 		
 		Log.d( TAG, "delete : exit" );
 		return deleted;
 	}
 
-	public int load( List<ChannelInfos> allChannelsList ) throws RemoteException, OperationApplicationException {
+	public int load( Context context, List<ChannelInfos> allChannelsList ) throws RemoteException, OperationApplicationException {
 		Log.d( TAG, "load : enter" );
 		
-		if( !this.isInitialized() ) 
+		if( null == context ) 
 			throw new RuntimeException( "ChannelDaoHelper is not initialized" );
 		
 		Log.d( TAG, "load : loading existing channels" );
 		Map<Integer, ChannelInfo> existing = new HashMap<Integer, ChannelInfo>();
-		for( ChannelInfo channelInfo : findAll() ) {
+		for( ChannelInfo channelInfo : findAll( context ) ) {
 //			Log.v( TAG, "load : existing channel: " + channelInfo.getChannelId() );
 			existing.put( channelInfo.getChannelId(), channelInfo );
 		}
@@ -310,7 +312,7 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 		String[] channelProjection = new String[] { ChannelConstants.TABLE_NAME + "_" + ChannelConstants._ID };
 		String channelSelection = ChannelConstants.FIELD_CHAN_ID + " = ?";
 
-		channelSelection = appendLocationHostname( channelSelection, null );
+		channelSelection = appendLocationHostname( context, channelSelection, null );
 
 		ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
 		
@@ -320,7 +322,7 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 			for( ChannelInfo channel : channelInfos.getChannelInfos() ) {
 
 				ContentValues channelValues = convertChannelInfoToContentValues( channel );
-				Cursor channelCursor = mContext.getContentResolver().query( ChannelConstants.CONTENT_URI, channelProjection, channelSelection, new String[] { String.valueOf( channel.getChannelId() ) }, null );
+				Cursor channelCursor = context.getContentResolver().query( ChannelConstants.CONTENT_URI, channelProjection, channelSelection, new String[] { String.valueOf( channel.getChannelId() ) }, null );
 				if( channelCursor.moveToFirst() ) {
 					Log.v( TAG, "load : updating channel " + channel.getChannelId() );
 
@@ -357,7 +359,7 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 
 					if( !ops.isEmpty() ) {
 
-						ContentProviderResult[] results = mContext.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
+						ContentProviderResult[] results = context.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
 						processed += results.length;
 
 						if( results.length > 0 ) {
@@ -373,7 +375,7 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 			if( !ops.isEmpty() ) {
 				Log.v( TAG, "process : final batch update|insert " + count );
 
-				ContentProviderResult[] results = mContext.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
+				ContentProviderResult[] results = context.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
 				processed += results.length;
 
 				if( results.length > 0 ) {
@@ -406,7 +408,7 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 						
 					if( !ops.isEmpty() ) {
 							
-						ContentProviderResult[] results = mContext.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
+						ContentProviderResult[] results = context.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
 						processed += results.length;
 							
 						if( results.length > 0 ) {
@@ -425,7 +427,7 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 		if( !ops.isEmpty() ) {
 			Log.v( TAG, "process : final batch deletes " + count + "/" + deletecount);
 
-			ContentProviderResult[] results = mContext.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
+			ContentProviderResult[] results = context.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
 			processed += results.length;
 
 			if( results.length > 0 ) {

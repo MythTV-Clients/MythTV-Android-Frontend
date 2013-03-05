@@ -28,6 +28,7 @@ import org.mythtv.services.api.dvr.Recording;
 
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
@@ -80,15 +81,15 @@ public class RecordingDaoHelper extends AbstractDaoHelper {
 	 * @param sortOrder
 	 * @return
 	 */
-	public List<Recording> findAll( String[] projection, String selection, String[] selectionArgs, String sortOrder ) {
+	public List<Recording> findAll( Context context, String[] projection, String selection, String[] selectionArgs, String sortOrder ) {
 		Log.d( TAG, "findAll : enter" );
 		
-		if( !this.isInitialized() ) 
+		if( null == context ) 
 			throw new RuntimeException( "RecordingDaoHelper is not initialized" );
 		
 		List<Recording> recordings = new ArrayList<Recording>();
 		
-		Cursor cursor = mContext.getContentResolver().query( RecordingConstants.CONTENT_URI, projection, selection, selectionArgs, sortOrder );
+		Cursor cursor = context.getContentResolver().query( RecordingConstants.CONTENT_URI, projection, selection, selectionArgs, sortOrder );
 		while( cursor.moveToNext() ) {
 			Recording recording = convertCursorToRecording( cursor );
 			recordings.add( recording );
@@ -102,10 +103,10 @@ public class RecordingDaoHelper extends AbstractDaoHelper {
 	/**
 	 * @return
 	 */
-	public List<Recording> finalAll() {
+	public List<Recording> finalAll( Context context ) {
 		Log.d( TAG, "findAll : enter" );
 		
-		List<Recording> recordings = findAll( null, null, null, null );
+		List<Recording> recordings = findAll( context, null, null, null, null );
 		
 		Log.d( TAG, "findAll : exit" );
 		return recordings;
@@ -119,10 +120,10 @@ public class RecordingDaoHelper extends AbstractDaoHelper {
 	 * @param sortOrder
 	 * @return
 	 */
-	public Recording findOne( Long id, String[] projection, String selection, String[] selectionArgs, String sortOrder ) {
+	public Recording findOne( Context context, Long id, String[] projection, String selection, String[] selectionArgs, String sortOrder ) {
 		Log.d( TAG, "findOne : enter" );
 		
-		if( !this.isInitialized() ) 
+		if( null != context ) 
 			throw new RuntimeException( "RecordingDaoHelper is not initialized" );
 		
 		Recording recording = null;
@@ -132,7 +133,7 @@ public class RecordingDaoHelper extends AbstractDaoHelper {
 			uri = ContentUris.withAppendedId( RecordingConstants.CONTENT_URI, id );
 		}
 		
-		Cursor cursor = mContext.getContentResolver().query( uri, projection, selection, selectionArgs, sortOrder );
+		Cursor cursor = context.getContentResolver().query( uri, projection, selection, selectionArgs, sortOrder );
 		if( cursor.moveToFirst() ) {
 			recording = convertCursorToRecording( cursor );
 		}
@@ -146,10 +147,10 @@ public class RecordingDaoHelper extends AbstractDaoHelper {
 	 * @param id
 	 * @return
 	 */
-	public Recording findOne( Long id ) {
+	public Recording findOne( Context context, Long id ) {
 		Log.d( TAG, "findOne : enter" );
 		
-		Recording recording = findOne( id, null, null, null, null );
+		Recording recording = findOne( context, id, null, null, null, null );
 		
 		Log.d( TAG, "findOne : exit" );
 		return recording;
@@ -186,13 +187,13 @@ public class RecordingDaoHelper extends AbstractDaoHelper {
 	/**
 	 * @return
 	 */
-	public int deleteAll() {
+	public int deleteAll( Context context ) {
 		Log.d( TAG, "deleteAll : enter" );
 		
-		if( !this.isInitialized() ) 
+		if( null != context ) 
 			throw new RuntimeException( "RecordingDaoHelper is not initialized" );
 		
-		int deleted = mContext.getContentResolver().delete( RecordingConstants.CONTENT_URI, null, null );
+		int deleted = context.getContentResolver().delete( RecordingConstants.CONTENT_URI, null, null );
 		Log.v( TAG, "deleteAll : deleted=" + deleted );
 		
 		Log.d( TAG, "deleteAll : exit" );
@@ -203,13 +204,13 @@ public class RecordingDaoHelper extends AbstractDaoHelper {
 	 * @param id
 	 * @return
 	 */
-	public int delete( Long id ) {
+	public int delete( Context context, Long id ) {
 		Log.d( TAG, "delete : enter" );
 		
-		if( !this.isInitialized() ) 
+		if( null == context ) 
 			throw new RuntimeException( "RecordingDaoHelper is not initialized" );
 		
-		int deleted = mContext.getContentResolver().delete( ContentUris.withAppendedId( RecordingConstants.CONTENT_URI, id ), null, null );
+		int deleted = context.getContentResolver().delete( ContentUris.withAppendedId( RecordingConstants.CONTENT_URI, id ), null, null );
 		Log.v( TAG, "delete : deleted=" + deleted );
 		
 		Log.d( TAG, "delete : exit" );

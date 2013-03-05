@@ -92,7 +92,7 @@ public class PreferencesRecordedDownloadService extends MythtvService {
     			return;
     		}
     		
-    		if( !NetworkHelper.getInstance().isMasterBackendConnected( profile ) ) {
+    		if( !NetworkHelper.getInstance().isMasterBackendConnected( this, profile ) ) {
     			Intent completeIntent = new Intent( ACTION_COMPLETE );
     			completeIntent.putExtra( EXTRA_COMPLETE, "Master Backend not connected" );
     			completeIntent.putExtra( EXTRA_COMPLETE_OFFLINE, Boolean.TRUE );

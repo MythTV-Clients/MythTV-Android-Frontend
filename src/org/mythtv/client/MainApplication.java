@@ -85,24 +85,24 @@ public class MainApplication extends Application {
 		initImageLoader( getApplicationContext() );
 		
 		//Initialize DAO Helpers
-		EtagDaoHelper.getInstance().init( this );
-		LocationProfileDaoHelper.getInstance().init( this );
-		ChannelDaoHelper.getInstance().init( this );
-		LiveStreamDaoHelper.getInstance().init( this );
-		RecordingDaoHelper.getInstance().init( this );
-		PlaybackProfileDaoHelper.getInstance().init( this );
-		ProgramGuideDaoHelper.getInstance().init( this );
-		ProgramGroupDaoHelper.getInstance().init( this );
+		EtagDaoHelper.getInstance();
+		LocationProfileDaoHelper.getInstance();
+		ChannelDaoHelper.getInstance();
+		LiveStreamDaoHelper.getInstance();
+		RecordingDaoHelper.getInstance();
+		PlaybackProfileDaoHelper.getInstance();
+		ProgramGuideDaoHelper.getInstance();
+		ProgramGroupDaoHelper.getInstance();
 		
-		RecordedDaoHelper.getInstance().init( this );
-		UpcomingDaoHelper.getInstance().init( this );
+		RecordedDaoHelper.getInstance();
+		UpcomingDaoHelper.getInstance();
 		
 		//Initialize Helpers
 		FileHelper.getInstance().init( this.getExternalCacheDir() );
-		NetworkHelper.getInstance().init( this );
-		RunningServiceHelper.getInstance().init( this );
+		NetworkHelper.getInstance();
+		RunningServiceHelper.getInstance();
 		ProgramHelper.getInstance().init( this );
-		MenuHelper.getInstance().init( this );
+		MenuHelper.getInstance();
 
 		String systemClock = Settings.System.getString( getApplicationContext().getContentResolver(), Settings.System.TIME_12_24 );
         if( null != systemClock ) {

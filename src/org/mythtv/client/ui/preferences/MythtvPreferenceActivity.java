@@ -380,7 +380,7 @@ public class MythtvPreferenceActivity extends PreferenceActivity implements Serv
 		PreferenceCategory homePlaybackProfilesPreferenceCategory = (PreferenceCategory) findPreference( PREFERENCE_CATEGORY_HOME_PLAYBACK_SAVED_KEY );
 		homePlaybackProfilesPreferenceCategory.removeAll();
 
-		final List<PlaybackProfile> homePlaybackProfiles = mPlaybackProfileDaoHelper.findAllHomePlaybackProfiles();
+		final List<PlaybackProfile> homePlaybackProfiles = mPlaybackProfileDaoHelper.findAllHomePlaybackProfiles( context );
 		if( null != homePlaybackProfiles && !homePlaybackProfiles.isEmpty() ) {
 			Log.v( TAG, "setupPreferences : setting Home Playback Profiles" );
 			
@@ -391,7 +391,7 @@ public class MythtvPreferenceActivity extends PreferenceActivity implements Serv
 	        
 		}
 		
-		PlaybackProfile selectedHomePlaybackProfile = mPlaybackProfileDaoHelper.findSelectedHomeProfile();
+		PlaybackProfile selectedHomePlaybackProfile = mPlaybackProfileDaoHelper.findSelectedHomeProfile( context );
 
 		if( null != selectedHomePlaybackProfile ) {
 			Log.v( TAG, "setupPreferences : setting selected Home Playback Profile" );
@@ -508,7 +508,7 @@ public class MythtvPreferenceActivity extends PreferenceActivity implements Serv
 		PreferenceCategory awayPlaybackProfilesPreferenceCategory = (PreferenceCategory) findPreference( PREFERENCE_CATEGORY_AWAY_PLAYBACK_SAVED_KEY );
 		awayPlaybackProfilesPreferenceCategory.removeAll();
 
-		final List<PlaybackProfile> awayPlaybackProfiles = mPlaybackProfileDaoHelper.findAllAwayPlaybackProfiles();
+		final List<PlaybackProfile> awayPlaybackProfiles = mPlaybackProfileDaoHelper.findAllAwayPlaybackProfiles( context );
 		if( null != awayPlaybackProfiles && !awayPlaybackProfiles.isEmpty() ) {
 			Log.v( TAG, "setupPreferences : setting Away Playback Profiles" );
 			
@@ -519,7 +519,7 @@ public class MythtvPreferenceActivity extends PreferenceActivity implements Serv
 	        
 		}
 		
-		PlaybackProfile selectedAwayPlaybackProfile = mPlaybackProfileDaoHelper.findSelectedAwayProfile();
+		PlaybackProfile selectedAwayPlaybackProfile = mPlaybackProfileDaoHelper.findSelectedAwayProfile( context );
 
 		if( null != selectedAwayPlaybackProfile ) {
 			Log.v( TAG, "setupPreferences : setting selected Away Playback Profile" );
@@ -620,7 +620,7 @@ public class MythtvPreferenceActivity extends PreferenceActivity implements Serv
 
 				public boolean onPreferenceClick( Preference preference ) {
 					
-					PlaybackProfile profile = mPlaybackProfileDaoHelper.findOne( Long.parseLong( preference.getKey() ) );
+					PlaybackProfile profile = mPlaybackProfileDaoHelper.findOne( context, Long.parseLong( preference.getKey() ) );
 					
 					// show playback profile editor
 					showPlaybackProfileEditDialog( context, profile );
@@ -816,12 +816,12 @@ public class MythtvPreferenceActivity extends PreferenceActivity implements Serv
 			case HOME :
 				Log.v( TAG, "saveSelectedPlaybackProfile : setting home selected playback profile" );
 
-				mPlaybackProfileDaoHelper.setSelectedPlaybackProfile( (long) id );
+				mPlaybackProfileDaoHelper.setSelectedPlaybackProfile( context, (long) id );
 				break;
 			case AWAY :
 				Log.v( TAG, "saveSelectedPlaybackProfile : setting away selected playback profile" );
 
-				mPlaybackProfileDaoHelper.setSelectedPlaybackProfile( (long) id );
+				mPlaybackProfileDaoHelper.setSelectedPlaybackProfile( context, (long) id );
 				break;
 			} 
 			

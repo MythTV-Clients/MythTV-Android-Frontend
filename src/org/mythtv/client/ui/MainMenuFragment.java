@@ -165,7 +165,7 @@ public class MainMenuFragment extends AbstractMythFragment implements ServiceLis
 	private OnClickListener mythmoteButtonOnClick = new OnClickListener(){
 		@Override
 		public void onClick(View v) {
-			if( NetworkHelper.getInstance().isNetworkConnected() && !getActivity().getClass().equals(MythmoteActivity.class) ) {
+			if( NetworkHelper.getInstance().isNetworkConnected( getActivity() ) && !getActivity().getClass().equals(MythmoteActivity.class) ) {
 				startActivity( new Intent( getActivity(), MythmoteActivity.class ) );
 			}
 		}

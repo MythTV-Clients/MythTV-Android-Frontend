@@ -287,7 +287,7 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 		        	Log.i( TAG, "ProgramGuideCleanupReceiver.onReceive : programGuide count=" + programGuideCache.list( filter ).length );
 	    			
 	    			if( programGuideCache.list( filter ).length < ProgramGuideDownloadService.MAX_HOURS ) {
-	    				if( !mRunningServiceHelper.isServiceRunning( "org.mythtv.service.guide.ProgramGuideDownloadService" ) ) {
+	    				if( !mRunningServiceHelper.isServiceRunning( AbstractLocationAwareFragmentActivity.this, "org.mythtv.service.guide.ProgramGuideDownloadService" ) ) {
 		    				startService( new Intent( ProgramGuideDownloadService.ACTION_DOWNLOAD ) );
 	    				}
 	    			}

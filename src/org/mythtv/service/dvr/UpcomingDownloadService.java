@@ -106,7 +106,7 @@ public class UpcomingDownloadService extends MythtvService {
 			return;
 		}
 
-		if( !NetworkHelper.getInstance().isMasterBackendConnected() ) {
+		if( !NetworkHelper.getInstance().isMasterBackendConnected( this ) ) {
 			Intent completeIntent = new Intent( ACTION_COMPLETE );
 			completeIntent.putExtra( EXTRA_COMPLETE, "Master Backend unreachable" );
 			completeIntent.putExtra( EXTRA_COMPLETE_OFFLINE, Boolean.TRUE );
@@ -156,7 +156,7 @@ public class UpcomingDownloadService extends MythtvService {
 		LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile();
 		Log.v( TAG, "download : get upcoming for host [" + locationProfile.getHostname() + ":" + locationProfile.getUrl() + "]" );
 
-		ETagInfo etag = mEtagDaoHelper.findByEndpointAndDataId( Endpoint.GET_UPCOMING_LIST.name(), "" );
+		ETagInfo etag = mEtagDaoHelper.findByEndpointAndDataId( this, Endpoint.GET_UPCOMING_LIST.name(), "" );
 		etag = ETagInfo.createEmptyETag();
 		
 		ResponseEntity<ProgramList> responseEntity = mMainApplication.getMythServicesApi().dvrOperations().getUpcomingList( -1, -1, false, etag );
@@ -173,7 +173,7 @@ public class UpcomingDownloadService extends MythtvService {
 					process( programList.getPrograms() );
 				
 					if( null != etag.getETag() ) {
-						mEtagDaoHelper.save( etag, Endpoint.GET_UPCOMING_LIST.name(), "" );
+						mEtagDaoHelper.save( this, etag, Endpoint.GET_UPCOMING_LIST.name(), "" );
 					}
 						
 				}
@@ -186,7 +186,7 @@ public class UpcomingDownloadService extends MythtvService {
 			Log.i( TAG, "download : " + Endpoint.GET_UPCOMING_LIST.getEndpoint() + " returned 304 Not Modified" );
 			
 			if( null != etag.getETag() ) {
-				mEtagDaoHelper.save( etag, Endpoint.GET_UPCOMING_LIST.name(), "" );
+				mEtagDaoHelper.save( this, etag, Endpoint.GET_UPCOMING_LIST.name(), "" );
 			}
 			
 		}
@@ -211,7 +211,7 @@ public class UpcomingDownloadService extends MythtvService {
 		mMainApplication.getObjectMapper().writeValue( new File( upcomingDirectory, UPCOMING_FILE_PREFIX + locationProfile.getHostname() + UPCOMING_FILE_EXT ), programs );
 		Log.v( TAG, "process : saved upcoming to " + upcomingDirectory.getAbsolutePath() );
 		
-		int programsAdded = mUpcomingDaoHelper.load( programs.getPrograms() );
+		int programsAdded = mUpcomingDaoHelper.load( this, programs.getPrograms() );
 		Log.v( TAG, "process : programsAdded=" + programsAdded );
 
 		Log.v( TAG, "process : exit" );

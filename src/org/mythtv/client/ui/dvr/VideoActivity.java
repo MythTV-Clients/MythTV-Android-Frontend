@@ -88,8 +88,8 @@ public class VideoActivity extends AbstractMythtvFragmentActivity {
 	    Long startTime = getIntent().getLongExtra( EXTRA_START_TIME, -1 );
 	    boolean raw = getIntent().getBooleanExtra( EXTRA_RAW, false );
 	    
-	    program = mRecordedDaoHelper.findOne( channelId, new DateTime( startTime ) );
-	    liveStreamInfo = mLiveStreamDaoHelper.findByProgram( program );
+	    program = mRecordedDaoHelper.findOne( this, channelId, new DateTime( startTime ) );
+	    liveStreamInfo = mLiveStreamDaoHelper.findByProgram( this, program );
 	    
 	    if( null != program ) {
 
@@ -311,7 +311,7 @@ public class VideoActivity extends AbstractMythtvFragmentActivity {
 		protected ResponseEntity<LiveStreamInfoWrapper> doInBackground( Void... params ) {
 			Log.v( TAG, "UpdateStreamInfoTask : enter" );
 
-			if( !NetworkHelper.getInstance().isNetworkConnected() ) {
+			if( !NetworkHelper.getInstance().isNetworkConnected( VideoActivity.this ) ) {
 				Log.v( TAG, "UpdateStreamInfoTask : exit, not connected" );
 				
 				return null;
@@ -354,7 +354,7 @@ public class VideoActivity extends AbstractMythtvFragmentActivity {
 
 						// save updated live stream info to database
 						liveStreamInfo = result.getBody().getLiveStreamInfo();
-						mLiveStreamDaoHelper.save( liveStreamInfo, program );
+						mLiveStreamDaoHelper.save( VideoActivity.this, liveStreamInfo, program );
 
 						if( liveStreamInfo.getStatusInt() < 2 || liveStreamInfo.getCurrentSegment() <= 2 ) {
 							new UpdateStreamInfoTask().execute();

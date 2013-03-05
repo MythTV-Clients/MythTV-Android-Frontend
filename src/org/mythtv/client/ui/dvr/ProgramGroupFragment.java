@@ -167,7 +167,7 @@ public class ProgramGroupFragment extends MythtvListFragment implements LoaderMa
 		
 		Log.v ( TAG, "onListItemClick : position=" + position + ", id=" + id );
 		
-		Program program = mRecordedDaoHelper.findOne( id );
+		Program program = mRecordedDaoHelper.findOne( getActivity(), id );
 		
 		if( null != program && null != mEpisodeListener ) {
 			Log.v( TAG, "onListItemClick : selecting episode" );

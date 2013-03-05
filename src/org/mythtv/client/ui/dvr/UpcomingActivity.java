@@ -108,7 +108,7 @@ public class UpcomingActivity extends AbstractMythtvFragmentActivity {
 		Log.v( TAG, "onResume : enter" );
 		super.onResume();
 
-		DateTime etag = mEtagDaoHelper.findDateByEndpointAndDataId( Endpoint.GET_UPCOMING_LIST.name(), "" );
+		DateTime etag = mEtagDaoHelper.findDateByEndpointAndDataId( this, Endpoint.GET_UPCOMING_LIST.name(), "" );
 		if( null != etag ) {
 			
 			DateTime now = new DateTime();
@@ -150,7 +150,7 @@ public class UpcomingActivity extends AbstractMythtvFragmentActivity {
 	public boolean onCreateOptionsMenu( Menu menu ) {
 		Log.v( TAG, "onCreateOptionsMenu : enter" );
 
-		mMenuHelper.refreshMenuItem( menu );
+		mMenuHelper.refreshMenuItem( this, menu );
 
 		Log.v( TAG, "onCreateOptionsMenu : exit" );
 	    return super.onCreateOptionsMenu( menu );
@@ -188,7 +188,7 @@ public class UpcomingActivity extends AbstractMythtvFragmentActivity {
 	private void loadData() {
 		Log.v( TAG, "loadData : enter" );
 		
-		if( !mRunningServiceHelper.isServiceRunning( "org.mythtv.service.dvr.UpcomingDownloadService" ) ) {
+		if( !mRunningServiceHelper.isServiceRunning( this, "org.mythtv.service.dvr.UpcomingDownloadService" ) ) {
 			startService( new Intent( UpcomingDownloadService.ACTION_DOWNLOAD ) );
 		}
 		

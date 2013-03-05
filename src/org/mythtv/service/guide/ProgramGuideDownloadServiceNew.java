@@ -92,7 +92,7 @@ public class ProgramGuideDownloadServiceNew extends MythtvService {
 
 		mNotificationManager = (NotificationManager) getSystemService( Context.NOTIFICATION_SERVICE );
 		
-		if( !NetworkHelper.getInstance().isMasterBackendConnected() ) {
+		if( !NetworkHelper.getInstance().isMasterBackendConnected( this ) ) {
 			Intent completeIntent = new Intent( ACTION_COMPLETE );
 			completeIntent.putExtra( EXTRA_COMPLETE, "Master Backend unreachable" );
 			completeIntent.putExtra( EXTRA_COMPLETE_OFFLINE, Boolean.TRUE );
@@ -232,7 +232,7 @@ public class ProgramGuideDownloadServiceNew extends MythtvService {
 					program.setChannelInfo( channel );
 				}
 				
-				mProgramGuideDaoHelper.load( channel.getPrograms() );
+				mProgramGuideDaoHelper.load( this, channel.getPrograms() );
 
 			}
 			

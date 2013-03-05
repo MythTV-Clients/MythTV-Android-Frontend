@@ -74,7 +74,7 @@ public class EpisodeActivity extends AbstractMythtvFragmentActivity implements E
 		Bundle args = getIntent().getExtras();
 		int channelId = args.getInt( ProgramConstants.FIELD_CHANNEL_ID, -1 );
 		Long startTime = args.getLong( ProgramConstants.FIELD_START_TIME, -1 );
-		Program program = mRecordedDaoHelper.findOne( channelId, new DateTime( startTime ) );
+		Program program = mRecordedDaoHelper.findOne( this, channelId, new DateTime( startTime ) );
 		
 		switch( item.getItemId() ) {
 			case android.R.id.home:
