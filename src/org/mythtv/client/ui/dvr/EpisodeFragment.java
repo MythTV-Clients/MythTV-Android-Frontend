@@ -779,7 +779,7 @@ public class EpisodeFragment extends AbstractMythFragment {
 				
 				Log.v( TAG, "CreateStreamTask : exit" );
 				return getMainApplication().getMythServicesApi().contentOperations().
-						addLiveStream( null, program.getFilename(), program.getHostname(), -1, -1,
+						addLiveStream( program.getRecording().getStorageGroup(), program.getFilename(), program.getHostname(), -1, -1,
 								selectedPlaybackProfile.getHeight(), selectedPlaybackProfile.getVideoBitrate(), 
 								selectedPlaybackProfile.getAudioBitrate(), selectedPlaybackProfile.getAudioSampleRate() );
 			
