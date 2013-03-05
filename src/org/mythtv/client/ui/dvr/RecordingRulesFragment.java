@@ -52,7 +52,6 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -191,19 +190,15 @@ public class RecordingRulesFragment extends MythtvListFragment {
 	
 	private class RecordingRuleAdapter extends BaseAdapter {
 
-		private Context mContext;
 		private LayoutInflater mInflater;
 
 		private List<RecRule> rules = new ArrayList<RecRule>();
 
-		private ProgramHelper mProgramHelper;
+		private ProgramHelper mProgramHelper = ProgramHelper.getInstance();
 
 		public RecordingRuleAdapter( Context context ) {
 			
-			mContext = context;
 			mInflater = LayoutInflater.from( context );
-			
-			mProgramHelper = ProgramHelper.createInstance( context );
 			
 			if( null == rules || rules.isEmpty() ) {
 				new DownloadRecordingRulesTask().execute();
@@ -254,7 +249,6 @@ public class RecordingRulesFragment extends MythtvListFragment {
 
 			convertView = mInflater.inflate( R.layout.recording_rules_row, parent, false );
 			ViewHolder mHolder = new ViewHolder();
-			mHolder.detailRow = (LinearLayout) convertView.findViewById( R.id.recording_rules_detail_row );
 			mHolder.category = (View) convertView.findViewById( R.id.recording_rules_category );
 			mHolder.title = (TextView) convertView.findViewById( R.id.recording_rules_title );
 			mHolder.channel = (TextView) convertView.findViewById( R.id.recording_rules_channel );
@@ -296,7 +290,6 @@ public class RecordingRulesFragment extends MythtvListFragment {
 		
 		private class ViewHolder {
 			
-			LinearLayout detailRow;
 			View category;
 			
 			TextView title;

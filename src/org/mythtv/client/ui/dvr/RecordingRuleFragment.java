@@ -58,7 +58,7 @@ public class RecordingRuleFragment extends AbstractMythFragment {
 	
 	private ChannelDaoHelper mChannelDaoHelper = ChannelDaoHelper.getInstance();
 	private MenuHelper mMenuHelper;
-	private ProgramHelper mProgramHelper;
+	private ProgramHelper mProgramHelper = ProgramHelper.getInstance();
 	private Integer mRecordingRuleId;
 	
 	public static RecordingRuleFragment newInstance( Bundle args ) {
@@ -101,19 +101,6 @@ public class RecordingRuleFragment extends AbstractMythFragment {
 		
 		Log.v( TAG, "onCreateView : exit" );
 		return v;
-	}
-
-	/* (non-Javadoc)
-	 * @see android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
-	 */
-	@Override
-	public void onActivityCreated( Bundle savedInstanceState ) {
-		Log.v( TAG, "onActivityCreated : enter" );
-		super.onActivityCreated( savedInstanceState );
-
-		mProgramHelper = ProgramHelper.createInstance( getActivity() );
-		
-		Log.v( TAG, "onActivityCreated : exit" );
 	}
 
 	public void loadRecordingRule( Integer recordingRuleId ) {

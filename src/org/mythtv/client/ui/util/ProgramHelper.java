@@ -80,13 +80,6 @@ public class ProgramHelper {
 		}
 
 		/**
-		 * @return the category
-		 */
-		public String getCategory() {
-			return category;
-		}
-
-		/**
 		 * @return the color
 		 */
 		public int getColor() {
@@ -111,18 +104,65 @@ public class ProgramHelper {
 		
 	}
 
+	private static ProgramHelper singleton = null;
+
 	private Context mContext;
 	private static Resources mResources;
 	
-	public static ProgramHelper createInstance( Context context ) {
-		return new ProgramHelper( context );
-	}
+	/**
+	 * Returns the one and only ProgramHelper. init() must be called before 
+	 * any 
+	 * @return
+	 */
+	public static ProgramHelper getInstance() {
+		if( null == singleton ) {
+			
+			synchronized( ProgramHelper.class ) {
 
-	protected ProgramHelper( Context context ) {
-		mContext = context;
-		mResources = mContext.getResources();
+				if( null == singleton ) {
+					singleton = new ProgramHelper();
+				}
+			
+			}
+			
+		}
+		
+		return singleton;
 	}
 	
+	/**
+	 * Constructor. No one but getInstance() can do this.
+	 */
+	private ProgramHelper() { }
+	
+	/**
+	 * Must be called once at the beginning of the application. Subsequent 
+	 * calls to this will have no effect.
+	 * 
+	 * @param context
+	 */
+	public void init( Context context ) {
+		
+		//ignore any additional calls to init
+		if( this.isInitialized() ) 
+			return;
+		
+		this.mContext = context;
+		ProgramHelper.mResources = mContext.getResources();
+	}
+	
+	/**
+	 * Returns true if ProgramHelper has already been initialized
+	 * @return
+	 */
+	public boolean isInitialized(){
+		return null != this.mContext;
+	}
+	
+	/**
+	 * @param category
+	 * @return
+	 */
 	public int getCategoryColor( String category ) {
 		return getCategory( category ).getColor();
 	}

@@ -61,7 +61,7 @@ public class RecordingRuleEditFragment extends AbstractMythFragment implements O
 	
 	private ChannelDaoHelper mChannelDaoHelper = ChannelDaoHelper.getInstance();
 	private MenuHelper mMenuHelper;
-	private ProgramHelper mProgramHelper;
+	private ProgramHelper mProgramHelper = ProgramHelper.getInstance();
 	
 	private boolean mEdited = false;
 	private RecRule mRule;
@@ -107,19 +107,6 @@ public class RecordingRuleEditFragment extends AbstractMythFragment implements O
 		return v;
 	}
 
-	/* (non-Javadoc)
-	 * @see android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
-	 */
-	@Override
-	public void onActivityCreated( Bundle savedInstanceState ) {
-		Log.v( TAG, "onActivityCreated : enter" );
-		super.onActivityCreated( savedInstanceState );
-
-		mProgramHelper = ProgramHelper.createInstance( getActivity() );
-		
-		Log.v( TAG, "onActivityCreated : exit" );
-	}
-	
 	/* (non-Javadoc)
 	 * @see android.support.v4.app.Fragment#onCreateOptionsMenu(android.view.Menu, android.view.MenuInflater)
 	 */
@@ -363,7 +350,6 @@ public class RecordingRuleEditFragment extends AbstractMythFragment implements O
 			
 			try {
 				RecRule rule = params[0];
-				ETagInfo etag = ETagInfo.createEmptyETag();
 				ResponseEntity<Int> response = getMainApplication()
 						.getMythServicesApi()
 						.dvrOperations()
