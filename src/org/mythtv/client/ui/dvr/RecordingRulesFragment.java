@@ -119,7 +119,7 @@ public class RecordingRulesFragment extends MythtvListFragment {
 		Log.v( TAG, "onCreateOptionsMenu : enter" );
 		super.onCreateOptionsMenu( menu, inflater );
 
-		mMenuHelper.refreshMenuItem( menu );
+		mMenuHelper.refreshMenuItem( getActivity(), menu );
 		
 		Log.v( TAG, "onCreateOptionsMenu : exit" );
 	}
@@ -264,7 +264,7 @@ public class RecordingRulesFragment extends MythtvListFragment {
 			
 			String channel = "[Any]";
 			if( rule.getChanId() > 0 ) {
-				ChannelInfo channelInfo = mChannelDaoHelper.findByChannelId( (long) rule.getChanId() );
+				ChannelInfo channelInfo = mChannelDaoHelper.findByChannelId( getActivity(), (long) rule.getChanId() );
 				if( null != channelInfo && channelInfo.getChannelId() > -1 ) {
 					channel = channelInfo.getChannelNumber();
 				}
@@ -311,7 +311,7 @@ public class RecordingRulesFragment extends MythtvListFragment {
 				String message = "Retrieving Recording Rules";
 				mNotificationHelper.createNotification( "Mythtv for Android", message, NotificationType.UPLOAD );
 				
-				if( !NetworkHelper.getInstance().isMasterBackendConnected() ) {
+				if( !NetworkHelper.getInstance().isMasterBackendConnected( getActivity() ) ) {
 					return null;
 				}
 

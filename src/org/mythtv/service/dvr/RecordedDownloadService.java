@@ -103,7 +103,7 @@ public class RecordedDownloadService extends MythtvService {
 			return;
 		}
 
-		if( !NetworkHelper.getInstance().isMasterBackendConnected() ) {
+		if( !NetworkHelper.getInstance().isMasterBackendConnected( this ) ) {
 			Intent completeIntent = new Intent( ACTION_COMPLETE );
 			completeIntent.putExtra( EXTRA_COMPLETE, "Master Backend unreachable" );
 			completeIntent.putExtra( EXTRA_COMPLETE_OFFLINE, Boolean.TRUE );
@@ -153,7 +153,7 @@ public class RecordedDownloadService extends MythtvService {
 		LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile();
 		Log.v( TAG, "download : get recorded for host [" + locationProfile.getHostname() + ":" + locationProfile.getUrl() + "]" );
 
-		ETagInfo etag = mEtagDaoHelper.findByEndpointAndDataId( Endpoint.GET_RECORDED_LIST.name(), "" );
+		ETagInfo etag = mEtagDaoHelper.findByEndpointAndDataId( this, Endpoint.GET_RECORDED_LIST.name(), "" );
 		
 		ResponseEntity<ProgramList> responseEntity = mMainApplication.getMythServicesApi( locationProfile ).dvrOperations().getRecordedList( etag );
 
@@ -172,7 +172,7 @@ public class RecordedDownloadService extends MythtvService {
 
 				if( null != etag.getETag() ) {
 					Log.i( TAG, "download : saving etag: " + etag.getETag() );
-					mEtagDaoHelper.save( etag, Endpoint.GET_RECORDED_LIST.name(), "" );
+					mEtagDaoHelper.save( this, etag, Endpoint.GET_RECORDED_LIST.name(), "" );
 				}
 
 			}
@@ -183,7 +183,7 @@ public class RecordedDownloadService extends MythtvService {
 			Log.i( TAG, "download : " + Endpoint.GET_RECORDED_LIST.getEndpoint() + " returned 304 Not Modified" );
 
 			if( null != etag.getETag() ) {
-				mEtagDaoHelper.save( etag, Endpoint.GET_RECORDED_LIST.name(), "" );
+				mEtagDaoHelper.save( this, etag, Endpoint.GET_RECORDED_LIST.name(), "" );
 			}
 
 		}
@@ -208,7 +208,7 @@ public class RecordedDownloadService extends MythtvService {
 		mMainApplication.getObjectMapper().writeValue( new File( recordedDirectory, RECORDED_FILE_PREFIX + locationProfile.getHostname() + RECORDED_FILE_EXT ), programs );
 		Log.v( TAG, "process : saved recorded to " + recordedDirectory.getAbsolutePath() );
 
-		int programsAdded = mRecordedDaoHelper.load( programs.getPrograms() );
+		int programsAdded = mRecordedDaoHelper.load( this, programs.getPrograms() );
 		Log.v( TAG, "process : programsAdded=" + programsAdded );
 		
 		Log.v( TAG, "process : exit" );

@@ -103,7 +103,7 @@ public class ChannelDownloadService extends MythtvService {
 			return;
 		}
 
-		if( !NetworkHelper.getInstance().isMasterBackendConnected() ) {
+		if( !NetworkHelper.getInstance().isMasterBackendConnected( this ) ) {
 			Intent completeIntent = new Intent( ACTION_COMPLETE );
 			completeIntent.putExtra( EXTRA_COMPLETE, "Master Backend unreachable" );
 			sendBroadcast( completeIntent );
@@ -123,7 +123,7 @@ public class ChannelDownloadService extends MythtvService {
     		Log.v( TAG, "onHandleIntent : get video sources for host [" + locationProfile.getHostname() + ":" + locationProfile.getUrl() + "]" );
 
     		try {
-    			ETagInfo etag = mEtagDaoHelper.findByEndpointAndDataId( Endpoint.GET_VIDEO_SOURCE_LIST.name(), null );
+    			ETagInfo etag = mEtagDaoHelper.findByEndpointAndDataId( this, Endpoint.GET_VIDEO_SOURCE_LIST.name(), null );
     			
 				ResponseEntity<VideoSourceList> responseEntity = mMainApplication.getMythServicesApi( locationProfile ).channelOperations().getVideoSourceList( etag );
 				if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
@@ -164,7 +164,7 @@ public class ChannelDownloadService extends MythtvService {
 						if( null != allChannelLists && !allChannelLists.isEmpty() ) {
 							Log.i( TAG, "onHandleIntent : process all channels" );
 
-							int channelsProcessed = mChannelDaoHelper.load( allChannelLists );
+							int channelsProcessed = mChannelDaoHelper.load( this, allChannelLists );
 							Log.v( TAG, "process : channelsProcessed=" + channelsProcessed );
 							
 						}
@@ -217,7 +217,7 @@ public class ChannelDownloadService extends MythtvService {
 				if( null != etag.getETag() ) {
 					Log.i( TAG, "download : " + Endpoint.GET_CHANNEL_INFO_LIST.getEndpoint() + " returned 200 OK" );
 
-					mEtagDaoHelper.save( etag, Endpoint.GET_CHANNEL_INFO_LIST.name(), String.valueOf( sourceId ) );
+					mEtagDaoHelper.save( this, etag, Endpoint.GET_CHANNEL_INFO_LIST.name(), String.valueOf( sourceId ) );
 				}
 
 				if( null != channelInfoList.getChannelInfos() ) {

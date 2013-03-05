@@ -71,7 +71,7 @@ public class RecordingsActivity extends AbstractMythtvFragmentActivity implement
 			mEpisodeFragment = (EpisodeFragment) getSupportFragmentManager().findFragmentById( R.id.fragment_dvr_episode );
 			mEpisodeFragment.setOnEpisodeActionListener( this );
 			
-			List<ProgramGroup> programGroups = mProgramGroupDaoHelper.findAll();
+			List<ProgramGroup> programGroups = mProgramGroupDaoHelper.findAll( this );
 			if( null != programGroups && !programGroups.isEmpty() ) {
 				onProgramGroupSelected( programGroups.get( 0 ) );
 			}
@@ -96,11 +96,11 @@ public class RecordingsActivity extends AbstractMythtvFragmentActivity implement
 		selectedProgramGroup = programGroup;
 		selectedProgram = null;
 		
-		List<Program> programs = mRecordedDaoHelper.findAllByTitle( programGroup.getTitle() );
+		List<Program> programs = mRecordedDaoHelper.findAllByTitle( this, programGroup.getTitle() );
 		if( null == programs || programs.isEmpty() ) {
 			Log.d( TAG, "onProgramGroupSelected : no programs in programGroup" );
 
-			mRecordedDaoHelper.findAll();
+			mRecordedDaoHelper.findAll( this );
 		}
 
 		if( null != programs && !programs.isEmpty() ) {
@@ -188,11 +188,11 @@ public class RecordingsActivity extends AbstractMythtvFragmentActivity implement
 		selectedProgramGroup = programGroup;
 		selectedProgram = null;
 		
-		List<Program> programs = mRecordedDaoHelper.findAllByTitle( programGroup.getTitle() );
+		List<Program> programs = mRecordedDaoHelper.findAllByTitle( this, programGroup.getTitle() );
 		if( null == programs || programs.isEmpty() ) {
 			Log.d( TAG, "onProgramGroupSelected : exit, no programs in programGroup" );
 
-			programs = mRecordedDaoHelper.findAll();
+			programs = mRecordedDaoHelper.findAll( this );
 		}
 
 		selectedProgram = programs.get( 0 );

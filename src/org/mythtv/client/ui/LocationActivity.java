@@ -90,9 +90,9 @@ public class LocationActivity extends FragmentActivity {
 	public boolean onCreateOptionsMenu( Menu menu ) {
 		Log.d( TAG, "onCreateOptionsMenu : enter" );
 
-		mMenuHelper.prefMenuItem( menu );
-		mMenuHelper.aboutMenuItem( menu );
-		mMenuHelper.helpSubMenu( menu );
+		mMenuHelper.prefMenuItem(this,  menu );
+		mMenuHelper.aboutMenuItem( this, menu );
+		mMenuHelper.helpSubMenu( this, menu );
 
 		Log.d( TAG, "onCreateOptionsMenu : exit" );
 		return super.onCreateOptionsMenu( menu );
@@ -120,25 +120,25 @@ public class LocationActivity extends FragmentActivity {
 		case MenuHelper.ABOUT_ID:
 			Log.d( TAG, "onOptionsItemSelected : about selected" );
 
-			mMenuHelper.handleAboutMenu();
+			mMenuHelper.handleAboutMenu( this );
 		    
 	        return true;
 	    
 		case MenuHelper.FAQ_ID:
 			
-			mMenuHelper.handleFaqMenu();
+			mMenuHelper.handleFaqMenu( this );
 			
 			return true;
 
 		case MenuHelper.TROUBLESHOOT_ID:
 			
-			mMenuHelper.handleTroubleshootMenu();
+			mMenuHelper.handleTroubleshootMenu( this );
 			
 			return true;
 		
 		case MenuHelper.ISSUES_ID:
 
-			mMenuHelper.handleIssuesMenu();
+			mMenuHelper.handleIssuesMenu( this );
 			
 			return true;
 		
@@ -154,7 +154,7 @@ public class LocationActivity extends FragmentActivity {
 		Log.v( TAG, "setupButtons : enter" );
 		
 		//wifi
-		if( NetworkHelper.getInstance().isNetworkConnected() ) {
+		if( NetworkHelper.getInstance().isNetworkConnected( this ) ) {
 			Log.d( TAG, "onResume : enabling home" );
 
 			home.setEnabled( true );

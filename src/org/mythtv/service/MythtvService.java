@@ -64,7 +64,7 @@ public class MythtvService extends IntentService {
 		if ( intent.getAction().equals( ACTION_CONNECT ) ) {
 			Log.v( TAG, "onHandleIntent : checking master backend connection" );
 
-			Boolean connected = NetworkHelper.getInstance().isMasterBackendConnected();
+			Boolean connected = NetworkHelper.getInstance().isMasterBackendConnected( this );
 			Log.v( TAG, "onHandleIntent : connected=" + connected );
 
 			Intent completeIntent = new Intent( ACTION_COMPLETE );

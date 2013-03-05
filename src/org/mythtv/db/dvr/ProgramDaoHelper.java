@@ -59,8 +59,6 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 
 	protected static final String TAG = ProgramDaoHelper.class.getSimpleName();
 	
-	protected MainApplication mMainApplication;
-	
 	protected ChannelDaoHelper mChannelDaoHelper = ChannelDaoHelper.getInstance();
 	protected LiveStreamDaoHelper mLiveStreamDaoHelper = LiveStreamDaoHelper.getInstance();
 	protected RecordingDaoHelper mRecordingDaoHelper = RecordingDaoHelper.getInstance();
@@ -69,16 +67,6 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		super();
 	}
 	
-	/* (non-Javadoc)
-	 * @see org.mythtv.db.AbstractDaoHelper#init(android.content.Context)
-	 */
-	@Override
-	public void init( Context context ) {
-		super.init( context );
-		
-		mMainApplication = (MainApplication) context.getApplicationContext();
-	}
-
 	/**
 	 * @param uri
 	 * @param projection
@@ -87,15 +75,15 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 	 * @param sortOrder
 	 * @return
 	 */
-	protected List<Program> findAll( Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder ) {
+	protected List<Program> findAll( Context context, Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder ) {
 		Log.v( TAG, "findAll : enter" );
 		
-		if( !this.isInitialized() ) 
+		if( null == context ) 
 			throw new RuntimeException( "ProgramDaoHelper is not initialized" );
 		
 		List<Program> programs = new ArrayList<Program>();
 		
-		Cursor cursor = mContext.getContentResolver().query( uri, projection, selection, selectionArgs, sortOrder );
+		Cursor cursor = context.getContentResolver().query( uri, projection, selection, selectionArgs, sortOrder );
 		while( cursor.moveToNext() ) {
 			Program program = convertCursorToProgram( cursor );
 			programs.add( program );
@@ -109,7 +97,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 	/**
 	 * @return
 	 */
-	public abstract List<Program> findAll();
+	public abstract List<Program> findAll( Context context );
 	
 	/**
 	 * @param uri
@@ -119,10 +107,10 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 	 * @param sortOrder
 	 * @return
 	 */
-	protected Program findOne( Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder ) {
+	protected Program findOne( Context context, Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder ) {
 		Log.v( TAG, "findOne : enter" );
 		
-		if( !this.isInitialized() ) 
+		if( null == context ) 
 			throw new RuntimeException( "ProgramDaoHelper is not initialized" );
 		
 		Log.v( TAG, "findOne : selection=" + selection );
@@ -134,7 +122,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		
 		Program program = null;
 		
-		Cursor cursor = mContext.getContentResolver().query( uri, projection, selection, selectionArgs, sortOrder );
+		Cursor cursor = context.getContentResolver().query( uri, projection, selection, selectionArgs, sortOrder );
 		if( cursor.moveToFirst() ) {
 			program = convertCursorToProgram( cursor );
 		}
@@ -149,17 +137,17 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 	 * @param startTime
 	 * @return
 	 */
-	public abstract Program findOne( int channelId, DateTime startTime );
+	public abstract Program findOne( Context context, int channelId, DateTime startTime );
 
 	/**
 	 * @param uri
 	 * @param program
 	 * @return
 	 */
-	protected int save( Uri uri, Program program ) {
+	protected int save( Context context, Uri uri, Program program ) {
 		Log.v( TAG, "save : enter" );
 
-		if( !this.isInitialized() ) 
+		if( null == context ) 
 			throw new RuntimeException( "ProgramDaoHelper is not initialized" );
 		
 		ContentValues values = convertProgramToContentValues( program );
@@ -168,18 +156,18 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		String selection = ProgramConstants.FIELD_CHANNEL_ID + " = ? AND " + ProgramConstants.FIELD_START_TIME + " = ?";
 		String[] selectionArgs = new String[] { String.valueOf( program.getChannelInfo().getChannelId() ), String.valueOf( program.getStartTime().getMillis() ) };
 		
-		selection = appendLocationHostname( selection, null );
+		selection = appendLocationHostname( context, selection, null );
 
 		int updated = -1;
-		Cursor cursor = mContext.getContentResolver().query( uri, projection, selection, selectionArgs, null );
+		Cursor cursor = context.getContentResolver().query( uri, projection, selection, selectionArgs, null );
 		if( cursor.moveToFirst() ) {
 			Log.v( TAG, "save : updating existing program" );
 
 			Long id = cursor.getLong( cursor.getColumnIndexOrThrow( ProgramConstants._ID ) );
 			
-			updated = mContext.getContentResolver().update( ContentUris.withAppendedId( uri, id ), values, null, null );
+			updated = context.getContentResolver().update( ContentUris.withAppendedId( uri, id ), values, null, null );
 		} else {
-			Uri inserted = mContext.getContentResolver().insert( uri, values );
+			Uri inserted = context.getContentResolver().insert( uri, values );
 			if( null != inserted ) {
 				updated = 1;
 			}
@@ -195,18 +183,18 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 	 * @param program
 	 * @return
 	 */
-	public abstract int save( Program program );
+	public abstract int save( Context context, Program program );
 	
 	/**
 	 * @return
 	 */
-	public int deleteAll( Uri uri ) {
+	public int deleteAll( Context context, Uri uri ) {
 		Log.v( TAG, "deleteAll : enter" );
 		
-		if( !this.isInitialized() ) 
+		if( null == context ) 
 			throw new RuntimeException( "ProgramDaoHelper is not initialized" );
 		
-		int deleted = mContext.getContentResolver().delete( uri, null, null );
+		int deleted = context.getContentResolver().delete( uri, null, null );
 		Log.v( TAG, "deleteAll : deleted=" + deleted );
 		
 		Log.v( TAG, "deleteAll : exit" );
@@ -216,25 +204,25 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 	/**
 	 * @return
 	 */
-	public abstract int deleteAll();
+	public abstract int deleteAll( Context context );
 	
 	/**
 	 * @param uri
 	 * @param program
 	 * @return
 	 */
-	public int delete( Uri uri, Program program ) {
+	public int delete( Context context, Uri uri, Program program ) {
 		Log.v( TAG, "delete : enter" );
 		
-		if( !this.isInitialized() ) 
+		if( null == context ) 
 			throw new RuntimeException( "ProgramDaoHelper is not initialized" );
 		
 		String selection = ProgramConstants.FIELD_CHANNEL_ID + " = ? AND " + ProgramConstants.FIELD_START_TIME + " = ?";
 		String[] selectionArgs = new String[] { String.valueOf( program.getChannelInfo().getChannelId() ), String.valueOf( program.getStartTime().getMillis() ) };
 
-		selection = appendLocationHostname( selection, null );
+		selection = appendLocationHostname( context, selection, null );
 
-		int deleted = mContext.getContentResolver().delete( uri, selection, selectionArgs );
+		int deleted = context.getContentResolver().delete( uri, selection, selectionArgs );
 		Log.v( TAG, "delete : deleted=" + deleted );
 		
 		Log.v( TAG, "delete : exit" );
@@ -245,7 +233,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 	 * @param program
 	 * @return
 	 */
-	public abstract int delete( Program program );
+	public abstract int delete( Context context, Program program );
 	
 	/**
 	 * @param uri
@@ -255,20 +243,20 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 	 * @throws RemoteException
 	 * @throws OperationApplicationException
 	 */
-	protected int load( Uri uri, List<Program> programs, String table ) throws RemoteException, OperationApplicationException {
+	protected int load( Context context, Uri uri, List<Program> programs, String table ) throws RemoteException, OperationApplicationException {
 		Log.v( TAG, "load : enter" );
 		
-		if( !this.isInitialized() ) 
+		if( null == context ) 
 			throw new RuntimeException( "ProgramDaoHelper is not initialized" );
 		
 		Log.v( TAG, "load : find all existing recordings, table=" + table );
 		String recordedSelection = "";
 		
-		recordedSelection = appendLocationHostname( recordedSelection, table );
+		recordedSelection = appendLocationHostname( context, recordedSelection, table );
 		Log.v( TAG, "load : recordedSelection=" + recordedSelection );
 		
 		Map<String, Program> recorded = new HashMap<String, Program>();
-		for( Program program : findAll( uri, null, recordedSelection, null, null ) ) {
+		for( Program program : findAll( context, uri, null, recordedSelection, null, null ) ) {
 			recorded.put( program.getFilename(), program );
 		}
 		
@@ -280,7 +268,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		String[] programProjection = new String[] { ProgramConstants._ID };
 		String programSelection = table + "." + ProgramConstants.FIELD_CHANNEL_ID + " = ? AND " + table + "." + ProgramConstants.FIELD_START_TIME + " = ?";
 
-		programSelection = appendLocationHostname( programSelection, table );
+		programSelection = appendLocationHostname( context, programSelection, table );
 		
 		boolean inError;
 		
@@ -299,7 +287,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 			DateTime startTime = new DateTime( program.getStartTime() );
 			
 			ContentValues programValues = convertProgramToContentValues( program );
-			Cursor programCursor = mContext.getContentResolver().query( uri, programProjection, programSelection, new String[] { String.valueOf( program.getChannelInfo().getChannelId() ), String.valueOf( startTime.getMillis() ) }, null );
+			Cursor programCursor = context.getContentResolver().query( uri, programProjection, programSelection, new String[] { String.valueOf( program.getChannelInfo().getChannelId() ), String.valueOf( startTime.getMillis() ) }, null );
 			if( programCursor.moveToFirst() ) {
 				//Log.v( TAG, "load : UPDATE PROGRAM channel=" + program.getChannelInfo().getChannelNumber() + ", startTime=" + DateUtils.dateTimeFormatterPretty.print( startTime ) + "(" + startTime + ")" );
 
@@ -326,10 +314,10 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 			
 			if( null != program.getChannelInfo() ) {
 				
-				if( null == mChannelDaoHelper.findByChannelId( (long) program.getChannelInfo().getChannelId() ) ) {
+				if( null == mChannelDaoHelper.findByChannelId( context, (long) program.getChannelInfo().getChannelId() ) ) {
 					Log.v( TAG, "load : adding non-existent channel" );
 
-					mChannelDaoHelper.save( program.getChannelInfo() );
+					mChannelDaoHelper.save( context, program.getChannelInfo() );
 				}
 				
 			}
@@ -343,7 +331,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 				Log.v( TAG, "load : recording=" + program.getRecording().toString() );
 				
 				ContentValues recordingValues = mRecordingDaoHelper.convertRecordingToContentValues( program.getRecording(), program.getStartTime() );
-				Cursor recordingCursor = mContext.getContentResolver().query( RecordingConstants.CONTENT_URI, recordingProjection, recordingSelection, recordingSelectionArgs, null );
+				Cursor recordingCursor = context.getContentResolver().query( RecordingConstants.CONTENT_URI, recordingProjection, recordingSelection, recordingSelectionArgs, null );
 				if( recordingCursor.moveToFirst() ) {
 					Log.v( TAG, "load : UPDATE RECORDING program=" + program.getTitle() + ", recording=" + program.getRecording().getRecordId() );
 
@@ -378,7 +366,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 				if( !ops.isEmpty() ) {
 					//Log.v( TAG, "process : applying batch '" + channel.getCallSign() + "'" );
 					
-					ContentProviderResult[] results = mContext.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
+					ContentProviderResult[] results = context.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
 					loaded += results.length;
 					
 					if( results.length > 0 ) {
@@ -394,7 +382,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		if( !ops.isEmpty() ) {
 			Log.v( TAG, "process : applying final batch for '" + count + "' transactions" );
 
-			ContentProviderResult[] results = mContext.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
+			ContentProviderResult[] results = context.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
 			loaded += results.length;
 
 			if( results.length > 0 ) {
@@ -407,13 +395,15 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 			Log.v( TAG, "load : remove deleted recording - " + program.getTitle() + " [" + program.getSubTitle() + "]" );
 			
 			// Delete any live stream details
-			LiveStreamInfo liveStreamInfo = mLiveStreamDaoHelper.findByProgram( program );
+			LiveStreamInfo liveStreamInfo = mLiveStreamDaoHelper.findByProgram( context, program );
 			if( null != liveStreamInfo ) {
 				Log.v( TAG, "load : remove live stream" );
 				
-				new RemoveStreamTask().execute( liveStreamInfo );
+				RemoveStreamTask removeStreamTask = new RemoveStreamTask();
+				removeStreamTask.setContext( context );
+				removeStreamTask.execute( liveStreamInfo );
 				
-				mLiveStreamDaoHelper.delete( liveStreamInfo );
+				mLiveStreamDaoHelper.delete( context, liveStreamInfo );
 			}
 			
 			if( null != program.getRecording() ) {
@@ -441,7 +431,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 				
 				if( !ops.isEmpty() ) {
 					
-					ContentProviderResult[] results = mContext.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
+					ContentProviderResult[] results = context.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
 					loaded += results.length;
 					
 					if( results.length > 0 ) {
@@ -458,7 +448,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		if( !ops.isEmpty() ) {
 			Log.v( TAG, "process : applying final batch for '" + count + "' transactions" );
 			
-			ContentProviderResult[] results = mContext.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
+			ContentProviderResult[] results = context.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
 			loaded += results.length;
 		}
 
@@ -470,7 +460,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 	 * @param programs
 	 * @return
 	 */
-	public abstract int load( List<Program> programs ) throws RemoteException, OperationApplicationException;
+	public abstract int load( Context context, List<Program> programs ) throws RemoteException, OperationApplicationException;
 	
 	/**
 	 * @param cursor
@@ -715,19 +705,26 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 
 	private class RemoveStreamTask extends AsyncTask<LiveStreamInfo, Void, ResponseEntity<Bool>> {
 
+		private Context mContext;
+		
 		private Exception e = null;
 
 		@Override
 		protected ResponseEntity<Bool> doInBackground( LiveStreamInfo... params ) {
 			Log.v( TAG, "RemoveStreamTask : enter" );
 
+			if( null == mContext ) 
+				throw new RuntimeException( "RemoveStreamTask not initalized!" );
+			
 			try {
 				Log.v( TAG, "RemoveStreamTask : api" );
 				
+				MainApplication mainApplication = (MainApplication) mContext.getApplicationContext();
+
 				LiveStreamInfo liveStreamInfo = params[ 0 ];
 				
 				if( null != liveStreamInfo ) {
-					return mMainApplication.getMythServicesApi().contentOperations().removeLiveStream( liveStreamInfo.getId() );
+					return mainApplication.getMythServicesApi().contentOperations().removeLiveStream( liveStreamInfo.getId() );
 				}
 				
 			} catch( Exception e ) {
@@ -760,6 +757,11 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 
 			Log.v( TAG, "RemoveStreamTask onPostExecute : exit" );
 		}
+		
+		public void setContext( Context context ) {
+			this.mContext = context;
+		}
+		
 	}
 
 }

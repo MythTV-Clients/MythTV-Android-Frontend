@@ -196,18 +196,18 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 		Log.v( TAG, "onResume : enter" );
 		super.onStart();
 	    
-		DateTime etag = mEtagDaoHelper.findDateByEndpointAndDataId( Endpoint.GET_RECORDED_LIST.name(), "" );
+		DateTime etag = mEtagDaoHelper.findDateByEndpointAndDataId( getActivity(), Endpoint.GET_RECORDED_LIST.name(), "" );
 		if( null != etag ) {
 			
 			DateTime now = new DateTime();
 			if( now.getMillis() - etag.getMillis() > 3600000 ) {
-				if( !mRunningServiceHelper.isServiceRunning( "org.mythtv.service.dvr.RecordedDownloadService" ) ) {
+				if( !mRunningServiceHelper.isServiceRunning( getActivity(), "org.mythtv.service.dvr.RecordedDownloadService" ) ) {
 					getActivity().startService( new Intent( RecordedDownloadService.ACTION_DOWNLOAD ) );
 				}
 			}
 			
 		} else {
-			if( !mRunningServiceHelper.isServiceRunning( "org.mythtv.service.dvr.RecordedDownloadService" ) ) {
+			if( !mRunningServiceHelper.isServiceRunning( getActivity(), "org.mythtv.service.dvr.RecordedDownloadService" ) ) {
 				getActivity().startService( new Intent( RecordedDownloadService.ACTION_DOWNLOAD ) );
 			}
 		}
@@ -244,7 +244,7 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 		Log.v( TAG, "onCreateOptionsMenu : enter" );
 		super.onCreateOptionsMenu( menu, inflater );
 
-		mMenuHelper.refreshMenuItem( menu );
+		mMenuHelper.refreshMenuItem( getActivity(), menu );
 		
 		Log.v( TAG, "onCreateOptionsMenu : exit" );
 	}
@@ -268,7 +268,7 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 			}
 			cursor.close();
 
-			if( !mRunningServiceHelper.isServiceRunning( "org.mythtv.service.dvr.RecordedDownloadService" ) ) {
+			if( !mRunningServiceHelper.isServiceRunning( getActivity(), "org.mythtv.service.dvr.RecordedDownloadService" ) ) {
 				getActivity().startService( new Intent( RecordedDownloadService.ACTION_DOWNLOAD ) );
 			}
 		    
@@ -289,7 +289,7 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 
 		Log.v( TAG, "onListItemClick : position=" + position + ", id=" + id );
 
-		ProgramGroup programGroup = mProgramGroupDaoHelper.findOne( id );		
+		ProgramGroup programGroup = mProgramGroupDaoHelper.findOne( getActivity(), id );		
 		if( null != programGroup ) {
 			Log.v( TAG, "onListItemClick : selecting program group, programGroup=" + programGroup.toString() );
 

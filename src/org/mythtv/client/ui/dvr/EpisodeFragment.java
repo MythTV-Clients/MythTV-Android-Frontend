@@ -199,11 +199,11 @@ public class EpisodeFragment extends AbstractMythFragment {
 		Log.v( TAG, "onCreateOptionsMenu : enter" );
 		super.onCreateOptionsMenu( menu, inflater );
 
-		mMenuHelper.watchMenuItem( menu );
-		mMenuHelper.watchOnFrontendMenuItem( menu );
-		addHlsMenuItem = mMenuHelper.addMenuItem( menu );
-		clearHlsMenuItem = mMenuHelper.clearMenuItem( menu );
-		mMenuHelper.deleteMenuItem( menu );
+		mMenuHelper.watchMenuItem( getActivity(), menu );
+		mMenuHelper.watchOnFrontendMenuItem( getActivity(), menu );
+		addHlsMenuItem = mMenuHelper.addMenuItem( getActivity(), menu );
+		clearHlsMenuItem = mMenuHelper.clearMenuItem( getActivity(), menu );
+		mMenuHelper.deleteMenuItem( getActivity(), menu );
 		
 		if( null != addHlsMenuItem ) {
 			addHlsMenuItem.setTitle( getString( R.string.menu_add ) + " HLS Stream" );
@@ -230,7 +230,7 @@ public class EpisodeFragment extends AbstractMythFragment {
 		case MenuHelper.WATCH_ID:
 			Log.d( TAG, "onOptionsItemSelected : watch selected" );
 
-			if( NetworkHelper.getInstance().isNetworkConnected() ) {
+			if( NetworkHelper.getInstance().isNetworkConnected( getActivity() ) ) {
 				
 				LocationProfile mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile();
 				if( mLocationProfile.getType().equals( LocationType.HOME ) ) {
@@ -312,7 +312,7 @@ public class EpisodeFragment extends AbstractMythFragment {
 		case MenuHelper.ADD_ID:
 			Log.d( TAG, "onOptionsItemSelected : add selected" );
 
-			if( NetworkHelper.getInstance().isNetworkConnected() ) {
+			if( NetworkHelper.getInstance().isNetworkConnected( getActivity() ) ) {
 				
 				if( !preferences.getBoolean( DISMISS_ADD, false ) ) {
 					
@@ -371,7 +371,7 @@ public class EpisodeFragment extends AbstractMythFragment {
 		case MenuHelper.CLEAR_ID :
 			Log.d( TAG, "onOptionsItemSelected : clear selected" );
 			
-			if( NetworkHelper.getInstance().isNetworkConnected() ) {
+			if( NetworkHelper.getInstance().isNetworkConnected( getActivity() ) ) {
 				
 				AlertDialog.Builder builder = new AlertDialog.Builder( getActivity() );
 
@@ -413,7 +413,7 @@ public class EpisodeFragment extends AbstractMythFragment {
 		case MenuHelper.DELETE_ID:
 			Log.d( TAG, "onOptionsItemSelected : delete selected" );
 
-			if( NetworkHelper.getInstance().isNetworkConnected() ) {
+			if( NetworkHelper.getInstance().isNetworkConnected( getActivity() ) ) {
 				
 				AlertDialog.Builder builder = new AlertDialog.Builder( getActivity() );
 
@@ -486,7 +486,7 @@ public class EpisodeFragment extends AbstractMythFragment {
 		}
 		
 		Log.v( TAG, "loadEpisode : channelId=" + channelId + ", startTime=" + DateUtils.dateTimeFormatterPretty.print( startTime ) );
-        program = mRecordedDaoHelper.findOne( channelId, startTime );
+        program = mRecordedDaoHelper.findOne( getActivity(), channelId, startTime );
 		if( null != program ) {
 
 			// get activity to grab views from
@@ -573,7 +573,7 @@ public class EpisodeFragment extends AbstractMythFragment {
 	private void updateHlsDetails() {
 		Log.v( TAG, "updateHlsDetails : enter" );
 		
-        liveStreamInfo = mLiveStreamDaoHelper.findByProgram( program );
+        liveStreamInfo = mLiveStreamDaoHelper.findByProgram( getActivity(), program );
         if( null != liveStreamInfo ) {
     		Log.v( TAG, "updateHlsDetails : live stream found, liveStreamInfo=" + liveStreamInfo.toString() );
 
@@ -665,7 +665,7 @@ public class EpisodeFragment extends AbstractMythFragment {
 		protected ResponseEntity<Bool> doInBackground( Void... params ) {
 			Log.v( TAG, "RemoveRecordingTask : enter" );
 
-			if( !NetworkHelper.getInstance().isMasterBackendConnected() ) {
+			if( !NetworkHelper.getInstance().isMasterBackendConnected( getActivity() ) ) {
 				return null;
 			}
 
@@ -697,17 +697,17 @@ public class EpisodeFragment extends AbstractMythFragment {
 						if( bool.getBool().equals( Boolean.TRUE ) ) {
 						
 							String title = program.getTitle();
-							ProgramGroup programGroup = mProgramGroupDaoHelper.findByTitle( title );
+							ProgramGroup programGroup = mProgramGroupDaoHelper.findByTitle( getActivity(), title );
 							
 							String programGroupName = programGroup.getProgramGroup();
 							
-							mRecordedDaoHelper.delete( program );
+							mRecordedDaoHelper.delete( getActivity(), program );
 							
-							List<Program> programs = mRecordedDaoHelper.findAllByTitle( title );
+							List<Program> programs = mRecordedDaoHelper.findAllByTitle( getActivity(), title );
 							if( null == programs || programs.isEmpty() ) {
-								mProgramGroupDaoHelper.delete( programGroup );
+								mProgramGroupDaoHelper.delete( getActivity(), programGroup );
 								
-								List<ProgramGroup> programGroups = mProgramGroupDaoHelper.findAll();
+								List<ProgramGroup> programGroups = mProgramGroupDaoHelper.findAll( getActivity() );
 								if( null != programGroups && !programGroups.isEmpty() ) {
 									programGroupName = programGroups.get( 0 ).getProgramGroup();
 								}
@@ -763,9 +763,9 @@ public class EpisodeFragment extends AbstractMythFragment {
 				LocationType location = mLocationProfileDaoHelper.findConnectedProfile().getType();
 				
 				if( location.equals( LocationType.HOME ) ) {
-					selectedPlaybackProfile = mPlaybackProfileDaoHelper.findSelectedHomeProfile();
+					selectedPlaybackProfile = mPlaybackProfileDaoHelper.findSelectedHomeProfile( getActivity() );
 				} else if( location.equals( LocationType.AWAY ) ) {
-					selectedPlaybackProfile = mPlaybackProfileDaoHelper.findSelectedAwayProfile();
+					selectedPlaybackProfile = mPlaybackProfileDaoHelper.findSelectedAwayProfile( getActivity() );
 				} else {
 					Log.e( TAG, "Unknown Location!" );
 				}
@@ -799,7 +799,7 @@ public class EpisodeFragment extends AbstractMythFragment {
 					if( result.getStatusCode().equals( HttpStatus.OK ) ) {
 						
 						liveStreamInfo = result.getBody().getLiveStreamInfo();
-						mLiveStreamDaoHelper.save( liveStreamInfo, program );
+						mLiveStreamDaoHelper.save( getActivity(), liveStreamInfo, program );
 						
 						new UpdateStreamInfoTask().execute();
 						
@@ -834,7 +834,7 @@ public class EpisodeFragment extends AbstractMythFragment {
 		protected ResponseEntity<LiveStreamInfoWrapper> doInBackground( Void... params ) {
 			Log.v( TAG, "UpdateStreamInfoTask : enter" );
 
-			if( !NetworkHelper.getInstance().isNetworkConnected() ) {
+			if( !NetworkHelper.getInstance().isNetworkConnected( getActivity() ) ) {
 				Log.v( TAG, "UpdateStreamInfoTask : exit, not connected" );
 				
 				return null;
@@ -885,7 +885,7 @@ public class EpisodeFragment extends AbstractMythFragment {
 
 						// save updated live stream info to database
 						liveStreamInfo = result.getBody().getLiveStreamInfo();
-						mLiveStreamDaoHelper.save( liveStreamInfo, program );
+						mLiveStreamDaoHelper.save( getActivity(), liveStreamInfo, program );
 						
 						if( liveStreamInfo.getPercentComplete() < 100 ) {
 							new UpdateStreamInfoTask().execute();
@@ -941,7 +941,7 @@ public class EpisodeFragment extends AbstractMythFragment {
 					
 					if( result.getBody().getBool().booleanValue() ) {
 						
-						mLiveStreamDaoHelper.delete( liveStreamInfo );
+						mLiveStreamDaoHelper.delete( getActivity(), liveStreamInfo );
 						
 						updateHlsDetails();
 						
@@ -950,7 +950,7 @@ public class EpisodeFragment extends AbstractMythFragment {
 					
 				} else {
 					
-					mLiveStreamDaoHelper.delete( liveStreamInfo );
+					mLiveStreamDaoHelper.delete( getActivity(), liveStreamInfo );
 					
 					updateHlsDetails();
 					

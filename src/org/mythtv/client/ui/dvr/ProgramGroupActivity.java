@@ -69,7 +69,7 @@ public class ProgramGroupActivity extends AbstractMythtvFragmentActivity impleme
 			finish();
 		}
 
-		selectedProgramGroup = mProgramGroupDaoHelper.findByTitle( programGroup );		
+		selectedProgramGroup = mProgramGroupDaoHelper.findByTitle( this, programGroup );		
 		
 		mProgramGroupFragment = (ProgramGroupFragment) getSupportFragmentManager().findFragmentById( R.id.fragment_dvr_program_group );
 		mProgramGroupFragment.setOnEpisodeSelectedListener( this );

@@ -243,7 +243,7 @@ public class LocationProfileEditor extends AbstractMythtvFragmentActivity {
 		if( save() ) {
 			Log.v( TAG, "saveAndExit : save completed successfully" );
 
-			if( !mRunningServiceHelper.isServiceRunning( "org.mythtv.service.preferences.PreferencesRecordedDownloadService" ) ) {
+			if( !mRunningServiceHelper.isServiceRunning( this, "org.mythtv.service.preferences.PreferencesRecordedDownloadService" ) ) {
 				
 				mProgressDialog = ProgressDialog.show( LocationProfileEditor.this, getResources().getString( R.string.please_wait ), getResources().getString( R.string.preferences_profile_loading ), true, false );
 				
@@ -337,7 +337,7 @@ public class LocationProfileEditor extends AbstractMythtvFragmentActivity {
 		@Override
 		protected ResponseEntity<StringWrapper> doInBackground( Void... params ) {
 			
-			if( !NetworkHelper.getInstance().isMasterBackendConnected( profile ) ) {
+			if( !NetworkHelper.getInstance().isMasterBackendConnected( LocationProfileEditor.this, profile ) ) {
 				return null;
 			}
 

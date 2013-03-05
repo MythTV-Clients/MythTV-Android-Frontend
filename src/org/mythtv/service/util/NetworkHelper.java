@@ -43,7 +43,6 @@ public class NetworkHelper {
 	
 	private static NetworkHelper singleton = null;
 	
-	private Context mContext;
 	private LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
 	
 	/**
@@ -73,41 +72,19 @@ public class NetworkHelper {
 	private NetworkHelper() { }
 	
 	/**
-	 * Must be called once at the beginning of the application. Subsequent 
-	 * calls to this will have no effect.
-	 * @param context
-	 */
-	public void init( Context context ) {
-		
-		//ignore any additional calls to init
-		if( this.isInitialized() ) 
-			return;
-		
-		this.mContext = context;
-	}
-	
-	/**
-	 * Returns true if NetworkHelper has already been initialized
-	 * @return
-	 */
-	public boolean isInitialized(){
-		return null != this.mContext;
-	}
-	
-	/**
 	 * Returns true if a network connection is detected
 	 * @return
 	 */
-	public boolean isNetworkConnected() {
+	public boolean isNetworkConnected( Context context ) {
 //		Log.v( TAG, "isNetworkConnected : enter" );
 		
 		/* Check if we're not initialized */
-		if( !this.isInitialized() ) {
+		if( null == context ) {
 //			Log.e(TAG, "NetworkHelper not initialized");
 			throw new RuntimeException( "NetworkHelper is not initialized" );
 		}
 
-		final ConnectivityManager cm = (ConnectivityManager) mContext.getSystemService( Context.CONNECTIVITY_SERVICE );
+		final ConnectivityManager cm = (ConnectivityManager) context.getSystemService( Context.CONNECTIVITY_SERVICE );
 		final NetworkInfo networkInfo = cm.getActiveNetworkInfo();
 		if( networkInfo == null || !networkInfo.isConnectedOrConnecting() ) {
 			Log.w( TAG, "isNetworkConnected : no network connection found" );
@@ -124,11 +101,11 @@ public class NetworkHelper {
 	 * Three attempts are made before a false return.
 	 * @return
 	 */
-	public boolean isMasterBackendConnected() {
+	public boolean isMasterBackendConnected( Context context ) {
 //		Log.v( TAG, "isMasterBackendConnected : enter" );
 		
 		/* Check if we're not initialized */
-		if(!this.isInitialized()){
+		if( null == context ) {
 //			Log.e(TAG, "NetworkHelper not initialized");
 			throw new RuntimeException( "NetworkHelper is not initialized" );
 		}
@@ -139,7 +116,7 @@ public class NetworkHelper {
 			return false;
 		}
 
-		if( !isNetworkConnected() ) {
+		if( !isNetworkConnected( context ) ) {
 			return false;
 		}
 		
@@ -182,16 +159,16 @@ public class NetworkHelper {
 	 * @param profile
 	 * @return
 	 */
-	public boolean isMasterBackendConnected( LocationProfile profile ) {
+	public boolean isMasterBackendConnected( Context context, LocationProfile profile ) {
 //		Log.v( TAG, "isMasterBackendConnected : profile=" + profile.toString() );
 		
 		/* Check if we're not initialized */
-		if(!this.isInitialized()){
+		if( null == context ) {
 //			Log.e(TAG, "NetworkHelper not initialized");
 			throw new RuntimeException( "NetworkHelper is not initialized" );
 		}
 		
-		if( !isNetworkConnected() )
+		if( !isNetworkConnected( context ) )
 			return false;
 
 		int attempts = 0;

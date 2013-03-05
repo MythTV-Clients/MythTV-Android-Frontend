@@ -33,8 +33,6 @@ public class RunningServiceHelper {
 	
 	private static RunningServiceHelper singleton = null;
 
-	private Context mContext;
-	
 	/**
 	 * Returns the one and only RunningServiceHelper. init() must be called before 
 	 * any 
@@ -62,39 +60,15 @@ public class RunningServiceHelper {
 	 */
 	private RunningServiceHelper() { }
 	
-	/**
-	 * Must be called once at the beginning of the application. Subsequent 
-	 * calls to this will have no effect.
-	 * 
-	 * @param context
-	 */
-	public void init( Context context ) {
-		
-		// ignore any additional calls to init
-		if( this.isInitialized() ) 
-			return;
-		
-		this.mContext = context;
-	}
-	
-	/**
-	 * Returns true if RunningServiceHelper has already been initialized
-	 * 
-	 * @return
-	 */
-	public boolean isInitialized(){
-		return null != this.mContext;
-	}
-	
-	public boolean isServiceRunning( String serviceName ) {
+	public boolean isServiceRunning( Context context, String serviceName ) {
 		Log.v( TAG, "isServiceRunning : enter" );
 		
-		if( !this.isInitialized() ) 
+		if( null == context ) 
 			throw new RuntimeException( "RunningServiceHelper is not initialized" );
 		
 		Log.d( TAG, "isServiceRunning : checking for running server '" + serviceName + "'" );
 		
-		ActivityManager manager = (ActivityManager) mContext.getSystemService( Context.ACTIVITY_SERVICE );
+		ActivityManager manager = (ActivityManager) context.getSystemService( Context.ACTIVITY_SERVICE );
 
 		for( RunningServiceInfo service : manager.getRunningServices( Integer.MAX_VALUE ) ) {
 

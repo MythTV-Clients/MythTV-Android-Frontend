@@ -24,6 +24,7 @@ import org.joda.time.DateTime;
 import org.mythtv.services.api.dvr.Program;
 
 import android.content.ContentUris;
+import android.content.Context;
 import android.content.OperationApplicationException;
 import android.os.RemoteException;
 import android.util.Log;
@@ -68,12 +69,12 @@ public class UpcomingDaoHelper extends ProgramDaoHelper {
 	 * @see org.mythtv.db.dvr.ProgramDaoHelper#findAll()
 	 */
 	@Override
-	public List<Program> findAll() {
+	public List<Program> findAll( Context context ) {
 		Log.d( TAG, "findAll : enter" );
 		
-		String selection = appendLocationHostname( "", ProgramConstants.TABLE_NAME_UPCOMING );
+		String selection = appendLocationHostname( context, "", ProgramConstants.TABLE_NAME_UPCOMING );
 
-		List<Program> programs = findAll( ProgramConstants.CONTENT_URI_UPCOMING, null, selection, null, null );
+		List<Program> programs = findAll( context, ProgramConstants.CONTENT_URI_UPCOMING, null, selection, null, null );
 		
 		Log.d( TAG, "findAll : exit" );
 		return programs;
@@ -83,15 +84,15 @@ public class UpcomingDaoHelper extends ProgramDaoHelper {
 	 * @param title
 	 * @return
 	 */
-	public List<Program> findAllByTitle( String title ) {
+	public List<Program> findAllByTitle( Context context, String title ) {
 		Log.d( TAG, "findAllByTitle : enter" );
 		
 		String selection = ProgramConstants.FIELD_TITLE + " = ?";
 		String[] selectionArgs = new String[] { title };
 
-		selection = appendLocationHostname( selection, ProgramConstants.TABLE_NAME_UPCOMING );
+		selection = appendLocationHostname( context, selection, ProgramConstants.TABLE_NAME_UPCOMING );
 		
-		List<Program> programs = findAll( ProgramConstants.CONTENT_URI_UPCOMING, null, selection, selectionArgs, null );
+		List<Program> programs = findAll( context, ProgramConstants.CONTENT_URI_UPCOMING, null, selection, selectionArgs, null );
 		if( null != programs && !programs.isEmpty() ) {
 			for( Program program : programs ) {
 				Log.v( TAG, "findAllByTitle : channelId=" + program.getChannelInfo().getChannelId() + ", startTime=" + program.getStartTime().getMillis() + ", program=" + program.toString() );
@@ -106,11 +107,11 @@ public class UpcomingDaoHelper extends ProgramDaoHelper {
 	 * @param id
 	 * @return
 	 */
-	public Program findOne( Long id ) {
+	public Program findOne( Context context, Long id ) {
 		Log.d( TAG, "findOne : enter" );
 		Log.d( TAG, "findOne : id=" + id );
 		
-		Program program = findOne( ContentUris.withAppendedId( ProgramConstants.CONTENT_URI_UPCOMING, id ), null, null, null, null );
+		Program program = findOne( context, ContentUris.withAppendedId( ProgramConstants.CONTENT_URI_UPCOMING, id ), null, null, null, null );
 		if( null != program ) {
 			Log.d( TAG, "findOne : program=" + program.toString() );
 		}
@@ -123,15 +124,15 @@ public class UpcomingDaoHelper extends ProgramDaoHelper {
 	 * @see org.mythtv.db.dvr.ProgramDaoHelper#findOne(int, org.joda.time.DateTime)
 	 */
 	@Override
-	public Program findOne( int channelId, DateTime startTime ) {
+	public Program findOne( Context context, int channelId, DateTime startTime ) {
 		Log.d( TAG, "findOne : enter" );
 		
 		String selection = ProgramConstants.TABLE_NAME_RECORDED + "." + ProgramConstants.FIELD_CHANNEL_ID + " = ? AND " + ProgramConstants.TABLE_NAME_RECORDED + "." + ProgramConstants.FIELD_START_TIME + " = ?";
 		String[] selectionArgs = new String[] { String.valueOf( channelId ), String.valueOf( startTime.getMillis() ) };
 
-		selection = appendLocationHostname( selection, ProgramConstants.TABLE_NAME_UPCOMING );
+		selection = appendLocationHostname( context, selection, ProgramConstants.TABLE_NAME_UPCOMING );
 		
-		Program program = findOne( ProgramConstants.CONTENT_URI_UPCOMING, null, selection, selectionArgs, null );
+		Program program = findOne( context, ProgramConstants.CONTENT_URI_UPCOMING, null, selection, selectionArgs, null );
 		if( null != program ) {
 			Log.v( TAG, "findOne : program=" + program.toString() );
 		} else {
@@ -146,10 +147,10 @@ public class UpcomingDaoHelper extends ProgramDaoHelper {
 	 * @see org.mythtv.db.dvr.ProgramDaoHelper#save(org.mythtv.services.api.dvr.Program)
 	 */
 	@Override
-	public int save( Program program ) {
+	public int save( Context context, Program program ) {
 		Log.d( TAG, "save : enter" );
 
-		int saved = save( ProgramConstants.CONTENT_URI_UPCOMING, program );
+		int saved = save( context, ProgramConstants.CONTENT_URI_UPCOMING, program );
 		
 		Log.d( TAG, "save : exit" );
 		return saved;
@@ -159,10 +160,10 @@ public class UpcomingDaoHelper extends ProgramDaoHelper {
 	 * @see org.mythtv.db.dvr.ProgramDaoHelper#deleteAll()
 	 */
 	@Override
-	public int deleteAll() {
+	public int deleteAll( Context context ) {
 		Log.d( TAG, "deleteAll : enter" );
 
-		int deleted = deleteAll( ProgramConstants.CONTENT_URI_UPCOMING );
+		int deleted = deleteAll( context, ProgramConstants.CONTENT_URI_UPCOMING );
 		
 		Log.d( TAG, "deleteAll : exit" );
 		return deleted;
@@ -172,10 +173,10 @@ public class UpcomingDaoHelper extends ProgramDaoHelper {
 	 * @see org.mythtv.db.dvr.ProgramDaoHelper#delete(org.mythtv.services.api.dvr.Program)
 	 */
 	@Override
-	public int delete( Program program ) {
+	public int delete( Context context, Program program ) {
 		Log.d( TAG, "delete : enter" );
 
-		int deleted = delete( ProgramConstants.CONTENT_URI_UPCOMING, program );
+		int deleted = delete( context, ProgramConstants.CONTENT_URI_UPCOMING, program );
 		
 		Log.d( TAG, "delete : exit" );
 		return deleted;
@@ -185,10 +186,10 @@ public class UpcomingDaoHelper extends ProgramDaoHelper {
 	 * @see org.mythtv.db.dvr.ProgramDaoHelper#load(java.util.List)
 	 */
 	@Override
-	public int load( List<Program> programs ) throws RemoteException, OperationApplicationException {
+	public int load( Context context, List<Program> programs ) throws RemoteException, OperationApplicationException {
 		Log.d( TAG, "load : enter" );
 
-		int loaded = load( ProgramConstants.CONTENT_URI_UPCOMING, programs, ProgramConstants.TABLE_NAME_UPCOMING );
+		int loaded = load( context, ProgramConstants.CONTENT_URI_UPCOMING, programs, ProgramConstants.TABLE_NAME_UPCOMING );
 		Log.d( TAG, "load : loaded=" + loaded );
 		
 		Log.d( TAG, "load : exit" );

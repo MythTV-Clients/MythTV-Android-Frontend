@@ -57,7 +57,7 @@ public class PlaybackProfileEditor extends AbstractMythtvFragmentActivity {
 
 		int id = getIntent().getIntExtra( PlaybackProfileConstants._ID, -1 );
 
-		profile = mPlaybackProfileDaoHelper.findOne( (long) id );
+		profile = mPlaybackProfileDaoHelper.findOne( this, (long) id );
 		if( null == profile ) {
 			profile = new PlaybackProfile();
 			
@@ -262,7 +262,7 @@ public class PlaybackProfileEditor extends AbstractMythtvFragmentActivity {
 			if( profile.getId() != -1 ) {
 				Log.v( TAG, "save : updating existing playback profile" );
 
-				retVal = mPlaybackProfileDaoHelper.save( profile );
+				retVal = mPlaybackProfileDaoHelper.save( this, profile );
 			}
 		}
 

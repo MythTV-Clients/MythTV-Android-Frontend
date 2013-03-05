@@ -122,8 +122,8 @@ public class RecordingRuleFragment extends AbstractMythFragment {
 
 		mMenuHelper = ( (AbstractMythtvFragmentActivity) getActivity() ).getMenuHelper();
 
-		mMenuHelper.editMenuItem( menu );
-		mMenuHelper.deleteMenuItem( menu );
+		mMenuHelper.editMenuItem( getActivity(), menu );
+		mMenuHelper.deleteMenuItem( getActivity(), menu );
 
 		Log.v( TAG, "onCreateOptionsMenu : exit" );
 		
@@ -203,7 +203,7 @@ public class RecordingRuleFragment extends AbstractMythFragment {
 		// - slow
 		String channel = "[Any]";
 		if( rule.getChanId() > 0 ) {
-			ChannelInfo channelInfo = mChannelDaoHelper.findByChannelId( (long) rule.getChanId() );
+			ChannelInfo channelInfo = mChannelDaoHelper.findByChannelId( getActivity(), (long) rule.getChanId() );
 			if( null != channelInfo && channelInfo.getChannelId() > -1 ) {
 				channel = channelInfo.getChannelNumber();
 			}
@@ -223,7 +223,7 @@ public class RecordingRuleFragment extends AbstractMythFragment {
 		@Override
 		protected ResponseEntity<RecRuleWrapper> doInBackground( Integer... params ) {
 			
-			if( !NetworkHelper.getInstance().isMasterBackendConnected() ) {
+			if( !NetworkHelper.getInstance().isMasterBackendConnected( getActivity() ) ) {
 				return null;
 			}
 			
