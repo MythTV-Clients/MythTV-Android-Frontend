@@ -61,7 +61,7 @@ public class ProgramGuideCleanupService extends MythtvService {
 	protected void onHandleIntent( Intent intent ) {
 		Log.d( TAG, "onHandleIntent : enter" );
 
-		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile();
+		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( this );
 		
         if ( intent.getAction().equals( ACTION_CLEANUP ) ) {
     		Log.i( TAG, "onHandleIntent : CLEANUP action selected" );

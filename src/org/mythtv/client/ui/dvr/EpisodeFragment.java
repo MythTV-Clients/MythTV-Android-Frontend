@@ -232,7 +232,7 @@ public class EpisodeFragment extends AbstractMythFragment {
 
 			if( NetworkHelper.getInstance().isNetworkConnected( getActivity() ) ) {
 				
-				LocationProfile mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile();
+				LocationProfile mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
 				if( mLocationProfile.getType().equals( LocationType.HOME ) ) {
 					
 					AlertDialog.Builder builder = new AlertDialog.Builder( getActivity() );
@@ -498,7 +498,7 @@ public class EpisodeFragment extends AbstractMythFragment {
 			
 			if( null != program.getInetref() && !"".equals( program.getInetref() ) ) {
 
-				String imageUri = mLocationProfileDaoHelper.findConnectedProfile().getUrl() + "Content/GetRecordingArtwork?Type=Coverart&Inetref=" + program.getInetref();
+				String imageUri = mLocationProfileDaoHelper.findConnectedProfile( getActivity() ).getUrl() + "Content/GetRecordingArtwork?Type=Coverart&Inetref=" + program.getInetref();
 				imageLoader.displayImage( imageUri, iView, options, new SimpleImageLoadingListener() {
 
 					/* (non-Javadoc)
@@ -760,7 +760,7 @@ public class EpisodeFragment extends AbstractMythFragment {
 			try {
 				Log.v( TAG, "CreateStreamTask : api" );
 				
-				LocationType location = mLocationProfileDaoHelper.findConnectedProfile().getType();
+				LocationType location = mLocationProfileDaoHelper.findConnectedProfile( getActivity() ).getType();
 				
 				if( location.equals( LocationType.HOME ) ) {
 					selectedPlaybackProfile = mPlaybackProfileDaoHelper.findSelectedHomeProfile( getActivity() );

@@ -69,7 +69,7 @@ public class LocationDashboardFragment extends AbstractMythFragment {
 			public void onClick( View view ) {
 				Log.v( TAG, "home.onClick : enter" );
 				
-					if( null == mLocationProfileDaoHelper.findSelectedHomeProfile() ) {
+					if( null == mLocationProfileDaoHelper.findSelectedHomeProfile( getActivity() ) ) {
 						
 						AlertDialog.Builder builder = new AlertDialog.Builder( getActivity() );
 						builder.setTitle( R.string.location_alert_error_title );
@@ -83,8 +83,8 @@ public class LocationDashboardFragment extends AbstractMythFragment {
 
 					} else {
 					
-						LocationProfile profile = mLocationProfileDaoHelper.findSelectedHomeProfile(); 
-						mLocationProfileDaoHelper.setConnectedLocationProfile( (long) profile.getId() );
+						LocationProfile profile = mLocationProfileDaoHelper.findSelectedHomeProfile( getActivity() ); 
+						mLocationProfileDaoHelper.setConnectedLocationProfile( getActivity(), (long) profile.getId() );
 					
 						connectedProfile = "home";
 
@@ -100,7 +100,7 @@ public class LocationDashboardFragment extends AbstractMythFragment {
 			public void onClick( View view ) {
 				Log.v( TAG, "away.onClick : enter" );
 
-					if( null == mLocationProfileDaoHelper.findSelectedAwayProfile() ) {
+					if( null == mLocationProfileDaoHelper.findSelectedAwayProfile( getActivity() ) ) {
 						
 						AlertDialog.Builder builder = new AlertDialog.Builder( getActivity() );
 						builder.setTitle( R.string.location_alert_error_title );
@@ -114,8 +114,8 @@ public class LocationDashboardFragment extends AbstractMythFragment {
 
 					} else {
 					
-						LocationProfile profile = mLocationProfileDaoHelper.findSelectedAwayProfile(); 
-						mLocationProfileDaoHelper.setConnectedLocationProfile( (long) profile.getId() );
+						LocationProfile profile = mLocationProfileDaoHelper.findSelectedAwayProfile( getActivity() ); 
+						mLocationProfileDaoHelper.setConnectedLocationProfile( getActivity(), (long) profile.getId() );
 					
 						connectedProfile = "away";
 						

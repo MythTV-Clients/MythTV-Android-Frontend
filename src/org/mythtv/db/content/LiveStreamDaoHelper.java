@@ -211,7 +211,7 @@ public class LiveStreamDaoHelper extends AbstractDaoHelper {
 		if( null == context ) 
 			throw new RuntimeException( "LiveStreamDaoHelper is not initialized" );
 		
-		ContentValues values = convertLiveStreamInfoToContentValues( liveStreamInfo, program );
+		ContentValues values = convertLiveStreamInfoToContentValues( context, liveStreamInfo, program );
 
 		String[] projection = new String[] { LiveStreamConstants.TABLE_NAME + "_" + LiveStreamConstants._ID };
 		String selection = LiveStreamConstants.FIELD_ID + " = ?";
@@ -303,7 +303,7 @@ public class LiveStreamDaoHelper extends AbstractDaoHelper {
 		
 		int loaded = -1;
 		
-		ContentValues[] contentValuesArray = convertLiveStreamInfosToContentValuesArray( liveStreamInfos );
+		ContentValues[] contentValuesArray = convertLiveStreamInfosToContentValuesArray( context, liveStreamInfos );
 		if( null != contentValuesArray ) {
 			Log.v( TAG, "processLiveStreams : liveStreams=" + contentValuesArray.length );
 
@@ -462,7 +462,7 @@ public class LiveStreamDaoHelper extends AbstractDaoHelper {
 
 	// internal helpers
 
-	private ContentValues[] convertLiveStreamInfosToContentValuesArray( final List<LiveStreamInfo> liveStreamInfos ) {
+	private ContentValues[] convertLiveStreamInfosToContentValuesArray( final Context context, final List<LiveStreamInfo> liveStreamInfos ) {
 		Log.v( TAG, "convertLiveStreamInfosToContentValuesArray : enter" );
 		
 		if( null != liveStreamInfos && !liveStreamInfos.isEmpty() ) {
@@ -488,7 +488,7 @@ public class LiveStreamDaoHelper extends AbstractDaoHelper {
 				channelInfo.setChannelId( channelId );
 				program.setChannelInfo( channelInfo );
 				
-				contentValues = convertLiveStreamInfoToContentValues( liveStreamInfo, program );
+				contentValues = convertLiveStreamInfoToContentValues( context, liveStreamInfo, program );
 				contentValuesArray.add( contentValues );
 				
 			}			
@@ -505,10 +505,10 @@ public class LiveStreamDaoHelper extends AbstractDaoHelper {
 		return null;
 	}
 
-	private ContentValues convertLiveStreamInfoToContentValues( final LiveStreamInfo liveStreamInfo, final Program program ) {
+	private ContentValues convertLiveStreamInfoToContentValues( final Context context, final LiveStreamInfo liveStreamInfo, final Program program ) {
 //		Log.v( TAG, "convertLiveStreamToContentValues : enter" );
 		
-		LocationProfile mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile();
+		LocationProfile mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( context );
 		
 		ContentValues values = new ContentValues();
 		values.put( LiveStreamConstants.FIELD_ID, liveStreamInfo.getId() );

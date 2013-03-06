@@ -150,7 +150,7 @@ public class RecordedDownloadService extends MythtvService {
 	private void download() throws Exception {
 		Log.v( TAG, "download : enter" );
 
-		LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile();
+		LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile( this );
 		Log.v( TAG, "download : get recorded for host [" + locationProfile.getHostname() + ":" + locationProfile.getUrl() + "]" );
 
 		ETagInfo etag = mEtagDaoHelper.findByEndpointAndDataId( this, Endpoint.GET_RECORDED_LIST.name(), "" );
@@ -202,7 +202,7 @@ public class RecordedDownloadService extends MythtvService {
 	private void process( Programs programs ) throws JsonGenerationException, JsonMappingException, IOException, RemoteException, OperationApplicationException {
 		Log.v( TAG, "process : enter" );
 		
-		LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile();
+		LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile( this );
 		Log.v( TAG, "process : saving recorded for host [" + locationProfile.getHostname() + ":" + locationProfile.getUrl() + "]" );
 		
 		mMainApplication.getObjectMapper().writeValue( new File( recordedDirectory, RECORDED_FILE_PREFIX + locationProfile.getHostname() + RECORDED_FILE_EXT ), programs );

@@ -96,7 +96,7 @@ public class LocationProfileEditor extends AbstractMythtvFragmentActivity {
 
 		long id = getIntent().getLongExtra( LocationProfileConstants._ID, -1 );
 
-		profile = mLocationProfileDaoHelper.findOne( id );
+		profile = mLocationProfileDaoHelper.findOne( this, id );
 		if( null == profile ) {
 			isNew = true;
 			profile = new LocationProfile();
@@ -276,7 +276,7 @@ public class LocationProfileEditor extends AbstractMythtvFragmentActivity {
 		
 		LocationProfile existing = null;
 		if( isNew ) {
-			existing = mLocationProfileDaoHelper.findByLocationTypeAndUrl( profile.getType(), profile.getUrl() );
+			existing = mLocationProfileDaoHelper.findByLocationTypeAndUrl( this, profile.getType(), profile.getUrl() );
 		}
 		
 		AlertDialog.Builder builder = new AlertDialog.Builder( this );
@@ -357,7 +357,7 @@ public class LocationProfileEditor extends AbstractMythtvFragmentActivity {
 					
 					profile.setHostname( result.getBody().getString() );
 					
-					mLocationProfileDaoHelper.save( profile );
+					mLocationProfileDaoHelper.save( LocationProfileEditor.this, profile );
 					Log.v( TAG, "profile=" + profile.toString() );
 					
 				    finish();

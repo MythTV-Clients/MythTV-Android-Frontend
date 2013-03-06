@@ -141,7 +141,7 @@ public class MainApplication extends Application {
 	public MythServices getMythServicesApi() {
 		Log.v( TAG, "getMythServicesApi : enter" );
 		
-		provider = new MythServicesServiceProvider( LocationProfileDaoHelper.getInstance().findConnectedProfile().getUrl(), Level.FINE );
+		provider = new MythServicesServiceProvider( LocationProfileDaoHelper.getInstance().findConnectedProfile( this ).getUrl(), Level.FINE );
 		
 		Log.v( TAG, "getMythServicesApi : exit" );
 		return provider.getApi();

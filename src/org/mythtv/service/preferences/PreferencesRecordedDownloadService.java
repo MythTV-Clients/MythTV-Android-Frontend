@@ -81,7 +81,7 @@ public class PreferencesRecordedDownloadService extends MythtvService {
 		if ( intent.getAction().equals( ACTION_DOWNLOAD ) ) {
     		Log.i( TAG, "onHandleIntent : DOWNLOAD action selected" );
 
-    		LocationProfile profile = locationProfileDaoHelper.findOne( id );
+    		LocationProfile profile = locationProfileDaoHelper.findOne( this, id );
     		if( null == profile ) {
     			Intent completeIntent = new Intent( ACTION_COMPLETE );
     			completeIntent.putExtra( EXTRA_COMPLETE, "Location Profile not found" );
@@ -111,7 +111,7 @@ public class PreferencesRecordedDownloadService extends MythtvService {
     				profile.setVersion( programs.getVersion() );
     				profile.setProtocolVersion( programs.getProtocolVersion() );
     				
-    				locationProfileDaoHelper.save( profile );
+    				locationProfileDaoHelper.save( this, profile );
     				
     				Log.v( TAG, "onHandleIntent : location profile updated" );
     			}

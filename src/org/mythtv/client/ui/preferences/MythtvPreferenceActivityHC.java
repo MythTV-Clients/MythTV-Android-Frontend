@@ -151,7 +151,7 @@ public class MythtvPreferenceActivityHC extends PreferenceActivity {
 
 				public boolean onPreferenceClick( Preference preference ) {
 					
-					LocationProfile profile = mLocationProfileDaoHelper.findOne( Long.parseLong( preference.getKey() ) );
+					LocationProfile profile = mLocationProfileDaoHelper.findOne( context, Long.parseLong( preference.getKey() ) );
 					
 					// show location editor
 					showLocationProfileEditDialog( context, profile );
@@ -356,12 +356,12 @@ public class MythtvPreferenceActivityHC extends PreferenceActivity {
 			case HOME :
 				Log.v( TAG, "saveSelectedLocationProfile : setting home selected location profile" );
 
-				mLocationProfileDaoHelper.setSelectedLocationProfile( (long) id );
+				mLocationProfileDaoHelper.setSelectedLocationProfile( context, (long) id );
 				break;
 			case AWAY :
 				Log.v( TAG, "saveSelectedLocationProfile : setting away selected location profile" );
 
-				mLocationProfileDaoHelper.setSelectedLocationProfile( (long) id );
+				mLocationProfileDaoHelper.setSelectedLocationProfile( context, (long) id );
 				break;
 			} 
 			
@@ -406,14 +406,14 @@ public class MythtvPreferenceActivityHC extends PreferenceActivity {
 			}
 
 			// show list of locations as a single selected list
-			AlertDialog.Builder builder = new AlertDialog.Builder(context);
+			AlertDialog.Builder builder = new AlertDialog.Builder( context );
 			builder.setTitle( R.string.preferences_profile_delete );
 			builder.setItems( names, new DialogInterface.OnClickListener() {
 
 				public void onClick( DialogInterface dialog, int which ) {
 
 					// delete  location
-					mLocationProfileDaoHelper.delete( (long) ids[ which ] );
+					mLocationProfileDaoHelper.delete( context, (long) ids[ which ] );
 					
 					listener.defaultLocationProfileChanged();
 				}
@@ -684,7 +684,7 @@ public class MythtvPreferenceActivityHC extends PreferenceActivity {
     		PreferenceCategory homeProfilesPreferenceCategory = (PreferenceCategory) findPreference( PREFERENCE_CATEGORY_HOME_SAVED_KEY );
     		homeProfilesPreferenceCategory.removeAll();
 
-    		final List<LocationProfile> homeLocationProfiles = mLocationProfileDaoHelper.findAllHomeLocationProfiles();
+    		final List<LocationProfile> homeLocationProfiles = mLocationProfileDaoHelper.findAllHomeLocationProfiles( context );
     		if( null != homeLocationProfiles && !homeLocationProfiles.isEmpty() ) {
     			Log.v( TAG, "setupPreferences : setting Home Location Profiles" );
     			
@@ -695,7 +695,7 @@ public class MythtvPreferenceActivityHC extends PreferenceActivity {
     	        
     		}
     		
-    		LocationProfile selectedHomeLocationProfile = mLocationProfileDaoHelper.findSelectedHomeProfile();
+    		LocationProfile selectedHomeLocationProfile = mLocationProfileDaoHelper.findSelectedHomeProfile( context );
 
     		Preference deleteHomeLocationProfilePreference = findPreference( PREFERENCE_HOME_DELETE_KEY );
     		deleteHomeLocationProfilePreference.setOnPreferenceClickListener( new OnPreferenceClickListener() {
@@ -908,7 +908,7 @@ public class MythtvPreferenceActivityHC extends PreferenceActivity {
     		PreferenceCategory awayProfilesPreferenceCategory = (PreferenceCategory) findPreference( PREFERENCE_CATEGORY_AWAY_SAVED_KEY );
     		awayProfilesPreferenceCategory.removeAll();
 
-    		final List<LocationProfile> awayLocationProfiles = mLocationProfileDaoHelper.findAllAwayLocationProfiles();
+    		final List<LocationProfile> awayLocationProfiles = mLocationProfileDaoHelper.findAllAwayLocationProfiles( context );
     		if( null != awayLocationProfiles && !awayLocationProfiles.isEmpty() ) {
     			Log.v( TAG, "setupPreferences : setting Away Location Profiles" );
     			
@@ -919,7 +919,7 @@ public class MythtvPreferenceActivityHC extends PreferenceActivity {
     	        
     		}
     		
-    		LocationProfile selectedAwayLocationProfile = mLocationProfileDaoHelper.findSelectedAwayProfile();
+    		LocationProfile selectedAwayLocationProfile = mLocationProfileDaoHelper.findSelectedAwayProfile( context );
 
     		Preference deleteAwayLocationProfilePreference = findPreference( PREFERENCE_AWAY_DELETE_KEY );
     		deleteAwayLocationProfilePreference.setOnPreferenceClickListener( new OnPreferenceClickListener() {

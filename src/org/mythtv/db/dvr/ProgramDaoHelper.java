@@ -272,7 +272,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		
 		boolean inError;
 		
-		LocationProfile mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile();
+		LocationProfile mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( context );
 		
 		for( Program program : programs ) {
 
@@ -330,7 +330,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 				
 				Log.v( TAG, "load : recording=" + program.getRecording().toString() );
 				
-				ContentValues recordingValues = mRecordingDaoHelper.convertRecordingToContentValues( program.getRecording(), program.getStartTime() );
+				ContentValues recordingValues = mRecordingDaoHelper.convertRecordingToContentValues( context, program.getRecording(), program.getStartTime() );
 				Cursor recordingCursor = context.getContentResolver().query( RecordingConstants.CONTENT_URI, recordingProjection, recordingSelection, recordingSelectionArgs, null );
 				if( recordingCursor.moveToFirst() ) {
 					Log.v( TAG, "load : UPDATE RECORDING program=" + program.getTitle() + ", recording=" + program.getRecording().getRecordId() );

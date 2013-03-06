@@ -202,7 +202,7 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 		if( null == context ) 
 			throw new RuntimeException( "ChannelDaoHelper is not initialized" );
 		
-		ContentValues values = convertChannelInfoToContentValues( channelInfo );
+		ContentValues values = convertChannelInfoToContentValues( context, channelInfo );
 
 		String[] projection = new String[] { ChannelConstants._ID };
 		String selection = ChannelConstants.FIELD_CHAN_ID + " = ?";
@@ -321,7 +321,7 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 			
 			for( ChannelInfo channel : channelInfos.getChannelInfos() ) {
 
-				ContentValues channelValues = convertChannelInfoToContentValues( channel );
+				ContentValues channelValues = convertChannelInfoToContentValues( context, channel );
 				Cursor channelCursor = context.getContentResolver().query( ChannelConstants.CONTENT_URI, channelProjection, channelSelection, new String[] { String.valueOf( channel.getChannelId() ) }, null );
 				if( channelCursor.moveToFirst() ) {
 					Log.v( TAG, "load : updating channel " + channel.getChannelId() );
@@ -595,7 +595,7 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 
 	// internal helpers
 
-	private ContentValues[] convertChannelInfosToContentValuesArray( final List<ChannelInfo> channelInfos ) {
+	private ContentValues[] convertChannelInfosToContentValuesArray( final Context context, final List<ChannelInfo> channelInfos ) {
 //		Log.v( TAG, "convertChannelInfosToContentValuesArray : enter" );
 		
 		if( null != channelInfos && !channelInfos.isEmpty() ) {
@@ -605,7 +605,7 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 
 			for( ChannelInfo channelInfo : channelInfos ) {
 
-				contentValues = convertChannelInfoToContentValues( channelInfo );
+				contentValues = convertChannelInfoToContentValues( context, channelInfo );
 				contentValuesArray.add( contentValues );
 				
 			}			
@@ -622,10 +622,10 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 		return null;
 	}
 
-	private ContentValues convertChannelInfoToContentValues( final ChannelInfo channelInfo ) {
+	private ContentValues convertChannelInfoToContentValues( Context context, final ChannelInfo channelInfo ) {
 //		Log.v( TAG, "convertChannelToContentValues : enter" );
 		
-		LocationProfile mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile();
+		LocationProfile mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( context );
 		
 		ContentValues values = new ContentValues();
 		values.put( ChannelConstants.FIELD_CHAN_ID, channelInfo.getChannelId() );

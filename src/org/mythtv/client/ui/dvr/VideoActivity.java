@@ -192,7 +192,7 @@ public class VideoActivity extends AbstractMythtvFragmentActivity {
 		
 		Log.v( TAG, "startVideo : program=" + program.toString() );
 		
-		String temp = mLocationProfileDaoHelper.findConnectedProfile().getUrl();
+		String temp = mLocationProfileDaoHelper.findConnectedProfile( this ).getUrl();
 		temp = temp.replaceAll( "/$", "" );
 		String url = "";
 		if( raw ) {

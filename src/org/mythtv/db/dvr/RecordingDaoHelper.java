@@ -326,10 +326,10 @@ public class RecordingDaoHelper extends AbstractDaoHelper {
 	 * @param recording
 	 * @return
 	 */
-	public ContentValues convertRecordingToContentValues( final Recording recording, final DateTime startTime ) {
+	public ContentValues convertRecordingToContentValues( final Context context, final Recording recording, final DateTime startTime ) {
 //		Log.v( TAG, "convertRecordingToContentValues : enter" );
 		
-		LocationProfile mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile();
+		LocationProfile mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( context );
 		
 		DateTime startTimestamp = null;
 		if( null != recording.getStartTimestamp() ) {

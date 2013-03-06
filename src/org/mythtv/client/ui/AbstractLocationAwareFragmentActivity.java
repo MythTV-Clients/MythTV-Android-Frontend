@@ -73,7 +73,7 @@ public abstract class AbstractLocationAwareFragmentActivity extends AbstractMyth
 
 		mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
 		
-		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile();
+		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( this );
 		
 		Log.v( TAG, "onCreate : exit" );
 	}

@@ -117,7 +117,7 @@ public class ProgramGuideDownloadService extends MythtvService {
 		Log.d( TAG, "onHandleIntent : enter" );
 		super.onHandleIntent( intent );
 		
-		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile();
+		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( this );
 		
 		programGuideCache = FileHelper.getInstance().getProgramGuideDataDirectory();
 		if( null == programGuideCache || !programGuideCache.exists() ) {
