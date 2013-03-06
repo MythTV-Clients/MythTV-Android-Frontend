@@ -99,7 +99,7 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 		Log.v( TAG, "onCreateLoader : enter" );
 		
 		mLocationProfileDaoHelper = ( (AbstractMythtvFragmentActivity) getActivity() ).getLocationProfileDaoHelper();
-		LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile();
+		LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
 		Log.v( TAG, "onCreateLoader : loading recorded for profile " + locationProfile.getHostname() + " [" + locationProfile.getUrl() + "]" );
 		
 		String[] projection = null;
@@ -367,7 +367,7 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 			mHolder.programGroup.setText( programGroup.getTitle() );
 			mHolder.category.setBackgroundColor( mProgramHelper.getCategoryColor( programGroup.getCategory() ) );
 
-			String imageUri = mLocationProfileDaoHelper.findConnectedProfile().getUrl() + "Content/GetRecordingArtwork?Type=Banner&Inetref=" + programGroup.getInetref();
+			String imageUri = mLocationProfileDaoHelper.findConnectedProfile( getActivity() ).getUrl() + "Content/GetRecordingArtwork?Type=Banner&Inetref=" + programGroup.getInetref();
 			imageLoader.displayImage( imageUri, mHolder.programGroupBanner, options, new SimpleImageLoadingListener() {
 
 				/* (non-Javadoc)

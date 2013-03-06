@@ -75,7 +75,7 @@ public class NetworkHelper {
 	 * Returns true if a network connection is detected
 	 * @return
 	 */
-	public boolean isNetworkConnected( Context context ) {
+	public boolean isNetworkConnected( final Context context ) {
 //		Log.v( TAG, "isNetworkConnected : enter" );
 		
 		/* Check if we're not initialized */
@@ -101,7 +101,7 @@ public class NetworkHelper {
 	 * Three attempts are made before a false return.
 	 * @return
 	 */
-	public boolean isMasterBackendConnected( Context context ) {
+	public boolean isMasterBackendConnected( final Context context ) {
 //		Log.v( TAG, "isMasterBackendConnected : enter" );
 		
 		/* Check if we're not initialized */
@@ -110,7 +110,7 @@ public class NetworkHelper {
 			throw new RuntimeException( "NetworkHelper is not initialized" );
 		}
 
-		if( null == mLocationProfileDaoHelper.findConnectedProfile() ) {
+		if( null == mLocationProfileDaoHelper.findConnectedProfile( context ) ) {
 //			Log.e( TAG, "isMasterBackendConnected : exit, no backend selected" );
 			
 			return false;
@@ -126,7 +126,7 @@ public class NetworkHelper {
 				
 			try {
 
-				URL url = new URL( mLocationProfileDaoHelper.findConnectedProfile().getUrl() + "Myth/GetHostName" );
+				URL url = new URL( mLocationProfileDaoHelper.findConnectedProfile( context ).getUrl() + "Myth/GetHostName" );
 
 				HttpURLConnection urlc = (HttpURLConnection) url.openConnection();
 				urlc.setRequestProperty( "User-Agent", "Android Application:MythTV_Android_Frontent" );
@@ -159,7 +159,7 @@ public class NetworkHelper {
 	 * @param profile
 	 * @return
 	 */
-	public boolean isMasterBackendConnected( Context context, LocationProfile profile ) {
+	public boolean isMasterBackendConnected( final Context context, LocationProfile profile ) {
 //		Log.v( TAG, "isMasterBackendConnected : profile=" + profile.toString() );
 		
 		/* Check if we're not initialized */

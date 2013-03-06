@@ -119,7 +119,7 @@ public class ChannelDownloadService extends MythtvService {
 
     		boolean passed = true;
     		
-    		LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile();
+    		LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile( this );
     		Log.v( TAG, "onHandleIntent : get video sources for host [" + locationProfile.getHostname() + ":" + locationProfile.getUrl() + "]" );
 
     		try {
@@ -197,7 +197,7 @@ public class ChannelDownloadService extends MythtvService {
 	private ChannelInfos download( int sourceId ) throws Exception {
 		Log.v( TAG, "download : enter" );
 
-		LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile();
+		LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile( this );
 		Log.v( TAG, "download : get recorded for host [" + locationProfile.getHostname() + ":" + locationProfile.getUrl() + ", video source=" + sourceId + "]" );
 
 		ETagInfo etag = ETagInfo.createEmptyETag(); //mEtagDaoHelper.findByEndpointAndDataId( Endpoint.GET_CHANNEL_INFO_LIST.name(), String.valueOf( sourceId ) );
@@ -243,7 +243,7 @@ public class ChannelDownloadService extends MythtvService {
 	private void process( int videoSourceId, ChannelInfos channelInfos ) throws JsonGenerationException, JsonMappingException, IOException, RemoteException, OperationApplicationException {
 		Log.v( TAG, "process : enter" );
 		
-		LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile();
+		LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile( this );
 		Log.v( TAG, "process : saving recorded for host [" + locationProfile.getHostname() + ":" + locationProfile.getUrl() + "]" );
 
 		mMainApplication.getObjectMapper().writeValue( new File( channelDirectory, CHANNELS_FILE_PREFIX + videoSourceId + "_" + locationProfile.getHostname() + CHANNELS_FILE_EXT ), channelInfos );

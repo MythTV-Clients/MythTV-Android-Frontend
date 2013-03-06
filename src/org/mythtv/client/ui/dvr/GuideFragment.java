@@ -139,7 +139,7 @@ public class GuideFragment extends AbstractMythFragment implements OnClickListen
 		super.onActivityCreated( savedInstanceState );
 		
         mainApplication = (MainApplication) getActivity().getApplicationContext();
-        mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile();
+        mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
         
 		cache = new ProgramGuideLruMemoryCache( getActivity() );
 

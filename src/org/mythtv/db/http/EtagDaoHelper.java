@@ -218,13 +218,13 @@ public class EtagDaoHelper extends AbstractDaoHelper {
 	 * @param etagInfo
 	 * @return
 	 */
-	public int save( Context context, final ETagInfo etagInfo, final String endpoint, final String dataId ) {
+	public int save( final Context context, final ETagInfo etagInfo, final String endpoint, final String dataId ) {
 		Log.d( TAG, "save : enter" );
 
 		if( null == context ) 
 			throw new RuntimeException( "EtagDaoHelper is not initialized" );
 		
-		ContentValues values = convertETagInfoToContentValues( etagInfo, endpoint, dataId );
+		ContentValues values = convertETagInfoToContentValues( context, etagInfo, endpoint, dataId );
 
 		String selection = EtagConstants.FIELD_ENDPOINT + " = ?";
 		if( null != dataId && !"".equals( dataId ) ) {
@@ -352,10 +352,10 @@ public class EtagDaoHelper extends AbstractDaoHelper {
 //		return null;
 //	}
 
-	private ContentValues convertETagInfoToContentValues( final ETagInfo etag, final String endpoint, final String dataId ) {
+	private ContentValues convertETagInfoToContentValues( final Context context, final ETagInfo etag, final String endpoint, final String dataId ) {
 //		Log.v( TAG, "convertChannelToContentValues : enter" );
 		
-		LocationProfile mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile();
+		LocationProfile mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( context );
 		
 		ContentValues values = new ContentValues();
 		values.put( EtagConstants.FIELD_ENDPOINT, endpoint );

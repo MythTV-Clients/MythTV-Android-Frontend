@@ -102,7 +102,7 @@ public class MainMenuFragment extends AbstractMythFragment implements ServiceLis
 			
 			if(!isChecked){ //isChecked - false - home
 				
-				if( null == mLocationProfileDaoHelper.findSelectedHomeProfile() ) {
+				if( null == mLocationProfileDaoHelper.findSelectedHomeProfile( getActivity() ) ) {
 					
 					AlertDialog.Builder builder = new AlertDialog.Builder( getActivity() );
 					builder.setTitle( R.string.location_alert_error_title );
@@ -115,8 +115,8 @@ public class MainMenuFragment extends AbstractMythFragment implements ServiceLis
 					builder.show();
 
 				} else {
-					LocationProfile profile = mLocationProfileDaoHelper.findSelectedHomeProfile(); 
-					mLocationProfileDaoHelper.setConnectedLocationProfile( (long) profile.getId() );
+					LocationProfile profile = mLocationProfileDaoHelper.findSelectedHomeProfile( getActivity() ); 
+					mLocationProfileDaoHelper.setConnectedLocationProfile( getActivity(), (long) profile.getId() );
 					
 					//here i think we need to re-start ourself and do not need to fire this intent
 					//This intent was used in LocationDashboardFragment to start HomeActivity
@@ -125,7 +125,7 @@ public class MainMenuFragment extends AbstractMythFragment implements ServiceLis
 				
 			}else{ //ischecked - true - away
 				
-				if( null == mLocationProfileDaoHelper.findSelectedAwayProfile() ) {
+				if( null == mLocationProfileDaoHelper.findSelectedAwayProfile( getActivity() ) ) {
 					
 					AlertDialog.Builder builder = new AlertDialog.Builder( getActivity() );
 					builder.setTitle( R.string.location_alert_error_title );
@@ -138,8 +138,8 @@ public class MainMenuFragment extends AbstractMythFragment implements ServiceLis
 					builder.show();
 
 				} else {
-					LocationProfile profile = mLocationProfileDaoHelper.findSelectedAwayProfile(); 
-					mLocationProfileDaoHelper.setConnectedLocationProfile( (long) profile.getId() );
+					LocationProfile profile = mLocationProfileDaoHelper.findSelectedAwayProfile( getActivity() ); 
+					mLocationProfileDaoHelper.setConnectedLocationProfile( getActivity(), (long) profile.getId() );
 					
 					//here i think we need to re-start ourself and do not need to fire this intent
 					//This intent was used in LocationDashboardFragment to start AwayActivity

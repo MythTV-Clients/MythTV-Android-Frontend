@@ -39,7 +39,7 @@ public abstract class AbstractDaoHelper {
 
 	protected String appendLocationHostname( Context context, String selection, String table ) {
 		
-		LocationProfile mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile();
+		LocationProfile mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( context );
 
 		return ( !TextUtils.isEmpty( table ) ? ( table + "." ) : "" ) + AbstractBaseConstants.FIELD_HOSTNAME
 				+ " = '"

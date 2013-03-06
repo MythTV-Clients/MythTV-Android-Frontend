@@ -159,7 +159,7 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 		if( null == context ) 
 			throw new RuntimeException( "ProgramGroupDaoHelper is not initialized" );
 		
-		ContentValues values = convertProgramGroupToContentValues( programGroup );
+		ContentValues values = convertProgramGroupToContentValues( context, programGroup );
 
 		String[] projection = new String[] { ProgramGroupConstants._ID };
 		String selection = ProgramGroupConstants.FIELD_PROGRAM_GROUP + " = ?";
@@ -275,7 +275,7 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 		for( String key : programGroups.keySet() ) {
 			ProgramGroup programGroup = programGroups.get( key );
 			
-			ContentValues programValues = convertProgramGroupToContentValues( programGroup );
+			ContentValues programValues = convertProgramGroupToContentValues( context, programGroup );
 			Cursor programGroupCursor = context.getContentResolver().query( ProgramGroupConstants.CONTENT_URI, programGroupProjection, programGroupSelection, new String[] { key }, null );
 			if( programGroupCursor.moveToFirst() ) {
 
@@ -416,7 +416,7 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 
 	// internal helpers
 	
-	private ContentValues[] convertProgramGroupsToContentValuesArray( final List<ProgramGroup> programGroups ) {
+	private ContentValues[] convertProgramGroupsToContentValuesArray( final Context context, final List<ProgramGroup> programGroups ) {
 //		Log.v( TAG, "convertProgramGroupsToContentValuesArray : enter" );
 		
 		if( null != programGroups && !programGroups.isEmpty() ) {
@@ -426,7 +426,7 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 
 			for( ProgramGroup programGroup : programGroups ) {
 
-				contentValues = convertProgramGroupToContentValues( programGroup );
+				contentValues = convertProgramGroupToContentValues( context, programGroup );
 				contentValuesArray.add( contentValues );
 				
 			}			
@@ -443,9 +443,9 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 		return null;
 	}
 
-	private ContentValues convertProgramGroupToContentValues( final ProgramGroup programGroup ) {
+	private ContentValues convertProgramGroupToContentValues( final Context context, final ProgramGroup programGroup ) {
 		
-		LocationProfile mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile();
+		LocationProfile mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( context );
 		
 		ContentValues values = new ContentValues();
 		values.put( ProgramGroupConstants.FIELD_PROGRAM_GROUP, null != programGroup.getTitle() ? ArticleCleaner.clean( programGroup.getTitle() ) : "" );
