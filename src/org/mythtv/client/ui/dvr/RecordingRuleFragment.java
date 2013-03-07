@@ -230,7 +230,7 @@ public class RecordingRuleFragment extends AbstractMythFragment {
 			Integer id = params[ 0 ];
 			
 			ETagInfo etag = ETagInfo.createEmptyETag();
-			return getMainApplication().getMythServicesApi().dvrOperations().getRecordSchedule( id, etag );
+			return mMythtvServiceHelper.getMythServicesApi( getActivity() ).dvrOperations().getRecordSchedule( id, etag );
 		}
 
 		/* (non-Javadoc)

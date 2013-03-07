@@ -674,7 +674,7 @@ public class EpisodeFragment extends AbstractMythFragment {
 			try {
 				Log.v( TAG, "RemoveRecordingTask : api" );
 				
-				removed = getMainApplication().getMythServicesApi().dvrOperations().removeRecorded( program.getChannelInfo().getChannelId(), program.getRecording().getStartTimestamp() );
+				removed = mMythtvServiceHelper.getMythServicesApi( getActivity() ).dvrOperations().removeRecorded( program.getChannelInfo().getChannelId(), program.getRecording().getStartTimestamp() );
 			} catch( Exception e ) {
 				Log.v( TAG, "RemoveRecordingTask : error" );
 
@@ -735,7 +735,7 @@ public class EpisodeFragment extends AbstractMythFragment {
 		protected ResponseEntity<Bool> doInBackground( String... params ) {
 			Log.v( TAG, "PlayRecordingOnFrontEndTask.doInBackground : enter" );
 			
-			ResponseEntity<Bool> responseEntity = getMainApplication().getMythServicesApi().frontendOperations().playRecording( params[ 0 ], program.getChannelInfo().getChannelId(), program.getStartTime() ); 
+			ResponseEntity<Bool> responseEntity = mMythtvServiceHelper.getMythServicesApi( getActivity() ).frontendOperations().playRecording( params[ 0 ], program.getChannelInfo().getChannelId(), program.getStartTime() ); 
 			
 			Log.v( TAG, "PlayRecordingOnFrontEndTask.doInBackground : exit" );
 			return responseEntity;
@@ -771,7 +771,7 @@ public class EpisodeFragment extends AbstractMythFragment {
 				}
 				
 				Log.v( TAG, "CreateStreamTask : exit" );
-				return getMainApplication().getMythServicesApi().contentOperations().
+				return mMythtvServiceHelper.getMythServicesApi( getActivity() ).contentOperations().
 						addLiveStream( null, program.getFilename(), program.getHostname(), -1, -1,
 								selectedPlaybackProfile.getHeight(), selectedPlaybackProfile.getVideoBitrate(), 
 								selectedPlaybackProfile.getAudioBitrate(), selectedPlaybackProfile.getAudioSampleRate() );
@@ -857,7 +857,7 @@ public class EpisodeFragment extends AbstractMythFragment {
 						if( null != getMainApplication() ) {
 							Log.v( TAG, "UpdateStreamInfoTask : exit" );
 							
-							return getMainApplication().getMythServicesApi().contentOperations().getLiveStream( liveStreamInfo.getId(), eTag );
+							return mMythtvServiceHelper.getMythServicesApi( getActivity() ).contentOperations().getLiveStream( liveStreamInfo.getId(), eTag );
 						}
 					}
 				}
@@ -917,7 +917,7 @@ public class EpisodeFragment extends AbstractMythFragment {
 				Log.v( TAG, "RemoveStreamTask : api" );
 				
 				if( null != liveStreamInfo ) {
-					return getMainApplication().getMythServicesApi().contentOperations().removeLiveStream( liveStreamInfo.getId() );
+					return mMythtvServiceHelper.getMythServicesApi( getActivity() ).contentOperations().removeLiveStream( liveStreamInfo.getId() );
 				}
 				
 			} catch( Exception e ) {

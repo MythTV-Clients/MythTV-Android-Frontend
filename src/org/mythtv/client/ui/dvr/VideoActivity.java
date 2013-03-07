@@ -24,6 +24,7 @@ import org.mythtv.client.ui.AbstractMythtvFragmentActivity;
 import org.mythtv.db.content.LiveStreamDaoHelper;
 import org.mythtv.db.dvr.RecordedDaoHelper;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
+import org.mythtv.service.util.MythtvServiceHelper;
 import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.content.LiveStreamInfo;
@@ -63,6 +64,7 @@ public class VideoActivity extends AbstractMythtvFragmentActivity {
 
 	private LiveStreamDaoHelper mLiveStreamDaoHelper = LiveStreamDaoHelper.getInstance();
 	private LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
+	private MythtvServiceHelper mMythtvServiceHelper = MythtvServiceHelper.getInstance();
 	private RecordedDaoHelper mRecordedDaoHelper = RecordedDaoHelper.getInstance();
 	
 	private Program program = null;
@@ -332,7 +334,7 @@ public class VideoActivity extends AbstractMythtvFragmentActivity {
 					ETagInfo eTag = ETagInfo.createEmptyETag();
 
 					Log.v( TAG, "UpdateStreamInfoTask : exit" );
-					return getMainApplication().getMythServicesApi().contentOperations().getLiveStream( liveStreamInfo.getId(), eTag );
+					return mMythtvServiceHelper.getMythServicesApi( VideoActivity.this ).contentOperations().getLiveStream( liveStreamInfo.getId(), eTag );
 				}
 			} catch( Exception e ) {
 				Log.v( TAG, "UpdateStreamInfoTask : error" );

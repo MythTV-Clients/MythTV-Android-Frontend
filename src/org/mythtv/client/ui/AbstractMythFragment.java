@@ -19,6 +19,7 @@
 package org.mythtv.client.ui;
 
 import org.mythtv.client.MainApplication;
+import org.mythtv.service.util.MythtvServiceHelper;
 
 import android.app.AlertDialog;
 import android.support.v4.app.Fragment;
@@ -28,6 +29,8 @@ import android.support.v4.app.Fragment;
  *
  */
 public abstract class AbstractMythFragment extends Fragment implements MythtvApplicationContext {
+
+	protected MythtvServiceHelper mMythtvServiceHelper = MythtvServiceHelper.getInstance();
 
 	//***************************************
     // MythActivity methods

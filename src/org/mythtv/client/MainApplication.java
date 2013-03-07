@@ -18,9 +18,6 @@
  */
 package org.mythtv.client;
 
-import java.util.logging.Level;
-
-import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.util.MenuHelper;
 import org.mythtv.client.ui.util.ProgramHelper;
 import org.mythtv.db.channel.ChannelDaoHelper;
@@ -34,10 +31,9 @@ import org.mythtv.db.http.EtagDaoHelper;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.db.preferences.PlaybackProfileDaoHelper;
 import org.mythtv.service.util.FileHelper;
+import org.mythtv.service.util.MythtvServiceHelper;
 import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.service.util.RunningServiceHelper;
-import org.mythtv.services.api.MythServices;
-import org.mythtv.services.connect.MythServicesServiceProvider;
 
 import android.app.ActivityManager;
 import android.app.Application;
@@ -62,8 +58,6 @@ public class MainApplication extends Application {
 
 	private static final String TAG = MainApplication.class.getSimpleName();
 	
-	private MythServicesServiceProvider provider;
-	
     private String clockType = "12h";
     private String dateFormat = "yyyy-MM-dd";
 
@@ -87,6 +81,7 @@ public class MainApplication extends Application {
 		//Initialize DAO Helpers
 		EtagDaoHelper.getInstance();
 		LocationProfileDaoHelper.getInstance();
+		MythtvServiceHelper.getInstance();
 		ChannelDaoHelper.getInstance();
 		LiveStreamDaoHelper.getInstance();
 		RecordingDaoHelper.getInstance();
@@ -138,23 +133,6 @@ public class MainApplication extends Application {
 	//***************************************
     // Public methods
     //***************************************
-	public MythServices getMythServicesApi() {
-		Log.v( TAG, "getMythServicesApi : enter" );
-		
-		provider = new MythServicesServiceProvider( LocationProfileDaoHelper.getInstance().findConnectedProfile( this ).getUrl(), Level.FINE );
-		
-		Log.v( TAG, "getMythServicesApi : exit" );
-		return provider.getApi();
-	}
-
-	public MythServices getMythServicesApi( LocationProfile profile ) {
-		Log.v( TAG, "getMythServicesApi : enter" );
-		
-		MythServicesServiceProvider provider = new MythServicesServiceProvider( profile.getUrl() );
-		
-		Log.v( TAG, "getMythServicesApi : exit" );
-		return provider.getApi();
-	}
 
 	public static void initImageLoader( Context context ) {
 		int memoryCacheSize;
@@ -186,9 +164,6 @@ public class MainApplication extends Application {
 	 * @return the mObjectMapper
 	 */
 	public ObjectMapper getObjectMapper() {
-		Log.v( TAG, "getObjectMapper : enter" );
-		
-		Log.v( TAG, "getObjectMapper : exit" );
 		return mObjectMapper;
 	}
 	
@@ -196,9 +171,6 @@ public class MainApplication extends Application {
      * @return the current clockType
      */
     public String getClockType() {
-//		Log.v( TAG, "getClockType : enter" );
-		
-//		Log.v( TAG, "getClockType : exit" );
         return clockType;
     }
 
@@ -206,26 +178,15 @@ public class MainApplication extends Application {
      * @param clockType the current clockType to set
      */
     public void setClockType( String clockType ) {
-//		Log.v( TAG, "setClockType : enter" );
-
 		this.clockType = clockType;
-
-//		Log.v( TAG, "setClockType : exit" );
     }
 
     public String getDateFormat() {
-//		Log.v( TAG, "getDateFormat : enter" );
-
-//		Log.v( TAG, "getDateFormat : exit" );
         return dateFormat;
     }
 
     public void setDateFormat( String dateFormat ) {
-//		Log.v( TAG, "setDateFormat : enter" );
-		
         this.dateFormat = dateFormat;
-
-//        Log.v( TAG, "setDateFormat : exit" );
     }
 
 }

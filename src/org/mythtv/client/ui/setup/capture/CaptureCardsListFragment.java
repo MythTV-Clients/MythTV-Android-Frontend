@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.mythtv.client.MainApplication;
+import org.mythtv.service.util.MythtvServiceHelper;
 import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.capture.CaptureCard;
 import org.mythtv.services.api.capture.CaptureCardList;
@@ -45,6 +46,8 @@ import android.widget.ListView;
 public class CaptureCardsListFragment extends ListFragment {
 
 	private static final String TAG = CaptureCardsListFragment.class.getSimpleName();
+	
+	private MythtvServiceHelper mMythtvServiceHelper = MythtvServiceHelper.getInstance();
 	
     private int mCurrentCaptureCard = 0;
     boolean mDualPane;
@@ -171,7 +174,7 @@ public class CaptureCardsListFragment extends ListFragment {
 
 				MainApplication mainApplication = (MainApplication) getActivity().getApplicationContext();
 				ETagInfo eTag = ETagInfo.createEmptyETag();
-				return mainApplication.getMythServicesApi().captureOperations().getCaptureCardList( eTag );
+				return mMythtvServiceHelper.getMythServicesApi( getActivity() ).captureOperations().getCaptureCardList( eTag );
 			} catch( Exception e ) {
 				Log.e( TAG, "DownloadCaptureCardsTask.doInBackground : error", e );
 			}

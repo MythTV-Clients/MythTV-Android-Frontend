@@ -218,7 +218,7 @@ public class ProgramGuideDownloadService extends MythtvService {
 
 		try {
 			ETagInfo etag = ETagInfo.createEmptyETag();
-			ResponseEntity<ProgramGuideWrapper> responseEntity = mMainApplication.getMythServicesApi().guideOperations().getProgramGuide( start, end, 1, -1, false, etag );
+			ResponseEntity<ProgramGuideWrapper> responseEntity = mMythtvServiceHelper.getMythServicesApi( this ).guideOperations().getProgramGuide( start, end, 1, -1, false, etag );
 
 			if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
 				ProgramGuideWrapper programGuide = responseEntity.getBody();

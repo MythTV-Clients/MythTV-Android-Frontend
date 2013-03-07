@@ -150,12 +150,9 @@ public class RecordedDownloadService extends MythtvService {
 	private void download() throws Exception {
 		Log.v( TAG, "download : enter" );
 
-		LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile( this );
-		Log.v( TAG, "download : get recorded for host [" + locationProfile.getHostname() + ":" + locationProfile.getUrl() + "]" );
-
 		ETagInfo etag = mEtagDaoHelper.findByEndpointAndDataId( this, Endpoint.GET_RECORDED_LIST.name(), "" );
 		
-		ResponseEntity<ProgramList> responseEntity = mMainApplication.getMythServicesApi( locationProfile ).dvrOperations().getRecordedList( etag );
+		ResponseEntity<ProgramList> responseEntity = mMythtvServiceHelper.getMythServicesApi( this ).dvrOperations().getRecordedList( etag );
 
 		if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
 			Log.i( TAG, "download : " + Endpoint.GET_RECORDED_LIST.getEndpoint() + " returned 200 OK" );

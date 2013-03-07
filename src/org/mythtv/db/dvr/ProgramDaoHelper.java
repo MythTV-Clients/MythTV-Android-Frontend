@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.joda.time.DateTime;
-import org.mythtv.client.MainApplication;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.AbstractDaoHelper;
 import org.mythtv.db.channel.ChannelDaoHelper;
@@ -32,6 +31,7 @@ import org.mythtv.db.content.LiveStreamConstants;
 import org.mythtv.db.content.LiveStreamDaoHelper;
 import org.mythtv.provider.MythtvProvider;
 import org.mythtv.service.util.DateUtils;
+import org.mythtv.service.util.MythtvServiceHelper;
 import org.mythtv.services.api.Bool;
 import org.mythtv.services.api.channel.ChannelInfo;
 import org.mythtv.services.api.content.LiveStreamInfo;
@@ -59,6 +59,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 
 	protected static final String TAG = ProgramDaoHelper.class.getSimpleName();
 	
+	protected MythtvServiceHelper mMythtvServiceHelper = MythtvServiceHelper.getInstance();
 	protected ChannelDaoHelper mChannelDaoHelper = ChannelDaoHelper.getInstance();
 	protected LiveStreamDaoHelper mLiveStreamDaoHelper = LiveStreamDaoHelper.getInstance();
 	protected RecordingDaoHelper mRecordingDaoHelper = RecordingDaoHelper.getInstance();
@@ -719,12 +720,10 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 			try {
 				Log.v( TAG, "RemoveStreamTask : api" );
 				
-				MainApplication mainApplication = (MainApplication) mContext.getApplicationContext();
-
 				LiveStreamInfo liveStreamInfo = params[ 0 ];
 				
 				if( null != liveStreamInfo ) {
-					return mainApplication.getMythServicesApi().contentOperations().removeLiveStream( liveStreamInfo.getId() );
+					return mMythtvServiceHelper.getMythServicesApi( mContext ).contentOperations().removeLiveStream( liveStreamInfo.getId() );
 				}
 				
 			} catch( Exception e ) {

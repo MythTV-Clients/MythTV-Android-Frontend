@@ -54,7 +54,7 @@ public class CoverartDownloadService extends MythtvService {
     public static final String EXTRA_COMPLETE_FILENAME = "COMPLETE_FILENAME";
 
 	private File programGroupsDirectory = null;
-
+	
 	public CoverartDownloadService() {
 		super( "CoverartDownloadService" );
 	}
@@ -135,7 +135,7 @@ public class CoverartDownloadService extends MythtvService {
 					
 				try {
 					ETagInfo eTag = ETagInfo.createEmptyETag();
-					ResponseEntity<byte[]> responseEntity = mMainApplication.getMythServicesApi().contentOperations().getRecordingArtwork( "Coverart", inetref, -1, -1, -1, eTag );
+					ResponseEntity<byte[]> responseEntity = mMythtvServiceHelper.getMythServicesApi( this ).contentOperations().getRecordingArtwork( "Coverart", inetref, -1, -1, -1, eTag );
 					if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
 						byte[] bytes = responseEntity.getBody();
 						FileUtils.writeByteArrayToFile( coverart, bytes );

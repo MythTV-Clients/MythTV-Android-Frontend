@@ -21,6 +21,7 @@ import org.mythtv.client.ui.preferences.MythtvPreferenceActivity;
 import org.mythtv.client.ui.preferences.MythtvPreferenceActivityHC;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.MythtvService;
+import org.mythtv.service.util.MythtvServiceHelper;
 import org.mythtv.service.util.NetworkHelper;
 
 import android.app.AlertDialog;
@@ -636,7 +637,7 @@ public class MainMenuFragment extends AbstractMythFragment implements ServiceLis
 		protected Void doInBackground( String... params ) {
 
 			try {
-				getMainApplication().getMythServicesApi().frontendOperations().sendMessage( params[ 0 ], params[ 1 ] );
+				mMythtvServiceHelper.getMythServicesApi( getActivity() ).frontendOperations().sendMessage( params[ 0 ], params[ 1 ] );
 			} catch( Exception e ) {
 				Log.e( TAG, e.getMessage() );
 				showAlertDialog( "Send Message Error", e.getMessage() );

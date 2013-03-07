@@ -25,6 +25,7 @@ import org.mythtv.db.content.LiveStreamDaoHelper;
 import org.mythtv.db.dvr.RecordedDaoHelper;
 import org.mythtv.db.dvr.programGroup.ProgramGroupDaoHelper;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
+import org.mythtv.service.util.MythtvServiceHelper;
 import org.mythtv.service.util.RunningServiceHelper;
 
 import android.annotation.TargetApi;
@@ -49,6 +50,7 @@ public abstract class AbstractMythtvFragmentActivity extends FragmentActivity im
 
 	protected SharedPreferences preferences = null;
 	protected LiveStreamDaoHelper mLiveStreamDaoHelper = LiveStreamDaoHelper.getInstance();
+	protected MythtvServiceHelper mMythtvServiceHelper = MythtvServiceHelper.getInstance();
 	protected LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
 	protected MenuHelper mMenuHelper = MenuHelper.getInstance();
 	protected ProgramGroupDaoHelper mProgramGroupDaoHelper = ProgramGroupDaoHelper.getInstance();
