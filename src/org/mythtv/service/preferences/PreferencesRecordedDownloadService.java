@@ -143,7 +143,7 @@ public class PreferencesRecordedDownloadService extends MythtvService {
 
 		ETagInfo etag = ETagInfo.createEmptyETag();
 		
-		ResponseEntity<ProgramList> responseEntity = mMainApplication.getMythServicesApi( profile ).dvrOperations().getRecordedList( etag );
+		ResponseEntity<ProgramList> responseEntity = mMythtvServiceHelper.getMythServicesApi( profile ).dvrOperations().getRecordedList( etag );
 
 		if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
 			ProgramList programList = responseEntity.getBody();

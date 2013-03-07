@@ -176,9 +176,9 @@ public class RecordingRulesFragment extends MythtvListFragment {
 		@Override
 		protected Void doInBackground(Integer... params) {
 			if(params[0] > 0){
-				mainApplication.getMythServicesApi().dvrOperations().enableRecordingSchedule(params[1]);
+				mMythtvServiceHelper.getMythServicesApi( getActivity() ).dvrOperations().enableRecordingSchedule(params[1]);
 			}else{
-				mainApplication.getMythServicesApi().dvrOperations().disableRecordingSchedule(params[1]);
+				mMythtvServiceHelper.getMythServicesApi( getActivity() ).dvrOperations().disableRecordingSchedule(params[1]);
 			}
 			return null;
 		}	
@@ -316,7 +316,7 @@ public class RecordingRulesFragment extends MythtvListFragment {
 				}
 
 				ETagInfo etag = ETagInfo.createEmptyETag();
-				return mainApplication.getMythServicesApi().dvrOperations().getRecordScheduleList( -1, -1, etag );
+				return mMythtvServiceHelper.getMythServicesApi( getActivity() ).dvrOperations().getRecordScheduleList( -1, -1, etag );
 			}
 
 			/* (non-Javadoc)

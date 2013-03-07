@@ -19,7 +19,7 @@
 package org.mythtv.service;
 
 import org.mythtv.client.MainApplication;
-import org.mythtv.service.util.FileHelper;
+import org.mythtv.service.util.MythtvServiceHelper;
 import org.mythtv.service.util.NetworkHelper;
 
 import android.app.IntentService;
@@ -37,7 +37,8 @@ public class MythtvService extends IntentService {
 	public static final String FILENAME_EXT = ".json";
     
     protected MainApplication mMainApplication;
-	
+    protected MythtvServiceHelper mMythtvServiceHelper = MythtvServiceHelper.getInstance();
+    
     public static final String ACTION_CONNECT = "org.mythtv.background.ACTION_CONNECT";
     public static final String ACTION_COMPLETE = "org.mythtv.background.ACTION_COMPLETE";
 

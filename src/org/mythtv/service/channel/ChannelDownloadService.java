@@ -119,13 +119,10 @@ public class ChannelDownloadService extends MythtvService {
 
     		boolean passed = true;
     		
-    		LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile( this );
-    		Log.v( TAG, "onHandleIntent : get video sources for host [" + locationProfile.getHostname() + ":" + locationProfile.getUrl() + "]" );
-
     		try {
     			ETagInfo etag = mEtagDaoHelper.findByEndpointAndDataId( this, Endpoint.GET_VIDEO_SOURCE_LIST.name(), null );
     			
-				ResponseEntity<VideoSourceList> responseEntity = mMainApplication.getMythServicesApi( locationProfile ).channelOperations().getVideoSourceList( etag );
+				ResponseEntity<VideoSourceList> responseEntity = mMythtvServiceHelper.getMythServicesApi( this ).channelOperations().getVideoSourceList( etag );
 				if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
 					Log.i( TAG, "onHandleIntent : response returned HTTP 200" );
 					
@@ -197,16 +194,13 @@ public class ChannelDownloadService extends MythtvService {
 	private ChannelInfos download( int sourceId ) throws Exception {
 		Log.v( TAG, "download : enter" );
 
-		LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile( this );
-		Log.v( TAG, "download : get recorded for host [" + locationProfile.getHostname() + ":" + locationProfile.getUrl() + ", video source=" + sourceId + "]" );
-
 		ETagInfo etag = ETagInfo.createEmptyETag(); //mEtagDaoHelper.findByEndpointAndDataId( Endpoint.GET_CHANNEL_INFO_LIST.name(), String.valueOf( sourceId ) );
 //		if( etag.isEmptyEtag() ) {
 //			Log.v( TAG, "download : creating empty etag" );
 //			etag = ETagInfo.createEmptyETag();
 //		}
 		
-		ResponseEntity<ChannelInfoList> responseEntity = mMainApplication.getMythServicesApi( locationProfile ).channelOperations().getChannelInfoList( sourceId, 0, -1, etag );
+		ResponseEntity<ChannelInfoList> responseEntity = mMythtvServiceHelper.getMythServicesApi( this ).channelOperations().getChannelInfoList( sourceId, 0, -1, etag );
 
 		if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
 			Log.i( TAG, "download : " + Endpoint.GET_CHANNEL_INFO_LIST.getEndpoint() + " returned 200 OK" );

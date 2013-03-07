@@ -162,7 +162,7 @@ public class ProgramGuideDownloadServiceNew extends MythtvService {
 		}
 		etagCursor.close();
 
-		ResponseEntity<ProgramGuideWrapper> responseEntity = mMainApplication.getMythServicesApi().guideOperations().getProgramGuide( start, end, 1, -1, false, etag );
+		ResponseEntity<ProgramGuideWrapper> responseEntity = mMythtvServiceHelper.getMythServicesApi( this ).guideOperations().getProgramGuide( start, end, 1, -1, false, etag );
 
 		try {
 

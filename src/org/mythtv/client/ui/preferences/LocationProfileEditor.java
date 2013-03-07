@@ -341,7 +341,7 @@ public class LocationProfileEditor extends AbstractMythtvFragmentActivity {
 				return null;
 			}
 
-			return getMainApplication().getMythServicesApi( profile ).mythOperations().getHostName();
+			return mMythtvServiceHelper.getMythServicesApi( profile ).mythOperations().getHostName();
 		}
 
 		/* (non-Javadoc)

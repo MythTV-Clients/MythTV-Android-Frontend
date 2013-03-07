@@ -97,7 +97,7 @@ public class AbstractFrontendFragment extends AbstractMythFragment {
 
 			try {
 				ETagInfo eTag = ETagInfo.createEmptyETag();
-				return getApplicationContext().getMythServicesApi().frontendOperations()
+				return mMythtvServiceHelper.getMythServicesApi( getActivity() ).frontendOperations()
 						.getStatus( params[ 0 ], eTag );
 			} catch( Exception e ) {
 				Log.e( TAG, e.getMessage() );
@@ -133,7 +133,7 @@ public class AbstractFrontendFragment extends AbstractMythFragment {
 		protected Void doInBackground( String... params ) {
 
 			try {
-				getApplicationContext().getMythServicesApi().frontendOperations()
+				mMythtvServiceHelper.getMythServicesApi( getActivity() ).frontendOperations()
 						.sendMessage( params[ 0 ], params[ 1 ] );
 			} catch( Exception e ) {
 				Log.e( TAG, "Error sending message: " +e.getMessage() );
@@ -156,7 +156,7 @@ public class AbstractFrontendFragment extends AbstractMythFragment {
 		protected Void doInBackground( String... params ) {
 
 			try {
-				getApplicationContext().getMythServicesApi().frontendOperations()
+				mMythtvServiceHelper.getMythServicesApi( getActivity() ).frontendOperations()
 						.sendAction( params[ 0 ], params[ 1 ], null, 0, 0 );
 			} catch( Exception e ) {
 				Log.e( TAG, "Error sending action: " + e.getMessage() );

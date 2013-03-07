@@ -79,7 +79,6 @@ public class UpcomingDownloadService extends MythtvService {
 	private int notificationId;
 	
 	private File upcomingDirectory = null;
-
 	private UpcomingDaoHelper mUpcomingDaoHelper = UpcomingDaoHelper.getInstance();
 	private EtagDaoHelper mEtagDaoHelper = EtagDaoHelper.getInstance();
 	private LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
@@ -153,13 +152,10 @@ public class UpcomingDownloadService extends MythtvService {
 	private void download() throws Exception {
 		Log.v( TAG, "download : enter" );
 		
-		LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile( this );
-		Log.v( TAG, "download : get upcoming for host [" + locationProfile.getHostname() + ":" + locationProfile.getUrl() + "]" );
-
 		ETagInfo etag = mEtagDaoHelper.findByEndpointAndDataId( this, Endpoint.GET_UPCOMING_LIST.name(), "" );
 		etag = ETagInfo.createEmptyETag();
 		
-		ResponseEntity<ProgramList> responseEntity = mMainApplication.getMythServicesApi().dvrOperations().getUpcomingList( -1, -1, false, etag );
+		ResponseEntity<ProgramList> responseEntity = mMythtvServiceHelper.getMythServicesApi( this ).dvrOperations().getUpcomingList( -1, -1, false, etag );
 		if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
 			Log.i( TAG, "download : " + Endpoint.GET_UPCOMING_LIST.getEndpoint() + " returned 200 OK" );
 	

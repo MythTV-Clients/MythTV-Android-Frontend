@@ -19,7 +19,7 @@
 package org.mythtv.client.ui.util;
 
 import org.mythtv.client.MainApplication;
-import org.mythtv.service.util.NetworkHelper;
+import org.mythtv.service.util.MythtvServiceHelper;
 
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
@@ -32,6 +32,7 @@ import android.widget.ListView;
  */
 public class MythtvListFragment extends ListFragment {
 
+	protected MythtvServiceHelper mMythtvServiceHelper = MythtvServiceHelper.getInstance();
 	
 	/* (non-Javadoc)
 	 * @see android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)

@@ -88,7 +88,7 @@ public class MythmoteActionListFragment extends AbstractFrontendFragment{
 		protected ResponseEntity<FrontendActionList> doInBackground(String... params) {
 			try {
 				ETagInfo eTag = ETagInfo.createEmptyETag();
-				return getApplicationContext().getMythServicesApi().frontendOperations().getActionList(params[0], eTag);
+				return mMythtvServiceHelper.getMythServicesApi( getActivity() ).frontendOperations().getActionList(params[0], eTag);
 			} catch( Exception e ) {
 				Log.e( TAG, e.getMessage() );
 				showAlertDialog( "Get Status Error", e.getMessage() );

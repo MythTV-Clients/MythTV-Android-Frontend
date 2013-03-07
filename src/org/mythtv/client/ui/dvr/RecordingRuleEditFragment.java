@@ -320,7 +320,7 @@ public class RecordingRuleEditFragment extends AbstractMythFragment implements O
 			Integer id = params[ 0 ];
 			
 			ETagInfo etag = ETagInfo.createEmptyETag();
-			return getMainApplication().getMythServicesApi().dvrOperations().getRecordSchedule( id, etag );
+			return mMythtvServiceHelper.getMythServicesApi( getActivity() ).dvrOperations().getRecordSchedule( id, etag );
 		}
 
 		/* (non-Javadoc)
@@ -350,8 +350,7 @@ public class RecordingRuleEditFragment extends AbstractMythFragment implements O
 			
 			try {
 				RecRule rule = params[0];
-				ResponseEntity<Int> response = getMainApplication()
-						.getMythServicesApi()
+				ResponseEntity<Int> response = mMythtvServiceHelper.getMythServicesApi( getActivity() )
 						.dvrOperations()
 						.addRecordingSchedule(rule.getChanId(),
 								rule.getStartTime(), rule.getParentId(),
@@ -373,7 +372,7 @@ public class RecordingRuleEditFragment extends AbstractMythFragment implements O
 
 				// on successful add, delete old recording rule
 				if (response.hasBody() && response.getBody().getInteger() == 1) {
-					getMainApplication().getMythServicesApi().dvrOperations().removeRecordingSchedule(rule.getId());
+					mMythtvServiceHelper.getMythServicesApi( getActivity() ).dvrOperations().removeRecordingSchedule(rule.getId());
 				}
 
 			} catch (Exception e) {
