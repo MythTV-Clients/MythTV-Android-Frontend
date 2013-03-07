@@ -141,7 +141,7 @@ public class UpcomingFragment extends MythtvListFragment implements LoaderManage
 
 		setHasOptionsMenu( true );
 		
-		setRetainInstance( true );
+//		setRetainInstance( true );
 
 		getLoaderManager().initLoader( 0, getArguments(), this );
 		adapter = new UpcomingCursorAdapter( getActivity().getApplicationContext() );

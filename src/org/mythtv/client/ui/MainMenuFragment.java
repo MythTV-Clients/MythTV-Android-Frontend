@@ -13,7 +13,7 @@ import org.mythtv.R;
 import org.mythtv.client.ui.dvr.GuideFragment;
 import org.mythtv.client.ui.dvr.RecordingRulesFragment;
 import org.mythtv.client.ui.dvr.RecordingsFragment;
-import org.mythtv.client.ui.dvr.UpcomingFragment;
+import org.mythtv.client.ui.dvr.UpcomingPagerFragment;
 import org.mythtv.client.ui.frontends.Frontend;
 import org.mythtv.client.ui.frontends.MythmoteActivity;
 import org.mythtv.client.ui.preferences.LocationProfile;
@@ -27,13 +27,13 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.support.v4.app.Fragment;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.net.wifi.WifiManager.MulticastLock;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
@@ -191,7 +191,7 @@ public class MainMenuFragment extends AbstractMythFragment implements ServiceLis
 			} else if (getString(R.string.btn_recordings).equals(btnTxt)) {
 				requestContentFragment(R.id.fragment_dvr_program_groups, RecordingsFragment.class.getName());
 			} else if (getString(R.string.btn_upcoming).equals(btnTxt)) {
-				requestContentFragment(R.id.fragment_dvr_upcoming, UpcomingFragment.class.getName());
+				requestContentFragment(R.id.fragment_dvr_upcoming, UpcomingPagerFragment.class.getName());
 			} else if (getString(R.string.btn_videos).equals(btnTxt)) {
 				Toast.makeText( getActivity(), "Video - Coming Soon!", Toast.LENGTH_SHORT ).show();
 			}
