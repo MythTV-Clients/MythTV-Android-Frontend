@@ -261,7 +261,7 @@ public class MainActivity extends AbstractMythtvFragmentActivity implements Cont
 	public void OnFragmentRequested(int fragmentId, String fragmentClassName) {
 	
 		//find fragment and instantiate if necessary
-		Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_dvr_guide);
+		Fragment fragment = getSupportFragmentManager().findFragmentById(fragmentId);
 		if (null == fragment)
 			fragment = Fragment.instantiate(this, fragmentClassName);
 		
