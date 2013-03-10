@@ -145,8 +145,8 @@ public class GuideFragment extends AbstractMythFragment implements OnClickListen
 
 		date = DateUtils.getEndOfDay( new DateTime() );
 
-//this causes an exception when GuideFragment is added to the content view using a FragmentTransaction.
-//updateDateHeader();
+		//update
+		updateDateHeader();
 		
 		Log.v( TAG, "onActivityCreated : exit" );
 	}
@@ -205,7 +205,7 @@ public class GuideFragment extends AbstractMythFragment implements OnClickListen
 		}
 
 		DateTime now = new DateTime();
-		MythtvGuidePagerAdapter mAdapter = new MythtvGuidePagerAdapter( getActivity().getSupportFragmentManager() );
+		MythtvGuidePagerAdapter mAdapter = new MythtvGuidePagerAdapter( this.getChildFragmentManager() );
 		ViewPager mPager = (ViewPager) getActivity().findViewById( R.id.guide_pager );
 		mPager.setAdapter( mAdapter );
 		mPager.setCurrentItem( now.getHourOfDay() );
