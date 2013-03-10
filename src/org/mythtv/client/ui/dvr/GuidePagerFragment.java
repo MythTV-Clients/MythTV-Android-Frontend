@@ -25,6 +25,7 @@ import org.mythtv.R;
 import org.mythtv.client.MainApplication;
 import org.mythtv.client.ui.util.MythtvListFragment;
 import org.mythtv.client.ui.util.ProgramHelper;
+import org.mythtv.service.guide.ProgramGuideCleanupService;
 import org.mythtv.service.guide.cache.ProgramGuideLruMemoryCache;
 import org.mythtv.services.api.channel.ChannelInfo;
 import org.mythtv.services.api.dvr.Program;
@@ -32,6 +33,7 @@ import org.mythtv.services.api.guide.ProgramGuide;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -58,7 +60,7 @@ public class GuidePagerFragment extends MythtvListFragment {
 	
 	private GuideRowAdapter adapter;
 
-	private ProgramHelper mProgramHelper;
+	private ProgramHelper mProgramHelper = ProgramHelper.getInstance();
 
     private MainApplication mainApplication;
 
@@ -83,6 +85,19 @@ public class GuidePagerFragment extends MythtvListFragment {
 	}
 	
 	/* (non-Javadoc)
+	 * @see android.support.v4.app.Fragment#onResume()
+	 */
+	@Override
+	public void onResume() {
+		Log.v( TAG, "onResume : enter" );
+		super.onResume();
+
+		getActivity().startService( new Intent( ProgramGuideCleanupService.ACTION_CLEANUP ) );
+
+		Log.v( TAG, "onResume : exit" );
+	}
+
+	/* (non-Javadoc)
 	 * @see android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
 	 */
 	@Override
@@ -91,7 +106,6 @@ public class GuidePagerFragment extends MythtvListFragment {
 		super.onActivityCreated( savedInstanceState );
 
         mainApplication = (MainApplication) getActivity().getApplicationContext();
-        mProgramHelper = ProgramHelper.getInstance();
 		
 		setHasOptionsMenu( true );
 

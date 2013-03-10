@@ -18,6 +18,8 @@
  */
 package org.mythtv.client.ui.dvr;
 
+import java.io.File;
+import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,9 +30,12 @@ import org.mythtv.client.MainApplication;
 import org.mythtv.client.ui.AbstractMythFragment;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
+import org.mythtv.service.guide.ProgramGuideCleanupService;
 import org.mythtv.service.guide.ProgramGuideDownloadService;
 import org.mythtv.service.guide.cache.ProgramGuideLruMemoryCache;
 import org.mythtv.service.util.DateUtils;
+import org.mythtv.service.util.FileHelper;
+import org.mythtv.service.util.RunningServiceHelper;
 import org.mythtv.services.api.guide.ProgramGuide;
 
 import android.content.BroadcastReceiver;
@@ -66,8 +71,11 @@ public class GuideFragment extends AbstractMythFragment implements OnClickListen
 
     private MainApplication mainApplication;
 
-	private ProgramGuideDownloadReceiver programGuideDownloaderReceiver = new ProgramGuideDownloadReceiver();
+	private ProgramGuideCleanupReceiver mProgramGuideCleanupReceiver = new ProgramGuideCleanupReceiver();
+	private ProgramGuideDownloadReceiver mProgramGuideDownloaderReceiver = new ProgramGuideDownloadReceiver();
 
+	private RunningServiceHelper mRunningServiceHelper = RunningServiceHelper.getInstance();
+	
 	private ProgramGuideLruMemoryCache cache;
 
 	private LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
@@ -81,9 +89,13 @@ public class GuideFragment extends AbstractMythFragment implements OnClickListen
 		Log.v( TAG, "onStart : enter" );
 		super.onStart();
 
+	    IntentFilter programGuideCleanupFilter = new IntentFilter();
+		programGuideCleanupFilter.addAction( ProgramGuideCleanupService.ACTION_COMPLETE );
+	    getActivity().registerReceiver( mProgramGuideCleanupReceiver, programGuideCleanupFilter );
+	    
 		IntentFilter programGuideDownloadFilter = new IntentFilter();
 		programGuideDownloadFilter.addAction( ProgramGuideDownloadService.ACTION_PROGRESS );
-	    getActivity().registerReceiver( programGuideDownloaderReceiver, programGuideDownloadFilter );
+	    getActivity().registerReceiver( mProgramGuideDownloaderReceiver, programGuideDownloadFilter );
 	    
 		Log.v( TAG, "onStart : exit" );
 	}
@@ -97,9 +109,17 @@ public class GuideFragment extends AbstractMythFragment implements OnClickListen
 		super.onStop();
 
 		// Unregister for broadcast
-		if( null != programGuideDownloaderReceiver ) {
+		if( null != mProgramGuideCleanupReceiver ) {
 			try {
-				getActivity().unregisterReceiver( programGuideDownloaderReceiver );
+				getActivity().unregisterReceiver( mProgramGuideCleanupReceiver );
+			} catch( IllegalArgumentException e ) {
+				Log.e( TAG, "onStop : error", e );
+			}
+		}
+
+		if( null != mProgramGuideDownloaderReceiver ) {
+			try {
+				getActivity().unregisterReceiver( mProgramGuideDownloaderReceiver );
 			} catch( IllegalArgumentException e ) {
 				Log.e( TAG, "onStop : error", e );
 			}
@@ -149,6 +169,19 @@ public class GuideFragment extends AbstractMythFragment implements OnClickListen
 		updateDateHeader();
 		
 		Log.v( TAG, "onActivityCreated : exit" );
+	}
+
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.Fragment#onResume()
+	 */
+	@Override
+	public void onResume() {
+		Log.v( TAG, "onResume : enter" );
+		super.onResume();
+
+		getActivity().startService( new Intent( ProgramGuideCleanupService.ACTION_CLEANUP ) );
+	
+		Log.v( TAG, "onResume : exit" );
 	}
 
 	/* (non-Javadoc)
@@ -311,6 +344,44 @@ public class GuideFragment extends AbstractMythFragment implements OnClickListen
 		@Override
 		public CharSequence getPageTitle( int position ) {
 			return fragmentLabels.get( position );
+		}
+		
+	}
+
+	private class ProgramGuideCleanupReceiver extends BroadcastReceiver {
+
+		@Override
+		public void onReceive( Context context, Intent intent ) {
+			
+	        if ( intent.getAction().equals( ProgramGuideCleanupService.ACTION_COMPLETE ) ) {
+	        	Log.i( TAG, "ProgramGuideCleanupReceiver.onReceive : " + intent.getStringExtra( ProgramGuideCleanupService.EXTRA_COMPLETE ) );
+	        	Log.i( TAG, "ProgramGuideCleanupReceiver.onReceive : " + intent.getIntExtra( ProgramGuideCleanupService.EXTRA_COMPLETE_COUNT, 0 ) + " files cleaned up" );
+
+	    		FilenameFilter filter = new FilenameFilter() {
+	    		    
+	    			public boolean accept( File directory, String fileName ) {
+	    				LocationProfile profile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
+	    				
+	    	            return fileName.startsWith( profile.getHostname() + "_" ) &&
+	    	            		fileName.endsWith( ProgramGuideDownloadService.FILENAME_EXT );
+	    	        }
+	    			
+	    	    };
+	    		
+	        	File programGuideCache = FileHelper.getInstance().getProgramGuideDataDirectory();
+	    		if( null != programGuideCache && programGuideCache.exists() ) {
+		        	Log.i( TAG, "ProgramGuideCleanupReceiver.onReceive : programGuide count=" + programGuideCache.list( filter ).length );
+	    			
+	    			if( programGuideCache.list( filter ).length < ProgramGuideDownloadService.MAX_HOURS ) {
+	    				if( !mRunningServiceHelper.isServiceRunning( getActivity(), "org.mythtv.service.guide.ProgramGuideDownloadService" ) ) {
+		    				getActivity().startService( new Intent( ProgramGuideDownloadService.ACTION_DOWNLOAD ) );
+	    				}
+	    			}
+	    			
+	    		}
+	    		
+	        }
+	        
 		}
 		
 	}
