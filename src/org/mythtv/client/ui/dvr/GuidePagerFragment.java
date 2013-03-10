@@ -94,8 +94,8 @@ public class GuidePagerFragment extends MythtvListFragment {
         mProgramHelper = ProgramHelper.getInstance();
 		
 		setHasOptionsMenu( true );
-		
-		setRetainInstance( true );
+
+		//setRetainInstance( true );
 
 	    adapter = new GuideRowAdapter( getActivity().getApplicationContext(), startDate, timeslot, programGuide );
 	    
