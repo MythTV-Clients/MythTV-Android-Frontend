@@ -49,6 +49,7 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -85,6 +86,7 @@ public class MainMenuFragment extends AbstractMythFragment implements ServiceLis
 	private static final String HOSTNAME = "mythandroid";
 	private static JmDNS zeroConf = null;
 	private static MulticastLock mLock = null;
+	private static boolean isAway = false;
 	
 	
 	private FrontendAdapter adapter = null;
@@ -100,6 +102,8 @@ public class MainMenuFragment extends AbstractMythFragment implements ServiceLis
 		public void onCheckedChanged(CompoundButton buttonView,
 				boolean isChecked) {
 			
+			//set if profile is home/away
+			isAway = isChecked;
 			
 			if(!isChecked){ //isChecked - false - home
 				
@@ -148,6 +152,11 @@ public class MainMenuFragment extends AbstractMythFragment implements ServiceLis
 				}
 			}
 			
+			//show/hide frontend selection
+			LinearLayout linearLayoutFrontends = (LinearLayout)getActivity().findViewById(R.id.linear_layout_frontend_spinner);
+			if(null != linearLayoutFrontends){
+				linearLayoutFrontends.setVisibility(isChecked ? View.GONE : View.VISIBLE);
+			}
 		}
 		
 	};
@@ -219,6 +228,13 @@ public class MainMenuFragment extends AbstractMythFragment implements ServiceLis
 		return selectedFrontend;
 	}
 	
+	/**
+	 * 
+	 * @return
+	 */
+	public static boolean isAway(){
+		return isAway;
+	}
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
