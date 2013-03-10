@@ -76,7 +76,7 @@ public class MainMenuFragment extends AbstractMythFragment implements ServiceLis
 	{
 		public void OnFragmentRequested(int fragmentId, String fragmentClassName);
 		
-		public void OnFragmentRequested(Fragment fragment);
+		public void OnFragmentRequested(int fragmentId, Fragment fragment);
 	}
 	
 	
@@ -480,9 +480,9 @@ public class MainMenuFragment extends AbstractMythFragment implements ServiceLis
 	 * 
 	 * @param fragment
 	 */
-	private void requestContentFragment(Fragment fragment){
+	private void requestContentFragment(int fragmentId, Fragment fragment){
 		if( null != mContentFragmentRequestedListener)
-			mContentFragmentRequestedListener.OnFragmentRequested(fragment);
+			mContentFragmentRequestedListener.OnFragmentRequested(fragmentId, fragment);
 	}
 	
 	/**

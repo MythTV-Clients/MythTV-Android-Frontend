@@ -24,8 +24,10 @@ import android.widget.FrameLayout;
 public class MainActivity extends AbstractMythtvFragmentActivity implements ContentFragmentRequestedListener{
 
 	public static final String TAG = MainActivity.class.getName();
+	private static int sContentId;
 	
 	private boolean mMenuVisible = false;
+	
 
 	
 	@Override
@@ -52,13 +54,23 @@ public class MainActivity extends AbstractMythtvFragmentActivity implements Cont
 			fTran.replace(R.id.frame_layout_main_menu, mainMenuFrag);
 		}
 		
-		//setup backend status as first fragment
-		Fragment backendStatusFrag = fragMgr.findFragmentById(R.layout.fragment_backend_status);
-		if (null == backendStatusFrag) {
-			backendStatusFrag = Fragment.instantiate(this, BackendStatusFragment.class.getName());
-			fTran.add(R.id.frame_layout_main_ui, backendStatusFrag);
-		}else{
-			fTran.replace(R.id.frame_layout_main_ui, backendStatusFrag);
+		/* only set the backend status fragment if this is our first entry into application
+		 * or it is the current screen. This elinates the double fragment overlap that occures
+		 * during orientation change.
+		 */
+		Log.d(TAG, "FragmentID: " + sContentId);
+		if (sContentId == 0 || sContentId == R.layout.fragment_backend_status) {
+			// setup backend status as first fragment
+			Fragment backendStatusFrag = fragMgr.findFragmentById(R.layout.fragment_backend_status);
+			if (null == backendStatusFrag) {
+				backendStatusFrag = Fragment.instantiate(this,
+						BackendStatusFragment.class.getName());
+				fTran.add(R.id.frame_layout_main_ui, backendStatusFrag);
+			} else {
+				fTran.replace(R.id.frame_layout_main_ui, backendStatusFrag);
+			}
+			
+			sContentId = R.layout.fragment_backend_status;
 		}
 		
 		//finalize fragment transaction
@@ -255,7 +267,7 @@ public class MainActivity extends AbstractMythtvFragmentActivity implements Cont
 	public boolean isMainMenuVisible(){
 		return this.mMenuVisible;
 	}
-
+	
 
 	@Override
 	public void OnFragmentRequested(int fragmentId, String fragmentClassName) {
@@ -266,16 +278,20 @@ public class MainActivity extends AbstractMythtvFragmentActivity implements Cont
 			fragment = Fragment.instantiate(this, fragmentClassName);
 		
 		//call into overload
-		OnFragmentRequested(fragment);
+		OnFragmentRequested(fragmentId, fragment);
 	}
 
 
 	@Override
-	public void OnFragmentRequested(Fragment fragment) {
+	public void OnFragmentRequested(int fragmentId, Fragment fragment) {
 		
 		if(null == fragment){
 			Log.e(TAG, "OnFragmentRequested(fragment) argument null.");
 		}
+		
+		//set content fragment id
+		sContentId = fragmentId;
+		Log.d(TAG, "OnFragmentRequested() FragmentID: " + sContentId);
 		
 		//get framgment manager and start a transaction
 		FragmentManager fragMgr = getSupportFragmentManager();
