@@ -22,8 +22,9 @@
 
 
 <fragment xmlns:android="http://schemas.android.com/apk/res/android"
-  	class="org.mythtv.client.ui.dvr.RecordingsFragment"
-  	android:id="@+id/fragment_dvr_program_groups"
+  	class="org.mythtv.client.ui.dvr.RecordingsParentFragment"
+  	android:id="@+id/fragment_dvr_recordings_parent"
   	android:layout_width="match_parent"
   	android:layout_height="match_parent"
 />
+
