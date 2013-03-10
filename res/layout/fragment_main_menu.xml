@@ -116,6 +116,7 @@
 	   	<!-- Frontend spinner line -->
 
 	   	<LinearLayout
+	   	    android:id="@+id/linear_layout_frontend_spinner"
 	   	    android:layout_width="match_parent"
 	   	    android:layout_height="wrap_content"
 	   	    android:orientation="vertical" >
