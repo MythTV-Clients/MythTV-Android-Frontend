@@ -21,6 +21,7 @@ package org.mythtv.client.ui.dvr;
 import org.joda.time.DateTime;
 import org.mythtv.R;
 import org.mythtv.client.ui.AbstractMythtvFragmentActivity;
+import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.db.dvr.programGroup.ProgramGroup;
 import org.mythtv.db.dvr.programGroup.ProgramGroupConstants;
@@ -40,6 +41,8 @@ public class EpisodeActivity extends AbstractMythtvFragmentActivity implements E
 
 	private static final String TAG = EpisodeActivity.class.getSimpleName();
 
+	private LocationProfile mLocationProfile;
+	
 	private EpisodeFragment episodeFragment;
 	
 	/* (non-Javadoc)
@@ -51,6 +54,8 @@ public class EpisodeActivity extends AbstractMythtvFragmentActivity implements E
 		super.onCreate( savedInstanceState );
 		
 		setContentView( R.layout.activity_dvr_episode );
+		
+		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( this );
 		
 		Bundle args = getIntent().getExtras();
 		int channelId = args.getInt( ProgramConstants.FIELD_CHANNEL_ID, -1 );
@@ -74,7 +79,7 @@ public class EpisodeActivity extends AbstractMythtvFragmentActivity implements E
 		Bundle args = getIntent().getExtras();
 		int channelId = args.getInt( ProgramConstants.FIELD_CHANNEL_ID, -1 );
 		Long startTime = args.getLong( ProgramConstants.FIELD_START_TIME, -1 );
-		Program program = mRecordedDaoHelper.findOne( this, channelId, new DateTime( startTime ) );
+		Program program = mRecordedDaoHelper.findOne( this, mLocationProfile, channelId, new DateTime( startTime ) );
 		
 		switch( item.getItemId() ) {
 			case android.R.id.home:

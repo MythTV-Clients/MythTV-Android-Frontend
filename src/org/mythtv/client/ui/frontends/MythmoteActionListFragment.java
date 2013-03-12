@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.mythtv.R;
 import org.mythtv.client.ui.MainMenuFragment;
+import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.frontend.Action;
 import org.mythtv.services.api.frontend.FrontendActionList;
@@ -48,9 +49,13 @@ public class MythmoteActionListFragment extends AbstractFrontendFragment{
 	
 	private ListView mListView;
 	
+	private LocationProfile mLocationProfile;
+	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
+		
+		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
 		
 		//inflate fragment layout
 		View mView = inflater.inflate(R.layout.fragment_mythmote_action_list, container, false);
@@ -88,7 +93,7 @@ public class MythmoteActionListFragment extends AbstractFrontendFragment{
 		protected ResponseEntity<FrontendActionList> doInBackground(String... params) {
 			try {
 				ETagInfo eTag = ETagInfo.createEmptyETag();
-				return mMythtvServiceHelper.getMythServicesApi( getActivity() ).frontendOperations().getActionList(params[0], eTag);
+				return mMythtvServiceHelper.getMythServicesApi( mLocationProfile ).frontendOperations().getActionList(params[0], eTag);
 			} catch( Exception e ) {
 				Log.e( TAG, e.getMessage() );
 				showAlertDialog( "Get Status Error", e.getMessage() );

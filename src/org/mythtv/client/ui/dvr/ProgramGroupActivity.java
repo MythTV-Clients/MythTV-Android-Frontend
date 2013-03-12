@@ -21,6 +21,7 @@ package org.mythtv.client.ui.dvr;
 import org.joda.time.DateTime;
 import org.mythtv.R;
 import org.mythtv.client.ui.AbstractMythtvFragmentActivity;
+import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.db.dvr.programGroup.ProgramGroup;
 import org.mythtv.db.dvr.programGroup.ProgramGroupConstants;
@@ -43,6 +44,8 @@ public class ProgramGroupActivity extends AbstractMythtvFragmentActivity impleme
 	
 	private ProgramGroup selectedProgramGroup;
 
+	private LocationProfile mLocationProfile;
+	
 	// ***************************************
 	// Activity methods
 	// ***************************************
@@ -59,6 +62,8 @@ public class ProgramGroupActivity extends AbstractMythtvFragmentActivity impleme
 
 		setContentView( R.layout.activity_dvr_program_group );
 
+		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( this );
+		
 		Bundle extras = getIntent().getExtras(); 
 		String programGroup = extras.getString( ProgramGroupConstants.FIELD_TITLE );
 		if( null == programGroup || "".equals( programGroup ) ) {
@@ -69,7 +74,7 @@ public class ProgramGroupActivity extends AbstractMythtvFragmentActivity impleme
 			finish();
 		}
 
-		selectedProgramGroup = mProgramGroupDaoHelper.findByTitle( this, programGroup );		
+		selectedProgramGroup = mProgramGroupDaoHelper.findByTitle( this, mLocationProfile, programGroup );		
 		
 		mProgramGroupFragment = (ProgramGroupFragment) getSupportFragmentManager().findFragmentById( R.id.fragment_dvr_program_group );
 		mProgramGroupFragment.setOnEpisodeSelectedListener( this );

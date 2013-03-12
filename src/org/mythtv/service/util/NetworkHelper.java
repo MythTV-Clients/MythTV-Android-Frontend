@@ -26,7 +26,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import org.mythtv.client.ui.preferences.LocationProfile;
-import org.mythtv.db.preferences.LocationProfileDaoHelper;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
@@ -42,8 +41,6 @@ public class NetworkHelper {
 	private static final String TAG = NetworkHelper.class.getSimpleName();
 	
 	private static NetworkHelper singleton = null;
-	
-	private LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
 	
 	/**
 	 * Returns the one and only NetworkHelper. init() must be called before 
@@ -94,64 +91,6 @@ public class NetworkHelper {
 
 //		Log.v( TAG, "isNetworkConnected : exit" );
 		return true;
-	}
-	
-	/**
-	 * Returns true if a connection can be made to the connected location profile.
-	 * Three attempts are made before a false return.
-	 * @return
-	 */
-	public boolean isMasterBackendConnected( final Context context ) {
-//		Log.v( TAG, "isMasterBackendConnected : enter" );
-		
-		/* Check if we're not initialized */
-		if( null == context ) {
-//			Log.e(TAG, "NetworkHelper not initialized");
-			throw new RuntimeException( "NetworkHelper is not initialized" );
-		}
-
-		LocationProfile mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( context );
-		if( null == mLocationProfile ) {
-//			Log.e( TAG, "isMasterBackendConnected : exit, no backend selected" );
-			
-			return false;
-		}
-
-		if( !isNetworkConnected( context ) ) {
-			return false;
-		}
-		
-		int attempts = 0;
-		while( attempts++ < 3 ) {
-//			Log.v( TAG, "isMasterBackendConnected : attempt = " + attempts );
-				
-			try {
-
-				URL url = new URL( mLocationProfile.getUrl() + "Myth/GetHostName" );
-
-				HttpURLConnection urlc = (HttpURLConnection) url.openConnection();
-				urlc.setRequestProperty( "User-Agent", "Android Application:MythTV_Android_Frontent" );
-				urlc.setRequestProperty( "Connection", "close" );
-				urlc.setConnectTimeout( 1000 * 10 ); // mTimeout is in seconds
-				urlc.connect();
-				if( urlc.getResponseCode() == 200 ) {
-					InputStream in = new BufferedInputStream(urlc.getInputStream());
-					byte[] hostname = new byte[ 128 ];
-					while( in.read( hostname , 0, 128 ) > 0 );
-//					Log.v( TAG, "isMasterBackendConnected : exit" );
-					
-					return true;
-				}
-			} catch( MalformedURLException e ) {
-				Log.w( TAG, "isMasterBackendConnected : error, connecting with backend url", e );
-			} catch( IOException e ) {
-				Log.w( TAG, "isMasterBackendConnected : error, connecting to backend", e );
-			}
-
-		}
-		
-		Log.w( TAG, "isMasterBackendConnected : master backend could not be reached" );
-		return false;
 	}
 	
 	/**

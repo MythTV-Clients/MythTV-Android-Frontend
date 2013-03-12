@@ -23,6 +23,7 @@ import java.util.List;
 import org.joda.time.DateTime;
 import org.mythtv.R;
 import org.mythtv.client.ui.AbstractMythtvFragmentActivity;
+import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.dvr.programGroup.ProgramGroup;
 import org.mythtv.db.dvr.programGroup.ProgramGroupConstants;
 import org.mythtv.services.api.dvr.Program;
@@ -51,12 +52,16 @@ public class RecordingsActivity extends AbstractMythtvFragmentActivity implement
 	private ProgramGroup selectedProgramGroup;
 	private Program selectedProgram;
 	
+	private LocationProfile mLocationProfile;
+	
 	@Override
 	public void onCreate( Bundle savedInstanceState ) {
 		Log.v( TAG, "onCreate : enter" );
 		super.onCreate( savedInstanceState );
 
 		setContentView( R.layout.activity_dvr_recordings );
+		
+		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( this );
 		
         mRecordingsFragment = (RecordingsFragment) getSupportFragmentManager().findFragmentById( R.id.fragment_dvr_program_groups );
         mRecordingsFragment.setOnProgramGroupListener( this );
@@ -71,7 +76,7 @@ public class RecordingsActivity extends AbstractMythtvFragmentActivity implement
 			mEpisodeFragment = (EpisodeFragment) getSupportFragmentManager().findFragmentById( R.id.fragment_dvr_episode );
 			mEpisodeFragment.setOnEpisodeActionListener( this );
 			
-			List<ProgramGroup> programGroups = mProgramGroupDaoHelper.findAll( this );
+			List<ProgramGroup> programGroups = mProgramGroupDaoHelper.findAll( this, mLocationProfile );
 			if( null != programGroups && !programGroups.isEmpty() ) {
 				onProgramGroupSelected( programGroups.get( 0 ) );
 			}
@@ -96,11 +101,11 @@ public class RecordingsActivity extends AbstractMythtvFragmentActivity implement
 		selectedProgramGroup = programGroup;
 		selectedProgram = null;
 		
-		List<Program> programs = mRecordedDaoHelper.findAllByTitle( this, programGroup.getTitle() );
+		List<Program> programs = mRecordedDaoHelper.findAllByTitle( this, mLocationProfile, programGroup.getTitle() );
 		if( null == programs || programs.isEmpty() ) {
 			Log.d( TAG, "onProgramGroupSelected : no programs in programGroup" );
 
-			mRecordedDaoHelper.findAll( this );
+			mRecordedDaoHelper.findAll( this, mLocationProfile );
 		}
 
 		if( null != programs && !programs.isEmpty() ) {
@@ -188,11 +193,11 @@ public class RecordingsActivity extends AbstractMythtvFragmentActivity implement
 		selectedProgramGroup = programGroup;
 		selectedProgram = null;
 		
-		List<Program> programs = mRecordedDaoHelper.findAllByTitle( this, programGroup.getTitle() );
+		List<Program> programs = mRecordedDaoHelper.findAllByTitle( this, mLocationProfile, programGroup.getTitle() );
 		if( null == programs || programs.isEmpty() ) {
 			Log.d( TAG, "onProgramGroupSelected : exit, no programs in programGroup" );
 
-			programs = mRecordedDaoHelper.findAll( this );
+			programs = mRecordedDaoHelper.findAll( this, mLocationProfile );
 		}
 
 		selectedProgram = programs.get( 0 );

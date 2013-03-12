@@ -149,20 +149,6 @@
             </intent-filter>
         </service>
 		
-		<service android:name=".service.dvr.BannerDownloadService" android:process=":banner" android:exported="false">
-			<intent-filter>
-                <action
-                    android:name="org.mythtv.background.bannerDownload.ACTION_DOWNLOAD" />
-            </intent-filter>
-        </service>
-		
-		<service android:name=".service.dvr.CoverartDownloadService" android:process=":coverart" android:exported="false">
-			<intent-filter>
-                <action
-                    android:name="org.mythtv.background.coverartDownload.ACTION_DOWNLOAD" />
-            </intent-filter>
-        </service>
-		
 		<service android:name=".service.dvr.UpcomingDownloadService" android:process=":upcoming" android:exported="false">
 			<intent-filter>
                 <action

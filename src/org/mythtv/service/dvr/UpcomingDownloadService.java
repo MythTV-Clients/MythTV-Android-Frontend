@@ -105,7 +105,8 @@ public class UpcomingDownloadService extends MythtvService {
 			return;
 		}
 
-		if( !NetworkHelper.getInstance().isMasterBackendConnected( this ) ) {
+		LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile( this );
+		if( !NetworkHelper.getInstance().isMasterBackendConnected( this, locationProfile ) ) {
 			Intent completeIntent = new Intent( ACTION_COMPLETE );
 			completeIntent.putExtra( EXTRA_COMPLETE, "Master Backend unreachable" );
 			completeIntent.putExtra( EXTRA_COMPLETE_OFFLINE, Boolean.TRUE );
@@ -125,7 +126,7 @@ public class UpcomingDownloadService extends MythtvService {
     		try {
     			sendNotification();
 
-    			download();
+    			download( locationProfile );
 
 			} catch( Exception e ) {
 				Log.e( TAG, "onHandleIntent : error loading upcoming data", e );
@@ -149,13 +150,13 @@ public class UpcomingDownloadService extends MythtvService {
 
 	// internal helpers
 	
-	private void download() throws Exception {
+	private void download( final LocationProfile locationProfile ) throws Exception {
 		Log.v( TAG, "download : enter" );
 		
-		ETagInfo etag = mEtagDaoHelper.findByEndpointAndDataId( this, Endpoint.GET_UPCOMING_LIST.name(), "" );
+		ETagInfo etag = mEtagDaoHelper.findByEndpointAndDataId( this, locationProfile, Endpoint.GET_UPCOMING_LIST.name(), "" );
 		etag = ETagInfo.createEmptyETag();
 		
-		ResponseEntity<ProgramList> responseEntity = mMythtvServiceHelper.getMythServicesApi( this ).dvrOperations().getUpcomingList( -1, -1, false, etag );
+		ResponseEntity<ProgramList> responseEntity = mMythtvServiceHelper.getMythServicesApi( locationProfile ).dvrOperations().getUpcomingList( -1, -1, false, etag );
 		if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
 			Log.i( TAG, "download : " + Endpoint.GET_UPCOMING_LIST.getEndpoint() + " returned 200 OK" );
 	
@@ -166,10 +167,10 @@ public class UpcomingDownloadService extends MythtvService {
 					
 //					cleanup();
 				
-					process( programList.getPrograms() );
+					process( programList.getPrograms(), locationProfile );
 				
 					if( null != etag.getETag() ) {
-						mEtagDaoHelper.save( this, etag, Endpoint.GET_UPCOMING_LIST.name(), "" );
+						mEtagDaoHelper.save( this, locationProfile, etag, Endpoint.GET_UPCOMING_LIST.name(), "" );
 					}
 						
 				}
@@ -182,7 +183,7 @@ public class UpcomingDownloadService extends MythtvService {
 			Log.i( TAG, "download : " + Endpoint.GET_UPCOMING_LIST.getEndpoint() + " returned 304 Not Modified" );
 			
 			if( null != etag.getETag() ) {
-				mEtagDaoHelper.save( this, etag, Endpoint.GET_UPCOMING_LIST.name(), "" );
+				mEtagDaoHelper.save( this, locationProfile, etag, Endpoint.GET_UPCOMING_LIST.name(), "" );
 			}
 			
 		}
@@ -198,16 +199,15 @@ public class UpcomingDownloadService extends MythtvService {
 		Log.v( TAG, "cleanup : exit" );
 	}
 	
-	private void process( Programs programs ) throws JsonGenerationException, JsonMappingException, IOException, RemoteException, OperationApplicationException {
+	private void process( Programs programs, final LocationProfile locationProfile ) throws JsonGenerationException, JsonMappingException, IOException, RemoteException, OperationApplicationException {
 		Log.v( TAG, "process : enter" );
 		
-		LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile( this );
 		Log.v( TAG, "process : saving upcoming for host [" + locationProfile.getHostname() + ":" + locationProfile.getUrl() + "]" );
 
 		mMainApplication.getObjectMapper().writeValue( new File( upcomingDirectory, UPCOMING_FILE_PREFIX + locationProfile.getHostname() + UPCOMING_FILE_EXT ), programs );
 		Log.v( TAG, "process : saved upcoming to " + upcomingDirectory.getAbsolutePath() );
 		
-		int programsAdded = mUpcomingDaoHelper.load( this, programs.getPrograms() );
+		int programsAdded = mUpcomingDaoHelper.load( this, locationProfile, programs.getPrograms() );
 		Log.v( TAG, "process : programsAdded=" + programsAdded );
 
 		Log.v( TAG, "process : exit" );

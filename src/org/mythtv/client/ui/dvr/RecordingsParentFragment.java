@@ -5,6 +5,7 @@ import java.util.List;
 import org.joda.time.DateTime;
 import org.mythtv.R;
 import org.mythtv.client.ui.AbstractMythFragment;
+import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.dvr.RecordedDaoHelper;
 import org.mythtv.db.dvr.programGroup.ProgramGroup;
 import org.mythtv.db.dvr.programGroup.ProgramGroupConstants;
@@ -37,8 +38,9 @@ public class RecordingsParentFragment extends AbstractMythFragment implements
 
 	private boolean mUseMultiplePanes;
 
-	private RecordedDaoHelper mRecordedDaoHelper;
-	private ProgramGroupDaoHelper mProgramGroupDaoHelper;
+	private RecordedDaoHelper mRecordedDaoHelper = RecordedDaoHelper.getInstance();
+	private ProgramGroupDaoHelper mProgramGroupDaoHelper = ProgramGroupDaoHelper.getInstance();
+	
 	private RecordingsFragment mRecordingsFragment;
 	private ProgramGroupFragment mProgramGroupFragment;
 	private EpisodeFragment mEpisodeFragment;
@@ -46,22 +48,7 @@ public class RecordingsParentFragment extends AbstractMythFragment implements
 	private ProgramGroup selectedProgramGroup;
 	private Program selectedProgram;
 
-	
-	
-	/**
-	 * 
-	 */
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		Log.v( TAG, "onCreate : enter" );
-		super.onCreate( savedInstanceState );
-		
-		mRecordedDaoHelper = RecordedDaoHelper.getInstance();
-		mProgramGroupDaoHelper = ProgramGroupDaoHelper.getInstance();
-
-        Log.v( TAG, "onCreate : exit" );
-	}
-	
+	private LocationProfile mLocationProfile;
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -76,6 +63,8 @@ public class RecordingsParentFragment extends AbstractMythFragment implements
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 		
+		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
+		
 		mRecordingsFragment = (RecordingsFragment) getActivity().getSupportFragmentManager().findFragmentById( R.id.fragment_dvr_program_groups );
         mRecordingsFragment.setOnProgramGroupListener( this );
 		
@@ -89,7 +78,7 @@ public class RecordingsParentFragment extends AbstractMythFragment implements
 			mEpisodeFragment = (EpisodeFragment) getActivity().getSupportFragmentManager().findFragmentById( R.id.fragment_dvr_episode );
 			mEpisodeFragment.setOnEpisodeActionListener( this );
 			
-			List<ProgramGroup> programGroups = mProgramGroupDaoHelper.findAll( this.getActivity() );
+			List<ProgramGroup> programGroups = mProgramGroupDaoHelper.findAll( getActivity(), mLocationProfile );
 			if( null != programGroups && !programGroups.isEmpty() ) {
 				onProgramGroupSelected( programGroups.get( 0 ) );
 			}
@@ -114,11 +103,11 @@ public class RecordingsParentFragment extends AbstractMythFragment implements
 		selectedProgramGroup = programGroup;
 		selectedProgram = null;
 		
-		List<Program> programs = mRecordedDaoHelper.findAllByTitle( this.getActivity(), programGroup.getTitle() );
+		List<Program> programs = mRecordedDaoHelper.findAllByTitle( getActivity(), mLocationProfile, programGroup.getTitle() );
 		if( null == programs || programs.isEmpty() ) {
 			Log.d( TAG, "onProgramGroupSelected : no programs in programGroup" );
 
-			mRecordedDaoHelper.findAll( this.getActivity() );
+			mRecordedDaoHelper.findAll( getActivity(), mLocationProfile );
 		}
 
 		if( null != programs && !programs.isEmpty() ) {
@@ -206,11 +195,11 @@ public class RecordingsParentFragment extends AbstractMythFragment implements
 		selectedProgramGroup = programGroup;
 		selectedProgram = null;
 		
-		List<Program> programs = mRecordedDaoHelper.findAllByTitle( this.getActivity(), programGroup.getTitle() );
+		List<Program> programs = mRecordedDaoHelper.findAllByTitle( getActivity(), mLocationProfile, programGroup.getTitle() );
 		if( null == programs || programs.isEmpty() ) {
 			Log.d( TAG, "onProgramGroupSelected : exit, no programs in programGroup" );
 
-			programs = mRecordedDaoHelper.findAll( this.getActivity() );
+			programs = mRecordedDaoHelper.findAll( getActivity(), mLocationProfile );
 		}
 
 		selectedProgram = programs.get( 0 );

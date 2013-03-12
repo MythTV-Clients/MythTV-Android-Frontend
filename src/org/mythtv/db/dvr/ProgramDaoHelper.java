@@ -76,7 +76,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 	 * @param sortOrder
 	 * @return
 	 */
-	protected List<Program> findAll( Context context, Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder ) {
+	protected List<Program> findAll( final Context context, final Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder ) {
 		Log.v( TAG, "findAll : enter" );
 		
 		if( null == context ) 
@@ -98,7 +98,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 	/**
 	 * @return
 	 */
-	public abstract List<Program> findAll( Context context );
+	public abstract List<Program> findAll( final Context context, final LocationProfile locationProfile );
 	
 	/**
 	 * @param uri
@@ -108,7 +108,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 	 * @param sortOrder
 	 * @return
 	 */
-	protected Program findOne( Context context, Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder ) {
+	protected Program findOne( final Context context, final Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder ) {
 		Log.v( TAG, "findOne : enter" );
 		
 		if( null == context ) 
@@ -134,18 +134,20 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 	}
 	
 	/**
+	 * @param context
+	 * @param locationProfile
 	 * @param channelId
 	 * @param startTime
 	 * @return
 	 */
-	public abstract Program findOne( Context context, int channelId, DateTime startTime );
+	public abstract Program findOne( final Context context, final LocationProfile locationProfile, final int channelId, final DateTime startTime );
 
 	/**
 	 * @param uri
 	 * @param program
 	 * @return
 	 */
-	protected int save( Context context, Uri uri, Program program ) {
+	protected int save( final Context context, final Uri uri, final LocationProfile locationProfile, Program program ) {
 		Log.v( TAG, "save : enter" );
 
 		if( null == context ) 
@@ -157,7 +159,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		String selection = ProgramConstants.FIELD_CHANNEL_ID + " = ? AND " + ProgramConstants.FIELD_START_TIME + " = ?";
 		String[] selectionArgs = new String[] { String.valueOf( program.getChannelInfo().getChannelId() ), String.valueOf( program.getStartTime().getMillis() ) };
 		
-		selection = appendLocationHostname( context, selection, null );
+		selection = appendLocationHostname( context, locationProfile, selection, null );
 
 		int updated = -1;
 		Cursor cursor = context.getContentResolver().query( uri, projection, selection, selectionArgs, null );
@@ -184,12 +186,12 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 	 * @param program
 	 * @return
 	 */
-	public abstract int save( Context context, Program program );
+	public abstract int save( final Context context, final LocationProfile locationProfile, Program program );
 	
 	/**
 	 * @return
 	 */
-	public int deleteAll( Context context, Uri uri ) {
+	public int deleteAll( final Context context, final Uri uri ) {
 		Log.v( TAG, "deleteAll : enter" );
 		
 		if( null == context ) 
@@ -205,14 +207,14 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 	/**
 	 * @return
 	 */
-	public abstract int deleteAll( Context context );
+	public abstract int deleteAll( final Context context );
 	
 	/**
 	 * @param uri
 	 * @param program
 	 * @return
 	 */
-	public int delete( Context context, Uri uri, Program program ) {
+	public int delete( final Context context, final Uri uri, final LocationProfile locationProfile, Program program ) {
 		Log.v( TAG, "delete : enter" );
 		
 		if( null == context ) 
@@ -221,7 +223,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		String selection = ProgramConstants.FIELD_CHANNEL_ID + " = ? AND " + ProgramConstants.FIELD_START_TIME + " = ?";
 		String[] selectionArgs = new String[] { String.valueOf( program.getChannelInfo().getChannelId() ), String.valueOf( program.getStartTime().getMillis() ) };
 
-		selection = appendLocationHostname( context, selection, null );
+		selection = appendLocationHostname( context, locationProfile, selection, null );
 
 		int deleted = context.getContentResolver().delete( uri, selection, selectionArgs );
 		Log.v( TAG, "delete : deleted=" + deleted );
@@ -234,7 +236,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 	 * @param program
 	 * @return
 	 */
-	public abstract int delete( Context context, Program program );
+	public abstract int delete( final Context context, final LocationProfile locationProfile, Program program );
 	
 	/**
 	 * @param uri
@@ -244,7 +246,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 	 * @throws RemoteException
 	 * @throws OperationApplicationException
 	 */
-	protected int load( Context context, Uri uri, List<Program> programs, String table ) throws RemoteException, OperationApplicationException {
+	protected int load( final Context context, final Uri uri, final LocationProfile locationProfile, List<Program> programs, String table ) throws RemoteException, OperationApplicationException {
 		Log.v( TAG, "load : enter" );
 		
 		if( null == context ) 
@@ -253,7 +255,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		Log.v( TAG, "load : find all existing recordings, table=" + table );
 		String recordedSelection = "";
 		
-		recordedSelection = appendLocationHostname( context, recordedSelection, table );
+		recordedSelection = appendLocationHostname( context, locationProfile, recordedSelection, table );
 		Log.v( TAG, "load : recordedSelection=" + recordedSelection );
 		
 		Map<String, Program> recorded = new HashMap<String, Program>();
@@ -269,11 +271,9 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		String[] programProjection = new String[] { ProgramConstants._ID };
 		String programSelection = table + "." + ProgramConstants.FIELD_CHANNEL_ID + " = ? AND " + table + "." + ProgramConstants.FIELD_START_TIME + " = ?";
 
-		programSelection = appendLocationHostname( context, programSelection, table );
+		programSelection = appendLocationHostname( context, locationProfile, programSelection, table );
 		
 		boolean inError;
-		
-		LocationProfile mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( context );
 		
 		for( Program program : programs ) {
 
@@ -315,10 +315,10 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 			
 			if( null != program.getChannelInfo() ) {
 				
-				if( null == mChannelDaoHelper.findByChannelId( context, (long) program.getChannelInfo().getChannelId() ) ) {
+				if( null == mChannelDaoHelper.findByChannelId( context, locationProfile, (long) program.getChannelInfo().getChannelId() ) ) {
 					Log.v( TAG, "load : adding non-existent channel" );
 
-					mChannelDaoHelper.save( context, program.getChannelInfo() );
+					mChannelDaoHelper.save( context, locationProfile, program.getChannelInfo() );
 				}
 				
 			}
@@ -327,11 +327,11 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 				
 				String[] recordingProjection = new String[] { RecordingConstants.TABLE_NAME + "_" + RecordingConstants._ID };
 				String recordingSelection = RecordingConstants.FIELD_RECORD_ID + " = ? AND " + RecordingConstants.FIELD_START_TIME + " = ? AND " + RecordingConstants.FIELD_HOSTNAME + " = ?";
-				String[] recordingSelectionArgs = new String[] { String.valueOf( program.getRecording().getRecordId() ), String.valueOf( program.getStartTime().getMillis() ), mLocationProfile.getHostname() };
+				String[] recordingSelectionArgs = new String[] { String.valueOf( program.getRecording().getRecordId() ), String.valueOf( program.getStartTime().getMillis() ), locationProfile.getHostname() };
 				
 				Log.v( TAG, "load : recording=" + program.getRecording().toString() );
 				
-				ContentValues recordingValues = mRecordingDaoHelper.convertRecordingToContentValues( context, program.getRecording(), program.getStartTime() );
+				ContentValues recordingValues = mRecordingDaoHelper.convertRecordingToContentValues( context, locationProfile, program.getRecording(), program.getStartTime() );
 				Cursor recordingCursor = context.getContentResolver().query( RecordingConstants.CONTENT_URI, recordingProjection, recordingSelection, recordingSelectionArgs, null );
 				if( recordingCursor.moveToFirst() ) {
 					Log.v( TAG, "load : UPDATE RECORDING program=" + program.getTitle() + ", recording=" + program.getRecording().getRecordId() );
@@ -396,15 +396,16 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 			Log.v( TAG, "load : remove deleted recording - " + program.getTitle() + " [" + program.getSubTitle() + "]" );
 			
 			// Delete any live stream details
-			LiveStreamInfo liveStreamInfo = mLiveStreamDaoHelper.findByProgram( context, program );
+			LiveStreamInfo liveStreamInfo = mLiveStreamDaoHelper.findByProgram( context, locationProfile, program );
 			if( null != liveStreamInfo ) {
 				Log.v( TAG, "load : remove live stream" );
 				
 				RemoveStreamTask removeStreamTask = new RemoveStreamTask();
 				removeStreamTask.setContext( context );
+				removeStreamTask.setLocationProfile( locationProfile );
 				removeStreamTask.execute( liveStreamInfo );
 				
-				mLiveStreamDaoHelper.delete( context, liveStreamInfo );
+				mLiveStreamDaoHelper.delete( context, locationProfile, liveStreamInfo );
 			}
 			
 			if( null != program.getRecording() ) {
@@ -412,7 +413,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 				
 				ops.add(  
 					ContentProviderOperation.newDelete( RecordingConstants.CONTENT_URI )
-					.withSelection( RecordingConstants.FIELD_RECORD_ID + " = ? AND " + RecordingConstants.FIELD_START_TIME + " = ? AND " + RecordingConstants.FIELD_HOSTNAME + " = ?", new String[] { String.valueOf( program.getRecording().getRecordId() ), String.valueOf( program.getStartTime().getMillis() ), mLocationProfile.getHostname() } )
+					.withSelection( RecordingConstants.FIELD_RECORD_ID + " = ? AND " + RecordingConstants.FIELD_START_TIME + " = ? AND " + RecordingConstants.FIELD_HOSTNAME + " = ?", new String[] { String.valueOf( program.getRecording().getRecordId() ), String.valueOf( program.getStartTime().getMillis() ), locationProfile.getHostname() } )
 					.withYieldAllowed( true )
 					.build()
 				);
@@ -461,7 +462,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 	 * @param programs
 	 * @return
 	 */
-	public abstract int load( Context context, List<Program> programs ) throws RemoteException, OperationApplicationException;
+	public abstract int load( final Context context, final LocationProfile locationProfile, List<Program> programs ) throws RemoteException, OperationApplicationException;
 	
 	/**
 	 * @param cursor
@@ -707,6 +708,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 	private class RemoveStreamTask extends AsyncTask<LiveStreamInfo, Void, ResponseEntity<Bool>> {
 
 		private Context mContext;
+		private LocationProfile mLocationProfile;
 		
 		private Exception e = null;
 
@@ -723,7 +725,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 				LiveStreamInfo liveStreamInfo = params[ 0 ];
 				
 				if( null != liveStreamInfo ) {
-					return mMythtvServiceHelper.getMythServicesApi( mContext ).contentOperations().removeLiveStream( liveStreamInfo.getId() );
+					return mMythtvServiceHelper.getMythServicesApi( mLocationProfile ).contentOperations().removeLiveStream( liveStreamInfo.getId() );
 				}
 				
 			} catch( Exception e ) {
@@ -759,6 +761,10 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		
 		public void setContext( Context context ) {
 			this.mContext = context;
+		}
+		
+		public void setLocationProfile( LocationProfile locationProfile ) {
+			this.mLocationProfile = locationProfile;
 		}
 		
 	}

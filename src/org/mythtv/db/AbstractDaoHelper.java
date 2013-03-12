@@ -37,13 +37,11 @@ public abstract class AbstractDaoHelper {
 	
 	protected AbstractDaoHelper() { }
 
-	protected String appendLocationHostname( Context context, String selection, String table ) {
+	protected String appendLocationHostname( final Context context, final LocationProfile locationProfile, String selection, String table ) {
 		
-		LocationProfile mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( context );
-
 		return ( !TextUtils.isEmpty( table ) ? ( table + "." ) : "" ) + AbstractBaseConstants.FIELD_HOSTNAME
 				+ " = '"
-				+ mLocationProfile.getHostname()
+				+ locationProfile.getHostname()
 				+ "'"
 				+ ( !TextUtils.isEmpty( selection ) ? " AND (" + selection + ')' : "" );
 	}

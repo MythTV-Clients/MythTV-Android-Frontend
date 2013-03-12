@@ -24,6 +24,7 @@ import java.util.List;
 import org.joda.time.DateTime;
 import org.mythtv.R;
 import org.mythtv.client.ui.AbstractMythtvFragmentActivity;
+import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.util.MenuHelper;
 import org.mythtv.db.dvr.UpcomingDaoHelper;
 import org.mythtv.db.http.EtagDaoHelper;
@@ -64,6 +65,8 @@ public class UpcomingActivity extends AbstractMythtvFragmentActivity {
 			
 	private MythtvUpcomingPagerAdapter mAdapter;
 	
+	private LocationProfile mLocationProfile;
+	
 	/* (non-Javadoc)
 	 * @see android.support.v4.app.FragmentActivity#onCreate(android.os.Bundle)
 	 */
@@ -76,6 +79,8 @@ public class UpcomingActivity extends AbstractMythtvFragmentActivity {
 
 		setupActionBar();
 
+		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( this );
+		
 		mAdapter = new MythtvUpcomingPagerAdapter( getSupportFragmentManager() );
 		ViewPager mPager = (ViewPager) findViewById( R.id.dvr_upcoming_pager );
 		mPager.setAdapter( mAdapter );
@@ -108,7 +113,7 @@ public class UpcomingActivity extends AbstractMythtvFragmentActivity {
 		Log.v( TAG, "onResume : enter" );
 		super.onResume();
 
-		DateTime etag = mEtagDaoHelper.findDateByEndpointAndDataId( this, Endpoint.GET_UPCOMING_LIST.name(), "" );
+		DateTime etag = mEtagDaoHelper.findDateByEndpointAndDataId( this, mLocationProfile, Endpoint.GET_UPCOMING_LIST.name(), "" );
 		if( null != etag ) {
 			
 			DateTime now = new DateTime();

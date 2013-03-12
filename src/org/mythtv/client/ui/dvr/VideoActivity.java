@@ -21,6 +21,7 @@ package org.mythtv.client.ui.dvr;
 import org.joda.time.DateTime;
 import org.mythtv.R;
 import org.mythtv.client.ui.AbstractMythtvFragmentActivity;
+import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.content.LiveStreamDaoHelper;
 import org.mythtv.db.dvr.RecordedDaoHelper;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
@@ -70,6 +71,8 @@ public class VideoActivity extends AbstractMythtvFragmentActivity {
 	private Program program = null;
 	private LiveStreamInfo liveStreamInfo = null;
 	
+	private LocationProfile mLocationProfile;
+	
 	// ***************************************
 	// Activity methods
 	// ***************************************
@@ -90,8 +93,10 @@ public class VideoActivity extends AbstractMythtvFragmentActivity {
 	    Long startTime = getIntent().getLongExtra( EXTRA_START_TIME, -1 );
 	    boolean raw = getIntent().getBooleanExtra( EXTRA_RAW, false );
 	    
-	    program = mRecordedDaoHelper.findOne( this, channelId, new DateTime( startTime ) );
-	    liveStreamInfo = mLiveStreamDaoHelper.findByProgram( this, program );
+	    mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( this );
+	    
+	    program = mRecordedDaoHelper.findOne( this, mLocationProfile, channelId, new DateTime( startTime ) );
+	    liveStreamInfo = mLiveStreamDaoHelper.findByProgram( this, mLocationProfile, program );
 	    
 	    if( null != program ) {
 
@@ -194,7 +199,7 @@ public class VideoActivity extends AbstractMythtvFragmentActivity {
 		
 		Log.v( TAG, "startVideo : program=" + program.toString() );
 		
-		String temp = mLocationProfileDaoHelper.findConnectedProfile( this ).getUrl();
+		String temp = mLocationProfile.getUrl();
 		temp = temp.replaceAll( "/$", "" );
 		String url = "";
 		if( raw ) {
@@ -334,7 +339,7 @@ public class VideoActivity extends AbstractMythtvFragmentActivity {
 					ETagInfo eTag = ETagInfo.createEmptyETag();
 
 					Log.v( TAG, "UpdateStreamInfoTask : exit" );
-					return mMythtvServiceHelper.getMythServicesApi( VideoActivity.this ).contentOperations().getLiveStream( liveStreamInfo.getId(), eTag );
+					return mMythtvServiceHelper.getMythServicesApi( mLocationProfile ).contentOperations().getLiveStream( liveStreamInfo.getId(), eTag );
 				}
 			} catch( Exception e ) {
 				Log.v( TAG, "UpdateStreamInfoTask : error" );
@@ -356,7 +361,7 @@ public class VideoActivity extends AbstractMythtvFragmentActivity {
 
 						// save updated live stream info to database
 						liveStreamInfo = result.getBody().getLiveStreamInfo();
-						mLiveStreamDaoHelper.save( VideoActivity.this, liveStreamInfo, program );
+						mLiveStreamDaoHelper.save( VideoActivity.this, mLocationProfile, liveStreamInfo, program );
 
 						if( liveStreamInfo.getStatusInt() < 2 || liveStreamInfo.getCurrentSegment() <= 2 ) {
 							new UpdateStreamInfoTask().execute();

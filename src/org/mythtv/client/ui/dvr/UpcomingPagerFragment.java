@@ -9,6 +9,7 @@ import java.util.List;
 import org.joda.time.DateTime;
 import org.mythtv.R;
 import org.mythtv.client.ui.AbstractMythFragment;
+import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.util.MenuHelper;
 import org.mythtv.db.http.EtagDaoHelper;
 import org.mythtv.service.dvr.UpcomingDownloadService;
@@ -48,6 +49,8 @@ public class UpcomingPagerFragment extends AbstractMythFragment {
 	private MenuHelper mMenuHelper = MenuHelper.getInstance();
 	private RunningServiceHelper mRunningServiceHelper = RunningServiceHelper.getInstance();
 
+	private LocationProfile mLocationProfile;
+	
 	private View mView;
 	private ViewPager mViewPager;
 	private MythtvUpcomingPagerAdapter mAdapter;
@@ -79,9 +82,10 @@ public class UpcomingPagerFragment extends AbstractMythFragment {
 		super.onActivityCreated( savedInstanceState );
 
 		setHasOptionsMenu( true );
-//		setRetainInstance( true );
 
-		DateTime etag = mEtagDaoHelper.findDateByEndpointAndDataId( getActivity(), Endpoint.GET_UPCOMING_LIST.name(), "" );
+		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
+		
+		DateTime etag = mEtagDaoHelper.findDateByEndpointAndDataId( getActivity(), mLocationProfile, Endpoint.GET_UPCOMING_LIST.name(), "" );
 		if( null != etag ) {
 			
 			DateTime now = new DateTime();

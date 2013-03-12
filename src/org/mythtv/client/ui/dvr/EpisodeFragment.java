@@ -32,7 +32,6 @@ import org.mythtv.db.content.LiveStreamDaoHelper;
 import org.mythtv.db.dvr.RecordedDaoHelper;
 import org.mythtv.db.dvr.programGroup.ProgramGroup;
 import org.mythtv.db.dvr.programGroup.ProgramGroupDaoHelper;
-import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.db.preferences.PlaybackProfileDaoHelper;
 import org.mythtv.service.util.DateUtils;
 import org.mythtv.service.util.NetworkHelper;
@@ -80,7 +79,6 @@ public class EpisodeFragment extends AbstractMythFragment {
 	
 	private OnEpisodeActionListener listener = null;
 
-	private LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
 	private PlaybackProfileDaoHelper mPlaybackProfileDaoHelper = PlaybackProfileDaoHelper.getInstance();
 
 	private LiveStreamDaoHelper mLiveStreamDaoHelper;
@@ -90,6 +88,7 @@ public class EpisodeFragment extends AbstractMythFragment {
 
 	private Program program;
 	private LiveStreamInfo liveStreamInfo;
+	private LocationProfile mLocationProfile;
 	
 	private TextView hlsView;
 	
@@ -123,6 +122,8 @@ public class EpisodeFragment extends AbstractMythFragment {
 		Log.v( TAG, "onActivityCreated : enter" );
 		super.onActivityCreated( savedInstanceState );
 
+		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
+		
 		preferences = ( (AbstractMythtvFragmentActivity) getActivity() ).getSharedPreferences();
 
 		options = new DisplayImageOptions.Builder()
@@ -232,7 +233,6 @@ public class EpisodeFragment extends AbstractMythFragment {
 
 			if( NetworkHelper.getInstance().isNetworkConnected( getActivity() ) ) {
 				
-				LocationProfile mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
 				if( mLocationProfile.getType().equals( LocationType.HOME ) ) {
 					
 					AlertDialog.Builder builder = new AlertDialog.Builder( getActivity() );
@@ -486,7 +486,7 @@ public class EpisodeFragment extends AbstractMythFragment {
 		}
 		
 		Log.v( TAG, "loadEpisode : channelId=" + channelId + ", startTime=" + DateUtils.dateTimeFormatterPretty.print( startTime ) );
-        program = mRecordedDaoHelper.findOne( getActivity(), channelId, startTime );
+        program = mRecordedDaoHelper.findOne( getActivity(), mLocationProfile, channelId, startTime );
 		if( null != program ) {
 
 			// get activity to grab views from
@@ -498,7 +498,7 @@ public class EpisodeFragment extends AbstractMythFragment {
 			
 			if( null != program.getInetref() && !"".equals( program.getInetref() ) ) {
 
-				String imageUri = mLocationProfileDaoHelper.findConnectedProfile( getActivity() ).getUrl() + "Content/GetRecordingArtwork?Type=Coverart&Inetref=" + program.getInetref();
+				String imageUri = mLocationProfile.getUrl() + "Content/GetRecordingArtwork?Type=Coverart&Inetref=" + program.getInetref();
 				imageLoader.displayImage( imageUri, iView, options, new SimpleImageLoadingListener() {
 
 					/* (non-Javadoc)
@@ -573,7 +573,7 @@ public class EpisodeFragment extends AbstractMythFragment {
 	private void updateHlsDetails() {
 		Log.v( TAG, "updateHlsDetails : enter" );
 		
-        liveStreamInfo = mLiveStreamDaoHelper.findByProgram( getActivity(), program );
+        liveStreamInfo = mLiveStreamDaoHelper.findByProgram( getActivity(), mLocationProfile, program );
         if( null != liveStreamInfo ) {
     		Log.v( TAG, "updateHlsDetails : live stream found, liveStreamInfo=" + liveStreamInfo.toString() );
 
@@ -665,7 +665,7 @@ public class EpisodeFragment extends AbstractMythFragment {
 		protected ResponseEntity<Bool> doInBackground( Void... params ) {
 			Log.v( TAG, "RemoveRecordingTask : enter" );
 
-			if( !NetworkHelper.getInstance().isMasterBackendConnected( getActivity() ) ) {
+			if( !NetworkHelper.getInstance().isMasterBackendConnected( getActivity(), mLocationProfile ) ) {
 				return null;
 			}
 
@@ -674,7 +674,7 @@ public class EpisodeFragment extends AbstractMythFragment {
 			try {
 				Log.v( TAG, "RemoveRecordingTask : api" );
 				
-				removed = mMythtvServiceHelper.getMythServicesApi( getActivity() ).dvrOperations().removeRecorded( program.getChannelInfo().getChannelId(), program.getRecording().getStartTimestamp() );
+				removed = mMythtvServiceHelper.getMythServicesApi( mLocationProfile ).dvrOperations().removeRecorded( program.getChannelInfo().getChannelId(), program.getRecording().getStartTimestamp() );
 			} catch( Exception e ) {
 				Log.v( TAG, "RemoveRecordingTask : error" );
 
@@ -697,17 +697,17 @@ public class EpisodeFragment extends AbstractMythFragment {
 						if( bool.getBool().equals( Boolean.TRUE ) ) {
 						
 							String title = program.getTitle();
-							ProgramGroup programGroup = mProgramGroupDaoHelper.findByTitle( getActivity(), title );
+							ProgramGroup programGroup = mProgramGroupDaoHelper.findByTitle( getActivity(), mLocationProfile, title );
 							
 							String programGroupName = programGroup.getProgramGroup();
 							
-							mRecordedDaoHelper.delete( getActivity(), program );
+							mRecordedDaoHelper.delete( getActivity(), mLocationProfile, program );
 							
-							List<Program> programs = mRecordedDaoHelper.findAllByTitle( getActivity(), title );
+							List<Program> programs = mRecordedDaoHelper.findAllByTitle( getActivity(), mLocationProfile, title );
 							if( null == programs || programs.isEmpty() ) {
 								mProgramGroupDaoHelper.delete( getActivity(), programGroup );
 								
-								List<ProgramGroup> programGroups = mProgramGroupDaoHelper.findAll( getActivity() );
+								List<ProgramGroup> programGroups = mProgramGroupDaoHelper.findAll( getActivity(), mLocationProfile );
 								if( null != programGroups && !programGroups.isEmpty() ) {
 									programGroupName = programGroups.get( 0 ).getProgramGroup();
 								}
@@ -735,7 +735,7 @@ public class EpisodeFragment extends AbstractMythFragment {
 		protected ResponseEntity<Bool> doInBackground( String... params ) {
 			Log.v( TAG, "PlayRecordingOnFrontEndTask.doInBackground : enter" );
 			
-			ResponseEntity<Bool> responseEntity = mMythtvServiceHelper.getMythServicesApi( getActivity() ).frontendOperations().playRecording( params[ 0 ], program.getChannelInfo().getChannelId(), program.getStartTime() ); 
+			ResponseEntity<Bool> responseEntity = mMythtvServiceHelper.getMythServicesApi( mLocationProfile ).frontendOperations().playRecording( params[ 0 ], program.getChannelInfo().getChannelId(), program.getStartTime() ); 
 			
 			Log.v( TAG, "PlayRecordingOnFrontEndTask.doInBackground : exit" );
 			return responseEntity;
@@ -760,7 +760,7 @@ public class EpisodeFragment extends AbstractMythFragment {
 			try {
 				Log.v( TAG, "CreateStreamTask : api" );
 				
-				LocationType location = mLocationProfileDaoHelper.findConnectedProfile( getActivity() ).getType();
+				LocationType location = mLocationProfile.getType();
 				
 				if( location.equals( LocationType.HOME ) ) {
 					selectedPlaybackProfile = mPlaybackProfileDaoHelper.findSelectedHomeProfile( getActivity() );
@@ -771,7 +771,7 @@ public class EpisodeFragment extends AbstractMythFragment {
 				}
 				
 				Log.v( TAG, "CreateStreamTask : exit" );
-				return mMythtvServiceHelper.getMythServicesApi( getActivity() ).contentOperations().
+				return mMythtvServiceHelper.getMythServicesApi( mLocationProfile ).contentOperations().
 						addLiveStream( null, program.getFilename(), program.getHostname(), -1, -1,
 								selectedPlaybackProfile.getHeight(), selectedPlaybackProfile.getVideoBitrate(), 
 								selectedPlaybackProfile.getAudioBitrate(), selectedPlaybackProfile.getAudioSampleRate() );
@@ -799,7 +799,7 @@ public class EpisodeFragment extends AbstractMythFragment {
 					if( result.getStatusCode().equals( HttpStatus.OK ) ) {
 						
 						liveStreamInfo = result.getBody().getLiveStreamInfo();
-						mLiveStreamDaoHelper.save( getActivity(), liveStreamInfo, program );
+						mLiveStreamDaoHelper.save( getActivity(), mLocationProfile, liveStreamInfo, program );
 						
 						new UpdateStreamInfoTask().execute();
 						
@@ -857,7 +857,7 @@ public class EpisodeFragment extends AbstractMythFragment {
 						if( null != getMainApplication() ) {
 							Log.v( TAG, "UpdateStreamInfoTask : exit" );
 							
-							return mMythtvServiceHelper.getMythServicesApi( getActivity() ).contentOperations().getLiveStream( liveStreamInfo.getId(), eTag );
+							return mMythtvServiceHelper.getMythServicesApi( mLocationProfile ).contentOperations().getLiveStream( liveStreamInfo.getId(), eTag );
 						}
 					}
 				}
@@ -885,7 +885,7 @@ public class EpisodeFragment extends AbstractMythFragment {
 
 						// save updated live stream info to database
 						liveStreamInfo = result.getBody().getLiveStreamInfo();
-						mLiveStreamDaoHelper.save( getActivity(), liveStreamInfo, program );
+						mLiveStreamDaoHelper.save( getActivity(), mLocationProfile, liveStreamInfo, program );
 						
 						if( liveStreamInfo.getPercentComplete() < 100 ) {
 							new UpdateStreamInfoTask().execute();
@@ -917,7 +917,7 @@ public class EpisodeFragment extends AbstractMythFragment {
 				Log.v( TAG, "RemoveStreamTask : api" );
 				
 				if( null != liveStreamInfo ) {
-					return mMythtvServiceHelper.getMythServicesApi( getActivity() ).contentOperations().removeLiveStream( liveStreamInfo.getId() );
+					return mMythtvServiceHelper.getMythServicesApi( mLocationProfile ).contentOperations().removeLiveStream( liveStreamInfo.getId() );
 				}
 				
 			} catch( Exception e ) {
@@ -941,7 +941,7 @@ public class EpisodeFragment extends AbstractMythFragment {
 					
 					if( result.getBody().getBool().booleanValue() ) {
 						
-						mLiveStreamDaoHelper.delete( getActivity(), liveStreamInfo );
+						mLiveStreamDaoHelper.delete( getActivity(), mLocationProfile, liveStreamInfo );
 						
 						updateHlsDetails();
 						
@@ -950,7 +950,7 @@ public class EpisodeFragment extends AbstractMythFragment {
 					
 				} else {
 					
-					mLiveStreamDaoHelper.delete( getActivity(), liveStreamInfo );
+					mLiveStreamDaoHelper.delete( getActivity(), mLocationProfile, liveStreamInfo );
 					
 					updateHlsDetails();
 					

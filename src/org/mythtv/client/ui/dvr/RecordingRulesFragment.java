@@ -23,6 +23,7 @@ import java.util.List;
 
 import org.mythtv.R;
 import org.mythtv.client.MainApplication;
+import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.util.MenuHelper;
 import org.mythtv.client.ui.util.MythtvListFragment;
 import org.mythtv.client.ui.util.ProgramHelper;
@@ -72,6 +73,8 @@ public class RecordingRulesFragment extends MythtvListFragment {
 	
 	private MainApplication mainApplication;
 	
+	private LocationProfile mLocationProfile;
+	
 	/**
 	 * OnCheckChangeListener to control rule's active state
 	 */
@@ -95,6 +98,8 @@ public class RecordingRulesFragment extends MythtvListFragment {
 		Log.v( TAG, "onActivityCreated : enter" );
 		super.onActivityCreated( savedInstanceState );
 
+		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
+		
 		mNotificationHelper = new NotificationHelper( getActivity() );
 
 		setHasOptionsMenu( true );
@@ -154,7 +159,9 @@ public class RecordingRulesFragment extends MythtvListFragment {
 
 		RecRule rule = (RecRule) l.getItemAtPosition( position );
 		
-		listener.onRecordingRuleSelected( rule.getId() );
+		if( null != rule ) {
+			listener.onRecordingRuleSelected( rule.getId() );
+		}
 		
 		Log.v( TAG, "onListItemClick : exit" );
 	}
@@ -176,9 +183,9 @@ public class RecordingRulesFragment extends MythtvListFragment {
 		@Override
 		protected Void doInBackground(Integer... params) {
 			if(params[0] > 0){
-				mMythtvServiceHelper.getMythServicesApi( getActivity() ).dvrOperations().enableRecordingSchedule(params[1]);
+				mMythtvServiceHelper.getMythServicesApi( mLocationProfile ).dvrOperations().enableRecordingSchedule(params[1]);
 			}else{
-				mMythtvServiceHelper.getMythServicesApi( getActivity() ).dvrOperations().disableRecordingSchedule(params[1]);
+				mMythtvServiceHelper.getMythServicesApi( mLocationProfile ).dvrOperations().disableRecordingSchedule(params[1]);
 			}
 			return null;
 		}	
@@ -264,7 +271,7 @@ public class RecordingRulesFragment extends MythtvListFragment {
 			
 			String channel = "[Any]";
 			if( rule.getChanId() > 0 ) {
-				ChannelInfo channelInfo = mChannelDaoHelper.findByChannelId( getActivity(), (long) rule.getChanId() );
+				ChannelInfo channelInfo = mChannelDaoHelper.findByChannelId( getActivity(), mLocationProfile, (long) rule.getChanId() );
 				if( null != channelInfo && channelInfo.getChannelId() > -1 ) {
 					channel = channelInfo.getChannelNumber();
 				}
@@ -311,12 +318,12 @@ public class RecordingRulesFragment extends MythtvListFragment {
 				String message = "Retrieving Recording Rules";
 				mNotificationHelper.createNotification( "Mythtv for Android", message, NotificationType.UPLOAD );
 				
-				if( !NetworkHelper.getInstance().isMasterBackendConnected( getActivity() ) ) {
+				if( !NetworkHelper.getInstance().isMasterBackendConnected( getActivity(), mLocationProfile ) ) {
 					return null;
 				}
 
 				ETagInfo etag = ETagInfo.createEmptyETag();
-				return mMythtvServiceHelper.getMythServicesApi( getActivity() ).dvrOperations().getRecordScheduleList( -1, -1, etag );
+				return mMythtvServiceHelper.getMythServicesApi( mLocationProfile ).dvrOperations().getRecordScheduleList( -1, -1, etag );
 			}
 
 			/* (non-Javadoc)
