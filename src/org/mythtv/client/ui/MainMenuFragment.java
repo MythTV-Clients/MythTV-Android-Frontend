@@ -12,7 +12,6 @@ import javax.jmdns.ServiceListener;
 import org.mythtv.R;
 import org.mythtv.client.ui.dvr.GuideFragment;
 import org.mythtv.client.ui.dvr.RecordingRulesFragment;
-import org.mythtv.client.ui.dvr.RecordingsFragment;
 import org.mythtv.client.ui.dvr.RecordingsParentFragment;
 import org.mythtv.client.ui.dvr.UpcomingPagerFragment;
 import org.mythtv.client.ui.frontends.Frontend;
@@ -22,7 +21,6 @@ import org.mythtv.client.ui.preferences.MythtvPreferenceActivity;
 import org.mythtv.client.ui.preferences.MythtvPreferenceActivityHC;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.MythtvService;
-import org.mythtv.service.util.MythtvServiceHelper;
 import org.mythtv.service.util.NetworkHelper;
 
 import android.app.AlertDialog;

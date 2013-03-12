@@ -22,8 +22,10 @@ import java.text.DecimalFormat;
 
 import org.joda.time.DateTime;
 import org.mythtv.R;
+import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.dvr.ProgramGuideDaoHelper;
 import org.mythtv.db.http.EtagConstants;
+import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.MythtvService;
 import org.mythtv.service.util.DateUtils;
 import org.mythtv.service.util.NetworkHelper;
@@ -76,6 +78,7 @@ public class ProgramGuideDownloadServiceNew extends MythtvService {
 	private PendingIntent mContentIntent = null;
 	private int notificationId = 1001;
 
+	private LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
 	private ProgramGuideDaoHelper mProgramGuideDaoHelper = ProgramGuideDaoHelper.getInstance(); 
 	
 	public ProgramGuideDownloadServiceNew() {
@@ -106,6 +109,8 @@ public class ProgramGuideDownloadServiceNew extends MythtvService {
 			
 			sendNotification();
 			
+			LocationProfile mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( this );
+			
 			boolean newDataDownloaded = false;
 			
 			DateTime start = new DateTime().withTimeAtStartOfDay();
@@ -113,7 +118,7 @@ public class ProgramGuideDownloadServiceNew extends MythtvService {
 			try {
 				for( int i = 1; i <= MAX_HOURS; i++ ) {
 
-					newDataDownloaded = download( start );
+					newDataDownloaded = download( start, mLocationProfile );
 
 					start = start.plusHours( 1 );
 
@@ -139,7 +144,7 @@ public class ProgramGuideDownloadServiceNew extends MythtvService {
 
 	// internal helpers
 	
-	private boolean download( DateTime start ) {
+	private boolean download( DateTime start, LocationProfile locationProfile ) {
 		Log.v( TAG, "download : enter" );
 		
 		boolean newDataDownloaded = false;
@@ -162,7 +167,7 @@ public class ProgramGuideDownloadServiceNew extends MythtvService {
 		}
 		etagCursor.close();
 
-		ResponseEntity<ProgramGuideWrapper> responseEntity = mMythtvServiceHelper.getMythServicesApi( this ).guideOperations().getProgramGuide( start, end, 1, -1, false, etag );
+		ResponseEntity<ProgramGuideWrapper> responseEntity = mMythtvServiceHelper.getMythServicesApi( locationProfile ).guideOperations().getProgramGuide( start, end, 1, -1, false, etag );
 
 		try {
 

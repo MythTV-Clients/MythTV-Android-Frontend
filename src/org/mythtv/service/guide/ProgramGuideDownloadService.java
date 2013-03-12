@@ -168,12 +168,12 @@ public class ProgramGuideDownloadService extends MythtvService {
 						File file = new File( programGuideCache, mLocationProfile.getHostname() + "_" + DateUtils.fileDateTimeFormatter.print( start ) + FILENAME_EXT );
 						if( !file.exists() || file.length() == 0 ) {
 
-							if( !NetworkHelper.getInstance().isMasterBackendConnected( this ) ) {
+							if( !NetworkHelper.getInstance().isMasterBackendConnected( this, mLocationProfile ) ) {
 								Log.d( TAG, "onHandleIntent : exit, Master Backend unreachable" );
 								break;
 							}
 							
-							ProgramGuide programGuide = download( start );
+							ProgramGuide programGuide = download( start, mLocationProfile );
 							if( null != programGuide ) {
 
 								newDataDownloaded = process( file, programGuide );
@@ -209,7 +209,7 @@ public class ProgramGuideDownloadService extends MythtvService {
 
 	// internal helpers
 	
-	private ProgramGuide download( DateTime start ) {
+	private ProgramGuide download( DateTime start, LocationProfile locationProfile ) {
 		Log.v( TAG, "download : enter" );
 		
 		DateTime end = new DateTime( start );
@@ -218,7 +218,7 @@ public class ProgramGuideDownloadService extends MythtvService {
 
 		try {
 			ETagInfo etag = ETagInfo.createEmptyETag();
-			ResponseEntity<ProgramGuideWrapper> responseEntity = mMythtvServiceHelper.getMythServicesApi( this ).guideOperations().getProgramGuide( start, end, 1, -1, false, etag );
+			ResponseEntity<ProgramGuideWrapper> responseEntity = mMythtvServiceHelper.getMythServicesApi( locationProfile ).guideOperations().getProgramGuide( start, end, 1, -1, false, etag );
 
 			if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
 				ProgramGuideWrapper programGuide = responseEntity.getBody();

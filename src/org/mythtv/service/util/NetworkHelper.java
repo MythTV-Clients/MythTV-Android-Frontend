@@ -110,7 +110,8 @@ public class NetworkHelper {
 			throw new RuntimeException( "NetworkHelper is not initialized" );
 		}
 
-		if( null == mLocationProfileDaoHelper.findConnectedProfile( context ) ) {
+		LocationProfile mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( context );
+		if( null == mLocationProfile ) {
 //			Log.e( TAG, "isMasterBackendConnected : exit, no backend selected" );
 			
 			return false;
@@ -126,7 +127,7 @@ public class NetworkHelper {
 				
 			try {
 
-				URL url = new URL( mLocationProfileDaoHelper.findConnectedProfile( context ).getUrl() + "Myth/GetHostName" );
+				URL url = new URL( mLocationProfile.getUrl() + "Myth/GetHostName" );
 
 				HttpURLConnection urlc = (HttpURLConnection) url.openConnection();
 				urlc.setRequestProperty( "User-Agent", "Android Application:MythTV_Android_Frontent" );
