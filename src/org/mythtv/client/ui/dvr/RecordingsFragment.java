@@ -417,8 +417,10 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 	        if ( intent.getAction().equals( RecordedDownloadService.ACTION_COMPLETE ) ) {
 	        	Log.i( TAG, "RecordedDownloadReceiver.onReceive : complete=" + intent.getStringExtra( RecordedDownloadService.EXTRA_COMPLETE ) );
 	        	
+	        	LocationProfile profile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
+	        	
 	        	boolean inError = false;
-	        	Cursor errorCursor = getActivity().getContentResolver().query( ProgramConstants.CONTENT_URI_RECORDED, new String[] { ProgramConstants._ID }, ProgramConstants.FIELD_IN_ERROR + " = ?", new String[] { "1" }, null );
+	        	Cursor errorCursor = getActivity().getContentResolver().query( ProgramConstants.CONTENT_URI_RECORDED, new String[] { ProgramConstants._ID }, ProgramConstants.TABLE_NAME_RECORDED + "." + ProgramConstants.FIELD_IN_ERROR + " = ? AND " + ProgramConstants.TABLE_NAME_RECORDED + "." + ProgramConstants.FIELD_HOSTNAME + " = ?", new String[] { "1", profile.getHostname() }, null );
 	        	if( errorCursor.moveToFirst() ) {
 	        		inError = true;
 	        	}

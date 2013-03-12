@@ -360,9 +360,8 @@ public class GuideFragment extends AbstractMythFragment implements OnClickListen
 	    		FilenameFilter filter = new FilenameFilter() {
 	    		    
 	    			public boolean accept( File directory, String fileName ) {
-	    				LocationProfile profile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
 	    				
-	    	            return fileName.startsWith( profile.getHostname() + "_" ) &&
+	    	            return fileName.startsWith( mLocationProfile.getHostname() + "_" ) &&
 	    	            		fileName.endsWith( ProgramGuideDownloadService.FILENAME_EXT );
 	    	        }
 	    			
