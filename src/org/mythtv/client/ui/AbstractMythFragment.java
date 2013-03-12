@@ -19,6 +19,7 @@
 package org.mythtv.client.ui;
 
 import org.mythtv.client.MainApplication;
+import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.util.MythtvServiceHelper;
 
 import android.app.AlertDialog;
@@ -31,7 +32,8 @@ import android.support.v4.app.Fragment;
 public abstract class AbstractMythFragment extends Fragment implements MythtvApplicationContext {
 
 	protected MythtvServiceHelper mMythtvServiceHelper = MythtvServiceHelper.getInstance();
-
+	protected LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
+	
 	//***************************************
     // MythActivity methods
     //***************************************

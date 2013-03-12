@@ -24,6 +24,7 @@ package org.mythtv.client.ui.dvr;
 import org.mythtv.R;
 import org.mythtv.client.ui.AbstractMythFragment;
 import org.mythtv.client.ui.AbstractMythtvFragmentActivity;
+import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.util.MenuHelper;
 import org.mythtv.client.ui.util.ProgramHelper;
 import org.mythtv.db.channel.ChannelDaoHelper;
@@ -63,6 +64,8 @@ public class RecordingRuleEditFragment extends AbstractMythFragment implements O
 	private MenuHelper mMenuHelper;
 	private ProgramHelper mProgramHelper = ProgramHelper.getInstance();
 	
+	private LocationProfile mLocationProfile;
+	
 	private boolean mEdited = false;
 	private RecRule mRule;
 	
@@ -92,6 +95,16 @@ public class RecordingRuleEditFragment extends AbstractMythFragment implements O
 		}
 		
 		Log.v( TAG, "onCreate : exit" );
+	}
+
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
+	 */
+	@Override
+	public void onActivityCreated( Bundle savedInstanceState ) {
+		super.onActivityCreated( savedInstanceState );
+
+		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
 	}
 
 	/* (non-Javadoc)
@@ -208,7 +221,7 @@ public class RecordingRuleEditFragment extends AbstractMythFragment implements O
 		// - slow
 		String channel = "[Any]";
 		if( rule.getChanId() > 0 ) {
-			ChannelInfo channelInfo = mChannelDaoHelper.findByChannelId( getActivity(), (long) rule.getChanId() );
+			ChannelInfo channelInfo = mChannelDaoHelper.findByChannelId( getActivity(), mLocationProfile, (long) rule.getChanId() );
 			if( null != channelInfo && channelInfo.getChannelId() > -1 ) {
 				channel = channelInfo.getChannelNumber();
 			}
@@ -313,14 +326,14 @@ public class RecordingRuleEditFragment extends AbstractMythFragment implements O
 		@Override
 		protected ResponseEntity<RecRuleWrapper> doInBackground( Integer... params ) {
 			
-			if( !NetworkHelper.getInstance().isMasterBackendConnected( getActivity() ) ) {
+			if( !NetworkHelper.getInstance().isMasterBackendConnected( getActivity(), mLocationProfile ) ) {
 				return null;
 			}
 
 			Integer id = params[ 0 ];
 			
 			ETagInfo etag = ETagInfo.createEmptyETag();
-			return mMythtvServiceHelper.getMythServicesApi( getActivity() ).dvrOperations().getRecordSchedule( id, etag );
+			return mMythtvServiceHelper.getMythServicesApi( mLocationProfile ).dvrOperations().getRecordSchedule( id, etag );
 		}
 
 		/* (non-Javadoc)
@@ -350,7 +363,7 @@ public class RecordingRuleEditFragment extends AbstractMythFragment implements O
 			
 			try {
 				RecRule rule = params[0];
-				ResponseEntity<Int> response = mMythtvServiceHelper.getMythServicesApi( getActivity() )
+				ResponseEntity<Int> response = mMythtvServiceHelper.getMythServicesApi( mLocationProfile )
 						.dvrOperations()
 						.addRecordingSchedule(rule.getChanId(),
 								rule.getStartTime(), rule.getParentId(),
@@ -372,7 +385,7 @@ public class RecordingRuleEditFragment extends AbstractMythFragment implements O
 
 				// on successful add, delete old recording rule
 				if (response.hasBody() && response.getBody().getInteger() == 1) {
-					mMythtvServiceHelper.getMythServicesApi( getActivity() ).dvrOperations().removeRecordingSchedule(rule.getId());
+					mMythtvServiceHelper.getMythServicesApi( mLocationProfile ).dvrOperations().removeRecordingSchedule(rule.getId());
 				}
 
 			} catch (Exception e) {

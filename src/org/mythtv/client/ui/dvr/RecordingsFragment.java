@@ -83,11 +83,13 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 
 	private static ProgramHelper mProgramHelper = ProgramHelper.getInstance();
 	private EtagDaoHelper mEtagDaoHelper = EtagDaoHelper.getInstance();
-	private LocationProfileDaoHelper mLocationProfileDaoHelper;
+	private LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
 	private MenuHelper mMenuHelper;
 	private ProgramGroupDaoHelper mProgramGroupDaoHelper = ProgramGroupDaoHelper.getInstance();
 	private RunningServiceHelper mRunningServiceHelper = RunningServiceHelper.getInstance();
 
+	private LocationProfile mLocationProfile;
+	
 	private ImageLoader imageLoader = ImageLoader.getInstance();
 	private DisplayImageOptions options;
 
@@ -98,13 +100,9 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 	public Loader<Cursor> onCreateLoader( int id, Bundle args ) {
 		Log.v( TAG, "onCreateLoader : enter" );
 		
-		mLocationProfileDaoHelper = ( (AbstractMythtvFragmentActivity) getActivity() ).getLocationProfileDaoHelper();
-		LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
-		Log.v( TAG, "onCreateLoader : loading recorded for profile " + locationProfile.getHostname() + " [" + locationProfile.getUrl() + "]" );
-		
 		String[] projection = null;
 		String selection = ProgramGroupConstants.FIELD_HOSTNAME + " = ?";
-		String[] selectionArgs = new String[] { locationProfile.getHostname() };
+		String[] selectionArgs = new String[] { mLocationProfile.getHostname() };
 		String sortOrder = ProgramGroupConstants.FIELD_PROGRAM_GROUP;
 		
 	    CursorLoader cursorLoader = new CursorLoader( getActivity(), ProgramGroupConstants.CONTENT_URI, projection, selection, selectionArgs, sortOrder );
@@ -147,6 +145,8 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 		Log.v( TAG, "onActivityCreated : enter" );
 		super.onActivityCreated( savedInstanceState );
 
+		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
+		
 		options = new DisplayImageOptions.Builder()
 //			.showStubImage( R.drawable.ic_stub )
 //			.showImageForEmptyUri( R.drawable.ic_empty )
@@ -196,7 +196,7 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 		Log.v( TAG, "onResume : enter" );
 		super.onStart();
 	    
-		DateTime etag = mEtagDaoHelper.findDateByEndpointAndDataId( getActivity(), Endpoint.GET_RECORDED_LIST.name(), "" );
+		DateTime etag = mEtagDaoHelper.findDateByEndpointAndDataId( getActivity(), mLocationProfile, Endpoint.GET_RECORDED_LIST.name(), "" );
 		if( null != etag ) {
 			
 			DateTime now = new DateTime();

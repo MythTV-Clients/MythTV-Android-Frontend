@@ -19,6 +19,7 @@
 package org.mythtv.client.ui.util;
 
 import org.mythtv.client.MainApplication;
+import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.util.MythtvServiceHelper;
 
 import android.os.Bundle;
@@ -33,6 +34,7 @@ import android.widget.ListView;
 public class MythtvListFragment extends ListFragment {
 
 	protected MythtvServiceHelper mMythtvServiceHelper = MythtvServiceHelper.getInstance();
+	protected LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
 	
 	/* (non-Javadoc)
 	 * @see android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)

@@ -24,6 +24,7 @@ package org.mythtv.client.ui.dvr;
 import org.mythtv.R;
 import org.mythtv.client.ui.AbstractMythFragment;
 import org.mythtv.client.ui.AbstractMythtvFragmentActivity;
+import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.util.MenuHelper;
 import org.mythtv.client.ui.util.ProgramHelper;
 import org.mythtv.db.channel.ChannelDaoHelper;
@@ -60,6 +61,8 @@ public class RecordingRuleFragment extends AbstractMythFragment {
 	private MenuHelper mMenuHelper;
 	private ProgramHelper mProgramHelper = ProgramHelper.getInstance();
 	private Integer mRecordingRuleId;
+	
+	private LocationProfile mLocationProfile;
 	
 	public static RecordingRuleFragment newInstance( Bundle args ) {
 		RecordingRuleFragment fragment = new RecordingRuleFragment();
@@ -101,6 +104,16 @@ public class RecordingRuleFragment extends AbstractMythFragment {
 		
 		Log.v( TAG, "onCreateView : exit" );
 		return v;
+	}
+
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
+	 */
+	@Override
+	public void onActivityCreated( Bundle savedInstanceState ) {
+		super.onActivityCreated( savedInstanceState );
+
+		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
 	}
 
 	public void loadRecordingRule( Integer recordingRuleId ) {
@@ -203,7 +216,7 @@ public class RecordingRuleFragment extends AbstractMythFragment {
 		// - slow
 		String channel = "[Any]";
 		if( rule.getChanId() > 0 ) {
-			ChannelInfo channelInfo = mChannelDaoHelper.findByChannelId( getActivity(), (long) rule.getChanId() );
+			ChannelInfo channelInfo = mChannelDaoHelper.findByChannelId( getActivity(), mLocationProfile, (long) rule.getChanId() );
 			if( null != channelInfo && channelInfo.getChannelId() > -1 ) {
 				channel = channelInfo.getChannelNumber();
 			}
@@ -223,14 +236,14 @@ public class RecordingRuleFragment extends AbstractMythFragment {
 		@Override
 		protected ResponseEntity<RecRuleWrapper> doInBackground( Integer... params ) {
 			
-			if( !NetworkHelper.getInstance().isMasterBackendConnected( getActivity() ) ) {
+			if( !NetworkHelper.getInstance().isMasterBackendConnected( getActivity(), mLocationProfile ) ) {
 				return null;
 			}
 			
 			Integer id = params[ 0 ];
 			
 			ETagInfo etag = ETagInfo.createEmptyETag();
-			return mMythtvServiceHelper.getMythServicesApi( getActivity() ).dvrOperations().getRecordSchedule( id, etag );
+			return mMythtvServiceHelper.getMythServicesApi( mLocationProfile ).dvrOperations().getRecordSchedule( id, etag );
 		}
 
 		/* (non-Javadoc)

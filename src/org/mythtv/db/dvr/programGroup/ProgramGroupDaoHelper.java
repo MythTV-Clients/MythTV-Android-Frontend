@@ -80,7 +80,7 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 	/**
 	 * @return
 	 */
-	public List<ProgramGroup> findAll( Context context ) {
+	public List<ProgramGroup> findAll( final Context context, final LocationProfile locationProfile ) {
 		Log.v( TAG, "findAll : enter" );
 		
 		if( null == context ) 
@@ -89,7 +89,7 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 		String selection = "";
 		String[] selectionArgs = null;
 
-		selection = appendLocationHostname( context, selection, null );
+		selection = appendLocationHostname( context, locationProfile, selection, null );
 		
 		List<ProgramGroup> programGroups = new ArrayList<ProgramGroup>();
 		
@@ -108,7 +108,7 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 	 * @param id
 	 * @return
 	 */
-	public ProgramGroup findOne( Context context, Long id ) {
+	public ProgramGroup findOne( final Context context, final Long id ) {
 		Log.v( TAG, "findOne : enter" );
 		
 		if( null == context ) 
@@ -126,7 +126,7 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 		return programGroup;
 	}
 
-	public ProgramGroup findByTitle( Context context, String title ) {
+	public ProgramGroup findByTitle( final Context context, final LocationProfile locationProfile, final String title ) {
 		Log.v( TAG, "findOne : enter" );
 		
 		if( null == context ) 
@@ -135,7 +135,7 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 		String selection = ProgramGroupConstants.FIELD_TITLE + " = ?";
 		String[] selectionArgs = new String[] { title };
 
-		selection = appendLocationHostname( context, selection, null );
+		selection = appendLocationHostname( context, locationProfile, selection, null );
 		
 		ProgramGroup programGroup = null;
 		
@@ -153,19 +153,19 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 	 * @param programGroup
 	 * @return
 	 */
-	protected int save( Context context, ProgramGroup programGroup ) {
+	protected int save( final Context context, final LocationProfile locationProfile, ProgramGroup programGroup ) {
 		Log.v( TAG, "save : enter" );
 
 		if( null == context ) 
 			throw new RuntimeException( "ProgramGroupDaoHelper is not initialized" );
 		
-		ContentValues values = convertProgramGroupToContentValues( context, programGroup );
+		ContentValues values = convertProgramGroupToContentValues( context, locationProfile, programGroup );
 
 		String[] projection = new String[] { ProgramGroupConstants._ID };
 		String selection = ProgramGroupConstants.FIELD_PROGRAM_GROUP + " = ?";
 		String[] selectionArgs = new String[] { programGroup.getProgramGroup() };
 		
-		selection = appendLocationHostname( context, selection, null );
+		selection = appendLocationHostname( context, locationProfile, selection, null );
 
 		int updated = -1;
 		Cursor cursor = context.getContentResolver().query( ProgramGroupConstants.CONTENT_URI, projection, selection, selectionArgs, null );
@@ -191,7 +191,7 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 	/**
 	 * @return
 	 */
-	public int deleteAll( Context context ) {
+	public int deleteAll( final Context context, final LocationProfile locationProfile ) {
 		Log.v( TAG, "deleteAll : enter" );
 		
 		if( null == context ) 
@@ -199,7 +199,7 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 		
 		String selection = "";
 		
-		selection = appendLocationHostname( context, selection, null );
+		selection = appendLocationHostname( context, locationProfile, selection, null );
 		
 		int deleted = context.getContentResolver().delete( ProgramGroupConstants.CONTENT_URI, selection, null );
 		Log.v( TAG, "deleteAll : deleted=" + deleted );
@@ -212,7 +212,7 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 	 * @param programGroup
 	 * @return
 	 */
-	public int delete( Context context, ProgramGroup programGroup ) {
+	public int delete( final Context context, ProgramGroup programGroup ) {
 		Log.v( TAG, "delete : enter" );
 		
 		if( null == context ) 
@@ -225,7 +225,7 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 		return deleted;
 	}
 
-	public int load( Context context, List<Program> programs ) throws RemoteException, OperationApplicationException {
+	public int load( final Context context, final LocationProfile locationProfile, List<Program> programs ) throws RemoteException, OperationApplicationException {
 		Log.v( TAG, "load : enter" );
 		
 		if( null == context ) 
@@ -233,7 +233,7 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 		
 		Log.v( TAG, "load : find all existing recordings" );
 		Map<String, ProgramGroup> existing = new HashMap<String, ProgramGroup>();
-		for( ProgramGroup programGroup : findAll( context ) ) {
+		for( ProgramGroup programGroup : findAll( context, locationProfile ) ) {
 			existing.put( programGroup.getProgramGroup(), programGroup );
 		}
 
@@ -270,12 +270,12 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 		String[] programGroupProjection = new String[] { ProgramGroupConstants._ID };
 		String programGroupSelection = ProgramGroupConstants.FIELD_PROGRAM_GROUP + " = ?";
 
-		programGroupSelection = appendLocationHostname( context, programGroupSelection, null );
+		programGroupSelection = appendLocationHostname( context, locationProfile, programGroupSelection, null );
 
 		for( String key : programGroups.keySet() ) {
 			ProgramGroup programGroup = programGroups.get( key );
 			
-			ContentValues programValues = convertProgramGroupToContentValues( context, programGroup );
+			ContentValues programValues = convertProgramGroupToContentValues( context, locationProfile, programGroup );
 			Cursor programGroupCursor = context.getContentResolver().query( ProgramGroupConstants.CONTENT_URI, programGroupProjection, programGroupSelection, new String[] { key }, null );
 			if( programGroupCursor.moveToFirst() ) {
 
@@ -416,7 +416,7 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 
 	// internal helpers
 	
-	private ContentValues[] convertProgramGroupsToContentValuesArray( final Context context, final List<ProgramGroup> programGroups ) {
+	private ContentValues[] convertProgramGroupsToContentValuesArray( final Context context, final LocationProfile locationProfile, final List<ProgramGroup> programGroups ) {
 //		Log.v( TAG, "convertProgramGroupsToContentValuesArray : enter" );
 		
 		if( null != programGroups && !programGroups.isEmpty() ) {
@@ -426,7 +426,7 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 
 			for( ProgramGroup programGroup : programGroups ) {
 
-				contentValues = convertProgramGroupToContentValues( context, programGroup );
+				contentValues = convertProgramGroupToContentValues( context, locationProfile, programGroup );
 				contentValuesArray.add( contentValues );
 				
 			}			
@@ -443,16 +443,14 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 		return null;
 	}
 
-	private ContentValues convertProgramGroupToContentValues( final Context context, final ProgramGroup programGroup ) {
-		
-		LocationProfile mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( context );
+	private ContentValues convertProgramGroupToContentValues( final Context context, final LocationProfile locationProfile, final ProgramGroup programGroup ) {
 		
 		ContentValues values = new ContentValues();
 		values.put( ProgramGroupConstants.FIELD_PROGRAM_GROUP, null != programGroup.getTitle() ? ArticleCleaner.clean( programGroup.getTitle() ) : "" );
 		values.put( ProgramGroupConstants.FIELD_TITLE, null != programGroup.getTitle() ? programGroup.getTitle() : "" );
 		values.put( ProgramGroupConstants.FIELD_CATEGORY, null != programGroup.getCategory() ? programGroup.getCategory() : "" );
 		values.put( ProgramGroupConstants.FIELD_INETREF, null != programGroup.getInetref() ? programGroup.getInetref() : "" );
-		values.put( ProgramGroupConstants.FIELD_HOSTNAME, mLocationProfile.getHostname() );
+		values.put( ProgramGroupConstants.FIELD_HOSTNAME, locationProfile.getHostname() );
 		
 		return values;
 	}

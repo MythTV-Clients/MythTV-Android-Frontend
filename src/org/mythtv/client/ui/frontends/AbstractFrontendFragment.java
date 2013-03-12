@@ -20,19 +20,17 @@ package org.mythtv.client.ui.frontends;
 
 import java.util.Timer;
 
-import org.mythtv.R;
 import org.mythtv.client.MainApplication;
 import org.mythtv.client.ui.AbstractMythFragment;
 import org.mythtv.client.ui.MainMenuFragment;
+import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.frontend.FrontendStatus;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import android.app.AlertDialog;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.util.Log;
 
 /**
@@ -47,9 +45,13 @@ public class AbstractFrontendFragment extends AbstractMythFragment {
 	protected static GetStatusTask sGetStatusTask;
 	protected static Timer sStatusTimer;
 
+	private LocationProfile mLocationProfile;
+	
 	@Override
 	public void onCreate( Bundle savedInstanceState ) {
 
+		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
+		
 		// create only one get status task
 		if( null == sGetStatusTask ) {
 			sGetStatusTask = new GetStatusTask();
@@ -97,7 +99,7 @@ public class AbstractFrontendFragment extends AbstractMythFragment {
 
 			try {
 				ETagInfo eTag = ETagInfo.createEmptyETag();
-				return mMythtvServiceHelper.getMythServicesApi( getActivity() ).frontendOperations()
+				return mMythtvServiceHelper.getMythServicesApi( mLocationProfile ).frontendOperations()
 						.getStatus( params[ 0 ], eTag );
 			} catch( Exception e ) {
 				Log.e( TAG, e.getMessage() );
@@ -133,7 +135,7 @@ public class AbstractFrontendFragment extends AbstractMythFragment {
 		protected Void doInBackground( String... params ) {
 
 			try {
-				mMythtvServiceHelper.getMythServicesApi( getActivity() ).frontendOperations()
+				mMythtvServiceHelper.getMythServicesApi( mLocationProfile ).frontendOperations()
 						.sendMessage( params[ 0 ], params[ 1 ] );
 			} catch( Exception e ) {
 				Log.e( TAG, "Error sending message: " +e.getMessage() );
@@ -156,7 +158,7 @@ public class AbstractFrontendFragment extends AbstractMythFragment {
 		protected Void doInBackground( String... params ) {
 
 			try {
-				mMythtvServiceHelper.getMythServicesApi( getActivity() ).frontendOperations()
+				mMythtvServiceHelper.getMythServicesApi( mLocationProfile ).frontendOperations()
 						.sendAction( params[ 0 ], params[ 1 ], null, 0, 0 );
 			} catch( Exception e ) {
 				Log.e( TAG, "Error sending action: " + e.getMessage() );

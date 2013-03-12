@@ -95,7 +95,8 @@ public class ProgramGuideDownloadServiceNew extends MythtvService {
 
 		mNotificationManager = (NotificationManager) getSystemService( Context.NOTIFICATION_SERVICE );
 		
-		if( !NetworkHelper.getInstance().isMasterBackendConnected( this ) ) {
+		LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile( this );
+		if( !NetworkHelper.getInstance().isMasterBackendConnected( this, locationProfile ) ) {
 			Intent completeIntent = new Intent( ACTION_COMPLETE );
 			completeIntent.putExtra( EXTRA_COMPLETE, "Master Backend unreachable" );
 			completeIntent.putExtra( EXTRA_COMPLETE_OFFLINE, Boolean.TRUE );
@@ -109,8 +110,6 @@ public class ProgramGuideDownloadServiceNew extends MythtvService {
 			
 			sendNotification();
 			
-			LocationProfile mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( this );
-			
 			boolean newDataDownloaded = false;
 			
 			DateTime start = new DateTime().withTimeAtStartOfDay();
@@ -118,7 +117,7 @@ public class ProgramGuideDownloadServiceNew extends MythtvService {
 			try {
 				for( int i = 1; i <= MAX_HOURS; i++ ) {
 
-					newDataDownloaded = download( start, mLocationProfile );
+					newDataDownloaded = download( start, locationProfile );
 
 					start = start.plusHours( 1 );
 
@@ -177,7 +176,7 @@ public class ProgramGuideDownloadServiceNew extends MythtvService {
 				if( null != programGuide ) {
 
 					if( null != programGuide.getProgramGuide() ) {
-						newDataDownloaded = process( programGuide.getProgramGuide() );
+						newDataDownloaded = process( programGuide.getProgramGuide(), locationProfile );
 					}
 					
 				}
@@ -226,7 +225,7 @@ public class ProgramGuideDownloadServiceNew extends MythtvService {
 		return newDataDownloaded;
 	}
 
-	private boolean process( ProgramGuide programGuide ) throws RemoteException, OperationApplicationException {
+	private boolean process( ProgramGuide programGuide, final LocationProfile locationProfile ) throws RemoteException, OperationApplicationException {
 		Log.v( TAG, "process : enter" );
 
 		for( ChannelInfo channel : programGuide.getChannels() ) {
@@ -237,7 +236,7 @@ public class ProgramGuideDownloadServiceNew extends MythtvService {
 					program.setChannelInfo( channel );
 				}
 				
-				mProgramGuideDaoHelper.load( this, channel.getPrograms() );
+				mProgramGuideDaoHelper.load( this, locationProfile, channel.getPrograms() );
 
 			}
 			

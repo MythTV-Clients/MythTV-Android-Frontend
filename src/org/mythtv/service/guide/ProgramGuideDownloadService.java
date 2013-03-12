@@ -75,7 +75,6 @@ public class ProgramGuideDownloadService extends MythtvService {
 	private int notificationId = 1000;
 	
 	private LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
-	private LocationProfile mLocationProfile;
 	
 	private File programGuideCache = null;
 	
@@ -117,8 +116,6 @@ public class ProgramGuideDownloadService extends MythtvService {
 		Log.d( TAG, "onHandleIntent : enter" );
 		super.onHandleIntent( intent );
 		
-		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( this );
-		
 		programGuideCache = FileHelper.getInstance().getProgramGuideDataDirectory();
 		if( null == programGuideCache || !programGuideCache.exists() ) {
 			Intent completeIntent = new Intent( ACTION_COMPLETE );
@@ -129,7 +126,8 @@ public class ProgramGuideDownloadService extends MythtvService {
 			return;
 		}
 
-		if( !NetworkHelper.getInstance().isMasterBackendConnected( this ) ) {
+		final LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile( this );
+		if( !NetworkHelper.getInstance().isMasterBackendConnected( this, locationProfile ) ) {
 			Intent completeIntent = new Intent( ACTION_COMPLETE );
 			completeIntent.putExtra( EXTRA_COMPLETE, "Master Backend unreachable" );
 			completeIntent.putExtra( EXTRA_COMPLETE_OFFLINE, Boolean.TRUE );
@@ -142,7 +140,7 @@ public class ProgramGuideDownloadService extends MythtvService {
 		FilenameFilter filter = new FilenameFilter() {
 	    
 			public boolean accept( File directory, String fileName ) {
-	            return fileName.startsWith( mLocationProfile.getHostname() + "_" ) &&
+	            return fileName.startsWith( locationProfile.getHostname() + "_" ) &&
 	            		fileName.endsWith( FILENAME_EXT );
 	        }
 			
@@ -165,15 +163,15 @@ public class ProgramGuideDownloadService extends MythtvService {
 
 					for( int currentHour = 0; currentHour < MAX_HOURS; currentHour++ ) {
 
-						File file = new File( programGuideCache, mLocationProfile.getHostname() + "_" + DateUtils.fileDateTimeFormatter.print( start ) + FILENAME_EXT );
+						File file = new File( programGuideCache, locationProfile.getHostname() + "_" + DateUtils.fileDateTimeFormatter.print( start ) + FILENAME_EXT );
 						if( !file.exists() || file.length() == 0 ) {
 
-							if( !NetworkHelper.getInstance().isMasterBackendConnected( this, mLocationProfile ) ) {
+							if( !NetworkHelper.getInstance().isMasterBackendConnected( this, locationProfile ) ) {
 								Log.d( TAG, "onHandleIntent : exit, Master Backend unreachable" );
 								break;
 							}
 							
-							ProgramGuide programGuide = download( start, mLocationProfile );
+							ProgramGuide programGuide = download( start, locationProfile );
 							if( null != programGuide ) {
 
 								newDataDownloaded = process( file, programGuide );
@@ -209,7 +207,7 @@ public class ProgramGuideDownloadService extends MythtvService {
 
 	// internal helpers
 	
-	private ProgramGuide download( DateTime start, LocationProfile locationProfile ) {
+	private ProgramGuide download( DateTime start, final LocationProfile locationProfile ) {
 		Log.v( TAG, "download : enter" );
 		
 		DateTime end = new DateTime( start );

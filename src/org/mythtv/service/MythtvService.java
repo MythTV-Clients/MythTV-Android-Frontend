@@ -19,6 +19,8 @@
 package org.mythtv.service;
 
 import org.mythtv.client.MainApplication;
+import org.mythtv.client.ui.preferences.LocationProfile;
+import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.util.MythtvServiceHelper;
 import org.mythtv.service.util.NetworkHelper;
 
@@ -45,6 +47,8 @@ public class MythtvService extends IntentService {
     public static final String EXTRA_COMPLETE = "COMPLETE";
     public static final String EXTRA_COMPLETE_ONLINE = "COMPLETE_ONLINE";
 
+    protected LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
+    
 	public MythtvService() {
 		super( "MythtvService" );
 	}
@@ -61,11 +65,13 @@ public class MythtvService extends IntentService {
 	protected void onHandleIntent( Intent intent ) {
 
 		mMainApplication = (MainApplication) MythtvService.this.getApplicationContext();
-
+		
 		if ( intent.getAction().equals( ACTION_CONNECT ) ) {
 			Log.v( TAG, "onHandleIntent : checking master backend connection" );
 
-			Boolean connected = NetworkHelper.getInstance().isMasterBackendConnected( this );
+			LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile( this );
+			
+			Boolean connected = NetworkHelper.getInstance().isMasterBackendConnected( this, locationProfile );
 			Log.v( TAG, "onHandleIntent : connected=" + connected );
 
 			Intent completeIntent = new Intent( ACTION_COMPLETE );

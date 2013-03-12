@@ -21,6 +21,7 @@ package org.mythtv.db.dvr;
 import java.util.List;
 
 import org.joda.time.DateTime;
+import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.dvr.programGroup.ProgramGroupDaoHelper;
 import org.mythtv.services.api.dvr.Program;
 
@@ -72,10 +73,10 @@ public class RecordedDaoHelper extends ProgramDaoHelper {
 	 * @see org.mythtv.db.dvr.ProgramDaoHelper#findAll()
 	 */
 	@Override
-	public List<Program> findAll( Context context ) {
+	public List<Program> findAll( final Context context, final LocationProfile locationProfile ) {
 		Log.d( TAG, "findAll : enter" );
 
-		String selection = appendLocationHostname( context, "", ProgramConstants.TABLE_NAME_RECORDED );
+		String selection = appendLocationHostname( context, locationProfile, "", ProgramConstants.TABLE_NAME_RECORDED );
 		Log.d( TAG, "findAll : selection=" + selection );
 		
 		List<Program> programs = findAll( context, ProgramConstants.CONTENT_URI_RECORDED, null, selection, null, null );
@@ -88,14 +89,14 @@ public class RecordedDaoHelper extends ProgramDaoHelper {
 	 * @param title
 	 * @return
 	 */
-	public List<Program> findAllByTitle( Context context, String title ) {
+	public List<Program> findAllByTitle( final Context context, final LocationProfile locationProfile, final String title ) {
 		Log.d( TAG, "findAllByTitle : enter" );
 		
 		String selection = ProgramConstants.FIELD_TITLE + " = ?";
 		String[] selectionArgs = new String[] { title };
 		Log.d( TAG, "findAllByTitle : title=" + title );
 		
-		selection = appendLocationHostname( context, selection, ProgramConstants.TABLE_NAME_RECORDED );
+		selection = appendLocationHostname( context, locationProfile, selection, ProgramConstants.TABLE_NAME_RECORDED );
 		
 		List<Program> programs = findAll( context, ProgramConstants.CONTENT_URI_RECORDED, null, selection, selectionArgs, null );
 		if( null != programs && !programs.isEmpty() ) {
@@ -112,7 +113,7 @@ public class RecordedDaoHelper extends ProgramDaoHelper {
 	 * @param id
 	 * @return
 	 */
-	public Program findOne( Context context, Long id ) {
+	public Program findOne( final Context context, final Long id ) {
 		Log.d( TAG, "findOne : enter" );
 		Log.d( TAG, "findOne : id=" + id );
 		
@@ -129,13 +130,13 @@ public class RecordedDaoHelper extends ProgramDaoHelper {
 	 * @see org.mythtv.db.dvr.ProgramDaoHelper#findOne(int, org.joda.time.DateTime)
 	 */
 	@Override
-	public Program findOne( Context context, int channelId, DateTime startTime ) {
+	public Program findOne( final Context context, final LocationProfile locationProfile, final int channelId, final DateTime startTime ) {
 		Log.d( TAG, "findOne : enter" );
 		
 		String selection = ProgramConstants.TABLE_NAME_RECORDED + "." + ProgramConstants.FIELD_CHANNEL_ID + " = ? AND " + ProgramConstants.TABLE_NAME_RECORDED + "." + ProgramConstants.FIELD_START_TIME + " = ?";
 		String[] selectionArgs = new String[] { String.valueOf( channelId ), String.valueOf( startTime.getMillis() ) };
 
-		selection = appendLocationHostname( context, selection, ProgramConstants.TABLE_NAME_RECORDED );
+		selection = appendLocationHostname( context, locationProfile, selection, ProgramConstants.TABLE_NAME_RECORDED );
 		
 		Program program = findOne( context, ProgramConstants.CONTENT_URI_RECORDED, null, selection, selectionArgs, null );
 		if( null != program ) {
@@ -152,10 +153,10 @@ public class RecordedDaoHelper extends ProgramDaoHelper {
 	 * @see org.mythtv.db.dvr.ProgramDaoHelper#save(org.mythtv.services.api.dvr.Program)
 	 */
 	@Override
-	public int save( Context context, Program program ) {
+	public int save( final Context context, final LocationProfile locationProfile, Program program ) {
 		Log.d( TAG, "save : enter" );
 
-		int saved = save( context, ProgramConstants.CONTENT_URI_RECORDED, program );
+		int saved = save( context, ProgramConstants.CONTENT_URI_RECORDED, locationProfile, program );
 		
 		Log.d( TAG, "save : exit" );
 		return saved;
@@ -165,7 +166,7 @@ public class RecordedDaoHelper extends ProgramDaoHelper {
 	 * @see org.mythtv.db.dvr.ProgramDaoHelper#deleteAll()
 	 */
 	@Override
-	public int deleteAll( Context context ) {
+	public int deleteAll( final Context context ) {
 		Log.d( TAG, "deleteAll : enter" );
 
 		int deleted = deleteAll( context, ProgramConstants.CONTENT_URI_RECORDED );
@@ -178,10 +179,10 @@ public class RecordedDaoHelper extends ProgramDaoHelper {
 	 * @see org.mythtv.db.dvr.ProgramDaoHelper#delete(org.mythtv.services.api.dvr.Program)
 	 */
 	@Override
-	public int delete( Context context, Program program ) {
+	public int delete( final Context context, final LocationProfile locationProfile, Program program ) {
 		Log.d( TAG, "delete : enter" );
 
-		int deleted = delete( context, ProgramConstants.CONTENT_URI_RECORDED, program );
+		int deleted = delete( context, ProgramConstants.CONTENT_URI_RECORDED, locationProfile, program );
 		
 		Log.d( TAG, "delete : exit" );
 		return deleted;
@@ -191,13 +192,13 @@ public class RecordedDaoHelper extends ProgramDaoHelper {
 	 * @see org.mythtv.db.dvr.ProgramDaoHelper#load(java.util.List)
 	 */
 	@Override
-	public int load( Context context, List<Program> programs ) throws RemoteException, OperationApplicationException {
+	public int load( final Context context, final LocationProfile locationProfile, List<Program> programs ) throws RemoteException, OperationApplicationException {
 		Log.d( TAG, "load : enter" );
 
-		int loaded = load( context, ProgramConstants.CONTENT_URI_RECORDED, programs, ProgramConstants.TABLE_NAME_RECORDED );
+		int loaded = load( context, ProgramConstants.CONTENT_URI_RECORDED, locationProfile, programs, ProgramConstants.TABLE_NAME_RECORDED );
 		Log.d( TAG, "load : loaded=" + loaded );
 		
-		mProgramGroupDaoHelper.load( context, programs );
+		mProgramGroupDaoHelper.load( context, locationProfile, programs );
 		
 		Log.d( TAG, "load : exit" );
 		return loaded;
