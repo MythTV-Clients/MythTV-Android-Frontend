@@ -224,7 +224,7 @@ public class EtagDaoHelper extends AbstractDaoHelper {
 		if( null == context ) 
 			throw new RuntimeException( "EtagDaoHelper is not initialized" );
 		
-		ContentValues values = convertETagInfoToContentValues( context, locationProfile, etagInfo, endpoint, dataId );
+		ContentValues values = convertETagInfoToContentValues( locationProfile, etagInfo, endpoint, dataId );
 
 		String selection = EtagConstants.FIELD_ENDPOINT + " = ?";
 		if( null != dataId && !"".equals( dataId ) ) {
@@ -352,7 +352,7 @@ public class EtagDaoHelper extends AbstractDaoHelper {
 //		return null;
 //	}
 
-	private ContentValues convertETagInfoToContentValues( final Context context, final LocationProfile locationProfile, final ETagInfo etag, final String endpoint, final String dataId ) {
+	private ContentValues convertETagInfoToContentValues( final LocationProfile locationProfile, final ETagInfo etag, final String endpoint, final String dataId ) {
 //		Log.v( TAG, "convertChannelToContentValues : enter" );
 		
 		ContentValues values = new ContentValues();
@@ -360,7 +360,7 @@ public class EtagDaoHelper extends AbstractDaoHelper {
 		values.put( EtagConstants.FIELD_VALUE, etag.getETag() );
 		values.put( EtagConstants.FIELD_DATA_ID, null != dataId ? dataId : "" );
 		values.put( EtagConstants.FIELD_DATE, ( new DateTime() ).getMillis() );
-		values.put( EtagConstants.FIELD_HOSTNAME, locationProfile.getHostname() );
+		values.put( EtagConstants.FIELD_MASTER_HOSTNAME, locationProfile.getHostname() );
 		
 //		Log.v( TAG, "convertChannelToContentValues : exit" );
 		return values;

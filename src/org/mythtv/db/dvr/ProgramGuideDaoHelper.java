@@ -221,7 +221,7 @@ public class ProgramGuideDaoHelper extends ProgramDaoHelper {
 
 			DateTime startTime = new DateTime( program.getStartTime() );
 			
-			ContentValues programValues = convertProgramToContentValues( program );
+			ContentValues programValues = convertProgramToContentValues( locationProfile, program );
 			Cursor programCursor = context.getContentResolver().query( ProgramConstants.CONTENT_URI_PROGRAM, programProjection, programSelection, new String[] { String.valueOf( program.getChannelInfo().getChannelId() ), String.valueOf( startTime.getMillis() ) }, null );
 			if( programCursor.moveToFirst() ) {
 //				Log.v( TAG, "load : UPDATE channel=" + program.getChannelInfo().getChannelNumber() + ", startTime=" + DateUtils.dateTimeFormatterPretty.print( startTime ) );

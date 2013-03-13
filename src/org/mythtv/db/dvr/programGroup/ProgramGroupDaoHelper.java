@@ -159,7 +159,7 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 		if( null == context ) 
 			throw new RuntimeException( "ProgramGroupDaoHelper is not initialized" );
 		
-		ContentValues values = convertProgramGroupToContentValues( context, locationProfile, programGroup );
+		ContentValues values = convertProgramGroupToContentValues( locationProfile, programGroup );
 
 		String[] projection = new String[] { ProgramGroupConstants._ID };
 		String selection = ProgramGroupConstants.FIELD_PROGRAM_GROUP + " = ?";
@@ -275,7 +275,7 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 		for( String key : programGroups.keySet() ) {
 			ProgramGroup programGroup = programGroups.get( key );
 			
-			ContentValues programValues = convertProgramGroupToContentValues( context, locationProfile, programGroup );
+			ContentValues programValues = convertProgramGroupToContentValues( locationProfile, programGroup );
 			Cursor programGroupCursor = context.getContentResolver().query( ProgramGroupConstants.CONTENT_URI, programGroupProjection, programGroupSelection, new String[] { key }, null );
 			if( programGroupCursor.moveToFirst() ) {
 
@@ -399,8 +399,8 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 			inetref = cursor.getString( cursor.getColumnIndex( ProgramGroupConstants.FIELD_INETREF ) );
 		}
 
-		if( cursor.getColumnIndex( ProgramGroupConstants.FIELD_HOSTNAME ) != -1 ) {
-			Log.v( TAG, "convertCursorToProgramGroup : hostname=" + cursor.getString( cursor.getColumnIndex( ProgramGroupConstants.FIELD_HOSTNAME ) ) );
+		if( cursor.getColumnIndex( ProgramGroupConstants.FIELD_MASTER_HOSTNAME ) != -1 ) {
+			Log.v( TAG, "convertCursorToProgramGroup : hostname=" + cursor.getString( cursor.getColumnIndex( ProgramGroupConstants.FIELD_MASTER_HOSTNAME ) ) );
 		}
 
 		ProgramGroup group = new ProgramGroup();
@@ -416,7 +416,7 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 
 	// internal helpers
 	
-	private ContentValues[] convertProgramGroupsToContentValuesArray( final Context context, final LocationProfile locationProfile, final List<ProgramGroup> programGroups ) {
+	private ContentValues[] convertProgramGroupsToContentValuesArray( final LocationProfile locationProfile, final List<ProgramGroup> programGroups ) {
 //		Log.v( TAG, "convertProgramGroupsToContentValuesArray : enter" );
 		
 		if( null != programGroups && !programGroups.isEmpty() ) {
@@ -426,7 +426,7 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 
 			for( ProgramGroup programGroup : programGroups ) {
 
-				contentValues = convertProgramGroupToContentValues( context, locationProfile, programGroup );
+				contentValues = convertProgramGroupToContentValues( locationProfile, programGroup );
 				contentValuesArray.add( contentValues );
 				
 			}			
@@ -443,14 +443,14 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 		return null;
 	}
 
-	private ContentValues convertProgramGroupToContentValues( final Context context, final LocationProfile locationProfile, final ProgramGroup programGroup ) {
+	private ContentValues convertProgramGroupToContentValues( final LocationProfile locationProfile, final ProgramGroup programGroup ) {
 		
 		ContentValues values = new ContentValues();
 		values.put( ProgramGroupConstants.FIELD_PROGRAM_GROUP, null != programGroup.getTitle() ? ArticleCleaner.clean( programGroup.getTitle() ) : "" );
 		values.put( ProgramGroupConstants.FIELD_TITLE, null != programGroup.getTitle() ? programGroup.getTitle() : "" );
 		values.put( ProgramGroupConstants.FIELD_CATEGORY, null != programGroup.getCategory() ? programGroup.getCategory() : "" );
 		values.put( ProgramGroupConstants.FIELD_INETREF, null != programGroup.getInetref() ? programGroup.getInetref() : "" );
-		values.put( ProgramGroupConstants.FIELD_HOSTNAME, locationProfile.getHostname() );
+		values.put( ProgramGroupConstants.FIELD_MASTER_HOSTNAME, locationProfile.getHostname() );
 		
 		return values;
 	}

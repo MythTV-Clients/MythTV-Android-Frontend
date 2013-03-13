@@ -326,7 +326,7 @@ public class RecordingDaoHelper extends AbstractDaoHelper {
 	 * @param recording
 	 * @return
 	 */
-	public ContentValues convertRecordingToContentValues( final Context context, final LocationProfile locationProfile, final Recording recording, final DateTime startTime ) {
+	public ContentValues convertRecordingToContentValues( final LocationProfile locationProfile, final Recording recording, final DateTime startTime ) {
 //		Log.v( TAG, "convertRecordingToContentValues : enter" );
 		
 		DateTime startTimestamp = null;
@@ -355,7 +355,7 @@ public class RecordingDaoHelper extends AbstractDaoHelper {
 		values.put( RecordingConstants.FIELD_ENCODER_ID, recording.getEncoderId() );
 		values.put( RecordingConstants.FIELD_PROFILE, null != recording.getProfile() ? recording.getProfile() : "" );
 		values.put( RecordingConstants.FIELD_START_TIME, startTime.getMillis() );
-		values.put( RecordingConstants.FIELD_HOSTNAME, locationProfile.getHostname() );
+		values.put( RecordingConstants.FIELD_MASTER_HOSTNAME, locationProfile.getHostname() );
 		
 //		Log.v( TAG, "convertRecordingToContentValues : exit" );
 		return values;

@@ -104,7 +104,7 @@ public class RecordingConstants  extends AbstractBaseConstants {
 		insert.append( FIELD_PROFILE ).append( "," );
 		insert.append( FIELD_PROGRAM_ID ).append( "," );
 		insert.append( FIELD_START_TIME ).append( "," );
-		insert.append( FIELD_HOSTNAME );
+		insert.append( FIELD_MASTER_HOSTNAME );
 		
 		StringBuilder values = new StringBuilder();
 		values.append( " ) " );
@@ -132,7 +132,7 @@ public class RecordingConstants  extends AbstractBaseConstants {
 		update.append( FIELD_PROFILE ).append( " = ?, " );
 		update.append( FIELD_PROGRAM_ID ).append( " = ?, " );
 		update.append( FIELD_START_TIME ).append( " = ?, " );
-		update.append( FIELD_HOSTNAME ).append( " = ? " );
+		update.append( FIELD_MASTER_HOSTNAME ).append( " = ? " );
 		update.append( " WHERE " );
 		update.append( _ID ).append( " = ?" );
 		

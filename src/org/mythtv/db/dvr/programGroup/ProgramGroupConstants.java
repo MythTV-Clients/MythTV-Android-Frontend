@@ -53,7 +53,7 @@ public class ProgramGroupConstants extends AbstractBaseConstants {
 		insert.append( FIELD_TITLE ).append( "," );
 		insert.append( FIELD_CATEGORY ).append( "," );
 		insert.append( FIELD_INETREF ).append( "," );
-		insert.append( FIELD_HOSTNAME );
+		insert.append( FIELD_MASTER_HOSTNAME );
 		
 		StringBuilder values = new StringBuilder();
 		values.append( " ) " );
@@ -70,7 +70,7 @@ public class ProgramGroupConstants extends AbstractBaseConstants {
 		update.append( FIELD_TITLE ).append( " = ?, " );
 		update.append( FIELD_CATEGORY ).append( " = ?, " );
 		update.append( FIELD_INETREF ).append( " = ?, " );
-		update.append( FIELD_HOSTNAME ).append( " = ?" );
+		update.append( FIELD_MASTER_HOSTNAME ).append( " = ?" );
 		update.append( " WHERE " );
 		update.append( _ID ).append( " = ?" );
 		
