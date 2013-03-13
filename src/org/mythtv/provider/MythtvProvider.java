@@ -71,10 +71,10 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 	private static final int UPCOMING 					= 110;
 	private static final int UPCOMING_ID 				= 111;
 
-	private static final String PROGRAM_CONTENT_TYPE = "vnd.mythtv.cursor.dir/org.mythtv.program";
-	private static final String PROGRAM_CONTENT_ITEM_TYPE = "vnd.mythtv.cursor.item/org.mythtv.program";
-	private static final int PROGRAM 					= 120;
-	private static final int PROGRAM_ID 				= 121;
+	private static final String GUIDE_CONTENT_TYPE = "vnd.mythtv.cursor.dir/org.mythtv.guide";
+	private static final String GUIDE_CONTENT_ITEM_TYPE = "vnd.mythtv.cursor.item/org.mythtv.guide";
+	private static final int GUIDE 					= 120;
+	private static final int GUIDE_ID 				= 121;
 
 	private static final String PROGRAM_GROUP_CONTENT_TYPE = "vnd.mythtv.cursor.dir/org.mythtv.programGroup";
 	private static final String PROGRAM_GROUP_CONTENT_ITEM_TYPE = "vnd.mythtv.cursor.item/org.mythtv.programGroup";
@@ -123,8 +123,8 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 		URI_MATCHER.addURI( AUTHORITY, ProgramConstants.TABLE_NAME_RECORDED + "/#", RECORDED_ID );
 		URI_MATCHER.addURI( AUTHORITY, ProgramConstants.TABLE_NAME_UPCOMING, UPCOMING );
 		URI_MATCHER.addURI( AUTHORITY, ProgramConstants.TABLE_NAME_UPCOMING + "/#", UPCOMING_ID );
-		URI_MATCHER.addURI( AUTHORITY, ProgramConstants.TABLE_NAME_PROGRAM, PROGRAM );
-		URI_MATCHER.addURI( AUTHORITY, ProgramConstants.TABLE_NAME_PROGRAM + "/#", PROGRAM_ID );
+		URI_MATCHER.addURI( AUTHORITY, ProgramConstants.TABLE_NAME_GUIDE, GUIDE );
+		URI_MATCHER.addURI( AUTHORITY, ProgramConstants.TABLE_NAME_GUIDE + "/#", GUIDE_ID );
 		URI_MATCHER.addURI( AUTHORITY, ProgramGroupConstants.TABLE_NAME, PROGRAM_GROUP );
 		URI_MATCHER.addURI( AUTHORITY, ProgramGroupConstants.TABLE_NAME + "/#", PROGRAM_GROUP_ID );
 		URI_MATCHER.addURI( AUTHORITY, RecordingConstants.TABLE_NAME, RECORDING );
@@ -179,11 +179,11 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 			case UPCOMING_ID:
 				return UPCOMING_CONTENT_ITEM_TYPE;
 			
-			case PROGRAM:
-				return PROGRAM_CONTENT_TYPE;
+			case GUIDE:
+				return GUIDE_CONTENT_TYPE;
 			
-			case PROGRAM_ID:
-				return PROGRAM_CONTENT_ITEM_TYPE;
+			case GUIDE_ID:
+				return GUIDE_CONTENT_ITEM_TYPE;
 			
 			case PROGRAM_GROUP:
 				return PROGRAM_GROUP_CONTENT_TYPE;
@@ -292,17 +292,17 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				
 				return deleted;
 
-			case PROGRAM:
+			case GUIDE:
 				
-				deleted = db.delete( ProgramConstants.TABLE_NAME_PROGRAM, selection, selectionArgs );
+				deleted = db.delete( ProgramConstants.TABLE_NAME_GUIDE, selection, selectionArgs );
 				
 				getContext().getContentResolver().notifyChange( uri, null );
 		
 				return deleted;
 
-			case PROGRAM_ID:
+			case GUIDE_ID:
 
-				deleted = db.delete( ProgramConstants.TABLE_NAME_PROGRAM, ProgramConstants._ID
+				deleted = db.delete( ProgramConstants.TABLE_NAME_GUIDE, ProgramConstants._ID
 						+ "="
 						+ Long.toString( ContentUris.parseId( uri ) )
 						+ ( !TextUtils.isEmpty( selection ) ? " AND (" + selection + ')' : "" ), selectionArgs );
@@ -497,8 +497,8 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				
 				return newUri;
 	
-			case PROGRAM:
-				newUri = ContentUris.withAppendedId( ProgramConstants.CONTENT_URI_PROGRAM, db.insertWithOnConflict( ProgramConstants.TABLE_NAME_PROGRAM, null, values, SQLiteDatabase.CONFLICT_IGNORE ) );
+			case GUIDE:
+				newUri = ContentUris.withAppendedId( ProgramConstants.CONTENT_URI_GUIDE, db.insertWithOnConflict( ProgramConstants.TABLE_NAME_GUIDE, null, values, SQLiteDatabase.CONFLICT_IGNORE ) );
 				
 				getContext().getContentResolver().notifyChange( newUri, null );
 				
@@ -787,34 +787,34 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				
 				return cursor;
 	
-			case PROGRAM:
+			case GUIDE:
 
-				sb.append( ProgramConstants.TABLE_NAME_PROGRAM );
+				sb.append( ProgramConstants.TABLE_NAME_GUIDE );
 				sb.append( " LEFT OUTER JOIN " );
 				sb.append( ChannelConstants.TABLE_NAME );
 				sb.append( " ON (" );
 				sb.append( ChannelConstants.TABLE_NAME ).append( "." ).append( ChannelConstants.FIELD_CHAN_ID );
 				sb.append( " = ");
-				sb.append( ProgramConstants.TABLE_NAME_PROGRAM ).append( "." ).append( ProgramConstants.FIELD_CHANNEL_ID );
+				sb.append( ProgramConstants.TABLE_NAME_GUIDE ).append( "." ).append( ProgramConstants.FIELD_CHANNEL_ID );
 				sb.append( " AND " );
 				sb.append( ChannelConstants.TABLE_NAME ).append( "." ).append( ChannelConstants.FIELD_MASTER_HOSTNAME );
 				sb.append( " = ");
-				sb.append( ProgramConstants.TABLE_NAME_PROGRAM ).append( "." ).append( ProgramConstants.FIELD_MASTER_HOSTNAME );
+				sb.append( ProgramConstants.TABLE_NAME_GUIDE ).append( "." ).append( ProgramConstants.FIELD_MASTER_HOSTNAME );
 				sb.append( ")" );
 				sb.append( " LEFT OUTER JOIN " );
 				sb.append( RecordingConstants.TABLE_NAME );
 				sb.append( " ON (" );
 				sb.append( RecordingConstants.TABLE_NAME ).append( "." ).append( RecordingConstants.FIELD_START_TIME );
 				sb.append( " = ");
-				sb.append( ProgramConstants.TABLE_NAME_PROGRAM ).append( "." ).append( ProgramConstants.FIELD_START_TIME );
+				sb.append( ProgramConstants.TABLE_NAME_GUIDE ).append( "." ).append( ProgramConstants.FIELD_START_TIME );
 				sb.append( " AND " );
 				sb.append( RecordingConstants.TABLE_NAME ).append( "." ).append( RecordingConstants.FIELD_RECORD_ID );
 				sb.append( " = ");
-				sb.append( ProgramConstants.TABLE_NAME_PROGRAM ).append( "." ).append( ProgramConstants.FIELD_RECORD_ID );
+				sb.append( ProgramConstants.TABLE_NAME_GUIDE ).append( "." ).append( ProgramConstants.FIELD_RECORD_ID );
 				sb.append( " AND " );
 				sb.append( RecordingConstants.TABLE_NAME ).append( "." ).append( RecordingConstants.FIELD_MASTER_HOSTNAME );
 				sb.append( " = ");
-				sb.append( ProgramConstants.TABLE_NAME_PROGRAM ).append( "." ).append( ProgramConstants.FIELD_MASTER_HOSTNAME );
+				sb.append( ProgramConstants.TABLE_NAME_GUIDE ).append( "." ).append( ProgramConstants.FIELD_MASTER_HOSTNAME );
 				sb.append( ")" );
 				
 				queryBuilder.setTables( sb.toString() );
@@ -828,35 +828,35 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				
 				return cursor;
 	
-			case PROGRAM_ID:
+			case GUIDE_ID:
 				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
 
-				sb.append( ProgramConstants.TABLE_NAME_PROGRAM );
+				sb.append( ProgramConstants.TABLE_NAME_GUIDE );
 				sb.append( " LEFT OUTER JOIN " );
 				sb.append( ChannelConstants.TABLE_NAME );
 				sb.append( " ON (" );
 				sb.append( ChannelConstants.TABLE_NAME ).append( "." ).append( ChannelConstants.FIELD_CHAN_ID );
 				sb.append( " = ");
-				sb.append( ProgramConstants.TABLE_NAME_PROGRAM ).append( "." ).append( ProgramConstants.FIELD_CHANNEL_ID );
+				sb.append( ProgramConstants.TABLE_NAME_GUIDE ).append( "." ).append( ProgramConstants.FIELD_CHANNEL_ID );
 				sb.append( " AND " );
 				sb.append( ChannelConstants.TABLE_NAME ).append( "." ).append( ChannelConstants.FIELD_MASTER_HOSTNAME );
 				sb.append( " = ");
-				sb.append( ProgramConstants.TABLE_NAME_PROGRAM ).append( "." ).append( ProgramConstants.FIELD_MASTER_HOSTNAME );
+				sb.append( ProgramConstants.TABLE_NAME_GUIDE ).append( "." ).append( ProgramConstants.FIELD_MASTER_HOSTNAME );
 				sb.append( ")" );
 				sb.append( " LEFT OUTER JOIN " );
 				sb.append( RecordingConstants.TABLE_NAME );
 				sb.append( " ON (" );
 				sb.append( RecordingConstants.TABLE_NAME ).append( "." ).append( RecordingConstants.FIELD_START_TIME );
 				sb.append( " = ");
-				sb.append( ProgramConstants.TABLE_NAME_PROGRAM ).append( "." ).append( ProgramConstants.FIELD_START_TIME );
+				sb.append( ProgramConstants.TABLE_NAME_GUIDE ).append( "." ).append( ProgramConstants.FIELD_START_TIME );
 				sb.append( " AND " );
 				sb.append( RecordingConstants.TABLE_NAME ).append( "." ).append( RecordingConstants.FIELD_RECORD_ID );
 				sb.append( " = ");
-				sb.append( ProgramConstants.TABLE_NAME_PROGRAM ).append( "." ).append( ProgramConstants.FIELD_RECORD_ID );
+				sb.append( ProgramConstants.TABLE_NAME_GUIDE ).append( "." ).append( ProgramConstants.FIELD_RECORD_ID );
 				sb.append( " AND " );
 				sb.append( RecordingConstants.TABLE_NAME ).append( "." ).append( RecordingConstants.FIELD_MASTER_HOSTNAME );
 				sb.append( " = ");
-				sb.append( ProgramConstants.TABLE_NAME_PROGRAM ).append( "." ).append( ProgramConstants.FIELD_MASTER_HOSTNAME );
+				sb.append( ProgramConstants.TABLE_NAME_GUIDE ).append( "." ).append( ProgramConstants.FIELD_MASTER_HOSTNAME );
 				sb.append( ")" );
 				
 				queryBuilder.setTables( sb.toString() );
@@ -1096,17 +1096,17 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				
 				return affected;
 
-			case PROGRAM:
-				affected = db.update( ProgramConstants.TABLE_NAME_PROGRAM, values, selection , selectionArgs );
+			case GUIDE:
+				affected = db.update( ProgramConstants.TABLE_NAME_GUIDE, values, selection , selectionArgs );
 				
 				getContext().getContentResolver().notifyChange( uri, null );
 				
 				return affected;
 
-			case PROGRAM_ID:
+			case GUIDE_ID:
 				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
 
-				affected = db.update( ProgramConstants.TABLE_NAME_PROGRAM, values, selection , selectionArgs );
+				affected = db.update( ProgramConstants.TABLE_NAME_GUIDE, values, selection , selectionArgs );
 				
 				getContext().getContentResolver().notifyChange( uri, null );
 				
@@ -1298,13 +1298,13 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 
 				return numInserted;
 			
-			case PROGRAM:
+			case GUIDE:
 				Log.v( TAG, "bulkInsert : inserting programs" );
 			
 				db.beginTransaction();
 				try {
 					//standard SQL insert statement, that can be reused
-					SQLiteStatement insert = db.compileStatement( ProgramConstants.INSERT_PROGRAM_ROW );
+					SQLiteStatement insert = db.compileStatement( ProgramConstants.INSERT_GUIDE_ROW );
 					bulkInsertPrograms( insert, values );
 					
 					db.setTransactionSuccessful();
@@ -1540,7 +1540,7 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 		String programProjection[] = ProgramConstants.COLUMN_MAP;
 		for( String col : programProjection ) {
 
-			String qualifiedCol = ProgramConstants.TABLE_NAME_PROGRAM + "." + col;
+			String qualifiedCol = ProgramConstants.TABLE_NAME_GUIDE + "." + col;
 			columnMap.put( qualifiedCol, qualifiedCol );
 		}
 		

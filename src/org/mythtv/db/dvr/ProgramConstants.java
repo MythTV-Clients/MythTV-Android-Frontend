@@ -29,15 +29,15 @@ import android.net.Uri;
  */
 public class ProgramConstants extends AbstractBaseConstants {
 
-	public static final String TABLE_NAME_PROGRAM = "program";
+	public static final String TABLE_NAME_GUIDE = "guide";
 	public static final String TABLE_NAME_RECORDED = "recorded";
 	public static final String TABLE_NAME_UPCOMING = "upcoming";
 
-	public static final Uri CONTENT_URI_PROGRAM = Uri.parse( "content://" + MythtvProvider.AUTHORITY + "/" + TABLE_NAME_PROGRAM );
+	public static final Uri CONTENT_URI_GUIDE = Uri.parse( "content://" + MythtvProvider.AUTHORITY + "/" + TABLE_NAME_GUIDE );
 	public static final Uri CONTENT_URI_RECORDED = Uri.parse( "content://" + MythtvProvider.AUTHORITY + "/" + TABLE_NAME_RECORDED );
 	public static final Uri CONTENT_URI_UPCOMING = Uri.parse( "content://" + MythtvProvider.AUTHORITY + "/" + TABLE_NAME_UPCOMING );
 
-	public static final String INSERT_PROGRAM_ROW, UPDATE_PROGRAM_ROW, INSERT_RECORDED_ROW, UPDATE_RECORDED_ROW, INSERT_UPCOMING_ROW, UPDATE_UPCOMING_ROW;
+	public static final String INSERT_GUIDE_ROW, UPDATE_GUIDE_ROW, INSERT_RECORDED_ROW, UPDATE_RECORDED_ROW, INSERT_UPCOMING_ROW, UPDATE_UPCOMING_ROW;
 	
 	// db fields
 	public static final String FIELD_START_TIME = "START_TIME";
@@ -160,11 +160,11 @@ public class ProgramConstants extends AbstractBaseConstants {
 		values.append( " ) " );
 		values.append( "VALUES( ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? )" );
 		
-		StringBuilder insertProgram = new StringBuilder();
-		insertProgram.append( "INSERT INTO " ).append( TABLE_NAME_PROGRAM ).append( " ( " );
-		insertProgram.append( insert.toString() );
-		insertProgram.append( values.toString() );
-		INSERT_PROGRAM_ROW = insertProgram.toString();
+		StringBuilder insertGuide = new StringBuilder();
+		insertGuide.append( "INSERT INTO " ).append( TABLE_NAME_GUIDE ).append( " ( " );
+		insertGuide.append( insert.toString() );
+		insertGuide.append( values.toString() );
+		INSERT_GUIDE_ROW = insertGuide.toString();
 		
 		StringBuilder insertRecorded = new StringBuilder();
 		insertRecorded.append( "INSERT INTO " ).append( TABLE_NAME_RECORDED ).append( " ( " );
@@ -208,11 +208,11 @@ public class ProgramConstants extends AbstractBaseConstants {
 		update.append( FIELD_CHANNEL_ID ).append( " = ? AND " );
 		update.append( FIELD_START_TIME ).append( " = ?" );
 		
-		StringBuilder updateProgram = new StringBuilder();
-		updateProgram.append( "UPDATE " ).append( TABLE_NAME_PROGRAM );
-		updateProgram.append( " SET " );
-		updateProgram.append( update.toString() );
-		UPDATE_PROGRAM_ROW = updateProgram.toString();
+		StringBuilder updateGuide = new StringBuilder();
+		updateGuide.append( "UPDATE " ).append( TABLE_NAME_GUIDE );
+		updateGuide.append( " SET " );
+		updateGuide.append( update.toString() );
+		UPDATE_GUIDE_ROW = updateGuide.toString();
 		
 		StringBuilder updateRecorded = new StringBuilder();
 		updateRecorded.append( "UPDATE " ).append( TABLE_NAME_RECORDED );

@@ -82,7 +82,7 @@ public class ProgramGuideDaoHelper extends ProgramDaoHelper {
 		
 		String selection = appendLocationHostname( context, locationProfile, "", ProgramGroupConstants.TABLE_NAME );
 
-		List<Program> programs = findAll( context, ProgramConstants.CONTENT_URI_PROGRAM, null, selection, null, null );
+		List<Program> programs = findAll( context, ProgramConstants.CONTENT_URI_GUIDE, null, selection, null, null );
 		
 		Log.d( TAG, "findAll : exit" );
 		return programs;
@@ -100,7 +100,7 @@ public class ProgramGuideDaoHelper extends ProgramDaoHelper {
 
 		selection = appendLocationHostname( context, locationProfile, selection, ProgramGroupConstants.TABLE_NAME );
 		
-		List<Program> programs = findAll( context, ProgramConstants.CONTENT_URI_PROGRAM, null, selection, selectionArgs, null );
+		List<Program> programs = findAll( context, ProgramConstants.CONTENT_URI_GUIDE, null, selection, selectionArgs, null );
 		if( null != programs && !programs.isEmpty() ) {
 			for( Program program : programs ) {
 				Log.v( TAG, "findAllByTitle : channelId=" + program.getChannelInfo().getChannelId() + ", startTime=" + program.getStartTime().getMillis() + ", program=" + program.toString() );
@@ -119,7 +119,7 @@ public class ProgramGuideDaoHelper extends ProgramDaoHelper {
 		Log.d( TAG, "findOne : enter" );
 		Log.d( TAG, "findOne : id=" + id );
 		
-		Program program = findOne( context, ContentUris.withAppendedId( ProgramConstants.CONTENT_URI_PROGRAM, id ), null, null, null, null );
+		Program program = findOne( context, ContentUris.withAppendedId( ProgramConstants.CONTENT_URI_GUIDE, id ), null, null, null, null );
 		if( null != program ) {
 			Log.d( TAG, "findOne : program=" + program.toString() );
 		}
@@ -135,12 +135,12 @@ public class ProgramGuideDaoHelper extends ProgramDaoHelper {
 	public Program findOne( final Context context, final LocationProfile locationProfile, final int channelId, final DateTime startTime ) {
 		Log.d( TAG, "findOne : enter" );
 		
-		String selection = ProgramConstants.TABLE_NAME_PROGRAM + "." + ProgramConstants.FIELD_CHANNEL_ID + " = ? AND " + ProgramConstants.TABLE_NAME_PROGRAM + "." + ProgramConstants.FIELD_START_TIME + " = ?";
+		String selection = ProgramConstants.TABLE_NAME_GUIDE + "." + ProgramConstants.FIELD_CHANNEL_ID + " = ? AND " + ProgramConstants.TABLE_NAME_GUIDE + "." + ProgramConstants.FIELD_START_TIME + " = ?";
 		String[] selectionArgs = new String[] { String.valueOf( channelId ), String.valueOf( startTime.getMillis() ) };
 
 		selection = appendLocationHostname( context, locationProfile, selection, ProgramGroupConstants.TABLE_NAME );
 		
-		Program program = findOne( context, ProgramConstants.CONTENT_URI_PROGRAM, null, selection, selectionArgs, null );
+		Program program = findOne( context, ProgramConstants.CONTENT_URI_GUIDE, null, selection, selectionArgs, null );
 		if( null != program ) {
 			Log.v( TAG, "findOne : program=" + program.toString() );
 		} else {
@@ -158,7 +158,7 @@ public class ProgramGuideDaoHelper extends ProgramDaoHelper {
 	public int save( final Context context, final LocationProfile locationProfile, Program program ) {
 		Log.d( TAG, "save : enter" );
 
-		int saved = save( context, ProgramConstants.CONTENT_URI_PROGRAM, locationProfile, program );
+		int saved = save( context, ProgramConstants.CONTENT_URI_GUIDE, locationProfile, program );
 		
 		Log.d( TAG, "save : exit" );
 		return saved;
@@ -171,7 +171,7 @@ public class ProgramGuideDaoHelper extends ProgramDaoHelper {
 	public int deleteAll( final Context context ) {
 		Log.d( TAG, "deleteAll : enter" );
 
-		int deleted = deleteAll( context, ProgramConstants.CONTENT_URI_PROGRAM );
+		int deleted = deleteAll( context, ProgramConstants.CONTENT_URI_GUIDE );
 		
 		Log.d( TAG, "deleteAll : exit" );
 		return deleted;
@@ -184,7 +184,7 @@ public class ProgramGuideDaoHelper extends ProgramDaoHelper {
 	public int delete( final Context context, final LocationProfile locationProfile, Program program ) {
 		Log.d( TAG, "delete : enter" );
 
-		int deleted = delete( context, ProgramConstants.CONTENT_URI_PROGRAM, locationProfile, program );
+		int deleted = delete( context, ProgramConstants.CONTENT_URI_GUIDE, locationProfile, program );
 		
 		Log.d( TAG, "delete : exit" );
 		return deleted;
@@ -207,7 +207,7 @@ public class ProgramGuideDaoHelper extends ProgramDaoHelper {
 		
 //		Log.d( TAG, "load : deleting old" );
 		ops.add(  
-				ContentProviderOperation.newDelete( ProgramConstants.CONTENT_URI_PROGRAM )
+				ContentProviderOperation.newDelete( ProgramConstants.CONTENT_URI_GUIDE )
 				.withSelection( ProgramConstants.FIELD_END_TIME + " <= ?", new String[] { String.valueOf( startDate.getMillis() ) } )
 				.build()
 			);
@@ -222,13 +222,13 @@ public class ProgramGuideDaoHelper extends ProgramDaoHelper {
 			DateTime startTime = new DateTime( program.getStartTime() );
 			
 			ContentValues programValues = convertProgramToContentValues( locationProfile, program );
-			Cursor programCursor = context.getContentResolver().query( ProgramConstants.CONTENT_URI_PROGRAM, programProjection, programSelection, new String[] { String.valueOf( program.getChannelInfo().getChannelId() ), String.valueOf( startTime.getMillis() ) }, null );
+			Cursor programCursor = context.getContentResolver().query( ProgramConstants.CONTENT_URI_GUIDE, programProjection, programSelection, new String[] { String.valueOf( program.getChannelInfo().getChannelId() ), String.valueOf( startTime.getMillis() ) }, null );
 			if( programCursor.moveToFirst() ) {
 //				Log.v( TAG, "load : UPDATE channel=" + program.getChannelInfo().getChannelNumber() + ", startTime=" + DateUtils.dateTimeFormatterPretty.print( startTime ) );
 
 				Long id = programCursor.getLong( programCursor.getColumnIndexOrThrow( ProgramConstants._ID ) );
 				ops.add( 
-						ContentProviderOperation.newUpdate( ContentUris.withAppendedId( ProgramConstants.CONTENT_URI_PROGRAM, id ) )
+						ContentProviderOperation.newUpdate( ContentUris.withAppendedId( ProgramConstants.CONTENT_URI_GUIDE, id ) )
 							.withValues( programValues )
 							.withYieldAllowed( true )
 							.build()
@@ -238,7 +238,7 @@ public class ProgramGuideDaoHelper extends ProgramDaoHelper {
 //				Log.v( TAG, "load : INSERT channel=" + program.getChannelInfo().getChannelNumber() + ", startTime=" + DateUtils.dateTimeFormatterPretty.print( startTime ) );
 
 				ops.add(  
-						ContentProviderOperation.newInsert( ProgramConstants.CONTENT_URI_PROGRAM )
+						ContentProviderOperation.newInsert( ProgramConstants.CONTENT_URI_GUIDE )
 							.withValues( programValues )
 							.withYieldAllowed( true )
 							.build()

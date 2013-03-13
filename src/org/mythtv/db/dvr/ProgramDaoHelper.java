@@ -294,7 +294,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 
 				Long id = programCursor.getLong( programCursor.getColumnIndexOrThrow( ProgramConstants._ID ) );
 				ops.add( 
-						ContentProviderOperation.newUpdate( ContentUris.withAppendedId( ProgramConstants.CONTENT_URI_PROGRAM, id ) )
+						ContentProviderOperation.newUpdate( ContentUris.withAppendedId( uri, id ) )
 							.withValues( programValues )
 							.withYieldAllowed( true )
 							.build()
