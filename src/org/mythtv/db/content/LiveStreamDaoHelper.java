@@ -211,7 +211,7 @@ public class LiveStreamDaoHelper extends AbstractDaoHelper {
 		if( null == context ) 
 			throw new RuntimeException( "LiveStreamDaoHelper is not initialized" );
 		
-		ContentValues values = convertLiveStreamInfoToContentValues( context, locationProfile, liveStreamInfo, program );
+		ContentValues values = convertLiveStreamInfoToContentValues( locationProfile, liveStreamInfo, program );
 
 		String[] projection = new String[] { LiveStreamConstants.TABLE_NAME + "_" + LiveStreamConstants._ID };
 		String selection = LiveStreamConstants.FIELD_ID + " = ?";
@@ -427,8 +427,8 @@ public class LiveStreamDaoHelper extends AbstractDaoHelper {
 			Log.v( TAG, "convertCursorToLiveStreamInfo : startTime=" + new DateTime( cursor.getLong( cursor.getColumnIndex( LiveStreamConstants.TABLE_NAME + "_" + LiveStreamConstants.FIELD_START_TIME ) ) ) );
 		}
 
-		if( cursor.getColumnIndex( LiveStreamConstants.TABLE_NAME + "_" + LiveStreamConstants.FIELD_HOSTNAME ) != -1 ) {
-			Log.v( TAG, "convertCursorToLiveStreamInfo : hostname=" + cursor.getString( cursor.getColumnIndex( LiveStreamConstants.TABLE_NAME + "_" + LiveStreamConstants.FIELD_HOSTNAME ) ) );
+		if( cursor.getColumnIndex( LiveStreamConstants.TABLE_NAME + "_" + LiveStreamConstants.FIELD_MASTER_HOSTNAME ) != -1 ) {
+			Log.v( TAG, "convertCursorToLiveStreamInfo : hostname=" + cursor.getString( cursor.getColumnIndex( LiveStreamConstants.TABLE_NAME + "_" + LiveStreamConstants.FIELD_MASTER_HOSTNAME ) ) );
 		}
 
 		LiveStreamInfo liveStreamInfo = new LiveStreamInfo();
@@ -488,7 +488,7 @@ public class LiveStreamDaoHelper extends AbstractDaoHelper {
 				channelInfo.setChannelId( channelId );
 				program.setChannelInfo( channelInfo );
 				
-				contentValues = convertLiveStreamInfoToContentValues( context, locationProfile, liveStreamInfo, program );
+				contentValues = convertLiveStreamInfoToContentValues( locationProfile, liveStreamInfo, program );
 				contentValuesArray.add( contentValues );
 				
 			}			
@@ -505,7 +505,7 @@ public class LiveStreamDaoHelper extends AbstractDaoHelper {
 		return null;
 	}
 
-	private ContentValues convertLiveStreamInfoToContentValues( final Context context, final LocationProfile locationProfile, final LiveStreamInfo liveStreamInfo, final Program program ) {
+	private ContentValues convertLiveStreamInfoToContentValues( final LocationProfile locationProfile, final LiveStreamInfo liveStreamInfo, final Program program ) {
 //		Log.v( TAG, "convertLiveStreamToContentValues : enter" );
 		
 		ContentValues values = new ContentValues();
@@ -534,7 +534,7 @@ public class LiveStreamDaoHelper extends AbstractDaoHelper {
 		values.put( LiveStreamConstants.FIELD_AUDIO_ONLY_BITRATE, liveStreamInfo.getAudioOnlyBitrate() );
 		values.put( LiveStreamConstants.FIELD_CHAN_ID, program.getChannelInfo().getChannelId() );
 		values.put( LiveStreamConstants.FIELD_START_TIME, program.getStartTime().getMillis() );
-		values.put( LiveStreamConstants.FIELD_HOSTNAME, locationProfile.getHostname() );
+		values.put( LiveStreamConstants.FIELD_MASTER_HOSTNAME, locationProfile.getHostname() );
 		
 //		Log.v( TAG, "convertLiveStreamToContentValues : exit" );
 		return values;

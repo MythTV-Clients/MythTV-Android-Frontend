@@ -101,7 +101,7 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 		Log.v( TAG, "onCreateLoader : enter" );
 		
 		String[] projection = null;
-		String selection = ProgramGroupConstants.FIELD_HOSTNAME + " = ?";
+		String selection = ProgramGroupConstants.FIELD_MASTER_HOSTNAME + " = ?";
 		String[] selectionArgs = new String[] { mLocationProfile.getHostname() };
 		String sortOrder = ProgramGroupConstants.FIELD_PROGRAM_GROUP;
 		
@@ -420,7 +420,7 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 	        	LocationProfile profile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
 	        	
 	        	boolean inError = false;
-	        	Cursor errorCursor = getActivity().getContentResolver().query( ProgramConstants.CONTENT_URI_RECORDED, new String[] { ProgramConstants._ID }, ProgramConstants.TABLE_NAME_RECORDED + "." + ProgramConstants.FIELD_IN_ERROR + " = ? AND " + ProgramConstants.TABLE_NAME_RECORDED + "." + ProgramConstants.FIELD_HOSTNAME + " = ?", new String[] { "1", profile.getHostname() }, null );
+	        	Cursor errorCursor = getActivity().getContentResolver().query( ProgramConstants.CONTENT_URI_RECORDED, new String[] { ProgramConstants._ID }, ProgramConstants.TABLE_NAME_RECORDED + "." + ProgramConstants.FIELD_IN_ERROR + " = ? AND " + ProgramConstants.TABLE_NAME_RECORDED + "." + ProgramConstants.FIELD_MASTER_HOSTNAME + " = ?", new String[] { "1", profile.getHostname() }, null );
 	        	if( errorCursor.moveToFirst() ) {
 	        		inError = true;
 	        	}

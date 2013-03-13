@@ -153,7 +153,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		if( null == context ) 
 			throw new RuntimeException( "ProgramDaoHelper is not initialized" );
 		
-		ContentValues values = convertProgramToContentValues( program );
+		ContentValues values = convertProgramToContentValues( locationProfile, program );
 
 		String[] projection = new String[] { ProgramConstants._ID };
 		String selection = ProgramConstants.FIELD_CHANNEL_ID + " = ? AND " + ProgramConstants.FIELD_START_TIME + " = ?";
@@ -287,7 +287,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 
 			DateTime startTime = new DateTime( program.getStartTime() );
 			
-			ContentValues programValues = convertProgramToContentValues( program );
+			ContentValues programValues = convertProgramToContentValues( locationProfile, program );
 			Cursor programCursor = context.getContentResolver().query( uri, programProjection, programSelection, new String[] { String.valueOf( program.getChannelInfo().getChannelId() ), String.valueOf( startTime.getMillis() ) }, null );
 			if( programCursor.moveToFirst() ) {
 				//Log.v( TAG, "load : UPDATE PROGRAM channel=" + program.getChannelInfo().getChannelNumber() + ", startTime=" + DateUtils.dateTimeFormatterPretty.print( startTime ) + "(" + startTime + ")" );
@@ -326,12 +326,12 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 			if( !inError && null != program.getRecording() ) {
 				
 				String[] recordingProjection = new String[] { RecordingConstants.TABLE_NAME + "_" + RecordingConstants._ID };
-				String recordingSelection = RecordingConstants.FIELD_RECORD_ID + " = ? AND " + RecordingConstants.FIELD_START_TIME + " = ? AND " + RecordingConstants.FIELD_HOSTNAME + " = ?";
+				String recordingSelection = RecordingConstants.FIELD_RECORD_ID + " = ? AND " + RecordingConstants.FIELD_START_TIME + " = ? AND " + RecordingConstants.FIELD_MASTER_HOSTNAME + " = ?";
 				String[] recordingSelectionArgs = new String[] { String.valueOf( program.getRecording().getRecordId() ), String.valueOf( program.getStartTime().getMillis() ), locationProfile.getHostname() };
 				
 				Log.v( TAG, "load : recording=" + program.getRecording().toString() );
 				
-				ContentValues recordingValues = mRecordingDaoHelper.convertRecordingToContentValues( context, locationProfile, program.getRecording(), program.getStartTime() );
+				ContentValues recordingValues = mRecordingDaoHelper.convertRecordingToContentValues( locationProfile, program.getRecording(), program.getStartTime() );
 				Cursor recordingCursor = context.getContentResolver().query( RecordingConstants.CONTENT_URI, recordingProjection, recordingSelection, recordingSelectionArgs, null );
 				if( recordingCursor.moveToFirst() ) {
 					Log.v( TAG, "load : UPDATE RECORDING program=" + program.getTitle() + ", recording=" + program.getRecording().getRecordId() );
@@ -413,7 +413,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 				
 				ops.add(  
 					ContentProviderOperation.newDelete( RecordingConstants.CONTENT_URI )
-					.withSelection( RecordingConstants.FIELD_RECORD_ID + " = ? AND " + RecordingConstants.FIELD_START_TIME + " = ? AND " + RecordingConstants.FIELD_HOSTNAME + " = ?", new String[] { String.valueOf( program.getRecording().getRecordId() ), String.valueOf( program.getStartTime().getMillis() ), locationProfile.getHostname() } )
+					.withSelection( RecordingConstants.FIELD_RECORD_ID + " = ? AND " + RecordingConstants.FIELD_START_TIME + " = ? AND " + RecordingConstants.FIELD_MASTER_HOSTNAME + " = ?", new String[] { String.valueOf( program.getRecording().getRecordId() ), String.valueOf( program.getStartTime().getMillis() ), locationProfile.getHostname() } )
 					.withYieldAllowed( true )
 					.build()
 				);
@@ -473,7 +473,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 
 //		Long id = null;
 		DateTime startTime = null, endTime = null, lastModified = null, airDate = null;
-		String title = "", subTitle = "", category = "", categoryType = "", seriesId = "", programId = "", fileSize = "", programFlags = "", hostname = "", filename = "", description = "", inetref = "", season = "", episode = "";
+		String title = "", subTitle = "", category = "", categoryType = "", seriesId = "", programId = "", fileSize = "", programFlags = "", hostname = "", filename = "", description = "", inetref = "", season = "", episode = "", masterHostname = "";
 		int repeat = -1, videoProps = -1, audioProps = -1, subProps = -1;
 		float stars = 0.0f;
 		
@@ -577,6 +577,10 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 			episode = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_EPISODE ) );
 		}
 		
+		if( cursor.getColumnIndex( ProgramConstants.FIELD_MASTER_HOSTNAME ) != -1 ) {
+			masterHostname = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_MASTER_HOSTNAME ) );
+		}
+		
 		if( cursor.getColumnIndex( ProgramConstants.FIELD_CHANNEL_ID ) != -1 ) {
 			channelInfo = mChannelDaoHelper.convertCursorToChannelInfo( cursor );
 		}
@@ -628,7 +632,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		return program;
 	}
 
-	protected ContentValues[] convertProgramsToContentValuesArray( final List<Program> programs ) {
+	protected ContentValues[] convertProgramsToContentValuesArray( final LocationProfile locationProfile, final List<Program> programs ) {
 //		Log.v( TAG, "convertProgramsToContentValuesArray : enter" );
 		
 		if( null != programs && !programs.isEmpty() ) {
@@ -638,7 +642,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 
 			for( Program program : programs ) {
 
-				contentValues = convertProgramToContentValues( program );
+				contentValues = convertProgramToContentValues( locationProfile, program );
 				contentValuesArray.add( contentValues );
 				
 			}			
@@ -655,7 +659,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		return null;
 	}
 
-	protected ContentValues convertProgramToContentValues( final Program program ) {
+	protected ContentValues convertProgramToContentValues( final LocationProfile locationProfile, final Program program ) {
 		
 		boolean inError;
 		
@@ -701,6 +705,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		values.put( ProgramConstants.FIELD_CHANNEL_ID, null != program.getChannelInfo() ? program.getChannelInfo().getChannelId() : -1 );
 		values.put( ProgramConstants.FIELD_RECORD_ID, null != program.getRecording() ? program.getRecording().getRecordId() : -1 );
 		values.put( ProgramConstants.FIELD_IN_ERROR, inError ? 1 : 0 );
+		values.put( ProgramConstants.FIELD_MASTER_HOSTNAME, locationProfile.getHostname() );
 		
 		return values;
 	}

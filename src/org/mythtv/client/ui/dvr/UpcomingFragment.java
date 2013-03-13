@@ -95,7 +95,7 @@ public class UpcomingFragment extends MythtvListFragment implements LoaderManage
 		String selection = ProgramConstants.TABLE_NAME_UPCOMING + "." + ProgramConstants.FIELD_START_TIME + " >= ? AND " + 
 						   ProgramConstants.TABLE_NAME_UPCOMING + "." + ProgramConstants.FIELD_START_TIME + " < ? AND " + 
 						   ProgramConstants.TABLE_NAME_UPCOMING + "." + ProgramConstants.FIELD_START_TIME + " >= ? AND " + 
-						   ProgramConstants.TABLE_NAME_UPCOMING + "." + ProgramConstants.FIELD_HOSTNAME + " = ?";
+						   ProgramConstants.TABLE_NAME_UPCOMING + "." + ProgramConstants.FIELD_MASTER_HOSTNAME + " = ?";
 		
 		String[] selectionArgs = new String[] { String.valueOf( startDay.getMillis() ), String.valueOf( endDay.getMillis() ), String.valueOf( now.getMillis() ), locationProfile.getHostname() };
 		

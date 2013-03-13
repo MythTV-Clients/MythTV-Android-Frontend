@@ -309,6 +309,14 @@ public class MainMenuFragment extends AbstractMythFragment implements ServiceLis
 		
 		//get connected location profile
 		LocationProfile profile = this.mLocationProfileDaoHelper.findConnectedProfile(this.getActivity());
+		if( null == profile ) {
+			List<LocationProfile> profiles = mLocationProfileDaoHelper.findAll( getActivity() );
+			if( profiles.size() == 1 ) {
+				profile = profiles.get( 0 );
+				
+				mLocationProfileDaoHelper.setConnectedLocationProfile( getActivity(), profile.getId() );
+			}
+		}
 		
 		//get away/home toggle
 		ToggleButton toggleIsAway = (ToggleButton)this.getActivity().findViewById(R.id.toggleButtonIsAway); 

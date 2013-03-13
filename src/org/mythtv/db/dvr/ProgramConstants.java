@@ -89,6 +89,9 @@ public class ProgramConstants extends AbstractBaseConstants {
 	public static final String FIELD_PROGRAM_FLAGS = "PROGRAM_FLAGS";
 	public static final String FIELD_PROGRAM_FLAGS_DATA_TYPE = "TEXT";
 	
+	public static final String FIELD_HOSTNAME = "HOSTNAME";
+	public static final String FIELD_HOSTNAME_DATA_TYPE = "TEXT";
+
 	public static final String FIELD_FILENAME = "FILENAME";
 	public static final String FIELD_FILENAME_DATA_TYPE = "TEXT";
 	
@@ -120,7 +123,7 @@ public class ProgramConstants extends AbstractBaseConstants {
 		FIELD_START_TIME, FIELD_END_TIME, FIELD_TITLE, FIELD_SUB_TITLE, FIELD_CATEGORY, FIELD_CATEGORY_TYPE, FIELD_REPEAT,
 		FIELD_VIDEO_PROPS, FIELD_AUDIO_PROPS, FIELD_SUB_PROPS, FIELD_SERIES_ID, FIELD_PROGRAM_ID, FIELD_STARS, FIELD_FILE_SIZE,
 		FIELD_LAST_MODIFIED, FIELD_PROGRAM_FLAGS, FIELD_HOSTNAME, FIELD_FILENAME, FIELD_AIR_DATE, FIELD_DESCRIPTION,
-		FIELD_INETREF, FIELD_SEASON, FIELD_EPISODE, FIELD_CHANNEL_ID, FIELD_RECORD_ID, FIELD_IN_ERROR
+		FIELD_INETREF, FIELD_SEASON, FIELD_EPISODE, FIELD_CHANNEL_ID, FIELD_RECORD_ID, FIELD_IN_ERROR, FIELD_MASTER_HOSTNAME
 	};
 	
 	static {
@@ -150,11 +153,12 @@ public class ProgramConstants extends AbstractBaseConstants {
 		insert.append( FIELD_EPISODE ).append( "," );
 		insert.append( FIELD_CHANNEL_ID ).append( ", " );
 		insert.append( FIELD_RECORD_ID ).append( ", " );
-		insert.append( FIELD_IN_ERROR );
+		insert.append( FIELD_IN_ERROR ).append( ", " );
+		insert.append( FIELD_MASTER_HOSTNAME );
 		
 		StringBuilder values = new StringBuilder();
 		values.append( " ) " );
-		values.append( "VALUES( ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? )" );
+		values.append( "VALUES( ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? )" );
 		
 		StringBuilder insertProgram = new StringBuilder();
 		insertProgram.append( "INSERT INTO " ).append( TABLE_NAME_PROGRAM ).append( " ( " );
@@ -199,6 +203,7 @@ public class ProgramConstants extends AbstractBaseConstants {
 		update.append( FIELD_RECORD_ID ).append( " = ?, " );
 		update.append( FIELD_HOSTNAME ).append( "= ?" );
 		update.append( FIELD_IN_ERROR ).append( "= ?" );
+		update.append( FIELD_MASTER_HOSTNAME ).append( "= ?");
 		update.append( " WHERE " );
 		update.append( FIELD_CHANNEL_ID ).append( " = ? AND " );
 		update.append( FIELD_START_TIME ).append( " = ?" );

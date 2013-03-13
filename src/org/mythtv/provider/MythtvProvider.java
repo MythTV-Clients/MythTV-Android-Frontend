@@ -596,9 +596,9 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				sb.append( " = ");
 				sb.append( ProgramConstants.TABLE_NAME_RECORDED ).append( "." ).append( ProgramConstants.FIELD_CHANNEL_ID );
 				sb.append( " AND " );
-				sb.append( ChannelConstants.TABLE_NAME ).append( "." ).append( ChannelConstants.FIELD_HOSTNAME );
+				sb.append( ChannelConstants.TABLE_NAME ).append( "." ).append( ChannelConstants.FIELD_MASTER_HOSTNAME );
 				sb.append( " = ");
-				sb.append( ProgramConstants.TABLE_NAME_RECORDED ).append( "." ).append( ProgramConstants.FIELD_HOSTNAME );
+				sb.append( ProgramConstants.TABLE_NAME_RECORDED ).append( "." ).append( ProgramConstants.FIELD_MASTER_HOSTNAME );
 				sb.append( ")" );
 				sb.append( " LEFT OUTER JOIN " );
 				sb.append( RecordingConstants.TABLE_NAME );
@@ -611,9 +611,9 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				sb.append( " = ");
 				sb.append( ProgramConstants.TABLE_NAME_RECORDED ).append( "." ).append( ProgramConstants.FIELD_RECORD_ID );
 				sb.append( " AND " );
-				sb.append( RecordingConstants.TABLE_NAME ).append( "." ).append( RecordingConstants.FIELD_HOSTNAME );
+				sb.append( RecordingConstants.TABLE_NAME ).append( "." ).append( RecordingConstants.FIELD_MASTER_HOSTNAME );
 				sb.append( " = ");
-				sb.append( ProgramConstants.TABLE_NAME_RECORDED ).append( "." ).append( ProgramConstants.FIELD_HOSTNAME );
+				sb.append( ProgramConstants.TABLE_NAME_RECORDED ).append( "." ).append( ProgramConstants.FIELD_MASTER_HOSTNAME );
 				sb.append( ")" );
 				sb.append( " LEFT OUTER JOIN " );
 				sb.append( LiveStreamConstants.TABLE_NAME );
@@ -626,9 +626,9 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				sb.append( " = ");
 				sb.append( ProgramConstants.TABLE_NAME_RECORDED ).append( "." ).append( ProgramConstants.FIELD_CHANNEL_ID );
 				sb.append( " AND " );
-				sb.append( LiveStreamConstants.TABLE_NAME ).append( "." ).append( LiveStreamConstants.FIELD_HOSTNAME );
+				sb.append( LiveStreamConstants.TABLE_NAME ).append( "." ).append( LiveStreamConstants.FIELD_MASTER_HOSTNAME );
 				sb.append( " = ");
-				sb.append( ProgramConstants.TABLE_NAME_RECORDED ).append( "." ).append( ProgramConstants.FIELD_HOSTNAME );
+				sb.append( ProgramConstants.TABLE_NAME_RECORDED ).append( "." ).append( ProgramConstants.FIELD_MASTER_HOSTNAME );
 				sb.append( ")" );
 				
 				queryBuilder.setTables( sb.toString() );
@@ -653,9 +653,9 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				sb.append( " = ");
 				sb.append( ProgramConstants.TABLE_NAME_RECORDED ).append( "." ).append( ProgramConstants.FIELD_CHANNEL_ID );
 				sb.append( " AND " );
-				sb.append( ChannelConstants.TABLE_NAME ).append( "." ).append( ChannelConstants.FIELD_HOSTNAME );
+				sb.append( ChannelConstants.TABLE_NAME ).append( "." ).append( ChannelConstants.FIELD_MASTER_HOSTNAME );
 				sb.append( " = ");
-				sb.append( ProgramConstants.TABLE_NAME_RECORDED ).append( "." ).append( ProgramConstants.FIELD_HOSTNAME );
+				sb.append( ProgramConstants.TABLE_NAME_RECORDED ).append( "." ).append( ProgramConstants.FIELD_MASTER_HOSTNAME );
 				sb.append( ")" );
 				sb.append( " LEFT OUTER JOIN " );
 				sb.append( RecordingConstants.TABLE_NAME );
@@ -668,9 +668,9 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				sb.append( " = ");
 				sb.append( ProgramConstants.TABLE_NAME_RECORDED ).append( "." ).append( ProgramConstants.FIELD_RECORD_ID );
 				sb.append( " AND " );
-				sb.append( RecordingConstants.TABLE_NAME ).append( "." ).append( RecordingConstants.FIELD_HOSTNAME );
+				sb.append( RecordingConstants.TABLE_NAME ).append( "." ).append( RecordingConstants.FIELD_MASTER_HOSTNAME );
 				sb.append( " = ");
-				sb.append( ProgramConstants.TABLE_NAME_RECORDED ).append( "." ).append( ProgramConstants.FIELD_HOSTNAME );
+				sb.append( ProgramConstants.TABLE_NAME_RECORDED ).append( "." ).append( ProgramConstants.FIELD_MASTER_HOSTNAME );
 				sb.append( ")" );
 				sb.append( " LEFT OUTER JOIN " );
 				sb.append( LiveStreamConstants.TABLE_NAME );
@@ -683,9 +683,9 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				sb.append( " = ");
 				sb.append( ProgramConstants.TABLE_NAME_RECORDED ).append( "." ).append( ProgramConstants.FIELD_CHANNEL_ID );
 				sb.append( " AND " );
-				sb.append( LiveStreamConstants.TABLE_NAME ).append( "." ).append( LiveStreamConstants.FIELD_HOSTNAME );
+				sb.append( LiveStreamConstants.TABLE_NAME ).append( "." ).append( LiveStreamConstants.FIELD_MASTER_HOSTNAME );
 				sb.append( " = ");
-				sb.append( ProgramConstants.TABLE_NAME_RECORDED ).append( "." ).append( ProgramConstants.FIELD_HOSTNAME );
+				sb.append( ProgramConstants.TABLE_NAME_RECORDED ).append( "." ).append( ProgramConstants.FIELD_MASTER_HOSTNAME );
 				sb.append( ")" );
 				
 				queryBuilder.setTables( sb.toString() );
@@ -709,9 +709,9 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				sb.append( " = ");
 				sb.append( ProgramConstants.TABLE_NAME_UPCOMING ).append( "." ).append( ProgramConstants.FIELD_CHANNEL_ID );
 				sb.append( " AND " );
-				sb.append( ChannelConstants.TABLE_NAME ).append( "." ).append( ChannelConstants.FIELD_HOSTNAME );
+				sb.append( ChannelConstants.TABLE_NAME ).append( "." ).append( ChannelConstants.FIELD_MASTER_HOSTNAME );
 				sb.append( " = ");
-				sb.append( ProgramConstants.TABLE_NAME_UPCOMING ).append( "." ).append( ProgramConstants.FIELD_HOSTNAME );
+				sb.append( ProgramConstants.TABLE_NAME_UPCOMING ).append( "." ).append( ProgramConstants.FIELD_MASTER_HOSTNAME );
 				sb.append( ")" );
 				sb.append( " LEFT OUTER JOIN " );
 				sb.append( RecordingConstants.TABLE_NAME );
@@ -724,9 +724,9 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				sb.append( " = ");
 				sb.append( ProgramConstants.TABLE_NAME_UPCOMING ).append( "." ).append( ProgramConstants.FIELD_RECORD_ID );
 				sb.append( " AND " );
-				sb.append( RecordingConstants.TABLE_NAME ).append( "." ).append( RecordingConstants.FIELD_HOSTNAME );
+				sb.append( RecordingConstants.TABLE_NAME ).append( "." ).append( RecordingConstants.FIELD_MASTER_HOSTNAME );
 				sb.append( " = ");
-				sb.append( ProgramConstants.TABLE_NAME_UPCOMING ).append( "." ).append( ProgramConstants.FIELD_HOSTNAME );
+				sb.append( ProgramConstants.TABLE_NAME_UPCOMING ).append( "." ).append( ProgramConstants.FIELD_MASTER_HOSTNAME );
 				sb.append( ")" );
 				
 				queryBuilder.setTables( sb.toString() );
@@ -756,9 +756,9 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				sb.append( " = ");
 				sb.append( ProgramConstants.TABLE_NAME_UPCOMING ).append( "." ).append( ProgramConstants.FIELD_CHANNEL_ID );
 				sb.append( " AND " );
-				sb.append( ChannelConstants.TABLE_NAME ).append( "." ).append( ChannelConstants.FIELD_HOSTNAME );
+				sb.append( ChannelConstants.TABLE_NAME ).append( "." ).append( ChannelConstants.FIELD_MASTER_HOSTNAME );
 				sb.append( " = ");
-				sb.append( ProgramConstants.TABLE_NAME_UPCOMING ).append( "." ).append( ProgramConstants.FIELD_HOSTNAME );
+				sb.append( ProgramConstants.TABLE_NAME_UPCOMING ).append( "." ).append( ProgramConstants.FIELD_MASTER_HOSTNAME );
 				sb.append( ")" );
 				sb.append( " LEFT OUTER JOIN " );
 				sb.append( RecordingConstants.TABLE_NAME );
@@ -771,9 +771,9 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				sb.append( " = ");
 				sb.append( ProgramConstants.TABLE_NAME_UPCOMING ).append( "." ).append( ProgramConstants.FIELD_RECORD_ID );
 				sb.append( " AND " );
-				sb.append( RecordingConstants.TABLE_NAME ).append( "." ).append( RecordingConstants.FIELD_HOSTNAME );
+				sb.append( RecordingConstants.TABLE_NAME ).append( "." ).append( RecordingConstants.FIELD_MASTER_HOSTNAME );
 				sb.append( " = ");
-				sb.append( ProgramConstants.TABLE_NAME_UPCOMING ).append( "." ).append( ProgramConstants.FIELD_HOSTNAME );
+				sb.append( ProgramConstants.TABLE_NAME_UPCOMING ).append( "." ).append( ProgramConstants.FIELD_MASTER_HOSTNAME );
 				sb.append( ")" );
 				
 				queryBuilder.setTables( sb.toString() );
@@ -797,9 +797,9 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				sb.append( " = ");
 				sb.append( ProgramConstants.TABLE_NAME_PROGRAM ).append( "." ).append( ProgramConstants.FIELD_CHANNEL_ID );
 				sb.append( " AND " );
-				sb.append( ChannelConstants.TABLE_NAME ).append( "." ).append( ChannelConstants.FIELD_HOSTNAME );
+				sb.append( ChannelConstants.TABLE_NAME ).append( "." ).append( ChannelConstants.FIELD_MASTER_HOSTNAME );
 				sb.append( " = ");
-				sb.append( ProgramConstants.TABLE_NAME_PROGRAM ).append( "." ).append( ProgramConstants.FIELD_HOSTNAME );
+				sb.append( ProgramConstants.TABLE_NAME_PROGRAM ).append( "." ).append( ProgramConstants.FIELD_MASTER_HOSTNAME );
 				sb.append( ")" );
 				sb.append( " LEFT OUTER JOIN " );
 				sb.append( RecordingConstants.TABLE_NAME );
@@ -812,9 +812,9 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				sb.append( " = ");
 				sb.append( ProgramConstants.TABLE_NAME_PROGRAM ).append( "." ).append( ProgramConstants.FIELD_RECORD_ID );
 				sb.append( " AND " );
-				sb.append( RecordingConstants.TABLE_NAME ).append( "." ).append( RecordingConstants.FIELD_HOSTNAME );
+				sb.append( RecordingConstants.TABLE_NAME ).append( "." ).append( RecordingConstants.FIELD_MASTER_HOSTNAME );
 				sb.append( " = ");
-				sb.append( ProgramConstants.TABLE_NAME_PROGRAM ).append( "." ).append( ProgramConstants.FIELD_HOSTNAME );
+				sb.append( ProgramConstants.TABLE_NAME_PROGRAM ).append( "." ).append( ProgramConstants.FIELD_MASTER_HOSTNAME );
 				sb.append( ")" );
 				
 				queryBuilder.setTables( sb.toString() );
@@ -839,9 +839,9 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				sb.append( " = ");
 				sb.append( ProgramConstants.TABLE_NAME_PROGRAM ).append( "." ).append( ProgramConstants.FIELD_CHANNEL_ID );
 				sb.append( " AND " );
-				sb.append( ChannelConstants.TABLE_NAME ).append( "." ).append( ChannelConstants.FIELD_HOSTNAME );
+				sb.append( ChannelConstants.TABLE_NAME ).append( "." ).append( ChannelConstants.FIELD_MASTER_HOSTNAME );
 				sb.append( " = ");
-				sb.append( ProgramConstants.TABLE_NAME_PROGRAM ).append( "." ).append( ProgramConstants.FIELD_HOSTNAME );
+				sb.append( ProgramConstants.TABLE_NAME_PROGRAM ).append( "." ).append( ProgramConstants.FIELD_MASTER_HOSTNAME );
 				sb.append( ")" );
 				sb.append( " LEFT OUTER JOIN " );
 				sb.append( RecordingConstants.TABLE_NAME );
@@ -854,9 +854,9 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				sb.append( " = ");
 				sb.append( ProgramConstants.TABLE_NAME_PROGRAM ).append( "." ).append( ProgramConstants.FIELD_RECORD_ID );
 				sb.append( " AND " );
-				sb.append( RecordingConstants.TABLE_NAME ).append( "." ).append( RecordingConstants.FIELD_HOSTNAME );
+				sb.append( RecordingConstants.TABLE_NAME ).append( "." ).append( RecordingConstants.FIELD_MASTER_HOSTNAME );
 				sb.append( " = ");
-				sb.append( ProgramConstants.TABLE_NAME_PROGRAM ).append( "." ).append( ProgramConstants.FIELD_HOSTNAME );
+				sb.append( ProgramConstants.TABLE_NAME_PROGRAM ).append( "." ).append( ProgramConstants.FIELD_MASTER_HOSTNAME );
 				sb.append( ")" );
 				
 				queryBuilder.setTables( sb.toString() );
@@ -1330,7 +1330,7 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 						insert.bindString( 2, value.getAsString( ProgramGroupConstants.FIELD_TITLE ) );
 						insert.bindString( 3, value.getAsString( ProgramGroupConstants.FIELD_CATEGORY ) );
 						insert.bindString( 4, value.getAsString( ProgramGroupConstants.FIELD_INETREF ) );
-						insert.bindString( 5, value.getAsString( ProgramGroupConstants.FIELD_HOSTNAME ) );
+						insert.bindString( 5, value.getAsString( ProgramGroupConstants.FIELD_MASTER_HOSTNAME ) );
 						insert.execute();
 					}
 					db.setTransactionSuccessful();
@@ -1366,7 +1366,7 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 						insert.bindLong( 12, value.getAsInteger( RecordingConstants.FIELD_ENCODER_ID ) );
 						insert.bindString( 13, value.getAsString( RecordingConstants.FIELD_PROFILE ) );
 						insert.bindString( 14, value.getAsString( RecordingConstants.FIELD_START_TIME ) );
-						insert.bindString( 15, value.getAsString( RecordingConstants.FIELD_HOSTNAME ) );
+						insert.bindString( 15, value.getAsString( RecordingConstants.FIELD_MASTER_HOSTNAME ) );
 						insert.execute();
 					}
 					db.setTransactionSuccessful();
@@ -1414,7 +1414,7 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 						insert.bindLong( 24, value.getAsInteger( ChannelConstants.FIELD_VISIBLE ) );
 						insert.bindString( 25, value.getAsString( ChannelConstants.FIELD_XMLTV_ID ) );
 						insert.bindString( 26, value.getAsString( ChannelConstants.FIELD_DEFAULT_AUTH ) );
-						insert.bindString( 27, value.getAsString( ChannelConstants.FIELD_HOSTNAME ) );
+						insert.bindString( 27, value.getAsString( ChannelConstants.FIELD_MASTER_HOSTNAME ) );
 						insert.execute();
 					}
 					db.setTransactionSuccessful();
@@ -1489,6 +1489,7 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 			insert.bindLong( 24, value.getAsInteger( ProgramConstants.FIELD_CHANNEL_ID ) );
 			insert.bindLong( 25, value.getAsInteger( ProgramConstants.FIELD_RECORD_ID ) );
 			insert.bindLong( 26, value.getAsInteger( ProgramConstants.FIELD_IN_ERROR ) );
+			insert.bindString( 27, value.getAsString( ProgramConstants.FIELD_MASTER_HOSTNAME ) );
 			
 			insert.execute();
 		}
