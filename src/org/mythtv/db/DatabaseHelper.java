@@ -48,7 +48,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	private static final String TAG = DatabaseHelper.class.getSimpleName();
 	
 	private static final String DATABASE_NAME = "mythtvdb";
-	private static final int DATABASE_VERSION = 108;
+	private static final int DATABASE_VERSION = 109;
 
 	public DatabaseHelper( Context context ) {
 		super( context, DATABASE_NAME, null, DATABASE_VERSION );
@@ -110,8 +110,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	public void onUpgrade( SQLiteDatabase db, int oldVersion, int newVersion ) {
 		Log.v( TAG, "onUpgrade : enter" );
 
-		if( oldVersion < 108 ) {
-			Log.v( TAG, "onUpgrade : upgrading to db version 108" );
+		if( oldVersion < 109 ) {
+			Log.v( TAG, "onUpgrade : upgrading to db version 109" );
 
 			onCreate( db );
 
@@ -204,7 +204,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		sqlBuilder.append( EtagConstants.FIELD_VALUE ).append( " " ).append( EtagConstants.FIELD_VALUE_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( EtagConstants.FIELD_DATA_ID ).append( " " ).append( EtagConstants.FIELD_DATA_ID_DATA_TYPE ).append( " default" ).append( EtagConstants.FIELD_DATA_ID_DEFAULT ).append( ", " );
 		sqlBuilder.append( EtagConstants.FIELD_DATE ).append( " " ).append( EtagConstants.FIELD_DATE_DATA_TYPE ).append( ", " );
-		sqlBuilder.append( EtagConstants.FIELD_MASTER_HOSTNAME ).append( " " ).append( EtagConstants.FIELD_MASTER_HOSTNAME_DATA_TYPE );
+		sqlBuilder.append( EtagConstants.FIELD_MASTER_HOSTNAME ).append( " " ).append( EtagConstants.FIELD_MASTER_HOSTNAME_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( EtagConstants.FIELD_LAST_MODIFIED_DATE ).append( " " ).append( EtagConstants.FIELD_LAST_MODIFIED_DATE_DATA_TYPE );
 		sqlBuilder.append( ");" );
 		String sql = sqlBuilder.toString();
 		if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
@@ -490,7 +491,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		sqlBuilder.append( ProgramConstants.FIELD_CHANNEL_ID ).append( " " ).append( ProgramConstants.FIELD_CHANNEL_ID_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( ProgramConstants.FIELD_RECORD_ID ).append( " " ).append( ProgramConstants.FIELD_RECORD_ID_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( ProgramConstants.FIELD_IN_ERROR ).append( " " ).append( ProgramConstants.FIELD_IN_ERROR_DATA_TYPE ).append( ", " );
-		sqlBuilder.append( ProgramConstants.FIELD_MASTER_HOSTNAME ).append( " " ).append( ProgramConstants.FIELD_MASTER_HOSTNAME_DATA_TYPE );
+		sqlBuilder.append( ProgramConstants.FIELD_MASTER_HOSTNAME ).append( " " ).append( ProgramConstants.FIELD_MASTER_HOSTNAME_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ProgramConstants.FIELD_LAST_MODIFIED_DATE ).append( " " ).append( ProgramConstants.FIELD_LAST_MODIFIED_DATE_DATA_TYPE );
 		sqlBuilder.append( ");" );
 		String sql = sqlBuilder.toString();
 		if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
@@ -544,6 +546,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		sqlBuilder.append( ChannelConstants.FIELD_XMLTV_ID ).append( " " ).append( ChannelConstants.FIELD_XMLTV_ID_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( ChannelConstants.FIELD_DEFAULT_AUTH ).append( " " ).append( ChannelConstants.FIELD_DEFAULT_AUTH_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( ChannelConstants.FIELD_MASTER_HOSTNAME ).append( " " ).append( ChannelConstants.FIELD_MASTER_HOSTNAME_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ChannelConstants.FIELD_LAST_MODIFIED_DATE ).append( " " ).append( ChannelConstants.FIELD_LAST_MODIFIED_DATE_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( "UNIQUE(" ).append( ChannelConstants.FIELD_CHAN_ID ).append( ", " ).append( ChannelConstants.FIELD_MASTER_HOSTNAME ).append( ")" );
 		sqlBuilder.append( ");" );
 		String sql = sqlBuilder.toString();
@@ -573,7 +576,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		sqlBuilder.append( ProgramGroupConstants.FIELD_TITLE ).append( " " ).append( ProgramGroupConstants.FIELD_TITLE_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( ProgramGroupConstants.FIELD_CATEGORY ).append( " " ).append( ProgramGroupConstants.FIELD_CATEGORY_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( ProgramGroupConstants.FIELD_INETREF ).append( " " ).append( ProgramGroupConstants.FIELD_INETREF_DATA_TYPE ).append( ", " );
-		sqlBuilder.append( ProgramGroupConstants.FIELD_MASTER_HOSTNAME ).append( " " ).append( ProgramGroupConstants.FIELD_MASTER_HOSTNAME_DATA_TYPE );
+		sqlBuilder.append( ProgramGroupConstants.FIELD_MASTER_HOSTNAME ).append( " " ).append( ProgramGroupConstants.FIELD_MASTER_HOSTNAME_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ProgramGroupConstants.FIELD_LAST_MODIFIED_DATE ).append( " " ).append( ProgramGroupConstants.FIELD_LAST_MODIFIED_DATE_DATA_TYPE );
 		sqlBuilder.append( ");" );
 		String sql = sqlBuilder.toString();
 		if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
@@ -613,7 +617,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		sqlBuilder.append( RecordingConstants.FIELD_PROFILE ).append( " " ).append( RecordingConstants.FIELD_PROFILE_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( RecordingConstants.FIELD_PROGRAM_ID ).append( " " ).append( RecordingConstants.FIELD_PROGRAM_ID_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( RecordingConstants.FIELD_START_TIME ).append( " " ).append( RecordingConstants.FIELD_START_TIME_DATA_TYPE ).append( ", " );
-		sqlBuilder.append( RecordingConstants.FIELD_MASTER_HOSTNAME ).append( " " ).append( RecordingConstants.FIELD_MASTER_HOSTNAME ).append( ", " );
+		sqlBuilder.append( RecordingConstants.FIELD_MASTER_HOSTNAME ).append( " " ).append( RecordingConstants.FIELD_MASTER_HOSTNAME_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingConstants.FIELD_LAST_MODIFIED_DATE ).append( " " ).append( RecordingConstants.FIELD_LAST_MODIFIED_DATE_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( "UNIQUE(" ).append( RecordingConstants.FIELD_RECORD_ID ).append( ", " ).append( RecordingConstants.FIELD_START_TIME ).append( ", " ).append( RecordingConstants.FIELD_MASTER_HOSTNAME ).append( ")" );
 		sqlBuilder.append( ");" );
 		String sql = sqlBuilder.toString();
@@ -664,7 +669,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		sqlBuilder.append( LiveStreamConstants.FIELD_AUDIO_ONLY_BITRATE ).append( " " ).append( LiveStreamConstants.FIELD_AUDIO_ONLY_BITRATE_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( LiveStreamConstants.FIELD_START_TIME ).append( " " ).append( LiveStreamConstants.FIELD_START_TIME_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( LiveStreamConstants.FIELD_CHAN_ID ).append( " " ).append( LiveStreamConstants.FIELD_CHAN_ID_DATA_TYPE ).append( ", " );
-		sqlBuilder.append( LiveStreamConstants.FIELD_MASTER_HOSTNAME ).append( " " ).append( LiveStreamConstants.FIELD_MASTER_HOSTNAME ).append( ", " );
+		sqlBuilder.append( LiveStreamConstants.FIELD_MASTER_HOSTNAME ).append( " " ).append( LiveStreamConstants.FIELD_MASTER_HOSTNAME_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( "UNIQUE(" ).append( LiveStreamConstants.FIELD_START_TIME ).append( ", " ).append( LiveStreamConstants.FIELD_CHAN_ID ).append( ", " ).append( LiveStreamConstants.FIELD_MASTER_HOSTNAME ).append( ")" );
 		sqlBuilder.append( ");" );
 		String sql = sqlBuilder.toString();

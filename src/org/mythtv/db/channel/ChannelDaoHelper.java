@@ -19,11 +19,9 @@
 package org.mythtv.db.channel;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
+import org.joda.time.DateTime;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.AbstractDaoHelper;
 import org.mythtv.provider.MythtvProvider;
@@ -202,7 +200,7 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 		if( null == context ) 
 			throw new RuntimeException( "ChannelDaoHelper is not initialized" );
 		
-		ContentValues values = convertChannelInfoToContentValues( context, locationProfile, channelInfo );
+		ContentValues values = convertChannelInfoToContentValues( locationProfile, new DateTime(), channelInfo );
 
 		String[] projection = new String[] { ChannelConstants._ID };
 		String selection = ChannelConstants.FIELD_CHAN_ID + " = ?";
@@ -295,12 +293,7 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 		if( null == context ) 
 			throw new RuntimeException( "ChannelDaoHelper is not initialized" );
 		
-		Log.d( TAG, "load : loading existing channels" );
-		Map<Integer, ChannelInfo> existing = new HashMap<Integer, ChannelInfo>();
-		for( ChannelInfo channelInfo : findAll( context, locationProfile ) ) {
-//			Log.v( TAG, "load : existing channel: " + channelInfo.getChannelId() );
-			existing.put( channelInfo.getChannelId(), channelInfo );
-		}
+		DateTime lastModified = new DateTime();
 		
 		int count = 0;
 		int deletecount = 0;
@@ -321,7 +314,7 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 			
 			for( ChannelInfo channel : channelInfos.getChannelInfos() ) {
 
-				ContentValues channelValues = convertChannelInfoToContentValues( context, locationProfile, channel );
+				ContentValues channelValues = convertChannelInfoToContentValues( locationProfile, lastModified, channel );
 				Cursor channelCursor = context.getContentResolver().query( ChannelConstants.CONTENT_URI, channelProjection, channelSelection, new String[] { String.valueOf( channel.getChannelId() ) }, null );
 				if( channelCursor.moveToFirst() ) {
 					Log.v( TAG, "load : updating channel " + channel.getChannelId() );
@@ -350,10 +343,6 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 				channelCursor.close();
 				count++;
 
-				if( existing.containsKey( channel.getChannelId() ) ) {
-					existing.remove( channel.getChannelId() );
-				}
-				
 				if( count > BATCH_COUNT_LIMIT ) {
 					Log.v( TAG, "process : batch update/insert" );
 
@@ -387,42 +376,13 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 		}
 
 		// Done with the updates/inserts, remove any 'stale' channels
-		if( !existing.isEmpty() ) {
-			Log.v( TAG, "load : deleting channels no longer present on mythtv backend" );
-			
-			for( Entry<Integer, ChannelInfo> entry : existing.entrySet() ) {
-				
-				ChannelInfo channelInfo = entry.getValue();
-				Log.v( TAG, "load : deleting channel " + channelInfo.getChannelId() );
-				ops.add(  
-					ContentProviderOperation.newDelete( ChannelConstants.CONTENT_URI )
-						.withSelection( ChannelConstants.FIELD_CHAN_ID + " = ?", new String[] { String.valueOf( channelInfo.getChannelId() ) } )
-						.withYieldAllowed( true )
-						.build()
-				);
-				count++;
-				totalDeletes++;
-				
-				if( deletecount > BATCH_COUNT_LIMIT ) {
-					Log.v( TAG, "process : batch delete" );
-						
-					if( !ops.isEmpty() ) {
-							
-						ContentProviderResult[] results = context.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
-						processed += results.length;
-							
-						if( results.length > 0 ) {
-							ops.clear();
-						}
-
-					}
-
-					count = 0;
-				}
-				
-			}
-
-		}	
+		Log.v( TAG, "load : deleting channels no longer present on mythtv backend" );
+		ops.add(  
+			ContentProviderOperation.newDelete( ChannelConstants.CONTENT_URI )
+				.withSelection( ChannelConstants.FIELD_LAST_MODIFIED_DATE + " < ?", new String[] { String.valueOf( lastModified.getMillis() ) } )
+				.withYieldAllowed( true )
+				.build()
+		);
 
 		if( !ops.isEmpty() ) {
 			Log.v( TAG, "process : final batch deletes " + count + "/" + deletecount);
@@ -595,7 +555,7 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 
 	// internal helpers
 
-	private ContentValues[] convertChannelInfosToContentValuesArray( final Context context, final LocationProfile locationProfile, final List<ChannelInfo> channelInfos ) {
+	private ContentValues[] convertChannelInfosToContentValuesArray( final LocationProfile locationProfile, final DateTime lastModified, final List<ChannelInfo> channelInfos ) {
 //		Log.v( TAG, "convertChannelInfosToContentValuesArray : enter" );
 		
 		if( null != channelInfos && !channelInfos.isEmpty() ) {
@@ -605,7 +565,7 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 
 			for( ChannelInfo channelInfo : channelInfos ) {
 
-				contentValues = convertChannelInfoToContentValues( context, locationProfile, channelInfo );
+				contentValues = convertChannelInfoToContentValues( locationProfile, lastModified, channelInfo );
 				contentValuesArray.add( contentValues );
 				
 			}			
@@ -622,7 +582,7 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 		return null;
 	}
 
-	private ContentValues convertChannelInfoToContentValues( final Context context, final LocationProfile locationProfile, final ChannelInfo channelInfo ) {
+	private ContentValues convertChannelInfoToContentValues( final LocationProfile locationProfile, final DateTime lastModified, final ChannelInfo channelInfo ) {
 //		Log.v( TAG, "convertChannelToContentValues : enter" );
 		
 		ContentValues values = new ContentValues();
@@ -653,6 +613,7 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 		values.put( ChannelConstants.FIELD_XMLTV_ID, channelInfo.getXmltvId() );
 		values.put( ChannelConstants.FIELD_DEFAULT_AUTH, channelInfo.getDefaultAuth() );
 		values.put( ChannelConstants.FIELD_MASTER_HOSTNAME, locationProfile.getHostname() );
+		values.put( ChannelConstants.FIELD_LAST_MODIFIED_DATE, lastModified.getMillis() );
 		
 //		Log.v( TAG, "convertChannelToContentValues : exit" );
 		return values;

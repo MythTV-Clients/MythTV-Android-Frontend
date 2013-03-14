@@ -123,7 +123,8 @@ public class ProgramConstants extends AbstractBaseConstants {
 		FIELD_START_TIME, FIELD_END_TIME, FIELD_TITLE, FIELD_SUB_TITLE, FIELD_CATEGORY, FIELD_CATEGORY_TYPE, FIELD_REPEAT,
 		FIELD_VIDEO_PROPS, FIELD_AUDIO_PROPS, FIELD_SUB_PROPS, FIELD_SERIES_ID, FIELD_PROGRAM_ID, FIELD_STARS, FIELD_FILE_SIZE,
 		FIELD_LAST_MODIFIED, FIELD_PROGRAM_FLAGS, FIELD_HOSTNAME, FIELD_FILENAME, FIELD_AIR_DATE, FIELD_DESCRIPTION,
-		FIELD_INETREF, FIELD_SEASON, FIELD_EPISODE, FIELD_CHANNEL_ID, FIELD_RECORD_ID, FIELD_IN_ERROR, FIELD_MASTER_HOSTNAME
+		FIELD_INETREF, FIELD_SEASON, FIELD_EPISODE, FIELD_CHANNEL_ID, FIELD_RECORD_ID, FIELD_IN_ERROR, FIELD_MASTER_HOSTNAME,
+		FIELD_LAST_MODIFIED
 	};
 	
 	static {
@@ -154,11 +155,12 @@ public class ProgramConstants extends AbstractBaseConstants {
 		insert.append( FIELD_CHANNEL_ID ).append( ", " );
 		insert.append( FIELD_RECORD_ID ).append( ", " );
 		insert.append( FIELD_IN_ERROR ).append( ", " );
-		insert.append( FIELD_MASTER_HOSTNAME );
+		insert.append( FIELD_MASTER_HOSTNAME ).append( ", " );
+		insert.append( FIELD_LAST_MODIFIED );
 		
 		StringBuilder values = new StringBuilder();
 		values.append( " ) " );
-		values.append( "VALUES( ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? )" );
+		values.append( "VALUES( ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? )" );
 		
 		StringBuilder insertGuide = new StringBuilder();
 		insertGuide.append( "INSERT INTO " ).append( TABLE_NAME_GUIDE ).append( " ( " );
@@ -201,9 +203,10 @@ public class ProgramConstants extends AbstractBaseConstants {
 		update.append( FIELD_EPISODE ).append( " = ?, " );
 		update.append( FIELD_CHANNEL_ID ).append( " = ?, " );
 		update.append( FIELD_RECORD_ID ).append( " = ?, " );
-		update.append( FIELD_HOSTNAME ).append( "= ?" );
-		update.append( FIELD_IN_ERROR ).append( "= ?" );
-		update.append( FIELD_MASTER_HOSTNAME ).append( "= ?");
+		update.append( FIELD_HOSTNAME ).append( "= ?," );
+		update.append( FIELD_IN_ERROR ).append( "= ?," );
+		update.append( FIELD_MASTER_HOSTNAME ).append( "= ?," );
+		update.append( FIELD_LAST_MODIFIED_DATE ).append( "= ?" );
 		update.append( " WHERE " );
 		update.append( FIELD_CHANNEL_ID ).append( " = ? AND " );
 		update.append( FIELD_START_TIME ).append( " = ?" );

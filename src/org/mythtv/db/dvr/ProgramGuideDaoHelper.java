@@ -200,6 +200,8 @@ public class ProgramGuideDaoHelper extends ProgramDaoHelper {
 		if( null == context ) 
 			throw new RuntimeException( "ProgramDaoHelper is not initialized" );
 		
+		DateTime lastModified = new DateTime();
+		
 		int loaded = -1;
 		ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
 
@@ -221,7 +223,7 @@ public class ProgramGuideDaoHelper extends ProgramDaoHelper {
 
 			DateTime startTime = new DateTime( program.getStartTime() );
 			
-			ContentValues programValues = convertProgramToContentValues( locationProfile, program );
+			ContentValues programValues = convertProgramToContentValues( locationProfile, lastModified, program );
 			Cursor programCursor = context.getContentResolver().query( ProgramConstants.CONTENT_URI_GUIDE, programProjection, programSelection, new String[] { String.valueOf( program.getChannelInfo().getChannelId() ), String.valueOf( startTime.getMillis() ) }, null );
 			if( programCursor.moveToFirst() ) {
 //				Log.v( TAG, "load : UPDATE channel=" + program.getChannelInfo().getChannelNumber() + ", startTime=" + DateUtils.dateTimeFormatterPretty.print( startTime ) );
