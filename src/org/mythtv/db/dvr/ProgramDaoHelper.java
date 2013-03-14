@@ -19,9 +19,7 @@
 package org.mythtv.db.dvr;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.joda.time.DateTime;
 import org.mythtv.client.ui.preferences.LocationProfile;
@@ -153,7 +151,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		if( null == context ) 
 			throw new RuntimeException( "ProgramDaoHelper is not initialized" );
 		
-		ContentValues values = convertProgramToContentValues( locationProfile, program );
+		ContentValues values = convertProgramToContentValues( locationProfile, new DateTime(), program );
 
 		String[] projection = new String[] { ProgramConstants._ID };
 		String selection = ProgramConstants.FIELD_CHANNEL_ID + " = ? AND " + ProgramConstants.FIELD_START_TIME + " = ?";
@@ -220,6 +218,28 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		if( null == context ) 
 			throw new RuntimeException( "ProgramDaoHelper is not initialized" );
 		
+		// Delete any live stream details
+		LiveStreamInfo liveStreamInfo = mLiveStreamDaoHelper.findByProgram( context, locationProfile, program );
+		if( null != liveStreamInfo ) {
+			Log.v( TAG, "delete : remove live stream" );
+			
+			RemoveStreamTask removeStreamTask = new RemoveStreamTask();
+			removeStreamTask.setContext( context );
+			removeStreamTask.setLocationProfile( locationProfile );
+			removeStreamTask.execute( liveStreamInfo );
+			
+			mLiveStreamDaoHelper.delete( context, locationProfile, liveStreamInfo );
+		}
+		
+
+		if( null != program.getRecording() ) {
+			Log.v( TAG, "load : remove recording" );
+			
+			String recordingWhere = RecordingConstants.FIELD_RECORD_ID + " = ? AND " + RecordingConstants.FIELD_START_TIME + " = ? AND " + RecordingConstants.FIELD_MASTER_HOSTNAME + " = ?";
+			String[] recordingSelectionArgs = new String[] { String.valueOf( program.getRecording().getRecordId() ), String.valueOf( program.getStartTime().getMillis() ), locationProfile.getHostname() };
+			mRecordingDaoHelper.delete( context, null, recordingWhere, recordingSelectionArgs );
+		}
+
 		String selection = ProgramConstants.FIELD_CHANNEL_ID + " = ? AND " + ProgramConstants.FIELD_START_TIME + " = ?";
 		String[] selectionArgs = new String[] { String.valueOf( program.getChannelInfo().getChannelId() ), String.valueOf( program.getStartTime().getMillis() ) };
 
@@ -252,16 +272,13 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		if( null == context ) 
 			throw new RuntimeException( "ProgramDaoHelper is not initialized" );
 		
+		DateTime lastModified = new DateTime();
+		
 		Log.v( TAG, "load : find all existing recordings, table=" + table );
 		String recordedSelection = "";
 		
 		recordedSelection = appendLocationHostname( context, locationProfile, recordedSelection, table );
 		Log.v( TAG, "load : recordedSelection=" + recordedSelection );
-		
-		Map<String, Program> recorded = new HashMap<String, Program>();
-		for( Program program : findAll( context, uri, null, recordedSelection, null, null ) ) {
-			recorded.put( program.getFilename(), program );
-		}
 		
 		int loaded = -1;
 		int count = 0;
@@ -287,7 +304,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 
 			DateTime startTime = new DateTime( program.getStartTime() );
 			
-			ContentValues programValues = convertProgramToContentValues( locationProfile, program );
+			ContentValues programValues = convertProgramToContentValues( locationProfile, lastModified, program );
 			Cursor programCursor = context.getContentResolver().query( uri, programProjection, programSelection, new String[] { String.valueOf( program.getChannelInfo().getChannelId() ), String.valueOf( startTime.getMillis() ) }, null );
 			if( programCursor.moveToFirst() ) {
 				//Log.v( TAG, "load : UPDATE PROGRAM channel=" + program.getChannelInfo().getChannelNumber() + ", startTime=" + DateUtils.dateTimeFormatterPretty.print( startTime ) + "(" + startTime + ")" );
@@ -331,7 +348,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 				
 				Log.v( TAG, "load : recording=" + program.getRecording().toString() );
 				
-				ContentValues recordingValues = mRecordingDaoHelper.convertRecordingToContentValues( locationProfile, program.getRecording(), program.getStartTime() );
+				ContentValues recordingValues = mRecordingDaoHelper.convertRecordingToContentValues( locationProfile, lastModified, program.getStartTime(), program.getRecording() );
 				Cursor recordingCursor = context.getContentResolver().query( RecordingConstants.CONTENT_URI, recordingProjection, recordingSelection, recordingSelectionArgs, null );
 				if( recordingCursor.moveToFirst() ) {
 					Log.v( TAG, "load : UPDATE RECORDING program=" + program.getTitle() + ", recording=" + program.getRecording().getRecordId() );
@@ -357,10 +374,6 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 				count++;
 			}
 			
-			if( recorded.containsKey( program.getFilename() ) ) {
-				recorded.remove( program.getFilename() );
-			}
-
 			if( count > 100 ) {
 				Log.v( TAG, "process : applying batch for '" + count + "' transactions" );
 				
@@ -392,7 +405,10 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		}
 
 		Log.v( TAG, "load : remove deleted recordings" );
-		for( Program program : recorded.values() ) {
+		String deletedSelection = table + "." + ProgramConstants.FIELD_LAST_MODIFIED + " < ?";
+		String[] deletedSelectionArgs = new String[] { String.valueOf( lastModified.getMillis() ) };
+		List<Program> deleted = findAll( context, uri, null, deletedSelection, deletedSelectionArgs, null );
+		for( Program program : deleted ) {
 			Log.v( TAG, "load : remove deleted recording - " + program.getTitle() + " [" + program.getSubTitle() + "]" );
 			
 			// Delete any live stream details
@@ -408,45 +424,23 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 				mLiveStreamDaoHelper.delete( context, locationProfile, liveStreamInfo );
 			}
 			
-			if( null != program.getRecording() ) {
-				Log.v( TAG, "load : remove recording" );
-				
-				ops.add(  
-					ContentProviderOperation.newDelete( RecordingConstants.CONTENT_URI )
-					.withSelection( RecordingConstants.FIELD_RECORD_ID + " = ? AND " + RecordingConstants.FIELD_START_TIME + " = ? AND " + RecordingConstants.FIELD_MASTER_HOSTNAME + " = ?", new String[] { String.valueOf( program.getRecording().getRecordId() ), String.valueOf( program.getStartTime().getMillis() ), locationProfile.getHostname() } )
-					.withYieldAllowed( true )
-					.build()
-				);
-
-			}
-			
-			Log.v( TAG, "load : remove program" );
-			ops.add(  
-				ContentProviderOperation.newDelete( uri )
-				.withSelection( ProgramConstants.FIELD_FILENAME + " = ?", new String[] { program.getFilename() } )
-				.withYieldAllowed( true )
-				.build()
-			);
-
-			if( count > 100 ) {
-				Log.v( TAG, "process : applying batch for '" + count + "' transactions" );
-				
-				if( !ops.isEmpty() ) {
-					
-					ContentProviderResult[] results = context.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
-					loaded += results.length;
-					
-					if( results.length > 0 ) {
-						ops.clear();
-					}
-
-				}
-
-				count = -1;
-			}
-
 		}
 		
+		ops.add(  
+			ContentProviderOperation.newDelete( RecordingConstants.CONTENT_URI )
+				.withSelection( RecordingConstants.FIELD_LAST_MODIFIED_DATE + " < ?", new String[] { String.valueOf( lastModified.getMillis() ) } )
+				.withYieldAllowed( true )
+				.build()
+		);
+
+		ops.add(  
+			ContentProviderOperation.newDelete( uri )
+				.withSelection( table + "." + ProgramConstants.FIELD_LAST_MODIFIED_DATE + " < ?", new String[] { String.valueOf( lastModified.getMillis() ) } )
+				.withYieldAllowed( true )
+				.build()
+		);
+
+
 		if( !ops.isEmpty() ) {
 			Log.v( TAG, "process : applying final batch for '" + count + "' transactions" );
 			
@@ -632,7 +626,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		return program;
 	}
 
-	protected ContentValues[] convertProgramsToContentValuesArray( final LocationProfile locationProfile, final List<Program> programs ) {
+	protected ContentValues[] convertProgramsToContentValuesArray( final LocationProfile locationProfile, final DateTime lastModified, final List<Program> programs ) {
 //		Log.v( TAG, "convertProgramsToContentValuesArray : enter" );
 		
 		if( null != programs && !programs.isEmpty() ) {
@@ -642,7 +636,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 
 			for( Program program : programs ) {
 
-				contentValues = convertProgramToContentValues( locationProfile, program );
+				contentValues = convertProgramToContentValues( locationProfile, lastModified, program );
 				contentValuesArray.add( contentValues );
 				
 			}			
@@ -659,7 +653,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		return null;
 	}
 
-	protected ContentValues convertProgramToContentValues( final LocationProfile locationProfile, final Program program ) {
+	protected ContentValues convertProgramToContentValues( final LocationProfile locationProfile, final DateTime lastModified, final Program program ) {
 		
 		boolean inError;
 		
@@ -706,6 +700,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		values.put( ProgramConstants.FIELD_RECORD_ID, null != program.getRecording() ? program.getRecording().getRecordId() : -1 );
 		values.put( ProgramConstants.FIELD_IN_ERROR, inError ? 1 : 0 );
 		values.put( ProgramConstants.FIELD_MASTER_HOSTNAME, locationProfile.getHostname() );
+		values.put( ProgramConstants.FIELD_LAST_MODIFIED_DATE, lastModified.getMillis() );
 		
 		return values;
 	}

@@ -1331,6 +1331,7 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 						insert.bindString( 3, value.getAsString( ProgramGroupConstants.FIELD_CATEGORY ) );
 						insert.bindString( 4, value.getAsString( ProgramGroupConstants.FIELD_INETREF ) );
 						insert.bindString( 5, value.getAsString( ProgramGroupConstants.FIELD_MASTER_HOSTNAME ) );
+						insert.bindLong( 6, value.getAsInteger( ProgramGroupConstants.FIELD_LAST_MODIFIED_DATE ) );
 						insert.execute();
 					}
 					db.setTransactionSuccessful();
@@ -1367,6 +1368,7 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 						insert.bindString( 13, value.getAsString( RecordingConstants.FIELD_PROFILE ) );
 						insert.bindString( 14, value.getAsString( RecordingConstants.FIELD_START_TIME ) );
 						insert.bindString( 15, value.getAsString( RecordingConstants.FIELD_MASTER_HOSTNAME ) );
+						insert.bindLong( 16, value.getAsInteger( RecordingConstants.FIELD_LAST_MODIFIED_DATE ) );
 						insert.execute();
 					}
 					db.setTransactionSuccessful();
@@ -1415,6 +1417,7 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 						insert.bindString( 25, value.getAsString( ChannelConstants.FIELD_XMLTV_ID ) );
 						insert.bindString( 26, value.getAsString( ChannelConstants.FIELD_DEFAULT_AUTH ) );
 						insert.bindString( 27, value.getAsString( ChannelConstants.FIELD_MASTER_HOSTNAME ) );
+						insert.bindLong( 28, value.getAsInteger( ChannelConstants.FIELD_LAST_MODIFIED_DATE ) );
 						insert.execute();
 					}
 					db.setTransactionSuccessful();
@@ -1490,6 +1493,7 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 			insert.bindLong( 25, value.getAsInteger( ProgramConstants.FIELD_RECORD_ID ) );
 			insert.bindLong( 26, value.getAsInteger( ProgramConstants.FIELD_IN_ERROR ) );
 			insert.bindString( 27, value.getAsString( ProgramConstants.FIELD_MASTER_HOSTNAME ) );
+			insert.bindLong( 28, value.getAsInteger( ProgramConstants.FIELD_LAST_MODIFIED_DATE ) );
 			
 			insert.execute();
 		}

@@ -55,11 +55,12 @@ public class EtagConstants extends AbstractBaseConstants {
 		insert.append( FIELD_VALUE ).append( "," );
 		insert.append( FIELD_DATA_ID ).append( "," );
 		insert.append( FIELD_DATE ).append( "," );
-		insert.append( FIELD_MASTER_HOSTNAME );
+		insert.append( FIELD_MASTER_HOSTNAME ).append( "," );
+		insert.append( FIELD_LAST_MODIFIED_DATE );
 		
 		StringBuilder values = new StringBuilder();
 		values.append( " ) " );
-		values.append( "VALUES( ?,?,?,? )" );
+		values.append( "VALUES( ?,?,?,?,? )" );
 		
 		StringBuilder insertEtag = new StringBuilder();
 		insertEtag.append( "INSERT INTO " ).append( TABLE_NAME ).append( " ( " );
@@ -72,6 +73,7 @@ public class EtagConstants extends AbstractBaseConstants {
 		update.append( FIELD_DATA_ID ).append( " = ?, " );
 		update.append( FIELD_DATE ).append( " = ?, " );
 		update.append( FIELD_MASTER_HOSTNAME ).append( " = ?" );
+		update.append( FIELD_LAST_MODIFIED_DATE ).append( " = ?" );
 		update.append( " WHERE " );
 		update.append( _ID ).append( " = ?" );
 		

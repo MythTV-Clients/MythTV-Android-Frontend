@@ -35,4 +35,7 @@ public abstract class AbstractBaseConstants implements BaseColumns {
 	public static final String FIELD_MASTER_HOSTNAME = "MASTER_HOSTNAME";
 	public static final String FIELD_MASTER_HOSTNAME_DATA_TYPE = "TEXT";
 
+	public static final String FIELD_LAST_MODIFIED_DATE = "LAST_MODIFIED_DATE";
+	public static final String FIELD_LAST_MODIFIED_DATE_DATA_TYPE = "INTEGER";
+	
 }

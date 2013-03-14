@@ -200,7 +200,26 @@ public class RecordingDaoHelper extends AbstractDaoHelper {
 		return deleted;
 	}
 
+	public int delete( final Context context, final Long id, final String where, final String[] selectionArgs ) {
+		Log.d( TAG, "delete : enter" );
+		
+		if( null == context ) 
+			throw new RuntimeException( "RecordingDaoHelper is not initialized" );
+		
+		Uri uri = RecordingConstants.CONTENT_URI;
+		if( null != id && id > 0 ) {
+			uri = ContentUris.withAppendedId( RecordingConstants.CONTENT_URI, id );
+		}
+		
+		int deleted = context.getContentResolver().delete( uri, where, selectionArgs );
+		Log.v( TAG, "delete : deleted=" + deleted );
+		
+		Log.d( TAG, "delete : exit" );
+		return deleted;
+	}
+
 	/**
+	 * @param context
 	 * @param id
 	 * @return
 	 */
@@ -210,7 +229,7 @@ public class RecordingDaoHelper extends AbstractDaoHelper {
 		if( null == context ) 
 			throw new RuntimeException( "RecordingDaoHelper is not initialized" );
 		
-		int deleted = context.getContentResolver().delete( ContentUris.withAppendedId( RecordingConstants.CONTENT_URI, id ), null, null );
+		int deleted = delete( context, id );
 		Log.v( TAG, "delete : deleted=" + deleted );
 		
 		Log.d( TAG, "delete : exit" );
@@ -326,7 +345,7 @@ public class RecordingDaoHelper extends AbstractDaoHelper {
 	 * @param recording
 	 * @return
 	 */
-	public ContentValues convertRecordingToContentValues( final LocationProfile locationProfile, final Recording recording, final DateTime startTime ) {
+	public ContentValues convertRecordingToContentValues( final LocationProfile locationProfile, final DateTime lastModified, final DateTime startTime, final Recording recording ) {
 //		Log.v( TAG, "convertRecordingToContentValues : enter" );
 		
 		DateTime startTimestamp = null;
@@ -356,6 +375,7 @@ public class RecordingDaoHelper extends AbstractDaoHelper {
 		values.put( RecordingConstants.FIELD_PROFILE, null != recording.getProfile() ? recording.getProfile() : "" );
 		values.put( RecordingConstants.FIELD_START_TIME, startTime.getMillis() );
 		values.put( RecordingConstants.FIELD_MASTER_HOSTNAME, locationProfile.getHostname() );
+		values.put( RecordingConstants.FIELD_LAST_MODIFIED_DATE, lastModified.getMillis() );
 		
 //		Log.v( TAG, "convertRecordingToContentValues : exit" );
 		return values;

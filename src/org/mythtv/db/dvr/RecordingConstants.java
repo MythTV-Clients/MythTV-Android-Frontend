@@ -83,7 +83,8 @@ public class RecordingConstants  extends AbstractBaseConstants {
 
 	public static final String[] COLUMN_MAP = { _ID,
 		FIELD_STATUS, FIELD_PRIORITY, FIELD_START_TS, FIELD_END_TS, FIELD_RECORD_ID, FIELD_REC_GROUP, FIELD_PLAY_GROUP, 
-		FIELD_STORAGE_GROUP, FIELD_REC_TYPE, FIELD_DUP_IN_TYPE, FIELD_DUP_METHOD, FIELD_ENCODER_ID, FIELD_PROFILE, FIELD_PROGRAM_ID, FIELD_START_TIME
+		FIELD_STORAGE_GROUP, FIELD_REC_TYPE, FIELD_DUP_IN_TYPE, FIELD_DUP_METHOD, FIELD_ENCODER_ID, FIELD_PROFILE, FIELD_PROGRAM_ID, 
+		FIELD_START_TIME, FIELD_MASTER_HOSTNAME, FIELD_LAST_MODIFIED_DATE
 	};
 
 	static {
@@ -104,11 +105,12 @@ public class RecordingConstants  extends AbstractBaseConstants {
 		insert.append( FIELD_PROFILE ).append( "," );
 		insert.append( FIELD_PROGRAM_ID ).append( "," );
 		insert.append( FIELD_START_TIME ).append( "," );
-		insert.append( FIELD_MASTER_HOSTNAME );
+		insert.append( FIELD_MASTER_HOSTNAME ).append( "," );
+		insert.append( FIELD_LAST_MODIFIED_DATE );
 		
 		StringBuilder values = new StringBuilder();
 		values.append( " ) " );
-		values.append( "VALUES( ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? )" );
+		values.append( "VALUES( ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? )" );
 		
 		StringBuilder insertRecording = new StringBuilder();
 		insertRecording.append( "INSERT INTO " ).append( TABLE_NAME ).append( " ( " );
@@ -132,7 +134,8 @@ public class RecordingConstants  extends AbstractBaseConstants {
 		update.append( FIELD_PROFILE ).append( " = ?, " );
 		update.append( FIELD_PROGRAM_ID ).append( " = ?, " );
 		update.append( FIELD_START_TIME ).append( " = ?, " );
-		update.append( FIELD_MASTER_HOSTNAME ).append( " = ? " );
+		update.append( FIELD_MASTER_HOSTNAME ).append( " = ?, " );
+		update.append( FIELD_LAST_MODIFIED_DATE ).append( "= ?" );
 		update.append( " WHERE " );
 		update.append( _ID ).append( " = ?" );
 		

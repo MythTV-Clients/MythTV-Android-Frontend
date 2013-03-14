@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.joda.time.DateTime;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.AbstractDaoHelper;
 import org.mythtv.provider.MythtvProvider;
@@ -159,7 +160,7 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 		if( null == context ) 
 			throw new RuntimeException( "ProgramGroupDaoHelper is not initialized" );
 		
-		ContentValues values = convertProgramGroupToContentValues( locationProfile, programGroup );
+		ContentValues values = convertProgramGroupToContentValues( locationProfile, new DateTime(), programGroup );
 
 		String[] projection = new String[] { ProgramGroupConstants._ID };
 		String selection = ProgramGroupConstants.FIELD_PROGRAM_GROUP + " = ?";
@@ -231,6 +232,8 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 		if( null == context ) 
 			throw new RuntimeException( "ProgramGroupDaoHelper is not initialized" );
 		
+		DateTime lastModified = new DateTime();
+		
 		Log.v( TAG, "load : find all existing recordings" );
 		Map<String, ProgramGroup> existing = new HashMap<String, ProgramGroup>();
 		for( ProgramGroup programGroup : findAll( context, locationProfile ) ) {
@@ -275,7 +278,7 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 		for( String key : programGroups.keySet() ) {
 			ProgramGroup programGroup = programGroups.get( key );
 			
-			ContentValues programValues = convertProgramGroupToContentValues( locationProfile, programGroup );
+			ContentValues programValues = convertProgramGroupToContentValues( locationProfile, lastModified, programGroup );
 			Cursor programGroupCursor = context.getContentResolver().query( ProgramGroupConstants.CONTENT_URI, programGroupProjection, programGroupSelection, new String[] { key }, null );
 			if( programGroupCursor.moveToFirst() ) {
 
@@ -416,7 +419,7 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 
 	// internal helpers
 	
-	private ContentValues[] convertProgramGroupsToContentValuesArray( final LocationProfile locationProfile, final List<ProgramGroup> programGroups ) {
+	private ContentValues[] convertProgramGroupsToContentValuesArray( final LocationProfile locationProfile, final DateTime lastModified, final List<ProgramGroup> programGroups ) {
 //		Log.v( TAG, "convertProgramGroupsToContentValuesArray : enter" );
 		
 		if( null != programGroups && !programGroups.isEmpty() ) {
@@ -426,7 +429,7 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 
 			for( ProgramGroup programGroup : programGroups ) {
 
-				contentValues = convertProgramGroupToContentValues( locationProfile, programGroup );
+				contentValues = convertProgramGroupToContentValues( locationProfile, lastModified, programGroup );
 				contentValuesArray.add( contentValues );
 				
 			}			
@@ -443,7 +446,7 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 		return null;
 	}
 
-	private ContentValues convertProgramGroupToContentValues( final LocationProfile locationProfile, final ProgramGroup programGroup ) {
+	private ContentValues convertProgramGroupToContentValues( final LocationProfile locationProfile, final DateTime lastModified, final ProgramGroup programGroup ) {
 		
 		ContentValues values = new ContentValues();
 		values.put( ProgramGroupConstants.FIELD_PROGRAM_GROUP, null != programGroup.getTitle() ? ArticleCleaner.clean( programGroup.getTitle() ) : "" );
@@ -451,6 +454,7 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 		values.put( ProgramGroupConstants.FIELD_CATEGORY, null != programGroup.getCategory() ? programGroup.getCategory() : "" );
 		values.put( ProgramGroupConstants.FIELD_INETREF, null != programGroup.getInetref() ? programGroup.getInetref() : "" );
 		values.put( ProgramGroupConstants.FIELD_MASTER_HOSTNAME, locationProfile.getHostname() );
+		values.put( ProgramGroupConstants.FIELD_LAST_MODIFIED_DATE, lastModified.getMillis() );
 		
 		return values;
 	}
