@@ -25,6 +25,7 @@ import org.mythtv.db.channel.ChannelConstants;
 import org.mythtv.db.content.LiveStreamConstants;
 import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.db.dvr.RecordingConstants;
+import org.mythtv.db.dvr.RecordingConstants.ContentDetails;
 import org.mythtv.db.dvr.programGroup.ProgramGroupConstants;
 import org.mythtv.db.http.EtagConstants;
 import org.mythtv.db.preferences.LocationProfileConstants;
@@ -48,7 +49,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	private static final String TAG = DatabaseHelper.class.getSimpleName();
 	
 	private static final String DATABASE_NAME = "mythtvdb";
-	private static final int DATABASE_VERSION = 109;
+	private static final int DATABASE_VERSION = 110;
 
 	public DatabaseHelper( Context context ) {
 		super( context, DATABASE_NAME, null, DATABASE_VERSION );
@@ -91,8 +92,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		dropProgramGroup( db );
 		createProgramGroup( db );
 		
-		dropRecording( db );
-		createRecording( db );
+		dropRecording( db, RecordingConstants.ContentDetails.GUIDE.getTableName() );
+		createRecording( db, RecordingConstants.ContentDetails.GUIDE.getTableName() );
+		
+		dropRecording( db, RecordingConstants.ContentDetails.RECORDED.getTableName() );
+		createRecording( db, RecordingConstants.ContentDetails.RECORDED.getTableName() );
+
+		dropRecording( db, RecordingConstants.ContentDetails.UPCOMING.getTableName() );
+		createRecording( db, RecordingConstants.ContentDetails.UPCOMING.getTableName() );
 
 		dropLiveStream( db );
 		createLiveStream( db );
@@ -110,8 +117,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	public void onUpgrade( SQLiteDatabase db, int oldVersion, int newVersion ) {
 		Log.v( TAG, "onUpgrade : enter" );
 
-		if( oldVersion < 109 ) {
-			Log.v( TAG, "onUpgrade : upgrading to db version 109" );
+		if( oldVersion < 110 ) {
+			Log.v( TAG, "onUpgrade : upgrading to db version 110" );
 
 			onCreate( db );
 
@@ -596,11 +603,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		Log.v( TAG, "dropProgramGroup : exit" );
 	}
 	
-	private void createRecording( SQLiteDatabase db ) {
+	private void createRecording( SQLiteDatabase db, String tableName ) {
 		Log.v( TAG, "createRecording : enter" );
 		
 		StringBuilder sqlBuilder = new StringBuilder();
-		sqlBuilder.append( "CREATE TABLE " + RecordingConstants.TABLE_NAME + " (" );
+		sqlBuilder.append( "CREATE TABLE " + tableName + " (" );
 		sqlBuilder.append( RecordingConstants._ID ).append( " " ).append( RecordingConstants.FIELD_ID_DATA_TYPE ).append( " " ).append( RecordingConstants.FIELD_ID_PRIMARY_KEY ).append( ", " );
 		sqlBuilder.append( RecordingConstants.FIELD_STATUS ).append( " " ).append( RecordingConstants.FIELD_STATUS_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( RecordingConstants.FIELD_PRIORITY ).append( " " ).append( RecordingConstants.FIELD_PRIORITY_DATA_TYPE ).append( ", " );
@@ -630,10 +637,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		Log.v( TAG, "createRecording : exit" );
 	}
 	
-	private void dropRecording( SQLiteDatabase db ) {
+	private void dropRecording( SQLiteDatabase db, String tableName ) {
 		Log.v( TAG, "dropRecording : enter" );
 		
-		db.execSQL( "DROP TABLE IF EXISTS " + RecordingConstants.TABLE_NAME );
+		db.execSQL( "DROP TABLE IF EXISTS " + tableName );
 		
 		Log.v( TAG, "dropRecording : exit" );
 	}

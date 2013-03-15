@@ -74,7 +74,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 	 * @param sortOrder
 	 * @return
 	 */
-	protected List<Program> findAll( final Context context, final Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder ) {
+	protected List<Program> findAll( final Context context, final Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder, final String table ) {
 		Log.v( TAG, "findAll : enter" );
 		
 		if( null == context ) 
@@ -84,7 +84,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		
 		Cursor cursor = context.getContentResolver().query( uri, projection, selection, selectionArgs, sortOrder );
 		while( cursor.moveToNext() ) {
-			Program program = convertCursorToProgram( cursor );
+			Program program = convertCursorToProgram( cursor, table );
 			programs.add( program );
 		}
 		cursor.close();
@@ -106,7 +106,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 	 * @param sortOrder
 	 * @return
 	 */
-	protected Program findOne( final Context context, final Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder ) {
+	protected Program findOne( final Context context, final Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder, final String table ) {
 		Log.v( TAG, "findOne : enter" );
 		
 		if( null == context ) 
@@ -123,7 +123,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		
 		Cursor cursor = context.getContentResolver().query( uri, projection, selection, selectionArgs, sortOrder );
 		if( cursor.moveToFirst() ) {
-			program = convertCursorToProgram( cursor );
+			program = convertCursorToProgram( cursor, table );
 		}
 		cursor.close();
 		
@@ -212,32 +212,18 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 	 * @param program
 	 * @return
 	 */
-	public int delete( final Context context, final Uri uri, final LocationProfile locationProfile, Program program ) {
+	public int delete( final Context context, final Uri uri, final LocationProfile locationProfile, Program program, final String table ) {
 		Log.v( TAG, "delete : enter" );
 		
 		if( null == context ) 
 			throw new RuntimeException( "ProgramDaoHelper is not initialized" );
 		
-		// Delete any live stream details
-		LiveStreamInfo liveStreamInfo = mLiveStreamDaoHelper.findByProgram( context, locationProfile, program );
-		if( null != liveStreamInfo ) {
-			Log.v( TAG, "delete : remove live stream" );
-			
-			RemoveStreamTask removeStreamTask = new RemoveStreamTask();
-			removeStreamTask.setContext( context );
-			removeStreamTask.setLocationProfile( locationProfile );
-			removeStreamTask.execute( liveStreamInfo );
-			
-			mLiveStreamDaoHelper.delete( context, locationProfile, liveStreamInfo );
-		}
-		
-
 		if( null != program.getRecording() ) {
 			Log.v( TAG, "load : remove recording" );
 			
 			String recordingWhere = RecordingConstants.FIELD_RECORD_ID + " = ? AND " + RecordingConstants.FIELD_START_TIME + " = ? AND " + RecordingConstants.FIELD_MASTER_HOSTNAME + " = ?";
 			String[] recordingSelectionArgs = new String[] { String.valueOf( program.getRecording().getRecordId() ), String.valueOf( program.getStartTime().getMillis() ), locationProfile.getHostname() };
-			mRecordingDaoHelper.delete( context, null, recordingWhere, recordingSelectionArgs );
+			mRecordingDaoHelper.delete( context, null, recordingWhere, recordingSelectionArgs, table );
 		}
 
 		String selection = ProgramConstants.FIELD_CHANNEL_ID + " = ? AND " + ProgramConstants.FIELD_START_TIME + " = ?";
@@ -292,6 +278,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		
 		boolean inError;
 		
+		RecordingConstants.ContentDetails details = RecordingConstants.ContentDetails.getValue( table );
 		for( Program program : programs ) {
 
 			if( null == program.getStartTime() || null == program.getEndTime() ) {
@@ -342,20 +329,20 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 			
 			if( !inError && null != program.getRecording() ) {
 				
-				String[] recordingProjection = new String[] { RecordingConstants.TABLE_NAME + "_" + RecordingConstants._ID };
+				String[] recordingProjection = new String[] { details.getTableName() + "_" + RecordingConstants._ID };
 				String recordingSelection = RecordingConstants.FIELD_RECORD_ID + " = ? AND " + RecordingConstants.FIELD_START_TIME + " = ? AND " + RecordingConstants.FIELD_MASTER_HOSTNAME + " = ?";
 				String[] recordingSelectionArgs = new String[] { String.valueOf( program.getRecording().getRecordId() ), String.valueOf( program.getStartTime().getMillis() ), locationProfile.getHostname() };
 				
 				Log.v( TAG, "load : recording=" + program.getRecording().toString() );
 				
 				ContentValues recordingValues = mRecordingDaoHelper.convertRecordingToContentValues( locationProfile, lastModified, program.getStartTime(), program.getRecording() );
-				Cursor recordingCursor = context.getContentResolver().query( RecordingConstants.CONTENT_URI, recordingProjection, recordingSelection, recordingSelectionArgs, null );
+				Cursor recordingCursor = context.getContentResolver().query( details.getContentUri(), recordingProjection, recordingSelection, recordingSelectionArgs, null );
 				if( recordingCursor.moveToFirst() ) {
 					Log.v( TAG, "load : UPDATE RECORDING program=" + program.getTitle() + ", recording=" + program.getRecording().getRecordId() );
 
-					Long id = recordingCursor.getLong( recordingCursor.getColumnIndexOrThrow( RecordingConstants.TABLE_NAME + "_" + RecordingConstants._ID ) );					
+					Long id = recordingCursor.getLong( recordingCursor.getColumnIndexOrThrow( details.getTableName() + "_" + RecordingConstants._ID ) );					
 					ops.add( 
-						ContentProviderOperation.newUpdate( ContentUris.withAppendedId( RecordingConstants.CONTENT_URI, id ) )
+						ContentProviderOperation.newUpdate( ContentUris.withAppendedId( details.getContentUri(), id ) )
 						.withValues( recordingValues )
 						.withYieldAllowed( true )
 						.build()
@@ -364,7 +351,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 					Log.v( TAG, "load : INSERT RECORDING program=" + program.getTitle() + ", recording=" + program.getRecording().getRecordId() );
 
 					ops.add(  
-						ContentProviderOperation.newInsert( RecordingConstants.CONTENT_URI )
+						ContentProviderOperation.newInsert( details.getContentUri() )
 						.withValues( recordingValues )
 						.withYieldAllowed( true )
 						.build()
@@ -407,7 +394,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		Log.v( TAG, "load : remove deleted recordings" );
 		String deletedSelection = table + "." + ProgramConstants.FIELD_LAST_MODIFIED + " < ?";
 		String[] deletedSelectionArgs = new String[] { String.valueOf( lastModified.getMillis() ) };
-		List<Program> deleted = findAll( context, uri, null, deletedSelection, deletedSelectionArgs, null );
+		List<Program> deleted = findAll( context, uri, null, deletedSelection, deletedSelectionArgs, null, table );
 		for( Program program : deleted ) {
 			Log.v( TAG, "load : remove deleted recording - " + program.getTitle() + " [" + program.getSubTitle() + "]" );
 			
@@ -427,7 +414,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		}
 		
 		ops.add(  
-			ContentProviderOperation.newDelete( RecordingConstants.CONTENT_URI )
+			ContentProviderOperation.newDelete( details.getContentUri() )
 				.withSelection( RecordingConstants.FIELD_LAST_MODIFIED_DATE + " < ?", new String[] { String.valueOf( lastModified.getMillis() ) } )
 				.withYieldAllowed( true )
 				.build()
@@ -462,7 +449,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 	 * @param cursor
 	 * @return
 	 */
-	public Program convertCursorToProgram( Cursor cursor ) {
+	public Program convertCursorToProgram( Cursor cursor, final String table ) {
 //		Log.v( TAG, "convertCursorToProgram : enter" );
 
 //		Long id = null;
@@ -580,7 +567,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		}
 		
 		if( cursor.getColumnIndex( ProgramConstants.FIELD_RECORD_ID ) != -1 ) {
-			recording = mRecordingDaoHelper.convertCursorToRecording( cursor );
+			recording = mRecordingDaoHelper.convertCursorToRecording( cursor, table );
 		}
 		
 		if( cursor.getColumnIndex( LiveStreamConstants.TABLE_NAME + "_" + LiveStreamConstants.FIELD_ID ) != -1 ) {

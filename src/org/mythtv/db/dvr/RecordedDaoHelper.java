@@ -79,7 +79,7 @@ public class RecordedDaoHelper extends ProgramDaoHelper {
 		String selection = appendLocationHostname( context, locationProfile, "", ProgramConstants.TABLE_NAME_RECORDED );
 		Log.d( TAG, "findAll : selection=" + selection );
 		
-		List<Program> programs = findAll( context, ProgramConstants.CONTENT_URI_RECORDED, null, selection, null, null );
+		List<Program> programs = findAll( context, ProgramConstants.CONTENT_URI_RECORDED, null, selection, null, null, ProgramConstants.TABLE_NAME_RECORDED );
 		
 		Log.d( TAG, "findAll : exit" );
 		return programs;
@@ -98,7 +98,7 @@ public class RecordedDaoHelper extends ProgramDaoHelper {
 		
 		selection = appendLocationHostname( context, locationProfile, selection, ProgramConstants.TABLE_NAME_RECORDED );
 		
-		List<Program> programs = findAll( context, ProgramConstants.CONTENT_URI_RECORDED, null, selection, selectionArgs, null );
+		List<Program> programs = findAll( context, ProgramConstants.CONTENT_URI_RECORDED, null, selection, selectionArgs, null, ProgramConstants.TABLE_NAME_RECORDED );
 		if( null != programs && !programs.isEmpty() ) {
 			for( Program program : programs ) {
 				Log.v( TAG, "findAllByTitle : channelId=" + program.getChannelInfo().getChannelId() + ", startTime=" + program.getStartTime().getMillis() + ", program=" + program.toString() );
@@ -117,7 +117,7 @@ public class RecordedDaoHelper extends ProgramDaoHelper {
 		Log.d( TAG, "findOne : enter" );
 		Log.d( TAG, "findOne : id=" + id );
 		
-		Program program = findOne( context, ContentUris.withAppendedId( ProgramConstants.CONTENT_URI_RECORDED, id ), null, null, null, null );
+		Program program = findOne( context, ContentUris.withAppendedId( ProgramConstants.CONTENT_URI_RECORDED, id ), null, null, null, null, ProgramConstants.TABLE_NAME_RECORDED );
 		if( null != program ) {
 			Log.d( TAG, "findOne : program=" + program.toString() );
 		}
@@ -138,7 +138,7 @@ public class RecordedDaoHelper extends ProgramDaoHelper {
 
 		selection = appendLocationHostname( context, locationProfile, selection, ProgramConstants.TABLE_NAME_RECORDED );
 		
-		Program program = findOne( context, ProgramConstants.CONTENT_URI_RECORDED, null, selection, selectionArgs, null );
+		Program program = findOne( context, ProgramConstants.CONTENT_URI_RECORDED, null, selection, selectionArgs, null, ProgramConstants.TABLE_NAME_RECORDED );
 		if( null != program ) {
 			Log.v( TAG, "findOne : program=" + program.toString() );
 		} else {
@@ -182,7 +182,7 @@ public class RecordedDaoHelper extends ProgramDaoHelper {
 	public int delete( final Context context, final LocationProfile locationProfile, Program program ) {
 		Log.d( TAG, "delete : enter" );
 
-		int deleted = delete( context, ProgramConstants.CONTENT_URI_RECORDED, locationProfile, program );
+		int deleted = delete( context, ProgramConstants.CONTENT_URI_RECORDED, locationProfile, program, ProgramConstants.TABLE_NAME_RECORDED );
 		
 		Log.d( TAG, "delete : exit" );
 		return deleted;

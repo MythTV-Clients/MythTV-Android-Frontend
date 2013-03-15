@@ -81,17 +81,19 @@ public class RecordingDaoHelper extends AbstractDaoHelper {
 	 * @param sortOrder
 	 * @return
 	 */
-	public List<Recording> findAll( final Context context, String[] projection, String selection, String[] selectionArgs, String sortOrder ) {
+	public List<Recording> findAll( final Context context, String[] projection, String selection, String[] selectionArgs, String sortOrder, final String table ) {
 		Log.d( TAG, "findAll : enter" );
 		
 		if( null == context ) 
 			throw new RuntimeException( "RecordingDaoHelper is not initialized" );
-		
+
+		RecordingConstants.ContentDetails details = RecordingConstants.ContentDetails.getValue( table );
+
 		List<Recording> recordings = new ArrayList<Recording>();
 		
-		Cursor cursor = context.getContentResolver().query( RecordingConstants.CONTENT_URI, projection, selection, selectionArgs, sortOrder );
+		Cursor cursor = context.getContentResolver().query( details.getContentUri(), projection, selection, selectionArgs, sortOrder );
 		while( cursor.moveToNext() ) {
-			Recording recording = convertCursorToRecording( cursor );
+			Recording recording = convertCursorToRecording( cursor, table );
 			recordings.add( recording );
 		}
 		cursor.close();
@@ -103,10 +105,10 @@ public class RecordingDaoHelper extends AbstractDaoHelper {
 	/**
 	 * @return
 	 */
-	public List<Recording> finalAll( final Context context ) {
+	public List<Recording> finalAll( final Context context, final String table ) {
 		Log.d( TAG, "findAll : enter" );
 		
-		List<Recording> recordings = findAll( context, null, null, null, null );
+		List<Recording> recordings = findAll( context, null, null, null, null, table );
 		
 		Log.d( TAG, "findAll : exit" );
 		return recordings;
@@ -120,22 +122,24 @@ public class RecordingDaoHelper extends AbstractDaoHelper {
 	 * @param sortOrder
 	 * @return
 	 */
-	public Recording findOne( final Context context, final Long id, String[] projection, String selection, String[] selectionArgs, String sortOrder ) {
+	public Recording findOne( final Context context, final Long id, String[] projection, String selection, String[] selectionArgs, String sortOrder, final String table ) {
 		Log.d( TAG, "findOne : enter" );
 		
 		if( null == context ) 
 			throw new RuntimeException( "RecordingDaoHelper is not initialized" );
 		
+		RecordingConstants.ContentDetails details = RecordingConstants.ContentDetails.getValue( table );
+
 		Recording recording = null;
 		
-		Uri uri = RecordingConstants.CONTENT_URI;
+		Uri uri = details.getContentUri();
 		if( null != id && id > 0 ) {
-			uri = ContentUris.withAppendedId( RecordingConstants.CONTENT_URI, id );
+			uri = ContentUris.withAppendedId( uri, id );
 		}
 		
 		Cursor cursor = context.getContentResolver().query( uri, projection, selection, selectionArgs, sortOrder );
 		if( cursor.moveToFirst() ) {
-			recording = convertCursorToRecording( cursor );
+			recording = convertCursorToRecording( cursor, table );
 		}
 		cursor.close();
 		
@@ -147,10 +151,10 @@ public class RecordingDaoHelper extends AbstractDaoHelper {
 	 * @param id
 	 * @return
 	 */
-	public Recording findOne( final Context context, final Long id ) {
+	public Recording findOne( final Context context, final Long id, final String table ) {
 		Log.d( TAG, "findOne : enter" );
 		
-		Recording recording = findOne( context, id, null, null, null, null );
+		Recording recording = findOne( context, id, null, null, null, null, table );
 		
 		Log.d( TAG, "findOne : exit" );
 		return recording;
@@ -187,28 +191,32 @@ public class RecordingDaoHelper extends AbstractDaoHelper {
 	/**
 	 * @return
 	 */
-	public int deleteAll( Context context ) {
+	public int deleteAll( final Context context, final String table ) {
 		Log.d( TAG, "deleteAll : enter" );
 		
 		if( null == context ) 
 			throw new RuntimeException( "RecordingDaoHelper is not initialized" );
 		
-		int deleted = context.getContentResolver().delete( RecordingConstants.CONTENT_URI, null, null );
+		RecordingConstants.ContentDetails details = RecordingConstants.ContentDetails.getValue( table );
+
+		int deleted = context.getContentResolver().delete( details.getContentUri(), null, null );
 		Log.v( TAG, "deleteAll : deleted=" + deleted );
 		
 		Log.d( TAG, "deleteAll : exit" );
 		return deleted;
 	}
 
-	public int delete( final Context context, final Long id, final String where, final String[] selectionArgs ) {
+	public int delete( final Context context, final Long id, final String where, final String[] selectionArgs, final String table ) {
 		Log.d( TAG, "delete : enter" );
 		
 		if( null == context ) 
 			throw new RuntimeException( "RecordingDaoHelper is not initialized" );
 		
-		Uri uri = RecordingConstants.CONTENT_URI;
+		RecordingConstants.ContentDetails details = RecordingConstants.ContentDetails.getValue( table );
+
+		Uri uri = details.getContentUri();
 		if( null != id && id > 0 ) {
-			uri = ContentUris.withAppendedId( RecordingConstants.CONTENT_URI, id );
+			uri = ContentUris.withAppendedId( uri, id );
 		}
 		
 		int deleted = context.getContentResolver().delete( uri, where, selectionArgs );
@@ -223,13 +231,13 @@ public class RecordingDaoHelper extends AbstractDaoHelper {
 	 * @param id
 	 * @return
 	 */
-	public int delete( final Context context, final Long id ) {
+	public int delete( final Context context, final Long id, final String table ) {
 		Log.d( TAG, "delete : enter" );
 		
 		if( null == context ) 
 			throw new RuntimeException( "RecordingDaoHelper is not initialized" );
 		
-		int deleted = delete( context, id );
+		int deleted = delete( context, id, null, null, table );
 		Log.v( TAG, "delete : deleted=" + deleted );
 		
 		Log.d( TAG, "delete : exit" );
@@ -262,63 +270,65 @@ public class RecordingDaoHelper extends AbstractDaoHelper {
 	 * @param cursor
 	 * @return
 	 */
-	public Recording convertCursorToRecording( final Cursor cursor ) {
+	public Recording convertCursorToRecording( final Cursor cursor, final String table ) {
 //		Log.v( TAG, "convertCursorToRecording : enter" );
+
+		RecordingConstants.ContentDetails details = RecordingConstants.ContentDetails.getValue( table );
 
 		int recordId = -1, status = -1, priority = -1, recordingType = -1, duplicateInType = -1, duplicateMethod = -1, encoderId = -1;
 		String recordingGroup = "", playGroup = "", storageGroup = "", profile = "";
 		DateTime startTimestamp = null, endTimestamp = null;
 		
-		if( cursor.getColumnIndex( RecordingConstants.TABLE_NAME + "_" + RecordingConstants.FIELD_STATUS ) != -1 ) {
-			status = cursor.getInt( cursor.getColumnIndex( RecordingConstants.TABLE_NAME + "_" + RecordingConstants.FIELD_STATUS ) );
+		if( cursor.getColumnIndex( details.getTableName() + "_" + RecordingConstants.FIELD_STATUS ) != -1 ) {
+			status = cursor.getInt( cursor.getColumnIndex( details.getTableName() + "_" + RecordingConstants.FIELD_STATUS ) );
 		}
 		
-		if( cursor.getColumnIndex( RecordingConstants.TABLE_NAME + "_" + RecordingConstants.FIELD_PRIORITY ) != -1 ) {
-			priority = cursor.getInt( cursor.getColumnIndex( RecordingConstants.TABLE_NAME + "_" + RecordingConstants.FIELD_PRIORITY ) );
+		if( cursor.getColumnIndex( details.getTableName() + "_" + RecordingConstants.FIELD_PRIORITY ) != -1 ) {
+			priority = cursor.getInt( cursor.getColumnIndex( details.getTableName() + "_" + RecordingConstants.FIELD_PRIORITY ) );
 		}
 		
-		if( cursor.getColumnIndex( RecordingConstants.TABLE_NAME + "_" + RecordingConstants.FIELD_START_TS ) != -1 ) {
-			startTimestamp = new DateTime( cursor.getLong( cursor.getColumnIndex( RecordingConstants.TABLE_NAME + "_" + RecordingConstants.FIELD_START_TS ) ) );
+		if( cursor.getColumnIndex( details.getTableName() + "_" + RecordingConstants.FIELD_START_TS ) != -1 ) {
+			startTimestamp = new DateTime( cursor.getLong( cursor.getColumnIndex( details.getTableName() + "_" + RecordingConstants.FIELD_START_TS ) ) );
 		}
 		
-		if( cursor.getColumnIndex( RecordingConstants.TABLE_NAME + "_" + RecordingConstants.FIELD_END_TS ) != -1 ) {
-			endTimestamp = new DateTime( cursor.getLong( cursor.getColumnIndex( RecordingConstants.TABLE_NAME + "_" + RecordingConstants.FIELD_END_TS ) ) );
+		if( cursor.getColumnIndex( details.getTableName() + "_" + RecordingConstants.FIELD_END_TS ) != -1 ) {
+			endTimestamp = new DateTime( cursor.getLong( cursor.getColumnIndex( details.getTableName() + "_" + RecordingConstants.FIELD_END_TS ) ) );
 		}
 		
-		if( cursor.getColumnIndex( RecordingConstants.TABLE_NAME + "_" + RecordingConstants.FIELD_RECORD_ID ) != -1 ) {
-			recordId = cursor.getInt( cursor.getColumnIndex( RecordingConstants.TABLE_NAME + "_" + RecordingConstants.FIELD_RECORD_ID ) );
+		if( cursor.getColumnIndex( details.getTableName() + "_" + RecordingConstants.FIELD_RECORD_ID ) != -1 ) {
+			recordId = cursor.getInt( cursor.getColumnIndex( details.getTableName() + "_" + RecordingConstants.FIELD_RECORD_ID ) );
 		}
 		
-		if( cursor.getColumnIndex( RecordingConstants.TABLE_NAME + "_" + RecordingConstants.FIELD_REC_GROUP ) != -1 ) {
-			recordingGroup = cursor.getString( cursor.getColumnIndex( RecordingConstants.TABLE_NAME + "_" + RecordingConstants.FIELD_REC_GROUP ) );
+		if( cursor.getColumnIndex( details.getTableName() + "_" + RecordingConstants.FIELD_REC_GROUP ) != -1 ) {
+			recordingGroup = cursor.getString( cursor.getColumnIndex( details.getTableName() + "_" + RecordingConstants.FIELD_REC_GROUP ) );
 		}
 		
-		if( cursor.getColumnIndex( RecordingConstants.TABLE_NAME + "_" + RecordingConstants.FIELD_PLAY_GROUP ) != -1 ) {
-			playGroup = cursor.getString( cursor.getColumnIndex( RecordingConstants.TABLE_NAME + "_" + RecordingConstants.FIELD_PLAY_GROUP ) );
+		if( cursor.getColumnIndex( details.getTableName() + "_" + RecordingConstants.FIELD_PLAY_GROUP ) != -1 ) {
+			playGroup = cursor.getString( cursor.getColumnIndex( details.getTableName() + "_" + RecordingConstants.FIELD_PLAY_GROUP ) );
 		}
 		
-		if( cursor.getColumnIndex( RecordingConstants.TABLE_NAME + "_" + RecordingConstants.FIELD_STORAGE_GROUP ) != -1 ) {
-			storageGroup = cursor.getString( cursor.getColumnIndex( RecordingConstants.TABLE_NAME + "_" + RecordingConstants.FIELD_STORAGE_GROUP ) );
+		if( cursor.getColumnIndex( details.getTableName() + "_" + RecordingConstants.FIELD_STORAGE_GROUP ) != -1 ) {
+			storageGroup = cursor.getString( cursor.getColumnIndex( details.getTableName() + "_" + RecordingConstants.FIELD_STORAGE_GROUP ) );
 		}
 		
-		if( cursor.getColumnIndex( RecordingConstants.TABLE_NAME + "_" + RecordingConstants.FIELD_REC_TYPE ) != -1 ) {
-			recordingType = cursor.getInt( cursor.getColumnIndex( RecordingConstants.TABLE_NAME + "_" + RecordingConstants.FIELD_REC_TYPE ) );
+		if( cursor.getColumnIndex( details.getTableName() + "_" + RecordingConstants.FIELD_REC_TYPE ) != -1 ) {
+			recordingType = cursor.getInt( cursor.getColumnIndex( details.getTableName() + "_" + RecordingConstants.FIELD_REC_TYPE ) );
 		}
 		
-		if( cursor.getColumnIndex( RecordingConstants.TABLE_NAME + "_" + RecordingConstants.FIELD_DUP_IN_TYPE ) != -1 ) {
-			duplicateInType = cursor.getInt( cursor.getColumnIndex( RecordingConstants.TABLE_NAME + "_" + RecordingConstants.FIELD_DUP_IN_TYPE ) );
+		if( cursor.getColumnIndex( details.getTableName() + "_" + RecordingConstants.FIELD_DUP_IN_TYPE ) != -1 ) {
+			duplicateInType = cursor.getInt( cursor.getColumnIndex( details.getTableName() + "_" + RecordingConstants.FIELD_DUP_IN_TYPE ) );
 		}
 		
-		if( cursor.getColumnIndex( RecordingConstants.TABLE_NAME + "_" + RecordingConstants.FIELD_DUP_METHOD ) != -1 ) {
-			duplicateMethod = cursor.getInt( cursor.getColumnIndex( RecordingConstants.TABLE_NAME + "_" + RecordingConstants.FIELD_DUP_METHOD ) );
+		if( cursor.getColumnIndex( details.getTableName() + "_" + RecordingConstants.FIELD_DUP_METHOD ) != -1 ) {
+			duplicateMethod = cursor.getInt( cursor.getColumnIndex( details.getTableName() + "_" + RecordingConstants.FIELD_DUP_METHOD ) );
 		}
 		
-		if( cursor.getColumnIndex( RecordingConstants.TABLE_NAME + "_" + RecordingConstants.FIELD_ENCODER_ID ) != -1 ) {
-			encoderId = cursor.getInt( cursor.getColumnIndex( RecordingConstants.TABLE_NAME + "_" + RecordingConstants.FIELD_ENCODER_ID ) );
+		if( cursor.getColumnIndex( details.getTableName() + "_" + RecordingConstants.FIELD_ENCODER_ID ) != -1 ) {
+			encoderId = cursor.getInt( cursor.getColumnIndex( details.getTableName() + "_" + RecordingConstants.FIELD_ENCODER_ID ) );
 		}
 		
-		if( cursor.getColumnIndex( RecordingConstants.TABLE_NAME + "_" + RecordingConstants.FIELD_PROFILE ) != -1 ) {
-			profile = cursor.getString( cursor.getColumnIndex( RecordingConstants.TABLE_NAME + "_" + RecordingConstants.FIELD_PROFILE ) );
+		if( cursor.getColumnIndex( details.getTableName() + "_" + RecordingConstants.FIELD_PROFILE ) != -1 ) {
+			profile = cursor.getString( cursor.getColumnIndex( details.getTableName() + "_" + RecordingConstants.FIELD_PROFILE ) );
 		}
 		
 

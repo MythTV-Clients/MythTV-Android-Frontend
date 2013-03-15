@@ -82,7 +82,7 @@ public class ProgramGuideDaoHelper extends ProgramDaoHelper {
 		
 		String selection = appendLocationHostname( context, locationProfile, "", ProgramGroupConstants.TABLE_NAME );
 
-		List<Program> programs = findAll( context, ProgramConstants.CONTENT_URI_GUIDE, null, selection, null, null );
+		List<Program> programs = findAll( context, ProgramConstants.CONTENT_URI_GUIDE, null, selection, null, null, ProgramConstants.TABLE_NAME_GUIDE );
 		
 		Log.d( TAG, "findAll : exit" );
 		return programs;
@@ -100,7 +100,7 @@ public class ProgramGuideDaoHelper extends ProgramDaoHelper {
 
 		selection = appendLocationHostname( context, locationProfile, selection, ProgramGroupConstants.TABLE_NAME );
 		
-		List<Program> programs = findAll( context, ProgramConstants.CONTENT_URI_GUIDE, null, selection, selectionArgs, null );
+		List<Program> programs = findAll( context, ProgramConstants.CONTENT_URI_GUIDE, null, selection, selectionArgs, null, ProgramConstants.TABLE_NAME_GUIDE );
 		if( null != programs && !programs.isEmpty() ) {
 			for( Program program : programs ) {
 				Log.v( TAG, "findAllByTitle : channelId=" + program.getChannelInfo().getChannelId() + ", startTime=" + program.getStartTime().getMillis() + ", program=" + program.toString() );
@@ -119,7 +119,7 @@ public class ProgramGuideDaoHelper extends ProgramDaoHelper {
 		Log.d( TAG, "findOne : enter" );
 		Log.d( TAG, "findOne : id=" + id );
 		
-		Program program = findOne( context, ContentUris.withAppendedId( ProgramConstants.CONTENT_URI_GUIDE, id ), null, null, null, null );
+		Program program = findOne( context, ContentUris.withAppendedId( ProgramConstants.CONTENT_URI_GUIDE, id ), null, null, null, null, ProgramConstants.TABLE_NAME_GUIDE );
 		if( null != program ) {
 			Log.d( TAG, "findOne : program=" + program.toString() );
 		}
@@ -140,7 +140,7 @@ public class ProgramGuideDaoHelper extends ProgramDaoHelper {
 
 		selection = appendLocationHostname( context, locationProfile, selection, ProgramGroupConstants.TABLE_NAME );
 		
-		Program program = findOne( context, ProgramConstants.CONTENT_URI_GUIDE, null, selection, selectionArgs, null );
+		Program program = findOne( context, ProgramConstants.CONTENT_URI_GUIDE, null, selection, selectionArgs, null, ProgramConstants.TABLE_NAME_GUIDE );
 		if( null != program ) {
 			Log.v( TAG, "findOne : program=" + program.toString() );
 		} else {
@@ -184,7 +184,7 @@ public class ProgramGuideDaoHelper extends ProgramDaoHelper {
 	public int delete( final Context context, final LocationProfile locationProfile, Program program ) {
 		Log.d( TAG, "delete : enter" );
 
-		int deleted = delete( context, ProgramConstants.CONTENT_URI_GUIDE, locationProfile, program );
+		int deleted = delete( context, ProgramConstants.CONTENT_URI_GUIDE, locationProfile, program, ProgramConstants.TABLE_NAME_GUIDE );
 		
 		Log.d( TAG, "delete : exit" );
 		return deleted;

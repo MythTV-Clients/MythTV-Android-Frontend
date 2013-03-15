@@ -27,6 +27,7 @@ import org.mythtv.services.api.dvr.Program;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.OperationApplicationException;
+import android.database.Cursor;
 import android.os.RemoteException;
 import android.util.Log;
 
@@ -75,7 +76,7 @@ public class UpcomingDaoHelper extends ProgramDaoHelper {
 		
 		String selection = appendLocationHostname( context, locationProfile, "", ProgramConstants.TABLE_NAME_UPCOMING );
 
-		List<Program> programs = findAll( context, ProgramConstants.CONTENT_URI_UPCOMING, null, selection, null, null );
+		List<Program> programs = findAll( context, ProgramConstants.CONTENT_URI_UPCOMING, null, selection, null, null, ProgramConstants.TABLE_NAME_UPCOMING );
 		
 		Log.d( TAG, "findAll : exit" );
 		return programs;
@@ -93,7 +94,7 @@ public class UpcomingDaoHelper extends ProgramDaoHelper {
 
 		selection = appendLocationHostname( context, locationProfile, selection, ProgramConstants.TABLE_NAME_UPCOMING );
 		
-		List<Program> programs = findAll( context, ProgramConstants.CONTENT_URI_UPCOMING, null, selection, selectionArgs, null );
+		List<Program> programs = findAll( context, ProgramConstants.CONTENT_URI_UPCOMING, null, selection, selectionArgs, null, ProgramConstants.TABLE_NAME_UPCOMING );
 		if( null != programs && !programs.isEmpty() ) {
 			for( Program program : programs ) {
 				Log.v( TAG, "findAllByTitle : channelId=" + program.getChannelInfo().getChannelId() + ", startTime=" + program.getStartTime().getMillis() + ", program=" + program.toString() );
@@ -112,7 +113,7 @@ public class UpcomingDaoHelper extends ProgramDaoHelper {
 		Log.d( TAG, "findOne : enter" );
 		Log.d( TAG, "findOne : id=" + id );
 		
-		Program program = findOne( context, ContentUris.withAppendedId( ProgramConstants.CONTENT_URI_UPCOMING, id ), null, null, null, null );
+		Program program = findOne( context, ContentUris.withAppendedId( ProgramConstants.CONTENT_URI_UPCOMING, id ), null, null, null, null, ProgramConstants.TABLE_NAME_UPCOMING );
 		if( null != program ) {
 			Log.d( TAG, "findOne : program=" + program.toString() );
 		}
@@ -133,7 +134,7 @@ public class UpcomingDaoHelper extends ProgramDaoHelper {
 
 		selection = appendLocationHostname( context, locationProfile, selection, ProgramConstants.TABLE_NAME_UPCOMING );
 		
-		Program program = findOne( context, ProgramConstants.CONTENT_URI_UPCOMING, null, selection, selectionArgs, null );
+		Program program = findOne( context, ProgramConstants.CONTENT_URI_UPCOMING, null, selection, selectionArgs, null, ProgramConstants.TABLE_NAME_UPCOMING );
 		if( null != program ) {
 			Log.v( TAG, "findOne : program=" + program.toString() );
 		} else {
@@ -177,7 +178,7 @@ public class UpcomingDaoHelper extends ProgramDaoHelper {
 	public int delete( final Context context, final LocationProfile locationProfile, Program program ) {
 		Log.d( TAG, "delete : enter" );
 
-		int deleted = delete( context, ProgramConstants.CONTENT_URI_UPCOMING, locationProfile, program );
+		int deleted = delete( context, ProgramConstants.CONTENT_URI_UPCOMING, locationProfile, program, ProgramConstants.TABLE_NAME_UPCOMING );
 		
 		Log.d( TAG, "delete : exit" );
 		return deleted;
@@ -195,6 +196,14 @@ public class UpcomingDaoHelper extends ProgramDaoHelper {
 		
 		Log.d( TAG, "load : exit" );
 		return loaded;
+	}
+
+	/**
+	 * @param cursor
+	 * @return
+	 */
+	public Program convertCursorToProgram( Cursor cursor ) {
+		return convertCursorToProgram( cursor, ProgramConstants.TABLE_NAME_UPCOMING );
 	}
 
 }

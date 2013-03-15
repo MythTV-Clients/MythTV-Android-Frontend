@@ -18,6 +18,9 @@
  */
 package org.mythtv.db.dvr;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.mythtv.db.AbstractBaseConstants;
 import org.mythtv.provider.MythtvProvider;
 
@@ -29,11 +32,51 @@ import android.net.Uri;
  */
 public class RecordingConstants  extends AbstractBaseConstants {
 
-	public static final String TABLE_NAME = "recording";
+	public static enum ContentDetails{
+		GUIDE( "guide" ),
+		RECORDED( "recorded" ),
+		UPCOMING( "upcoming" );
+		
+		private String parent;
+		
+		ContentDetails( String parent ) {
+			this.parent = parent;
+		}
+		
+		public String getTableName() {
+			return "recording_" + parent;
+		}
+		
+		public Uri getContentUri() {
+			return Uri.parse( "content://" + MythtvProvider.AUTHORITY + "/" + getTableName() );
+		}
+		
+		private static Map<String, ContentDetails> valueMap;
+		public static ContentDetails getValue( String parent ) {
+			
+			if( null == valueMap ) {
+				
+				valueMap = new HashMap<String, ContentDetails>();
+				
+				for( ContentDetails details : values() ) {
+					valueMap.put( details.parent, details );
+				}
+			}
+			
+			return valueMap.get( parent );
+		}
+		
+	};
 	
-	public static final Uri CONTENT_URI = Uri.parse( "content://" + MythtvProvider.AUTHORITY + "/" + TABLE_NAME );
+//	public static final String TABLE_NAME_RECORDING_GUIDE = "recording_guide";
+//	public static final String TABLE_NAME_RECORDING_RECORDED = "recording_recorded";
+//	public static final String TABLE_NAME_RECORDING_UPCOMING = "recording_upcoming";
+//
+//	public static final Uri CONTENT_URI_RECORDING_GUIDE = Uri.parse( "content://" + MythtvProvider.AUTHORITY + "/" + TABLE_NAME_RECORDING_GUIDE );
+//	public static final Uri CONTENT_URI_RECORDING_RECORDED = Uri.parse( "content://" + MythtvProvider.AUTHORITY + "/" + TABLE_NAME_RECORDING_RECORDED );
+//	public static final Uri CONTENT_URI_RECORDING_UPCOMING = Uri.parse( "content://" + MythtvProvider.AUTHORITY + "/" + TABLE_NAME_RECORDING_UPCOMING );
 
-	public static final String INSERT_ROW, UPDATE_ROW;
+	public static final String INSERT_RECORDING_GUIDE_ROW, UPDATE_RECORDING_GUIDE_ROW, INSERT_RECORDING_RECORDED_ROW, UPDATE_RECORDING_RECORDED_ROW, INSERT_RECORDING_UPCOMING_ROW, UPDATE_RECORDING_UPCOMING_ROW;
 
 	// db fields
 	public static final String FIELD_STATUS = "STATUS";
@@ -112,11 +155,23 @@ public class RecordingConstants  extends AbstractBaseConstants {
 		values.append( " ) " );
 		values.append( "VALUES( ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? )" );
 		
-		StringBuilder insertRecording = new StringBuilder();
-		insertRecording.append( "INSERT INTO " ).append( TABLE_NAME ).append( " ( " );
-		insertRecording.append( insert.toString() );
-		insertRecording.append( values.toString() );
-		INSERT_ROW = insertRecording.toString();
+		StringBuilder insertRecordingGuide = new StringBuilder();
+		insertRecordingGuide.append( "INSERT INTO " ).append( ContentDetails.GUIDE.getTableName() ).append( " ( " );
+		insertRecordingGuide.append( insert.toString() );
+		insertRecordingGuide.append( values.toString() );
+		INSERT_RECORDING_GUIDE_ROW = insertRecordingGuide.toString();
+		
+		StringBuilder insertRecordingRecorded = new StringBuilder();
+		insertRecordingRecorded.append( "INSERT INTO " ).append( ContentDetails.RECORDED.getTableName() ).append( " ( " );
+		insertRecordingRecorded.append( insert.toString() );
+		insertRecordingRecorded.append( values.toString() );
+		INSERT_RECORDING_RECORDED_ROW = insertRecordingRecorded.toString();
+		
+		StringBuilder insertRecordingUpcoming = new StringBuilder();
+		insertRecordingUpcoming.append( "INSERT INTO " ).append( ContentDetails.UPCOMING.getTableName() ).append( " ( " );
+		insertRecordingUpcoming.append( insert.toString() );
+		insertRecordingUpcoming.append( values.toString() );
+		INSERT_RECORDING_UPCOMING_ROW = insertRecordingUpcoming.toString();
 		
 		StringBuilder update = new StringBuilder();
 		update.append( FIELD_STATUS ).append( " = ?, " );
@@ -139,11 +194,23 @@ public class RecordingConstants  extends AbstractBaseConstants {
 		update.append( " WHERE " );
 		update.append( _ID ).append( " = ?" );
 		
-		StringBuilder updateRecording = new StringBuilder();
-		updateRecording.append( "UPDATE " ).append( TABLE_NAME );
-		updateRecording.append( " SET " );
-		updateRecording.append( update.toString() );
-		UPDATE_ROW = updateRecording.toString();
+		StringBuilder updateRecordingGuide = new StringBuilder();
+		updateRecordingGuide.append( "UPDATE " ).append( ContentDetails.GUIDE.getTableName() );
+		updateRecordingGuide.append( " SET " );
+		updateRecordingGuide.append( update.toString() );
+		UPDATE_RECORDING_GUIDE_ROW = updateRecordingGuide.toString();
+		
+		StringBuilder updateRecordingRecorded = new StringBuilder();
+		updateRecordingRecorded.append( "UPDATE " ).append( ContentDetails.RECORDED.getTableName() );
+		updateRecordingRecorded.append( " SET " );
+		updateRecordingRecorded.append( update.toString() );
+		UPDATE_RECORDING_RECORDED_ROW = updateRecordingRecorded.toString();
+		
+		StringBuilder updateRecordingUpcoming = new StringBuilder();
+		updateRecordingUpcoming.append( "UPDATE " ).append( ContentDetails.UPCOMING.getTableName() );
+		updateRecordingUpcoming.append( " SET " );
+		updateRecordingUpcoming.append( update.toString() );
+		UPDATE_RECORDING_UPCOMING_ROW = updateRecordingUpcoming.toString();
 		
 	}
 
