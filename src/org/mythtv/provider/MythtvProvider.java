@@ -27,6 +27,7 @@ import org.mythtv.db.channel.ChannelConstants;
 import org.mythtv.db.content.LiveStreamConstants;
 import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.db.dvr.RecordingConstants;
+import org.mythtv.db.dvr.RecordingConstants.ContentDetails;
 import org.mythtv.db.dvr.programGroup.ProgramGroupConstants;
 import org.mythtv.db.http.EtagConstants;
 import org.mythtv.db.preferences.LocationProfileConstants;
@@ -64,58 +65,69 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 	private static final String RECORDED_CONTENT_TYPE = "vnd.mythtv.cursor.dir/org.mythtv.recorded";
 	private static final String RECORDED_CONTENT_ITEM_TYPE = "vnd.mythtv.cursor.item/org.mythtv.recorded";
 	private static final int RECORDED 					= 100;
-	private static final int RECORDED_ID 				= 101;
+	private static final int RECORDED_ID 					= 101;
 	
 	private static final String UPCOMING_CONTENT_TYPE = "vnd.mythtv.cursor.dir/org.mythtv.upcoming";
 	private static final String UPCOMING_CONTENT_ITEM_TYPE = "vnd.mythtv.cursor.item/org.mythtv.upcoming";
 	private static final int UPCOMING 					= 110;
-	private static final int UPCOMING_ID 				= 111;
+	private static final int UPCOMING_ID 					= 111;
 
 	private static final String GUIDE_CONTENT_TYPE = "vnd.mythtv.cursor.dir/org.mythtv.guide";
 	private static final String GUIDE_CONTENT_ITEM_TYPE = "vnd.mythtv.cursor.item/org.mythtv.guide";
-	private static final int GUIDE 					= 120;
-	private static final int GUIDE_ID 				= 121;
+	private static final int GUIDE 						= 120;
+	private static final int GUIDE_ID 					= 121;
 
 	private static final String PROGRAM_GROUP_CONTENT_TYPE = "vnd.mythtv.cursor.dir/org.mythtv.programGroup";
 	private static final String PROGRAM_GROUP_CONTENT_ITEM_TYPE = "vnd.mythtv.cursor.item/org.mythtv.programGroup";
 	private static final int PROGRAM_GROUP 				= 130;
-	private static final int PROGRAM_GROUP_ID			= 131;
+	private static final int PROGRAM_GROUP_ID				= 131;
 
-	private static final String RECORDING_CONTENT_TYPE = "vnd.mythtv.cursor.dir/org.mythtv.recording";
-	private static final String RECORDING_CONTENT_ITEM_TYPE = "vnd.mythtv.cursor.item/org.mythtv.recording";
-	private static final int RECORDING 					= 140;
-	private static final int RECORDING_ID				= 141;
+	private static final String RECORDING_GUIDE_CONTENT_TYPE = "vnd.mythtv.cursor.dir/org.mythtv.recordingGuide";
+	private static final String RECORDING_GUIDE_CONTENT_ITEM_TYPE = "vnd.mythtv.cursor.item/org.mythtv.recordingGuide";
+	private static final int RECORDING_GUIDE 				= 140;
+	private static final int RECORDING_GUIDE_ID			= 141;
+
+	private static final String RECORDING_RECORDED_CONTENT_TYPE = "vnd.mythtv.cursor.dir/org.mythtv.recordingRecorded";
+	private static final String RECORDING_RECORDED_CONTENT_ITEM_TYPE = "vnd.mythtv.cursor.item/org.mythtv.recordingRecorded";
+	private static final int RECORDING_RECORDED			= 150;
+	private static final int RECORDING_RECORDED_ID		= 151;
+
+	private static final String RECORDING_UPCOMING_CONTENT_TYPE = "vnd.mythtv.cursor.dir/org.mythtv.recordingUpcoming";
+	private static final String RECORDING_UPCOMING_CONTENT_ITEM_TYPE = "vnd.mythtv.cursor.item/org.mythtv.recordingUpcoming";
+	private static final int RECORDING_UPCOMING			= 160;
+	private static final int RECORDING_UPCOMING_ID		= 161;
+
 
 	private static final String LIVE_STREAM_CONTENT_TYPE = "vnd.mythtv.cursor.dir/org.mythtv.liveStream";
 	private static final String LIVE_STREAM_CONTENT_ITEM_TYPE = "vnd.mythtv.cursor.item/org.mythtv.liveStream";
-	private static final int LIVE_STREAM 				= 150;
-	private static final int LIVE_STREAM_ID				= 151;
+	private static final int LIVE_STREAM 					= 200;
+	private static final int LIVE_STREAM_ID				= 201;
 
 	private static final String CHANNEL_CONTENT_TYPE = "vnd.mythtv.cursor.dir/org.mythtv.channel";
 	private static final String CHANNEL_CONTENT_ITEM_TYPE = "vnd.mythtv.cursor.item/org.mythtv.channel";
-	private static final int CHANNELS 					= 200;
-	private static final int CHANNEL_ID 				= 201;
+	private static final int CHANNELS 					= 300;
+	private static final int CHANNEL_ID 					= 301;
 
 	private static final String ETAG_CONTENT_TYPE = "vnd.mythtv.cursor.dir/org.mythtv.etag";
 	private static final String ETAG_CONTENT_ITEM_TYPE = "vnd.mythtv.cursor.item/org.mythtv.etag";
-	private static final int ETAGS 					= 1000;
-	private static final int ETAG_ID 				= 1001;
-	private static final int ETAG_ENDPOINT	 		= 1002;
+	private static final int ETAGS 						= 1000;
+	private static final int ETAG_ID 						= 1001;
+	private static final int ETAG_ENDPOINT	 			= 1002;
 
 	private static final String STATUS_CONTENT_TYPE = "vnd.mythtv.cursor.dir/org.mythtv.status";
 	private static final String STATUS_CONTENT_ITEM_TYPE = "vnd.mythtv.cursor.item/org.mythtv.status";
-	private static final int STATUS 				= 1100;
-	private static final int STATUS_ID 				= 1101;
+	private static final int STATUS 						= 1100;
+	private static final int STATUS_ID 					= 1101;
 
 	private static final String LOCATION_PROFILE_CONTENT_TYPE = "vnd.mythtv.cursor.dir/org.mythtv.locationProfile";
 	private static final String LOCATION_PROFILE_CONTENT_ITEM_TYPE = "vnd.mythtv.cursor.item/org.mythtv.locationProfile";
-	private static final int LOCATION_PROFILE 		= 2000;
-	private static final int LOCATION_PROFILE_ID 	= 2001;
+	private static final int LOCATION_PROFILE 			= 2000;
+	private static final int LOCATION_PROFILE_ID 			= 2001;
 
 	private static final String PLAYBACK_PROFILE_CONTENT_TYPE = "vnd.mythtv.cursor.dir/org.mythtv.playbackProfile";
 	private static final String PLAYBACK_PROFILE_CONTENT_ITEM_TYPE = "vnd.mythtv.cursor.item/org.mythtv.playbackProfile";
-	private static final int PLAYBACK_PROFILE 		= 2100;
-	private static final int PLAYBACK_PROFILE_ID 	= 2101;
+	private static final int PLAYBACK_PROFILE 			= 2100;
+	private static final int PLAYBACK_PROFILE_ID 			= 2101;
 
 	static {
 		URI_MATCHER = new UriMatcher( UriMatcher.NO_MATCH );
@@ -127,8 +139,12 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 		URI_MATCHER.addURI( AUTHORITY, ProgramConstants.TABLE_NAME_GUIDE + "/#", GUIDE_ID );
 		URI_MATCHER.addURI( AUTHORITY, ProgramGroupConstants.TABLE_NAME, PROGRAM_GROUP );
 		URI_MATCHER.addURI( AUTHORITY, ProgramGroupConstants.TABLE_NAME + "/#", PROGRAM_GROUP_ID );
-		URI_MATCHER.addURI( AUTHORITY, RecordingConstants.TABLE_NAME, RECORDING );
-		URI_MATCHER.addURI( AUTHORITY, RecordingConstants.TABLE_NAME + "/#", RECORDING_ID );
+		URI_MATCHER.addURI( AUTHORITY, RecordingConstants.ContentDetails.GUIDE.getTableName(), RECORDING_GUIDE );
+		URI_MATCHER.addURI( AUTHORITY, RecordingConstants.ContentDetails.GUIDE.getTableName() + "/#", RECORDING_GUIDE_ID );
+		URI_MATCHER.addURI( AUTHORITY, RecordingConstants.ContentDetails.RECORDED.getTableName(), RECORDING_RECORDED );
+		URI_MATCHER.addURI( AUTHORITY, RecordingConstants.ContentDetails.RECORDED.getTableName() + "/#", RECORDING_RECORDED_ID );
+		URI_MATCHER.addURI( AUTHORITY, RecordingConstants.ContentDetails.UPCOMING.getTableName(), RECORDING_UPCOMING );
+		URI_MATCHER.addURI( AUTHORITY, RecordingConstants.ContentDetails.UPCOMING.getTableName() + "/#", RECORDING_UPCOMING_ID );
 		URI_MATCHER.addURI( AUTHORITY, LiveStreamConstants.TABLE_NAME, LIVE_STREAM );
 		URI_MATCHER.addURI( AUTHORITY, LiveStreamConstants.TABLE_NAME + "/#", LIVE_STREAM_ID );
 		URI_MATCHER.addURI( AUTHORITY, ChannelConstants.TABLE_NAME, CHANNELS );
@@ -191,11 +207,23 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 			case PROGRAM_GROUP_ID:
 				return PROGRAM_GROUP_CONTENT_ITEM_TYPE;
 			
-			case RECORDING:
-				return RECORDING_CONTENT_TYPE;
+			case RECORDING_GUIDE:
+				return RECORDING_GUIDE_CONTENT_TYPE;
 			
-			case RECORDING_ID:
-				return RECORDING_CONTENT_ITEM_TYPE;
+			case RECORDING_GUIDE_ID:
+				return RECORDING_GUIDE_CONTENT_ITEM_TYPE;
+			
+			case RECORDING_RECORDED:
+				return RECORDING_RECORDED_CONTENT_TYPE;
+			
+			case RECORDING_RECORDED_ID:
+				return RECORDING_RECORDED_CONTENT_ITEM_TYPE;
+			
+			case RECORDING_UPCOMING:
+				return RECORDING_UPCOMING_CONTENT_TYPE;
+			
+			case RECORDING_UPCOMING_ID:
+				return RECORDING_UPCOMING_CONTENT_ITEM_TYPE;
 			
 			case LIVE_STREAM:
 				return LIVE_STREAM_CONTENT_TYPE;
@@ -330,17 +358,55 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				
 				return deleted;
 
-			case RECORDING:
+			case RECORDING_GUIDE:
 
-				deleted = db.delete( RecordingConstants.TABLE_NAME, selection, selectionArgs );
+				deleted = db.delete( RecordingConstants.ContentDetails.GUIDE.getTableName(), selection, selectionArgs );
 				
 				getContext().getContentResolver().notifyChange( uri, null );
 				
 				return deleted;
 
-			case RECORDING_ID:
+			case RECORDING_GUIDE_ID:
 				
-				deleted = db.delete( RecordingConstants.TABLE_NAME, RecordingConstants._ID
+				deleted = db.delete( RecordingConstants.ContentDetails.GUIDE.getTableName(), RecordingConstants._ID
+						+ "="
+						+ Long.toString( ContentUris.parseId( uri ) )
+						+ ( !TextUtils.isEmpty( selection ) ? " AND (" + selection + ')' : "" ), selectionArgs );
+				
+				getContext().getContentResolver().notifyChange( uri, null );
+				
+				return deleted;
+
+			case RECORDING_RECORDED:
+
+				deleted = db.delete( RecordingConstants.ContentDetails.RECORDED.getTableName(), selection, selectionArgs );
+				
+				getContext().getContentResolver().notifyChange( uri, null );
+				
+				return deleted;
+
+			case RECORDING_RECORDED_ID:
+				
+				deleted = db.delete( RecordingConstants.ContentDetails.RECORDED.getTableName(), RecordingConstants._ID
+						+ "="
+						+ Long.toString( ContentUris.parseId( uri ) )
+						+ ( !TextUtils.isEmpty( selection ) ? " AND (" + selection + ')' : "" ), selectionArgs );
+				
+				getContext().getContentResolver().notifyChange( uri, null );
+				
+				return deleted;
+
+			case RECORDING_UPCOMING:
+
+				deleted = db.delete( RecordingConstants.ContentDetails.RECORDED.getTableName(), selection, selectionArgs );
+				
+				getContext().getContentResolver().notifyChange( uri, null );
+				
+				return deleted;
+
+			case RECORDING_UPCOMING_ID:
+				
+				deleted = db.delete( RecordingConstants.ContentDetails.UPCOMING.getTableName(), RecordingConstants._ID
 						+ "="
 						+ Long.toString( ContentUris.parseId( uri ) )
 						+ ( !TextUtils.isEmpty( selection ) ? " AND (" + selection + ')' : "" ), selectionArgs );
@@ -511,10 +577,28 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				
 				return newUri;
 	
-			case RECORDING:
+			case RECORDING_GUIDE:
 //				System.out.println( "recordId=" + values.get( RecordingConstants.FIELD_RECORD_ID ) + ", startTime=" + DateUtils.dateTimeFormatterPretty.print( new DateTime( (Long) values.get( RecordingConstants.FIELD_START_TS ) ) ) );
 
-				newUri = ContentUris.withAppendedId( RecordingConstants.CONTENT_URI, db.insertWithOnConflict( RecordingConstants.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_IGNORE ) );
+				newUri = ContentUris.withAppendedId( RecordingConstants.ContentDetails.GUIDE.getContentUri(), db.insertWithOnConflict( RecordingConstants.ContentDetails.GUIDE.getTableName(), null, values, SQLiteDatabase.CONFLICT_IGNORE ) );
+				
+				getContext().getContentResolver().notifyChange( newUri, null );
+				
+				return newUri;
+	
+			case RECORDING_RECORDED:
+//				System.out.println( "recordId=" + values.get( RecordingConstants.FIELD_RECORD_ID ) + ", startTime=" + DateUtils.dateTimeFormatterPretty.print( new DateTime( (Long) values.get( RecordingConstants.FIELD_START_TS ) ) ) );
+
+				newUri = ContentUris.withAppendedId( RecordingConstants.ContentDetails.RECORDED.getContentUri(), db.insertWithOnConflict( RecordingConstants.ContentDetails.RECORDED.getTableName(), null, values, SQLiteDatabase.CONFLICT_IGNORE ) );
+				
+				getContext().getContentResolver().notifyChange( newUri, null );
+				
+				return newUri;
+	
+			case RECORDING_UPCOMING:
+//				System.out.println( "recordId=" + values.get( RecordingConstants.FIELD_RECORD_ID ) + ", startTime=" + DateUtils.dateTimeFormatterPretty.print( new DateTime( (Long) values.get( RecordingConstants.FIELD_START_TS ) ) ) );
+
+				newUri = ContentUris.withAppendedId( RecordingConstants.ContentDetails.UPCOMING.getContentUri(), db.insertWithOnConflict( RecordingConstants.ContentDetails.UPCOMING.getTableName(), null, values, SQLiteDatabase.CONFLICT_IGNORE ) );
 				
 				getContext().getContentResolver().notifyChange( newUri, null );
 				
@@ -601,17 +685,17 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				sb.append( ProgramConstants.TABLE_NAME_RECORDED ).append( "." ).append( ProgramConstants.FIELD_MASTER_HOSTNAME );
 				sb.append( ")" );
 				sb.append( " LEFT OUTER JOIN " );
-				sb.append( RecordingConstants.TABLE_NAME );
+				sb.append( RecordingConstants.ContentDetails.RECORDED.getTableName() );
 				sb.append( " ON (" );
-				sb.append( RecordingConstants.TABLE_NAME ).append( "." ).append( RecordingConstants.FIELD_START_TIME );
+				sb.append( RecordingConstants.ContentDetails.RECORDED.getTableName() ).append( "." ).append( RecordingConstants.FIELD_START_TIME );
 				sb.append( " = ");
 				sb.append( ProgramConstants.TABLE_NAME_RECORDED ).append( "." ).append( ProgramConstants.FIELD_START_TIME );
 				sb.append( " AND " );
-				sb.append( RecordingConstants.TABLE_NAME ).append( "." ).append( RecordingConstants.FIELD_RECORD_ID );
+				sb.append( RecordingConstants.ContentDetails.RECORDED.getTableName() ).append( "." ).append( RecordingConstants.FIELD_RECORD_ID );
 				sb.append( " = ");
 				sb.append( ProgramConstants.TABLE_NAME_RECORDED ).append( "." ).append( ProgramConstants.FIELD_RECORD_ID );
 				sb.append( " AND " );
-				sb.append( RecordingConstants.TABLE_NAME ).append( "." ).append( RecordingConstants.FIELD_MASTER_HOSTNAME );
+				sb.append( RecordingConstants.ContentDetails.RECORDED.getTableName() ).append( "." ).append( RecordingConstants.FIELD_MASTER_HOSTNAME );
 				sb.append( " = ");
 				sb.append( ProgramConstants.TABLE_NAME_RECORDED ).append( "." ).append( ProgramConstants.FIELD_MASTER_HOSTNAME );
 				sb.append( ")" );
@@ -658,17 +742,17 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				sb.append( ProgramConstants.TABLE_NAME_RECORDED ).append( "." ).append( ProgramConstants.FIELD_MASTER_HOSTNAME );
 				sb.append( ")" );
 				sb.append( " LEFT OUTER JOIN " );
-				sb.append( RecordingConstants.TABLE_NAME );
+				sb.append( RecordingConstants.ContentDetails.RECORDED.getTableName() );
 				sb.append( " ON (" );
-				sb.append( RecordingConstants.TABLE_NAME ).append( "." ).append( RecordingConstants.FIELD_START_TIME );
+				sb.append( RecordingConstants.ContentDetails.RECORDED.getTableName() ).append( "." ).append( RecordingConstants.FIELD_START_TIME );
 				sb.append( " = ");
 				sb.append( ProgramConstants.TABLE_NAME_RECORDED ).append( "." ).append( ProgramConstants.FIELD_START_TIME );
 				sb.append( " AND " );
-				sb.append( RecordingConstants.TABLE_NAME ).append( "." ).append( RecordingConstants.FIELD_RECORD_ID );
+				sb.append( RecordingConstants.ContentDetails.RECORDED.getTableName() ).append( "." ).append( RecordingConstants.FIELD_RECORD_ID );
 				sb.append( " = ");
 				sb.append( ProgramConstants.TABLE_NAME_RECORDED ).append( "." ).append( ProgramConstants.FIELD_RECORD_ID );
 				sb.append( " AND " );
-				sb.append( RecordingConstants.TABLE_NAME ).append( "." ).append( RecordingConstants.FIELD_MASTER_HOSTNAME );
+				sb.append( RecordingConstants.ContentDetails.RECORDED.getTableName() ).append( "." ).append( RecordingConstants.FIELD_MASTER_HOSTNAME );
 				sb.append( " = ");
 				sb.append( ProgramConstants.TABLE_NAME_RECORDED ).append( "." ).append( ProgramConstants.FIELD_MASTER_HOSTNAME );
 				sb.append( ")" );
@@ -714,17 +798,17 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				sb.append( ProgramConstants.TABLE_NAME_UPCOMING ).append( "." ).append( ProgramConstants.FIELD_MASTER_HOSTNAME );
 				sb.append( ")" );
 				sb.append( " LEFT OUTER JOIN " );
-				sb.append( RecordingConstants.TABLE_NAME );
+				sb.append( RecordingConstants.ContentDetails.UPCOMING.getTableName() );
 				sb.append( " ON (" );
-				sb.append( RecordingConstants.TABLE_NAME ).append( "." ).append( RecordingConstants.FIELD_START_TIME );
+				sb.append( RecordingConstants.ContentDetails.UPCOMING.getTableName() ).append( "." ).append( RecordingConstants.FIELD_START_TIME );
 				sb.append( " = ");
 				sb.append( ProgramConstants.TABLE_NAME_UPCOMING ).append( "." ).append( ProgramConstants.FIELD_START_TIME );
 				sb.append( " AND " );
-				sb.append( RecordingConstants.TABLE_NAME ).append( "." ).append( RecordingConstants.FIELD_RECORD_ID );
+				sb.append( RecordingConstants.ContentDetails.UPCOMING.getTableName() ).append( "." ).append( RecordingConstants.FIELD_RECORD_ID );
 				sb.append( " = ");
 				sb.append( ProgramConstants.TABLE_NAME_UPCOMING ).append( "." ).append( ProgramConstants.FIELD_RECORD_ID );
 				sb.append( " AND " );
-				sb.append( RecordingConstants.TABLE_NAME ).append( "." ).append( RecordingConstants.FIELD_MASTER_HOSTNAME );
+				sb.append( RecordingConstants.ContentDetails.UPCOMING.getTableName() ).append( "." ).append( RecordingConstants.FIELD_MASTER_HOSTNAME );
 				sb.append( " = ");
 				sb.append( ProgramConstants.TABLE_NAME_UPCOMING ).append( "." ).append( ProgramConstants.FIELD_MASTER_HOSTNAME );
 				sb.append( ")" );
@@ -761,17 +845,17 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				sb.append( ProgramConstants.TABLE_NAME_UPCOMING ).append( "." ).append( ProgramConstants.FIELD_MASTER_HOSTNAME );
 				sb.append( ")" );
 				sb.append( " LEFT OUTER JOIN " );
-				sb.append( RecordingConstants.TABLE_NAME );
+				sb.append( RecordingConstants.ContentDetails.UPCOMING.getTableName() );
 				sb.append( " ON (" );
-				sb.append( RecordingConstants.TABLE_NAME ).append( "." ).append( RecordingConstants.FIELD_START_TIME );
+				sb.append( RecordingConstants.ContentDetails.UPCOMING.getTableName() ).append( "." ).append( RecordingConstants.FIELD_START_TIME );
 				sb.append( " = ");
 				sb.append( ProgramConstants.TABLE_NAME_UPCOMING ).append( "." ).append( ProgramConstants.FIELD_START_TIME );
 				sb.append( " AND " );
-				sb.append( RecordingConstants.TABLE_NAME ).append( "." ).append( RecordingConstants.FIELD_RECORD_ID );
+				sb.append( RecordingConstants.ContentDetails.UPCOMING.getTableName() ).append( "." ).append( RecordingConstants.FIELD_RECORD_ID );
 				sb.append( " = ");
 				sb.append( ProgramConstants.TABLE_NAME_UPCOMING ).append( "." ).append( ProgramConstants.FIELD_RECORD_ID );
 				sb.append( " AND " );
-				sb.append( RecordingConstants.TABLE_NAME ).append( "." ).append( RecordingConstants.FIELD_MASTER_HOSTNAME );
+				sb.append( RecordingConstants.ContentDetails.UPCOMING.getTableName() ).append( "." ).append( RecordingConstants.FIELD_MASTER_HOSTNAME );
 				sb.append( " = ");
 				sb.append( ProgramConstants.TABLE_NAME_UPCOMING ).append( "." ).append( ProgramConstants.FIELD_MASTER_HOSTNAME );
 				sb.append( ")" );
@@ -802,23 +886,23 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				sb.append( ProgramConstants.TABLE_NAME_GUIDE ).append( "." ).append( ProgramConstants.FIELD_MASTER_HOSTNAME );
 				sb.append( ")" );
 				sb.append( " LEFT OUTER JOIN " );
-				sb.append( RecordingConstants.TABLE_NAME );
+				sb.append( RecordingConstants.ContentDetails.GUIDE.getTableName() );
 				sb.append( " ON (" );
-				sb.append( RecordingConstants.TABLE_NAME ).append( "." ).append( RecordingConstants.FIELD_START_TIME );
+				sb.append( RecordingConstants.ContentDetails.GUIDE.getTableName() ).append( "." ).append( RecordingConstants.FIELD_START_TIME );
 				sb.append( " = ");
 				sb.append( ProgramConstants.TABLE_NAME_GUIDE ).append( "." ).append( ProgramConstants.FIELD_START_TIME );
 				sb.append( " AND " );
-				sb.append( RecordingConstants.TABLE_NAME ).append( "." ).append( RecordingConstants.FIELD_RECORD_ID );
+				sb.append( RecordingConstants.ContentDetails.GUIDE.getTableName() ).append( "." ).append( RecordingConstants.FIELD_RECORD_ID );
 				sb.append( " = ");
 				sb.append( ProgramConstants.TABLE_NAME_GUIDE ).append( "." ).append( ProgramConstants.FIELD_RECORD_ID );
 				sb.append( " AND " );
-				sb.append( RecordingConstants.TABLE_NAME ).append( "." ).append( RecordingConstants.FIELD_MASTER_HOSTNAME );
+				sb.append( RecordingConstants.ContentDetails.GUIDE.getTableName() ).append( "." ).append( RecordingConstants.FIELD_MASTER_HOSTNAME );
 				sb.append( " = ");
 				sb.append( ProgramConstants.TABLE_NAME_GUIDE ).append( "." ).append( ProgramConstants.FIELD_MASTER_HOSTNAME );
 				sb.append( ")" );
 				
 				queryBuilder.setTables( sb.toString() );
-				queryBuilder.setProjectionMap( mProgramColumnMap );
+				queryBuilder.setProjectionMap( mGuideColumnMap );
 				
 //				System.out.println( queryBuilder.buildQuery( null, selection, null, null, sortOrder, null ) );
 				
@@ -844,23 +928,23 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				sb.append( ProgramConstants.TABLE_NAME_GUIDE ).append( "." ).append( ProgramConstants.FIELD_MASTER_HOSTNAME );
 				sb.append( ")" );
 				sb.append( " LEFT OUTER JOIN " );
-				sb.append( RecordingConstants.TABLE_NAME );
+				sb.append( RecordingConstants.ContentDetails.GUIDE.getTableName() );
 				sb.append( " ON (" );
-				sb.append( RecordingConstants.TABLE_NAME ).append( "." ).append( RecordingConstants.FIELD_START_TIME );
+				sb.append( RecordingConstants.ContentDetails.GUIDE.getTableName() ).append( "." ).append( RecordingConstants.FIELD_START_TIME );
 				sb.append( " = ");
 				sb.append( ProgramConstants.TABLE_NAME_GUIDE ).append( "." ).append( ProgramConstants.FIELD_START_TIME );
 				sb.append( " AND " );
-				sb.append( RecordingConstants.TABLE_NAME ).append( "." ).append( RecordingConstants.FIELD_RECORD_ID );
+				sb.append( RecordingConstants.ContentDetails.GUIDE.getTableName() ).append( "." ).append( RecordingConstants.FIELD_RECORD_ID );
 				sb.append( " = ");
 				sb.append( ProgramConstants.TABLE_NAME_GUIDE ).append( "." ).append( ProgramConstants.FIELD_RECORD_ID );
 				sb.append( " AND " );
-				sb.append( RecordingConstants.TABLE_NAME ).append( "." ).append( RecordingConstants.FIELD_MASTER_HOSTNAME );
+				sb.append( RecordingConstants.ContentDetails.GUIDE.getTableName() ).append( "." ).append( RecordingConstants.FIELD_MASTER_HOSTNAME );
 				sb.append( " = ");
 				sb.append( ProgramConstants.TABLE_NAME_GUIDE ).append( "." ).append( ProgramConstants.FIELD_MASTER_HOSTNAME );
 				sb.append( ")" );
 				
 				queryBuilder.setTables( sb.toString() );
-				queryBuilder.setProjectionMap( mProgramColumnMap );
+				queryBuilder.setProjectionMap( mGuideColumnMap );
 				
 //				System.out.println( queryBuilder.buildQuery( null, selection, null, null, sortOrder, null ) );
 				
@@ -887,12 +971,12 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				
 				return cursor;
 	
-			case RECORDING:
+			case RECORDING_GUIDE:
 				
-				sb.append( RecordingConstants.TABLE_NAME );
+				sb.append( RecordingConstants.ContentDetails.GUIDE.getTableName() );
 				
 				queryBuilder.setTables( sb.toString() );
-				queryBuilder.setProjectionMap( mRecordingColumnMap );
+				queryBuilder.setProjectionMap( mRecordingGuideColumnMap );
 				
 //				System.out.println( queryBuilder.buildQuery( null, selection, null, null, sortOrder, null ) );
 				
@@ -902,13 +986,75 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				
 				return cursor;
 	
-			case RECORDING_ID:
+			case RECORDING_GUIDE_ID:
 				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
 
-				sb.append( RecordingConstants.TABLE_NAME );
+				sb.append( RecordingConstants.ContentDetails.GUIDE.getTableName() );
 				
 				queryBuilder.setTables( sb.toString() );
-				queryBuilder.setProjectionMap( mRecordingColumnMap );
+				queryBuilder.setProjectionMap( mRecordingGuideColumnMap );
+				
+//				System.out.println( queryBuilder.buildQuery( null, selection, null, null, sortOrder, null ) );
+				
+				cursor = queryBuilder.query( db, null, selection, selectionArgs, null, null, sortOrder );
+				
+				cursor.setNotificationUri( getContext().getContentResolver(), uri );
+				
+				return cursor;
+	
+			case RECORDING_RECORDED:
+				
+				sb.append( RecordingConstants.ContentDetails.RECORDED.getTableName() );
+				
+				queryBuilder.setTables( sb.toString() );
+				queryBuilder.setProjectionMap( mRecordingRecordedColumnMap );
+				
+//				System.out.println( queryBuilder.buildQuery( null, selection, null, null, sortOrder, null ) );
+				
+				cursor = queryBuilder.query( db, null, selection, selectionArgs, null, null, sortOrder );
+				
+				cursor.setNotificationUri( getContext().getContentResolver(), uri );
+				
+				return cursor;
+	
+			case RECORDING_RECORDED_ID:
+				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
+
+				sb.append( RecordingConstants.ContentDetails.RECORDED.getTableName() );
+				
+				queryBuilder.setTables( sb.toString() );
+				queryBuilder.setProjectionMap( mRecordingRecordedColumnMap );
+				
+//				System.out.println( queryBuilder.buildQuery( null, selection, null, null, sortOrder, null ) );
+				
+				cursor = queryBuilder.query( db, null, selection, selectionArgs, null, null, sortOrder );
+				
+				cursor.setNotificationUri( getContext().getContentResolver(), uri );
+				
+				return cursor;
+	
+			case RECORDING_UPCOMING:
+				
+				sb.append( RecordingConstants.ContentDetails.UPCOMING.getTableName() );
+				
+				queryBuilder.setTables( sb.toString() );
+				queryBuilder.setProjectionMap( mRecordingUpcomingColumnMap );
+				
+//				System.out.println( queryBuilder.buildQuery( null, selection, null, null, sortOrder, null ) );
+				
+				cursor = queryBuilder.query( db, null, selection, selectionArgs, null, null, sortOrder );
+				
+				cursor.setNotificationUri( getContext().getContentResolver(), uri );
+				
+				return cursor;
+	
+			case RECORDING_UPCOMING_ID:
+				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
+
+				sb.append( RecordingConstants.ContentDetails.UPCOMING.getTableName() );
+				
+				queryBuilder.setTables( sb.toString() );
+				queryBuilder.setProjectionMap( mRecordingUpcomingColumnMap );
 				
 //				System.out.println( queryBuilder.buildQuery( null, selection, null, null, sortOrder, null ) );
 				
@@ -1128,17 +1274,49 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				
 				return affected;
 
-			case RECORDING:
-				affected = db.update( RecordingConstants.TABLE_NAME, values, selection , selectionArgs );
+			case RECORDING_GUIDE:
+				affected = db.update( RecordingConstants.ContentDetails.GUIDE.getTableName(), values, selection , selectionArgs );
 				
 				getContext().getContentResolver().notifyChange( uri, null );
 				
 				return affected;
 
-			case RECORDING_ID:
+			case RECORDING_GUIDE_ID:
 				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
 
-				affected = db.update( RecordingConstants.TABLE_NAME, values, selection , selectionArgs );
+				affected = db.update( RecordingConstants.ContentDetails.GUIDE.getTableName(), values, selection , selectionArgs );
+				
+				getContext().getContentResolver().notifyChange( uri, null );
+				
+				return affected;
+
+			case RECORDING_RECORDED:
+				affected = db.update( RecordingConstants.ContentDetails.RECORDED.getTableName(), values, selection , selectionArgs );
+				
+				getContext().getContentResolver().notifyChange( uri, null );
+				
+				return affected;
+
+			case RECORDING_RECORDED_ID:
+				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
+
+				affected = db.update( RecordingConstants.ContentDetails.RECORDED.getTableName(), values, selection , selectionArgs );
+				
+				getContext().getContentResolver().notifyChange( uri, null );
+				
+				return affected;
+
+			case RECORDING_UPCOMING:
+				affected = db.update( RecordingConstants.ContentDetails.UPCOMING.getTableName(), values, selection , selectionArgs );
+				
+				getContext().getContentResolver().notifyChange( uri, null );
+				
+				return affected;
+
+			case RECORDING_UPCOMING_ID:
+				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
+
+				affected = db.update( RecordingConstants.ContentDetails.UPCOMING.getTableName(), values, selection , selectionArgs );
 				
 				getContext().getContentResolver().notifyChange( uri, null );
 				
@@ -1345,32 +1523,52 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 
 				return numInserted;
 
-			case RECORDING:
+			case RECORDING_GUIDE:
 				
 				db.beginTransaction();
 				try {
 					//standard SQL insert statement, that can be reused
-					SQLiteStatement insert = db.compileStatement( RecordingConstants.INSERT_ROW );
+					SQLiteStatement insert = db.compileStatement( RecordingConstants.INSERT_RECORDING_GUIDE_ROW );
+					bulkInsertRecordings( insert, values );
+					
+					db.setTransactionSuccessful();
+	            
+					numInserted = values.length;
+				} finally {
+					db.endTransaction();
+				}
+			
+				getContext().getContentResolver().notifyChange( uri, null );
+
+				return numInserted;
+
+			case RECORDING_RECORDED:
 				
-					for( ContentValues value : values ) {
-						insert.bindLong( 1, value.getAsLong( RecordingConstants._ID ) );
-						insert.bindLong( 2, value.getAsInteger( RecordingConstants.FIELD_STATUS ) );
-						insert.bindLong( 3, value.getAsInteger( RecordingConstants.FIELD_PRIORITY ) );
-						insert.bindLong( 4, value.getAsInteger( RecordingConstants.FIELD_START_TS ) );
-						insert.bindLong( 5, value.getAsInteger( RecordingConstants.FIELD_END_TS ) );
-						insert.bindString( 6, value.getAsString( RecordingConstants.FIELD_REC_GROUP ) );
-						insert.bindString( 7, value.getAsString( RecordingConstants.FIELD_PLAY_GROUP ) );
-						insert.bindString( 8, value.getAsString( RecordingConstants.FIELD_STORAGE_GROUP ) );
-						insert.bindLong( 9, value.getAsInteger( RecordingConstants.FIELD_REC_TYPE ) );
-						insert.bindLong( 10, value.getAsInteger( RecordingConstants.FIELD_DUP_IN_TYPE ) );
-						insert.bindLong( 11, value.getAsInteger( RecordingConstants.FIELD_DUP_METHOD ) );
-						insert.bindLong( 12, value.getAsInteger( RecordingConstants.FIELD_ENCODER_ID ) );
-						insert.bindString( 13, value.getAsString( RecordingConstants.FIELD_PROFILE ) );
-						insert.bindString( 14, value.getAsString( RecordingConstants.FIELD_START_TIME ) );
-						insert.bindString( 15, value.getAsString( RecordingConstants.FIELD_MASTER_HOSTNAME ) );
-						insert.bindLong( 16, value.getAsInteger( RecordingConstants.FIELD_LAST_MODIFIED_DATE ) );
-						insert.execute();
-					}
+				db.beginTransaction();
+				try {
+					//standard SQL insert statement, that can be reused
+					SQLiteStatement insert = db.compileStatement( RecordingConstants.INSERT_RECORDING_RECORDED_ROW );
+					bulkInsertRecordings( insert, values );
+					
+					db.setTransactionSuccessful();
+	            
+					numInserted = values.length;
+				} finally {
+					db.endTransaction();
+				}
+			
+				getContext().getContentResolver().notifyChange( uri, null );
+
+				return numInserted;
+
+			case RECORDING_UPCOMING:
+				
+				db.beginTransaction();
+				try {
+					//standard SQL insert statement, that can be reused
+					SQLiteStatement insert = db.compileStatement( RecordingConstants.INSERT_RECORDING_UPCOMING_ROW );
+					bulkInsertRecordings( insert, values );
+					
 					db.setTransactionSuccessful();
 	            
 					numInserted = values.length;
@@ -1500,6 +1698,31 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 
 	}
 	
+	private void bulkInsertRecordings( SQLiteStatement insert, ContentValues[] values ) {
+		
+		for( ContentValues value : values ) {
+			insert.bindLong( 1, value.getAsLong( RecordingConstants._ID ) );
+			insert.bindLong( 2, value.getAsInteger( RecordingConstants.FIELD_STATUS ) );
+			insert.bindLong( 3, value.getAsInteger( RecordingConstants.FIELD_PRIORITY ) );
+			insert.bindLong( 4, value.getAsInteger( RecordingConstants.FIELD_START_TS ) );
+			insert.bindLong( 5, value.getAsInteger( RecordingConstants.FIELD_END_TS ) );
+			insert.bindString( 6, value.getAsString( RecordingConstants.FIELD_REC_GROUP ) );
+			insert.bindString( 7, value.getAsString( RecordingConstants.FIELD_PLAY_GROUP ) );
+			insert.bindString( 8, value.getAsString( RecordingConstants.FIELD_STORAGE_GROUP ) );
+			insert.bindLong( 9, value.getAsInteger( RecordingConstants.FIELD_REC_TYPE ) );
+			insert.bindLong( 10, value.getAsInteger( RecordingConstants.FIELD_DUP_IN_TYPE ) );
+			insert.bindLong( 11, value.getAsInteger( RecordingConstants.FIELD_DUP_METHOD ) );
+			insert.bindLong( 12, value.getAsInteger( RecordingConstants.FIELD_ENCODER_ID ) );
+			insert.bindString( 13, value.getAsString( RecordingConstants.FIELD_PROFILE ) );
+			insert.bindString( 14, value.getAsString( RecordingConstants.FIELD_START_TIME ) );
+			insert.bindString( 15, value.getAsString( RecordingConstants.FIELD_MASTER_HOSTNAME ) );
+			insert.bindLong( 16, value.getAsInteger( RecordingConstants.FIELD_LAST_MODIFIED_DATE ) );
+
+			insert.execute();
+		}
+
+	}
+	
 	private static final Map<String, String> mRecordedColumnMap = buildRecordedColumnMap();
 	private static Map<String, String> buildRecordedColumnMap() {
 		
@@ -1512,8 +1735,8 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 			columnMap.put( qualifiedCol, qualifiedCol );
 		}
 		
+		columnMap = buildRecordingRecordedColumnMap( columnMap );
 		columnMap = buildProgramColumnMap( columnMap );
-		
 		columnMap = buildLiveStreamColumnMap( columnMap );
 
 		return columnMap;
@@ -1531,13 +1754,14 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 			columnMap.put( qualifiedCol, qualifiedCol );
 		}
 		
+		columnMap = buildRecordingUpcomingColumnMap( columnMap );
 		columnMap = buildProgramColumnMap( columnMap );
 		
 		return columnMap;
 	}
 
-	private static final Map<String, String> mProgramColumnMap = buildProgramColumnMap();
-	private static Map<String, String> buildProgramColumnMap() {
+	private static final Map<String, String> mGuideColumnMap = buildGuideColumnMap();
+	private static Map<String, String> buildGuideColumnMap() {
 		
 		Map<String, String> columnMap = new HashMap<String, String>();
 
@@ -1548,6 +1772,8 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 			columnMap.put( qualifiedCol, qualifiedCol );
 		}
 		
+		columnMap = buildRecordingGuideColumnMap( columnMap );
+
 		String channelProjection[] = ChannelConstants.COLUMN_MAP;
 		for( String col : channelProjection ) {
 
@@ -1564,8 +1790,6 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 		}
 		
 		columnMap = buildChannelColumnMap( columnMap );
-		
-		columnMap = buildRecordingColumnMap( columnMap );
 		
 		return columnMap;
 	}
@@ -1602,8 +1826,40 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 		return columnMap;
 	}
 
-	private static final Map<String, String> mRecordingColumnMap = buildRecordingColumnMap( new HashMap<String, String>() );
-	private static Map<String, String> buildRecordingColumnMap( Map<String, String> columnMap ) {
+	private static final Map<String, String> mRecordingGuideColumnMap = buildRecordingGuideColumnMap( new HashMap<String, String>() );
+	private static Map<String, String> buildRecordingGuideColumnMap( Map<String, String> columnMap ) {
+		if( null == columnMap ) {
+			columnMap = new HashMap<String, String>();
+		}
+		
+		columnMap = buildRecordingColumnMap( columnMap, RecordingConstants.ContentDetails.GUIDE.getTableName() );
+		
+		return columnMap;
+	}
+	
+	private static final Map<String, String> mRecordingRecordedColumnMap = buildRecordingRecordedColumnMap( new HashMap<String, String>() );
+	private static Map<String, String> buildRecordingRecordedColumnMap( Map<String, String> columnMap ) {
+		if( null == columnMap ) {
+			columnMap = new HashMap<String, String>();
+		}
+		
+		columnMap = buildRecordingColumnMap( columnMap, RecordingConstants.ContentDetails.RECORDED.getTableName() );
+		
+		return columnMap;
+	}
+	
+	private static final Map<String, String> mRecordingUpcomingColumnMap = buildRecordingUpcomingColumnMap( new HashMap<String, String>() );
+	private static Map<String, String> buildRecordingUpcomingColumnMap( Map<String, String> columnMap ) {
+		if( null == columnMap ) {
+			columnMap = new HashMap<String, String>();
+		}
+		
+		columnMap = buildRecordingColumnMap( columnMap, RecordingConstants.ContentDetails.UPCOMING.getTableName() );
+		
+		return columnMap;
+	}
+	
+	private static Map<String, String> buildRecordingColumnMap( Map<String, String> columnMap, String tableName ) {
 		if( null == columnMap ) {
 			columnMap = new HashMap<String, String>();
 		}
@@ -1611,8 +1867,8 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 		String recordingProjection[] = RecordingConstants.COLUMN_MAP;
 		for( String col : recordingProjection ) {
 
-			String qualifiedCol = RecordingConstants.TABLE_NAME + "." + col;
-			columnMap.put( qualifiedCol, qualifiedCol + " as " + RecordingConstants.TABLE_NAME + "_" + col );
+			String qualifiedCol = tableName + "." + col;
+			columnMap.put( qualifiedCol, qualifiedCol + " as " + tableName + "_" + col );
 		}
 		
 		return columnMap;
