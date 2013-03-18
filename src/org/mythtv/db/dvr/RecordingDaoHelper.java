@@ -87,7 +87,7 @@ public class RecordingDaoHelper extends AbstractDaoHelper {
 		if( null == context ) 
 			throw new RuntimeException( "RecordingDaoHelper is not initialized" );
 
-		RecordingConstants.ContentDetails details = RecordingConstants.ContentDetails.getValue( table );
+		RecordingConstants.ContentDetails details = RecordingConstants.ContentDetails.getValueFromParent( table );
 
 		List<Recording> recordings = new ArrayList<Recording>();
 		
@@ -128,7 +128,7 @@ public class RecordingDaoHelper extends AbstractDaoHelper {
 		if( null == context ) 
 			throw new RuntimeException( "RecordingDaoHelper is not initialized" );
 		
-		RecordingConstants.ContentDetails details = RecordingConstants.ContentDetails.getValue( table );
+		RecordingConstants.ContentDetails details = RecordingConstants.ContentDetails.getValueFromParent( table );
 
 		Recording recording = null;
 		
@@ -197,7 +197,7 @@ public class RecordingDaoHelper extends AbstractDaoHelper {
 		if( null == context ) 
 			throw new RuntimeException( "RecordingDaoHelper is not initialized" );
 		
-		RecordingConstants.ContentDetails details = RecordingConstants.ContentDetails.getValue( table );
+		RecordingConstants.ContentDetails details = RecordingConstants.ContentDetails.getValueFromParent( table );
 
 		int deleted = context.getContentResolver().delete( details.getContentUri(), null, null );
 		Log.v( TAG, "deleteAll : deleted=" + deleted );
@@ -212,7 +212,7 @@ public class RecordingDaoHelper extends AbstractDaoHelper {
 		if( null == context ) 
 			throw new RuntimeException( "RecordingDaoHelper is not initialized" );
 		
-		RecordingConstants.ContentDetails details = RecordingConstants.ContentDetails.getValue( table );
+		RecordingConstants.ContentDetails details = RecordingConstants.ContentDetails.getValueFromParent( table );
 
 		Uri uri = details.getContentUri();
 		if( null != id && id > 0 ) {
@@ -273,7 +273,7 @@ public class RecordingDaoHelper extends AbstractDaoHelper {
 	public Recording convertCursorToRecording( final Cursor cursor, final String table ) {
 //		Log.v( TAG, "convertCursorToRecording : enter" );
 
-		RecordingConstants.ContentDetails details = RecordingConstants.ContentDetails.getValue( table );
+		RecordingConstants.ContentDetails details = RecordingConstants.ContentDetails.getValueFromParent( table );
 
 		int recordId = -1, status = -1, priority = -1, recordingType = -1, duplicateInType = -1, duplicateMethod = -1, encoderId = -1;
 		String recordingGroup = "", playGroup = "", storageGroup = "", profile = "";
