@@ -218,14 +218,6 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		if( null == context ) 
 			throw new RuntimeException( "ProgramDaoHelper is not initialized" );
 		
-		if( null != program.getRecording() ) {
-			Log.v( TAG, "load : remove recording" );
-			
-			String recordingWhere = RecordingConstants.FIELD_RECORD_ID + " = ? AND " + RecordingConstants.FIELD_START_TIME + " = ? AND " + RecordingConstants.FIELD_MASTER_HOSTNAME + " = ?";
-			String[] recordingSelectionArgs = new String[] { String.valueOf( program.getRecording().getRecordId() ), String.valueOf( program.getStartTime().getMillis() ), locationProfile.getHostname() };
-			mRecordingDaoHelper.delete( context, null, recordingWhere, recordingSelectionArgs, table );
-		}
-
 		String selection = ProgramConstants.FIELD_CHANNEL_ID + " = ? AND " + ProgramConstants.FIELD_START_TIME + " = ?";
 		String[] selectionArgs = new String[] { String.valueOf( program.getChannelInfo().getChannelId() ), String.valueOf( program.getStartTime().getMillis() ) };
 
@@ -278,7 +270,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		
 		boolean inError;
 		
-		RecordingConstants.ContentDetails details = RecordingConstants.ContentDetails.getValue( table );
+		RecordingConstants.ContentDetails details = RecordingConstants.ContentDetails.getValueFromParent( table );
 		for( Program program : programs ) {
 
 			if( null == program.getStartTime() || null == program.getEndTime() ) {
@@ -407,19 +399,10 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 				removeStreamTask.setContext( context );
 				removeStreamTask.setLocationProfile( locationProfile );
 				removeStreamTask.execute( liveStreamInfo );
-				
-				mLiveStreamDaoHelper.delete( context, locationProfile, liveStreamInfo );
 			}
 			
 		}
 		
-		ops.add(  
-			ContentProviderOperation.newDelete( details.getContentUri() )
-				.withSelection( RecordingConstants.FIELD_LAST_MODIFIED_DATE + " < ?", new String[] { String.valueOf( lastModified.getMillis() ) } )
-				.withYieldAllowed( true )
-				.build()
-		);
-
 		ops.add(  
 			ContentProviderOperation.newDelete( uri )
 				.withSelection( table + "." + ProgramConstants.FIELD_LAST_MODIFIED_DATE + " < ?", new String[] { String.valueOf( lastModified.getMillis() ) } )

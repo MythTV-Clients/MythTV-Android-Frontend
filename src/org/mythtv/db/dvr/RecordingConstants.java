@@ -33,37 +33,58 @@ import android.net.Uri;
 public class RecordingConstants  extends AbstractBaseConstants {
 
 	public static enum ContentDetails{
-		GUIDE( "guide" ),
-		RECORDED( "recorded" ),
-		UPCOMING( "upcoming" );
+		GUIDE( "guide", "recording_guide" ),
+		RECORDED( "recorded", "recording_recorded" ),
+		UPCOMING( "upcoming", "recording_upcoming" );
 		
 		private String parent;
+		private String tableName;
 		
-		ContentDetails( String parent ) {
+		ContentDetails( String parent, String tableName ) {
 			this.parent = parent;
+			this.tableName = tableName;
+		}
+		
+		public String getParent() {
+			return parent;
 		}
 		
 		public String getTableName() {
-			return "recording_" + parent;
+			return tableName;
 		}
 		
 		public Uri getContentUri() {
 			return Uri.parse( "content://" + MythtvProvider.AUTHORITY + "/" + getTableName() );
 		}
 		
-		private static Map<String, ContentDetails> valueMap;
-		public static ContentDetails getValue( String parent ) {
+		private static Map<String, ContentDetails> parentMap;
+		public static ContentDetails getValueFromParent( String parent ) {
 			
-			if( null == valueMap ) {
+			if( null == parentMap ) {
 				
-				valueMap = new HashMap<String, ContentDetails>();
+				parentMap = new HashMap<String, ContentDetails>();
 				
 				for( ContentDetails details : values() ) {
-					valueMap.put( details.parent, details );
+					parentMap.put( details.parent, details );
 				}
 			}
 			
-			return valueMap.get( parent );
+			return parentMap.get( parent );
+		}
+		
+		private static Map<String, ContentDetails> tableNameMap;
+		public static ContentDetails getValueFromTableName( String tableName ) {
+			
+			if( null == tableNameMap ) {
+				
+				tableNameMap = new HashMap<String, ContentDetails>();
+				
+				for( ContentDetails details : values() ) {
+					tableNameMap.put( details.tableName, details );
+				}
+			}
+			
+			return tableNameMap.get( tableName );
 		}
 		
 	};
