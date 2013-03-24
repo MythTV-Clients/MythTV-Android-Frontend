@@ -19,6 +19,7 @@ import org.mythtv.client.ui.frontends.MythmoteActivity;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.preferences.MythtvPreferenceActivity;
 import org.mythtv.client.ui.preferences.MythtvPreferenceActivityHC;
+import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.MythtvService;
 import org.mythtv.service.util.NetworkHelper;
 
@@ -85,6 +86,7 @@ public class MainMenuFragment extends AbstractMythFragment implements ServiceLis
 	private static boolean isAway = false;
 	
 	
+	private boolean isConnected = false;
 	private FrontendAdapter adapter = null;
 	private ContentFragmentRequestedListener mContentFragmentRequestedListener;
 	
@@ -184,6 +186,12 @@ public class MainMenuFragment extends AbstractMythFragment implements ServiceLis
 			//get button text
 			Button btn = (Button)v;
 			String btnTxt = btn.getText().toString();
+			
+			//check if we're connected to a backend
+			if(!isConnected){
+				Toast.makeText( getActivity(), "No connection to backend or no backend profile is selected.", Toast.LENGTH_SHORT ).show();
+				return;
+			}
 			
 			// find button action based on the display string
 			if (getString(R.string.btn_guide).equals(btnTxt)) {
@@ -309,13 +317,22 @@ public class MainMenuFragment extends AbstractMythFragment implements ServiceLis
 		
 		//get connected location profile
 		LocationProfile profile = this.mLocationProfileDaoHelper.findConnectedProfile(this.getActivity());
+		
+		//check if we have a connected profile
 		if( null == profile ) {
+			
+			//auto connected to the first profile found
 			List<LocationProfile> profiles = mLocationProfileDaoHelper.findAll( getActivity() );
-			if( profiles.size() == 1 ) {
+			if( profiles.size() > 0 ) {
 				profile = profiles.get( 0 );
 				
 				mLocationProfileDaoHelper.setConnectedLocationProfile( getActivity(), profile.getId() );
+				isConnected = true;
+			}else{
+				isConnected = false;
 			}
+		}else{
+			isConnected = true;
 		}
 		
 		//get away/home toggle
