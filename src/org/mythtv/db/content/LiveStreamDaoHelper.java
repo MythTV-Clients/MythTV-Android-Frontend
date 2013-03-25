@@ -189,16 +189,23 @@ public class LiveStreamDaoHelper extends AbstractDaoHelper {
 	public LiveStreamInfo findByProgram( final Context context, final LocationProfile locationProfile, final Program program ) {
 		Log.d( TAG, "findByProgram : enter" );
 		
-		String selection = LiveStreamConstants.FIELD_CHAN_ID + " = ? AND " + LiveStreamConstants.FIELD_START_TIME + " = ?";
-		String[] selectionArgs = new String[] { String.valueOf( program.getChannelInfo().getChannelId() ), String.valueOf( program.getStartTime().getMillis() ) };
-		
-		LiveStreamInfo liveStreamInfo = findOne( context, locationProfile, null, null, selection, selectionArgs, null );
-		if( null != liveStreamInfo ) {
-			Log.v( TAG, "findByProgram : liveStreamInfo=" + liveStreamInfo.toString() );
+		try {
+			String selection = LiveStreamConstants.FIELD_CHAN_ID + " = ? AND " + LiveStreamConstants.FIELD_START_TIME + " = ?";
+			String[] selectionArgs = new String[] { String.valueOf( program.getChannelInfo().getChannelId() ), String.valueOf( program.getStartTime().getMillis() ) };
+
+			LiveStreamInfo liveStreamInfo = findOne( context, locationProfile, null, null, selection, selectionArgs, null );
+			if( null != liveStreamInfo ) {
+				Log.v( TAG, "findByProgram : liveStreamInfo=" + liveStreamInfo.toString() );
+			}
+
+			Log.d( TAG, "findByProgram : exit" );
+			return liveStreamInfo;
+		} catch( Exception e ) {
+			Log.w( TAG, e );
 		}
-				
-		Log.d( TAG, "findByProgram : exit" );
-		return liveStreamInfo;
+		
+		Log.d( TAG, "findByProgram : exit, liveStreamInfo is null" );
+		return null;
 	}
 
 	/**
