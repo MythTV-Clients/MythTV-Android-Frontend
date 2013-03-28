@@ -19,11 +19,18 @@
 package org.mythtv.client.ui;
 
 import org.mythtv.client.MainApplication;
+import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.util.MythtvServiceHelper;
+import org.mythtv.services.api.ETagInfo;
+import org.mythtv.services.api.status.Status;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import android.app.AlertDialog;
+import android.os.AsyncTask;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 
 /**
  * @author Daniel Frey
@@ -31,8 +38,12 @@ import android.support.v4.app.Fragment;
  */
 public abstract class AbstractMythFragment extends Fragment implements MythtvApplicationContext {
 
+	protected static final String TAG = AbstractMythFragment.class.getSimpleName();
+	
 	protected MythtvServiceHelper mMythtvServiceHelper = MythtvServiceHelper.getInstance();
 	protected LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
+	
+	protected Status mStatus;
 	
 	//***************************************
     // MythActivity methods
@@ -60,4 +71,42 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
 
 		} );
 	}
+	
+	protected class BackendStatusTask extends AsyncTask<Void, Void, Status> {
+
+		@Override
+		protected org.mythtv.services.api.status.Status doInBackground( Void... params ) {
+			Log.i( TAG, "BackendStatusTask.doInBackground : enter" );
+			
+			LocationProfile mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
+
+			ETagInfo etag = ETagInfo.createEmptyETag();
+			ResponseEntity<org.mythtv.services.api.status.Status> status = mMythtvServiceHelper.getMythServicesApi( mLocationProfile ).statusOperations().getStatus( etag );
+			if( status.getStatusCode() == HttpStatus.OK ) {
+				Log.i( TAG, "BackendStatusTask.doInBackground : exit" );
+			
+				return status.getBody();
+			}
+			
+			Log.i( TAG, "BackendStatusTask.doInBackground : exit, status not returned" );
+			return null;
+		}
+
+		/* (non-Javadoc)
+		 * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
+		 */
+		@Override
+		protected void onPostExecute( org.mythtv.services.api.status.Status result ) {
+			Log.i( TAG, "BackendStatusTask.onPostExecute : enter" );
+			super.onPostExecute( result );
+
+			if( null != result ) {
+				mStatus = result;
+			}
+			
+			Log.i( TAG, "BackendStatusTask.onPostExecute : exit" );
+		}
+		
+	}
+
 }
