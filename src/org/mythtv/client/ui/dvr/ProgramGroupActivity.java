@@ -67,9 +67,6 @@ public class ProgramGroupActivity extends AbstractMythtvFragmentActivity impleme
 		Bundle extras = getIntent().getExtras(); 
 		String programGroup = extras.getString( ProgramGroupConstants.FIELD_TITLE );
 		if( null == programGroup || "".equals( programGroup ) ) {
-			Intent intent = new Intent( this, RecordingsActivity.class );
-			intent.addFlags( Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK );
-			startActivity( intent );
 			
 			finish();
 		}
@@ -92,10 +89,10 @@ public class ProgramGroupActivity extends AbstractMythtvFragmentActivity impleme
 
 		switch( item.getItemId() ) {
 			case android.R.id.home:
-				// app icon in action bar clicked; go home
-				Intent intent = new Intent( this, RecordingsActivity.class );
-				intent.addFlags( Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK );
-				startActivity( intent );
+//				// app icon in action bar clicked; go home
+//				Intent intent = new Intent( this, RecordingsActivity.class );
+//				intent.addFlags( Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK );
+//				startActivity( intent );
 				
 				finish();
 				

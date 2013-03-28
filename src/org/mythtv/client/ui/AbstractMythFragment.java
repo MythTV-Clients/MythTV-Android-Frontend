@@ -79,9 +79,7 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
 	protected Fragment findChildFragmentByIdOrTag(int id){
 	  Fragment frag = this.getChildFragmentManager().findFragmentById(id);
 	  if(null != frag) return frag;
-	  
 	  frag = this.getChildFragmentManager().findFragmentByTag(Integer.toString(id));
-	  
 	  return frag;
 	}
 	
