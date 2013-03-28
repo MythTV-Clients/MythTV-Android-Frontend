@@ -159,7 +159,6 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 		mMenuHelper = ( (AbstractMythtvFragmentActivity) getActivity() ).getMenuHelper();
 
 		setHasOptionsMenu( true );
-		setRetainInstance( true );
 
 	    adapter = new ProgramGroupCursorAdapter( getActivity().getApplicationContext() );
 	    

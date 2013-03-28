@@ -24,6 +24,7 @@ import org.mythtv.service.util.MythtvServiceHelper;
 
 import android.app.AlertDialog;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 
 /**
  * @author Daniel Frey
@@ -60,4 +61,18 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
 
 		} );
 	}
+	
+	/**
+	 * We use the fragment ID as a tag as well so we try both methodes of lookup
+	 * @return
+	 */
+	protected Fragment findChildFragmentByIdOrTag(int id){
+	  Fragment frag = this.getChildFragmentManager().findFragmentById(id);
+	  if(null != frag) return frag;
+	  
+	  frag = this.getChildFragmentManager().findFragmentByTag(Integer.toString(id));
+	  
+	  return frag;
+	}
+	
 }

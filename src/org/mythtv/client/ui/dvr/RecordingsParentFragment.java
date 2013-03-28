@@ -14,12 +14,14 @@ import org.mythtv.services.api.dvr.Program;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 
 /**
  * 
@@ -32,7 +34,7 @@ public class RecordingsParentFragment extends AbstractMythFragment implements
 		EpisodeFragment.OnEpisodeActionListener {
 
 
-	private static final String TAG = RecordingsParentFragment.class
+  private static final String TAG = RecordingsParentFragment.class
 			.getSimpleName();
 	private static final String PROGRAM_GROUP_LIST_TAG = "PROGRAM_GROUP_LIST_TAG";
 
@@ -50,13 +52,31 @@ public class RecordingsParentFragment extends AbstractMythFragment implements
 
 	private LocationProfile mLocationProfile;
 	
-	@Override
+
+  @Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		
-		View v = inflater.inflate(R.layout.activity_dvr_recordings, container, false );
-		
-		return v;
+    
+		View view = inflater.inflate(R.layout.activity_dvr_recordings, container, false );
+	  
+    FrameLayout fLayout = (FrameLayout)view.findViewById(R.id.frame_layout_recording_groups);
+    if(null != fLayout){
+      
+      FragmentManager fMan = this.getChildFragmentManager();
+      
+      RecordingsFragment frag = (RecordingsFragment)this.findChildFragmentByIdOrTag(R.id.fragment_dvr_program_groups);
+      if(null == frag){
+        frag = (RecordingsFragment)RecordingsFragment.instantiate(getActivity(), RecordingsFragment.class.getName());
+        frag.setOnProgramGroupListener(this);
+      }
+      
+      fMan.beginTransaction()
+          .replace(R.id.frame_layout_recording_groups, frag, Integer.toString(R.id.fragment_dvr_program_groups))
+          .commit();
+      
+    }
+	  
+		return view;
 	}
 	
 	@Override
@@ -65,9 +85,8 @@ public class RecordingsParentFragment extends AbstractMythFragment implements
 		
 		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
 		
-		mRecordingsFragment = (RecordingsFragment) getActivity().getSupportFragmentManager().findFragmentById( R.id.fragment_dvr_program_groups );
-        mRecordingsFragment.setOnProgramGroupListener( this );
-		
+		FragmentManager fMan = this.getChildFragmentManager();
+    
 		mUseMultiplePanes = ( null != getActivity().findViewById( R.id.fragment_dvr_program_group ) );
 
 		if( mUseMultiplePanes ) {

@@ -18,12 +18,14 @@
 
     This software can be found at <https://github.com/MythTV-Clients/MythTV-Android-Frontend/>
 
+
+
 -->
 
-
-<fragment xmlns:android="http://schemas.android.com/apk/res/android"
-  	class="org.mythtv.client.ui.dvr.RecordingsFragment"
-  	android:id="@+id/fragment_dvr_program_groups"
-  	android:layout_width="match_parent"
-  	android:layout_height="match_parent"
-/>
+<LinearLayout  xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <FrameLayout android:id="@+id/frame_layout_recording_groups"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"/>    
+</LinearLayout>
