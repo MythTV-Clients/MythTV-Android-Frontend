@@ -274,6 +274,8 @@ public class MainActivity extends AbstractMythtvFragmentActivity implements Cont
 	
 		//find fragment and instantiate if necessary
 		Fragment fragment = getSupportFragmentManager().findFragmentById(fragmentId);
+    if (null == fragment)
+      fragment = getSupportFragmentManager().findFragmentByTag(Integer.toString(fragmentId));
 		if (null == fragment)
 			fragment = Fragment.instantiate(this, fragmentClassName);
 		
@@ -298,7 +300,7 @@ public class MainActivity extends AbstractMythtvFragmentActivity implements Cont
 		FragmentTransaction fTran = fragMgr.beginTransaction();
 		
 		//replace content fragment with this one
-		fTran.replace(R.id.frame_layout_main_ui, fragment);
+		fTran.replace(R.id.frame_layout_main_ui, fragment, Integer.toString(fragmentId) );
 		fTran.addToBackStack(null);
 		
 		//finalize fragment transaction
