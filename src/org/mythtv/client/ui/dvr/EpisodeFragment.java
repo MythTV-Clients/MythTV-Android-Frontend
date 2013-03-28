@@ -141,7 +141,6 @@ public class EpisodeFragment extends AbstractMythFragment {
 		mRecordedDaoHelper = ( (AbstractMythtvFragmentActivity) getActivity() ).getRecordedDaoHelper();
 		
 		setHasOptionsMenu( true );
-		setRetainInstance( true );
 
 		Log.v( TAG, "onActivityCreated : exit" );
 	}

@@ -24,12 +24,11 @@
     android:layout_height="match_parent"
     android:orientation="horizontal" >
 
-    <fragment
-        android:id="@+id/fragment_dvr_program_groups"
+    <FrameLayout
+        android:id="@+id/frame_layout_recording_groups"
         android:layout_width="0dip"
         android:layout_height="match_parent"
-        android:layout_weight="0.30"
-        class="org.mythtv.client.ui.dvr.RecordingsFragment" />
+        android:layout_weight="0.30" />
 
     <LinearLayout
         android:layout_width="0dip"
@@ -37,19 +36,18 @@
         android:layout_weight="0.70"
         android:orientation="vertical" >
 
-        <fragment
-            android:id="@+id/fragment_dvr_episode"
+        <FrameLayout
+            android:id="@+id/frame_layout_episode"
             android:layout_width="match_parent"
             android:layout_height="0dip"
-            android:layout_weight="0.70"
-            class="org.mythtv.client.ui.dvr.EpisodeFragment" />
+            android:layout_weight="0.70" />
 
-        <fragment
-            android:id="@+id/fragment_dvr_program_group"
+        <FrameLayout
+            android:id="@+id/frame_layout_program_group"
             android:layout_width="match_parent"
             android:layout_height="0dip"
-            android:layout_weight="0.30"
-            class="org.mythtv.client.ui.dvr.ProgramGroupFragment" />
+            android:layout_weight="0.30" />
+        
     </LinearLayout>
 
 </LinearLayout>
