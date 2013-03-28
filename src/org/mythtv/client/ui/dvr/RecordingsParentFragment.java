@@ -33,24 +33,17 @@ public class RecordingsParentFragment extends AbstractMythFragment implements
 	ProgramGroupFragment.OnEpisodeSelectedListener,
 	EpisodeFragment.OnEpisodeActionListener {
 
-    private static final String TAG = RecordingsParentFragment.class
-	    .getSimpleName();
+    private static final String TAG = RecordingsParentFragment.class.getSimpleName();
     private static final String PROGRAM_GROUP_LIST_TAG = "PROGRAM_GROUP_LIST_TAG";
 
     private boolean mUseMultiplePanes;
-
-    private RecordedDaoHelper mRecordedDaoHelper = RecordedDaoHelper
-	    .getInstance();
-    private ProgramGroupDaoHelper mProgramGroupDaoHelper = ProgramGroupDaoHelper
-	    .getInstance();
-
+    private RecordedDaoHelper mRecordedDaoHelper = RecordedDaoHelper.getInstance();
+    private ProgramGroupDaoHelper mProgramGroupDaoHelper = ProgramGroupDaoHelper.getInstance();
     private RecordingsFragment mRecordingsFragment;
     private ProgramGroupFragment mProgramGroupFragment;
     private EpisodeFragment mEpisodeFragment;
-
     private ProgramGroup selectedProgramGroup;
     private Program selectedProgram;
-
     private LocationProfile mLocationProfile;
 
     @Override
@@ -58,8 +51,7 @@ public class RecordingsParentFragment extends AbstractMythFragment implements
 	    Bundle savedInstanceState) {
 
 	// inflate recordings activity/parent fragment view
-	View view = inflater.inflate(R.layout.activity_dvr_recordings,
-		container, false);
+	View view = inflater.inflate(R.layout.activity_dvr_recordings, container, false);
 
 	// get child fragment manager
 	FragmentManager fMan = this.getChildFragmentManager();
@@ -89,19 +81,14 @@ public class RecordingsParentFragment extends AbstractMythFragment implements
 	if (null != fLayout) {
 	    this.mUseMultiplePanes = true;
 
-	    mProgramGroupFragment = (ProgramGroupFragment) this
-		    .findChildFragmentByIdOrTag(R.id.fragment_dvr_program_group);
+	    mProgramGroupFragment = (ProgramGroupFragment) this.findChildFragmentByIdOrTag(R.id.fragment_dvr_program_group);
 	    if (null == mProgramGroupFragment) {
-		mProgramGroupFragment = (ProgramGroupFragment) ProgramGroupFragment
-			.instantiate(getActivity(),
-				ProgramGroupFragment.class.getName());
+		mProgramGroupFragment = (ProgramGroupFragment) ProgramGroupFragment.instantiate(getActivity(), ProgramGroupFragment.class.getName());
 		mProgramGroupFragment.setOnEpisodeSelectedListener(this);
 	    }
 
 	    fMan.beginTransaction()
-		    .replace(R.id.frame_layout_program_group,
-			    mProgramGroupFragment,
-			    Integer.toString(R.id.fragment_dvr_program_group))
+		    .replace(R.id.frame_layout_program_group, mProgramGroupFragment, Integer.toString(R.id.fragment_dvr_program_group))
 		    .commit();
 	}
 
@@ -110,19 +97,15 @@ public class RecordingsParentFragment extends AbstractMythFragment implements
 	if (null != fLayout) {
 	    this.mUseMultiplePanes = true;
 
-	    mEpisodeFragment = (EpisodeFragment) this
-		    .findChildFragmentByIdOrTag(R.id.fragment_dvr_episode);
+	    mEpisodeFragment = (EpisodeFragment) this.findChildFragmentByIdOrTag(R.id.fragment_dvr_episode);
 	    if (null == mEpisodeFragment) {
-		mEpisodeFragment = (EpisodeFragment) EpisodeFragment
-			.instantiate(getActivity(),
-				EpisodeFragment.class.getName());
+		mEpisodeFragment = (EpisodeFragment) EpisodeFragment.instantiate(getActivity(),EpisodeFragment.class.getName());
 		mEpisodeFragment.setOnEpisodeActionListener(this);
 	    }
 
 	    fMan.beginTransaction()
-		    .replace(R.id.frame_layout_episode, mEpisodeFragment,
-			    Integer.toString(R.id.fragment_dvr_episode))
-		    .commit();
+	    	.replace(R.id.frame_layout_episode, mEpisodeFragment,Integer.toString(R.id.fragment_dvr_episode))
+		.commit();
 	}
 
 	return view;
@@ -155,7 +138,6 @@ public class RecordingsParentFragment extends AbstractMythFragment implements
 
 	if (null == programGroup) {
 	    Log.d(TAG, "onProgramGroupSelected : exit, programGroups is empty");
-
 	    return;
 	}
 
@@ -166,7 +148,6 @@ public class RecordingsParentFragment extends AbstractMythFragment implements
 		getActivity(), mLocationProfile, programGroup.getTitle());
 	if (null == programs || programs.isEmpty()) {
 	    Log.d(TAG, "onProgramGroupSelected : no programs in programGroup");
-
 	    mRecordedDaoHelper.findAll(getActivity(), mLocationProfile);
 	}
 
@@ -175,61 +156,47 @@ public class RecordingsParentFragment extends AbstractMythFragment implements
 	}
 
 	if (this.mUseMultiplePanes && null != mProgramGroupFragment) {
-	    FragmentManager manager = this.getActivity()
-		    .getSupportFragmentManager();
+	    FragmentManager manager = this.getActivity().getSupportFragmentManager();
 
 	    final boolean programGroupAdded = (mProgramGroupFragment != null);
 	    if (programGroupAdded) {
 		if (null != mProgramGroupFragment.getSelectedProgramGroup()
-			&& mProgramGroupFragment.getSelectedProgramGroup()
-				.equals(programGroup)) {
-		    Log.d(TAG,
-			    "onProgramGroupSelected : exit, programGroup already selected");
-
+			&& mProgramGroupFragment.getSelectedProgramGroup().equals(programGroup)) {
+		    Log.d(TAG, "onProgramGroupSelected : exit, programGroup already selected");
 		    return;
 		}
 
 		mProgramGroupFragment.loadProgramGroup(programGroup);
 	    } else {
-		Log.v(TAG,
-			"onProgramGroupSelected : creating new programGroupFragment");
+		Log.v(TAG, "onProgramGroupSelected : creating new programGroupFragment");
 		FragmentTransaction transaction = manager.beginTransaction();
 		mProgramGroupFragment = new ProgramGroupFragment();
 
 		if (mUseMultiplePanes) {
 		    Log.v(TAG, "onProgramGroupSelected : adding to multipane");
-
-		    transaction.add(R.id.fragment_dvr_program_group,
-			    mProgramGroupFragment, PROGRAM_GROUP_LIST_TAG);
+		    transaction.add(R.id.fragment_dvr_program_group, mProgramGroupFragment, PROGRAM_GROUP_LIST_TAG);
 		} else {
 		    Log.v(TAG, "onProgramGroupSelected : replacing fragment");
 
-		    transaction.replace(R.id.fragment_dvr_program_group,
-			    mProgramGroupFragment, PROGRAM_GROUP_LIST_TAG);
+		    transaction.replace(R.id.fragment_dvr_program_group, mProgramGroupFragment, PROGRAM_GROUP_LIST_TAG);
 		    transaction.addToBackStack(null);
 		}
-		transaction
-			.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+		transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
 		transaction.commit();
 
-		Log.v(TAG,
-			"onProgramGroupSelected : setting program group to display");
+		Log.v(TAG,"onProgramGroupSelected : setting program group to display");
 		mProgramGroupFragment.loadProgramGroup(programGroup);
 	    }
 
 	    if (null != selectedProgram) {
-		onEpisodeSelected(selectedProgram.getChannelInfo()
-			.getChannelId(), selectedProgram.getStartTime());
+		onEpisodeSelected(selectedProgram.getChannelInfo().getChannelId(), selectedProgram.getStartTime());
 	    }
 
 	} else {
-	    Log.v(TAG,
-		    "onProgramGroupSelected : starting program group activity");
+	    Log.v(TAG, "onProgramGroupSelected : starting program group activity");
 
-	    Intent i = new Intent(this.getActivity(),
-		    ProgramGroupActivity.class);
-	    i.putExtra(ProgramGroupConstants.FIELD_TITLE,
-		    programGroup.getTitle());
+	    Intent i = new Intent(this.getActivity(), ProgramGroupActivity.class);
+	    i.putExtra(ProgramGroupConstants.FIELD_TITLE, programGroup.getTitle());
 	    startActivity(i);
 	}
 
@@ -276,20 +243,14 @@ public class RecordingsParentFragment extends AbstractMythFragment implements
 	selectedProgramGroup = programGroup;
 	selectedProgram = null;
 
-	List<Program> programs = mRecordedDaoHelper.findAllByTitle(
-		getActivity(), mLocationProfile, programGroup.getTitle());
+	List<Program> programs = mRecordedDaoHelper.findAllByTitle(getActivity(), mLocationProfile, programGroup.getTitle());
 	if (null == programs || programs.isEmpty()) {
-	    Log.d(TAG,
-		    "onProgramGroupSelected : exit, no programs in programGroup");
-
-	    programs = mRecordedDaoHelper.findAll(getActivity(),
-		    mLocationProfile);
+	    Log.d(TAG, "onProgramGroupSelected : exit, no programs in programGroup");
+	    programs = mRecordedDaoHelper.findAll(getActivity(), mLocationProfile);
 	}
 
 	selectedProgram = programs.get(0);
-
-	onEpisodeSelected(selectedProgram.getChannelInfo().getChannelId(),
-		selectedProgram.getStartTime());
+	onEpisodeSelected(selectedProgram.getChannelInfo().getChannelId(), selectedProgram.getStartTime());
 
 	Log.v(TAG, "onEpisodeDeleted : exit");
     }
