@@ -30,7 +30,7 @@ import org.springframework.http.ResponseEntity;
 import android.app.AlertDialog;
 import android.os.AsyncTask;
 import android.support.v4.app.Fragment;
-import android.util.Log;
+import android.support.v4.app.FragmentManager;
 
 /**
  * @author Daniel Frey
@@ -72,41 +72,17 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
 		} );
 	}
 	
-	protected class BackendStatusTask extends AsyncTask<Void, Void, Status> {
-
-		@Override
-		protected org.mythtv.services.api.status.Status doInBackground( Void... params ) {
-			Log.i( TAG, "BackendStatusTask.doInBackground : enter" );
-			
-			LocationProfile mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
-
-			ETagInfo etag = ETagInfo.createEmptyETag();
-			ResponseEntity<org.mythtv.services.api.status.Status> status = mMythtvServiceHelper.getMythServicesApi( mLocationProfile ).statusOperations().getStatus( etag );
-			if( status.getStatusCode() == HttpStatus.OK ) {
-				Log.i( TAG, "BackendStatusTask.doInBackground : exit" );
-			
-				return status.getBody();
-			}
-			
-			Log.i( TAG, "BackendStatusTask.doInBackground : exit, status not returned" );
-			return null;
-		}
-
-		/* (non-Javadoc)
-		 * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
-		 */
-		@Override
-		protected void onPostExecute( org.mythtv.services.api.status.Status result ) {
-			Log.i( TAG, "BackendStatusTask.onPostExecute : enter" );
-			super.onPostExecute( result );
-
-			if( null != result ) {
-				mStatus = result;
-			}
-			
-			Log.i( TAG, "BackendStatusTask.onPostExecute : exit" );
-		}
-		
+	/**
+	 * We use the fragment ID as a tag as well so we try both methodes of lookup
+	 * @return
+	 */
+	protected Fragment findChildFragmentByIdOrTag(int id){
+	  Fragment frag = this.getChildFragmentManager().findFragmentById(id);
+	  if(null != frag) return frag;
+	  
+	  frag = this.getChildFragmentManager().findFragmentByTag(Integer.toString(id));
+	  
+	  return frag;
 	}
-
+	
 }
