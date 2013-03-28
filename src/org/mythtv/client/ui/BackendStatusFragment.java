@@ -40,6 +40,8 @@ public class BackendStatusFragment extends AbstractMythFragment {
 			return "Backend profile is not selected";
 		}
 		
+		new BackendStatusTask().execute();
+		
 		return  (mLocationProfile.isConnected() ? "Connected to " : "NOT Connected to ") + mLocationProfile.getName();
 	}
 

@@ -65,27 +65,21 @@ public class RecordingsParentFragment extends AbstractMythFragment implements
 	FragmentManager fMan = this.getChildFragmentManager();
 
 	// look for recording groups list placeholder framelayout
-	FrameLayout fLayout = (FrameLayout) view
-		.findViewById(R.id.frame_layout_recording_groups);
+	FrameLayout fLayout = (FrameLayout) view.findViewById(R.id.frame_layout_recording_groups);
 	if (null != fLayout) {
-	    mRecordingsFragment = (RecordingsFragment) fMan
-		    .findFragmentByTag(RecordingsFragment.class.getName());
+	    mRecordingsFragment = (RecordingsFragment) fMan.findFragmentByTag(RecordingsFragment.class.getName());
 	    if (null == mRecordingsFragment) {
-		mRecordingsFragment = (RecordingsFragment) RecordingsFragment
-			.instantiate(getActivity(),
-				RecordingsFragment.class.getName());
+		mRecordingsFragment = (RecordingsFragment) RecordingsFragment.instantiate(getActivity(), RecordingsFragment.class.getName());
 		mRecordingsFragment.setOnProgramGroupListener(this);
 	    }
 
 	    fMan.beginTransaction()
-		    .replace(R.id.frame_layout_recording_groups,
-			    mRecordingsFragment,
-			    RecordingsFragment.class.getName()).commit();
+		    .replace(R.id.frame_layout_recording_groups, mRecordingsFragment, RecordingsFragment.class.getName())
+		    .commit();
 	}
 
 	// look for program group placeholder framelayout
-	fLayout = (FrameLayout) view
-		.findViewById(R.id.frame_layout_program_group);
+	fLayout = (FrameLayout) view.findViewById(R.id.frame_layout_program_group);
 	if (null != fLayout) {
 	    this.mUseMultiplePanes = true;
 
