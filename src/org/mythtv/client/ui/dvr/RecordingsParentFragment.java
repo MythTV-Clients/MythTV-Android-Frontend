@@ -53,6 +53,17 @@ public class RecordingsParentFragment extends AbstractMythFragment implements
 	// inflate recordings activity/parent fragment view
 	View view = inflater.inflate(R.layout.activity_dvr_recordings, container, false);
 
+	
+
+	return view;
+    }
+
+    @Override
+    public void onResume() {
+	super.onResume();
+	
+	View view = this.getView();
+	
 	// get child fragment manager
 	FragmentManager fMan = this.getChildFragmentManager();
 
@@ -82,8 +93,9 @@ public class RecordingsParentFragment extends AbstractMythFragment implements
 	    }
 
 	    fMan.beginTransaction()
-		    .replace(R.id.frame_layout_program_group, mProgramGroupFragment, Integer.toString(R.id.fragment_dvr_program_group))
-		    .commit();
+        	    .replace(R.id.frame_layout_program_group, mProgramGroupFragment, Integer.toString(R.id.fragment_dvr_program_group))
+        	    .commit();
+	    
 	}
 
 	// look for program group placeholder framelayout
@@ -101,22 +113,16 @@ public class RecordingsParentFragment extends AbstractMythFragment implements
 	    	.replace(R.id.frame_layout_episode, mEpisodeFragment,Integer.toString(R.id.fragment_dvr_episode))
 		.commit();
 	}
+	
+	
+	
 
-	return view;
-    }
-
-    @Override
-    public void onResume() {
-	super.onResume();
-
-	mLocationProfile = mLocationProfileDaoHelper
-		.findConnectedProfile(getActivity());
+	mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile(getActivity());
 
 	if (mUseMultiplePanes) {
-	    List<ProgramGroup> programGroups = mProgramGroupDaoHelper.findAll(
-		    getActivity(), mLocationProfile);
+	    List<ProgramGroup> programGroups = mProgramGroupDaoHelper.findAll(getActivity(), mLocationProfile);
 	    if (null != programGroups && !programGroups.isEmpty()) {
-		onProgramGroupSelected(programGroups.get(0));
+//		onProgramGroupSelected(programGroups.get(0));
 	    }
 	}
     }
