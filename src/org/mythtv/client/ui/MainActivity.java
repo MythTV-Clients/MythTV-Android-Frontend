@@ -274,10 +274,10 @@ public class MainActivity extends AbstractMythtvFragmentActivity implements Cont
 	
 		//find fragment and instantiate if necessary
 		Fragment fragment = getSupportFragmentManager().findFragmentById(fragmentId);
-    if (null == fragment)
-      fragment = getSupportFragmentManager().findFragmentByTag(Integer.toString(fragmentId));
+                if (null == fragment)
+                    fragment = getSupportFragmentManager().findFragmentByTag(Integer.toString(fragmentId));
 		if (null == fragment)
-			fragment = Fragment.instantiate(this, fragmentClassName);
+		    fragment = Fragment.instantiate(this, fragmentClassName);
 		
 		//call into overload
 		OnFragmentRequested(fragmentId, fragment);
