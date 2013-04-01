@@ -41,8 +41,11 @@ import org.springframework.http.ResponseEntity;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -107,10 +110,10 @@ public class RecordingRulesFragment extends MythtvListFragment {
 
 		mainApplication = (MainApplication) getActivity().getApplicationContext();
 		
-	    adapter = new RecordingRuleAdapter( getActivity().getApplicationContext() );
+		adapter = new RecordingRuleAdapter( getActivity().getApplicationContext() );
 	    
-	    setListAdapter( adapter );
-	    getListView().setFastScrollEnabled( true );
+		setListAdapter( adapter );
+    	    	getListView().setFastScrollEnabled( true );
 	    
 		Log.v( TAG, "onActivityCreated : exit" );
 	}
@@ -157,10 +160,18 @@ public class RecordingRulesFragment extends MythtvListFragment {
 		Log.v( TAG, "onListItemClick : enter" );
 		super.onListItemClick( l, v, position, id );
 
+		//get selected rule
 		RecRule rule = (RecRule) l.getItemAtPosition( position );
 		
+		//only continue if we got a valid rule
 		if( null != rule ) {
-			listener.onRecordingRuleSelected( rule.getId() );
+		    
+        		//call rule selected listener if defined
+        		boolean handled = false;
+        		if(null != listener) handled = listener.onRecordingRuleSelected( rule.getId() );
+        		
+        		//handle rule selection ourself if not handled by listener
+        		if(!handled) this.recordingRuleSelected( rule.getId() );
 		}
 		
 		Log.v( TAG, "onListItemClick : exit" );
@@ -174,8 +185,51 @@ public class RecordingRulesFragment extends MythtvListFragment {
 		Log.v( TAG, "setOnRecordingRuleListener : exit" );
 	}
 
+	public void recordingRuleSelected( Integer recordingRuleId ) {
+		Log.d( TAG, "onRecordingRuleSelected : enter" );
+		
+		if( null != this.getActivity().findViewById( R.id.fragment_dvr_recording_rule ) ) {
+			Log.v( TAG, "onRecordingRuleSelected : adding recording rule to pane" );
+
+			FragmentManager manager = this.getActivity().getSupportFragmentManager();
+
+			RecordingRuleFragment recordingRuleFragment = (RecordingRuleFragment) manager.findFragmentById( R.id.fragment_dvr_recording_rule );
+			FragmentTransaction transaction = manager.beginTransaction();
+
+			if( null == recordingRuleFragment ) {
+				Log.v( TAG, "onRecordingRuleSelected : creating new recordingRuleFragment" );
+				
+				Bundle args = new Bundle();
+				args.putInt( "RECORDING_RULE_ID", recordingRuleId );
+				recordingRuleFragment = RecordingRuleFragment.newInstance( args );
+				
+				transaction
+					.add( R.id.fragment_dvr_recording_rule, recordingRuleFragment )
+					.setTransition( FragmentTransaction.TRANSIT_FRAGMENT_OPEN )
+					.addToBackStack( null )
+					.commit();
+			}
+			
+			Log.v( TAG, "onRecordingRuleSelected : setting recording rule to display" );
+			recordingRuleFragment.loadRecordingRule( recordingRuleId );
+		} else {
+			Log.v( TAG, "onRecordingRuleSelected : starting recording rule activity" );
+
+			Intent i = new Intent( this.getActivity(), RecordingRuleActivity.class );
+			i.putExtra( RecordingRuleActivity.EXTRA_RECORDING_RULE_KEY, recordingRuleId );
+			startActivity( i );
+		}
+
+		Log.d( TAG, "onRecordingRuleSelected : exit" );
+	}
+	
 	public interface OnRecordingRuleListener {
-		void onRecordingRuleSelected( Integer recordingRuleId );
+	    	/**
+	    	 * Called when a recording rule is slected
+	    	 * @param recordingRuleId
+	    	 * @return true if selection has been handled.
+	    	 */
+		boolean onRecordingRuleSelected( Integer recordingRuleId );
 	}
 	
 	private class SetRuleActiveStateTask extends AsyncTask<Integer, Void, Void>

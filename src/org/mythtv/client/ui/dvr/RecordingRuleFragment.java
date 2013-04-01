@@ -102,6 +102,8 @@ public class RecordingRuleFragment extends AbstractMythFragment {
 
 		View v = inflater.inflate( R.layout.recording_rule, container, false );
 		
+		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
+		
 		Log.v( TAG, "onCreateView : exit" );
 		return v;
 	}
@@ -113,7 +115,7 @@ public class RecordingRuleFragment extends AbstractMythFragment {
 	public void onActivityCreated( Bundle savedInstanceState ) {
 		super.onActivityCreated( savedInstanceState );
 
-		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
+		//mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
 	}
 
 	public void loadRecordingRule( Integer recordingRuleId ) {
@@ -154,11 +156,8 @@ public class RecordingRuleFragment extends AbstractMythFragment {
 		
 		switch( item.getItemId() ) {
 			case android.R.id.home:
-				// app icon in action bar clicked; go home
-				intent = new Intent( this.getActivity(), RecordingRulesActivity.class );
-				intent.addFlags( Intent.FLAG_ACTIVITY_CLEAR_TOP );
-				startActivity( intent );
-
+			    	// app icon in action bar clicked; go home
+			    	this.getActivity().finish();
 				return true;
 			
 			case MenuHelper.EDIT_ID:
@@ -236,14 +235,14 @@ public class RecordingRuleFragment extends AbstractMythFragment {
 		@Override
 		protected ResponseEntity<RecRuleWrapper> doInBackground( Integer... params ) {
 			
-			if( !NetworkHelper.getInstance().isMasterBackendConnected( getActivity(), mLocationProfile ) ) {
-				return null;
-			}
+		    if( !NetworkHelper.getInstance().isMasterBackendConnected( getActivity(), mLocationProfile ) ) {
+			return null;
+		    }
 			
-			Integer id = params[ 0 ];
+		    Integer id = params[ 0 ];
 			
-			ETagInfo etag = ETagInfo.createEmptyETag();
-			return mMythtvServiceHelper.getMythServicesApi( mLocationProfile ).dvrOperations().getRecordSchedule( id, etag );
+		    ETagInfo etag = ETagInfo.createEmptyETag();
+		    return mMythtvServiceHelper.getMythServicesApi( mLocationProfile ).dvrOperations().getRecordSchedule( id, etag );
 		}
 
 		/* (non-Javadoc)

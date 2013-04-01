@@ -55,7 +55,7 @@ public class RecordingRulesActivity extends AbstractMythtvFragmentActivity imple
 	 * @see org.mythtv.client.ui.dvr.RecordingRulesFragment.OnRecordingRuleListener#onRecordingRuleSelected(java.lang.Integer)
 	 */
 	@Override
-	public void onRecordingRuleSelected( Integer recordingRuleId ) {
+	public boolean onRecordingRuleSelected( Integer recordingRuleId ) {
 		Log.d( TAG, "onRecordingRuleSelected : enter" );
 		
 		if( null != findViewById( R.id.fragment_dvr_recording_rule ) ) {
@@ -90,7 +90,9 @@ public class RecordingRulesActivity extends AbstractMythtvFragmentActivity imple
 			startActivity( i );
 		}
 
+		
 		Log.d( TAG, "onRecordingRuleSelected : exit" );
+		return true;
 	}
 
 }
