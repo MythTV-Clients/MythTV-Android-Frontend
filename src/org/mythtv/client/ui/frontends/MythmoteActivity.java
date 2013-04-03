@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.mythtv.R;
+import org.mythtv.client.ui.util.MenuHelper;
 
 import android.annotation.TargetApi;
 import android.app.ActionBar;
@@ -34,6 +35,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
+import android.view.MenuItem;
 
 /**
  * @author Daniel Frey
@@ -99,6 +101,23 @@ public class MythmoteActivity extends AbstractFrontendsActivity {
 		super.onPause();
 	}
 
+	
+	/* (non-Javadoc)
+	 * @see android.app.Activity#onOptionsItemSelected(android.view.MenuItem)
+	 */
+	@Override
+	public boolean onOptionsItemSelected( MenuItem item ) {
+		Log.d( TAG, "onOptionsItemSelected : enter" );
+
+		switch( item.getItemId() ) {			
+		case android.R.id.home:
+		    this.finish();
+		    return true;
+		};
+
+		Log.d( TAG, "onOptionsItemSelected : exit" );
+		return super.onOptionsItemSelected( item );
+	}
 	
 	/**
 	 * Setups up the viewpager and MythmotePagerAdapter if
