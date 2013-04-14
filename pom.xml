@@ -109,7 +109,7 @@
              <artifactId>mythtv-service-api</artifactId>
              <version>${mythtv.service.api-version}</version>
         </dependency>
-    
+
 	</dependencies>
 
     <build>

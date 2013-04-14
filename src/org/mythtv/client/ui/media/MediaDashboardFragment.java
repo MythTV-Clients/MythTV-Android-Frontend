@@ -18,6 +18,7 @@
  */
 package org.mythtv.client.ui.media;
 
+import android.content.Intent;
 import org.mythtv.R;
 import org.mythtv.client.ui.AbstractMythFragment;
 
@@ -79,9 +80,7 @@ public class MediaDashboardFragment extends AbstractMythFragment {
 		root.findViewById( R.id.media_btn_pictures ).setOnClickListener( new View.OnClickListener() {
 			public void onClick( View view ) {
 				Log.v( TAG, "pictures.onClick : enter" );
-
-				Toast.makeText( getActivity(), "Pictures - Coming Soon!", Toast.LENGTH_SHORT ).show();
-
+                startActivity( new Intent( getActivity(), GalleryActivity.class ) );
 				Log.v( TAG, "pictures.onClick : exit" );
 			}
 		} );
