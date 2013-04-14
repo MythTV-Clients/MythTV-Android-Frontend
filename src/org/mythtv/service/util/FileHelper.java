@@ -23,6 +23,7 @@ import java.io.File;
 import android.content.Context;
 import android.os.Build;
 import android.os.Environment;
+import org.mythtv.services.api.StringList;
 
 /**
  * @author Daniel Frey
@@ -39,7 +40,8 @@ public class FileHelper {
 	private static final String PROGRAM_UPCOMING_DATA = "upcoming";
 	private static final String PROGRAM_GROUPS_DATA = "groups";
 	private static final String IMAGE_DATA = "images";
-	
+    private static final String GALLERY_DATA = "gallery";
+
 	private Context mContext;
 	
 	public static FileHelper newInstance( Context context ) {
@@ -220,6 +222,27 @@ public class FileHelper {
 		return null;
 	}
 
+    public File getGalleryDataDirectory() {
+   //		Log.v( TAG, "getGalleryDataDirectory : enter" );
+
+   		File programDir = getProgramDataDirectory();
+   		if( null != programDir && programDir.exists() ) {
+
+   			File galleryDataDirectory = new File( programDir, GALLERY_DATA );
+   			galleryDataDirectory.mkdir();
+
+   			if( galleryDataDirectory.exists() ) {
+   //				Log.v( TAG, "getGalleryDataDirectory : exit" );
+
+   				return galleryDataDirectory;
+   			}
+
+   		}
+
+   //		Log.v( TAG, "getProgramGroupsDataDirectory : exit, program groups data directory doesn't exit" );
+   		return null;
+   	}
+
 	// internal helpers
 	
 	private File getRootCacheDirectory() {
@@ -260,5 +283,16 @@ public class FileHelper {
 //		Log.v( TAG, "getRootCacheDirectory : exit, cache directory does not exist" );
 		return null;
 	}
+
+    public StringList getDirectoryLevel(StringList dirList, int level){
+
+        StringList test = new StringList();
+
+        for(String file : dirList.getStringList()){
+
+
+        }
+        return test;
+    }
 
 }
