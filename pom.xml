@@ -11,7 +11,7 @@
     <properties>
         <java-version>1.6</java-version>
         <google.android-version>4.1.1.4</google.android-version>
-        <google.android.support-version>r7</google.android.support-version>
+        <google.android.support-version>r12</google.android.support-version>
         <org.springframework.android-version>1.0.1.RELEASE</org.springframework.android-version>
         <jdmns-version>3.4.1</jdmns-version>
         <joda-time-version>2.1</joda-time-version>
@@ -29,6 +29,13 @@
         <url>https://github.com/MythTV-Clients/MythTV-Android-Frontend</url>
     </scm>
 
+    <repositories>
+      <repository>
+        <id>serena-qmul</id>
+        <url>http://www.eecs.qmul.ac.uk/~jamief/mvn/repo</url>
+      </repository>
+    </repositories>
+
     <dependencies>
         
         <dependency>
@@ -38,11 +45,11 @@
             <scope>provided</scope>
         </dependency>
         
-        <!-- dependency>
+        <dependency>
         	<groupId>com.google.android</groupId>
         	<artifactId>support-v4</artifactId>
         	<version>${google.android.support-version}</version>
-        </dependency -->
+        </dependency>
         
  		<!-- Spring Android -->
         <dependency>
@@ -159,7 +166,7 @@
                 	</execution>
             	</executions>
         	</plugin>
-        
+
 	      	<plugin>
         		<groupId>org.apache.maven.plugins</groupId>
         		<artifactId>maven-surefire-plugin</artifactId>
