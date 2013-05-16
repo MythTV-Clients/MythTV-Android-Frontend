@@ -38,7 +38,7 @@ public class RecordingRuleActivity extends AbstractMythtvFragmentActivity {
 
 	private RecordingRuleFragment recordingRuleFragment = null;
 
-	private Integer recordingRuleId;
+	private Long recordingRuleId;
 	
 	// ***************************************
 	// Activity methods
@@ -55,7 +55,7 @@ public class RecordingRuleActivity extends AbstractMythtvFragmentActivity {
 		super.onCreate( savedInstanceState );
 
 		Bundle extras = getIntent().getExtras(); 
-		recordingRuleId = extras.getInt( EXTRA_RECORDING_RULE_KEY );
+		recordingRuleId = extras.getLong( EXTRA_RECORDING_RULE_KEY );
 		
 		setContentView( R.layout.fragment_dvr_recording_rule );
 

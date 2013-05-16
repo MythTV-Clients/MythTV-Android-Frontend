@@ -27,6 +27,7 @@ import org.mythtv.db.channel.ChannelConstants;
 import org.mythtv.db.content.LiveStreamConstants;
 import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.db.dvr.RecordingConstants;
+import org.mythtv.db.dvr.RecordingRuleConstants;
 import org.mythtv.db.dvr.programGroup.ProgramGroupConstants;
 import org.mythtv.db.http.EtagConstants;
 import org.mythtv.db.preferences.LocationProfileConstants;
@@ -96,6 +97,11 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 	private static final int RECORDING_UPCOMING			= 160;
 	private static final int RECORDING_UPCOMING_ID		= 161;
 
+	private static final String RECORDING_RULE_CONTENT_TYPE = "vnd.mythtv.cursor.dir/org.mythtv.recordingRule";
+	private static final String RECORDING_RULE_CONTENT_ITEM_TYPE = "vnd.mythtv.cursor.item/org.mythtv.recordingRule";
+	private static final int RECORDING_RULE				= 170;
+	private static final int RECORDING_RULE_ID			= 171;
+
 
 	private static final String LIVE_STREAM_CONTENT_TYPE = "vnd.mythtv.cursor.dir/org.mythtv.liveStream";
 	private static final String LIVE_STREAM_CONTENT_ITEM_TYPE = "vnd.mythtv.cursor.item/org.mythtv.liveStream";
@@ -144,6 +150,8 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 		URI_MATCHER.addURI( AUTHORITY, RecordingConstants.ContentDetails.RECORDED.getTableName() + "/#", RECORDING_RECORDED_ID );
 		URI_MATCHER.addURI( AUTHORITY, RecordingConstants.ContentDetails.UPCOMING.getTableName(), RECORDING_UPCOMING );
 		URI_MATCHER.addURI( AUTHORITY, RecordingConstants.ContentDetails.UPCOMING.getTableName() + "/#", RECORDING_UPCOMING_ID );
+		URI_MATCHER.addURI( AUTHORITY, RecordingRuleConstants.TABLE_NAME, RECORDING_RULE );
+		URI_MATCHER.addURI( AUTHORITY, RecordingRuleConstants.TABLE_NAME + "/#", RECORDING_RULE_ID );
 		URI_MATCHER.addURI( AUTHORITY, LiveStreamConstants.TABLE_NAME, LIVE_STREAM );
 		URI_MATCHER.addURI( AUTHORITY, LiveStreamConstants.TABLE_NAME + "/#", LIVE_STREAM_ID );
 		URI_MATCHER.addURI( AUTHORITY, ChannelConstants.TABLE_NAME, CHANNELS );
@@ -223,6 +231,12 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 			
 			case RECORDING_UPCOMING_ID:
 				return RECORDING_UPCOMING_CONTENT_ITEM_TYPE;
+			
+			case RECORDING_RULE:
+				return RECORDING_RULE_CONTENT_TYPE;
+			
+			case RECORDING_RULE_ID:
+				return RECORDING_RULE_CONTENT_ITEM_TYPE;
 			
 			case LIVE_STREAM:
 				return LIVE_STREAM_CONTENT_TYPE;
@@ -406,6 +420,25 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 			case RECORDING_UPCOMING_ID:
 				
 				deleted = db.delete( RecordingConstants.ContentDetails.UPCOMING.getTableName(), RecordingConstants._ID
+						+ "="
+						+ Long.toString( ContentUris.parseId( uri ) )
+						+ ( !TextUtils.isEmpty( selection ) ? " AND (" + selection + ')' : "" ), selectionArgs );
+				
+				getContext().getContentResolver().notifyChange( uri, null );
+				
+				return deleted;
+
+			case RECORDING_RULE:
+
+				deleted = db.delete( RecordingRuleConstants.TABLE_NAME, selection, selectionArgs );
+				
+				getContext().getContentResolver().notifyChange( uri, null );
+				
+				return deleted;
+
+			case RECORDING_RULE_ID:
+				
+				deleted = db.delete( RecordingRuleConstants.TABLE_NAME, RecordingRuleConstants._ID
 						+ "="
 						+ Long.toString( ContentUris.parseId( uri ) )
 						+ ( !TextUtils.isEmpty( selection ) ? " AND (" + selection + ')' : "" ), selectionArgs );
@@ -598,6 +631,14 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 //				System.out.println( "recordId=" + values.get( RecordingConstants.FIELD_RECORD_ID ) + ", startTime=" + DateUtils.dateTimeFormatterPretty.print( new DateTime( (Long) values.get( RecordingConstants.FIELD_START_TS ) ) ) );
 
 				newUri = ContentUris.withAppendedId( RecordingConstants.ContentDetails.UPCOMING.getContentUri(), db.insertWithOnConflict( RecordingConstants.ContentDetails.UPCOMING.getTableName(), null, values, SQLiteDatabase.CONFLICT_IGNORE ) );
+				
+				getContext().getContentResolver().notifyChange( newUri, null );
+				
+				return newUri;
+	
+			case RECORDING_RULE:
+
+				newUri = ContentUris.withAppendedId( RecordingRuleConstants.CONTENT_URI, db.insertWithOnConflict( RecordingRuleConstants.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_IGNORE ) );
 				
 				getContext().getContentResolver().notifyChange( newUri, null );
 				
@@ -1063,6 +1104,37 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				
 				return cursor;
 	
+			case RECORDING_RULE:
+				
+				sb.append( RecordingRuleConstants.TABLE_NAME );
+				
+				queryBuilder.setTables( sb.toString() );
+				queryBuilder.setProjectionMap( mRecordingRuleColumnMap );
+				
+//				System.out.println( queryBuilder.buildQuery( null, selection, null, null, sortOrder, null ) );
+				
+				cursor = queryBuilder.query( db, null, selection, selectionArgs, null, null, sortOrder );
+				
+				cursor.setNotificationUri( getContext().getContentResolver(), uri );
+				
+				return cursor;
+				
+			case RECORDING_RULE_ID:
+				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
+
+				sb.append( RecordingRuleConstants.TABLE_NAME );
+				
+				queryBuilder.setTables( sb.toString() );
+				queryBuilder.setProjectionMap( mRecordingRuleColumnMap );
+				
+//				System.out.println( queryBuilder.buildQuery( null, selection, null, null, sortOrder, null ) );
+				
+				cursor = queryBuilder.query( db, null, selection, selectionArgs, null, null, sortOrder );
+				
+				cursor.setNotificationUri( getContext().getContentResolver(), uri );
+				
+				return cursor;
+	
 			case LIVE_STREAM:
 				
 				sb.append( LiveStreamConstants.TABLE_NAME );
@@ -1321,6 +1393,22 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				
 				return affected;
 
+			case RECORDING_RULE:
+				affected = db.update( RecordingRuleConstants.TABLE_NAME, values, selection , selectionArgs );
+				
+				getContext().getContentResolver().notifyChange( uri, null );
+				
+				return affected;
+
+			case RECORDING_RULE_ID:
+				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
+
+				affected = db.update( RecordingRuleConstants.TABLE_NAME, values, selection , selectionArgs );
+				
+				getContext().getContentResolver().notifyChange( uri, null );
+				
+				return affected;
+
 			case LIVE_STREAM:
 				affected = db.update( LiveStreamConstants.TABLE_NAME, values, selection , selectionArgs );
 				
@@ -1566,6 +1654,25 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				try {
 					//standard SQL insert statement, that can be reused
 					SQLiteStatement insert = db.compileStatement( RecordingConstants.INSERT_RECORDING_UPCOMING_ROW );
+					bulkInsertRecordings( insert, values );
+					
+					db.setTransactionSuccessful();
+	            
+					numInserted = values.length;
+				} finally {
+					db.endTransaction();
+				}
+			
+				getContext().getContentResolver().notifyChange( uri, null );
+
+				return numInserted;
+
+			case RECORDING_RULE:
+				
+				db.beginTransaction();
+				try {
+					//standard SQL insert statement, that can be reused
+					SQLiteStatement insert = db.compileStatement( RecordingRuleConstants.INSERT_ROW );
 					bulkInsertRecordings( insert, values );
 					
 					db.setTransactionSuccessful();
@@ -1873,4 +1980,25 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 		return columnMap;
 	}
 
+	private static final Map<String, String> mRecordingRuleColumnMap = buildRecordingRuleColumnMap( new HashMap<String, String>() );
+	private static Map<String, String> buildRecordingRuleColumnMap( Map<String, String> columnMap ) {
+		if( null == columnMap ) {
+			columnMap = new HashMap<String, String>();
+		}
+		
+		String recordingRuleProjection[] = RecordingRuleConstants.COLUMN_MAP;
+		for( String col : recordingRuleProjection ) {
+
+			if( !"_id".equals( col ) ) {
+				String qualifiedCol = RecordingRuleConstants.TABLE_NAME + "." + col;
+				columnMap.put( qualifiedCol, qualifiedCol + " as " + RecordingRuleConstants.TABLE_NAME + "_" + col );
+			} else {
+				String qualifiedCol = RecordingRuleConstants.TABLE_NAME + "." + col;
+				columnMap.put( qualifiedCol, qualifiedCol + " as " + col );
+			}
+		}
+		
+		return columnMap;
+	}
+	
 }

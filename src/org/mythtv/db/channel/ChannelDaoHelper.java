@@ -178,6 +178,8 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 	public ChannelInfo findByChannelId( final Context context, final LocationProfile locationProfile, final Long channelId ) {
 		Log.d( TAG, "findByChannelId : enter" );
 		
+		Log.d( TAG, "findByChannelId : channelId=" + channelId );
+
 		String selection = ChannelConstants.FIELD_CHAN_ID + " = ?";
 		String[] selectionArgs = new String[] { String.valueOf( channelId ) };
 		

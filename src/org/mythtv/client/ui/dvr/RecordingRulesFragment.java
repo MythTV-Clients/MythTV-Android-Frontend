@@ -18,9 +18,7 @@
  */
 package org.mythtv.client.ui.dvr;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import org.joda.time.DateTime;
 import org.mythtv.R;
 import org.mythtv.client.MainApplication;
 import org.mythtv.client.ui.preferences.LocationProfile;
@@ -28,24 +26,32 @@ import org.mythtv.client.ui.util.MenuHelper;
 import org.mythtv.client.ui.util.MythtvListFragment;
 import org.mythtv.client.ui.util.ProgramHelper;
 import org.mythtv.db.channel.ChannelDaoHelper;
+import org.mythtv.db.dvr.RecordingRuleConstants;
+import org.mythtv.db.dvr.RecordingRuleDaoHelper;
+import org.mythtv.db.http.EtagDaoHelper;
+import org.mythtv.service.dvr.RecordingRuleDownloadService;
 import org.mythtv.service.util.DateUtils;
-import org.mythtv.service.util.NetworkHelper;
-import org.mythtv.service.util.NotificationHelper;
-import org.mythtv.service.util.NotificationHelper.NotificationType;
-import org.mythtv.services.api.ETagInfo;
+import org.mythtv.service.util.RunningServiceHelper;
+import org.mythtv.services.api.Bool;
 import org.mythtv.services.api.channel.ChannelInfo;
 import org.mythtv.services.api.dvr.RecRule;
-import org.mythtv.services.api.dvr.RecRuleList;
-import org.springframework.http.HttpStatus;
+import org.mythtv.services.api.dvr.impl.DvrTemplate.Endpoint;
 import org.springframework.http.ResponseEntity;
 
 import android.annotation.TargetApi;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
+import android.support.v4.widget.CursorAdapter;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -53,45 +59,79 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.nostra13.universalimageloader.core.assist.PauseOnScrollListener;
 
 /**
  * @author Daniel Frey
  *
  */
-public class RecordingRulesFragment extends MythtvListFragment {
+public class RecordingRulesFragment extends MythtvListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
 	private static final String TAG = RecordingRulesFragment.class.getSimpleName();
 
-	private NotificationHelper mNotificationHelper;
+	private RecordingRuleDownloadReceiver recordingRuleDownloadReceiver = new RecordingRuleDownloadReceiver();
+
+	//	private NotificationHelper mNotificationHelper;
 
 	private OnRecordingRuleListener listener = null;
 	private RecordingRuleAdapter adapter;
+	private EtagDaoHelper mEtagDaoHelper = EtagDaoHelper.getInstance();
 	private ChannelDaoHelper mChannelDaoHelper = ChannelDaoHelper.getInstance();
+	private RecordingRuleDaoHelper mRecordingRuleDaoHelper = RecordingRuleDaoHelper.getInstance();
+	private RunningServiceHelper mRunningServiceHelper = RunningServiceHelper.getInstance();
 	private MenuHelper mMenuHelper = MenuHelper.getInstance();
 	
 	private MainApplication mainApplication;
 	
 	private LocationProfile mLocationProfile;
 	
-	/**
-	 * OnCheckChangeListener to control rule's active state
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.LoaderManager.LoaderCallbacks#onCreateLoader(int, android.os.Bundle)
 	 */
-	private OnCheckedChangeListener sRuleCheckChangeListener = new OnCheckedChangeListener(){
-
-		@Override
-		public void onCheckedChanged( CompoundButton buttonView, boolean isChecked ) {
-			RecRule rule = (RecRule) buttonView.getTag();
-			rule.setInactive( !isChecked );
-			
-			new SetRuleActiveStateTask().execute( isChecked?1:0, rule.getId() );
-		}
+	@Override
+	public Loader<Cursor> onCreateLoader( int id, Bundle args ) {
+		Log.v( TAG, "onCreateLoader : enter" );
 		
-	};
+		String[] projection = null;
+		String selection = RecordingRuleConstants.FIELD_MASTER_HOSTNAME + " = ?";
+		String[] selectionArgs = new String[] { mLocationProfile.getHostname() };
+		String sortOrder = null;
+		
+	    CursorLoader cursorLoader = new CursorLoader( getActivity(), RecordingRuleConstants.CONTENT_URI, projection, selection, selectionArgs, sortOrder );
+		
+	    Log.v( TAG, "onCreateLoader : exit" );
+		return cursorLoader;
+	}
+
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.LoaderManager.LoaderCallbacks#onLoadFinished(android.support.v4.content.Loader, java.lang.Object)
+	 */
+	@Override
+	public void onLoadFinished( Loader<Cursor> loader, Cursor cursor ) {
+		Log.v( TAG, "onLoadFinished : enter" );
+		
+		adapter.swapCursor( cursor );
+		
+		Log.v( TAG, "onLoadFinished : exit" );
+	}
+
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.LoaderManager.LoaderCallbacks#onLoaderReset(android.support.v4.content.Loader)
+	 */
+	@Override
+	public void onLoaderReset( Loader<Cursor> loader ) {
+		Log.v( TAG, "onLoaderReset : enter" );
+		
+		adapter.swapCursor( null );
+		
+		Log.v( TAG, "onLoaderReset : exit" );
+	}
 
 	/* (non-Javadoc)
 	 * @see android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
@@ -103,21 +143,88 @@ public class RecordingRulesFragment extends MythtvListFragment {
 
 		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
 		
-		mNotificationHelper = new NotificationHelper( getActivity() );
+//		mNotificationHelper = new NotificationHelper( getActivity() );
 
 		setHasOptionsMenu( true );
-		setRetainInstance( true );
+//		setRetainInstance( true );
 
 		mainApplication = (MainApplication) getActivity().getApplicationContext();
 		
 		adapter = new RecordingRuleAdapter( getActivity().getApplicationContext() );
 	    
 		setListAdapter( adapter );
-    	    	getListView().setFastScrollEnabled( true );
-	    
+    	getListView().setFastScrollEnabled( true );
+
+		getLoaderManager().initLoader( 0, null, this );
+		
+		getListView().setOnScrollListener( new PauseOnScrollListener( false, true ) );
+
 		Log.v( TAG, "onActivityCreated : exit" );
 	}
 	
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.Fragment#onStart()
+	 */
+	@Override
+	public void onStart() {
+		Log.v( TAG, "onStart : enter" );
+		super.onStart();
+
+		IntentFilter recordingRuleDownloadFilter = new IntentFilter( RecordingRuleDownloadService.ACTION_DOWNLOAD );
+		recordingRuleDownloadFilter.addAction( RecordingRuleDownloadService.ACTION_PROGRESS );
+		recordingRuleDownloadFilter.addAction( RecordingRuleDownloadService.ACTION_COMPLETE );
+        getActivity().registerReceiver( recordingRuleDownloadReceiver, recordingRuleDownloadFilter );
+
+		Log.v( TAG, "onStart : enter" );
+	}
+
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.Fragment#onResume()
+	 */
+	@Override
+	public void onResume() {
+		Log.v( TAG, "onResume : enter" );
+		super.onStart();
+	    
+		DateTime etag = mEtagDaoHelper.findDateByEndpointAndDataId( getActivity(), mLocationProfile, Endpoint.GET_RECORD_SCHEDULE_LIST.name(), "" );
+		if( null != etag ) {
+			
+			DateTime now = new DateTime();
+			if( now.getMillis() - etag.getMillis() > 3600000 ) {
+				if( !mRunningServiceHelper.isServiceRunning( getActivity(), "org.mythtv.service.dvr.RecordingRuleDownloadService" ) ) {
+					getActivity().startService( new Intent( RecordingRuleDownloadService.ACTION_DOWNLOAD ) );
+				}
+			}
+			
+		} else {
+			if( !mRunningServiceHelper.isServiceRunning( getActivity(), "org.mythtv.service.dvr.RecordingRuleDownloadService" ) ) {
+				getActivity().startService( new Intent( RecordingRuleDownloadService.ACTION_DOWNLOAD ) );
+			}
+		}
+
+        Log.v( TAG, "onResume : exit" );
+	}
+	
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.Fragment#onStop()
+	 */
+	@Override
+	public void onStop() {
+		Log.v( TAG, "onStop : enter" );
+		super.onStop();
+
+		// Unregister for broadcast
+		if( null != recordingRuleDownloadReceiver ) {
+			try {
+				getActivity().unregisterReceiver( recordingRuleDownloadReceiver );
+			} catch( IllegalArgumentException e ) {
+				Log.e( TAG, e.getLocalizedMessage(), e );
+			}
+		}
+
+		Log.v( TAG, "onStop : exit" );
+	}
+
 	/* (non-Javadoc)
 	 * @see android.support.v4.app.Fragment#onCreateOptionsMenu(android.view.Menu, android.view.MenuInflater)
 	 */
@@ -143,7 +250,10 @@ public class RecordingRulesFragment extends MythtvListFragment {
 		case MenuHelper.REFRESH_ID:
 			Log.d( TAG, "onOptionsItemSelected : refresh selected" );
 
-			adapter.refresh();
+//			adapter.refresh();
+			if( !mRunningServiceHelper.isServiceRunning( getActivity(), "org.mythtv.service.dvr.RecordingRuleDownloadService" ) ) {
+				getActivity().startService( new Intent( RecordingRuleDownloadService.ACTION_DOWNLOAD ) );
+			}
 			
 	        return true;
 		}
@@ -160,18 +270,20 @@ public class RecordingRulesFragment extends MythtvListFragment {
 		Log.v( TAG, "onListItemClick : enter" );
 		super.onListItemClick( l, v, position, id );
 
+		Log.v( TAG, "onListItemClick : position=" + position + ", id=" + id );
+
 		//get selected rule
-		RecRule rule = (RecRule) l.getItemAtPosition( position );
+		RecRule rule = mRecordingRuleDaoHelper.findOne( getActivity(), mLocationProfile, id );
 		
 		//only continue if we got a valid rule
 		if( null != rule ) {
 		    
-        		//call rule selected listener if defined
-        		boolean handled = false;
-        		if(null != listener) handled = listener.onRecordingRuleSelected( rule.getId() );
+       		//call rule selected listener if defined
+       		boolean handled = false;
+       		if(null != listener) handled = listener.onRecordingRuleSelected( rule );
         		
-        		//handle rule selection ourself if not handled by listener
-        		if(!handled) this.recordingRuleSelected( rule.getId() );
+       		//handle rule selection ourself if not handled by listener
+       		if(!handled) this.recordingRuleSelected( rule );
 		}
 		
 		Log.v( TAG, "onListItemClick : exit" );
@@ -185,7 +297,7 @@ public class RecordingRulesFragment extends MythtvListFragment {
 		Log.v( TAG, "setOnRecordingRuleListener : exit" );
 	}
 
-	public void recordingRuleSelected( Integer recordingRuleId ) {
+	public void recordingRuleSelected( RecRule recordingRule ) {
 		Log.d( TAG, "onRecordingRuleSelected : enter" );
 		
 		if( null != this.getActivity().findViewById( R.id.fragment_dvr_recording_rule ) ) {
@@ -200,7 +312,7 @@ public class RecordingRulesFragment extends MythtvListFragment {
 				Log.v( TAG, "onRecordingRuleSelected : creating new recordingRuleFragment" );
 				
 				Bundle args = new Bundle();
-				args.putInt( "RECORDING_RULE_ID", recordingRuleId );
+				args.putLong( "RECORDING_RULE_ID", recordingRule.getId() );
 				recordingRuleFragment = RecordingRuleFragment.newInstance( args );
 				
 				transaction
@@ -211,12 +323,12 @@ public class RecordingRulesFragment extends MythtvListFragment {
 			}
 			
 			Log.v( TAG, "onRecordingRuleSelected : setting recording rule to display" );
-			recordingRuleFragment.loadRecordingRule( recordingRuleId );
+			recordingRuleFragment.loadRecordingRule( (long) recordingRule.getId() );
 		} else {
 			Log.v( TAG, "onRecordingRuleSelected : starting recording rule activity" );
 
 			Intent i = new Intent( this.getActivity(), RecordingRuleActivity.class );
-			i.putExtra( RecordingRuleActivity.EXTRA_RECORDING_RULE_KEY, recordingRuleId );
+			i.putExtra( RecordingRuleActivity.EXTRA_RECORDING_RULE_KEY, (long) recordingRule.getId() );
 			startActivity( i );
 		}
 
@@ -229,177 +341,180 @@ public class RecordingRulesFragment extends MythtvListFragment {
 	    	 * @param recordingRuleId
 	    	 * @return true if selection has been handled.
 	    	 */
-		boolean onRecordingRuleSelected( Integer recordingRuleId );
+		boolean onRecordingRuleSelected( RecRule recordingRule );
 	}
 	
-	private class SetRuleActiveStateTask extends AsyncTask<Integer, Void, Void>
-	{	
+	private class SetRuleActiveStateTask extends AsyncTask<Object, Void, Bool> {
+		
+		private RecRule recRule = null;
+		
 		@Override
-		protected Void doInBackground(Integer... params) {
-			if(params[0] > 0){
-				mMythtvServiceHelper.getMythServicesApi( mLocationProfile ).dvrOperations().enableRecordingSchedule(params[1]);
+		protected Bool doInBackground( Object... params ) {
+			
+			int updated = (Integer) params[ 0 ];
+			recRule = (RecRule) params[ 1 ];
+			
+			ResponseEntity<Bool> ret = null;
+			if( updated > 0 ) {
+				ret = mMythtvServiceHelper.getMythServicesApi( mLocationProfile ).dvrOperations().enableRecordingSchedule( recRule.getId() );
 			}else{
-				mMythtvServiceHelper.getMythServicesApi( mLocationProfile ).dvrOperations().disableRecordingSchedule(params[1]);
+				ret = mMythtvServiceHelper.getMythServicesApi( mLocationProfile ).dvrOperations().disableRecordingSchedule(  recRule.getId() );
 			}
-			return null;
-		}	
+			
+			return ret.getBody();
+		}
+
+		/* (non-Javadoc)
+		 * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
+		 */
+		@Override
+		protected void onPostExecute( Bool result ) {
+
+			if( result.getBool() ) {
+				if( null != recRule ) {
+					mRecordingRuleDaoHelper.save( getActivity(), mLocationProfile, recRule );
+				
+        			Toast.makeText( getActivity(), "Recording Rule '" + recRule.getTitle() + "' updated!", Toast.LENGTH_SHORT ).show();
+				} else {
+        			Toast.makeText( getActivity(), "Recording Rule NOT updated!", Toast.LENGTH_SHORT ).show();
+				}
+			} else {
+    			Toast.makeText( getActivity(), "Recording Rule NOT updated!", Toast.LENGTH_SHORT ).show();
+			}
+			
+		}
+		
 	}
 
 	// internal helpers
 	
-	private class RecordingRuleAdapter extends BaseAdapter {
+	private class RecordingRuleAdapter extends CursorAdapter {
 
 		private LayoutInflater mInflater;
-
-		private List<RecRule> rules = new ArrayList<RecRule>();
 
 		private ProgramHelper mProgramHelper = ProgramHelper.getInstance();
 
 		public RecordingRuleAdapter( Context context ) {
+			super( context, null, false );
 			
 			mInflater = LayoutInflater.from( context );
 			
-			if( null == rules || rules.isEmpty() ) {
-				new DownloadRecordingRulesTask().execute();
-			}
 		}
 		
-		/* (non-Javadoc)
-		 * @see android.widget.Adapter#getCount()
-		 */
 		@Override
-		public int getCount() {
-			if( null != rules ) {
-				return rules.size();
-			}
-			
-			return 0;
-		}
+		public View newView( Context context, Cursor cursor, ViewGroup parent ) {
+			//Log.v( TAG, "newView : enter" );
 
-		/* (non-Javadoc)
-		 * @see android.widget.Adapter#getItem(int)
-		 */
-		@Override
-		public RecRule getItem( int position ) {
-			if( null != rules ) {
-				return rules.get( position );
-			}
+	        View view = mInflater.inflate( R.layout.recording_rules_row, parent, false );
 			
-			return null;
-		}
+			ViewHolder refHolder = new ViewHolder();
+			refHolder.category = (View) view.findViewById( R.id.recording_rules_category );
+			refHolder.title = (TextView) view.findViewById( R.id.recording_rules_title );
+			refHolder.channel = (TextView) view.findViewById( R.id.recording_rules_channel );
+			refHolder.type = (TextView) view.findViewById( R.id.recording_rules_type );
+			refHolder.last = (TextView) view.findViewById( R.id.recording_rules_last );
+			
+			if(android.os.Build.VERSION.SDK_INT >= 14 ){
+				refHolder.active = (CompoundButton) view.findViewById(R.id.recording_rules_switch_active);
+			} else {
+				refHolder.active = (CompoundButton) view.findViewById(R.id.recording_rules_checkbox_active);
+			}
 
-		/* (non-Javadoc)
-		 * @see android.widget.Adapter#getItemId(int)
-		 */
-		@Override
-		public long getItemId( int position ) {
-			if( null != rules ) {
-				return position;
-			}
+			view.setTag( refHolder );
 			
-			return 0;
+			//Log.v( TAG, "newView : exit" );
+			return view;
 		}
 
 		/* (non-Javadoc)
 		 * @see android.widget.Adapter#getView(int, android.view.View, android.view.ViewGroup)
 		 */
 		@Override
-		public View getView( int position, View convertView, ViewGroup parent ) {
+		public void bindView( View view, Context context, Cursor cursor ) {
 
-			convertView = mInflater.inflate( R.layout.recording_rules_row, parent, false );
-			ViewHolder mHolder = new ViewHolder();
-			mHolder.category = (View) convertView.findViewById( R.id.recording_rules_category );
-			mHolder.title = (TextView) convertView.findViewById( R.id.recording_rules_title );
-			mHolder.channel = (TextView) convertView.findViewById( R.id.recording_rules_channel );
-			mHolder.type = (TextView) convertView.findViewById( R.id.recording_rules_type );
-			mHolder.last = (TextView) convertView.findViewById( R.id.recording_rules_last );
+			RecRule recRule = mRecordingRuleDaoHelper.convertCursorToRecRule( cursor );
+//			Log.i( TAG, "recRule=" + recRule.toString() );
 			
-			if(android.os.Build.VERSION.SDK_INT >= 14 ){
-				mHolder.active = (CompoundButton)convertView.findViewById(R.id.recording_rules_switch_active);
-			} else {
-				mHolder.active = (CompoundButton)convertView.findViewById(R.id.recording_rules_checkbox_active);
-			}
-			
-			RecRule rule = getItem( position );
-			Log.v( TAG, "rule=" + rule.toString() );
-			
+			final ViewHolder mHolder = (ViewHolder) view.getTag();
+
 			String channel = "[Any]";
-			if( rule.getChanId() > 0 ) {
-				ChannelInfo channelInfo = mChannelDaoHelper.findByChannelId( getActivity(), mLocationProfile, (long) rule.getChanId() );
+			if( recRule.getChanId() > 0 ) {
+				ChannelInfo channelInfo = mChannelDaoHelper.findByChannelId( getActivity(), mLocationProfile, (long) recRule.getChanId() );
 				if( null != channelInfo && channelInfo.getChannelId() > -1 ) {
 					channel = channelInfo.getChannelNumber();
 				}
 			}
 			
-			mHolder.category.setBackgroundColor( mProgramHelper.getCategoryColor( rule.getCategory() ) );
-			mHolder.title.setText( rule.getTitle() );
+			mHolder.category.setBackgroundColor( mProgramHelper.getCategoryColor( recRule.getCategory() ) );
+			mHolder.title.setText( recRule.getTitle() );
 			mHolder.channel.setText( channel );
-			mHolder.type.setText( rule.getType() );
-			mHolder.last.setText(DateUtils.getDateWithLocaleFormatting(rule.getLastRecorded(), mainApplication.getDateFormat()));
-			mHolder.active.setChecked(!rule.isInactive());
-			mHolder.active.setTag(rule);
-			mHolder.active.setOnCheckedChangeListener(sRuleCheckChangeListener);
-			
-			return convertView;
-		}
-		
-		public void refresh() {
-			new DownloadRecordingRulesTask().execute();
-		}
-		
-		private class ViewHolder {
-			
-			View category;
-			
-			TextView title;
-			TextView channel;
-			TextView type;
-			TextView last;
-			CompoundButton active;
-			
-			ViewHolder() { }
+			mHolder.type.setText( recRule.getType() );
+			mHolder.last.setText( DateUtils.getDateWithLocaleFormatting( recRule.getLastRecorded(), mainApplication.getDateFormat() ) );
+			mHolder.active.setChecked( !recRule.isInactive() );
+			mHolder.active.setTag( recRule );
+			mHolder.active.setOnCheckedChangeListener( new OnCheckedChangeListener() {
 
-		}
-
-		private class DownloadRecordingRulesTask extends AsyncTask<Void, Void, ResponseEntity<RecRuleList>> {
-
-			/* (non-Javadoc)
-			 * @see android.os.AsyncTask#doInBackground(Params[])
-			 */
-			@Override
-			protected ResponseEntity<RecRuleList> doInBackground( Void... params ) {
-				
-				String message = "Retrieving Recording Rules";
-				mNotificationHelper.createNotification( "Mythtv for Android", message, NotificationType.UPLOAD );
-				
-				if( !NetworkHelper.getInstance().isMasterBackendConnected( getActivity(), mLocationProfile ) ) {
-					return null;
-				}
-
-				ETagInfo etag = ETagInfo.createEmptyETag();
-				return mMythtvServiceHelper.getMythServicesApi( mLocationProfile ).dvrOperations().getRecordScheduleList( -1, -1, etag );
-			}
-
-			/* (non-Javadoc)
-			 * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
-			 */
-			@Override
-			protected void onPostExecute( ResponseEntity<RecRuleList> result ) {
-				
-				mNotificationHelper.completed();
-				
-				if( null != result ) {
+				@Override
+				public void onCheckedChanged( CompoundButton buttonView, boolean isChecked ) {
+//					Log.d( TAG, "onCheckedChanged : enter" );
 					
-					if( result.getStatusCode().equals( HttpStatus.OK ) ) {
-						rules = result.getBody().getRecRules().getRecRules();
-					
-						notifyDataSetChanged();
+					RecRule rule = (RecRule) mHolder.active.getTag();
+					if( null != rule ) {
+						rule.setInactive( !isChecked );
+//						Log.i( TAG, "onCheckedChanged : recRule=" + rule.toString() );
+						
+						new SetRuleActiveStateTask().execute( isChecked ? 1 : 0, rule );
 					}
 					
+//					Log.d( TAG, "onCheckedChanged : exit" );
 				}
 				
-			}
+			});
 			
+		}
+		
+	}
+
+	private static class ViewHolder {
+		
+		View category;
+		
+		TextView title;
+		TextView channel;
+		TextView type;
+		TextView last;
+		CompoundButton active;
+		
+		ViewHolder() { }
+
+	}
+
+	private class RecordingRuleDownloadReceiver extends BroadcastReceiver {
+
+		@Override
+		public void onReceive( Context context, Intent intent ) {
+        	Log.i( TAG, "RecordingRuleDownloadReceiver.onReceive : enter" );
+			
+	        if ( intent.getAction().equals( RecordingRuleDownloadService.ACTION_PROGRESS ) ) {
+	        	Log.i( TAG, "RecordingRuleDownloadReceiver.onReceive : progress=" + intent.getStringExtra( RecordingRuleDownloadService.EXTRA_PROGRESS ) );
+	        }
+	        
+	        if ( intent.getAction().equals( RecordingRuleDownloadService.ACTION_COMPLETE ) ) {
+	        	Log.i( TAG, "RecordingRuleDownloadReceiver.onReceive : complete=" + intent.getStringExtra( RecordingRuleDownloadService.EXTRA_COMPLETE ) );
+	        	
+	        	if( intent.getExtras().containsKey( RecordingRuleDownloadService.EXTRA_COMPLETE_UPTODATE ) ) {
+	        		Toast.makeText( getActivity(), "Recorded Program are up to date!", Toast.LENGTH_SHORT ).show();
+	        	} else if( intent.getExtras().containsKey( RecordingRuleDownloadService.EXTRA_COMPLETE_OFFLINE ) ) {
+	        		Toast.makeText( getActivity(), "Recording Rules Update failed because Master Backend is not connected!", Toast.LENGTH_SHORT ).show();
+	        	} else {
+	        		Toast.makeText( getActivity(), "Recording Rules updated!", Toast.LENGTH_SHORT ).show();
+
+	        		adapter.notifyDataSetChanged();
+	        	}
+	        	
+	        }
+
+        	Log.i( TAG, "RecordingRuleDownloadReceiver.onReceive : exit" );
 		}
 		
 	}

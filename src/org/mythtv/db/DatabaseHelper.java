@@ -23,6 +23,7 @@ import org.mythtv.db.channel.ChannelConstants;
 import org.mythtv.db.content.LiveStreamConstants;
 import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.db.dvr.RecordingConstants;
+import org.mythtv.db.dvr.RecordingRuleConstants;
 import org.mythtv.db.dvr.programGroup.ProgramGroupConstants;
 import org.mythtv.db.http.EtagConstants;
 import org.mythtv.db.preferences.LocationProfileConstants;
@@ -46,7 +47,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	private static final String TAG = DatabaseHelper.class.getSimpleName();
 	
 	private static final String DATABASE_NAME = "mythtvdb";
-	private static final int DATABASE_VERSION = 113;
+	private static final int DATABASE_VERSION = 114;
 
 	public DatabaseHelper( Context context ) {
 		super( context, DATABASE_NAME, null, DATABASE_VERSION );
@@ -118,6 +119,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		dropLiveStream( db );
 		createLiveStream( db );
 		
+		dropRecordingRule( db );
+		createRecordingRule( db );
+		
 		Log.v( TAG, "onCreate : exit" );
 	}
 
@@ -128,8 +132,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	public void onUpgrade( SQLiteDatabase db, int oldVersion, int newVersion ) {
 		Log.v( TAG, "onUpgrade : enter" );
 
-		if( oldVersion < 113 ) {
-			Log.v( TAG, "onUpgrade : upgrading to db version 113" );
+		if( oldVersion < 114 ) {
+			Log.v( TAG, "onUpgrade : upgrading to db version 114" );
 
 			onCreate( db );
 
@@ -683,4 +687,78 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	}
 	
 
+	private void createRecordingRule( SQLiteDatabase db ) {
+		Log.v( TAG, "createRecordingRule : enter" );
+		
+		StringBuilder sqlBuilder = new StringBuilder();
+		sqlBuilder.append( "CREATE TABLE " + RecordingRuleConstants.TABLE_NAME + " (" );
+		sqlBuilder.append( RecordingRuleConstants._ID ).append( " " ).append( RecordingRuleConstants.FIELD_ID_DATA_TYPE ).append( " " ).append( RecordingRuleConstants.FIELD_ID_PRIMARY_KEY ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_REC_RULE_ID ).append( " " ).append( RecordingRuleConstants.FIELD_REC_RULE_ID_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_PARENT_ID ).append( " " ).append( RecordingRuleConstants.FIELD_PARENT_ID_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_INACTIVE ).append( " " ).append( RecordingRuleConstants.FIELD_INACTIVE_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_TITLE ).append( " " ).append( RecordingRuleConstants.FIELD_TITLE_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_SUB_TITLE ).append( " " ).append( RecordingRuleConstants.FIELD_SUB_TITLE_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_DESCRIPTION ).append( " " ).append( RecordingRuleConstants.FIELD_DESCRIPTION_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_SEASON ).append( " " ).append( RecordingRuleConstants.FIELD_SEASON_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_EPISODE ).append( " " ).append( RecordingRuleConstants.FIELD_EPISODE_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_CATEGORY ).append( " " ).append( RecordingRuleConstants.FIELD_CATEGORY_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_START_TIME ).append( " " ).append( RecordingRuleConstants.FIELD_START_TIME_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_END_TIME ).append( " " ).append( RecordingRuleConstants.FIELD_END_TIME_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_SERIES_ID ).append( " " ).append( RecordingRuleConstants.FIELD_SERIES_ID_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_PROGRAM_ID ).append( " " ).append( RecordingRuleConstants.FIELD_PROGRAM_ID_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_INETREF ).append( " " ).append( RecordingRuleConstants.FIELD_INETREF_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_CHAN_ID ).append( " " ).append( RecordingRuleConstants.FIELD_CHAN_ID_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_CALLSIGN ).append( " " ).append( RecordingRuleConstants.FIELD_CALLSIGN_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_DAY ).append( " " ).append( RecordingRuleConstants.FIELD_DAY_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_TIME ).append( " " ).append( RecordingRuleConstants.FIELD_TIME_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_FIND_ID ).append( " " ).append( RecordingRuleConstants.FIELD_FIND_ID_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_TYPE ).append( " " ).append( RecordingRuleConstants.FIELD_TYPE_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_SEARCH_TYPE ).append( " " ).append( RecordingRuleConstants.FIELD_SEARCH_TYPE_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_REC_PRIORITY ).append( " " ).append( RecordingRuleConstants.FIELD_REC_PRIORITY_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_PREFERRED_INPUT ).append( " " ).append( RecordingRuleConstants.FIELD_PREFERRED_INPUT_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_START_OFFSET ).append( " " ).append( RecordingRuleConstants.FIELD_START_OFFSET_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_END_OFFSET ).append( " " ).append( RecordingRuleConstants.FIELD_END_OFFSET_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_DUP_METHOD ).append( " " ).append( RecordingRuleConstants.FIELD_DUP_METHOD_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_DUP_IN ).append( " " ).append( RecordingRuleConstants.FIELD_DUP_IN_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_FILTER ).append( " " ).append( RecordingRuleConstants.FIELD_FILTER_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_REC_PROFILE ).append( " " ).append( RecordingRuleConstants.FIELD_REC_PROFILE_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_REC_GROUP ).append( " " ).append( RecordingRuleConstants.FIELD_REC_GROUP_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_STORAGE_GROUP ).append( " " ).append( RecordingRuleConstants.FIELD_STORAGE_GROUP_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_PLAY_GROUP ).append( " " ).append( RecordingRuleConstants.FIELD_PLAY_GROUP_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_AUTO_EXPIRE ).append( " " ).append( RecordingRuleConstants.FIELD_AUTO_EXPIRE_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_MAX_EPISODES ).append( " " ).append( RecordingRuleConstants.FIELD_MAX_EPISODES_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_MAX_NEWEST ).append( " " ).append( RecordingRuleConstants.FIELD_MAX_NEWEST_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_AUTO_COMMFLAG ).append( " " ).append( RecordingRuleConstants.FIELD_AUTO_COMMFLAG_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_AUTO_TRANSCODE ).append( " " ).append( RecordingRuleConstants.FIELD_AUTO_TRANSCODE_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_AUTO_METADATA ).append( " " ).append( RecordingRuleConstants.FIELD_AUTO_METADATA_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_AUTO_USER_JOB_1 ).append( " " ).append( RecordingRuleConstants.FIELD_AUTO_USER_JOB_1_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_AUTO_USER_JOB_2 ).append( " " ).append( RecordingRuleConstants.FIELD_AUTO_USER_JOB_2_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_AUTO_USER_JOB_3 ).append( " " ).append( RecordingRuleConstants.FIELD_AUTO_USER_JOB_3_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_AUTO_USER_JOB_4 ).append( " " ).append( RecordingRuleConstants.FIELD_AUTO_USER_JOB_4_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_TRANSCODER ).append( " " ).append( RecordingRuleConstants.FIELD_TRANSCODER_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_NEXT_RECORDING ).append( " " ).append( RecordingRuleConstants.FIELD_NEXT_RECORDING_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_LAST_RECORDED ).append( " " ).append( RecordingRuleConstants.FIELD_LAST_RECORDED_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_LAST_DELETED ).append( " " ).append( RecordingRuleConstants.FIELD_LAST_DELETED_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_AVERAGE_DELAY ).append( " " ).append( RecordingRuleConstants.FIELD_AVERAGE_DELAY_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_MASTER_HOSTNAME ).append( " " ).append( RecordingRuleConstants.FIELD_MASTER_HOSTNAME_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_LAST_MODIFIED_DATE ).append( " " ).append( RecordingRuleConstants.FIELD_LAST_MODIFIED_DATE_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( "UNIQUE(" ).append( RecordingRuleConstants.FIELD_REC_RULE_ID ).append( ", " ).append( RecordingRuleConstants.FIELD_MASTER_HOSTNAME ).append( ")" );
+		sqlBuilder.append( ");" );
+		String sql = sqlBuilder.toString();
+		if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
+			Log.v( TAG, "createRecordingRule : sql=" + sql );
+		}
+		db.execSQL( sql );
+	
+		Log.v( TAG, "createRecordingRule : exit" );
+	}
+	
+	private void dropRecordingRule( SQLiteDatabase db ) {
+		Log.v( TAG, "dropRecordingRule : enter" );
+		
+		db.execSQL( "DROP TABLE IF EXISTS " + RecordingRuleConstants.TABLE_NAME );
+		
+		Log.v( TAG, "dropRecordingRule : exit" );
+	}
+	
 }
