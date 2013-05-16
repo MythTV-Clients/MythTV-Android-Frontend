@@ -28,16 +28,11 @@ import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.util.MenuHelper;
 import org.mythtv.client.ui.util.ProgramHelper;
 import org.mythtv.db.channel.ChannelDaoHelper;
-import org.mythtv.service.util.NetworkHelper;
-import org.mythtv.services.api.ETagInfo;
+import org.mythtv.db.dvr.RecordingRuleDaoHelper;
 import org.mythtv.services.api.channel.ChannelInfo;
 import org.mythtv.services.api.dvr.RecRule;
-import org.mythtv.services.api.dvr.RecRuleWrapper;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -57,10 +52,10 @@ public class RecordingRuleFragment extends AbstractMythFragment {
 
 	private static final String TAG = RecordingRuleFragment.class.getSimpleName();
 	
+	private RecordingRuleDaoHelper mRecordingnRuleDaoHelper = RecordingRuleDaoHelper.getInstance();
 	private ChannelDaoHelper mChannelDaoHelper = ChannelDaoHelper.getInstance();
 	private MenuHelper mMenuHelper;
 	private ProgramHelper mProgramHelper = ProgramHelper.getInstance();
-	private Integer mRecordingRuleId;
 	
 	private LocationProfile mLocationProfile;
 	
@@ -86,7 +81,7 @@ public class RecordingRuleFragment extends AbstractMythFragment {
 
 		Bundle args = getArguments();
 		if( null != args ){
-			int recordingRuleId = args.getInt( "RECORDING_RULE_ID" );
+			long recordingRuleId = args.getLong( "RECORDING_RULE_ID" );
 			loadRecordingRule( recordingRuleId );
 		}
 		
@@ -103,7 +98,7 @@ public class RecordingRuleFragment extends AbstractMythFragment {
 		View v = inflater.inflate( R.layout.recording_rule, container, false );
 		
 		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
-		
+
 		Log.v( TAG, "onCreateView : exit" );
 		return v;
 	}
@@ -113,17 +108,22 @@ public class RecordingRuleFragment extends AbstractMythFragment {
 	 */
 	@Override
 	public void onActivityCreated( Bundle savedInstanceState ) {
+		Log.v( TAG, "onActivityCreated : enter" );
+		
 		super.onActivityCreated( savedInstanceState );
 
-		//mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
+		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
+
+		Log.v( TAG, "onActivityCreated : exit" );
 	}
 
-	public void loadRecordingRule( Integer recordingRuleId ) {
+	public void loadRecordingRule( Long recordingRuleId ) {
 		Log.v( TAG, "loadRecordingRule : enter" );
 		
-		mRecordingRuleId = recordingRuleId;
+		Log.v( TAG, "loadRecordingRule : recordingRuleId=" + recordingRuleId );
 
-		new DownloadRecordingRuleTask().execute( mRecordingRuleId );
+		RecRule recRule = mRecordingnRuleDaoHelper.findByRecordingRuleId( getActivity(), mLocationProfile, recordingRuleId );
+		setup( recRule );
 		
 		Log.v( TAG, "loadRecordingRule : exit" );
 	}
@@ -186,6 +186,8 @@ public class RecordingRuleFragment extends AbstractMythFragment {
 	private void setup( RecRule rule ) {
 		Log.v( TAG, "setup : enter" );
 		
+		Log.v( TAG, "setup : rule=" + rule.toString() );
+
 		View view;
 		TextView tView;
 		
@@ -225,42 +227,6 @@ public class RecordingRuleFragment extends AbstractMythFragment {
 		tView.setText( channel );
 		
 		Log.v( TAG, "setup : exit" );
-	}
-	
-	private class DownloadRecordingRuleTask extends AsyncTask<Integer, Void, ResponseEntity<RecRuleWrapper>> {
-
-		/* (non-Javadoc)
-		 * @see android.os.AsyncTask#doInBackground(Params[])
-		 */
-		@Override
-		protected ResponseEntity<RecRuleWrapper> doInBackground( Integer... params ) {
-			
-		    if( !NetworkHelper.getInstance().isMasterBackendConnected( getActivity(), mLocationProfile ) ) {
-			return null;
-		    }
-			
-		    Integer id = params[ 0 ];
-			
-		    ETagInfo etag = ETagInfo.createEmptyETag();
-		    return mMythtvServiceHelper.getMythServicesApi( mLocationProfile ).dvrOperations().getRecordSchedule( id, etag );
-		}
-
-		/* (non-Javadoc)
-		 * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
-		 */
-		@Override
-		protected void onPostExecute( ResponseEntity<RecRuleWrapper> result ) {
-			
-			if( null != result ) {
-				
-				if( result.getStatusCode().equals( HttpStatus.OK ) ) {
-					setup( result.getBody().getRecRule() );
-				}
-				
-			}
-			
-		}
-		
 	}
 	
 }

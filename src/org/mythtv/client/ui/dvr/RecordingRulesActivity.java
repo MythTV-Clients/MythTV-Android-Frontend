@@ -20,6 +20,7 @@ package org.mythtv.client.ui.dvr;
 
 import org.mythtv.R;
 import org.mythtv.client.ui.AbstractMythtvFragmentActivity;
+import org.mythtv.services.api.dvr.RecRule;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -55,7 +56,7 @@ public class RecordingRulesActivity extends AbstractMythtvFragmentActivity imple
 	 * @see org.mythtv.client.ui.dvr.RecordingRulesFragment.OnRecordingRuleListener#onRecordingRuleSelected(java.lang.Integer)
 	 */
 	@Override
-	public boolean onRecordingRuleSelected( Integer recordingRuleId ) {
+	public boolean onRecordingRuleSelected( RecRule recordingRule ) {
 		Log.d( TAG, "onRecordingRuleSelected : enter" );
 		
 		if( null != findViewById( R.id.fragment_dvr_recording_rule ) ) {
@@ -70,7 +71,7 @@ public class RecordingRulesActivity extends AbstractMythtvFragmentActivity imple
 				Log.v( TAG, "onRecordingRuleSelected : creating new recordingRuleFragment" );
 				
 				Bundle args = new Bundle();
-				args.putInt( "RECORDING_RULE_ID", recordingRuleId );
+				args.putLong( "RECORDING_RULE_ID", recordingRule.getId() );
 				recordingRuleFragment = RecordingRuleFragment.newInstance( args );
 				
 				transaction
@@ -81,12 +82,12 @@ public class RecordingRulesActivity extends AbstractMythtvFragmentActivity imple
 			}
 			
 			Log.v( TAG, "onRecordingRuleSelected : setting recording rule to display" );
-			recordingRuleFragment.loadRecordingRule( recordingRuleId );
+			recordingRuleFragment.loadRecordingRule( (long) recordingRule.getId() );
 		} else {
 			Log.v( TAG, "onRecordingRuleSelected : starting recording rule activity" );
 
 			Intent i = new Intent( this, RecordingRuleActivity.class );
-			i.putExtra( RecordingRuleActivity.EXTRA_RECORDING_RULE_KEY, recordingRuleId );
+			i.putExtra( RecordingRuleActivity.EXTRA_RECORDING_RULE_KEY, recordingRule.getId() );
 			startActivity( i );
 		}
 

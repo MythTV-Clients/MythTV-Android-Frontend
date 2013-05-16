@@ -102,10 +102,10 @@
 		<activity 
 			android:name=".client.ui.dvr.GuideActivity"
 			android:configChanges="keyboard|keyboardHidden|orientation|screenSize" />
-		<activity 
+		<!-- activity 
 			android:name=".client.ui.dvr.RecordingRulesActivity"
 			android:uiOptions="splitActionBarWhenNarrow"
-			android:configChanges="keyboard|keyboardHidden|orientation|screenSize" />
+			android:configChanges="keyboard|keyboardHidden|orientation|screenSize" / -->
 		<activity 
 			android:name=".client.ui.dvr.RecordingRuleActivity"
 			android:uiOptions="splitActionBarWhenNarrow"
@@ -178,6 +178,12 @@
             </intent-filter>
 		</service>
 			
+		<service android:name=".service.dvr.RecordingRuleDownloadService" android:process=":recordingRule" android:exported="false">
+			<intent-filter>
+                <action android:name="org.mythtv.background.recordingRuleDownload.ACTION_DOWNLOAD" />
+            </intent-filter>
+        </service>
+		
 		<!-- MythTV Android Providers -->
 		<provider
             android:name=".provider.MythtvProvider"

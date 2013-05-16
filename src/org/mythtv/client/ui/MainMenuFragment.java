@@ -27,6 +27,7 @@ import javax.jmdns.JmDNS;
 import javax.jmdns.ServiceEvent;
 import javax.jmdns.ServiceListener;
 
+import org.joda.time.DateTime;
 import org.mythtv.R;
 import org.mythtv.client.ui.dvr.GuideFragment;
 import org.mythtv.client.ui.dvr.RecordingRulesFragment;
@@ -37,14 +38,20 @@ import org.mythtv.client.ui.frontends.MythmoteActivity;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.preferences.MythtvPreferenceActivity;
 import org.mythtv.client.ui.preferences.MythtvPreferenceActivityHC;
-import org.mythtv.db.preferences.LocationProfileDaoHelper;
+import org.mythtv.db.http.EtagDaoHelper;
 import org.mythtv.service.MythtvService;
+import org.mythtv.service.channel.ChannelDownloadService;
+import org.mythtv.service.guide.ProgramGuideDownloadService;
 import org.mythtv.service.util.NetworkHelper;
+import org.mythtv.service.util.RunningServiceHelper;
+import org.mythtv.services.api.channel.impl.ChannelTemplate.Endpoint;
 
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.net.wifi.WifiManager.MulticastLock;
@@ -74,18 +81,18 @@ import android.widget.ToggleButton;
 
 /**
  * 
- * @author pot8oe
+ * @author  Thomas G. Kenny Jr
  *
  */
 public class MainMenuFragment extends AbstractMythFragment implements ServiceListener, OnItemSelectedListener{
 
 	private final static String TAG = MainMenuFragment.class.getSimpleName();
-	
-	/**
-	 * 
-	 * @author  Thomas G. Kenny Jr
-	 *
-	 */
+
+	private EtagDaoHelper mEtagDaoHelper = EtagDaoHelper.getInstance();
+	private RunningServiceHelper mRunningServiceHelper = RunningServiceHelper.getInstance();
+
+	private ChannelDownloadReceiver channelDownloadReceiver = new ChannelDownloadReceiver();
+
 	public interface ContentFragmentRequestedListener
 	{
 		public void OnFragmentRequested(int fragmentId, String fragmentClassName);
@@ -283,6 +290,41 @@ public class MainMenuFragment extends AbstractMythFragment implements ServiceLis
 			}}, PhoneStateListener.LISTEN_CALL_STATE);
 	}
 	
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.Fragment#onStart()
+	 */
+	@Override
+	public void onStart() {
+		Log.v( TAG, "onStart : enter" );
+		super.onStart();
+
+		IntentFilter channelDownloadFilter = new IntentFilter();
+		channelDownloadFilter.addAction( ChannelDownloadService.ACTION_COMPLETE );
+	    getActivity().registerReceiver( channelDownloadReceiver, channelDownloadFilter );
+
+	    Log.v( TAG, "onStart : exit" );
+	}
+
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.Fragment#onStop()
+	 */
+	@Override
+	public void onStop() {
+		Log.v( TAG, "onStop : enter" );
+		super.onStop();
+
+		// Unregister for broadcast
+		if( null != channelDownloadReceiver ) {
+			try {
+				getActivity().unregisterReceiver( channelDownloadReceiver );
+				//channelDownloadReceiver = null;
+			} catch( IllegalArgumentException e ) {
+				Log.e( TAG, "onStop : error", e );
+			}
+		}
+
+	}
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
@@ -365,6 +407,26 @@ public class MainMenuFragment extends AbstractMythFragment implements ServiceLis
 		//if frontend list is empty start a scan.
 		if (frontends.isEmpty()) {
 			scanForFrontends();
+		}
+		
+		if( isConnected ) {
+
+			DateTime etag = mEtagDaoHelper.findDateByEndpointAndDataId( getActivity(), profile, Endpoint.GET_CHANNEL_INFO_LIST.name(), "" );
+			if( null != etag ) {
+				
+				DateTime now = new DateTime();
+				if( now.getMillis() - etag.getMillis() > 86400000 ) {
+					if( !mRunningServiceHelper.isServiceRunning( getActivity(), "org.mythtv.service.channel.ChannelDownloadService" ) ) {
+						getActivity().startService( new Intent( ChannelDownloadService.ACTION_DOWNLOAD ) );
+					}
+				}
+				
+			} else {
+				if( !mRunningServiceHelper.isServiceRunning( getActivity(), "org.mythtv.service.channel.ChannelDownloadService" ) ) {
+					getActivity().startService( new Intent( ChannelDownloadService.ACTION_DOWNLOAD ) );
+				}
+			}
+
 		}
 	}
 	
@@ -715,4 +777,28 @@ public class MainMenuFragment extends AbstractMythFragment implements ServiceLis
 	}
 
 	
+	private class ChannelDownloadReceiver extends BroadcastReceiver {
+
+		@Override
+		public void onReceive( Context context, Intent intent ) {
+			
+	        if ( intent.getAction().equals( ChannelDownloadService.ACTION_PROGRESS ) ) {
+	        	Log.i( TAG, "ProgramGuideDownloadReceiver.onReceive : progress=" + intent.getStringExtra( ProgramGuideDownloadService.EXTRA_PROGRESS ) );
+	        }
+	        
+	        if ( intent.getAction().equals( ChannelDownloadService.ACTION_COMPLETE ) ) {
+	        	Log.i( TAG, "ProgramGuideDownloadReceiver.onReceive : " + intent.getStringExtra( ProgramGuideDownloadService.EXTRA_COMPLETE ) );
+	        	
+        		Toast.makeText( getActivity(), "Channels Updated!", Toast.LENGTH_SHORT ).show();
+
+//	        	if( !mRunningServiceHelper.isServiceRunning( "org.mythtv.service.guide.ProgramGuideDownloadServiceNew" ) ) {
+//	    			startService( new Intent( ProgramGuideDownloadServiceNew.ACTION_DOWNLOAD ) );
+//	    		}
+
+	        }
+
+		}
+		
+	}
+
 }
