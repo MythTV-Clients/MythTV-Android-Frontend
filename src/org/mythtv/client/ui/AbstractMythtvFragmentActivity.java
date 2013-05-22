@@ -69,9 +69,6 @@ public abstract class AbstractMythtvFragmentActivity extends FragmentActivity im
     // FragmentActivity methods
     //***************************************
 	/* (non-Javadoc)
-	 * @see android.app.Activity#onCreateOptionsMenu(android.view.Menu)
-	 */
-	/* (non-Javadoc)
 	 * @see android.support.v4.app.FragmentActivity#onCreate(android.os.Bundle)
 	 */
 	@Override
@@ -94,7 +91,9 @@ public abstract class AbstractMythtvFragmentActivity extends FragmentActivity im
 		Log.v( TAG, "onCreate : exit" );
 	}
 
-
+	/* (non-Javadoc)
+	 * @see android.app.Activity#onCreateOptionsMenu(android.view.Menu)
+	 */
 	@TargetApi( 11 )
 	@Override
 	public boolean onCreateOptionsMenu( Menu menu ) {
@@ -146,53 +145,6 @@ public abstract class AbstractMythtvFragmentActivity extends FragmentActivity im
 		return super.onOptionsItemSelected( item );
 	}
 	
-	
-	/**
-	 * @return the preferences
-	 */
-	public SharedPreferences getSharedPreferences() {
-		return preferences;
-	}
-
-	public LiveStreamDaoHelper getLiveStreamDaoHelper() {
-		return mLiveStreamDaoHelper;
-	}
-	
-	/**
-	 * @return the mLocationProfileDaoHelper
-	 */
-	public LocationProfileDaoHelper getLocationProfileDaoHelper() {
-		return mLocationProfileDaoHelper;
-	}
-
-	/**
-	 * @return the mMenuHelper
-	 */
-	public MenuHelper getMenuHelper() {
-		return mMenuHelper;
-	}
-
-	/**
-	 * @return the mProgramGroupDaoHelper
-	 */
-	public ProgramGroupDaoHelper getProgramGroupDaoHelper() {
-		return mProgramGroupDaoHelper;
-	}
-
-	/**
-	 * @return the mRecordedDaoHelper
-	 */
-	public RecordedDaoHelper getRecordedDaoHelper() {
-		return mRecordedDaoHelper;
-	}
-
-	/**
-	 * @return the mRunningServiceHelper
-	 */
-	public RunningServiceHelper getRunningServiceHelper() {
-		return mRunningServiceHelper;
-	}
-
 
 	// internal helpers
 	

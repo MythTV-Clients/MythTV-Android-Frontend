@@ -20,17 +20,23 @@ package org.mythtv.service.dvr;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
-import org.apache.commons.io.FileUtils;
+import org.joda.time.DateTime;
 import org.mythtv.R;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.dvr.RecordedDaoHelper;
+import org.mythtv.db.dvr.programGroup.ProgramGroup;
+import org.mythtv.db.dvr.programGroup.ProgramGroupDaoHelper;
 import org.mythtv.db.http.EtagDaoHelper;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.MythtvService;
 import org.mythtv.service.util.FileHelper;
 import org.mythtv.service.util.NetworkHelper;
+import org.mythtv.services.api.Bool;
 import org.mythtv.services.api.ETagInfo;
+import org.mythtv.services.api.MythServiceApiRuntimeException;
+import org.mythtv.services.api.dvr.Program;
 import org.mythtv.services.api.dvr.ProgramList;
 import org.mythtv.services.api.dvr.Programs;
 import org.mythtv.services.api.dvr.impl.DvrTemplate.Endpoint;
@@ -43,6 +49,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.OperationApplicationException;
+import android.os.Bundle;
 import android.os.RemoteException;
 import android.util.Log;
 
@@ -61,9 +68,13 @@ public class RecordedDownloadService extends MythtvService {
 	private static final String RECORDED_FILE_EXT = ".json";
 	
     public static final String ACTION_DOWNLOAD = "org.mythtv.background.recordedDownload.ACTION_DOWNLOAD";
+    public static final String ACTION_REMOVE = "org.mythtv.background.recordedDownload.ACTION_REMOVE";
     public static final String ACTION_PROGRESS = "org.mythtv.background.recordedDownload.ACTION_PROGRESS";
     public static final String ACTION_COMPLETE = "org.mythtv.background.recordedDownload.ACTION_COMPLETE";
 
+    public static final String KEY_CHANNEL_ID = "KEY_CHANNEL_ID";
+    public static final String KEY_START_TIMESTAMP = "KEY_START_TIMESTAMP";
+    
     public static final String EXTRA_PROGRESS = "PROGRESS";
     public static final String EXTRA_PROGRESS_DATA = "PROGRESS_DATA";
     public static final String EXTRA_PROGRESS_ERROR = "PROGRESS_ERROR";
@@ -76,6 +87,7 @@ public class RecordedDownloadService extends MythtvService {
 	
 	private File recordedDirectory = null;
 	private RecordedDaoHelper mRecordedDaoHelper = RecordedDaoHelper.getInstance();
+	private ProgramGroupDaoHelper mProgramGroupDaoHelper = ProgramGroupDaoHelper.getInstance();
 	private EtagDaoHelper mEtagDaoHelper = EtagDaoHelper.getInstance();
 	private LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
 	
@@ -143,6 +155,36 @@ public class RecordedDownloadService extends MythtvService {
     		
         }
 		
+		if ( intent.getAction().equals( ACTION_REMOVE ) ) {
+    		Log.i( TAG, "onHandleIntent : REMOVE action selected" );
+
+    		boolean deleted = false;
+    		try {
+
+    			Bundle extras = intent.getExtras();
+    			int channelId = extras.getInt( KEY_CHANNEL_ID );
+    			long startTimestamp = extras.getLong( KEY_START_TIMESTAMP );
+    			
+    			if( channelId == 0 || startTimestamp == 0 ) {
+    				passed = false;
+    			} else {
+    				deleted = removeRecorded( locationProfile, channelId, new DateTime( startTimestamp ) );
+    			}
+    			
+			} catch( Exception e ) {
+				Log.e( TAG, "onHandleIntent : error", e );
+				
+				passed = false;
+			} finally {
+
+    			Intent completeIntent = new Intent( ACTION_COMPLETE );
+    			completeIntent.putExtra( EXTRA_COMPLETE, ( "Episode" + ( !deleted ? " NOT " : " " ) + "deleted!" ) );
+    			
+    			sendBroadcast( completeIntent );
+    		}
+    		
+        }
+		
 		Log.d( TAG, "onHandleIntent : exit" );
 	}
 
@@ -159,12 +201,7 @@ public class RecordedDownloadService extends MythtvService {
 			Log.i( TAG, "download : " + Endpoint.GET_RECORDED_LIST.getEndpoint() + " returned 200 OK" );
 			ProgramList programList = responseEntity.getBody();
 
-//			Log.v( TAG, "download : loaded local file" );
-//			File recorded = new File( mFileHelper.getProgramRecordedDataDirectory(), "GetRecordedList.json" );
-//			programList = mMainApplication.getObjectMapper().readValue( recorded, ProgramList.class );
-			
 			if( null != programList.getPrograms() ) {
-				//cleanup();
 
 				process( programList.getPrograms(), locationProfile );	
 
@@ -189,14 +226,6 @@ public class RecordedDownloadService extends MythtvService {
 		Log.v( TAG, "download : exit" );
 	}
 
-	private void cleanup() throws IOException {
-		Log.v( TAG, "cleanup : enter" );
-		
-		FileUtils.cleanDirectory( recordedDirectory );
-		
-		Log.v( TAG, "cleanup : exit" );
-	}
-
 	private void process( Programs programs, final LocationProfile locationProfile ) throws JsonGenerationException, JsonMappingException, IOException, RemoteException, OperationApplicationException {
 		Log.v( TAG, "process : enter" );
 		
@@ -211,6 +240,58 @@ public class RecordedDownloadService extends MythtvService {
 		Log.v( TAG, "process : exit" );
 	}
 
+	private Boolean removeRecorded( final LocationProfile locationProfile, int channelId, DateTime startTimestamp ) throws MythServiceApiRuntimeException {
+		Log.v( TAG, "removeRecorded : enter" );
+		
+		boolean removed = false;
+		
+		ResponseEntity<Bool> responseEntity = mMythtvServiceHelper.getMythServicesApi( locationProfile ).dvrOperations().removeRecorded( channelId, startTimestamp );
+		if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
+			removed = responseEntity.getBody().getBool();
+			
+			if( removed ) {
+				
+				removeRecordedLocal( locationProfile, channelId, startTimestamp );
+					
+			}
+		}
+
+		Log.v( TAG, "removeRecorded : exit" );
+		return removed;
+	}
+	
+	private void removeRecordedLocal( final LocationProfile locationProfile, int channelId, DateTime startTimestamp ) {
+		Log.v( TAG, "removeRecordedLocal : enter" );
+		
+		Program program = mRecordedDaoHelper.findOne( this, locationProfile, channelId, startTimestamp );
+		String title = program.getTitle();
+				
+		Log.v( TAG, "removeRecordedLocal : deleting recorded program in content provider" );
+		int deleted = mRecordedDaoHelper.delete( this, locationProfile, program );
+		if( deleted == 1 ) {
+			Log.v( TAG, "removeRecordedLocal : recorded program deleted, clean up program group if needed" );
+
+			removeProgramGroupLocal( locationProfile, title );
+		}
+		
+		Log.v( TAG, "removeRecordedLocal : exit" );
+	}
+
+	private void removeProgramGroupLocal( final LocationProfile locationProfile, final String title ) {
+		Log.v( TAG, "removeProgramGroupLocal : enter" );
+		
+		ProgramGroup programGroup = mProgramGroupDaoHelper.findByTitle( this, locationProfile, title );
+
+		List<Program> programs = mRecordedDaoHelper.findAllByTitle( this, locationProfile, title );
+		if( null == programs || programs.isEmpty() ) {
+
+			mProgramGroupDaoHelper.delete( this, programGroup );
+			
+		}
+
+		Log.v( TAG, "removeProgramGroupLocal : exit" );
+	}
+	
 	// internal helpers
 	
 	@SuppressWarnings( "deprecation" )

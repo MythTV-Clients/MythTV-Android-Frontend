@@ -18,12 +18,9 @@
  */
 package org.mythtv.client.ui.dvr;
 
-import java.util.List;
-
 import org.joda.time.DateTime;
 import org.mythtv.R;
 import org.mythtv.client.ui.AbstractMythFragment;
-import org.mythtv.client.ui.AbstractMythtvFragmentActivity;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.preferences.LocationProfile.LocationType;
 import org.mythtv.client.ui.preferences.PlaybackProfile;
@@ -33,6 +30,7 @@ import org.mythtv.db.dvr.RecordedDaoHelper;
 import org.mythtv.db.dvr.programGroup.ProgramGroup;
 import org.mythtv.db.dvr.programGroup.ProgramGroupDaoHelper;
 import org.mythtv.db.preferences.PlaybackProfileDaoHelper;
+import org.mythtv.service.dvr.RecordedDownloadService;
 import org.mythtv.service.util.DateUtils;
 import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.Bool;
@@ -45,8 +43,11 @@ import org.springframework.http.ResponseEntity;
 
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
@@ -79,10 +80,12 @@ public class EpisodeFragment extends AbstractMythFragment {
 	
 	private OnEpisodeActionListener listener = null;
 
+	private RecordedRemovedReceiver recordedRemovedReceiver = new RecordedRemovedReceiver();
+
 	private PlaybackProfileDaoHelper mPlaybackProfileDaoHelper = PlaybackProfileDaoHelper.getInstance();
 
 	private LiveStreamDaoHelper mLiveStreamDaoHelper = LiveStreamDaoHelper.getInstance();
-	private MenuHelper mMenuHelper;
+	private MenuHelper mMenuHelper = MenuHelper.getInstance();
 	private ProgramGroupDaoHelper mProgramGroupDaoHelper = ProgramGroupDaoHelper.getInstance(); 
 	private RecordedDaoHelper mRecordedDaoHelper = RecordedDaoHelper.getInstance();
 	private NetworkHelper mNetworkHelper = NetworkHelper.getInstance();
@@ -100,8 +103,6 @@ public class EpisodeFragment extends AbstractMythFragment {
 	private ImageLoader imageLoader = ImageLoader.getInstance();
 	private DisplayImageOptions options;
 
-	private SharedPreferences preferences = null;
-	
 	@Override
 	public View onCreateView( LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState ) {
 		Log.v( TAG, "onCreateView : enter" );
@@ -124,8 +125,6 @@ public class EpisodeFragment extends AbstractMythFragment {
 
 		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
 		
-		preferences = ( (AbstractMythtvFragmentActivity) getActivity() ).getSharedPreferences();
-
 		options = new DisplayImageOptions.Builder()
 //			.showStubImage( R.drawable.ic_stub )
 //			.showImageForEmptyUri( R.drawable.ic_empty )
@@ -135,14 +134,24 @@ public class EpisodeFragment extends AbstractMythFragment {
 //			.displayer( new RoundedBitmapDisplayer( 20 ) )
 			.build();
 
-		mLiveStreamDaoHelper = ( (AbstractMythtvFragmentActivity) getActivity() ).getLiveStreamDaoHelper();
-		mMenuHelper = ( (AbstractMythtvFragmentActivity) getActivity() ).getMenuHelper();
-		mProgramGroupDaoHelper = ( (AbstractMythtvFragmentActivity) getActivity() ).getProgramGroupDaoHelper();
-		mRecordedDaoHelper = ( (AbstractMythtvFragmentActivity) getActivity() ).getRecordedDaoHelper();
-		
 		setHasOptionsMenu( true );
 
 		Log.v( TAG, "onActivityCreated : exit" );
+	}
+
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.Fragment#onStart()
+	 */
+	@Override
+	public void onStart() {
+		Log.v( TAG, "onStart : enter" );
+		super.onStart();
+
+		IntentFilter recordedRemovedFilter = new IntentFilter( RecordedDownloadService.ACTION_REMOVE );
+		recordedRemovedFilter.addAction( RecordedDownloadService.ACTION_COMPLETE );
+        getActivity().registerReceiver( recordedRemovedReceiver, recordedRemovedFilter );
+
+		Log.v( TAG, "onStart : exit" );
 	}
 
 	/* (non-Javadoc)
@@ -153,18 +162,16 @@ public class EpisodeFragment extends AbstractMythFragment {
 		Log.v( TAG, "onStop : enter" );
 		super.onStop();
 
+		// Unregister for broadcast
+		if( null != recordedRemovedReceiver ) {
+			try {
+				getActivity().unregisterReceiver( recordedRemovedReceiver );
+			} catch( IllegalArgumentException e ) {
+				Log.e( TAG, e.getLocalizedMessage(), e );
+			}
+		}
+
 		Log.v( TAG, "onStop : exit" );
-	}
-
-	/* (non-Javadoc)
-	 * @see android.support.v4.app.Fragment#onDestroyView()
-	 */
-	@Override
-	public void onDestroyView() {
-		Log.v( TAG, "onDestroyView : enter" );
-		super.onDestroyView();
-
-		Log.v( TAG, "onDestroyView : exit" );
 	}
 
 	/* (non-Javadoc)
@@ -414,8 +421,6 @@ public class EpisodeFragment extends AbstractMythFragment {
 		case MenuHelper.DELETE_ID:
 			Log.d( TAG, "onOptionsItemSelected : delete selected" );
 
-			if( NetworkHelper.getInstance().isNetworkConnected( getActivity() ) ) {
-				
 				AlertDialog.Builder builder = new AlertDialog.Builder( getActivity() );
 
 				builder
@@ -443,17 +448,16 @@ public class EpisodeFragment extends AbstractMythFragment {
 								new RemoveStreamTask().execute();
 							}
 							
-							new RemoveRecordingTask().execute();
+							Intent intent = new Intent( RecordedDownloadService.ACTION_REMOVE );
+							intent.putExtra( RecordedDownloadService.KEY_CHANNEL_ID, program.getChannelInfo().getChannelId() );
+							intent.putExtra( RecordedDownloadService.KEY_START_TIMESTAMP, program.getRecording().getStartTimestamp().getMillis() );
+							getActivity().startService( intent );
 							
 						}
 					} )
 					.setNegativeButton( R.string.episode_alert_delete_button_cancel, null )
 					.show();
 			
-			} else {
-				notConnectedNotify();
-			}
-
 			return true;
 		}
 		
@@ -627,22 +631,6 @@ public class EpisodeFragment extends AbstractMythFragment {
 		
 	}
 
-	private void deleteNotify( Boolean deleted ) {
-		
-		Toast.makeText( getActivity(), ( "Episode" + ( !deleted ? " NOT " : " " ) + "deleted!" ), Toast.LENGTH_SHORT ).show();
-		
-	}
-	
-	private void exceptionDialolg( Throwable t ) {
-		AlertDialog.Builder builder = new AlertDialog.Builder( getActivity() );
-
-		builder
-			.setTitle( R.string.exception )
-			.setMessage( t.toString() )
-			.setPositiveButton( R.string.close, null )
-				.show();
-	}
-
 	public void checkLiveStreamInfo( ResponseEntity<LiveStreamInfoWrapper> info ){
 		Log.v( TAG, "checkLiveStreamInfo : enter" );
 
@@ -653,78 +641,6 @@ public class EpisodeFragment extends AbstractMythFragment {
 		Log.v( TAG, "checkLiveStreamInfo : exit" );
 	}
 
-	private class RemoveRecordingTask extends AsyncTask<Void, Void, ResponseEntity<Bool>> {
-
-		private Exception e = null;
-
-		@Override
-		protected ResponseEntity<Bool> doInBackground( Void... params ) {
-			Log.v( TAG, "RemoveRecordingTask : enter" );
-
-			if( !NetworkHelper.getInstance().isMasterBackendConnected( getActivity(), mLocationProfile ) ) {
-				return null;
-			}
-
-			ResponseEntity<Bool> removed = null;
-
-			try {
-				Log.v( TAG, "RemoveRecordingTask : api" );
-				
-				removed = mMythtvServiceHelper.getMythServicesApi( mLocationProfile ).dvrOperations().removeRecorded( program.getChannelInfo().getChannelId(), program.getRecording().getStartTimestamp() );
-			} catch( Exception e ) {
-				Log.v( TAG, "RemoveRecordingTask : error" );
-
-				this.e = e;
-			}
-
-			Log.v( TAG, "RemoveRecordingTask : exit" );
-			return removed;
-		}
-
-		@Override
-		protected void onPostExecute( ResponseEntity<Bool> result ) {
-			Log.v( TAG, "RemoveRecordingTask : onPostExecute - enter" );
-
-			if( null == e ) {
-				if( null != result ) {
-					if( result.getStatusCode().equals( HttpStatus.OK ) ) {
-						
-						Bool bool = result.getBody();
-						if( bool.getBool().equals( Boolean.TRUE ) ) {
-						
-							String title = program.getTitle();
-							ProgramGroup programGroup = mProgramGroupDaoHelper.findByTitle( getActivity(), mLocationProfile, title );
-							
-							String programGroupName = programGroup.getProgramGroup();
-							
-							mRecordedDaoHelper.delete( getActivity(), mLocationProfile, program );
-							
-							List<Program> programs = mRecordedDaoHelper.findAllByTitle( getActivity(), mLocationProfile, title );
-							if( null == programs || programs.isEmpty() ) {
-								mProgramGroupDaoHelper.delete( getActivity(), programGroup );
-								
-								List<ProgramGroup> programGroups = mProgramGroupDaoHelper.findAll( getActivity(), mLocationProfile );
-								if( null != programGroups && !programGroups.isEmpty() ) {
-									programGroupName = programGroups.get( 0 ).getProgramGroup();
-								}
-							}
-							
-							listener.onEpisodeDeleted( programGroup );
-							
-						}
-						
-						deleteNotify( bool.getBool() );
-					}
-				}
-			} else {
-				Log.e( TAG, "RemoveRecordingTask : onPostExecute - error removing recording", e );
-				exceptionDialolg( e );
-			}
-
-			Log.v( TAG, "RemoveRecordingTask : onPostExecute - exit" );
-		}
-	}
-	
 	private class PlayRecordingOnFrontEndTask extends AsyncTask<String, Void, ResponseEntity<Bool>> {
 
 		@Override
@@ -966,6 +882,31 @@ public class EpisodeFragment extends AbstractMythFragment {
 
 			Log.v( TAG, "RemoveStreamTask onPostExecute : exit" );
 		}
+	}
+
+	private class RecordedRemovedReceiver extends BroadcastReceiver {
+
+		@Override
+		public void onReceive( Context context, Intent intent ) {
+        	Log.i( TAG, "RecordedRemovedReceiver.onReceive : enter" );
+			
+	        if ( intent.getAction().equals( RecordedDownloadService.ACTION_COMPLETE ) ) {
+	        	Log.i( TAG, "RecordedRemovedReceiver.onReceive : complete=" + intent.getStringExtra( RecordedDownloadService.EXTRA_COMPLETE ) );
+	        	
+	        	if( intent.getExtras().containsKey( RecordedDownloadService.EXTRA_COMPLETE_OFFLINE ) ) {
+	        		notConnectedNotify();
+	        	} else {
+	        		Toast.makeText( getActivity(), intent.getStringExtra( RecordedDownloadService.EXTRA_COMPLETE ), Toast.LENGTH_SHORT ).show();
+	        		
+	        		ProgramGroup programGroup = mProgramGroupDaoHelper.findByTitle( getActivity(), mLocationProfile, program.getTitle() );
+	        		listener.onEpisodeDeleted( programGroup );
+	        	}
+	        	
+	        }
+
+        	Log.i( TAG, "RecordedRemovedReceiver.onReceive : exit" );
+		}
+		
 	}
 
 }

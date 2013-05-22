@@ -41,13 +41,15 @@ import android.widget.FrameLayout;
  */
 public class MainActivity extends AbstractMythtvFragmentActivity implements ContentFragmentRequestedListener{
 
-	public static final String TAG = MainActivity.class.getName();
+	private static final String TAG = MainActivity.class.getName();
+	
 	private static int sContentId;
 	
 	private boolean mMenuVisible = false;
 	
-
-	
+	/* (non-Javadoc)
+	 * @see org.mythtv.client.ui.AbstractMythtvFragmentActivity#onCreate(android.os.Bundle)
+	 */
 	@Override
 	protected void onCreate( Bundle savedInstanceState ) {
 		Log.v( TAG, "onCreate : enter" );
@@ -73,7 +75,7 @@ public class MainActivity extends AbstractMythtvFragmentActivity implements Cont
 		}
 		
 		/* only set the backend status fragment if this is our first entry into application
-		 * or it is the current screen. This elinates the double fragment overlap that occures
+		 * or it is the current screen. This eliminates the double fragment overlap that occurs
 		 * during orientation change.
 		 */
 		Log.d(TAG, "FragmentID: " + sContentId);
@@ -287,6 +289,9 @@ public class MainActivity extends AbstractMythtvFragmentActivity implements Cont
 	}
 	
 
+	/* (non-Javadoc)
+	 * @see org.mythtv.client.ui.MainMenuFragment.ContentFragmentRequestedListener#OnFragmentRequested(int, java.lang.String)
+	 */
 	@Override
 	public void OnFragmentRequested(int fragmentId, String fragmentClassName) {
 	
@@ -302,6 +307,9 @@ public class MainActivity extends AbstractMythtvFragmentActivity implements Cont
 	}
 
 
+	/* (non-Javadoc)
+	 * @see org.mythtv.client.ui.MainMenuFragment.ContentFragmentRequestedListener#OnFragmentRequested(int, android.support.v4.app.Fragment)
+	 */
 	@Override
 	public void OnFragmentRequested(int fragmentId, Fragment fragment) {
 		

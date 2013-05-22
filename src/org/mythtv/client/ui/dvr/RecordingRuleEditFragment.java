@@ -23,7 +23,6 @@ package org.mythtv.client.ui.dvr;
 
 import org.mythtv.R;
 import org.mythtv.client.ui.AbstractMythFragment;
-import org.mythtv.client.ui.AbstractMythtvFragmentActivity;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.util.MenuHelper;
 import org.mythtv.client.ui.util.ProgramHelper;
@@ -61,7 +60,7 @@ public class RecordingRuleEditFragment extends AbstractMythFragment implements O
 	private static final String TAG = RecordingRuleEditFragment.class.getSimpleName();
 	
 	private ChannelDaoHelper mChannelDaoHelper = ChannelDaoHelper.getInstance();
-	private MenuHelper mMenuHelper;
+	private MenuHelper mMenuHelper = MenuHelper.getInstance();
 	private ProgramHelper mProgramHelper = ProgramHelper.getInstance();
 	
 	private LocationProfile mLocationProfile;
@@ -127,10 +126,6 @@ public class RecordingRuleEditFragment extends AbstractMythFragment implements O
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		Log.v( TAG, "onCreateOptionsMenu : enter" );
 
-		if( null == mMenuHelper ) {
-			mMenuHelper = ( (AbstractMythtvFragmentActivity) getActivity() ).getMenuHelper();
-		}
-		
 		mMenuHelper.saveMenuItem( getActivity(), menu );
 		mMenuHelper.resetMenuItem( getActivity(), menu );
 		

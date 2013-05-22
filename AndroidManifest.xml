@@ -141,6 +141,7 @@
 		<service android:name=".service.dvr.RecordedDownloadService" android:process=":recorded" android:exported="false">
 			<intent-filter>
                 <action android:name="org.mythtv.background.recordedDownload.ACTION_DOWNLOAD" />
+                <action android:name="org.mythtv.background.recordedDownload.ACTION_REMOVE" />
             </intent-filter>
         </service>
 		
