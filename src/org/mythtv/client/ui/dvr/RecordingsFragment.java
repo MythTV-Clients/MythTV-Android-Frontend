@@ -20,7 +20,6 @@ package org.mythtv.client.ui.dvr;
 
 import org.joda.time.DateTime;
 import org.mythtv.R;
-import org.mythtv.client.ui.AbstractMythtvFragmentActivity;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.util.MenuHelper;
 import org.mythtv.client.ui.util.MythtvListFragment;
@@ -84,7 +83,7 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 	private static ProgramHelper mProgramHelper = ProgramHelper.getInstance();
 	private EtagDaoHelper mEtagDaoHelper = EtagDaoHelper.getInstance();
 	private LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
-	private MenuHelper mMenuHelper;
+	private MenuHelper mMenuHelper = MenuHelper.getInstance();
 	private ProgramGroupDaoHelper mProgramGroupDaoHelper = ProgramGroupDaoHelper.getInstance();
 	private RunningServiceHelper mRunningServiceHelper = RunningServiceHelper.getInstance();
 
@@ -156,8 +155,6 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 //			.displayer( new RoundedBitmapDisplayer( 20 ) )
 			.build();
 		
-		mMenuHelper = ( (AbstractMythtvFragmentActivity) getActivity() ).getMenuHelper();
-
 		setHasOptionsMenu( true );
 
 	    adapter = new ProgramGroupCursorAdapter( getActivity().getApplicationContext() );

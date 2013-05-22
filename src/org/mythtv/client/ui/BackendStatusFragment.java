@@ -23,6 +23,7 @@ import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,37 +31,48 @@ import android.widget.TextView;
 
 public class BackendStatusFragment extends AbstractMythFragment {
 
+	private static final String TAG = BackendStatusFragment.class.getSimpleName();
+	
 	private LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
 	private LocationProfile mLocationProfile;
 	
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.Fragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle)
+	 */
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
+	public View onCreateView( LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState ) {
+		Log.d( TAG, "onCreateView : enter" );
 		
-		View v = inflater.inflate(R.layout.fragment_backend_status, container, false);
+		View v = inflater.inflate( R.layout.fragment_backend_status, container, false );
 		
-		if(null != v){
-			TextView tView = (TextView)v.findViewById(R.id.textview_status);
-			if(null != tView){
-				tView.setText(this.getStatusText());
+		if( null != v ) {
+			
+			TextView tView = (TextView)v.findViewById( R.id.textview_status );
+			if( null != tView ) {
+				tView.setText( this.getStatusText() );
 			}
+			
 		}
 		
+		Log.d( TAG, "onCreateView : exit" );
 		return v;
 	}
+	
+	private String getStatusText() {
+		Log.v( TAG, "getStatusText : enter" );
 
-	
-	
-	private String getStatusText(){
 		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
 		
-		if(null == mLocationProfile){
+		if( null == mLocationProfile ) {
+			Log.v( TAG, "getStatusText : exit, no connected profiles found" );
+
 			return "Backend profile is not selected";
 		}
 		
 		new BackendStatusTask().execute();
 		
-		return  (mLocationProfile.isConnected() ? "Connected to " : "NOT Connected to ") + mLocationProfile.getName();
+		Log.v( TAG, "getStatusText : exit" );
+		return ( mLocationProfile.isConnected() ? "Connected to " : "NOT Connected to " ) + mLocationProfile.getName();
 	}
 
 
