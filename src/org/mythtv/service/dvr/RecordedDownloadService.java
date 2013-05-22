@@ -313,7 +313,7 @@ public class RecordedDownloadService extends MythtvService {
 	
 	}
 	
-    public void completed()    {
+    private void completed()    {
         
     	if( null != mNotificationManager ) {
         	mNotificationManager.cancel( notificationId );
