@@ -4,7 +4,6 @@
 package org.mythtv.service.dvr;
 
 import org.joda.time.DateTime;
-import org.mythtv.R;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.preferences.LocationProfile.LocationType;
 import org.mythtv.client.ui.preferences.PlaybackProfile;
@@ -15,16 +14,13 @@ import org.mythtv.db.preferences.PlaybackProfileDaoHelper;
 import org.mythtv.service.MythtvService;
 import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.Bool;
+import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.content.LiveStreamInfo;
 import org.mythtv.services.api.content.LiveStreamInfoWrapper;
 import org.mythtv.services.api.dvr.Program;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -37,7 +33,8 @@ public class LiveStreamService extends MythtvService {
 
 	private static final String TAG = LiveStreamService.class.getSimpleName();
 
-    public static final String ACTION_CREATE = "org.mythtv.background.liveStream.ACTION_DOWNLOAD";
+    public static final String ACTION_PLAY = "org.mythtv.background.liveStream.ACTION_PLAY";
+    public static final String ACTION_CREATE = "org.mythtv.background.liveStream.ACTION_CREATE";
     public static final String ACTION_UPDATE = "org.mythtv.background.liveStream.ACTION_UPDATE";
     public static final String ACTION_REMOVE = "org.mythtv.background.liveStream.ACTION_REMOVE";
 
@@ -48,13 +45,16 @@ public class LiveStreamService extends MythtvService {
     public static final String KEY_START_TIMESTAMP = "KEY_START_TIMESTAMP";
     
     public static final String EXTRA_PROGRESS = "PROGRESS";
+    public static final String EXTRA_PROGRESS_ID = "PROGRESS_ID";
     public static final String EXTRA_PROGRESS_DATA = "PROGRESS_DATA";
     public static final String EXTRA_PROGRESS_ERROR = "PROGRESS_ERROR";
     public static final String EXTRA_COMPLETE = "COMPLETE";
+    public static final String EXTRA_COMPLETE_ID = "COMPLETE_ID";
     public static final String EXTRA_COMPLETE_OFFLINE = "COMPLETE_OFFLINE";
-
-	private NotificationManager mNotificationManager;
-	private int notificationId;
+    public static final String EXTRA_COMPLETE_ERROR = "COMPLETE_ERROR";
+    public static final String EXTRA_COMPLETE_PLAY = "COMPLETE_PLAY";
+    public static final String EXTRA_COMPLETE_REMOVE = "COMPLETE_REMOVE";
+    public static final String EXTRA_COMPLETE_RAW = "COMPLETE_RAW";
 
 	private LiveStreamDaoHelper mLiveStreamDaoHelper = LiveStreamDaoHelper.getInstance();
 	private PlaybackProfileDaoHelper mPlaybackProfileDaoHelper = PlaybackProfileDaoHelper.getInstance();
@@ -75,41 +75,149 @@ public class LiveStreamService extends MythtvService {
 
 		LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile( this );
 		if( !NetworkHelper.getInstance().isMasterBackendConnected( this, locationProfile ) ) {
-			Intent completeIntent = new Intent( ACTION_COMPLETE );
-			completeIntent.putExtra( EXTRA_COMPLETE, "Master Backend unreachable" );
-			completeIntent.putExtra( EXTRA_COMPLETE_OFFLINE, Boolean.TRUE );
-			sendBroadcast( completeIntent );
+			
+			sendCompleteOffline();
 
 			Log.d( TAG, "onHandleIntent : exit, Master Backend unreachable" );
 			return;
 		}
 
-		mNotificationManager = (NotificationManager) getSystemService( Context.NOTIFICATION_SERVICE );
-
 		Program program = loadRecorded( intent, locationProfile );
+		if( null == program ) {
+			
+			sendCompleteRecordedProgramNotFound();
+			
+			Log.d( TAG, "onHandleIntent : exit, Recorded program not found" );
+			return;
+		}
+		
+		if( intent.getAction().equals( ACTION_PLAY ) ) {
+    		Log.i( TAG, "onHandleIntent : PLAY action selected" );
+
+    		playLiveStream( locationProfile, program );
+    		
+    		Log.d( TAG, "onHandleIntent : exit, play" );
+    		return;
+		}
 
 		if( intent.getAction().equals( ACTION_CREATE ) ) {
     		Log.i( TAG, "onHandleIntent : CREATE action selected" );
 
     		createLiveStream( locationProfile, program );
+    		
+    		Log.d( TAG, "onHandleIntent : exit, create" );
+    		return;
 		}
 		
 		if( intent.getAction().equals( ACTION_UPDATE ) ) {
     		Log.i( TAG, "onHandleIntent : UPDATE action selected" );
 
-    		updateLiveStream( locationProfile );
+    		try {
+				updateLiveStream( locationProfile, program );
+			} catch( InterruptedException e ) {
+				Log.e( TAG, "onHandleIntent : error", e );
+			}
+    		
+    		Log.d( TAG, "onHandleIntent : exit, update" );
+    		return;
 		}
 		
 		if( intent.getAction().equals( ACTION_REMOVE ) ) {
     		Log.i( TAG, "onHandleIntent : REMOVE action selected" );
 
     		removeLiveStream( locationProfile, program );
+    		
+    		Log.d( TAG, "onHandleIntent : exit, remove" );
+    		return;
 		}
 		
-		Log.d( TAG, "onHandleIntent : exit" );
 	}
 
 	// internal helpers
+
+	private void sendProgress( final LiveStreamInfo liveStreamInfo ) {
+		Log.v( TAG, "sendProgress : enter" );
+		
+		Intent progressIntent = new Intent( ACTION_PROGRESS );
+		progressIntent.putExtra( EXTRA_PROGRESS, "HLS Processing Update" );
+		progressIntent.putExtra( EXTRA_PROGRESS_ID, liveStreamInfo.getId() );
+		progressIntent.putExtra( EXTRA_PROGRESS_DATA, liveStreamInfo.getPercentComplete() );
+		
+		sendBroadcast( progressIntent );
+		
+		Log.v( TAG, "sendProgress : exit" );
+	}
+	
+	private void sendComplete( final LiveStreamInfo liveStreamInfo ) {
+		Log.v( TAG, "sendComplete : enter" );
+		
+		Intent completeIntent = new Intent( ACTION_COMPLETE );
+		completeIntent.putExtra( EXTRA_COMPLETE, "HLS Processing Complete" );
+		completeIntent.putExtra( EXTRA_COMPLETE_ID, liveStreamInfo.getId() );
+		
+		sendBroadcast( completeIntent );
+		
+		Log.v( TAG, "sendComplete : exit" );
+	}
+
+	private void sendCompleteOffline() {
+		Log.v( TAG, "sendCompleteOffline : enter" );
+		
+		Intent completeIntent = new Intent( ACTION_COMPLETE );
+		completeIntent.putExtra( EXTRA_COMPLETE, "Master Backend unreachable" );
+		completeIntent.putExtra( EXTRA_COMPLETE_OFFLINE, Boolean.TRUE );
+		
+		sendBroadcast( completeIntent );
+		
+		Log.v( TAG, "sendCompleteOffline : exit" );
+	}
+
+	private void sendCompleteRecordedProgramNotFound() {
+		Log.v( TAG, "sendCompleteRecordedProgramNotFound : enter" );
+		
+		Intent completeIntent = new Intent( ACTION_COMPLETE );
+		completeIntent.putExtra( EXTRA_COMPLETE_ERROR, "Recorded program not found" );
+		
+		sendBroadcast( completeIntent );
+		
+		Log.v( TAG, "sendCompleteRecordedProgramNotFound : exit" );
+	}
+
+	private void sendCompletePlay( final LiveStreamInfo liveStreamInfo ) {
+		Log.v( TAG, "sendCompletePlay : enter" );
+		
+		Intent completeIntent = new Intent( ACTION_COMPLETE );
+		completeIntent.putExtra( EXTRA_COMPLETE_PLAY, Boolean.TRUE );
+		completeIntent.putExtra( EXTRA_COMPLETE_ID, liveStreamInfo.getId() );
+		completeIntent.putExtra( EXTRA_COMPLETE_RAW, Boolean.FALSE );
+		
+		sendBroadcast( completeIntent );
+		
+		Log.v( TAG, "sendCompletePlay : exit" );
+	}
+
+	private void sendCompletePlayRaw() {
+		Log.v( TAG, "sendCompletePlay : enter" );
+		
+		Intent completeIntent = new Intent( ACTION_COMPLETE );
+		completeIntent.putExtra( EXTRA_COMPLETE_PLAY, Boolean.TRUE );
+		completeIntent.putExtra( EXTRA_COMPLETE_RAW, Boolean.TRUE );
+		
+		sendBroadcast( completeIntent );
+		
+		Log.v( TAG, "sendCompletePlay : exit" );
+	}
+
+	private void sendCompleteRemove() {
+		Log.v( TAG, "sendCompleteRemove : enter" );
+		
+		Intent completeIntent = new Intent( ACTION_COMPLETE );
+		completeIntent.putExtra( EXTRA_COMPLETE_REMOVE, Boolean.TRUE );
+		
+		sendBroadcast( completeIntent );
+		
+		Log.v( TAG, "sendCompleteRemove : exit" );
+	}
 
 	private Program loadRecorded( final Intent intent, final LocationProfile locationProfile ) {
 		
@@ -118,6 +226,19 @@ public class LiveStreamService extends MythtvService {
 		long startTimestamp = extras.getLong( KEY_START_TIMESTAMP );
 
 		return mRecordedDaoHelper.findOne( this, locationProfile, channelId, new DateTime( startTimestamp ) );
+	}
+	
+	private void playLiveStream( final LocationProfile locationProfile, final Program program ) {
+		Log.v( TAG, "playLiveStream : enter" );
+		
+	    LiveStreamInfo liveStreamInfo = mLiveStreamDaoHelper.findByProgram( this, locationProfile, program );
+	    if( null != liveStreamInfo && liveStreamInfo.getPercentComplete() > 2 ) {
+	    	sendCompletePlay( liveStreamInfo );
+	    } else {
+	    	sendCompletePlayRaw();
+	    }
+		
+		Log.v( TAG, "playLiveStream : exit" );
 	}
 	
 	private void createLiveStream( final LocationProfile locationProfile, final Program program ) {
@@ -136,16 +257,22 @@ public class LiveStreamService extends MythtvService {
 
 		if( null != selectedPlaybackProfile ) {
 			
-			Log.v( TAG, "createLiveStream : calling api" );
-			ResponseEntity<LiveStreamInfoWrapper> wrapper = mMythtvServiceHelper.getMythServicesApi( locationProfile ).contentOperations().
-							addLiveStream( null, program.getFilename(), program.getHostname(), -1, -1,
-									selectedPlaybackProfile.getHeight(), selectedPlaybackProfile.getVideoBitrate(), 
-									selectedPlaybackProfile.getAudioBitrate(), selectedPlaybackProfile.getAudioSampleRate() );
-		
-			if( wrapper.getStatusCode().equals( HttpStatus.OK ) ) {
-				saveLiveStreamLocal( locationProfile, wrapper.getBody().getLiveStreamInfo(), program );
+			try {
+				Log.v( TAG, "createLiveStream : calling api" );
+				ResponseEntity<LiveStreamInfoWrapper> wrapper = mMythtvServiceHelper.getMythServicesApi( locationProfile ).contentOperations().
+						addLiveStream( null, program.getFilename(), program.getHostname(), -1, -1,
+								selectedPlaybackProfile.getHeight(), selectedPlaybackProfile.getVideoBitrate(), 
+								selectedPlaybackProfile.getAudioBitrate(), selectedPlaybackProfile.getAudioSampleRate() );
 
-				Log.v( TAG, "createLiveStream : live stream removed" );
+				if( wrapper.getStatusCode().equals( HttpStatus.OK ) ) {
+					LiveStreamInfo liveStreamInfo = wrapper.getBody().getLiveStreamInfo();
+
+					saveLiveStreamLocal( locationProfile, liveStreamInfo, program );
+
+					Log.v( TAG, "createLiveStream : live stream created" );
+				}
+			} catch( Exception e ) {
+				Log.e( TAG, "createLiveStream : error", e );
 			}
 		
 		}
@@ -153,10 +280,32 @@ public class LiveStreamService extends MythtvService {
 		Log.v( TAG, "createLiveStream : exit" );
 	}
 
-	private void updateLiveStream( final LocationProfile locationProfile ) {
+	private void updateLiveStream( final LocationProfile locationProfile, final Program program ) throws InterruptedException {
 		Log.v( TAG, "updateLiveStream : enter" );
 		
-		
+	    LiveStreamInfo liveStreamInfo = mLiveStreamDaoHelper.findByProgram( this, locationProfile, program );
+		if( null != liveStreamInfo && liveStreamInfo.getPercentComplete() < 100 ) {
+			Thread.sleep( 10000 );
+			ETagInfo eTag = ETagInfo.createEmptyETag();
+
+			try {
+				ResponseEntity<LiveStreamInfoWrapper> wrapper = mMythtvServiceHelper.getMythServicesApi( locationProfile ).contentOperations().getLiveStream( liveStreamInfo.getId(), eTag );
+				if( wrapper.getStatusCode().equals( HttpStatus.OK ) ) {
+
+					// save updated live stream info to database
+					LiveStreamInfo liveStreamStatus = wrapper.getBody().getLiveStreamInfo();
+					saveLiveStreamLocal( locationProfile, liveStreamStatus, program );
+
+					if( liveStreamInfo.getPercentComplete() < 100 ) {
+						updateLiveStream( locationProfile, program );
+					}
+
+				}
+			} catch( Exception e ) {
+				Log.e( TAG, "updateLiveStream : error", e );
+			}
+			
+		}
 		
 		Log.v( TAG, "updateLiveStream : exit" );
 	}
@@ -165,6 +314,19 @@ public class LiveStreamService extends MythtvService {
 		Log.v( TAG, "saveLiveStreamLocal : enter" );
 		
 		mLiveStreamDaoHelper.save( this, locationProfile, liveStreamInfo, program );
+
+		if( liveStreamInfo.getPercentComplete() < 100 ) {
+			sendProgress( liveStreamInfo );
+			
+			try {
+				updateLiveStream( locationProfile, program );
+			} catch( InterruptedException e ) {
+				Log.e( TAG, "saveLiveStreamLocal : error", e );
+			}
+			
+		} else {
+			sendComplete( liveStreamInfo );
+		}
 		
 		Log.v( TAG, "saveLiveStreamLocal : exit" );
 	}
@@ -175,13 +337,20 @@ public class LiveStreamService extends MythtvService {
 		
         LiveStreamInfo liveStreamInfo = mLiveStreamDaoHelper.findByProgram( this, locationProfile, program );
 		if( null != liveStreamInfo ) {
-			ResponseEntity<Bool> wrapper = mMythtvServiceHelper.getMythServicesApi( locationProfile ).contentOperations().removeLiveStream( liveStreamInfo.getId() );
+			
+			try {
+				ResponseEntity<Bool> wrapper = mMythtvServiceHelper.getMythServicesApi( locationProfile ).contentOperations().removeLiveStream( liveStreamInfo.getId() );
 
-			if( wrapper.getBody().getBool().booleanValue() ) {
+				if( wrapper.getStatusCode().equals( HttpStatus.OK ) ) {
+					if( wrapper.getBody().getBool().booleanValue() ) {
 
-				mLiveStreamDaoHelper.delete( this, locationProfile, liveStreamInfo );
+						removeLiveStreamLocal( locationProfile, liveStreamInfo );
 
-				Log.v( TAG, "removeLive Stream : live stream removed" );
+						Log.v( TAG, "removeLive Stream : live stream removed" );
+					}
+				}
+			} catch( Exception e ) {
+				Log.e( TAG, "removeLiveStream : error", e );
 			}
 
 		}
@@ -194,34 +363,9 @@ public class LiveStreamService extends MythtvService {
 		
 		mLiveStreamDaoHelper.delete( this, locationProfile, liveStreamInfo );
 		
+		sendCompleteRemove();
+		
 		Log.v( TAG, "removeLiveStreamLocal : exit" );
 	}
-
-	@SuppressWarnings( "deprecation" )
-	private void sendNotification() {
-
-		long when = System.currentTimeMillis();
-		notificationId = (int) when;
-		
-        Notification mNotification = new Notification( android.R.drawable.stat_notify_sync, getResources().getString( R.string.notification_sync_recordings ), when );
-
-        Intent notificationIntent = new Intent();
-        PendingIntent mContentIntent = PendingIntent.getActivity( this, 0, notificationIntent, 0 );
-
-        mNotification.setLatestEventInfo( this, getResources().getString( R.string.app_name ), getResources().getString( R.string.notification_sync_recordings ), mContentIntent );
-
-        mNotification.flags = Notification.FLAG_ONGOING_EVENT;
-
-        mNotificationManager.notify( notificationId, mNotification );
-	
-	}
-	
-    private void completed()    {
-        
-    	if( null != mNotificationManager ) {
-        	mNotificationManager.cancel( notificationId );
-    	}
-    
-    }
 
 }

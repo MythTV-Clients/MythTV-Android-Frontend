@@ -31,11 +31,10 @@ import org.mythtv.db.dvr.programGroup.ProgramGroupDaoHelper;
 import org.mythtv.db.http.EtagConstants;
 import org.mythtv.db.http.EtagDaoHelper;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
-import org.mythtv.service.dvr.RecordedDownloadService;
+import org.mythtv.service.dvr.RecordedService;
 import org.mythtv.service.util.RunningServiceHelper;
 import org.mythtv.services.api.dvr.impl.DvrTemplate.Endpoint;
 
-import android.annotation.TargetApi;
 import android.content.BroadcastReceiver;
 import android.content.ContentUris;
 import android.content.Context;
@@ -176,9 +175,9 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 		Log.v( TAG, "onStart : enter" );
 		super.onStart();
 
-		IntentFilter recordedDownloadFilter = new IntentFilter( RecordedDownloadService.ACTION_DOWNLOAD );
-		recordedDownloadFilter.addAction( RecordedDownloadService.ACTION_PROGRESS );
-		recordedDownloadFilter.addAction( RecordedDownloadService.ACTION_COMPLETE );
+		IntentFilter recordedDownloadFilter = new IntentFilter( RecordedService.ACTION_DOWNLOAD );
+		recordedDownloadFilter.addAction( RecordedService.ACTION_PROGRESS );
+		recordedDownloadFilter.addAction( RecordedService.ACTION_COMPLETE );
         getActivity().registerReceiver( recordedDownloadReceiver, recordedDownloadFilter );
 
 		Log.v( TAG, "onStart : enter" );
@@ -198,13 +197,13 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 			DateTime now = new DateTime();
 			if( now.getMillis() - etag.getMillis() > 3600000 ) {
 				if( !mRunningServiceHelper.isServiceRunning( getActivity(), "org.mythtv.service.dvr.RecordedDownloadService" ) ) {
-					getActivity().startService( new Intent( RecordedDownloadService.ACTION_DOWNLOAD ) );
+					getActivity().startService( new Intent( RecordedService.ACTION_DOWNLOAD ) );
 				}
 			}
 			
 		} else {
 			if( !mRunningServiceHelper.isServiceRunning( getActivity(), "org.mythtv.service.dvr.RecordedDownloadService" ) ) {
-				getActivity().startService( new Intent( RecordedDownloadService.ACTION_DOWNLOAD ) );
+				getActivity().startService( new Intent( RecordedService.ACTION_DOWNLOAD ) );
 			}
 		}
 
@@ -234,7 +233,6 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 	/* (non-Javadoc)
 	 * @see android.support.v4.app.Fragment#onCreateOptionsMenu(android.view.Menu, android.view.MenuInflater)
 	 */
-	@TargetApi( 11 )
 	@Override
 	public void onCreateOptionsMenu( Menu menu, MenuInflater inflater ) {
 		Log.v( TAG, "onCreateOptionsMenu : enter" );
@@ -265,7 +263,7 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 			cursor.close();
 
 			if( !mRunningServiceHelper.isServiceRunning( getActivity(), "org.mythtv.service.dvr.RecordedDownloadService" ) ) {
-				getActivity().startService( new Intent( RecordedDownloadService.ACTION_DOWNLOAD ) );
+				getActivity().startService( new Intent( RecordedService.ACTION_DOWNLOAD ) );
 			}
 		    
 	        return true;
@@ -406,12 +404,12 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 		public void onReceive( Context context, Intent intent ) {
         	Log.i( TAG, "RecordedDownloadReceiver.onReceive : enter" );
 			
-	        if ( intent.getAction().equals( RecordedDownloadService.ACTION_PROGRESS ) ) {
-	        	Log.i( TAG, "RecordedDownloadReceiver.onReceive : progress=" + intent.getStringExtra( RecordedDownloadService.EXTRA_PROGRESS ) );
+	        if ( intent.getAction().equals( RecordedService.ACTION_PROGRESS ) ) {
+	        	Log.i( TAG, "RecordedDownloadReceiver.onReceive : progress=" + intent.getStringExtra( RecordedService.EXTRA_PROGRESS ) );
 	        }
 	        
-	        if ( intent.getAction().equals( RecordedDownloadService.ACTION_COMPLETE ) ) {
-	        	Log.i( TAG, "RecordedDownloadReceiver.onReceive : complete=" + intent.getStringExtra( RecordedDownloadService.EXTRA_COMPLETE ) );
+	        if ( intent.getAction().equals( RecordedService.ACTION_COMPLETE ) ) {
+	        	Log.i( TAG, "RecordedDownloadReceiver.onReceive : complete=" + intent.getStringExtra( RecordedService.EXTRA_COMPLETE ) );
 	        	
 	        	LocationProfile profile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
 	        	
@@ -422,9 +420,9 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 	        	}
 	        	errorCursor.close();
 
-	        	if( intent.getExtras().containsKey( RecordedDownloadService.EXTRA_COMPLETE_UPTODATE ) ) {
+	        	if( intent.getExtras().containsKey( RecordedService.EXTRA_COMPLETE_UPTODATE ) ) {
 	        		Toast.makeText( getActivity(), "Recorded Program are up to date!" + ( inError ? " (Backend error(s) detected)" : "" ), Toast.LENGTH_SHORT ).show();
-	        	} else if( intent.getExtras().containsKey( RecordedDownloadService.EXTRA_COMPLETE_OFFLINE ) ) {
+	        	} else if( intent.getExtras().containsKey( RecordedService.EXTRA_COMPLETE_OFFLINE ) ) {
 	        		Toast.makeText( getActivity(), "Recorded Programs Update failed because Master Backend is not connected!", Toast.LENGTH_SHORT ).show();
 	        	} else {
 	        		Toast.makeText( getActivity(), "Recorded Programs updated!" + ( inError ? " (Backend error(s) detected)" : "" ), Toast.LENGTH_SHORT ).show();
