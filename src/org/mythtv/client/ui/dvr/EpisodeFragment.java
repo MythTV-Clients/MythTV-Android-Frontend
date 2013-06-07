@@ -23,22 +23,17 @@ import org.mythtv.R;
 import org.mythtv.client.ui.AbstractMythFragment;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.preferences.LocationProfile.LocationType;
-import org.mythtv.client.ui.preferences.PlaybackProfile;
 import org.mythtv.client.ui.util.MenuHelper;
 import org.mythtv.db.content.LiveStreamDaoHelper;
 import org.mythtv.db.dvr.RecordedDaoHelper;
 import org.mythtv.db.dvr.programGroup.ProgramGroup;
 import org.mythtv.db.dvr.programGroup.ProgramGroupDaoHelper;
-import org.mythtv.db.preferences.PlaybackProfileDaoHelper;
-import org.mythtv.service.dvr.RecordedDownloadService;
+import org.mythtv.service.dvr.LiveStreamService;
+import org.mythtv.service.dvr.RecordedService;
 import org.mythtv.service.util.DateUtils;
-import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.Bool;
-import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.content.LiveStreamInfo;
-import org.mythtv.services.api.content.LiveStreamInfoWrapper;
 import org.mythtv.services.api.dvr.Program;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import android.annotation.TargetApi;
@@ -51,7 +46,6 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
-import android.os.AsyncTask.Status;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
@@ -80,15 +74,13 @@ public class EpisodeFragment extends AbstractMythFragment {
 	
 	private OnEpisodeActionListener listener = null;
 
+	private LiveStreamReceiver liveStreamReceiver = new LiveStreamReceiver();
 	private RecordedRemovedReceiver recordedRemovedReceiver = new RecordedRemovedReceiver();
-
-	private PlaybackProfileDaoHelper mPlaybackProfileDaoHelper = PlaybackProfileDaoHelper.getInstance();
 
 	private LiveStreamDaoHelper mLiveStreamDaoHelper = LiveStreamDaoHelper.getInstance();
 	private MenuHelper mMenuHelper = MenuHelper.getInstance();
 	private ProgramGroupDaoHelper mProgramGroupDaoHelper = ProgramGroupDaoHelper.getInstance(); 
 	private RecordedDaoHelper mRecordedDaoHelper = RecordedDaoHelper.getInstance();
-	private NetworkHelper mNetworkHelper = NetworkHelper.getInstance();
 
 	private Program program;
 	private LocationProfile mLocationProfile;
@@ -96,9 +88,6 @@ public class EpisodeFragment extends AbstractMythFragment {
 	private TextView hlsView;
 	
 	private MenuItem addHlsMenuItem = null, clearHlsMenuItem;
-	
-	private CreateStreamTask createStreamTask = null;
-	private UpdateStreamInfoTask updateStreamInfoTask = null;
 	
 	private ImageLoader imageLoader = ImageLoader.getInstance();
 	private DisplayImageOptions options;
@@ -147,11 +136,19 @@ public class EpisodeFragment extends AbstractMythFragment {
 		Log.v( TAG, "onStart : enter" );
 		super.onStart();
 
-		IntentFilter recordedRemovedFilter = new IntentFilter( RecordedDownloadService.ACTION_REMOVE );
-		recordedRemovedFilter.addAction( RecordedDownloadService.ACTION_COMPLETE );
+		IntentFilter recordedRemovedFilter = new IntentFilter( RecordedService.ACTION_REMOVE );
+		recordedRemovedFilter.addAction( RecordedService.ACTION_COMPLETE );
         getActivity().registerReceiver( recordedRemovedReceiver, recordedRemovedFilter );
 
-		Log.v( TAG, "onStart : exit" );
+		IntentFilter liveStreamFilter = new IntentFilter( LiveStreamService.ACTION_COMPLETE );
+		liveStreamFilter.addAction( LiveStreamService.ACTION_PROGRESS );
+		liveStreamFilter.addAction( LiveStreamService.ACTION_CREATE );
+		liveStreamFilter.addAction( LiveStreamService.ACTION_PLAY );
+		liveStreamFilter.addAction( LiveStreamService.ACTION_UPDATE );
+		liveStreamFilter.addAction( LiveStreamService.ACTION_REMOVE );
+        getActivity().registerReceiver( liveStreamReceiver, liveStreamFilter );
+
+        Log.v( TAG, "onStart : exit" );
 	}
 
 	/* (non-Javadoc)
@@ -171,30 +168,15 @@ public class EpisodeFragment extends AbstractMythFragment {
 			}
 		}
 
+		if( null != liveStreamReceiver ) {
+			try {
+				getActivity().unregisterReceiver( liveStreamReceiver );
+			} catch( IllegalArgumentException e ) {
+				Log.e( TAG, e.getLocalizedMessage(), e );
+			}
+		}
+
 		Log.v( TAG, "onStop : exit" );
-	}
-
-	/* (non-Javadoc)
-	 * @see android.support.v4.app.Fragment#onDestroy()
-	 */
-	@Override
-	public void onDestroy() {
-		Log.v( TAG, "onDestroy : enter" );
-		super.onDestroy();
-
-		if( null != createStreamTask && Status.FINISHED != createStreamTask.getStatus() ) {
-			Log.d( TAG, "onDestroy : cancelling create stream task" );
-
-			createStreamTask.cancel( true );
-		}
-		
-		if( null != updateStreamInfoTask && Status.FINISHED != updateStreamInfoTask.getStatus() ) {
-			Log.d( TAG, "onDestroy : cancelling update stream task" );
-
-			updateStreamInfoTask.cancel( true );
-		}
-
-		Log.v( TAG, "onDestroy : exit" );
 	}
 
 	/* (non-Javadoc)
@@ -233,82 +215,63 @@ public class EpisodeFragment extends AbstractMythFragment {
 	public boolean onOptionsItemSelected( MenuItem item ) {
 		Log.v( TAG, "onOptionsItemSelected : enter" );
 		
+		AlertDialog.Builder builder = new AlertDialog.Builder( getActivity() );
+
 		switch( item.getItemId() ) {
 		case MenuHelper.WATCH_ID:
 			Log.d( TAG, "onOptionsItemSelected : watch selected" );
 
-			if( NetworkHelper.getInstance().isNetworkConnected( getActivity() ) ) {
-				
-				if( mLocationProfile.getType().equals( LocationType.HOME ) ) {
-					
-					AlertDialog.Builder builder = new AlertDialog.Builder( getActivity() );
-			    	builder
-			    	.setTitle( R.string.episode_watch_title )
-			    	.setMessage( R.string.episode_watch_message )
-			    	.setPositiveButton( R.string.episode_watch_button_hls, new DialogInterface.OnClickListener() {
+			if( mLocationProfile.getType().equals( LocationType.HOME ) ) {
 
-			    		@Override
-			    		public void onClick( DialogInterface dialog, int which ) {
+				builder
+				.setTitle( R.string.episode_watch_title )
+				.setMessage( R.string.episode_watch_message )
+				.setPositiveButton( R.string.episode_watch_button_hls, new DialogInterface.OnClickListener() {
 
-			    	        LiveStreamInfo liveStreamInfo = mLiveStreamDaoHelper.findByProgram( getActivity(), mLocationProfile, program );
-							if( null == liveStreamInfo ) {
-								
-								createStreamTask = new CreateStreamTask();
-								createStreamTask.execute( true );
-							
-							} else {
+					@Override
+					public void onClick( DialogInterface dialog, int which ) {
 
-								Intent playerIntent = new Intent( getActivity(), VideoActivity.class );
-								playerIntent.putExtra( VideoActivity.EXTRA_CHANNEL_ID, program.getChannelInfo().getChannelId() );
-								playerIntent.putExtra( VideoActivity.EXTRA_START_TIME, program.getStartTime().getMillis() );
-								playerIntent.putExtra( VideoActivity.EXTRA_RAW, false );
-								startActivity( playerIntent );
-							
-							}
+						LiveStreamInfo liveStreamInfo = mLiveStreamDaoHelper.findByProgram( getActivity(), mLocationProfile, program );
+						if( null == liveStreamInfo ) {
 
-			    		}
-			    	
-			    	})
-			    	.setNegativeButton( R.string.episode_watch_button_raw, new DialogInterface.OnClickListener() {
-			    		
-			    		@Override
-			    		public void onClick( DialogInterface dialog, int which ) {
+							startCreateStreamService();
 
-							Intent playerIntent = new Intent( getActivity(), VideoActivity.class );
-							playerIntent.putExtra( VideoActivity.EXTRA_CHANNEL_ID, program.getChannelInfo().getChannelId() );
-							playerIntent.putExtra( VideoActivity.EXTRA_START_TIME, program.getStartTime().getMillis() );
-							playerIntent.putExtra( VideoActivity.EXTRA_RAW, true );
-							startActivity( playerIntent );
+						} else {
 
-			    		}
-			    		
-			    	})
-			    	.show();
+							startPlayStreamService();
+
+						}
+
+					}
+
+				})
+				.setNegativeButton( R.string.episode_watch_button_raw, new DialogInterface.OnClickListener() {
+
+					@Override
+					public void onClick( DialogInterface dialog, int which ) {
+
+						startPlayStreamService();
+
+					}
+
+				})
+				.show();
+
+			} else {
+
+				LiveStreamInfo liveStreamInfo = mLiveStreamDaoHelper.findByProgram( getActivity(), mLocationProfile, program );
+				if( null == liveStreamInfo ) {
+
+					startCreateStreamService();
 
 				} else {
-					
-			        LiveStreamInfo liveStreamInfo = mLiveStreamDaoHelper.findByProgram( getActivity(), mLocationProfile, program );
-					if( null == liveStreamInfo ) {
-					
-						createStreamTask = new CreateStreamTask();
-						createStreamTask.execute( true );
-					
-					} else {
 
-						Intent playerIntent = new Intent( getActivity(), VideoActivity.class );
-						playerIntent.putExtra( VideoActivity.EXTRA_CHANNEL_ID, program.getChannelInfo().getChannelId() );
-						playerIntent.putExtra( VideoActivity.EXTRA_START_TIME, program.getStartTime().getMillis() );
-						playerIntent.putExtra( VideoActivity.EXTRA_RAW, false );
-						startActivity( playerIntent );
-					
-					}
-					
+					startPlayStreamService();
+
 				}
-				
-			} else {
-				notConnectedNotify();
+
 			}
-			
+
 			return true;
 		case MenuHelper.WATCH_ON_TV_ID:
 			//TODO: Show list of zeroconf frontends and send to selection
@@ -320,143 +283,89 @@ public class EpisodeFragment extends AbstractMythFragment {
 		case MenuHelper.ADD_ID:
 			Log.d( TAG, "onOptionsItemSelected : add selected" );
 
-			if( NetworkHelper.getInstance().isNetworkConnected( getActivity() ) ) {
-				
-				if( !preferences.getBoolean( DISMISS_ADD, false ) ) {
-					
-					View dismissView = View.inflate( getActivity(), R.layout.dismiss_checkbox, null );
-					CheckBox dismiss = (CheckBox) dismissView.findViewById( R.id.dismiss );
-					dismiss.setOnCheckedChangeListener( new OnCheckedChangeListener() {
+			if( !preferences.getBoolean( DISMISS_ADD, false ) ) {
 
-					    @Override
-					    public void onCheckedChanged( CompoundButton buttonView, boolean isChecked ) {
+				View dismissView = View.inflate( getActivity(), R.layout.dismiss_checkbox, null );
+				CheckBox dismiss = (CheckBox) dismissView.findViewById( R.id.dismiss );
+				dismiss.setOnCheckedChangeListener( new OnCheckedChangeListener() {
 
-					    	setDismissAddPreference( isChecked );
-					    	
-					    }
-					    
-					});
-					dismiss.setText( getString( R.string.episode_add_doNotDisplay ) );
+					@Override
+					public void onCheckedChanged( CompoundButton buttonView, boolean isChecked ) {
 
-					AlertDialog.Builder builder = new AlertDialog.Builder( getActivity() );
-			    	builder
-			    	.setTitle( R.string.episode_add_title )
-			    	.setMessage( R.string.episode_add_message )
-			    	.setView( dismissView )
-			    	.setPositiveButton( R.string.episode_add_button_play, new DialogInterface.OnClickListener() {
+						setDismissAddPreference( isChecked );
 
-			    		@Override
-			    		public void onClick( DialogInterface dialog, int which ) {
+					}
 
-							createStreamTask = new CreateStreamTask();
-							createStreamTask.execute( false );
-						
-							Toast.makeText( getActivity(), "Episode will be available for future viewing when processing is complete.", Toast.LENGTH_SHORT ).show();
+				});
+				dismiss.setText( getString( R.string.episode_add_doNotDisplay ) );
 
-							updateHlsMenuButtons();
+				builder
+				.setTitle( R.string.episode_add_title )
+				.setMessage( R.string.episode_add_message )
+				.setView( dismissView )
+				.setPositiveButton( R.string.episode_add_button_play, new DialogInterface.OnClickListener() {
 
-			    		}
-			    	} )
-			    	.setNegativeButton( R.string.episode_add_button_cancel, null )
-			    	.show();
+					@Override
+					public void onClick( DialogInterface dialog, int which ) {
 
-				} else {
-					
-					createStreamTask = new CreateStreamTask();
-					createStreamTask.execute( false );
-				
-					Toast.makeText( getActivity(), "Episode will be available for future viewing when processing is complete.", Toast.LENGTH_SHORT ).show();
+						startCreateStreamService();
 
-					updateHlsMenuButtons();
+						Toast.makeText( getActivity(), "Episode will be available for future viewing when processing is complete.", Toast.LENGTH_SHORT ).show();
 
-				}
-				
+					}
+				} )
+				.setNegativeButton( R.string.episode_add_button_cancel, null )
+				.show();
+
 			} else {
-				notConnectedNotify();
-			}
 
+				startCreateStreamService();
+
+				Toast.makeText( getActivity(), "Episode will be available for future viewing when processing is complete.", Toast.LENGTH_SHORT ).show();
+
+				updateHlsMenuButtons();
+
+			}
+				
 			return true;
 		case MenuHelper.CLEAR_ID :
 			Log.d( TAG, "onOptionsItemSelected : clear selected" );
 			
-			if( NetworkHelper.getInstance().isNetworkConnected( getActivity() ) ) {
-				
-				AlertDialog.Builder builder = new AlertDialog.Builder( getActivity() );
+			builder
+			.setTitle( R.string.episode_alert_remove_title )
+			.setMessage( R.string.episode_alert_remove_message )
+			.setPositiveButton( R.string.episode_alert_remove_button_delete, new DialogInterface.OnClickListener() {
 
-				builder
-					.setTitle( R.string.episode_alert_remove_title )
-					.setMessage( R.string.episode_alert_remove_message )
-					.setPositiveButton( R.string.episode_alert_remove_button_delete, new DialogInterface.OnClickListener() {
-						
-						@Override
-						public void onClick( DialogInterface dialog, int which ) {
-							
-							if( null != createStreamTask && Status.FINISHED != createStreamTask.getStatus() ) {
-								Log.d( TAG, "onClick : cancelling create stream task" );
+				@Override
+				public void onClick( DialogInterface dialog, int which ) {
 
-								createStreamTask.cancel( true );
-							}
-							
-							if( null != updateStreamInfoTask && Status.FINISHED != updateStreamInfoTask.getStatus() ) {
-								Log.d( TAG, "onClick : cancelling update stream task" );
+					startRemoveStreamService();
 
-								updateStreamInfoTask.cancel( true );
-							}
+				}
+			} )
+			.setNegativeButton( R.string.episode_alert_remove_button_cancel, null )
+			.show();
 
-							new RemoveStreamTask().execute();
-							
-							Toast.makeText( getActivity(), "Episode removed from HLS Playlist", Toast.LENGTH_SHORT ).show();
-							
-						}
-					} )
-					.setNegativeButton( R.string.episode_alert_remove_button_cancel, null )
-					.show();
-			
-				updateHlsMenuButtons();
-			} else {
-				notConnectedNotify();
-			}
+			updateHlsMenuButtons();
 
 			return true;
 		case MenuHelper.DELETE_ID:
 			Log.d( TAG, "onOptionsItemSelected : delete selected" );
 
-				AlertDialog.Builder builder = new AlertDialog.Builder( getActivity() );
+			builder
+			.setTitle( R.string.episode_alert_delete_title )
+			.setMessage( R.string.episode_alert_delete_message )
+			.setPositiveButton( R.string.episode_alert_delete_button_delete, new DialogInterface.OnClickListener() {
 
-				builder
-					.setTitle( R.string.episode_alert_delete_title )
-					.setMessage( R.string.episode_alert_delete_message )
-					.setPositiveButton( R.string.episode_alert_delete_button_delete, new DialogInterface.OnClickListener() {
-						
-						@Override
-						public void onClick( DialogInterface dialog, int which ) {
-							
-							if( null != createStreamTask && Status.FINISHED != createStreamTask.getStatus() ) {
-								Log.d( TAG, "onClick : cancelling create stream task" );
+				@Override
+				public void onClick( DialogInterface dialog, int which ) {
 
-								createStreamTask.cancel( true );
-							}
-							
-							if( null != updateStreamInfoTask && Status.FINISHED != updateStreamInfoTask.getStatus() ) {
-								Log.d( TAG, "onClick : cancelling update stream task" );
+					startRemoveProgramService();
 
-								updateStreamInfoTask.cancel( true );
-							}
-							
-					        LiveStreamInfo liveStreamInfo = mLiveStreamDaoHelper.findByProgram( getActivity(), mLocationProfile, program );
-							if( null != liveStreamInfo ) {
-								new RemoveStreamTask().execute();
-							}
-							
-							Intent intent = new Intent( RecordedDownloadService.ACTION_REMOVE );
-							intent.putExtra( RecordedDownloadService.KEY_CHANNEL_ID, program.getChannelInfo().getChannelId() );
-							intent.putExtra( RecordedDownloadService.KEY_START_TIMESTAMP, program.getRecording().getStartTimestamp().getMillis() );
-							getActivity().startService( intent );
-							
-						}
-					} )
-					.setNegativeButton( R.string.episode_alert_delete_button_cancel, null )
-					.show();
+				}
+			} )
+			.setNegativeButton( R.string.episode_alert_delete_button_cancel, null )
+			.show();
 			
 			return true;
 		}
@@ -470,24 +379,21 @@ public class EpisodeFragment extends AbstractMythFragment {
 
 		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
 
-		if( null != createStreamTask && Status.FINISHED != createStreamTask.getStatus() ) {
-			Log.d( TAG, "loadEpisode : cancelling create stream task" );
-
-			createStreamTask.cancel( true );
-		}
-		
-		if( null != updateStreamInfoTask && Status.FINISHED != updateStreamInfoTask.getStatus() ) {
-			Log.d( TAG, "loadEpisode : cancelling update stream task" );
-
-			updateStreamInfoTask.cancel( true );
-		}
-
 		program = null;
 		
 		Log.v( TAG, "loadEpisode : channelId=" + channelId + ", startTime=" + DateUtils.dateTimeFormatterPretty.print( startTime ) );
         program = mRecordedDaoHelper.findOne( getActivity(), mLocationProfile, channelId, startTime );
 		if( null != program ) {
 
+			LiveStreamInfo liveStreamInfo = mLiveStreamDaoHelper.findByProgram( getActivity(), mLocationProfile, program );
+			if( null != liveStreamInfo ) {
+				
+				if( liveStreamInfo.getPercentComplete() < 100 ) {
+					startUpdateStreamService();
+				}
+				
+			}
+			
 			// get activity to grab views from
 			FragmentActivity activity = this.getActivity();
 
@@ -561,6 +467,73 @@ public class EpisodeFragment extends AbstractMythFragment {
 
 	// internal helpers
 	
+	private void startPlayer( boolean raw ) {
+		Log.i( TAG, "startPlayer : enter" );
+		
+		Intent playerIntent = new Intent( getActivity(), VideoActivity.class );
+		playerIntent.putExtra( VideoActivity.EXTRA_CHANNEL_ID, program.getChannelInfo().getChannelId() );
+		playerIntent.putExtra( VideoActivity.EXTRA_START_TIME, program.getStartTime().getMillis() );
+		playerIntent.putExtra( VideoActivity.EXTRA_RAW, raw );
+		startActivity( playerIntent );
+
+		Log.i( TAG, "startPlayer : exit" );
+	}
+	
+	private void startPlayStreamService() {
+		Log.i( TAG, "startPlayStreamService : enter" );
+		
+		Intent intent = new Intent( LiveStreamService.ACTION_PLAY );
+		intent.putExtra( LiveStreamService.KEY_CHANNEL_ID, program.getChannelInfo().getChannelId() );
+		intent.putExtra( LiveStreamService.KEY_START_TIMESTAMP, program.getRecording().getStartTimestamp().getMillis() );
+		getActivity().startService( intent );
+
+		Log.i( TAG, "startPlayStreamService : exit" );
+	}
+
+	private void startCreateStreamService() {
+		Log.i( TAG, "startCreateStreamService : enter" );
+		
+		Intent intent = new Intent( LiveStreamService.ACTION_CREATE );
+		intent.putExtra( LiveStreamService.KEY_CHANNEL_ID, program.getChannelInfo().getChannelId() );
+		intent.putExtra( LiveStreamService.KEY_START_TIMESTAMP, program.getRecording().getStartTimestamp().getMillis() );
+		getActivity().startService( intent );
+
+		Log.i( TAG, "startCreateStreamService : exit" );
+	}
+	
+	private void startUpdateStreamService() {
+		Log.i( TAG, "startUpdateStreamService : enter" );
+		
+		Intent intent = new Intent( LiveStreamService.ACTION_UPDATE );
+		intent.putExtra( LiveStreamService.KEY_CHANNEL_ID, program.getChannelInfo().getChannelId() );
+		intent.putExtra( LiveStreamService.KEY_START_TIMESTAMP, program.getRecording().getStartTimestamp().getMillis() );
+		getActivity().startService( intent );
+
+		Log.i( TAG, "startUpdateStreamService : exit" );
+	}
+	
+	private void startRemoveStreamService() {
+		Log.i( TAG, "startRemoveStreamService : enter" );
+		
+		Intent intent = new Intent( LiveStreamService.ACTION_REMOVE );
+		intent.putExtra( LiveStreamService.KEY_CHANNEL_ID, program.getChannelInfo().getChannelId() );
+		intent.putExtra( LiveStreamService.KEY_START_TIMESTAMP, program.getRecording().getStartTimestamp().getMillis() );
+		getActivity().startService( intent );
+
+		Log.i( TAG, "startRemoveStreamService : exit" );
+	}
+	
+	private void startRemoveProgramService() {
+		Log.i( TAG, "startRemoveProgramService : enter" );
+		
+		Intent intent = new Intent( RecordedService.ACTION_REMOVE );
+		intent.putExtra( RecordedService.KEY_CHANNEL_ID, program.getChannelInfo().getChannelId() );
+		intent.putExtra( RecordedService.KEY_START_TIMESTAMP, program.getRecording().getStartTimestamp().getMillis() );
+		getActivity().startService( intent );
+
+		Log.i( TAG, "startRemoveProgramService : exit" );
+	}
+	
 	private void setDismissAddPreference( boolean isChecked ) {
 		
 		SharedPreferences.Editor editor = preferences.edit();
@@ -581,7 +554,6 @@ public class EpisodeFragment extends AbstractMythFragment {
         	} else if( liveStreamInfo.getPercentComplete() >= 0 ) {
         		hlsView.setText( "Processing " + liveStreamInfo.getPercentComplete() + "%" );
         		
-        		new UpdateStreamInfoTask().execute();
         	} else {
         		hlsView.setText( "" );
         	}
@@ -631,16 +603,6 @@ public class EpisodeFragment extends AbstractMythFragment {
 		
 	}
 
-	public void checkLiveStreamInfo( ResponseEntity<LiveStreamInfoWrapper> info ){
-		Log.v( TAG, "checkLiveStreamInfo : enter" );
-
-		if( info.getBody().getLiveStreamInfo().getStatusInt() < 2 || info.getBody().getLiveStreamInfo().getCurrentSegment() <= 2 ) {
-			new UpdateStreamInfoTask().execute();
-		}
-
-		Log.v( TAG, "checkLiveStreamInfo : exit" );
-	}
-
 	private class PlayRecordingOnFrontEndTask extends AsyncTask<String, Void, ResponseEntity<Bool>> {
 
 		@Override
@@ -655,253 +617,72 @@ public class EpisodeFragment extends AbstractMythFragment {
 		
 	}
 
-	private class CreateStreamTask extends AsyncTask<Boolean, Void, ResponseEntity<LiveStreamInfoWrapper>> {
-
-		private boolean startVideo;
-		
-		private Exception e = null;
-
-		private PlaybackProfile selectedPlaybackProfile;
-
-		@Override
-		protected ResponseEntity<LiveStreamInfoWrapper> doInBackground( Boolean... params ) {
-			Log.v( TAG, "CreateStreamTask : enter" );
-
-			startVideo = params[ 0 ];
-			
-			try {
-				Log.v( TAG, "CreateStreamTask : api" );
-				
-				LocationType location = mLocationProfile.getType();
-				
-				if( location.equals( LocationType.HOME ) ) {
-					selectedPlaybackProfile = mPlaybackProfileDaoHelper.findSelectedHomeProfile( getActivity() );
-				} else if( location.equals( LocationType.AWAY ) ) {
-					selectedPlaybackProfile = mPlaybackProfileDaoHelper.findSelectedAwayProfile( getActivity() );
-				} else {
-					Log.e( TAG, "Unknown Location!" );
-				}
-				
-				Log.v( TAG, "CreateStreamTask : exit" );
-				return mMythtvServiceHelper.getMythServicesApi( mLocationProfile ).contentOperations().
-						addLiveStream( null, program.getFilename(), program.getHostname(), -1, -1,
-								selectedPlaybackProfile.getHeight(), selectedPlaybackProfile.getVideoBitrate(), 
-								selectedPlaybackProfile.getAudioBitrate(), selectedPlaybackProfile.getAudioSampleRate() );
-			
-			} catch( Exception e ) {
-				Log.v( TAG, "CreateStreamTask : error" );
-
-				this.e = e;
-			}
-
-			Log.v( TAG, "CreateStreamTask : exit, no hls stream created" );
-			return null;
-		}
-
-		@Override
-		protected void onPostExecute( ResponseEntity<LiveStreamInfoWrapper> result ) {
-			Log.v( TAG, "CreateStreamTask onPostExecute : enter" );
-
-			if( null == e ) {
-				Log.v( TAG, "CreateStreamTask onPostExecute : no exception" );
-				
-				if( null != result ) {
-					Log.v( TAG, "CreateStreamTask onPostExecute : result returned from mythtv services api" );
-					
-					if( result.getStatusCode().equals( HttpStatus.OK ) ) {
-						
-						LiveStreamInfo liveStreamInfo = result.getBody().getLiveStreamInfo();
-						mLiveStreamDaoHelper.save( getActivity(), mLocationProfile, liveStreamInfo, program );
-						
-						new UpdateStreamInfoTask().execute();
-						
-						updateHlsDetails();
-						updateHlsMenuButtons();
-						
-						if( startVideo ) {
-							
-							Intent playerIntent = new Intent( getActivity(), VideoActivity.class );
-							playerIntent.putExtra( VideoActivity.EXTRA_CHANNEL_ID, program.getChannelInfo().getChannelId() );
-							playerIntent.putExtra( VideoActivity.EXTRA_START_TIME, program.getStartTime().getMillis() );
-							startActivity( playerIntent );
-
-						}
-					}
-				}
-			} else {
-				Log.e( TAG, "error creating live stream", e );
-				
-				//exceptionDialolg( e );
-			}
-
-			Log.v( TAG, "CreateStreamTask onPostExecute : exit" );
-		}
-	}
-
-	private class UpdateStreamInfoTask extends AsyncTask<Void, Void, ResponseEntity<LiveStreamInfoWrapper>> {
-
-		private Exception e = null;
-
-		@Override
-		protected ResponseEntity<LiveStreamInfoWrapper> doInBackground( Void... params ) {
-			Log.v( TAG, "UpdateStreamInfoTask : enter" );
-
-			if( !mNetworkHelper.isNetworkConnected( getActivity() ) ) {
-				Log.v( TAG, "UpdateStreamInfoTask : exit, not connected" );
-				
-				return null;
-			}
-
-	        LiveStreamInfo liveStreamInfo = mLiveStreamDaoHelper.findByProgram( getActivity(), mLocationProfile, program );
-			if( null == liveStreamInfo ) {
-				Log.v( TAG, "UpdateStreamInfoTask : exit, live stream info is null" );
-				
-				return null;
-			}
-			
-			try {
-				Log.v( TAG, "UpdateStreamInfoTask : api" );
-				
-				if( null != liveStreamInfo ) {
-					if( liveStreamInfo.getPercentComplete() < 100 ) {
-						Thread.sleep( 10000 );
-						ETagInfo eTag = ETagInfo.createEmptyETag();
-					
-						if( null != getMainApplication() ) {
-							Log.v( TAG, "UpdateStreamInfoTask : exit" );
-							
-							return mMythtvServiceHelper.getMythServicesApi( mLocationProfile ).contentOperations().getLiveStream( liveStreamInfo.getId(), eTag );
-						}
-					} else {
-						updateHlsDetails();
-					}
-				}
-			} catch( Exception e ) {
-				Log.v( TAG, "UpdateStreamInfoTask : error" );
-
-				this.e = e;
-			}
-
-			Log.v( TAG, "UpdateStreamInfoTask : exit, task in error or was cancelled by user" );
-			return null;
-		}
-
-		@Override
-		protected void onPostExecute( ResponseEntity<LiveStreamInfoWrapper> result ) {
-			Log.v( TAG, "UpdateStreamInfoTask onPostExecute : enter" );
-
-			if( null == e ) {
-				Log.v( TAG, "UpdateStreamInfoTask onPostExecute : no exception occurred" );
-				
-				if( null != result ) {
-					Log.v( TAG, "UpdateStreamInfoTask onPostExecute : result returned from web service" );
-					
-					if( result.getStatusCode().equals( HttpStatus.OK ) ) {
-
-						// save updated live stream info to database
-						LiveStreamInfo liveStreamInfo = result.getBody().getLiveStreamInfo();
-						mLiveStreamDaoHelper.save( getActivity(), mLocationProfile, liveStreamInfo, program );
-						
-						if( liveStreamInfo.getPercentComplete() < 100 ) {
-							new UpdateStreamInfoTask().execute();
-						}
-						
-						// update display 
-						updateHlsDetails();
-						updateHlsMenuButtons();
-					}
-				}
-			} else {
-				Log.e( TAG, "error updating live stream", e );
-				//exceptionDialolg( e );
-			}
-
-			Log.v( TAG, "UpdateStreamInfoTask onPostExecute : exit" );
-		}
-	}
-
-	private class RemoveStreamTask extends AsyncTask<Void, Void, ResponseEntity<Bool>> {
-
-		private Exception e = null;
-
-		@Override
-		protected ResponseEntity<Bool> doInBackground( Void... params ) {
-			Log.v( TAG, "RemoveStreamTask : enter" );
-
-			try {
-				Log.v( TAG, "RemoveStreamTask : api" );
-				
-		        LiveStreamInfo liveStreamInfo = mLiveStreamDaoHelper.findByProgram( getActivity(), mLocationProfile, program );
-				if( null != liveStreamInfo ) {
-					return mMythtvServiceHelper.getMythServicesApi( mLocationProfile ).contentOperations().removeLiveStream( liveStreamInfo.getId() );
-				}
-				
-			} catch( Exception e ) {
-				Log.v( TAG, "RemoveStreamTask : error" );
-
-				this.e = e;
-			}
-
-			Log.v( TAG, "RemoveStreamTask : exit" );
-			return null;
-		}
-
-		@Override
-		protected void onPostExecute( ResponseEntity<Bool> result ) {
-			Log.v( TAG, "RemoveStreamTask onPostExecute : enter" );
-
-			if( null == e ) {
-				Log.v( TAG, "RemoveStreamTask onPostExecute : no error occurred" );
-				
-				if( null != result ) {
-					
-					if( result.getBody().getBool().booleanValue() ) {
-						
-				        LiveStreamInfo liveStreamInfo = mLiveStreamDaoHelper.findByProgram( getActivity(), mLocationProfile, program );
-						mLiveStreamDaoHelper.delete( getActivity(), mLocationProfile, liveStreamInfo );
-						
-						updateHlsDetails();
-						
-						Log.v( TAG, "RemoveStreamTask onPostExecute : live stream removed" );
-					}
-					
-				} else {
-					
-			        LiveStreamInfo liveStreamInfo = mLiveStreamDaoHelper.findByProgram( getActivity(), mLocationProfile, program );
-					mLiveStreamDaoHelper.delete( getActivity(), mLocationProfile, liveStreamInfo );
-					
-					updateHlsDetails();
-					
-					Log.v( TAG, "RemoveStreamTask onPostExecute : live stream removed" );
-				}
-			} else {
-				Log.e( TAG, "error removing live stream", e );
-
-				//exceptionDialolg( e );
-			}
-
-			Log.v( TAG, "RemoveStreamTask onPostExecute : exit" );
-		}
-	}
-
 	private class RecordedRemovedReceiver extends BroadcastReceiver {
 
 		@Override
 		public void onReceive( Context context, Intent intent ) {
         	Log.i( TAG, "RecordedRemovedReceiver.onReceive : enter" );
 			
-	        if ( intent.getAction().equals( RecordedDownloadService.ACTION_COMPLETE ) ) {
-	        	Log.i( TAG, "RecordedRemovedReceiver.onReceive : complete=" + intent.getStringExtra( RecordedDownloadService.EXTRA_COMPLETE ) );
+	        if ( intent.getAction().equals( RecordedService.ACTION_COMPLETE ) ) {
+	        	Log.i( TAG, "RecordedRemovedReceiver.onReceive : complete=" + intent.getStringExtra( RecordedService.EXTRA_COMPLETE ) );
 	        	
-	        	if( intent.getExtras().containsKey( RecordedDownloadService.EXTRA_COMPLETE_OFFLINE ) ) {
+	        	if( intent.getExtras().containsKey( RecordedService.EXTRA_COMPLETE_OFFLINE ) ) {
 	        		notConnectedNotify();
 	        	} else {
-	        		Toast.makeText( getActivity(), intent.getStringExtra( RecordedDownloadService.EXTRA_COMPLETE ), Toast.LENGTH_SHORT ).show();
+	        		Toast.makeText( getActivity(), intent.getStringExtra( RecordedService.EXTRA_COMPLETE ), Toast.LENGTH_SHORT ).show();
 	        		
-	        		ProgramGroup programGroup = mProgramGroupDaoHelper.findByTitle( getActivity(), mLocationProfile, program.getTitle() );
-	        		listener.onEpisodeDeleted( programGroup );
+	        		if( null != program ) {
+	        			ProgramGroup programGroup = mProgramGroupDaoHelper.findByTitle( getActivity(), mLocationProfile, program.getTitle() );
+	        			listener.onEpisodeDeleted( programGroup );
+	        		}
 	        	}
 	        	
+	        }
+
+        	Log.i( TAG, "RecordedRemovedReceiver.onReceive : exit" );
+		}
+		
+	}
+
+	private class LiveStreamReceiver extends BroadcastReceiver {
+
+		@Override
+		public void onReceive( Context context, Intent intent ) {
+        	Log.i( TAG, "LiveStreamReceiver.onReceive : enter" );
+			
+	        if ( intent.getAction().equals( LiveStreamService.ACTION_PROGRESS ) ) {
+	        	Log.i( TAG, "LiveStreamReceiver.onReceive : progress=" + intent.getIntExtra( LiveStreamService.EXTRA_PROGRESS_ID, -1 ) + ":" + intent.getIntExtra( LiveStreamService.EXTRA_PROGRESS_DATA, -1 ) );
+	        	
+	        	updateHlsDetails();
+	        }
+	        
+	        if ( intent.getAction().equals( LiveStreamService.ACTION_COMPLETE ) ) {
+	        	Log.i( TAG, "LiveStreamReceiver.onReceive : complete=" + intent.getStringExtra( LiveStreamService.EXTRA_COMPLETE ) );
+	        	
+	        	if( intent.getExtras().containsKey( LiveStreamService.EXTRA_COMPLETE_OFFLINE ) ) {
+	        		notConnectedNotify();
+	        	}
+	        	
+	        	if( intent.getExtras().containsKey( LiveStreamService.EXTRA_COMPLETE_ERROR ) ) {
+	        		Toast.makeText( getActivity(), intent.getStringExtra( LiveStreamService.EXTRA_COMPLETE_ERROR ), Toast.LENGTH_SHORT ).show();
+	        	} 
+	        	
+	        	if( intent.getExtras().containsKey( LiveStreamService.EXTRA_COMPLETE_PLAY ) ) {
+	        		
+        			startPlayer( intent.getExtras().getBoolean( LiveStreamService.EXTRA_COMPLETE_RAW ) );
+	        		
+	        	}
+	        	
+	        	if( intent.getExtras().containsKey( LiveStreamService.EXTRA_COMPLETE_REMOVE ) ) {
+
+	        		ProgramGroup programGroup = mProgramGroupDaoHelper.findByTitle( getActivity(), mLocationProfile, program.getTitle() );
+	        		listener.onEpisodeDeleted( programGroup );
+       			
+		        	Toast.makeText( getActivity(), intent.getStringExtra( LiveStreamService.EXTRA_COMPLETE ), Toast.LENGTH_SHORT ).show();
+	        	}
+	        	
+	        	updateHlsDetails();
+	        		
 	        }
 
         	Log.i( TAG, "RecordedRemovedReceiver.onReceive : exit" );

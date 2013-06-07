@@ -58,7 +58,7 @@
         android:allowBackup="true">
 
 		<activity 
-			android:name=".client.ui.MainActivity"
+			android:name=".client.ui.NavigationDrawerActivity"
 			android:configChanges="keyboard|keyboardHidden|orientation|screenSize">
 			
 			<intent-filter>
@@ -138,10 +138,21 @@
             </intent-filter>
 		</service>
 		
-		<service android:name=".service.dvr.RecordedDownloadService" android:process=":recorded" android:exported="false">
+		<service android:name=".service.dvr.LiveStreamService" android:process=":liveStream" android:exported="false">
 			<intent-filter>
-                <action android:name="org.mythtv.background.recordedDownload.ACTION_DOWNLOAD" />
-                <action android:name="org.mythtv.background.recordedDownload.ACTION_REMOVE" />
+                <action android:name="org.mythtv.background.liveStream.ACTION_COMPLETE" />
+                <action android:name="org.mythtv.background.liveStream.ACTION_PROGRESS" />
+                <action android:name="org.mythtv.background.liveStream.ACTION_CREATE" />
+                <action android:name="org.mythtv.background.liveStream.ACTION_PLAY" />
+                <action android:name="org.mythtv.background.liveStream.ACTION_UPDATE" />
+                <action android:name="org.mythtv.background.liveStream.ACTION_REMOVE" />
+            </intent-filter>
+        </service>
+		
+		<service android:name=".service.dvr.RecordedService" android:process=":recorded" android:exported="false">
+			<intent-filter>
+                <action android:name="org.mythtv.background.recorded.ACTION_DOWNLOAD" />
+                <action android:name="org.mythtv.background.recorded.ACTION_REMOVE" />
             </intent-filter>
         </service>
 		

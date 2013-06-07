@@ -31,7 +31,8 @@
 	<string name="item_network_caption">Make sure you are on the same network as your MythTV Master Backend</string>
     
     <string name="exception">Exception</string>
-	<string name="close">Close</string>
+	<string name="open">Open</string>
+    <string name="close">Close</string>
 	
 	<string name="please_wait">Please wait&#8230;</string>
 	

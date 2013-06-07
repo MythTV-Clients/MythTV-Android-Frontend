@@ -60,17 +60,17 @@ import com.fasterxml.jackson.databind.JsonMappingException;
  * @author Daniel Frey
  *
  */
-public class RecordedDownloadService extends MythtvService {
+public class RecordedService extends MythtvService {
 
-	private static final String TAG = RecordedDownloadService.class.getSimpleName();
+	private static final String TAG = RecordedService.class.getSimpleName();
 
 	private static final String RECORDED_FILE_PREFIX = "recorded_";
 	private static final String RECORDED_FILE_EXT = ".json";
 	
-    public static final String ACTION_DOWNLOAD = "org.mythtv.background.recordedDownload.ACTION_DOWNLOAD";
-    public static final String ACTION_REMOVE = "org.mythtv.background.recordedDownload.ACTION_REMOVE";
-    public static final String ACTION_PROGRESS = "org.mythtv.background.recordedDownload.ACTION_PROGRESS";
-    public static final String ACTION_COMPLETE = "org.mythtv.background.recordedDownload.ACTION_COMPLETE";
+    public static final String ACTION_DOWNLOAD = "org.mythtv.background.recorded.ACTION_DOWNLOAD";
+    public static final String ACTION_REMOVE = "org.mythtv.background.recorded.ACTION_REMOVE";
+    public static final String ACTION_PROGRESS = "org.mythtv.background.recorded.ACTION_PROGRESS";
+    public static final String ACTION_COMPLETE = "org.mythtv.background.recorded.ACTION_COMPLETE";
 
     public static final String KEY_CHANNEL_ID = "KEY_CHANNEL_ID";
     public static final String KEY_START_TIMESTAMP = "KEY_START_TIMESTAMP";
@@ -91,7 +91,7 @@ public class RecordedDownloadService extends MythtvService {
 	private EtagDaoHelper mEtagDaoHelper = EtagDaoHelper.getInstance();
 	private LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
 	
-	public RecordedDownloadService() {
+	public RecordedService() {
 		super( "RecordedDownloadService" );
 	}
 	
@@ -244,7 +244,12 @@ public class RecordedDownloadService extends MythtvService {
 		Log.v( TAG, "removeRecorded : enter" );
 		
 		boolean removed = false;
-		
+
+		Intent intent = new Intent( LiveStreamService.ACTION_REMOVE );
+		intent.putExtra( LiveStreamService.KEY_CHANNEL_ID, channelId );
+		intent.putExtra( LiveStreamService.KEY_START_TIMESTAMP, startTimestamp.getMillis() );
+		startService( intent );
+
 		ResponseEntity<Bool> responseEntity = mMythtvServiceHelper.getMythServicesApi( locationProfile ).dvrOperations().removeRecorded( channelId, startTimestamp );
 		if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
 			removed = responseEntity.getBody().getBool();
@@ -265,7 +270,7 @@ public class RecordedDownloadService extends MythtvService {
 		
 		Program program = mRecordedDaoHelper.findOne( this, locationProfile, channelId, startTimestamp );
 		String title = program.getTitle();
-				
+		
 		Log.v( TAG, "removeRecordedLocal : deleting recorded program in content provider" );
 		int deleted = mRecordedDaoHelper.delete( this, locationProfile, program );
 		if( deleted == 1 ) {
