@@ -122,7 +122,7 @@ public class NetworkHelper {
 				HttpURLConnection urlc = (HttpURLConnection) url.openConnection();
 				urlc.setRequestProperty( "User-Agent", "Android Application:MythTV_Android_Frontent" );
 				urlc.setRequestProperty( "Connection", "close" );
-				urlc.setConnectTimeout( 1000 * 10 ); // mTimeout is in seconds
+				urlc.setConnectTimeout( 1000 * 5 ); // mTimeout is in seconds
 				urlc.connect();
 				if( urlc.getResponseCode() == 200 ) {
 					InputStream in = new BufferedInputStream(urlc.getInputStream());

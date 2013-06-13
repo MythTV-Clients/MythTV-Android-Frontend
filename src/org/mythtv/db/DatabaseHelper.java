@@ -25,6 +25,7 @@ import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.db.dvr.RecordingConstants;
 import org.mythtv.db.dvr.RecordingRuleConstants;
 import org.mythtv.db.dvr.programGroup.ProgramGroupConstants;
+import org.mythtv.db.frontends.FrontendConstants;
 import org.mythtv.db.http.EtagConstants;
 import org.mythtv.db.preferences.LocationProfileConstants;
 import org.mythtv.db.preferences.PlaybackProfileConstants;
@@ -47,7 +48,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	private static final String TAG = DatabaseHelper.class.getSimpleName();
 	
 	private static final String DATABASE_NAME = "mythtvdb";
-	private static final int DATABASE_VERSION = 114;
+	private static final int DATABASE_VERSION = 115;
 
 	public DatabaseHelper( Context context ) {
 		super( context, DATABASE_NAME, null, DATABASE_VERSION );
@@ -95,6 +96,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		dropChannel( db );
 		createChannel( db );
 		
+		dropFrontend( db );
+		createFrontend( db );
+		
 		dropProgram( db, ProgramConstants.TABLE_NAME_RECORDED );
 		createProgram( db, ProgramConstants.TABLE_NAME_RECORDED );
 		
@@ -132,8 +136,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	public void onUpgrade( SQLiteDatabase db, int oldVersion, int newVersion ) {
 		Log.v( TAG, "onUpgrade : enter" );
 
-		if( oldVersion < 114 ) {
-			Log.v( TAG, "onUpgrade : upgrading to db version 114" );
+		if( oldVersion < 115 ) {
+			Log.v( TAG, "onUpgrade : upgrading to db version 115" );
 
 			onCreate( db );
 
@@ -557,6 +561,36 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		db.execSQL( "DROP TABLE IF EXISTS " + ChannelConstants.TABLE_NAME );
 		
 		Log.v( TAG, "dropChannel : exit" );
+	}
+	
+	private void createFrontend( SQLiteDatabase db ) {
+		Log.v( TAG, "createFrontend : enter" );
+		
+		StringBuilder sqlBuilder = new StringBuilder();
+		sqlBuilder.append( "CREATE TABLE " + FrontendConstants.TABLE_NAME + " (" );
+		sqlBuilder.append( FrontendConstants._ID ).append( " " ).append( FrontendConstants.FIELD_ID_DATA_TYPE ).append( " " ).append( FrontendConstants.FIELD_ID_PRIMARY_KEY ).append( ", " );
+		sqlBuilder.append( FrontendConstants.FIELD_NAME ).append( " " ).append( FrontendConstants.FIELD_NAME_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( FrontendConstants.FIELD_URL ).append( " " ).append( FrontendConstants.FIELD_URL_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( FrontendConstants.FIELD_AVAILABLE ).append( " " ).append( FrontendConstants.FIELD_AVAILABLE_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( FrontendConstants.FIELD_MASTER_HOSTNAME ).append( " " ).append( FrontendConstants.FIELD_MASTER_HOSTNAME_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( FrontendConstants.FIELD_LAST_MODIFIED_DATE ).append( " " ).append( FrontendConstants.FIELD_LAST_MODIFIED_DATE_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( "UNIQUE(" ).append( FrontendConstants.FIELD_NAME ).append( ", " ).append( FrontendConstants.FIELD_URL ).append( ", " ).append( FrontendConstants.FIELD_MASTER_HOSTNAME ).append( ")" );
+		sqlBuilder.append( ");" );
+		String sql = sqlBuilder.toString();
+		if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
+			Log.v( TAG, "createFrontend : sql=" + sql );
+		}
+		db.execSQL( sql );
+	
+		Log.v( TAG, "createFrontend : exit" );
+	}
+	
+	private void dropFrontend( SQLiteDatabase db ) {
+		Log.v( TAG, "dropFrontend : enter" );
+		
+		db.execSQL( "DROP TABLE IF EXISTS " + FrontendConstants.TABLE_NAME );
+		
+		Log.v( TAG, "dropFrontend : exit" );
 	}
 	
 	private void createProgramGroup( SQLiteDatabase db ) {

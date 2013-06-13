@@ -33,6 +33,8 @@ public class BackendStatusFragment extends AbstractMythFragment {
 
 	private static final String TAG = BackendStatusFragment.class.getSimpleName();
 	
+	private View mView;
+	
 	private LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
 	private LocationProfile mLocationProfile;
 	
@@ -43,21 +45,48 @@ public class BackendStatusFragment extends AbstractMythFragment {
 	public View onCreateView( LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState ) {
 		Log.d( TAG, "onCreateView : enter" );
 		
-		View v = inflater.inflate( R.layout.fragment_backend_status, container, false );
+		mView = inflater.inflate( R.layout.fragment_backend_status, container, false );
 		
-		if( null != v ) {
+		Log.d( TAG, "onCreateView : exit" );
+		return mView;
+	}
+	
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
+	 */
+	@Override
+	public void onActivityCreated(Bundle savedInstanceState) {
+		super.onActivityCreated(savedInstanceState);
+
+		if( null != mView ) {
 			
-			TextView tView = (TextView)v.findViewById( R.id.textview_status );
+			TextView tView = (TextView) mView.findViewById( R.id.textview_status );
 			if( null != tView ) {
 				tView.setText( this.getStatusText() );
 			}
 			
 		}
 		
-		Log.d( TAG, "onCreateView : exit" );
-		return v;
 	}
+
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.Fragment#onResume()
+	 */
+	@Override
+	public void onResume() {
+		super.onResume();
+
+		if( null != mView ) {
+			
+			TextView tView = (TextView) mView.findViewById( R.id.textview_status );
+			if( null != tView ) {
+				tView.setText( this.getStatusText() );
+			}
+			
+		}
 	
+	}
+
 	private String getStatusText() {
 		Log.v( TAG, "getStatusText : enter" );
 

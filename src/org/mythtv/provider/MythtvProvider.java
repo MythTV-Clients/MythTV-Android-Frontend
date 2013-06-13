@@ -29,6 +29,7 @@ import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.db.dvr.RecordingConstants;
 import org.mythtv.db.dvr.RecordingRuleConstants;
 import org.mythtv.db.dvr.programGroup.ProgramGroupConstants;
+import org.mythtv.db.frontends.FrontendConstants;
 import org.mythtv.db.http.EtagConstants;
 import org.mythtv.db.preferences.LocationProfileConstants;
 import org.mythtv.db.preferences.PlaybackProfileConstants;
@@ -113,6 +114,11 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 	private static final int CHANNELS 					= 300;
 	private static final int CHANNEL_ID 					= 301;
 
+	private static final String FRONTEND_CONTENT_TYPE = "vnd.mythtv.cursor.dir/org.mythtv.frontend";
+	private static final String FRONTEND_CONTENT_ITEM_TYPE = "vnd.mythtv.cursor.item/org.mythtv.frontend";
+	private static final int FRONTENDS 					= 400;
+	private static final int FRONTEND_ID 					= 401;
+
 	private static final String ETAG_CONTENT_TYPE = "vnd.mythtv.cursor.dir/org.mythtv.etag";
 	private static final String ETAG_CONTENT_ITEM_TYPE = "vnd.mythtv.cursor.item/org.mythtv.etag";
 	private static final int ETAGS 						= 1000;
@@ -156,6 +162,8 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 		URI_MATCHER.addURI( AUTHORITY, LiveStreamConstants.TABLE_NAME + "/#", LIVE_STREAM_ID );
 		URI_MATCHER.addURI( AUTHORITY, ChannelConstants.TABLE_NAME, CHANNELS );
 		URI_MATCHER.addURI( AUTHORITY, ChannelConstants.TABLE_NAME + "/#", CHANNEL_ID );
+		URI_MATCHER.addURI( AUTHORITY, FrontendConstants.TABLE_NAME, FRONTENDS );
+		URI_MATCHER.addURI( AUTHORITY, FrontendConstants.TABLE_NAME + "/#", FRONTEND_ID );
 		URI_MATCHER.addURI( AUTHORITY, EtagConstants.TABLE_NAME, ETAGS );
 		URI_MATCHER.addURI( AUTHORITY, EtagConstants.TABLE_NAME + "/#", ETAG_ID );
 		URI_MATCHER.addURI( AUTHORITY, EtagConstants.TABLE_NAME + "/endpoint", ETAG_ENDPOINT );
@@ -249,6 +257,12 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 			
 			case CHANNEL_ID:
 				return CHANNEL_CONTENT_ITEM_TYPE;
+			
+			case FRONTENDS:
+				return FRONTEND_CONTENT_TYPE;
+			
+			case FRONTEND_ID:
+				return FRONTEND_CONTENT_ITEM_TYPE;
 			
 			case ETAGS:
 				return ETAG_CONTENT_TYPE;
@@ -485,6 +499,25 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				
 				return deleted;
 
+			case FRONTENDS:
+
+				deleted = db.delete( FrontendConstants.TABLE_NAME, selection, selectionArgs );
+		
+				getContext().getContentResolver().notifyChange( uri, null );
+				
+				return deleted;
+
+			case FRONTEND_ID:
+
+				deleted = db.delete( FrontendConstants.TABLE_NAME, FrontendConstants._ID
+						+ "="
+						+ Long.toString( ContentUris.parseId( uri ) )
+						+ ( !TextUtils.isEmpty( selection ) ? " AND (" + selection + ')' : "" ), selectionArgs );
+		
+				getContext().getContentResolver().notifyChange( uri, null );
+				
+				return deleted;
+
 			case ETAGS:
 
 				deleted = db.delete( EtagConstants.TABLE_NAME, selection, selectionArgs );
@@ -654,6 +687,13 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 	
 			case CHANNELS:
 				newUri = ContentUris.withAppendedId( ChannelConstants.CONTENT_URI, db.insertWithOnConflict( ChannelConstants.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_IGNORE ) );
+				
+				getContext().getContentResolver().notifyChange( newUri, null );
+				
+				return newUri;
+	
+			case FRONTENDS:
+				newUri = ContentUris.withAppendedId( FrontendConstants.CONTENT_URI, db.insertWithOnConflict( FrontendConstants.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_IGNORE ) );
 				
 				getContext().getContentResolver().notifyChange( newUri, null );
 				
@@ -1197,6 +1237,37 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				
 				return cursor;
 	
+			case FRONTENDS:
+				
+				sb.append( FrontendConstants.TABLE_NAME );
+				
+				queryBuilder.setTables( sb.toString() );
+				queryBuilder.setProjectionMap( mFrontendColumnMap );
+				
+//				System.out.println( queryBuilder.buildQuery( null, selection, null, null, sortOrder, null ) );
+				
+				cursor = queryBuilder.query( db, null, selection, selectionArgs, null, null, sortOrder );
+				
+				cursor.setNotificationUri( getContext().getContentResolver(), uri );
+				
+				return cursor;
+	
+			case FRONTEND_ID:
+				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
+
+				sb.append( FrontendConstants.TABLE_NAME );
+				
+				queryBuilder.setTables( sb.toString() );
+				queryBuilder.setProjectionMap( mFrontendColumnMap );
+				
+//				System.out.println( queryBuilder.buildQuery( null, selection, null, null, sortOrder, null ) );
+				
+				cursor = queryBuilder.query( db, null, selection, selectionArgs, null, null, sortOrder );
+				
+				cursor.setNotificationUri( getContext().getContentResolver(), uri );
+				
+				return cursor;
+	
 			case ETAGS:
 				
 				cursor = db.query( EtagConstants.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder );
@@ -1436,6 +1507,22 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
 
 				affected = db.update( ChannelConstants.TABLE_NAME, values, selection , selectionArgs );
+
+				getContext().getContentResolver().notifyChange( uri, null );
+				
+				return affected;
+
+			case FRONTENDS:
+				affected = db.update( FrontendConstants.TABLE_NAME, values, selection , selectionArgs );
+				
+				getContext().getContentResolver().notifyChange( uri, null );
+				
+				return affected;
+
+			case FRONTEND_ID:
+				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
+
+				affected = db.update( FrontendConstants.TABLE_NAME, values, selection , selectionArgs );
 
 				getContext().getContentResolver().notifyChange( uri, null );
 				
@@ -1735,6 +1822,32 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 
 				return numInserted;
 
+			case FRONTENDS:
+				
+				db.beginTransaction();
+				try {
+					//standard SQL insert statement, that can be reused
+					SQLiteStatement insert = db.compileStatement( FrontendConstants.INSERT_ROW );
+				
+					for( ContentValues value : values ) {
+						insert.bindString( 1, value.getAsString( FrontendConstants.FIELD_NAME ) );
+						insert.bindString( 2, value.getAsString( FrontendConstants.FIELD_URL ) );
+						insert.bindLong( 3, value.getAsInteger( FrontendConstants.FIELD_AVAILABLE ) );
+						insert.bindString( 27, value.getAsString( FrontendConstants.FIELD_MASTER_HOSTNAME ) );
+						insert.bindLong( 28, value.getAsInteger( FrontendConstants.FIELD_LAST_MODIFIED_DATE ) );
+						insert.execute();
+					}
+					db.setTransactionSuccessful();
+	            
+					numInserted = values.length;
+				} finally {
+					db.endTransaction();
+				}
+			
+				getContext().getContentResolver().notifyChange( uri, null );
+
+				return numInserted;
+
 			default:
 				throw new UnsupportedOperationException( "Unsupported URI: " + uri );
 		
@@ -1927,6 +2040,22 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 
 			String qualifiedCol = ChannelConstants.TABLE_NAME + "." + col;
 			columnMap.put( qualifiedCol, qualifiedCol + " as " + ChannelConstants.TABLE_NAME + "_" + col );
+		}
+		
+		return columnMap;
+	}
+
+	private static final Map<String, String> mFrontendColumnMap = buildFrontendColumnMap( new HashMap<String, String>() );
+	private static Map<String, String> buildFrontendColumnMap( Map<String, String> columnMap ) {
+		if( null == columnMap ) {
+			columnMap = new HashMap<String, String>();
+		}
+		
+		String frontendProjection[] = FrontendConstants.COLUMN_MAP;
+		for( String col : frontendProjection ) {
+
+			String qualifiedCol = FrontendConstants.TABLE_NAME + "." + col;
+			columnMap.put( qualifiedCol, qualifiedCol + " as " + FrontendConstants.TABLE_NAME + "_" + col );
 		}
 		
 		return columnMap;
