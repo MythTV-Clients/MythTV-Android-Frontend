@@ -144,7 +144,7 @@ public class MainMenuFragment extends AbstractMythFragment implements ServiceLis
 
 				} else {
 					LocationProfile profile = mLocationProfileDaoHelper.findSelectedHomeProfile( getActivity() ); 
-					mLocationProfileDaoHelper.setConnectedLocationProfile( getActivity(), (long) profile.getId() );
+//					mLocationProfileDaoHelper.setConnectedLocationProfile( getActivity(), (long) profile.getId() );
 					
 					//here i think we need to re-start ourself and do not need to fire this intent
 					//This intent was used in LocationDashboardFragment to start HomeActivity
@@ -167,7 +167,7 @@ public class MainMenuFragment extends AbstractMythFragment implements ServiceLis
 
 				} else {
 					LocationProfile profile = mLocationProfileDaoHelper.findSelectedAwayProfile( getActivity() ); 
-					mLocationProfileDaoHelper.setConnectedLocationProfile( getActivity(), (long) profile.getId() );
+//					mLocationProfileDaoHelper.setConnectedLocationProfile( getActivity(), (long) profile.getId() );
 					
 					//here i think we need to re-start ourself and do not need to fire this intent
 					//This intent was used in LocationDashboardFragment to start AwayActivity
@@ -386,7 +386,7 @@ public class MainMenuFragment extends AbstractMythFragment implements ServiceLis
 			if( profiles.size() > 0 ) {
 				profile = profiles.get( 0 );
 				
-				mLocationProfileDaoHelper.setConnectedLocationProfile( getActivity(), profile.getId() );
+//				mLocationProfileDaoHelper.setConnectedLocationProfile( getActivity(), profile.getId() );
 				isConnected = true;
 			}else{
 				isConnected = false;

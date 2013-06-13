@@ -4,25 +4,35 @@
 package org.mythtv.client.ui;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
 
 import org.mythtv.R;
+import org.mythtv.client.ui.navigationDrawer.ActionRow;
+import org.mythtv.client.ui.navigationDrawer.ActionsHeaderRow;
+import org.mythtv.client.ui.navigationDrawer.DvrActionRow;
+import org.mythtv.client.ui.navigationDrawer.FrontendsHeaderRow;
+import org.mythtv.client.ui.navigationDrawer.FrontendsRow;
+import org.mythtv.client.ui.navigationDrawer.ManageProfilesActionRow;
+import org.mythtv.client.ui.navigationDrawer.MultimediaActionRow;
+import org.mythtv.client.ui.navigationDrawer.ProfileRow;
+import org.mythtv.client.ui.navigationDrawer.ProfileRow.ProfileChangedListener;
+import org.mythtv.client.ui.navigationDrawer.Row;
+import org.mythtv.client.ui.navigationDrawer.SetupActionRow;
+import org.mythtv.client.ui.navigationDrawer.TopLevelRowType;
+import org.mythtv.client.ui.navigationDrawer.VersionRow;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.preferences.LocationProfile.LocationType;
+import org.mythtv.client.ui.preferences.MythtvPreferenceActivity;
+import org.mythtv.client.ui.preferences.MythtvPreferenceActivityHC;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,7 +40,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
-import android.widget.TextView;
+import android.widget.Toast;
 
 /**
  * @author dmfrey
@@ -41,16 +51,31 @@ public class NavigationDrawerActivity extends AbstractMythtvFragmentActivity {
 
 	private static final String TAG = NavigationDrawerActivity.class.getSimpleName();
 
-	private int selection = 0;
-	private int oldSelection = -1;
-
-	private String[] names = null;
-	private String[] classes = null;
-
+	private NavigationDrawerAdapter mAdapter;
 	private ActionBarDrawerToggle drawerToggle = null;
 	private DrawerLayout drawer = null;
 	private ListView navList = null;
 
+	private ProfileChangedListener mProfileChangedListener = new ProfileChangedListener() {
+		
+		/* (non-Javadoc)
+		 * @see org.mythtv.client.ui.navigationDrawer.ProfileRow.ProfileChangedListener#onProfileChanged()
+		 */
+		@Override
+		public void onProfileChanged() {
+			Log.v( TAG, "onProfileChanged : enter" );
+
+			LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile( NavigationDrawerActivity.this );
+			mAdapter.resetConnectedLocationProfile( locationProfile );
+
+			drawer.invalidate();
+			drawer.closeDrawer( navList );
+			
+			Log.v( TAG, "onProfileChanged : exit" );
+		}
+		
+	};
+	
 	/* (non-Javadoc)
 	 * @see android.support.v4.app.FragmentActivity#onCreate(android.os.Bundle)
 	 */
@@ -61,14 +86,12 @@ public class NavigationDrawerActivity extends AbstractMythtvFragmentActivity {
 
 		setContentView( R.layout.activity_navigation_drawer );
 
-		names = getResources().getStringArray( R.array.nav_names );
-		classes = getResources().getStringArray( R.array.nav_classes );
-		NavigationDrawerAdapter adapter = new NavigationDrawerAdapter( getActionBar().getThemedContext(), names );
+		mAdapter = new NavigationDrawerAdapter( getActionBar().getThemedContext() );
 
 		drawer = (DrawerLayout) findViewById( R.id.drawer_layout );
 
 		navList = (ListView) findViewById( R.id.drawer );
-		navList.setAdapter( adapter );
+		navList.setAdapter( mAdapter );
 		
 		drawerToggle = new ActionBarDrawerToggle( this, drawer, R.drawable.ic_drawer, R.string.open, R.string.close );
 		drawer.setDrawerListener( drawerToggle );
@@ -76,20 +99,72 @@ public class NavigationDrawerActivity extends AbstractMythtvFragmentActivity {
 		navList.setOnItemClickListener( new OnItemClickListener() {
 
 			@Override
-			public void onItemClick( AdapterView<?> parent, View view, final int pos, long id ) {
+			public void onItemClick( AdapterView<?> parent, View view, final int position, long id ) {
 				Log.v( TAG, "onItemClick : enter" );
 				
-				Log.v( TAG, "onItemClick : pos=" + pos + ", id=" + id );
-				selection = pos;
-				drawer.closeDrawer( navList );
+				Log.v( TAG, "onItemClick : position=" + position + ", id=" + id );
+				
+				Row row = (Row) mAdapter.getItem( position );
 
+				if( row instanceof VersionRow ) {
+					// NO-OP, nothing to see here
+				}
+				
+				if( row instanceof ProfileRow ) {
+					// NO-OP, nothing to see here
+				}
+				
+				if( row instanceof FrontendsHeaderRow ) {
+					// NO-OP, nothing to see here
+				}
+				
+				if( row instanceof FrontendsRow ) {
+					// NO-OP, nothing to see here
+				}
+				
+				if( row instanceof ActionsHeaderRow ) {
+					// NO-OP, nothing to see here
+				}
+				
+				if( row instanceof ActionRow ) {
+					
+					drawer.closeDrawer( navList );
+
+					if( row instanceof ManageProfilesActionRow ) {
+						Log.v( TAG, "onCreate : starting preferences activity" );
+						
+						if( Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB ) {
+							startActivity( new Intent( NavigationDrawerActivity.this, MythtvPreferenceActivity.class ) );
+					    } else {
+					    	startActivity( new Intent( NavigationDrawerActivity.this, MythtvPreferenceActivityHC.class ) );
+					    }
+						
+					}
+
+					if( row instanceof DvrActionRow ) {
+						Log.v( TAG, "onCreate : starting dvr activity" );
+												
+					}
+
+					if( row instanceof MultimediaActionRow ) {
+						Log.v( TAG, "onCreate : starting multimedia activity" );
+						
+						Toast.makeText( NavigationDrawerActivity.this, "Multimedia - Coming Soon!", Toast.LENGTH_SHORT ).show();
+					}
+
+					if( row instanceof SetupActionRow ) {
+						Log.v( TAG, "onCreate : starting setup activity" );
+						
+						Toast.makeText( NavigationDrawerActivity.this, "Setup - Coming Soon!", Toast.LENGTH_SHORT ).show();
+					}
+
+				}
+				
 				Log.v( TAG, "onItemClick : exit" );
 			}
 
 		});
 
-		updateContent();
-		
 		getActionBar().setDisplayHomeAsUpEnabled( true );
 		getActionBar().setHomeButtonEnabled( true );
 
@@ -126,66 +201,22 @@ public class NavigationDrawerActivity extends AbstractMythtvFragmentActivity {
 		return super.onOptionsItemSelected( item );
 	}
 
-	private void updateContent() {
-		Log.v( TAG, "updateContent : enter" );
-
-		Log.v( TAG, "updateContent : selection=" + selection );
-		getActionBar().setTitle( names[ selection ] );
-		
-		if( selection != oldSelection ) {
-			Log.v( TAG, "updateContent : new drawer item selected" );
-
-			FragmentTransaction tx = getSupportFragmentManager().beginTransaction();
-			tx.replace( R.id.main, Fragment.instantiate( NavigationDrawerActivity.this, classes[ selection ] ) );
-			tx.commit();
-			
-			oldSelection = selection;
-		}
-
-		Log.v( TAG, "updateContent : exit" );
-	}
-
 	private class NavigationDrawerAdapter extends BaseAdapter {
 
-        private static final int TYPE_ITEM = 0;
-        private static final int TYPE_SEPARATOR = 1;
-        private static final int TYPE_MAX_COUNT = TYPE_SEPARATOR + 1;
-
-        private Context mContext;
-		private LayoutInflater mLayoutInflater;
-		
-		private List<String> mItems = new ArrayList<String>();
-        private Set<Integer> mSeparatorsSet = new TreeSet<Integer>();
+		private Context mContext;
 		
         private LocationProfile mLocationProfile;
+
+        private List<Row> rows = new ArrayList<Row>();
         
-		public NavigationDrawerAdapter( Context context, String[] items ) { 
+		public NavigationDrawerAdapter( Context context ) { 
 			Log.v( TAG, "NavigationDrawerAdapter : enter" );
 			
 			this.mContext = context;
 			
-			mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( mContext );
+			this.mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( mContext );
 			
-			this.mLayoutInflater = (LayoutInflater) getSystemService( Context.LAYOUT_INFLATER_SERVICE );
-
-			this.mSeparatorsSet.add( mItems.size() - 1 );
-			this.mItems.add( "MAF version" );
-			// TODO: add toggle switch here
-			
-			this.mItems.add( mLocationProfile.getHostname() );
-			
-			
-			if( mLocationProfile.getType().equals( LocationType.HOME ) ) {
-				this.mSeparatorsSet.add( mItems.size() - 1 );
-				this.mItems.add( "Frontends" );
-				// TODO: add auto discovered frontends here
-			
-			}
-			
-			
-			this.mSeparatorsSet.add( mItems.size() - 1 );
-			this.mItems.add( "Actions" );
-			this.mItems.addAll( Arrays.asList( items ) );
+			setupRowsList();
 			
 			Log.v( TAG, "NavigationDrawerAdapter : exit" );
 		}
@@ -195,9 +226,7 @@ public class NavigationDrawerActivity extends AbstractMythtvFragmentActivity {
          */
         @Override
         public int getItemViewType( int position ) {
-			Log.v( TAG, "NavigationDrawerAdapter.getItemViewType : enter" );
-			Log.v( TAG, "NavigationDrawerAdapter.getItemViewType : exit" );
-            return mSeparatorsSet.contains( position ) ? TYPE_SEPARATOR : TYPE_ITEM;
+            return rows.get( position ).getViewType();
         }
 
         /* (non-Javadoc)
@@ -205,9 +234,7 @@ public class NavigationDrawerActivity extends AbstractMythtvFragmentActivity {
          */
         @Override
         public int getViewTypeCount() {
-			Log.v( TAG, "NavigationDrawerAdapter.getItemViewTypeCount : enter" );
-			Log.v( TAG, "NavigationDrawerAdapter.getItemViewTypeCount : exit" );
-            return TYPE_MAX_COUNT;
+            return TopLevelRowType.values().length;
         }
 
         /* (non-Javadoc)
@@ -215,31 +242,15 @@ public class NavigationDrawerActivity extends AbstractMythtvFragmentActivity {
 		 */
 		@Override
 		public int getCount() {
-			Log.v( TAG, "NavigationDrawerAdapter.getCount : enter" );
-
-			if( null == mItems || mItems.isEmpty() ) {
-				Log.v( TAG, "NavigationDrawerAdapter.getCount : exit, no items" );
-				return 0;
-			}
-			
-			Log.v( TAG, "NavigationDrawerAdapter.getCount : exit" );
-			return mItems.size();
+			return rows.size();
 		}
 
 		/* (non-Javadoc)
 		 * @see android.widget.Adapter#getItem(int)
 		 */
 		@Override
-		public String getItem( int position ) {
-			Log.v( TAG, "NavigationDrawerAdapter.getItem : enter" );
-
-			if( null == mItems || mItems.isEmpty() ) {
-				Log.v( TAG, "NavigationDrawerAdapter.getItem : exit, no items" );
-				return null;
-			}
-
-			Log.v( TAG, "NavigationDrawerAdapter.getCount : exit" );
-			return mItems.get( position );
+		public Row getItem( int position ) {
+			return rows.get( position );
 		}
 
 		/* (non-Javadoc)
@@ -247,57 +258,49 @@ public class NavigationDrawerActivity extends AbstractMythtvFragmentActivity {
 		 */
 		@Override
 		public long getItemId( int position ) {
-			Log.v( TAG, "NavigationDrawerAdapter.getItemId : enter" );
-			Log.v( TAG, "NavigationDrawerAdapter.getItemId : exit" );
 			return position;
 		}
 
 		@Override
 		public View getView( int position, View convertView, ViewGroup parent ) {
-			Log.v( TAG, "NavigationDrawerAdapter.getView : enter" );
+			return rows.get( position ).getView( convertView );
+		}
+		
+		public void resetConnectedLocationProfile( LocationProfile locationProfile ) {
+			this.mLocationProfile = locationProfile;
+			
+			setupRowsList();
+			
+			notifyDataSetChanged();
+			navList.invalidateViews();
+		}
+		
+		// internal helpers
+		
+		private void setupRowsList() {
 
-			ViewHolder holder = null;
-			int type = getItemViewType( position );
-            if( null == convertView ) {
-    			Log.v( TAG, "NavigationDrawerAdapter.getView : convertView is null" );
+			rows = new ArrayList<Row>();
+			
+			rows.add( new VersionRow( mContext, "MAF", "x" ) );
+			rows.add( new ProfileRow( mContext, mProfileChangedListener ) );
+			rows.add( new ManageProfilesActionRow( mContext, "Manage Profiles" ) );
+			
+			if( null != mLocationProfile && mLocationProfile.getType().equals( LocationType.HOME ) ) {
+				rows.add( new FrontendsHeaderRow( mContext, "Frontends" ) );
 
-    			holder = new ViewHolder();
-                
-                switch( type ) {
-                	case TYPE_ITEM:
-            			Log.v( TAG, "NavigationDrawerAdapter.getView : type = item" );
+				// TODO: Added frontends dropdown here
+			}
 
-            			convertView = mLayoutInflater.inflate( android.R.layout.simple_list_item_1, null );
-                		holder.textView = (TextView) convertView.findViewById( android.R.id.text1 );
-                		break;
-                		
-                	case TYPE_SEPARATOR:
-            			Log.v( TAG, "NavigationDrawerAdapter.getView : type = header" );
+			if( null != mLocationProfile ) {
+				rows.add( new ActionsHeaderRow( mContext, "Actions" ) );
 
-                		convertView = mLayoutInflater.inflate( R.layout.connected_profile_toggle, null );
-                		holder.textView = (TextView) convertView.findViewById( R.id.connected_profile_toggle_hostname );
-                		break;
-                }
+				rows.add( new DvrActionRow( mContext, "Dvr" ) );
+				rows.add( new MultimediaActionRow( mContext, "Multimedia" ) );
+				rows.add( new SetupActionRow( mContext, "Setup" ) );
+			}
 
-                convertView.setTag( holder );
-            } else {
-    			Log.v( TAG, "NavigationDrawerAdapter.getView : loading holder" );
-
-    			holder = (ViewHolder) convertView.getTag();
-            }
-            
-            holder.textView.setText( getItem( position ) );
- 			
-			Log.v( TAG, "NavigationDrawerAdapter.getView : exit" );
-			return convertView;
 		}
 		
 	}
-	
-	private static class ViewHolder {
-	
-		TextView textView;
-		
-	}
-	
+
 }

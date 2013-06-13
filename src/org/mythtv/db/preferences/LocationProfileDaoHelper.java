@@ -534,7 +534,7 @@ public class LocationProfileDaoHelper {
 		return ret;
 	}
 
-	private boolean resetConnectedProfiles( Context context ) {
+	public boolean resetConnectedProfiles( Context context ) {
 		Log.d( TAG, "resetConnectedProfiles : enter" );
 
 		if( null == context ) 

@@ -27,6 +27,7 @@ import org.mythtv.db.dvr.RecordedDaoHelper;
 import org.mythtv.db.dvr.RecordingDaoHelper;
 import org.mythtv.db.dvr.UpcomingDaoHelper;
 import org.mythtv.db.dvr.programGroup.ProgramGroupDaoHelper;
+import org.mythtv.db.frontends.FrontendDaoHelper;
 import org.mythtv.db.http.EtagDaoHelper;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.db.preferences.PlaybackProfileDaoHelper;
@@ -83,6 +84,7 @@ public class MainApplication extends Application {
 		LocationProfileDaoHelper.getInstance();
 		MythtvServiceHelper.getInstance();
 		ChannelDaoHelper.getInstance();
+		FrontendDaoHelper.getInstance();
 		LiveStreamDaoHelper.getInstance();
 		RecordingDaoHelper.getInstance();
 		PlaybackProfileDaoHelper.getInstance();
