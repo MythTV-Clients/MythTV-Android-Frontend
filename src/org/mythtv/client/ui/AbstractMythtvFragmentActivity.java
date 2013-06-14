@@ -155,6 +155,8 @@ public abstract class AbstractMythtvFragmentActivity extends FragmentActivity im
 		if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
 			ActionBar actionBar = getActionBar();
 			actionBar.setDisplayHomeAsUpEnabled( true );
+			
+			actionBar.setTitle( getResources().getString( R.string.app_name ) );
 		}
 		
 		Log.v( TAG, "setupActionBar : exit" );

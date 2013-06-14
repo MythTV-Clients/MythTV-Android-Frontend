@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.mythtv.R;
+import org.mythtv.client.ui.dvr.DvrNavigationDrawerActivity;
 import org.mythtv.client.ui.navigationDrawer.ActionRow;
 import org.mythtv.client.ui.navigationDrawer.ActionsHeaderRow;
 import org.mythtv.client.ui.navigationDrawer.DvrActionRow;
@@ -28,11 +29,16 @@ import org.mythtv.client.ui.preferences.MythtvPreferenceActivityHC;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -51,12 +57,21 @@ public class NavigationDrawerActivity extends AbstractMythtvFragmentActivity {
 
 	private static final String TAG = NavigationDrawerActivity.class.getSimpleName();
 
+	private static final String BACKEND_STATUS_FRAGMENT = "org.mythtv.client.ui.BackendStatusFragment";
+	
 	private NavigationDrawerAdapter mAdapter;
 	private ActionBarDrawerToggle drawerToggle = null;
 	private DrawerLayout drawer = null;
 	private ListView navList = null;
 
-	private ProfileChangedListener mProfileChangedListener = new ProfileChangedListener() {
+	private int selection = 0, oldSelection = -1;
+	private String appName;
+	
+    private static final String OPENED_KEY = "OPENED_KEY";
+    private SharedPreferences prefs = null;
+    private Boolean opened = null;
+
+    private ProfileChangedListener mProfileChangedListener = new ProfileChangedListener() {
 		
 		/* (non-Javadoc)
 		 * @see org.mythtv.client.ui.navigationDrawer.ProfileRow.ProfileChangedListener#onProfileChanged()
@@ -65,10 +80,12 @@ public class NavigationDrawerActivity extends AbstractMythtvFragmentActivity {
 		public void onProfileChanged() {
 			Log.v( TAG, "onProfileChanged : enter" );
 
+			getActionBar().setTitle( appName + " Status" );
+			updateContent( BACKEND_STATUS_FRAGMENT );
+            
 			LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile( NavigationDrawerActivity.this );
 			mAdapter.resetConnectedLocationProfile( locationProfile );
 
-			drawer.invalidate();
 			drawer.closeDrawer( navList );
 			
 			Log.v( TAG, "onProfileChanged : exit" );
@@ -86,6 +103,8 @@ public class NavigationDrawerActivity extends AbstractMythtvFragmentActivity {
 
 		setContentView( R.layout.activity_navigation_drawer );
 
+		appName = getResources().getString( R.string.app_name );
+		
 		mAdapter = new NavigationDrawerAdapter( getActionBar().getThemedContext() );
 
 		drawer = (DrawerLayout) findViewById( R.id.drawer_layout );
@@ -93,36 +112,86 @@ public class NavigationDrawerActivity extends AbstractMythtvFragmentActivity {
 		navList = (ListView) findViewById( R.id.drawer );
 		navList.setAdapter( mAdapter );
 		
-		drawerToggle = new ActionBarDrawerToggle( this, drawer, R.drawable.ic_drawer, R.string.open, R.string.close );
+		drawerToggle = new ActionBarDrawerToggle( this, drawer, R.drawable.ic_drawer, R.string.open, R.string.close ) {
+	        
+			/* (non-Javadoc)
+			 * @see android.support.v4.app.ActionBarDrawerToggle#onDrawerClosed(android.view.View)
+			 */
+			@Override
+	        public void onDrawerClosed( View drawerView ) {
+				Log.d( TAG, "onDrawerClosed : enter" );
+				super.onDrawerClosed( drawerView );
+	            
+                invalidateOptionsMenu();
+                if( null != opened && opened == false ) {
+                	
+                	opened = true;
+                    
+                	if( null != prefs ) {
+                        Editor editor = prefs.edit();
+                        editor.putBoolean( OPENED_KEY, true );
+                        editor.apply();
+                    }
+                	
+                }
+                
+				Log.d( TAG, "onDrawerClosed : exit" );
+	        }
+	 
+	        /* (non-Javadoc)
+	         * @see android.support.v4.app.ActionBarDrawerToggle#onDrawerOpened(android.view.View)
+	         */
+	        @Override
+	        public void onDrawerOpened( View drawerView ) {
+				Log.d( TAG, "onDrawerOpened : enter" );
+	            super.onDrawerOpened( drawerView );
+	            
+	            getActionBar().setTitle( R.string.app_name );
+	            invalidateOptionsMenu();
+
+	            Log.d( TAG, "onDrawerOpened : exit" );
+	        }
+	        
+	    };
 		drawer.setDrawerListener( drawerToggle );
 
 		navList.setOnItemClickListener( new OnItemClickListener() {
 
+			/* (non-Javadoc)
+			 * @see android.widget.AdapterView.OnItemClickListener#onItemClick(android.widget.AdapterView, android.view.View, int, long)
+			 */
 			@Override
 			public void onItemClick( AdapterView<?> parent, View view, final int position, long id ) {
 				Log.v( TAG, "onItemClick : enter" );
 				
-				Log.v( TAG, "onItemClick : position=" + position + ", id=" + id );
+				Log.v( TAG, "onItemClick : position=" + position + ", id=" + id + ", oldSelection=" + oldSelection );
+				
+				selection = position;
 				
 				Row row = (Row) mAdapter.getItem( position );
 
 				if( row instanceof VersionRow ) {
+					Log.v( TAG, "onItemClick : version row selected" );
 					// NO-OP, nothing to see here
 				}
 				
 				if( row instanceof ProfileRow ) {
+					Log.v( TAG, "onItemClick : profile row selected" );
 					// NO-OP, nothing to see here
 				}
 				
 				if( row instanceof FrontendsHeaderRow ) {
+					Log.v( TAG, "onItemClick : frontends header row selected" );
 					// NO-OP, nothing to see here
 				}
 				
 				if( row instanceof FrontendsRow ) {
+					Log.v( TAG, "onItemClick : frontends row selected" );
 					// NO-OP, nothing to see here
 				}
 				
 				if( row instanceof ActionsHeaderRow ) {
+					Log.v( TAG, "onItemClick : actions header row selected" );
 					// NO-OP, nothing to see here
 				}
 				
@@ -144,6 +213,7 @@ public class NavigationDrawerActivity extends AbstractMythtvFragmentActivity {
 					if( row instanceof DvrActionRow ) {
 						Log.v( TAG, "onCreate : starting dvr activity" );
 												
+						startActivity( new Intent( NavigationDrawerActivity.this, DvrNavigationDrawerActivity.class ) );
 					}
 
 					if( row instanceof MultimediaActionRow ) {
@@ -160,15 +230,40 @@ public class NavigationDrawerActivity extends AbstractMythtvFragmentActivity {
 
 				}
 				
+				oldSelection = selection;
+
 				Log.v( TAG, "onItemClick : exit" );
 			}
 
 		});
 
+		getActionBar().setTitle( appName + " Status" );
+		updateContent( BACKEND_STATUS_FRAGMENT ); 
 		getActionBar().setDisplayHomeAsUpEnabled( true );
 		getActionBar().setHomeButtonEnabled( true );
 
-		Log.v( TAG, "onCreate : exit" );
+		new Thread( new Runnable() {
+
+			/* (non-Javadoc)
+			 * @see java.lang.Runnable#run()
+			 */
+			@Override
+			public void run() {
+				
+				prefs = getPreferences( MODE_PRIVATE );
+				opened = prefs.getBoolean( OPENED_KEY, false );
+				
+				if( opened == false ) {
+					
+					drawer.openDrawer( navList );
+					
+				}
+				
+			}
+
+		}).start();
+
+        Log.v( TAG, "onCreate : exit" );
 	}
 
 	/* (non-Javadoc)
@@ -201,6 +296,40 @@ public class NavigationDrawerActivity extends AbstractMythtvFragmentActivity {
 		return super.onOptionsItemSelected( item );
 	}
 
+    /* (non-Javadoc)
+     * @see android.app.Activity#onPrepareOptionsMenu(android.view.Menu)
+     */
+    @Override
+    public boolean onPrepareOptionsMenu( Menu menu ) {
+
+    	if( null != drawer && null != navList ) {
+    		
+/*    		MenuItem item = menu.findItem( R.id.add );
+    		if( item != null ) {
+    			item.setVisible( !drawer.isDrawerOpen( navList ) );
+    		}
+*/    		
+    	}
+    	
+    	return super.onPrepareOptionsMenu( menu );
+    }
+
+    // internal helpers
+	
+	private void updateContent( String fragment ) {
+		Log.v( TAG, "updateContent : enter" );
+		
+		Log.v( TAG, "updateContent : fragment=" + fragment );
+
+        FragmentTransaction tx = getSupportFragmentManager().beginTransaction();
+        tx.replace( R.id.main, Fragment.instantiate( NavigationDrawerActivity.this, fragment ) );
+        tx.commit();
+
+		drawer.closeDrawer( navList );
+
+		Log.v( TAG, "updateContent : exit" );
+	}
+	
 	private class NavigationDrawerAdapter extends BaseAdapter {
 
 		private Context mContext;

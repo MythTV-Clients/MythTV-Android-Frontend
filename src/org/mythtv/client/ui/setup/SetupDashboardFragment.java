@@ -21,7 +21,6 @@ package org.mythtv.client.ui.setup;
 import org.mythtv.R;
 import org.mythtv.client.ui.AbstractMythFragment;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;

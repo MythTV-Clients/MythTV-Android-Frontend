@@ -1,0 +1,226 @@
+/**
+ * 
+ */
+package org.mythtv.client.ui.dvr;
+
+import org.mythtv.R;
+import org.mythtv.client.ui.AbstractMythtvFragmentActivity;
+
+import android.annotation.TargetApi;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+import android.os.Build;
+import android.os.Bundle;
+import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.widget.DrawerLayout;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+
+/**
+ * @author dmfrey
+ *
+ */
+@TargetApi( Build.VERSION_CODES.ICE_CREAM_SANDWICH )
+public class DvrNavigationDrawerActivity extends AbstractMythtvFragmentActivity {
+
+	private static final String TAG = DvrNavigationDrawerActivity.class.getSimpleName();
+
+	private ActionBarDrawerToggle drawerToggle = null;
+	private DrawerLayout drawer = null;
+	private ListView navList = null;
+
+	private String[] names = null, classes = null;
+	private int selection = 0, oldSelection = -1;
+
+    private static final String OPENED_DVR_KEY = "OPENED_DVR_KEY";
+    private SharedPreferences prefs = null;
+    private Boolean opened = null;
+
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.FragmentActivity#onCreate(android.os.Bundle)
+	 */
+	@Override
+	protected void onCreate( Bundle savedInstanceState ) {
+		super.onCreate( savedInstanceState );
+		Log.v( TAG, "onCreate : enter" );
+
+		setContentView( R.layout.activity_navigation_drawer );
+
+		names = getResources().getStringArray( R.array.nav_dvr_names );
+        classes = getResources().getStringArray( R.array.nav_dvr_classes );
+        
+        ArrayAdapter<String> mAdapter = new ArrayAdapter<String>( getActionBar().getThemedContext(), android.R.layout.simple_list_item_1, names );
+
+		drawer = (DrawerLayout) findViewById( R.id.drawer_layout );
+
+		navList = (ListView) findViewById( R.id.drawer );
+		navList.setAdapter( mAdapter );
+		
+		drawerToggle = new ActionBarDrawerToggle( this, drawer, R.drawable.ic_drawer, R.string.open, R.string.close ) {
+	        
+			/* (non-Javadoc)
+			 * @see android.support.v4.app.ActionBarDrawerToggle#onDrawerClosed(android.view.View)
+			 */
+			@Override
+	        public void onDrawerClosed( View drawerView ) {
+				Log.d( TAG, "onDrawerClosed : enter" );
+				super.onDrawerClosed( drawerView );
+	            
+				updateContent();
+                invalidateOptionsMenu();
+                if( null != opened && opened == false ) {
+                	
+                	opened = true;
+                    
+                	if( null != prefs ) {
+                        Editor editor = prefs.edit();
+                        editor.putBoolean( OPENED_DVR_KEY, true );
+                        editor.apply();
+                    }
+                	
+                }
+                
+				Log.d( TAG, "onDrawerClosed : exit" );
+	        }
+	 
+	        /* (non-Javadoc)
+	         * @see android.support.v4.app.ActionBarDrawerToggle#onDrawerOpened(android.view.View)
+	         */
+	        @Override
+	        public void onDrawerOpened( View drawerView ) {
+				Log.d( TAG, "onDrawerOpened : enter" );
+	            super.onDrawerOpened( drawerView );
+	            
+	            getActionBar().setTitle( R.string.app_name );
+	            invalidateOptionsMenu();
+
+	            Log.d( TAG, "onDrawerOpened : exit" );
+	        }
+	        
+	    };
+		drawer.setDrawerListener( drawerToggle );
+
+		navList.setOnItemClickListener( new OnItemClickListener() {
+
+			/* (non-Javadoc)
+			 * @see android.widget.AdapterView.OnItemClickListener#onItemClick(android.widget.AdapterView, android.view.View, int, long)
+			 */
+			@Override
+			public void onItemClick( AdapterView<?> parent, View view, final int position, long id ) {
+				Log.v( TAG, "onItemClick : enter" );
+				
+				Log.v( TAG, "onItemClick : position=" + position + ", id=" + id + ", oldSelection=" + oldSelection );
+				
+				selection = position;
+                drawer.closeDrawer( navList );
+
+				Log.v( TAG, "onItemClick : exit" );
+			}
+
+		});
+
+		updateContent(); 
+		getActionBar().setDisplayHomeAsUpEnabled( true );
+		getActionBar().setHomeButtonEnabled( true );
+
+		new Thread( new Runnable() {
+
+			/* (non-Javadoc)
+			 * @see java.lang.Runnable#run()
+			 */
+			@Override
+			public void run() {
+				
+				prefs = getPreferences( MODE_PRIVATE );
+				opened = prefs.getBoolean( OPENED_DVR_KEY, false );
+				
+				if( opened == false ) {
+					
+					drawer.openDrawer( navList );
+					
+				}
+				
+			}
+
+		}).start();
+
+        Log.v( TAG, "onCreate : exit" );
+	}
+
+	/* (non-Javadoc)
+	 * @see android.app.Activity#onPostCreate(android.os.Bundle)
+	 */
+	@Override
+	protected void onPostCreate( Bundle savedInstanceState ) {
+		super.onPostCreate( savedInstanceState );
+		Log.v( TAG, "onPostCreate : enter" );
+		
+		drawerToggle.syncState();
+
+		Log.v( TAG, "onPostCreate : exit" );
+	}
+
+	/* (non-Javadoc)
+	 * @see android.app.Activity#onOptionsItemSelected(android.view.MenuItem)
+	 */
+	@Override
+	public boolean onOptionsItemSelected( MenuItem item ) {
+		Log.v( TAG, "onOptionsItemSelected : enter" );
+
+		if( drawerToggle.onOptionsItemSelected( item ) ) {
+			Log.v( TAG, "onOptionsItemSelected : exit, drawerToggle selected" );
+
+			return true;
+		}
+
+		Log.v( TAG, "onOptionsItemSelected : exit" );
+		return super.onOptionsItemSelected( item );
+	}
+
+    /* (non-Javadoc)
+     * @see android.app.Activity#onPrepareOptionsMenu(android.view.Menu)
+     */
+    @Override
+    public boolean onPrepareOptionsMenu( Menu menu ) {
+
+    	if( null != drawer && null != navList ) {
+    		
+/*    		MenuItem item = menu.findItem( R.id.add );
+    		if( item != null ) {
+    			item.setVisible( !drawer.isDrawerOpen( navList ) );
+    		}
+*/    		
+    	}
+    	
+    	return super.onPrepareOptionsMenu( menu );
+    }
+
+    // internal helpers
+	
+	private void updateContent() {
+		Log.v( TAG, "updateContent : enter" );
+		
+		getActionBar().setTitle( names[ selection ] );
+
+		if( selection != oldSelection ) {
+			FragmentTransaction tx = getSupportFragmentManager().beginTransaction();
+			tx.replace( R.id.main, Fragment.instantiate( DvrNavigationDrawerActivity.this, classes[ selection ]) );
+			tx.commit();
+			
+			oldSelection = selection;
+		}
+		
+		drawer.closeDrawer( navList );
+
+		Log.v( TAG, "updateContent : exit" );
+	}
+	
+}

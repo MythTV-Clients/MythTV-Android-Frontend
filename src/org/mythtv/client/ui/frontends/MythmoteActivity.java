@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.mythtv.R;
-import org.mythtv.client.ui.util.MenuHelper;
 
 import android.annotation.TargetApi;
 import android.app.ActionBar;

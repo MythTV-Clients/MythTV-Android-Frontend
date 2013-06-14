@@ -19,6 +19,7 @@
 package org.mythtv.client.ui.frontends;
 
 import org.mythtv.client.ui.AbstractMythtvFragmentActivity;
+
 import android.os.Bundle;
 import android.util.Log;
 

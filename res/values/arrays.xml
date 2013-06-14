@@ -34,4 +34,18 @@
         <item>org.mythtv.client.ui.BackendStatusFragment</item>
     </string-array>
 
+    <string-array name="nav_dvr_names">
+        <item>Recordings</item>
+        <item>Upcoming</item>
+        <item>Guide</item>
+        <item>Recording Rules</item>
+    </string-array>
+    
+    <string-array name="nav_dvr_classes">
+        <item>org.mythtv.client.ui.dvr.RecordingsParentFragment</item>
+        <item>org.mythtv.client.ui.dvr.UpcomingPagerFragment</item>
+        <item>org.mythtv.client.ui.dvr.GuidePagerFragment</item>
+        <item>org.mythtv.client.ui.dvr.RecordingRulesFragment</item>
+    </string-array>
+
 </resources>
