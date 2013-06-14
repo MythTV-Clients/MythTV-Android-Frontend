@@ -20,7 +20,6 @@ package org.mythtv.client.ui;
 
 import org.mythtv.R;
 import org.mythtv.client.ui.preferences.LocationProfile;
-import org.mythtv.db.preferences.LocationProfileDaoHelper;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -35,7 +34,6 @@ public class BackendStatusFragment extends AbstractMythFragment {
 	
 	private View mView;
 	
-	private LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
 	private LocationProfile mLocationProfile;
 	
 	/* (non-Javadoc)
@@ -55,8 +53,9 @@ public class BackendStatusFragment extends AbstractMythFragment {
 	 * @see android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
 	 */
 	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
+	public void onActivityCreated( Bundle savedInstanceState ) {
+		Log.d( TAG, "onActivityCreated : enter" );
+		super.onActivityCreated( savedInstanceState );
 
 		if( null != mView ) {
 			
@@ -67,6 +66,7 @@ public class BackendStatusFragment extends AbstractMythFragment {
 			
 		}
 		
+		Log.d( TAG, "onActivityCreated : exit" );
 	}
 
 	/* (non-Javadoc)
@@ -74,6 +74,7 @@ public class BackendStatusFragment extends AbstractMythFragment {
 	 */
 	@Override
 	public void onResume() {
+		Log.d( TAG, "onResume : enter" );
 		super.onResume();
 
 		if( null != mView ) {
@@ -85,7 +86,10 @@ public class BackendStatusFragment extends AbstractMythFragment {
 			
 		}
 	
+		Log.d( TAG, "onResume : exit" );
 	}
+
+	// internal helpers
 
 	private String getStatusText() {
 		Log.v( TAG, "getStatusText : enter" );
@@ -103,6 +107,5 @@ public class BackendStatusFragment extends AbstractMythFragment {
 		Log.v( TAG, "getStatusText : exit" );
 		return ( mLocationProfile.isConnected() ? "Connected to " : "NOT Connected to " ) + mLocationProfile.getName();
 	}
-
 
 }

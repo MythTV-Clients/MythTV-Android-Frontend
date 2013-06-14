@@ -86,6 +86,9 @@
 				
 		<!-- DVR Activities -->
 		<activity 
+			android:name=".client.ui.dvr.DvrNavigationDrawerActivity"
+			android:uiOptions="splitActionBarWhenNarrow" />
+		<activity 
 			android:name=".client.ui.dvr.EpisodeActivity"
 			android:uiOptions="splitActionBarWhenNarrow" />
 		<activity 
