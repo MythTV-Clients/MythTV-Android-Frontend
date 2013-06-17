@@ -22,6 +22,7 @@ import org.joda.time.DateTime;
 import org.mythtv.R;
 import org.mythtv.client.MainApplication;
 import org.mythtv.client.ui.preferences.LocationProfile;
+import org.mythtv.client.ui.preferences.LocationProfile.LocationType;
 import org.mythtv.db.http.EtagDaoHelper;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.channel.ChannelDownloadService;
@@ -235,15 +236,17 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
         				}
         			}
 
-    				if( !mRunningServiceHelper.isServiceRunning( getActivity(), "org.mythtv.service.frontends.FrontendsDiscoveryService" ) ) {
-    					ComponentName cn = getActivity().startService( new Intent( FrontendsDiscoveryService.ACTION_DISCOVER ) );
-    					if( null != cn ) {
-    						Log.i( TAG, "cn=" + cn.toString() );
-    					} else {
-    						Log.i( TAG, "cn is null" );
-    					}
-    				}
-
+        			if( mLocationProfile.getType().equals( LocationType.HOME ) ) {
+        				if( !mRunningServiceHelper.isServiceRunning( getActivity(), "org.mythtv.service.frontends.FrontendsDiscoveryService" ) ) {
+        					ComponentName cn = getActivity().startService( new Intent( FrontendsDiscoveryService.ACTION_DISCOVER ) );
+        					if( null != cn ) {
+        						Log.i( TAG, "cn=" + cn.toString() );
+        					} else {
+        						Log.i( TAG, "cn is null" );
+        					}
+        				}
+        			}
+        			
         		} else {
 
         			Log.d( TAG, "BackendStatusTask.onPostExecute : unsetting connected profile" );
