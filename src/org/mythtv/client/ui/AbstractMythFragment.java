@@ -25,7 +25,7 @@ import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.http.EtagDaoHelper;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.channel.ChannelDownloadService;
-import org.mythtv.service.guide.ProgramGuideDownloadService;
+import org.mythtv.service.frontends.FrontendsDiscoveryService;
 import org.mythtv.service.util.MythtvServiceHelper;
 import org.mythtv.service.util.RunningServiceHelper;
 import org.mythtv.services.api.ETagInfo;
@@ -36,6 +36,7 @@ import org.springframework.http.ResponseEntity;
 
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -61,6 +62,7 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
 	protected LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
 	
 	private ChannelDownloadReceiver channelDownloadReceiver = new ChannelDownloadReceiver();
+	private FrontendsDiscoveryReceiver frontendsDiscoveryReceiver = new FrontendsDiscoveryReceiver();
 
 	protected Status mStatus;
 	
@@ -100,7 +102,14 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
 		if( null != channelDownloadReceiver ) {
 			try {
 				getActivity().unregisterReceiver( channelDownloadReceiver );
-				//channelDownloadReceiver = null;
+			} catch( IllegalArgumentException e ) {
+				Log.e( TAG, "onStop : error", e );
+			}
+		}
+
+		if( null != frontendsDiscoveryReceiver ) {
+			try {
+				getActivity().unregisterReceiver( frontendsDiscoveryReceiver );
 			} catch( IllegalArgumentException e ) {
 				Log.e( TAG, "onStop : error", e );
 			}
@@ -117,8 +126,14 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
 		super.onStart();
 
 		IntentFilter channelDownloadFilter = new IntentFilter();
+		channelDownloadFilter.addAction( ChannelDownloadService.ACTION_PROGRESS );
 		channelDownloadFilter.addAction( ChannelDownloadService.ACTION_COMPLETE );
 	    getActivity().registerReceiver( channelDownloadReceiver, channelDownloadFilter );
+
+		IntentFilter frontendsDiscoveryFilter = new IntentFilter();
+		frontendsDiscoveryFilter.addAction( FrontendsDiscoveryService.ACTION_PROGRESS );
+		frontendsDiscoveryFilter.addAction( FrontendsDiscoveryService.ACTION_COMPLETE );
+	    getActivity().registerReceiver( frontendsDiscoveryReceiver, frontendsDiscoveryFilter );
 
 	    Log.v( TAG, "onStart : exit" );
 	}
@@ -127,6 +142,9 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
 	
     	this.getActivity().runOnUiThread( new Runnable() {
     		
+    		/* (non-Javadoc)
+    		 * @see java.lang.Runnable#run()
+    		 */
     		@Override
     		public void run() {
     			AlertDialog.Builder builder = new AlertDialog.Builder( getActivity() );
@@ -217,6 +235,15 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
         				}
         			}
 
+    				if( !mRunningServiceHelper.isServiceRunning( getActivity(), "org.mythtv.service.frontends.FrontendsDiscoveryService" ) ) {
+    					ComponentName cn = getActivity().startService( new Intent( FrontendsDiscoveryService.ACTION_DISCOVER ) );
+    					if( null != cn ) {
+    						Log.i( TAG, "cn=" + cn.toString() );
+    					} else {
+    						Log.i( TAG, "cn is null" );
+    					}
+    				}
+
         		} else {
 
         			Log.d( TAG, "BackendStatusTask.onPostExecute : unsetting connected profile" );
@@ -237,11 +264,11 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
 		public void onReceive( Context context, Intent intent ) {
 			
 	        if ( intent.getAction().equals( ChannelDownloadService.ACTION_PROGRESS ) ) {
-	        	Log.i( TAG, "ProgramGuideDownloadReceiver.onReceive : progress=" + intent.getStringExtra( ProgramGuideDownloadService.EXTRA_PROGRESS ) );
+	        	Log.i( TAG, "ProgramGuideDownloadReceiver.onReceive : progress=" + intent.getStringExtra( ChannelDownloadService.EXTRA_PROGRESS ) );
 	        }
 	        
 	        if ( intent.getAction().equals( ChannelDownloadService.ACTION_COMPLETE ) ) {
-	        	Log.i( TAG, "ProgramGuideDownloadReceiver.onReceive : " + intent.getStringExtra( ProgramGuideDownloadService.EXTRA_COMPLETE ) );
+	        	Log.i( TAG, "ProgramGuideDownloadReceiver.onReceive : " + intent.getStringExtra( ChannelDownloadService.EXTRA_COMPLETE ) );
 	        	
         		Toast.makeText( getActivity(), "Channels Updated!", Toast.LENGTH_SHORT ).show();
 
@@ -249,6 +276,23 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
 //	    			startService( new Intent( ProgramGuideDownloadServiceNew.ACTION_DOWNLOAD ) );
 //	    		}
 
+	        }
+
+		}
+		
+	}
+
+	private class FrontendsDiscoveryReceiver extends BroadcastReceiver {
+
+		@Override
+		public void onReceive( Context context, Intent intent ) {
+			
+	        if ( intent.getAction().equals( FrontendsDiscoveryService.ACTION_PROGRESS ) ) {
+	        	Log.i( TAG, "FrontendsDiscoveryReceiver.onReceive : progress=" + intent.getStringExtra( FrontendsDiscoveryService.EXTRA_PROGRESS ) );
+	        }
+	        
+	        if ( intent.getAction().equals( ChannelDownloadService.ACTION_COMPLETE ) ) {
+	        	Log.i( TAG, "FrontendsDiscoveryReceiver.onReceive : " + intent.getStringExtra( FrontendsDiscoveryService.EXTRA_COMPLETE ) );
 	        }
 
 		}

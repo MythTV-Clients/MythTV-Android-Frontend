@@ -417,7 +417,7 @@ public class NavigationDrawerActivity extends AbstractMythtvFragmentActivity {
 			if( null != mLocationProfile && mLocationProfile.getType().equals( LocationType.HOME ) ) {
 				rows.add( new FrontendsHeaderRow( mContext, "Frontends" ) );
 
-				// TODO: Added frontends dropdown here
+				rows.add( new FrontendsRow( mContext ) );
 			}
 
 			if( null != mLocationProfile ) {
