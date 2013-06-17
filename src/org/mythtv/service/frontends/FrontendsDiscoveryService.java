@@ -32,8 +32,8 @@ public class FrontendsDiscoveryService extends MythtvService implements ServiceL
 	private static final String TAG = FrontendsDiscoveryService.class.getSimpleName();
 
     public static final String ACTION_DISCOVER = "org.mythtv.background.frontends.ACTION_DISCOVER";
-    public static final String ACTION_PROGRESS = "org.mythtv.background.recorded.ACTION_PROGRESS";
-    public static final String ACTION_COMPLETE = "org.mythtv.background.recorded.ACTION_COMPLETE";
+    public static final String ACTION_PROGRESS = "org.mythtv.background.frontends.ACTION_PROGRESS";
+    public static final String ACTION_COMPLETE = "org.mythtv.background.frontends.ACTION_COMPLETE";
 
     public static final String EXTRA_PROGRESS = "PROGRESS";
     public static final String EXTRA_PROGRESS_DATA = "PROGRESS_DATA";
@@ -75,9 +75,11 @@ public class FrontendsDiscoveryService extends MythtvService implements ServiceL
 		}
 
 		if ( intent.getAction().equals( ACTION_DISCOVER ) ) {
-    		Log.i( TAG, "onHandleIntent : DOWNLOAD action selected" );
+    		Log.i( TAG, "onHandleIntent : DISCOVER action selected" );
 		
     		try {
+    			mFrontendDaoHelper.resetAllAvailable( this, mLocationProfile );
+    			
 				startProbe();
 			} catch( IOException e ) {
 				Log.e( TAG, "onHandleIntent : error", e );
@@ -110,7 +112,8 @@ public class FrontendsDiscoveryService extends MythtvService implements ServiceL
 		Log.v( TAG, "serviceAdded : masterbackend=" + ( "http://" + hostname + ":" + port + "/" ) );
 
 		// Dont' do both adds
-		final Frontend fe = new Frontend( event.getName(), "http://" + hostname + ":" + port + "/" );
+		Frontend fe = new Frontend( event.getName(), "http://" + hostname + ":" + port + "/" );
+		fe.setAvailable( true );
 
 		// save frontend to the database
 		mFrontendDaoHelper.save( this, mLocationProfile, fe );

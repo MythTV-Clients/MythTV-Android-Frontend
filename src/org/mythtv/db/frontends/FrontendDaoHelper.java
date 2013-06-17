@@ -10,7 +10,6 @@ import org.joda.time.DateTime;
 import org.mythtv.client.ui.frontends.Frontend;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.AbstractDaoHelper;
-import org.mythtv.db.channel.ChannelConstants;
 
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -73,7 +72,7 @@ public class FrontendDaoHelper extends AbstractDaoHelper {
 		
 		List<Frontend> frontends = new ArrayList<Frontend>();
 		
-		selection = appendLocationHostname( context, locationProfile, selection, ChannelConstants.TABLE_NAME );
+		selection = appendLocationHostname( context, locationProfile, selection, FrontendConstants.TABLE_NAME );
 		
 		Cursor cursor = context.getContentResolver().query( FrontendConstants.CONTENT_URI, projection, selection, selectionArgs, sortOrder );
 		while( cursor.moveToNext() ) {
@@ -254,6 +253,20 @@ public class FrontendDaoHelper extends AbstractDaoHelper {
 		return updated;
 	}
 
+	public void resetAllAvailable( final Context context, final LocationProfile locationProfile ) {
+		Log.d( TAG, "resetAllAvailable : enter" );
+		
+		List<Frontend> frontends = findAll( context, locationProfile );
+		if( null != frontends && !frontends.isEmpty() ) {
+			for( Frontend fe : frontends ) {
+				fe.setAvailable( false );
+				save( context, locationProfile, fe );
+			}
+		}
+		
+		Log.d( TAG, "resetAllAvailable : exit" );
+	}
+	
 	/**
 	 * @return
 	 */

@@ -2055,7 +2055,11 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 		for( String col : frontendProjection ) {
 
 			String qualifiedCol = FrontendConstants.TABLE_NAME + "." + col;
-			columnMap.put( qualifiedCol, qualifiedCol + " as " + FrontendConstants.TABLE_NAME + "_" + col );
+			if( !"_id".equals( col ) ) {
+				columnMap.put( qualifiedCol, qualifiedCol + " as " + FrontendConstants.TABLE_NAME + "_" + col );
+			} else {
+				columnMap.put( qualifiedCol, qualifiedCol );
+			}
 		}
 		
 		return columnMap;
