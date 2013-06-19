@@ -19,11 +19,11 @@
 package org.mythtv.service.preferences;
 
 import org.mythtv.client.ui.preferences.LocationProfile;
+import org.mythtv.db.http.EtagInfoDelegate;
 import org.mythtv.db.preferences.LocationProfileConstants;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.MythtvService;
 import org.mythtv.service.util.NetworkHelper;
-import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.dvr.ProgramList;
 import org.mythtv.services.api.dvr.Programs;
 import org.springframework.http.HttpStatus;
@@ -141,7 +141,7 @@ public class PreferencesRecordedDownloadService extends MythtvService {
 	private Programs download( LocationProfile profile ) throws Exception {
 		Log.v( TAG, "download : enter" );
 
-		ETagInfo etag = ETagInfo.createEmptyETag();
+		EtagInfoDelegate etag = EtagInfoDelegate.createEmptyETag();
 		
 		ResponseEntity<ProgramList> responseEntity = mMythtvServiceHelper.getMythServicesApi( profile ).dvrOperations().getRecordedList( etag );
 

@@ -25,11 +25,11 @@ import org.mythtv.R;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.dvr.ProgramGuideDaoHelper;
 import org.mythtv.db.http.EtagConstants;
+import org.mythtv.db.http.EtagInfoDelegate;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.MythtvService;
 import org.mythtv.service.util.DateUtils;
 import org.mythtv.service.util.NetworkHelper;
-import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.channel.ChannelInfo;
 import org.mythtv.services.api.dvr.Program;
 import org.mythtv.services.api.guide.ProgramGuide;
@@ -155,7 +155,7 @@ public class ProgramGuideDownloadServiceNew extends MythtvService {
 		String endpoint = Endpoint.GET_PROGRAM_GUIDE.name() + "_" + DateUtils.dateFormatter.print( start );
 		
 		Long id = null;
-		ETagInfo etag = ETagInfo.createEmptyETag();
+		EtagInfoDelegate etag = EtagInfoDelegate.createEmptyETag();
 		Cursor etagCursor = getContentResolver().query( Uri.withAppendedPath( EtagConstants.CONTENT_URI, "endpoint" ), null, EtagConstants.FIELD_ENDPOINT + " = ?" ,new String[] { endpoint }, null );
 		if( etagCursor.moveToFirst() ) {
 			id = etagCursor.getLong( etagCursor.getColumnIndexOrThrow( EtagConstants._ID ) );

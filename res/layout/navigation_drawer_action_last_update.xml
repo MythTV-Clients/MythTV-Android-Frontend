@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content">
+		        
+	<TextView
+    	android:id="@+id/navigation_drawer_action_last_update_date"
+    	android:layout_width="wrap_content"
+    	android:layout_height="wrap_content"
+	/>
+		        
+	<ImageButton
+	    android:id="@+id/navigation_drawer_action_last_update_refresh"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:layout_gravity="center"
+	    android:padding="4dp"
+	    android:contentDescription="Refresh"
+	    android:src="@drawable/ic_menu_mythmote_default" 
+	/>
+	
+</LinearLayout>

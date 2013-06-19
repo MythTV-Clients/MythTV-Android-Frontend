@@ -3,10 +3,31 @@
  */
 package org.mythtv.client.ui.dvr;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.mythtv.R;
 import org.mythtv.client.ui.AbstractMythtvFragmentActivity;
+import org.mythtv.client.ui.dvr.navigationDrawer.DvrActionRow;
+import org.mythtv.client.ui.dvr.navigationDrawer.DvrActionsHeaderRow;
+import org.mythtv.client.ui.dvr.navigationDrawer.DvrGuideActionRow;
+import org.mythtv.client.ui.dvr.navigationDrawer.DvrGuideLastUpdateActionRow;
+import org.mythtv.client.ui.dvr.navigationDrawer.DvrRecordingRulesActionRow;
+import org.mythtv.client.ui.dvr.navigationDrawer.DvrRecordingRulesLastUpdateActionRow;
+import org.mythtv.client.ui.dvr.navigationDrawer.DvrRecordingsActionRow;
+import org.mythtv.client.ui.dvr.navigationDrawer.DvrRecordingsLastUpdateActionRow;
+import org.mythtv.client.ui.dvr.navigationDrawer.DvrUpcomingActionRow;
+import org.mythtv.client.ui.dvr.navigationDrawer.DvrUpcomingLastUpdateActionRow;
+import org.mythtv.client.ui.dvr.navigationDrawer.DvrVersionRow;
+import org.mythtv.client.ui.navigationDrawer.Row;
+import org.mythtv.client.ui.navigationDrawer.TopLevelRowType;
+import org.mythtv.client.ui.preferences.LocationProfile;
+import org.mythtv.db.http.EtagInfoDelegate;
+import org.mythtv.services.api.dvr.impl.DvrTemplate;
+import org.mythtv.services.api.guide.impl.GuideTemplate;
 
 import android.annotation.TargetApi;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
@@ -17,9 +38,10 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.ListView;
 
 /**
@@ -30,12 +52,14 @@ import android.widget.ListView;
 public class DvrNavigationDrawerActivity extends AbstractMythtvFragmentActivity {
 
 	private static final String TAG = DvrNavigationDrawerActivity.class.getSimpleName();
-
+	
 	private DrawerLayout drawer = null;
 	private ListView navList = null;
 
-	private String[] names = null, classes = null;
-	private int selection = 0, oldSelection = -1;
+	private DvrNavigationDrawerAdapter mAdapter;
+	
+	private int selection = 2, oldSelection = -1;
+//	private Row selectedRow = null;
 
     private static final String OPENED_DVR_KEY = "OPENED_DVR_KEY";
     private SharedPreferences prefs = null;
@@ -51,10 +75,7 @@ public class DvrNavigationDrawerActivity extends AbstractMythtvFragmentActivity 
 
 		setContentView( R.layout.activity_navigation_drawer );
 
-		names = getResources().getStringArray( R.array.nav_dvr_names );
-        classes = getResources().getStringArray( R.array.nav_dvr_classes );
-        
-        ArrayAdapter<String> mAdapter = new ArrayAdapter<String>( getActionBar().getThemedContext(), android.R.layout.simple_list_item_1, names );
+        mAdapter = new DvrNavigationDrawerAdapter( getActionBar().getThemedContext() );
 
 		drawer = (DrawerLayout) findViewById( R.id.drawer_layout );
 
@@ -168,19 +189,153 @@ public class DvrNavigationDrawerActivity extends AbstractMythtvFragmentActivity 
 	private void updateContent() {
 		Log.v( TAG, "updateContent : enter" );
 		
-		getActionBar().setTitle( names[ selection ] );
+		Row row = mAdapter.getItem( selection );
+		if( row instanceof DvrActionRow ) {
+		
+			getActionBar().setTitle( row.getTitle() );
 
-		if( selection != oldSelection ) {
-			FragmentTransaction tx = getSupportFragmentManager().beginTransaction();
-			tx.replace( R.id.main, Fragment.instantiate( DvrNavigationDrawerActivity.this, classes[ selection ]) );
-			tx.commit();
+			if( selection != oldSelection ) {
+				FragmentTransaction tx = getSupportFragmentManager().beginTransaction();
+				tx.replace( R.id.main, Fragment.instantiate( DvrNavigationDrawerActivity.this, row.getFragment() ) );
+				tx.commit();
 			
-			oldSelection = selection;
+				oldSelection = selection;
+			}
+
+//            selectedRow = row;
+
+			drawer.closeDrawer( navList );
+			invalidateOptionsMenu();
+//			mAdapter.resetConnectedLocationProfile();
+            
 		}
 		
-		drawer.closeDrawer( navList );
-
 		Log.v( TAG, "updateContent : exit" );
+	}
+	
+	private class DvrNavigationDrawerAdapter extends BaseAdapter {
+
+		private Context mContext;
+
+        private LocationProfile mLocationProfile;
+
+		private List<Row> rows = new ArrayList<Row>();
+
+        public DvrNavigationDrawerAdapter( Context context ) {
+			this.mContext = context;
+			
+			this.mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( mContext );
+
+//			if( null == selectedRow ) {
+//				selectedRow = new DvrRecordingsActionRow( mContext, "Recordings" );
+//			}
+			
+			setupRowsList();
+        }
+
+        /* (non-Javadoc)
+         * @see android.widget.BaseAdapter#getItemViewType(int)
+         */
+        @Override
+        public int getItemViewType( int position ) {
+            return rows.get( position ).getViewType();
+        }
+
+        /* (non-Javadoc)
+         * @see android.widget.BaseAdapter#getViewTypeCount()
+         */
+        @Override
+        public int getViewTypeCount() {
+            return TopLevelRowType.values().length;
+        }
+
+        /* (non-Javadoc)
+		 * @see android.widget.Adapter#getCount()
+		 */
+		@Override
+		public int getCount() {
+			return rows.size();
+		}
+
+		/* (non-Javadoc)
+		 * @see android.widget.Adapter#getItem(int)
+		 */
+		@Override
+		public Row getItem( int position ) {
+			return rows.get( position );
+		}
+
+		/* (non-Javadoc)
+		 * @see android.widget.Adapter#getItemId(int)
+		 */
+		@Override
+		public long getItemId( int position ) {
+			return position;
+		}
+
+		/* (non-Javadoc)
+		 * @see android.widget.Adapter#getView(int, android.view.View, android.view.ViewGroup)
+		 */
+		@Override
+		public View getView( int position, View convertView, ViewGroup parent ) {
+			return rows.get( position ).getView( convertView );
+		}
+		
+		/**
+		 * 
+		 */
+		public void resetConnectedLocationProfile() {
+			
+			setupRowsList();
+			
+			notifyDataSetChanged();
+			navList.invalidateViews();
+		}
+
+		// internal helpers
+		
+		private void setupRowsList() {
+
+			rows = new ArrayList<Row>();
+			
+			rows.add( new DvrVersionRow( mContext, "MAF", "x" ) );
+
+			rows.add( new DvrActionsHeaderRow( mContext, "Actions" ) );
+			
+			rows.add( new DvrRecordingsActionRow( mContext, "Recordings" ) );
+//			if( null != selectedRow && selectedRow instanceof DvrRecordingsActionRow ) {
+				EtagInfoDelegate recordingsEtag = mEtagDaoHelper.findByEndpointAndDataId( mContext, mLocationProfile, DvrTemplate.Endpoint.GET_RECORDED_LIST.name(), "" );
+//				if( null != recordingsEtag && recordingsEtag.getId() > 0 ) {
+					rows.add( new DvrRecordingsLastUpdateActionRow( mContext, recordingsEtag ) );
+//				}
+//			}
+			
+			rows.add( new DvrUpcomingActionRow( mContext, "Upcoming" ) );
+//			if( null != selectedRow && selectedRow instanceof DvrUpcomingActionRow ) {
+				EtagInfoDelegate upcomingEtag = mEtagDaoHelper.findByEndpointAndDataId( mContext, mLocationProfile, DvrTemplate.Endpoint.GET_UPCOMING_LIST.name(), "" );
+//				if( null != upcomingEtag && upcomingEtag.getId() > 0 ) {
+					rows.add( new DvrUpcomingLastUpdateActionRow( mContext, upcomingEtag ) );
+//				}
+//			}
+			
+			rows.add( new DvrGuideActionRow( mContext, "Guide" ) );
+//			if( null != selectedRow && selectedRow instanceof DvrGuideActionRow ) {
+				EtagInfoDelegate guideEtag = mEtagDaoHelper.findByEndpointAndDataId( mContext, mLocationProfile, GuideTemplate.Endpoint.GET_PROGRAM_GUIDE.name(), "" );
+//				if( null != guideEtag && guideEtag.getId() > 0 ) {
+					rows.add( new DvrGuideLastUpdateActionRow( mContext, guideEtag ) );
+//				}
+//			}
+			
+			rows.add( new DvrRecordingRulesActionRow( mContext, "Recording Rules" ) );
+//			if( null != selectedRow && selectedRow instanceof DvrRecordingRulesActionRow ) {
+				EtagInfoDelegate recordingRulesEtag = mEtagDaoHelper.findByEndpointAndDataId( mContext, mLocationProfile, DvrTemplate.Endpoint.GET_RECORD_SCHEDULE_LIST.name(), "" );
+//				if( null != recordingRulesEtag && recordingRulesEtag.getId() > 0 ) {
+					rows.add( new DvrRecordingRulesLastUpdateActionRow( mContext, recordingRulesEtag ) );
+//				}
+//			}
+			
+		}
+		
 	}
 	
 }

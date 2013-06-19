@@ -23,7 +23,7 @@ import java.util.List;
 import org.mythtv.R;
 import org.mythtv.client.ui.MainMenuFragment;
 import org.mythtv.client.ui.preferences.LocationProfile;
-import org.mythtv.services.api.ETagInfo;
+import org.mythtv.db.http.EtagInfoDelegate;
 import org.mythtv.services.api.frontend.Action;
 import org.mythtv.services.api.frontend.FrontendActionList;
 import org.springframework.http.ResponseEntity;
@@ -92,7 +92,7 @@ public class MythmoteActionListFragment extends AbstractFrontendFragment{
 		@Override
 		protected ResponseEntity<FrontendActionList> doInBackground(String... params) {
 			try {
-				ETagInfo eTag = ETagInfo.createEmptyETag();
+				EtagInfoDelegate eTag = EtagInfoDelegate.createEmptyETag();
 				return mMythtvServiceHelper.getMythServicesApi( mLocationProfile ).frontendOperations().getActionList(params[0], eTag);
 			} catch( Exception e ) {
 				Log.e( TAG, e.getMessage() );

@@ -24,10 +24,10 @@ import org.mythtv.client.ui.AbstractMythtvFragmentActivity;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.content.LiveStreamDaoHelper;
 import org.mythtv.db.dvr.RecordedDaoHelper;
+import org.mythtv.db.http.EtagInfoDelegate;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.util.MythtvServiceHelper;
 import org.mythtv.service.util.NetworkHelper;
-import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.content.LiveStreamInfo;
 import org.mythtv.services.api.content.LiveStreamInfoWrapper;
 import org.mythtv.services.api.dvr.Program;
@@ -336,7 +336,7 @@ public class VideoActivity extends AbstractMythtvFragmentActivity {
 				if( liveStreamInfo.getStatusInt() < 2 || liveStreamInfo.getCurrentSegment() <= 2 ) {
 					Thread.sleep( 5000 );
 					
-					ETagInfo eTag = ETagInfo.createEmptyETag();
+					EtagInfoDelegate eTag = EtagInfoDelegate.createEmptyETag();
 
 					Log.v( TAG, "UpdateStreamInfoTask : exit" );
 					return mMythtvServiceHelper.getMythServicesApi( mLocationProfile ).contentOperations().getLiveStream( liveStreamInfo.getId(), eTag );

@@ -29,12 +29,12 @@ import org.mythtv.db.dvr.RecordedDaoHelper;
 import org.mythtv.db.dvr.programGroup.ProgramGroup;
 import org.mythtv.db.dvr.programGroup.ProgramGroupDaoHelper;
 import org.mythtv.db.http.EtagDaoHelper;
+import org.mythtv.db.http.EtagInfoDelegate;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.MythtvService;
 import org.mythtv.service.util.FileHelper;
 import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.Bool;
-import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.MythServiceApiRuntimeException;
 import org.mythtv.services.api.dvr.Program;
 import org.mythtv.services.api.dvr.ProgramList;
@@ -193,7 +193,7 @@ public class RecordedService extends MythtvService {
 	private void download( final LocationProfile locationProfile ) throws Exception {
 		Log.v( TAG, "download : enter" );
 
-		ETagInfo etag = mEtagDaoHelper.findByEndpointAndDataId( this, locationProfile, Endpoint.GET_RECORDED_LIST.name(), "" );
+		EtagInfoDelegate etag = mEtagDaoHelper.findByEndpointAndDataId( this, locationProfile, Endpoint.GET_RECORDED_LIST.name(), "" );
 		
 		ResponseEntity<ProgramList> responseEntity = mMythtvServiceHelper.getMythServicesApi( locationProfile ).dvrOperations().getRecordedList( etag );
 
@@ -207,7 +207,12 @@ public class RecordedService extends MythtvService {
 
 				if( null != etag.getETag() ) {
 					Log.i( TAG, "download : saving etag: " + etag.getETag() );
-					mEtagDaoHelper.save( this, locationProfile, etag, Endpoint.GET_RECORDED_LIST.name(), "" );
+					
+					etag.setEndpoint( Endpoint.GET_RECORDED_LIST.name() );
+					etag.setDate( new DateTime() );
+					etag.setMasterHostname( locationProfile.getHostname() );
+					etag.setLastModified( new DateTime() );
+					mEtagDaoHelper.save( this, locationProfile, etag );
 				}
 
 			}
@@ -218,7 +223,10 @@ public class RecordedService extends MythtvService {
 			Log.i( TAG, "download : " + Endpoint.GET_RECORDED_LIST.getEndpoint() + " returned 304 Not Modified" );
 
 			if( null != etag.getETag() ) {
-				mEtagDaoHelper.save( this, locationProfile, etag, Endpoint.GET_RECORDED_LIST.name(), "" );
+
+				etag.setDate( new DateTime() );
+				etag.setLastModified( new DateTime() );
+				mEtagDaoHelper.save( this, locationProfile, etag );
 			}
 
 		}

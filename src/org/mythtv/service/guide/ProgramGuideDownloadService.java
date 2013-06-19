@@ -26,12 +26,12 @@ import java.text.DecimalFormat;
 import org.joda.time.DateTime;
 import org.mythtv.R;
 import org.mythtv.client.ui.preferences.LocationProfile;
+import org.mythtv.db.http.EtagInfoDelegate;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.MythtvService;
 import org.mythtv.service.util.DateUtils;
 import org.mythtv.service.util.FileHelper;
 import org.mythtv.service.util.NetworkHelper;
-import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.guide.ProgramGuide;
 import org.mythtv.services.api.guide.ProgramGuideWrapper;
 import org.springframework.http.HttpStatus;
@@ -215,7 +215,7 @@ public class ProgramGuideDownloadService extends MythtvService {
 		Log.i( TAG, "download : starting download for " + DateUtils.dateTimeFormatter.print( start ) + ", end time=" + DateUtils.dateTimeFormatter.print( end ) );
 
 		try {
-			ETagInfo etag = ETagInfo.createEmptyETag();
+			EtagInfoDelegate etag = EtagInfoDelegate.createEmptyETag();
 			ResponseEntity<ProgramGuideWrapper> responseEntity = mMythtvServiceHelper.getMythServicesApi( locationProfile ).guideOperations().getProgramGuide( start, end, 1, -1, false, etag );
 
 			if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {

@@ -25,8 +25,8 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.mythtv.client.MainApplication;
+import org.mythtv.db.http.EtagInfoDelegate;
 import org.mythtv.service.util.MythtvServiceHelper;
-import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.capture.CaptureCard;
 import org.mythtv.services.api.capture.CaptureCardList;
 import org.springframework.http.ResponseEntity;
@@ -173,7 +173,7 @@ public class CaptureCardsListFragment extends ListFragment {
 				Log.v( TAG, "DownloadCaptureCardsTask.doInBackground : exit" );
 
 				MainApplication mainApplication = (MainApplication) getActivity().getApplicationContext();
-				ETagInfo eTag = ETagInfo.createEmptyETag();
+				EtagInfoDelegate eTag = EtagInfoDelegate.createEmptyETag();
 				return mMythtvServiceHelper.getMythServicesApi( getActivity() ).captureOperations().getCaptureCardList( eTag );
 			} catch( Exception e ) {
 				Log.e( TAG, "DownloadCaptureCardsTask.doInBackground : error", e );

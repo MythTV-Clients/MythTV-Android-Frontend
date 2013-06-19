@@ -23,15 +23,16 @@ import java.io.IOException;
 import java.text.DecimalFormat;
 
 import org.apache.commons.io.FileUtils;
+import org.joda.time.DateTime;
 import org.mythtv.R;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.dvr.UpcomingDaoHelper;
 import org.mythtv.db.http.EtagDaoHelper;
+import org.mythtv.db.http.EtagInfoDelegate;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.MythtvService;
 import org.mythtv.service.util.FileHelper;
 import org.mythtv.service.util.NetworkHelper;
-import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.dvr.ProgramList;
 import org.mythtv.services.api.dvr.Programs;
 import org.mythtv.services.api.dvr.impl.DvrTemplate.Endpoint;
@@ -153,8 +154,7 @@ public class UpcomingDownloadService extends MythtvService {
 	private void download( final LocationProfile locationProfile ) throws Exception {
 		Log.v( TAG, "download : enter" );
 		
-		ETagInfo etag = mEtagDaoHelper.findByEndpointAndDataId( this, locationProfile, Endpoint.GET_UPCOMING_LIST.name(), "" );
-		etag = ETagInfo.createEmptyETag();
+		EtagInfoDelegate etag = mEtagDaoHelper.findByEndpointAndDataId( this, locationProfile, Endpoint.GET_UPCOMING_LIST.name(), "" );
 		
 		ResponseEntity<ProgramList> responseEntity = mMythtvServiceHelper.getMythServicesApi( locationProfile ).dvrOperations().getUpcomingList( -1, -1, false, etag );
 		if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
@@ -170,7 +170,12 @@ public class UpcomingDownloadService extends MythtvService {
 					process( programList.getPrograms(), locationProfile );
 				
 					if( null != etag.getETag() ) {
-						mEtagDaoHelper.save( this, locationProfile, etag, Endpoint.GET_UPCOMING_LIST.name(), "" );
+						
+						etag.setEndpoint( Endpoint.GET_UPCOMING_LIST.name() );
+						etag.setDate( new DateTime() );
+						etag.setMasterHostname( locationProfile.getHostname() );
+						etag.setLastModified( new DateTime() );
+						mEtagDaoHelper.save( this, locationProfile, etag );
 					}
 						
 				}
@@ -183,7 +188,10 @@ public class UpcomingDownloadService extends MythtvService {
 			Log.i( TAG, "download : " + Endpoint.GET_UPCOMING_LIST.getEndpoint() + " returned 304 Not Modified" );
 			
 			if( null != etag.getETag() ) {
-				mEtagDaoHelper.save( this, locationProfile, etag, Endpoint.GET_UPCOMING_LIST.name(), "" );
+
+				etag.setDate( new DateTime() );
+				etag.setLastModified( new DateTime() );
+				mEtagDaoHelper.save( this, locationProfile, etag );
 			}
 			
 		}

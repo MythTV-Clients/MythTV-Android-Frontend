@@ -24,8 +24,6 @@ import java.util.List;
 import org.joda.time.DateTime;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.AbstractDaoHelper;
-import org.mythtv.services.api.ETagInfo;
-import org.mythtv.services.api.channel.impl.ChannelTemplate.Endpoint;
 
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -78,19 +76,19 @@ public class EtagDaoHelper extends AbstractDaoHelper {
 	 * @param sortOrder
 	 * @return
 	 */
-	public List<ETagInfo> findAll( final Context context, final LocationProfile locationProfile, String[] projection, String selection, String[] selectionArgs, String sortOrder ) {
+	public List<EtagInfoDelegate> findAll( final Context context, final LocationProfile locationProfile, String[] projection, String selection, String[] selectionArgs, String sortOrder ) {
 		Log.d( TAG, "findAll : enter" );
 		
 		if( null == context ) 
 			throw new RuntimeException( "EtagDaoHelper is not initialized" );
 		
-		List<ETagInfo> etagInfos = new ArrayList<ETagInfo>();
+		List<EtagInfoDelegate> etagInfos = new ArrayList<EtagInfoDelegate>();
 		
 		selection = appendLocationHostname( context, locationProfile, selection, EtagConstants.TABLE_NAME );
 
 		Cursor cursor = context.getContentResolver().query( EtagConstants.CONTENT_URI, projection, selection, selectionArgs, sortOrder );
 		while( cursor.moveToNext() ) {
-			ETagInfo etagInfo = convertCursorToETagInfo( cursor );
+			EtagInfoDelegate etagInfo = convertCursorToEtagInfoDelegate( cursor );
 			etagInfos.add( etagInfo );
 		}
 		cursor.close();
@@ -102,10 +100,10 @@ public class EtagDaoHelper extends AbstractDaoHelper {
 	/**
 	 * @return
 	 */
-	public List<ETagInfo> finalAll( final Context context, final LocationProfile locationProfile ) {
+	public List<EtagInfoDelegate> finalAll( final Context context, final LocationProfile locationProfile ) {
 		Log.d( TAG, "findAll : enter" );
 		
-		List<ETagInfo> etagInfos = findAll( context, locationProfile, null, null, null, null );
+		List<EtagInfoDelegate> etagInfos = findAll( context, locationProfile, null, null, null, null );
 		
 		Log.d( TAG, "findAll : exit" );
 		return etagInfos;
@@ -119,13 +117,13 @@ public class EtagDaoHelper extends AbstractDaoHelper {
 	 * @param sortOrder
 	 * @return
 	 */
-	public ETagInfo findOne( final Context context, final LocationProfile locationProfile, Long id, String[] projection, String selection, String[] selectionArgs, String sortOrder ) {
+	public EtagInfoDelegate findOne( final Context context, final LocationProfile locationProfile, Long id, String[] projection, String selection, String[] selectionArgs, String sortOrder ) {
 		Log.d( TAG, "findOne : enter" );
 		
 		if( null == context ) 
 			throw new RuntimeException( "EtagDaoHelper is not initialized" );
 		
-		ETagInfo etagInfo = ETagInfo.createEmptyETag();
+		EtagInfoDelegate etagInfo = EtagInfoDelegate.createEmptyETag();
 		
 		Uri uri = EtagConstants.CONTENT_URI;
 		if( null != id && id > 0 ) {
@@ -137,7 +135,7 @@ public class EtagDaoHelper extends AbstractDaoHelper {
 		
 		Cursor cursor = context.getContentResolver().query( uri, projection, selection, selectionArgs, sortOrder );
 		if( cursor.moveToFirst() ) {
-			etagInfo = convertCursorToETagInfo( cursor );
+			etagInfo = convertCursorToEtagInfoDelegate( cursor );
 		}
 		cursor.close();
 		
@@ -149,10 +147,10 @@ public class EtagDaoHelper extends AbstractDaoHelper {
 	 * @param id
 	 * @return
 	 */
-	public ETagInfo findOne( final Context context, final LocationProfile locationProfile, final Long id ) {
+	public EtagInfoDelegate findOne( final Context context, final LocationProfile locationProfile, final Long id ) {
 		Log.d( TAG, "findOne : enter" );
 		
-		ETagInfo etagInfo = findOne( context, locationProfile, id, null, null, null, null );
+		EtagInfoDelegate etagInfo = findOne( context, locationProfile, id, null, null, null, null );
 		
 		Log.d( TAG, "findOne : exit" );
 		return etagInfo;
@@ -163,7 +161,7 @@ public class EtagDaoHelper extends AbstractDaoHelper {
 	 * @param dataId
 	 * @return
 	 */
-	public ETagInfo findByEndpointAndDataId( final Context context, final LocationProfile locationProfile, final String endpoint, final String dataId ) {
+	public EtagInfoDelegate findByEndpointAndDataId( final Context context, final LocationProfile locationProfile, final String endpoint, final String dataId ) {
 		Log.d( TAG, "findByEndpointAndDataId : enter" );
 		
 		if( null == context ) 
@@ -179,7 +177,7 @@ public class EtagDaoHelper extends AbstractDaoHelper {
 			selectionArgs = new String[] { endpoint, dataId };
 		}
 		
-		ETagInfo etagInfo = findOne( context, locationProfile, null, null, selection, selectionArgs, null );
+		EtagInfoDelegate etagInfo = findOne( context, locationProfile, null, null, selection, selectionArgs, null );
 		
 		Log.d( TAG, "findByEndpointAndDataId : exit" );
 		return etagInfo;
@@ -218,22 +216,22 @@ public class EtagDaoHelper extends AbstractDaoHelper {
 	 * @param etagInfo
 	 * @return
 	 */
-	public int save( final Context context, final LocationProfile locationProfile, final ETagInfo etagInfo, final String endpoint, final String dataId ) {
+	public int save( final Context context, final LocationProfile locationProfile, final EtagInfoDelegate etagInfo ) {
 		Log.d( TAG, "save : enter" );
 
 		if( null == context ) 
 			throw new RuntimeException( "EtagDaoHelper is not initialized" );
 		
-		ContentValues values = convertETagInfoToContentValues( locationProfile, new DateTime(), etagInfo, endpoint, dataId );
+		ContentValues values = convertEtagInfoDelegateToContentValues( etagInfo );
 
 		String selection = EtagConstants.FIELD_ENDPOINT + " = ?";
-		if( null != dataId && !"".equals( dataId ) ) {
+		if( etagInfo.getDataId() > 0 ) {
 			selection += " AND " + EtagConstants.FIELD_DATA_ID + " = ?";
 		}
 		
-		String[] selectionArgs = new String[] { endpoint };
-		if( null != dataId && !"".equals( dataId ) ) {
-			selectionArgs = new String[] { endpoint, dataId };
+		String[] selectionArgs = new String[] { etagInfo.getEndpoint() };
+		if( etagInfo.getDataId() > 0 ) {
+			selectionArgs = new String[] { etagInfo.getEndpoint(), String.valueOf( etagInfo.getDataId() ) };
 		}
 		
 		selection = appendLocationHostname( context, locationProfile, selection, EtagConstants.TABLE_NAME );
@@ -278,20 +276,20 @@ public class EtagDaoHelper extends AbstractDaoHelper {
 	 * @param id
 	 * @return
 	 */
-	public int delete( final Context context, final LocationProfile locationProfile, final Endpoint endpoint, final String dataId  ) {
+	public int delete( final Context context, final LocationProfile locationProfile, final EtagInfoDelegate etag ) {
 		Log.d( TAG, "delete : enter" );
 		
 		if( null == context ) 
 			throw new RuntimeException( "EtagDaoHelper is not initialized" );
 		
 		String selection = EtagConstants.FIELD_ENDPOINT + " = ?";
-		if( null != dataId && !"".equals( dataId ) ) {
+		if( etag.getDataId() > 0 ) {
 			selection += " AND " + EtagConstants.FIELD_DATA_ID + " = ?";
 		}
 		
-		String[] selectionArgs = new String[] { endpoint.name() };
-		if( null != dataId && !"".equals( dataId ) ) {
-			selectionArgs = new String[] { endpoint.name(), dataId };
+		String[] selectionArgs = new String[] { etag.getEndpoint() };
+		if( etag.getDataId() > 0 ) {
+			selectionArgs = new String[] { etag.getEndpoint(), String.valueOf( etag.getDataId() ) };
 		}
 		
 		selection = appendLocationHostname( context, locationProfile, selection, EtagConstants.TABLE_NAME );
@@ -307,61 +305,66 @@ public class EtagDaoHelper extends AbstractDaoHelper {
 	 * @param cursor
 	 * @return
 	 */
-	public ETagInfo convertCursorToETagInfo( Cursor cursor ) {
-//		Log.v( TAG, "convertCursorToETagInfo : enter" );
+	public EtagInfoDelegate convertCursorToEtagInfoDelegate( Cursor cursor ) {
+//		Log.v( TAG, "convertCursorToEtagInfoDelegate : enter" );
 
-		String value = "";
+		long id = -1;
+		int dataId = -1;
+		String endpoint = "", value = "", masterHostname = "";
+		DateTime date = null, lastModifiedDate = null;
+		
+		if( cursor.getColumnIndex( EtagConstants._ID ) != -1 ) {
+			id = cursor.getLong( cursor.getColumnIndex( EtagConstants._ID ) );
+		}
+
+		if( cursor.getColumnIndex( EtagConstants.FIELD_ENDPOINT ) != -1 ) {
+			endpoint = cursor.getString( cursor.getColumnIndex( EtagConstants.FIELD_ENDPOINT ) );
+		}
 		
 		if( cursor.getColumnIndex( EtagConstants.FIELD_VALUE ) != -1 ) {
 			value = cursor.getString( cursor.getColumnIndex( EtagConstants.FIELD_VALUE ) );
 		}
 		
-		ETagInfo etagInfo = ETagInfo.createEmptyETag();
-		etagInfo.setETag( value );
+		if( cursor.getColumnIndex( EtagConstants.FIELD_DATA_ID ) != -1 ) {
+			dataId = cursor.getInt( cursor.getColumnIndex( EtagConstants.FIELD_DATA_ID ) );
+		}
+
+		if( cursor.getColumnIndex( EtagConstants.FIELD_DATE ) != -1 ) {
+			date = new DateTime( cursor.getLong( cursor.getColumnIndex( EtagConstants.FIELD_DATE ) ) );
+		}
 		
-//		Log.v( TAG, "convertCursorToETagInfo : exit" );
-		return etagInfo;
+		if( cursor.getColumnIndex( EtagConstants.FIELD_MASTER_HOSTNAME ) != -1 ) {
+			masterHostname = cursor.getString( cursor.getColumnIndex( EtagConstants.FIELD_MASTER_HOSTNAME ) );
+		}
+		
+		if( cursor.getColumnIndex( EtagConstants.FIELD_LAST_MODIFIED_DATE ) != -1 ) {
+			lastModifiedDate = new DateTime( cursor.getLong( cursor.getColumnIndex( EtagConstants.FIELD_LAST_MODIFIED_DATE ) ) );
+		}
+		
+		EtagInfoDelegate etag = new EtagInfoDelegate( value );
+		etag.setId( id );
+		etag.setEndpoint( endpoint );
+		etag.setDataId( dataId );
+		etag.setDate( date );
+		etag.setMasterHostname( masterHostname );
+		etag.setLastModified( lastModifiedDate );
+		
+//		Log.v( TAG, "convertCursorToEtagInfoDelegate : exit" );
+		return etag;
 	}
 
 	// internal helpers
 
-//	private ContentValues[] convertETagInfosToContentValuesArray( final List<ETagInfo> etagInfos, final Endpoint endpoint, final String dataId ) {
-//		Log.v( TAG, "convertETagInfosToContentValuesArray : enter" );
-//		
-//		if( null != etagInfos && !etagInfos.isEmpty() ) {
-//			
-//			ContentValues contentValues;
-//			List<ContentValues> contentValuesArray = new ArrayList<ContentValues>();
-//
-//			for( ETagInfo etagInfo : etagInfos ) {
-//
-//				contentValues = convertETagInfoToContentValues( etagInfo, endpoint, dataId );
-//				contentValuesArray.add( contentValues );
-//				
-//			}			
-//			
-//			if( !contentValuesArray.isEmpty() ) {
-//				
-//				Log.v( TAG, "convertETagInfosToContentValuesArray : exit" );
-//				return contentValuesArray.toArray( new ContentValues[ contentValuesArray.size() ] );
-//			}
-//			
-//		}
-//		
-//		Log.v( TAG, "convertETagInfosToContentValuesArray : exit, no etagInfos to convert" );
-//		return null;
-//	}
-
-	private ContentValues convertETagInfoToContentValues( final LocationProfile locationProfile, final DateTime lastModified, final ETagInfo etag, final String endpoint, final String dataId ) {
+	private ContentValues convertEtagInfoDelegateToContentValues( final EtagInfoDelegate etag ) {
 //		Log.v( TAG, "convertChannelToContentValues : enter" );
 		
 		ContentValues values = new ContentValues();
-		values.put( EtagConstants.FIELD_ENDPOINT, endpoint );
-		values.put( EtagConstants.FIELD_VALUE, etag.getETag() );
-		values.put( EtagConstants.FIELD_DATA_ID, null != dataId ? dataId : "" );
-		values.put( EtagConstants.FIELD_DATE, ( new DateTime() ).getMillis() );
-		values.put( EtagConstants.FIELD_MASTER_HOSTNAME, locationProfile.getHostname() );
-		values.put( EtagConstants.FIELD_LAST_MODIFIED_DATE, lastModified.getMillis() );
+		values.put( EtagConstants.FIELD_ENDPOINT, etag.getEndpoint() );
+		values.put( EtagConstants.FIELD_VALUE, etag.getValue() );
+		values.put( EtagConstants.FIELD_DATA_ID, etag.getDataId() );
+		values.put( EtagConstants.FIELD_DATE, null != etag.getDate() ? etag.getDate().getMillis() : ( new DateTime() ).getMillis() );
+		values.put( EtagConstants.FIELD_MASTER_HOSTNAME, etag.getMasterHostname() );
+		values.put( EtagConstants.FIELD_LAST_MODIFIED_DATE, null != etag.getLastModified() ? etag.getLastModified().getMillis() : ( new DateTime() ).getMillis() );
 		
 //		Log.v( TAG, "convertChannelToContentValues : exit" );
 		return values;
