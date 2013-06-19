@@ -27,8 +27,8 @@ import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.util.MenuHelper;
 import org.mythtv.client.ui.util.ProgramHelper;
 import org.mythtv.db.channel.ChannelDaoHelper;
+import org.mythtv.db.http.EtagInfoDelegate;
 import org.mythtv.service.util.NetworkHelper;
-import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.Int;
 import org.mythtv.services.api.channel.ChannelInfo;
 import org.mythtv.services.api.dvr.RecRule;
@@ -327,7 +327,7 @@ public class RecordingRuleEditFragment extends AbstractMythFragment implements O
 
 			Integer id = params[ 0 ];
 			
-			ETagInfo etag = ETagInfo.createEmptyETag();
+			EtagInfoDelegate etag = EtagInfoDelegate.createEmptyETag();
 			return mMythtvServiceHelper.getMythServicesApi( mLocationProfile ).dvrOperations().getRecordSchedule( id, etag );
 		}
 

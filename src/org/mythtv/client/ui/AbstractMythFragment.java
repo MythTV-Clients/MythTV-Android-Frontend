@@ -24,12 +24,12 @@ import org.mythtv.client.MainApplication;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.preferences.LocationProfile.LocationType;
 import org.mythtv.db.http.EtagDaoHelper;
+import org.mythtv.db.http.EtagInfoDelegate;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.channel.ChannelDownloadService;
 import org.mythtv.service.frontends.FrontendsDiscoveryService;
 import org.mythtv.service.util.MythtvServiceHelper;
 import org.mythtv.service.util.RunningServiceHelper;
-import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.channel.impl.ChannelTemplate.Endpoint;
 import org.mythtv.services.api.status.Status;
 import org.springframework.http.HttpStatus;
@@ -187,7 +187,7 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
     		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
 
     		try {
-    			ETagInfo etag = ETagInfo.createEmptyETag();
+    			EtagInfoDelegate etag = EtagInfoDelegate.createEmptyETag();
     			ResponseEntity<org.mythtv.services.api.status.Status> status = mMythtvServiceHelper.getMythServicesApi( mLocationProfile ).statusOperations().getStatus( etag );
 
     			if( status.getStatusCode() == HttpStatus.OK ) {

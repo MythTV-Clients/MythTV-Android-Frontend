@@ -9,12 +9,12 @@ import org.mythtv.client.ui.preferences.LocationProfile.LocationType;
 import org.mythtv.client.ui.preferences.PlaybackProfile;
 import org.mythtv.db.content.LiveStreamDaoHelper;
 import org.mythtv.db.dvr.RecordedDaoHelper;
+import org.mythtv.db.http.EtagInfoDelegate;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.db.preferences.PlaybackProfileDaoHelper;
 import org.mythtv.service.MythtvService;
 import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.Bool;
-import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.content.LiveStreamInfo;
 import org.mythtv.services.api.content.LiveStreamInfoWrapper;
 import org.mythtv.services.api.dvr.Program;
@@ -286,7 +286,7 @@ public class LiveStreamService extends MythtvService {
 	    LiveStreamInfo liveStreamInfo = mLiveStreamDaoHelper.findByProgram( this, locationProfile, program );
 		if( null != liveStreamInfo && liveStreamInfo.getPercentComplete() < 100 ) {
 			Thread.sleep( 10000 );
-			ETagInfo eTag = ETagInfo.createEmptyETag();
+			EtagInfoDelegate eTag = EtagInfoDelegate.createEmptyETag();
 
 			try {
 				ResponseEntity<LiveStreamInfoWrapper> wrapper = mMythtvServiceHelper.getMythServicesApi( locationProfile ).contentOperations().getLiveStream( liveStreamInfo.getId(), eTag );

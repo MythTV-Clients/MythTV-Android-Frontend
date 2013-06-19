@@ -24,6 +24,7 @@ import org.mythtv.client.ui.util.MenuHelper;
 import org.mythtv.db.content.LiveStreamDaoHelper;
 import org.mythtv.db.dvr.RecordedDaoHelper;
 import org.mythtv.db.dvr.programGroup.ProgramGroupDaoHelper;
+import org.mythtv.db.http.EtagDaoHelper;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.util.MythtvServiceHelper;
 import org.mythtv.service.util.RunningServiceHelper;
@@ -49,6 +50,7 @@ public abstract class AbstractMythtvFragmentActivity extends FragmentActivity im
 	protected static final String TAG = AbstractMythtvFragmentActivity.class.getSimpleName();
 
 	protected SharedPreferences preferences = null;
+	protected EtagDaoHelper mEtagDaoHelper = EtagDaoHelper.getInstance();
 	protected LiveStreamDaoHelper mLiveStreamDaoHelper = LiveStreamDaoHelper.getInstance();
 	protected MythtvServiceHelper mMythtvServiceHelper = MythtvServiceHelper.getInstance();
 	protected LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();

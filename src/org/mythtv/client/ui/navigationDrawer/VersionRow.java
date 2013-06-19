@@ -63,6 +63,22 @@ public class VersionRow implements Row {
 		return TopLevelRowType.VERSION_ROW.ordinal();
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.mythtv.client.ui.navigationDrawer.Row#getTitle()
+	 */
+	@Override
+	public String getTitle() {
+		return null;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mythtv.client.ui.navigationDrawer.Row#getFragment()
+	 */
+	@Override
+	public String getFragment() {
+		return null;
+	}
+
 	private static class ViewHolder {
 		
 		TextView title;

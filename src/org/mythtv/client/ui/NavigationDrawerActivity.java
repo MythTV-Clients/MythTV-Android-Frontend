@@ -390,6 +390,9 @@ public class NavigationDrawerActivity extends AbstractMythtvFragmentActivity {
 			return position;
 		}
 
+		/* (non-Javadoc)
+		 * @see android.widget.Adapter#getView(int, android.view.View, android.view.ViewGroup)
+		 */
 		@Override
 		public View getView( int position, View convertView, ViewGroup parent ) {
 			return rows.get( position ).getView( convertView );
