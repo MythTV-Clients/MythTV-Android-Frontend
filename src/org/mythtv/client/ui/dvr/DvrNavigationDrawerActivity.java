@@ -8,10 +8,8 @@ import org.mythtv.client.ui.AbstractMythtvFragmentActivity;
 
 import android.annotation.TargetApi;
 import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
@@ -33,7 +31,6 @@ public class DvrNavigationDrawerActivity extends AbstractMythtvFragmentActivity 
 
 	private static final String TAG = DvrNavigationDrawerActivity.class.getSimpleName();
 
-	private ActionBarDrawerToggle drawerToggle = null;
 	private DrawerLayout drawer = null;
 	private ListView navList = null;
 
@@ -64,50 +61,6 @@ public class DvrNavigationDrawerActivity extends AbstractMythtvFragmentActivity 
 		navList = (ListView) findViewById( R.id.drawer );
 		navList.setAdapter( mAdapter );
 		
-		drawerToggle = new ActionBarDrawerToggle( this, drawer, R.drawable.ic_drawer, R.string.open, R.string.close ) {
-	        
-			/* (non-Javadoc)
-			 * @see android.support.v4.app.ActionBarDrawerToggle#onDrawerClosed(android.view.View)
-			 */
-			@Override
-	        public void onDrawerClosed( View drawerView ) {
-				Log.d( TAG, "onDrawerClosed : enter" );
-				super.onDrawerClosed( drawerView );
-	            
-				updateContent();
-                invalidateOptionsMenu();
-                if( null != opened && opened == false ) {
-                	
-                	opened = true;
-                    
-                	if( null != prefs ) {
-                        Editor editor = prefs.edit();
-                        editor.putBoolean( OPENED_DVR_KEY, true );
-                        editor.apply();
-                    }
-                	
-                }
-                
-				Log.d( TAG, "onDrawerClosed : exit" );
-	        }
-	 
-	        /* (non-Javadoc)
-	         * @see android.support.v4.app.ActionBarDrawerToggle#onDrawerOpened(android.view.View)
-	         */
-	        @Override
-	        public void onDrawerOpened( View drawerView ) {
-				Log.d( TAG, "onDrawerOpened : enter" );
-	            super.onDrawerOpened( drawerView );
-	            
-	            getActionBar().setTitle( R.string.app_name );
-	            invalidateOptionsMenu();
-
-	            Log.d( TAG, "onDrawerOpened : exit" );
-	        }
-	        
-	    };
-		drawer.setDrawerListener( drawerToggle );
-
 		navList.setOnItemClickListener( new OnItemClickListener() {
 
 			/* (non-Javadoc)
@@ -120,8 +73,9 @@ public class DvrNavigationDrawerActivity extends AbstractMythtvFragmentActivity 
 				Log.v( TAG, "onItemClick : position=" + position + ", id=" + id + ", oldSelection=" + oldSelection );
 				
 				selection = position;
-                drawer.closeDrawer( navList );
-
+				
+				updateContent(); 
+				
 				Log.v( TAG, "onItemClick : exit" );
 			}
 
@@ -163,8 +117,6 @@ public class DvrNavigationDrawerActivity extends AbstractMythtvFragmentActivity 
 		super.onPostCreate( savedInstanceState );
 		Log.v( TAG, "onPostCreate : enter" );
 		
-		drawerToggle.syncState();
-
 		Log.v( TAG, "onPostCreate : exit" );
 	}
 
@@ -175,14 +127,20 @@ public class DvrNavigationDrawerActivity extends AbstractMythtvFragmentActivity 
 	public boolean onOptionsItemSelected( MenuItem item ) {
 		Log.v( TAG, "onOptionsItemSelected : enter" );
 
-		if( drawerToggle.onOptionsItemSelected( item ) ) {
-			Log.v( TAG, "onOptionsItemSelected : exit, drawerToggle selected" );
+	    // Handle item selection
+	    switch( item.getItemId() ) {
+	        case android.R.id.home:
+	    		Log.v( TAG, "onOptionsItemSelected : exit, home pressed" );
 
-			return true;
-		}
+	    		onBackPressed();
+	            return true;
+	            
+	        default:
+	    		Log.v( TAG, "onOptionsItemSelected : exit" );
 
-		Log.v( TAG, "onOptionsItemSelected : exit" );
-		return super.onOptionsItemSelected( item );
+	    		return super.onOptionsItemSelected( item );
+	    }
+
 	}
 
     /* (non-Javadoc)
@@ -190,6 +148,7 @@ public class DvrNavigationDrawerActivity extends AbstractMythtvFragmentActivity 
      */
     @Override
     public boolean onPrepareOptionsMenu( Menu menu ) {
+		Log.v( TAG, "onPrepareOptionsMenu : enter" );
 
     	if( null != drawer && null != navList ) {
     		
@@ -200,6 +159,7 @@ public class DvrNavigationDrawerActivity extends AbstractMythtvFragmentActivity 
 */    		
     	}
     	
+		Log.v( TAG, "onPrepareOptionsMenu : exit" );
     	return super.onPrepareOptionsMenu( menu );
     }
 
