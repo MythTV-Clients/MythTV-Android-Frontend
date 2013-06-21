@@ -194,7 +194,7 @@ public class ChannelDownloadService extends MythtvService {
 	private ChannelInfos download( final int sourceId, final LocationProfile locationProfile ) throws Exception {
 		Log.v( TAG, "download : enter" );
 
-		EtagInfoDelegate etag = EtagInfoDelegate.createEmptyETag(); //mEtagDaoHelper.findByEndpointAndDataId( Endpoint.GET_CHANNEL_INFO_LIST.name(), String.valueOf( sourceId ) );
+		EtagInfoDelegate etag = mEtagDaoHelper.findByEndpointAndDataId( this, locationProfile, Endpoint.GET_CHANNEL_INFO_LIST.name(), String.valueOf( sourceId ) );
 		
 		ResponseEntity<ChannelInfoList> responseEntity = mMythtvServiceHelper.getMythServicesApi( locationProfile ).channelOperations().getChannelInfoList( sourceId, 0, -1, etag );
 
@@ -204,7 +204,7 @@ public class ChannelDownloadService extends MythtvService {
 			ChannelInfoList channelInfoList = responseEntity.getBody();
 			if( null != channelInfoList ) {
 
-				if( null != etag.getETag() ) {
+				if( null != etag.getValue() ) {
 					Log.i( TAG, "download : " + Endpoint.GET_CHANNEL_INFO_LIST.getEndpoint() + " returned 200 OK" );
 
 					etag.setEndpoint( Endpoint.GET_CHANNEL_INFO_LIST.name() );

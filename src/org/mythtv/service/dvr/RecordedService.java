@@ -205,8 +205,8 @@ public class RecordedService extends MythtvService {
 
 				process( programList.getPrograms(), locationProfile );	
 
-				if( null != etag.getETag() ) {
-					Log.i( TAG, "download : saving etag: " + etag.getETag() );
+				if( null != etag.getValue() ) {
+					Log.i( TAG, "download : saving etag: " + etag.getValue() );
 					
 					etag.setEndpoint( Endpoint.GET_RECORDED_LIST.name() );
 					etag.setDate( new DateTime() );
@@ -222,7 +222,7 @@ public class RecordedService extends MythtvService {
 		if( responseEntity.getStatusCode().equals( HttpStatus.NOT_MODIFIED ) ) {
 			Log.i( TAG, "download : " + Endpoint.GET_RECORDED_LIST.getEndpoint() + " returned 304 Not Modified" );
 
-			if( null != etag.getETag() ) {
+			if( null != etag.getValue() ) {
 
 				etag.setDate( new DateTime() );
 				etag.setLastModified( new DateTime() );
