@@ -61,7 +61,7 @@ public class BackendStatusFragment extends AbstractMythFragment {
 			
 			TextView tView = (TextView) mView.findViewById( R.id.textview_status );
 			if( null != tView ) {
-				tView.setText( this.getStatusText() );
+//				tView.setText( this.getStatusText() );
 			}
 			
 		}

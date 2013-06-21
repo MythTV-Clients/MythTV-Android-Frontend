@@ -23,8 +23,8 @@ import java.util.List;
 
 import org.joda.time.DateTime;
 import org.mythtv.client.ui.preferences.LocationProfile;
-import org.mythtv.db.dvr.programGroup.ProgramGroupConstants;
 import org.mythtv.provider.MythtvProvider;
+import org.mythtv.services.api.channel.ChannelInfo;
 import org.mythtv.services.api.dvr.Program;
 
 import android.content.ContentProviderOperation;
@@ -80,7 +80,7 @@ public class ProgramGuideDaoHelper extends ProgramDaoHelper {
 	public List<Program> findAll( final Context context, final LocationProfile locationProfile ) {
 		Log.d( TAG, "findAll : enter" );
 		
-		String selection = appendLocationHostname( context, locationProfile, "", ProgramGroupConstants.TABLE_NAME );
+		String selection = appendLocationHostname( context, locationProfile, "", ProgramConstants.TABLE_NAME_GUIDE );
 
 		List<Program> programs = findAll( context, ProgramConstants.CONTENT_URI_GUIDE, null, selection, null, null, ProgramConstants.TABLE_NAME_GUIDE );
 		
@@ -98,7 +98,7 @@ public class ProgramGuideDaoHelper extends ProgramDaoHelper {
 		String selection = ProgramConstants.FIELD_TITLE + " = ?";
 		String[] selectionArgs = new String[] { title };
 
-		selection = appendLocationHostname( context, locationProfile, selection, ProgramGroupConstants.TABLE_NAME );
+		selection = appendLocationHostname( context, locationProfile, selection, ProgramConstants.TABLE_NAME_GUIDE );
 		
 		List<Program> programs = findAll( context, ProgramConstants.CONTENT_URI_GUIDE, null, selection, selectionArgs, null, ProgramConstants.TABLE_NAME_GUIDE );
 		if( null != programs && !programs.isEmpty() ) {
@@ -138,7 +138,7 @@ public class ProgramGuideDaoHelper extends ProgramDaoHelper {
 		String selection = ProgramConstants.TABLE_NAME_GUIDE + "." + ProgramConstants.FIELD_CHANNEL_ID + " = ? AND " + ProgramConstants.TABLE_NAME_GUIDE + "." + ProgramConstants.FIELD_START_TIME + " = ?";
 		String[] selectionArgs = new String[] { String.valueOf( channelId ), String.valueOf( startTime.getMillis() ) };
 
-		selection = appendLocationHostname( context, locationProfile, selection, ProgramGroupConstants.TABLE_NAME );
+		selection = appendLocationHostname( context, locationProfile, selection, ProgramConstants.TABLE_NAME_GUIDE );
 		
 		Program program = findOne( context, ProgramConstants.CONTENT_URI_GUIDE, null, selection, selectionArgs, null, ProgramConstants.TABLE_NAME_GUIDE );
 		if( null != program ) {
@@ -191,76 +191,124 @@ public class ProgramGuideDaoHelper extends ProgramDaoHelper {
 	}
 
 	/* (non-Javadoc)
-	 * @see org.mythtv.db.dvr.ProgramDaoHelper#load(java.util.List)
+	 * @see org.mythtv.db.dvr.ProgramDaoHelper#load(android.content.Context, org.mythtv.client.ui.preferences.LocationProfile, java.util.List)
 	 */
 	@Override
-	public int load( final Context context, final LocationProfile locationProfile, List<Program> programs ) throws RemoteException, OperationApplicationException {
-//		Log.d( TAG, "load : enter" );
+	public int load( final Context context, final LocationProfile locationProfile, final List<Program> programs ) throws RemoteException, OperationApplicationException {
+		return 0;
+	}
+
+	/**
+	 * @param context
+	 * @param locationProfile
+	 * @param channelInfos
+	 * @return
+	 * @throws RemoteException
+	 * @throws OperationApplicationException
+	 */
+	public int loadProgramGuide( final Context context, final LocationProfile locationProfile, final List<ChannelInfo> channelInfos ) throws RemoteException, OperationApplicationException {
+		Log.d( TAG, "load : enter" );
 
 		if( null == context ) 
 			throw new RuntimeException( "ProgramDaoHelper is not initialized" );
 		
+		int count = 0;
+		int processed = 0;
+		int totalUpdates = 0;
+		int totalInserts = 0;
+
 		DateTime lastModified = new DateTime();
 		
-		int loaded = -1;
 		ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
 
 		DateTime startDate = new DateTime().withTimeAtStartOfDay();
 		
-//		Log.d( TAG, "load : deleting old" );
+		Log.d( TAG, "load : deleting old" );
 		ops.add(  
-				ContentProviderOperation.newDelete( ProgramConstants.CONTENT_URI_GUIDE )
-				.withSelection( ProgramConstants.FIELD_END_TIME + " <= ?", new String[] { String.valueOf( startDate.getMillis() ) } )
+			ContentProviderOperation.newDelete( ProgramConstants.CONTENT_URI_GUIDE )
+				.withSelection( ProgramConstants.FIELD_END_TIME + " < ?", new String[] { String.valueOf( startDate.getMillis() ) } )
 				.build()
-			);
+		);
+		count++;
 
 		String[] programProjection = new String[] { ProgramConstants._ID };
-		String programSelection = ProgramConstants.FIELD_CHANNEL_ID + " = ? AND " + ProgramConstants.FIELD_START_TIME + " = ?";
+		String programSelection = ProgramConstants.TABLE_NAME_GUIDE + "." + ProgramConstants.FIELD_CHANNEL_ID + " = ? AND " + ProgramConstants.TABLE_NAME_GUIDE + "." + ProgramConstants.FIELD_START_TIME + " = ?";
 		
-		programSelection = appendLocationHostname( context, locationProfile, programSelection, ProgramGroupConstants.TABLE_NAME );
+		programSelection = appendLocationHostname( context, locationProfile, programSelection, ProgramConstants.TABLE_NAME_GUIDE );
 		
-		for( Program program : programs ) {
-
-			DateTime startTime = new DateTime( program.getStartTime() );
+		for( ChannelInfo channel : channelInfos ) {
 			
-			ContentValues programValues = convertProgramToContentValues( locationProfile, lastModified, program );
-			Cursor programCursor = context.getContentResolver().query( ProgramConstants.CONTENT_URI_GUIDE, programProjection, programSelection, new String[] { String.valueOf( program.getChannelInfo().getChannelId() ), String.valueOf( startTime.getMillis() ) }, null );
-			if( programCursor.moveToFirst() ) {
-//				Log.v( TAG, "load : UPDATE channel=" + program.getChannelInfo().getChannelNumber() + ", startTime=" + DateUtils.dateTimeFormatterPretty.print( startTime ) );
-
-				Long id = programCursor.getLong( programCursor.getColumnIndexOrThrow( ProgramConstants._ID ) );
-				ops.add( 
-						ContentProviderOperation.newUpdate( ContentUris.withAppendedId( ProgramConstants.CONTENT_URI_GUIDE, id ) )
-							.withValues( programValues )
-							.withYieldAllowed( true )
-							.build()
-					);
+			ChannelInfo channelInfo = mChannelDaoHelper.findByChannelId( context, locationProfile, (long) channel.getChannelId() );
+			if( null != channelInfo ) {
 				
-			} else {
-//				Log.v( TAG, "load : INSERT channel=" + program.getChannelInfo().getChannelNumber() + ", startTime=" + DateUtils.dateTimeFormatterPretty.print( startTime ) );
+				for( Program program : channel.getPrograms() ) {
 
-				ops.add(  
-						ContentProviderOperation.newInsert( ProgramConstants.CONTENT_URI_GUIDE )
-							.withValues( programValues )
-							.withYieldAllowed( true )
-							.build()
-					);
+					program.setChannelInfo( channelInfo );
+					
+					DateTime startTime = new DateTime( program.getStartTime() );
+					
+					ContentValues programValues = convertProgramToContentValues( locationProfile, lastModified, program );
+					Cursor programCursor = context.getContentResolver().query( ProgramConstants.CONTENT_URI_GUIDE, programProjection, programSelection, new String[] { String.valueOf( program.getChannelInfo().getChannelId() ), String.valueOf( startTime.getMillis() ) }, null );
+					if( programCursor.moveToFirst() ) {
+//						Log.v( TAG, "load : UPDATE channel=" + program.getChannelInfo().getChannelNumber() + ", startTime=" + DateUtils.dateTimeFormatterPretty.print( startTime ) );
+
+						Long id = programCursor.getLong( programCursor.getColumnIndexOrThrow( ProgramConstants._ID ) );
+						ops.add( 
+							ContentProviderOperation.newUpdate( ContentUris.withAppendedId( ProgramConstants.CONTENT_URI_GUIDE, id ) )
+								.withValues( programValues )
+								.withYieldAllowed( true )
+								.build()
+						);
+						totalUpdates++;
+						
+					} else {
+//						Log.v( TAG, "load : INSERT channel=" + program.getChannelInfo().getChannelNumber() + ", startTime=" + DateUtils.dateTimeFormatterPretty.print( startTime ) );
+
+						ops.add(  
+							ContentProviderOperation.newInsert( ProgramConstants.CONTENT_URI_GUIDE )
+								.withValues( programValues )
+								.withYieldAllowed( true )
+								.build()
+						);
+						totalInserts++;
+					}
+					programCursor.close();
+					count++;
+					
+					if( count > BATCH_COUNT_LIMIT ) {
+						Log.v( TAG, "process : batch update/insert" );
+
+						if( !ops.isEmpty() ) {
+
+							ContentProviderResult[] results = context.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
+							processed += results.length;
+
+							if( results.length > 0 ) {
+								ops.clear();
+							}
+						}
+
+						count = 0;
+					}
+
+				}
+
 			}
-			programCursor.close();
 
 		}
 		
 		if( !ops.isEmpty() ) {
-			
+			Log.v( TAG, "process : final batch " + count );
+
 			ContentProviderResult[] results = context.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
-//			for( ContentProviderResult result : results ) {
-//				Log.i( TAG, "load : result=" + result.toString() );
-//			}
-			loaded = results.length;
+			processed += results.length;
 		}
 
-//		Log.d( TAG, "load : exit" );
-		return loaded;
+		Log.d( TAG, "load : processed: " + processed );
+		Log.d( TAG, "load : totalUpdates: " + totalUpdates );
+		Log.d( TAG, "load : totalInserts: " + totalInserts );
+		Log.d( TAG, "load : exit" );
+		return processed;
 	}
 
 }

@@ -357,27 +357,27 @@ public class GuideFragment extends AbstractMythFragment implements OnClickListen
 	        	Log.i( TAG, "ProgramGuideCleanupReceiver.onReceive : " + intent.getStringExtra( ProgramGuideCleanupService.EXTRA_COMPLETE ) );
 	        	Log.i( TAG, "ProgramGuideCleanupReceiver.onReceive : " + intent.getIntExtra( ProgramGuideCleanupService.EXTRA_COMPLETE_COUNT, 0 ) + " files cleaned up" );
 
-	    		FilenameFilter filter = new FilenameFilter() {
-	    		    
-	    			public boolean accept( File directory, String fileName ) {
-	    				
-	    	            return fileName.startsWith( mLocationProfile.getHostname() + "_" ) &&
-	    	            		fileName.endsWith( ProgramGuideDownloadService.FILENAME_EXT );
-	    	        }
-	    			
-	    	    };
-	    		
-	        	File programGuideCache = FileHelper.getInstance().getProgramGuideDataDirectory();
-	    		if( null != programGuideCache && programGuideCache.exists() ) {
-		        	Log.i( TAG, "ProgramGuideCleanupReceiver.onReceive : programGuide count=" + programGuideCache.list( filter ).length );
-	    			
-	    			if( programGuideCache.list( filter ).length < ProgramGuideDownloadService.MAX_HOURS ) {
-	    				if( !mRunningServiceHelper.isServiceRunning( getActivity(), "org.mythtv.service.guide.ProgramGuideDownloadService" ) ) {
-		    				getActivity().startService( new Intent( ProgramGuideDownloadService.ACTION_DOWNLOAD ) );
-	    				}
-	    			}
-	    			
-	    		}
+//	    		FilenameFilter filter = new FilenameFilter() {
+//	    		    
+//	    			public boolean accept( File directory, String fileName ) {
+//	    				
+//	    	            return fileName.startsWith( mLocationProfile.getHostname() + "_" ) &&
+//	    	            		fileName.endsWith( ProgramGuideDownloadService.FILENAME_EXT );
+//	    	        }
+//	    			
+//	    	    };
+//	    		
+//	        	File programGuideCache = FileHelper.getInstance().getProgramGuideDataDirectory();
+//	    		if( null != programGuideCache && programGuideCache.exists() ) {
+//		        	Log.i( TAG, "ProgramGuideCleanupReceiver.onReceive : programGuide count=" + programGuideCache.list( filter ).length );
+//	    			
+//	    			if( programGuideCache.list( filter ).length < ProgramGuideDownloadService.MAX_HOURS ) {
+//	    				if( !mRunningServiceHelper.isServiceRunning( getActivity(), "org.mythtv.service.guide.ProgramGuideDownloadService" ) ) {
+//		    				getActivity().startService( new Intent( ProgramGuideDownloadService.ACTION_DOWNLOAD ) );
+//	    				}
+//	    			}
+//	    			
+//	    		}
 	    		
 	        }
 	        

@@ -189,8 +189,9 @@
 		
 		<service android:name=".service.guide.ProgramGuideDownloadServiceNew" android:process=":programGuideNew" android:exported="false">
 			<intent-filter>
-                <action
-                    android:name="org.mythtv.background.programGuideDownloadNew.ACTION_DOWNLOAD" />
+                <action android:name="org.mythtv.background.programGuideDownloadNew.ACTION_DOWNLOAD" />
+                <action android:name="org.mythtv.background.programGuideDownloadNew.ACTION_PROGRESS" />
+                <action android:name="org.mythtv.background.programGuideDownloadNew.ACTION_COMPLETE" />
             </intent-filter>
         </service>
 		

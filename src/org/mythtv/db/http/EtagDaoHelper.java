@@ -77,7 +77,7 @@ public class EtagDaoHelper extends AbstractDaoHelper {
 	 * @return
 	 */
 	public List<EtagInfoDelegate> findAll( final Context context, final LocationProfile locationProfile, String[] projection, String selection, String[] selectionArgs, String sortOrder ) {
-		Log.d( TAG, "findAll : enter" );
+//		Log.d( TAG, "findAll : enter" );
 		
 		if( null == context ) 
 			throw new RuntimeException( "EtagDaoHelper is not initialized" );
@@ -93,7 +93,7 @@ public class EtagDaoHelper extends AbstractDaoHelper {
 		}
 		cursor.close();
 
-		Log.d( TAG, "findAll : exit" );
+//		Log.d( TAG, "findAll : exit" );
 		return etagInfos;
 	}
 	
@@ -101,11 +101,11 @@ public class EtagDaoHelper extends AbstractDaoHelper {
 	 * @return
 	 */
 	public List<EtagInfoDelegate> finalAll( final Context context, final LocationProfile locationProfile ) {
-		Log.d( TAG, "findAll : enter" );
+//		Log.d( TAG, "findAll : enter" );
 		
 		List<EtagInfoDelegate> etagInfos = findAll( context, locationProfile, null, null, null, null );
 		
-		Log.d( TAG, "findAll : exit" );
+//		Log.d( TAG, "findAll : exit" );
 		return etagInfos;
 	}
 	
@@ -118,7 +118,7 @@ public class EtagDaoHelper extends AbstractDaoHelper {
 	 * @return
 	 */
 	public EtagInfoDelegate findOne( final Context context, final LocationProfile locationProfile, Long id, String[] projection, String selection, String[] selectionArgs, String sortOrder ) {
-		Log.d( TAG, "findOne : enter" );
+//		Log.d( TAG, "findOne : enter" );
 		
 		if( null == context ) 
 			throw new RuntimeException( "EtagDaoHelper is not initialized" );
@@ -131,7 +131,7 @@ public class EtagDaoHelper extends AbstractDaoHelper {
 		}
 		
 		selection = appendLocationHostname( context, locationProfile, selection, EtagConstants.TABLE_NAME );
-		Log.i( TAG, "findOne : selection=" + selection );
+//		Log.i( TAG, "findOne : selection=" + selection );
 		
 		Cursor cursor = context.getContentResolver().query( uri, projection, selection, selectionArgs, sortOrder );
 		if( cursor.moveToFirst() ) {
@@ -139,7 +139,7 @@ public class EtagDaoHelper extends AbstractDaoHelper {
 		}
 		cursor.close();
 		
-		Log.d( TAG, "findOne : exit" );
+//		Log.d( TAG, "findOne : exit" );
 		return etagInfo;
 	}
 	
@@ -148,11 +148,11 @@ public class EtagDaoHelper extends AbstractDaoHelper {
 	 * @return
 	 */
 	public EtagInfoDelegate findOne( final Context context, final LocationProfile locationProfile, final Long id ) {
-		Log.d( TAG, "findOne : enter" );
+//		Log.d( TAG, "findOne : enter" );
 		
 		EtagInfoDelegate etagInfo = findOne( context, locationProfile, id, null, null, null, null );
 		
-		Log.d( TAG, "findOne : exit" );
+//		Log.d( TAG, "findOne : exit" );
 		return etagInfo;
 	}
 
@@ -162,7 +162,7 @@ public class EtagDaoHelper extends AbstractDaoHelper {
 	 * @return
 	 */
 	public EtagInfoDelegate findByEndpointAndDataId( final Context context, final LocationProfile locationProfile, final String endpoint, final String dataId ) {
-		Log.d( TAG, "findByEndpointAndDataId : enter" );
+//		Log.d( TAG, "findByEndpointAndDataId : enter" );
 		
 		if( null == context ) 
 			throw new RuntimeException( "EtagDaoHelper is not initialized" );
@@ -179,12 +179,12 @@ public class EtagDaoHelper extends AbstractDaoHelper {
 		
 		EtagInfoDelegate etagInfo = findOne( context, locationProfile, null, null, selection, selectionArgs, null );
 		
-		Log.d( TAG, "findByEndpointAndDataId : exit" );
+//		Log.d( TAG, "findByEndpointAndDataId : exit" );
 		return etagInfo;
 	}
 
 	public DateTime findDateByEndpointAndDataId( final Context context, final LocationProfile locationProfile, final String endpoint, final String dataId ) {
-		Log.d( TAG, "findDateByEndpointAndDataId : enter" );
+//		Log.d( TAG, "findDateByEndpointAndDataId : enter" );
 		
 		if( null == context ) 
 			throw new RuntimeException( "EtagDaoHelper is not initialized" );
@@ -208,7 +208,7 @@ public class EtagDaoHelper extends AbstractDaoHelper {
 		}
 		cursor.close();
 		
-		Log.d( TAG, "findDateByEndpointAndDataId : exit" );
+//		Log.d( TAG, "findDateByEndpointAndDataId : exit" );
 		return etag;
 	}
 
@@ -217,7 +217,7 @@ public class EtagDaoHelper extends AbstractDaoHelper {
 	 * @return
 	 */
 	public int save( final Context context, final LocationProfile locationProfile, final EtagInfoDelegate etagInfo ) {
-		Log.d( TAG, "save : enter" );
+//		Log.d( TAG, "save : enter" );
 
 		if( null == context ) 
 			throw new RuntimeException( "EtagDaoHelper is not initialized" );
@@ -239,7 +239,7 @@ public class EtagDaoHelper extends AbstractDaoHelper {
 		int updated = -1;
 		Cursor cursor = context.getContentResolver().query( EtagConstants.CONTENT_URI, new String[] { EtagConstants._ID }, selection, selectionArgs, null );
 		if( cursor.moveToFirst() ) {
-			Log.v( TAG, "save : updating existing etag info" );
+//			Log.v( TAG, "save : updating existing etag info" );
 			Long id = cursor.getLong( cursor.getColumnIndexOrThrow( EtagConstants._ID ) );
 
 			updated = context.getContentResolver().update( ContentUris.withAppendedId( EtagConstants.CONTENT_URI, id ), values, null, null );
@@ -250,9 +250,9 @@ public class EtagDaoHelper extends AbstractDaoHelper {
 			}
 		}
 		cursor.close();
-		Log.v( TAG, "save : updated=" + updated );
+//		Log.v( TAG, "save : updated=" + updated );
 
-		Log.d( TAG, "save : exit" );
+//		Log.d( TAG, "save : exit" );
 		return updated;
 	}
 
@@ -260,15 +260,15 @@ public class EtagDaoHelper extends AbstractDaoHelper {
 	 * @return
 	 */
 	public int deleteAll( Context context ) {
-		Log.d( TAG, "deleteAll : enter" );
+//		Log.d( TAG, "deleteAll : enter" );
 		
 		if( null == context ) 
 			throw new RuntimeException( "EtagDaoHelper is not initialized" );
 		
 		int deleted = context.getContentResolver().delete( EtagConstants.CONTENT_URI, null, null );
-		Log.v( TAG, "deleteAll : deleted=" + deleted );
+//		Log.v( TAG, "deleteAll : deleted=" + deleted );
 		
-		Log.d( TAG, "deleteAll : exit" );
+//		Log.d( TAG, "deleteAll : exit" );
 		return deleted;
 	}
 
@@ -277,7 +277,7 @@ public class EtagDaoHelper extends AbstractDaoHelper {
 	 * @return
 	 */
 	public int delete( final Context context, final LocationProfile locationProfile, final EtagInfoDelegate etag ) {
-		Log.d( TAG, "delete : enter" );
+//		Log.d( TAG, "delete : enter" );
 		
 		if( null == context ) 
 			throw new RuntimeException( "EtagDaoHelper is not initialized" );
@@ -295,9 +295,9 @@ public class EtagDaoHelper extends AbstractDaoHelper {
 		selection = appendLocationHostname( context, locationProfile, selection, EtagConstants.TABLE_NAME );
 
 		int deleted = context.getContentResolver().delete( EtagConstants.CONTENT_URI, selection, selectionArgs );
-		Log.v( TAG, "delete : deleted=" + deleted );
+//		Log.v( TAG, "delete : deleted=" + deleted );
 		
-		Log.d( TAG, "delete : exit" );
+//		Log.d( TAG, "delete : exit" );
 		return deleted;
 	}
 
