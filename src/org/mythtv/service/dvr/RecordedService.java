@@ -131,7 +131,6 @@ public class RecordedService extends MythtvService {
 		if ( intent.getAction().equals( ACTION_DOWNLOAD ) ) {
     		Log.i( TAG, "onHandleIntent : DOWNLOAD action selected" );
 
-    		Programs programs = null;
     		try {
     			sendNotification();
 
@@ -146,9 +145,7 @@ public class RecordedService extends MythtvService {
 
     			Intent completeIntent = new Intent( ACTION_COMPLETE );
     			completeIntent.putExtra( EXTRA_COMPLETE, "Recorded Programs Download Service Finished" );
-    			if( null == programs ) {
-    				completeIntent.putExtra( EXTRA_COMPLETE_UPTODATE, passed );
-    			}
+   				completeIntent.putExtra( EXTRA_COMPLETE_UPTODATE, passed );
     			
     			sendBroadcast( completeIntent );
     		}
