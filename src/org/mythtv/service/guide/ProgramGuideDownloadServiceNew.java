@@ -161,8 +161,8 @@ public class ProgramGuideDownloadServiceNew extends MythtvService {
 			id = etagCursor.getLong( etagCursor.getColumnIndexOrThrow( EtagConstants._ID ) );
 			String value = etagCursor.getString( etagCursor.getColumnIndexOrThrow( EtagConstants.FIELD_VALUE ) );
 			
-			etag.setETag( value );
-			Log.v( TAG, "download : etag=" + etag.getETag() );
+			etag.setValue( value );
+			Log.v( TAG, "download : etag=" + etag.getValue() );
 		}
 		etagCursor.close();
 
@@ -181,10 +181,10 @@ public class ProgramGuideDownloadServiceNew extends MythtvService {
 					
 				}
 
-				if( null != etag.getETag() ) {
+				if( null != etag.getValue() ) {
 					ContentValues values = new ContentValues();
 					values.put( EtagConstants.FIELD_ENDPOINT, endpoint );
-					values.put( EtagConstants.FIELD_VALUE, etag.getETag() );
+					values.put( EtagConstants.FIELD_VALUE, etag.getValue() );
 					values.put( EtagConstants.FIELD_DATE, ( new DateTime() ).getMillis() );
 
 					if( null == id ) {
@@ -204,10 +204,10 @@ public class ProgramGuideDownloadServiceNew extends MythtvService {
 			
 			if( responseEntity.getStatusCode().equals( HttpStatus.NOT_MODIFIED ) ) {
 				
-				if( null != etag.getETag() ) {
+				if( null != etag.getValue() ) {
 					ContentValues values = new ContentValues();
 					values.put( EtagConstants.FIELD_ENDPOINT, endpoint );
-					values.put( EtagConstants.FIELD_VALUE, etag.getETag() );
+					values.put( EtagConstants.FIELD_VALUE, etag.getValue() );
 					values.put( EtagConstants.FIELD_DATE, ( new DateTime() ).getMillis() );
 
 					Log.v( TAG, "download : updating existing etag" );

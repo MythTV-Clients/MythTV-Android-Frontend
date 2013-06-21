@@ -22,7 +22,6 @@ import java.io.File;
 import java.io.IOException;
 import java.text.DecimalFormat;
 
-import org.apache.commons.io.FileUtils;
 import org.joda.time.DateTime;
 import org.mythtv.R;
 import org.mythtv.client.ui.preferences.LocationProfile;
@@ -165,11 +164,9 @@ public class UpcomingDownloadService extends MythtvService {
 				
 				if( null != programList.getPrograms() ) {
 					
-//					cleanup();
-				
 					process( programList.getPrograms(), locationProfile );
 				
-					if( null != etag.getETag() ) {
+					if( null != etag.getValue() ) {
 						
 						etag.setEndpoint( Endpoint.GET_UPCOMING_LIST.name() );
 						etag.setDate( new DateTime() );
@@ -187,7 +184,7 @@ public class UpcomingDownloadService extends MythtvService {
 		if( responseEntity.getStatusCode().equals( HttpStatus.NOT_MODIFIED ) ) {
 			Log.i( TAG, "download : " + Endpoint.GET_UPCOMING_LIST.getEndpoint() + " returned 304 Not Modified" );
 			
-			if( null != etag.getETag() ) {
+			if( null != etag.getValue() ) {
 
 				etag.setDate( new DateTime() );
 				etag.setLastModified( new DateTime() );
@@ -199,14 +196,6 @@ public class UpcomingDownloadService extends MythtvService {
 		Log.v( TAG, "download : exit" );
 	}
 
-	private void cleanup() throws IOException {
-		Log.v( TAG, "cleanup : enter" );
-		
-		FileUtils.cleanDirectory( upcomingDirectory );
-
-		Log.v( TAG, "cleanup : exit" );
-	}
-	
 	private void process( Programs programs, final LocationProfile locationProfile ) throws JsonGenerationException, JsonMappingException, IOException, RemoteException, OperationApplicationException {
 		Log.v( TAG, "process : enter" );
 		

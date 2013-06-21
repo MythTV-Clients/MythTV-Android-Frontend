@@ -63,28 +63,16 @@ public class EtagInfoDelegate extends ETagInfo {
 	 * @return the value
 	 */
 	public String getValue() {
-		return value;
+		return getETag();
 	}
 
 	/**
 	 * @param value the value to set
 	 */
 	public void setValue( String value ) {
-		if( null == this.value ) {
-			if( null == value ) {
-				newETag = false;
-			} else {
-				this.value = value;
-				newETag = true;
-			}
-		} else {
-			if(!this.value.equals( value ) ) {
-				this.value = value;
-				newETag = true;
-			} else {
-				newETag = false;
-			}
-		}
+		setETag( value );
+		
+		value = getETag();
 	}
 
 	/**

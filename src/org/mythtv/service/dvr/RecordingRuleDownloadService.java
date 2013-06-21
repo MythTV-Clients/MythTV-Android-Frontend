@@ -164,8 +164,8 @@ public class RecordingRuleDownloadService extends MythtvService {
 
 				process( recRuleList.getRecRules(), locationProfile );	
 
-				if( null != etag.getETag() ) {
-					Log.i( TAG, "download : saving etag: " + etag.getETag() );
+				if( null != etag.getValue() ) {
+					Log.i( TAG, "download : saving etag: " + etag.getValue() );
 
 					etag.setEndpoint( Endpoint.GET_RECORD_SCHEDULE_LIST.name() );
 					etag.setDate( new DateTime() );
@@ -181,7 +181,7 @@ public class RecordingRuleDownloadService extends MythtvService {
 		if( responseEntity.getStatusCode().equals( HttpStatus.NOT_MODIFIED ) ) {
 			Log.i( TAG, "download : " + Endpoint.GET_RECORD_SCHEDULE_LIST.getEndpoint() + " returned 304 Not Modified" );
 
-			if( null != etag.getETag() ) {
+			if( null != etag.getValue() ) {
 				etag.setDate( new DateTime() );
 				etag.setLastModified( new DateTime() );
 				mEtagDaoHelper.save( this, locationProfile, etag );
