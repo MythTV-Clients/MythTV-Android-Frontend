@@ -30,7 +30,6 @@ import android.util.Log;
 public class RecordingRuleDaoHelper extends AbstractDaoHelper {
 
 	private static final String TAG = RecordingRuleDaoHelper.class.getSimpleName();
-	private static final int BATCH_COUNT_LIMIT = 99;
 	
 	private static RecordingRuleDaoHelper singleton = null;
 

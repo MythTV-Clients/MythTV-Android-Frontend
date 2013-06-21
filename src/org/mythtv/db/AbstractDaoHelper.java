@@ -33,6 +33,8 @@ import android.text.TextUtils;
  */
 public abstract class AbstractDaoHelper {
 
+	protected static final int BATCH_COUNT_LIMIT = 99;
+
 	protected LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
 	
 	protected AbstractDaoHelper() { }
