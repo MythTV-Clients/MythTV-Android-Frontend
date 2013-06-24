@@ -25,7 +25,7 @@ import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.preferences.LocationProfile.LocationType;
 import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.db.http.EtagDaoHelper;
-import org.mythtv.db.http.EtagInfoDelegate;
+import org.mythtv.db.http.model.EtagInfoDelegate;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.channel.ChannelDownloadService;
 import org.mythtv.service.dvr.RecordedService;
@@ -35,7 +35,6 @@ import org.mythtv.service.frontends.FrontendsDiscoveryService;
 import org.mythtv.service.guide.ProgramGuideDownloadServiceNew;
 import org.mythtv.service.util.MythtvServiceHelper;
 import org.mythtv.service.util.RunningServiceHelper;
-import org.mythtv.services.api.channel.impl.ChannelTemplate;
 import org.mythtv.services.api.dvr.impl.DvrTemplate;
 import org.mythtv.services.api.dvr.impl.DvrTemplate.Endpoint;
 import org.mythtv.services.api.guide.impl.GuideTemplate;
@@ -312,23 +311,7 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
 
     private void checkChannelDownloadService() {
  
-		LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
-		DateTime etag = mEtagDaoHelper.findDateByEndpointAndDataId( getActivity(), locationProfile, ChannelTemplate.Endpoint.GET_CHANNEL_INFO_LIST.name(), "" );
-		if( null != etag ) {
-			
-			DateTime now = new DateTime();
-			if( now.getMillis() - etag.getMillis() > 86400000 ) {
-				startChannelDownloadService();
-			} else {
-				checkRecordedDownloadService();
-				checkUpcomingDownloadService();
-				checkRecordingRulesDownloadService();
-				checkProgramGuideDownloadService();
-			}
-			
-		} else {
-			startChannelDownloadService();
-		}
+		startChannelDownloadService();
 
     }
     
@@ -460,7 +443,11 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
 	        if ( intent.getAction().equals( ChannelDownloadService.ACTION_COMPLETE ) ) {
 	        	Log.i( TAG, "ProgramGuideDownloadReceiver.onReceive : " + intent.getStringExtra( ChannelDownloadService.EXTRA_COMPLETE ) );
 	        	
-        		Toast.makeText( getActivity(), "Channels Updated!", Toast.LENGTH_SHORT ).show();
+	        	if( intent.getBooleanExtra( ChannelDownloadService.EXTRA_COMPLETE_UPTODATE, true ) ) {
+	        		Toast.makeText( getActivity(), "Channels are up to date!", Toast.LENGTH_SHORT ).show();
+	        	} else {
+	        		Toast.makeText( getActivity(), "Channels are NOT up to date!", Toast.LENGTH_SHORT ).show();
+	        	}
 
         		checkRecordedDownloadService();
         		checkUpcomingDownloadService();

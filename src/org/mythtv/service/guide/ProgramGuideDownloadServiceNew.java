@@ -23,9 +23,8 @@ import java.io.IOException;
 
 import org.joda.time.DateTime;
 import org.mythtv.client.ui.preferences.LocationProfile;
-import org.mythtv.db.channel.ChannelDaoHelper;
 import org.mythtv.db.dvr.ProgramGuideDaoHelper;
-import org.mythtv.db.http.EtagInfoDelegate;
+import org.mythtv.db.http.model.EtagInfoDelegate;
 import org.mythtv.service.MythtvService;
 import org.mythtv.service.util.DateUtils;
 import org.mythtv.service.util.FileHelper;
@@ -68,7 +67,6 @@ public class ProgramGuideDownloadServiceNew extends MythtvService {
     public static final String EXTRA_COMPLETE_UPTODATE = "COMPLETE_UPTODATE";
     public static final String EXTRA_COMPLETE_OFFLINE = "COMPLETE_OFFLINE";
 
-	private ChannelDaoHelper mChannelDaoHelper = ChannelDaoHelper.getInstance(); 
 	private ProgramGuideDaoHelper mProgramGuideDaoHelper = ProgramGuideDaoHelper.getInstance(); 
 	
 	private File programGuideDirectory = null;

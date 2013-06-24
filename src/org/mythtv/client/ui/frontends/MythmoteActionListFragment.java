@@ -23,7 +23,7 @@ import java.util.List;
 import org.mythtv.R;
 import org.mythtv.client.ui.MainMenuFragment;
 import org.mythtv.client.ui.preferences.LocationProfile;
-import org.mythtv.db.http.EtagInfoDelegate;
+import org.mythtv.db.http.model.EtagInfoDelegate;
 import org.mythtv.services.api.frontend.Action;
 import org.mythtv.services.api.frontend.FrontendActionList;
 import org.springframework.http.ResponseEntity;

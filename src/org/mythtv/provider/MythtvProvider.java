@@ -49,7 +49,7 @@ import android.database.sqlite.SQLiteStatement;
 import android.net.Uri;
 import android.os.Build;
 import android.text.TextUtils;
-import android.util.Log;
+//import android.util.Log;
 
 /**
  * @author Daniel Frey
@@ -57,7 +57,7 @@ import android.util.Log;
  */
 public class MythtvProvider extends AbstractMythtvContentProvider {
 
-	private static final String TAG = MythtvProvider.class.getSimpleName();
+//	private static final String TAG = MythtvProvider.class.getSimpleName();
 	
 	public static final String AUTHORITY = "org.mythtv.frontend";
 	
@@ -182,11 +182,11 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 	 */
 	@Override
 	public boolean onCreate() {
-		Log.v( TAG, "onCreate : enter" );
+//		Log.v( TAG, "onCreate : enter" );
 		
 		database = new DatabaseHelper( getContext() );
 
-		Log.v( TAG, "onCreate : exit" );
+//		Log.v( TAG, "onCreate : exit" );
 		return ( null == database ? false : true );
 	}
 	
@@ -195,7 +195,7 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 	 */
 	@Override
 	public String getType( Uri uri ) {
-		Log.v( TAG, "getType : enter" );
+//		Log.v( TAG, "getType : enter" );
 		
 		switch( URI_MATCHER.match( uri ) ) {
 			case RECORDED:
@@ -302,7 +302,7 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 	 */
 	@Override
 	public int delete( Uri uri, String selection, String[] selectionArgs ) {
-		Log.v( TAG, "delete : enter" );
+//		Log.v( TAG, "delete : enter" );
 	
 		final SQLiteDatabase db = database.getWritableDatabase();
 		
@@ -605,7 +605,7 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 	 */
 	@Override
 	public Uri insert( Uri uri, ContentValues values ) {
-		Log.v( TAG, "insert : enter" );
+//		Log.v( TAG, "insert : enter" );
 
 		final SQLiteDatabase db = database.getWritableDatabase();
 		
@@ -1603,7 +1603,7 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 	 */
 	@Override
 	public int bulkInsert( Uri uri, ContentValues[] values ) {
-		Log.v( TAG, "bulkInsert : enter" );
+//		Log.v( TAG, "bulkInsert : enter" );
 		
 		final SQLiteDatabase db = database.getWritableDatabase();
 
@@ -1611,7 +1611,7 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 
 		switch( URI_MATCHER.match( uri ) ) {
 			case RECORDED:
-				Log.v( TAG, "bulkInsert : inserting recorded programs" );
+//				Log.v( TAG, "bulkInsert : inserting recorded programs" );
 			
 				db.beginTransaction();
 				try {
@@ -1631,7 +1631,7 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				return numInserted;
 			
 			case UPCOMING:
-				Log.v( TAG, "bulkInsert : inserting upcoming programs" );
+//				Log.v( TAG, "bulkInsert : inserting upcoming programs" );
 			
 				db.beginTransaction();
 				try {
@@ -1651,7 +1651,7 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				return numInserted;
 			
 			case GUIDE:
-				Log.v( TAG, "bulkInsert : inserting programs" );
+//				Log.v( TAG, "bulkInsert : inserting programs" );
 			
 				db.beginTransaction();
 				try {
@@ -1783,32 +1783,33 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 					for( ContentValues value : values ) {
 						insert.bindString( 1, value.getAsString( ChannelConstants.FIELD_CHAN_ID ) );
 						insert.bindString( 2, value.getAsString( ChannelConstants.FIELD_CHAN_NUM ) );
-						insert.bindString( 3, value.getAsString( ChannelConstants.FIELD_CALLSIGN ) );
-						insert.bindString( 4, value.getAsString( ChannelConstants.FIELD_ICON_URL ) );
-						insert.bindString( 5, value.getAsString( ChannelConstants.FIELD_CHANNEL_NAME ) );
-						insert.bindLong( 6, value.getAsInteger( ChannelConstants.FIELD_MPLEX_ID ) );
-						insert.bindLong( 7, value.getAsInteger( ChannelConstants.FIELD_TRANSPORT_ID ) );
-						insert.bindLong( 8, value.getAsInteger( ChannelConstants.FIELD_SERVICE_ID ) );
-						insert.bindLong( 9, value.getAsInteger( ChannelConstants.FIELD_NETWORK_ID ) );
-						insert.bindLong( 10, value.getAsInteger( ChannelConstants.FIELD_ATSC_MAJOR_CHAN ) );
-						insert.bindLong( 11, value.getAsInteger( ChannelConstants.FIELD_ATSC_MINOR_CHAN ) );
-						insert.bindString( 12, value.getAsString( ChannelConstants.FIELD_FORMAT ) );
-						insert.bindString( 13, value.getAsString( ChannelConstants.FIELD_MODULATION ) );
-						insert.bindLong( 14, value.getAsInteger( ChannelConstants.FIELD_FREQUENCY ) );
-						insert.bindString( 15, value.getAsString( ChannelConstants.FIELD_FREQUENCY_ID ) );
-						insert.bindString( 16, value.getAsString( ChannelConstants.FIELD_FREQUENCY_TABLE ) );
-						insert.bindLong( 17, value.getAsInteger( ChannelConstants.FIELD_FINE_TUNE ) );
-						insert.bindString( 18, value.getAsString( ChannelConstants.FIELD_SIS_STANDARD ) );
-						insert.bindString( 19, value.getAsString( ChannelConstants.FIELD_CHAN_FILTERS ) );
-						insert.bindLong( 20, value.getAsInteger( ChannelConstants.FIELD_SOURCE_ID ) );
-						insert.bindLong( 21, value.getAsInteger( ChannelConstants.FIELD_INPUT_ID ) );
-						insert.bindLong( 22, value.getAsInteger( ChannelConstants.FIELD_COMM_FREE ) );
-						insert.bindLong( 23, value.getAsInteger( ChannelConstants.FIELD_USE_EIT ) );
-						insert.bindLong( 24, value.getAsInteger( ChannelConstants.FIELD_VISIBLE ) );
-						insert.bindString( 25, value.getAsString( ChannelConstants.FIELD_XMLTV_ID ) );
-						insert.bindString( 26, value.getAsString( ChannelConstants.FIELD_DEFAULT_AUTH ) );
-						insert.bindString( 27, value.getAsString( ChannelConstants.FIELD_MASTER_HOSTNAME ) );
-						insert.bindLong( 28, value.getAsInteger( ChannelConstants.FIELD_LAST_MODIFIED_DATE ) );
+						insert.bindString( 3, value.getAsString( ChannelConstants.FIELD_CHAN_NUM_FORMATTED ) );
+						insert.bindString( 4, value.getAsString( ChannelConstants.FIELD_CALLSIGN ) );
+						insert.bindString( 5, value.getAsString( ChannelConstants.FIELD_ICON_URL ) );
+						insert.bindString( 6, value.getAsString( ChannelConstants.FIELD_CHANNEL_NAME ) );
+						insert.bindLong( 7, value.getAsInteger( ChannelConstants.FIELD_MPLEX_ID ) );
+						insert.bindLong( 8, value.getAsInteger( ChannelConstants.FIELD_TRANSPORT_ID ) );
+						insert.bindLong( 9, value.getAsInteger( ChannelConstants.FIELD_SERVICE_ID ) );
+						insert.bindLong( 10, value.getAsInteger( ChannelConstants.FIELD_NETWORK_ID ) );
+						insert.bindLong( 11, value.getAsInteger( ChannelConstants.FIELD_ATSC_MAJOR_CHAN ) );
+						insert.bindLong( 12, value.getAsInteger( ChannelConstants.FIELD_ATSC_MINOR_CHAN ) );
+						insert.bindString( 13, value.getAsString( ChannelConstants.FIELD_FORMAT ) );
+						insert.bindString( 14, value.getAsString( ChannelConstants.FIELD_MODULATION ) );
+						insert.bindLong( 15, value.getAsInteger( ChannelConstants.FIELD_FREQUENCY ) );
+						insert.bindString( 16, value.getAsString( ChannelConstants.FIELD_FREQUENCY_ID ) );
+						insert.bindString( 17, value.getAsString( ChannelConstants.FIELD_FREQUENCY_TABLE ) );
+						insert.bindLong( 18, value.getAsInteger( ChannelConstants.FIELD_FINE_TUNE ) );
+						insert.bindString( 19, value.getAsString( ChannelConstants.FIELD_SIS_STANDARD ) );
+						insert.bindString( 20, value.getAsString( ChannelConstants.FIELD_CHAN_FILTERS ) );
+						insert.bindLong( 21, value.getAsInteger( ChannelConstants.FIELD_SOURCE_ID ) );
+						insert.bindLong( 22, value.getAsInteger( ChannelConstants.FIELD_INPUT_ID ) );
+						insert.bindLong( 23, value.getAsInteger( ChannelConstants.FIELD_COMM_FREE ) );
+						insert.bindLong( 24, value.getAsInteger( ChannelConstants.FIELD_USE_EIT ) );
+						insert.bindLong( 25, value.getAsInteger( ChannelConstants.FIELD_VISIBLE ) );
+						insert.bindString( 26, value.getAsString( ChannelConstants.FIELD_XMLTV_ID ) );
+						insert.bindString( 27, value.getAsString( ChannelConstants.FIELD_DEFAULT_AUTH ) );
+						insert.bindString( 28, value.getAsString( ChannelConstants.FIELD_MASTER_HOSTNAME ) );
+						insert.bindLong( 29, value.getAsInteger( ChannelConstants.FIELD_LAST_MODIFIED_DATE ) );
 						insert.execute();
 					}
 					db.setTransactionSuccessful();
@@ -2038,8 +2039,13 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 		String channelProjection[] = ChannelConstants.COLUMN_MAP;
 		for( String col : channelProjection ) {
 
-			String qualifiedCol = ChannelConstants.TABLE_NAME + "." + col;
-			columnMap.put( qualifiedCol, qualifiedCol + " as " + ChannelConstants.TABLE_NAME + "_" + col );
+			if( !"_id".equals( col ) ) {
+				String qualifiedCol = ChannelConstants.TABLE_NAME + "." + col;
+				columnMap.put( qualifiedCol, qualifiedCol + " as " + ChannelConstants.TABLE_NAME + "_" + col );
+			} else {
+				String qualifiedCol = ChannelConstants.TABLE_NAME + "." + col;
+				columnMap.put( qualifiedCol, qualifiedCol + " as " + col );
+			}
 		}
 		
 		return columnMap;

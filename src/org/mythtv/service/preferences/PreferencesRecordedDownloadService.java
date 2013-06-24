@@ -19,7 +19,7 @@
 package org.mythtv.service.preferences;
 
 import org.mythtv.client.ui.preferences.LocationProfile;
-import org.mythtv.db.http.EtagInfoDelegate;
+import org.mythtv.db.http.model.EtagInfoDelegate;
 import org.mythtv.db.preferences.LocationProfileConstants;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.MythtvService;

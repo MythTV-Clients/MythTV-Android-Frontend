@@ -29,7 +29,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
-import android.util.Log;
+//import android.util.Log;
 
 /**
  * @author Daniel Frey
@@ -37,7 +37,7 @@ import android.util.Log;
  */
 public class LocationProfileDaoHelper {
 
-	private static final String TAG = LocationProfileDaoHelper.class.getSimpleName();
+//	private static final String TAG = LocationProfileDaoHelper.class.getSimpleName();
 	
 	private static LocationProfileDaoHelper singleton = null;
 	

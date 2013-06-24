@@ -319,7 +319,7 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 				if( channelCursor.moveToFirst() ) {
 //					Log.v( TAG, "load : updating channel " + channel.getChannelId() );
 
-					Long id = channelCursor.getLong( channelCursor.getColumnIndexOrThrow( ChannelConstants.TABLE_NAME + "_" + ChannelConstants._ID ) );
+					Long id = channelCursor.getLong( channelCursor.getColumnIndexOrThrow( ChannelConstants.TABLE_NAME + ChannelConstants._ID ) );
 					ops.add( 
 						ContentProviderOperation.newUpdate( ContentUris.withAppendedId( ChannelConstants.CONTENT_URI, id ) )
 							.withValues( channelValues )
@@ -407,7 +407,7 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 	 * @param cursor
 	 * @return
 	 */
-	public ChannelInfo convertCursorToChannelInfo( Cursor cursor ) {
+	public static ChannelInfo convertCursorToChannelInfo( Cursor cursor ) {
 //		Log.v( TAG, "convertCursorToChannelInfo : enter" );
 
 		int  channelId = -1, multiplexId = -1, transportId = -1, serviceId = -1, networkId = -1, atscMajorChannel = -1, atscMinorChannel = -1, frequency = -1, fineTune = -1, sourceId = -1, inputId = -1, commercialFree = -1, useEit = -1, visible = -1;
@@ -555,7 +555,7 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 
 	// internal helpers
 
-	private ContentValues[] convertChannelInfosToContentValuesArray( final LocationProfile locationProfile, final DateTime lastModified, final List<ChannelInfo> channelInfos ) {
+	public static ContentValues[] convertChannelInfosToContentValuesArray( final LocationProfile locationProfile, final DateTime lastModified, final List<ChannelInfo> channelInfos ) {
 //		Log.v( TAG, "convertChannelInfosToContentValuesArray : enter" );
 		
 		if( null != channelInfos && !channelInfos.isEmpty() ) {
@@ -582,12 +582,27 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 		return null;
 	}
 
-	private ContentValues convertChannelInfoToContentValues( final LocationProfile locationProfile, final DateTime lastModified, final ChannelInfo channelInfo ) {
+	public static ContentValues convertChannelInfoToContentValues( final LocationProfile locationProfile, final DateTime lastModified, final ChannelInfo channelInfo ) {
 //		Log.v( TAG, "convertChannelToContentValues : enter" );
 		
+		String formattedChannelNumber = channelInfo.getChannelNumber();
+		if( null == formattedChannelNumber || formattedChannelNumber.length() == 0 ) {
+			formattedChannelNumber = "0";
+		}
+		if( formattedChannelNumber.length() == 1 ) {
+			formattedChannelNumber = "0" + formattedChannelNumber;
+		}
+		if( formattedChannelNumber.length() == 2 ) {
+			formattedChannelNumber = "0" + formattedChannelNumber;
+		}
+		if( formattedChannelNumber.length() == 3 ) {
+			formattedChannelNumber = "0" + formattedChannelNumber;
+		}
+
 		ContentValues values = new ContentValues();
 		values.put( ChannelConstants.FIELD_CHAN_ID, channelInfo.getChannelId() );
 		values.put( ChannelConstants.FIELD_CHAN_NUM, channelInfo.getChannelNumber() );
+		values.put( ChannelConstants.FIELD_CHAN_NUM_FORMATTED, formattedChannelNumber );
 		values.put( ChannelConstants.FIELD_CALLSIGN, channelInfo.getCallSign() );
 		values.put( ChannelConstants.FIELD_ICON_URL, channelInfo.getIconUrl() );
 		values.put( ChannelConstants.FIELD_CHANNEL_NAME, channelInfo.getChannelName() );

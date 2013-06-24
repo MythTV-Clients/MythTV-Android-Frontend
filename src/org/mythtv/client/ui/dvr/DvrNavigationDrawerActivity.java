@@ -22,7 +22,7 @@ import org.mythtv.client.ui.dvr.navigationDrawer.DvrVersionRow;
 import org.mythtv.client.ui.navigationDrawer.Row;
 import org.mythtv.client.ui.navigationDrawer.TopLevelRowType;
 import org.mythtv.client.ui.preferences.LocationProfile;
-import org.mythtv.db.http.EtagInfoDelegate;
+import org.mythtv.db.http.model.EtagInfoDelegate;
 import org.mythtv.services.api.dvr.impl.DvrTemplate;
 import org.mythtv.services.api.guide.impl.GuideTemplate;
 
@@ -281,17 +281,6 @@ public class DvrNavigationDrawerActivity extends AbstractMythtvFragmentActivity 
 			return rows.get( position ).getView( convertView );
 		}
 		
-		/**
-		 * 
-		 */
-		public void resetConnectedLocationProfile() {
-			
-			setupRowsList();
-			
-			notifyDataSetChanged();
-			navList.invalidateViews();
-		}
-
 		// internal helpers
 		
 		private void setupRowsList() {

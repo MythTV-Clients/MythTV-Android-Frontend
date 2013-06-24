@@ -24,13 +24,14 @@ import java.util.List;
 import org.joda.time.DateTime;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.AbstractDaoHelper;
+import org.mythtv.db.http.model.EtagInfoDelegate;
 
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
-import android.util.Log;
+//import android.util.Log;
 
 
 /**
@@ -39,7 +40,7 @@ import android.util.Log;
  */
 public class EtagDaoHelper extends AbstractDaoHelper {
 
-	private static final String TAG = EtagDaoHelper.class.getSimpleName();
+//	private static final String TAG = EtagDaoHelper.class.getSimpleName();
 	
 	private static EtagDaoHelper singleton = null;
 

@@ -25,7 +25,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.mythtv.client.MainApplication;
-import org.mythtv.db.http.EtagInfoDelegate;
+import org.mythtv.db.http.model.EtagInfoDelegate;
 import org.mythtv.service.util.MythtvServiceHelper;
 import org.mythtv.services.api.capture.CaptureCard;
 import org.mythtv.services.api.capture.CaptureCardList;

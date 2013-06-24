@@ -432,7 +432,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 	 * @param cursor
 	 * @return
 	 */
-	public Program convertCursorToProgram( Cursor cursor, final String table ) {
+	public static Program convertCursorToProgram( Cursor cursor, final String table ) {
 //		Log.v( TAG, "convertCursorToProgram : enter" );
 
 //		Long id = null;
@@ -546,21 +546,17 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		}
 		
 		if( cursor.getColumnIndex( ProgramConstants.FIELD_CHANNEL_ID ) != -1 ) {
-			channelInfo = mChannelDaoHelper.convertCursorToChannelInfo( cursor );
+			channelInfo = ChannelDaoHelper.convertCursorToChannelInfo( cursor );
 		}
 		
 		if( cursor.getColumnIndex( ProgramConstants.FIELD_RECORD_ID ) != -1 ) {
-			recording = mRecordingDaoHelper.convertCursorToRecording( cursor, table );
+			recording = RecordingDaoHelper.convertCursorToRecording( cursor, table );
 		}
 		
 		if( cursor.getColumnIndex( LiveStreamConstants.TABLE_NAME + "_" + LiveStreamConstants.FIELD_ID ) != -1 ) {
-			liveStreamInfo = mLiveStreamDaoHelper.convertCursorToLiveStreamInfo( cursor );
+			liveStreamInfo = LiveStreamDaoHelper.convertCursorToLiveStreamInfo( cursor );
 		}
 		
-//		if( cursor.getColumnIndex( ProgramConstants.FIELD_ ) != -1 ) {
-//			defaultAuth = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_ ) );
-//		}
-
 		Program program = new Program();
 		program.setStartTime( startTime );
 		program.setEndTime( endTime );
@@ -596,7 +592,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		return program;
 	}
 
-	protected ContentValues[] convertProgramsToContentValuesArray( final LocationProfile locationProfile, final DateTime lastModified, final List<Program> programs ) {
+	protected static ContentValues[] convertProgramsToContentValuesArray( final LocationProfile locationProfile, final DateTime lastModified, final List<Program> programs ) {
 //		Log.v( TAG, "convertProgramsToContentValuesArray : enter" );
 		
 		if( null != programs && !programs.isEmpty() ) {
@@ -623,7 +619,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		return null;
 	}
 
-	protected ContentValues convertProgramToContentValues( final LocationProfile locationProfile, final DateTime lastModified, final Program program ) {
+	protected static ContentValues convertProgramToContentValues( final LocationProfile locationProfile, final DateTime lastModified, final Program program ) {
 		
 		boolean inError;
 		

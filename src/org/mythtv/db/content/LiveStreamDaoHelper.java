@@ -327,7 +327,7 @@ public class LiveStreamDaoHelper extends AbstractDaoHelper {
 	 * @param cursor
 	 * @return
 	 */
-	public LiveStreamInfo convertCursorToLiveStreamInfo( Cursor cursor ) {
+	public static LiveStreamInfo convertCursorToLiveStreamInfo( Cursor cursor ) {
 //		Log.v( TAG, "convertCursorToLiveStreamInfo : enter" );
 
 		int  id = -1, width = -1, height = -1, bitrate = -1, audioBitrate = -1, segmentSize = -1, maxSegments = -1, startSegment = -1, currentSegment = -1, segmentCount = -1, percentComplete = -1, statusInt = -1, sourceWidth = -1, sourceHeight = -1, audioOnlyBitrate = -1;
@@ -467,9 +467,7 @@ public class LiveStreamDaoHelper extends AbstractDaoHelper {
 		return liveStreamInfo;
 	}
 
-	// internal helpers
-
-	private ContentValues[] convertLiveStreamInfosToContentValuesArray( final Context context, final LocationProfile locationProfile, final List<LiveStreamInfo> liveStreamInfos ) {
+	public static ContentValues[] convertLiveStreamInfosToContentValuesArray( final Context context, final LocationProfile locationProfile, final List<LiveStreamInfo> liveStreamInfos ) {
 		Log.v( TAG, "convertLiveStreamInfosToContentValuesArray : enter" );
 		
 		if( null != liveStreamInfos && !liveStreamInfos.isEmpty() ) {
@@ -512,7 +510,7 @@ public class LiveStreamDaoHelper extends AbstractDaoHelper {
 		return null;
 	}
 
-	private ContentValues convertLiveStreamInfoToContentValues( final LocationProfile locationProfile, final LiveStreamInfo liveStreamInfo, final Program program ) {
+	public static ContentValues convertLiveStreamInfoToContentValues( final LocationProfile locationProfile, final LiveStreamInfo liveStreamInfo, final Program program ) {
 //		Log.v( TAG, "convertLiveStreamToContentValues : enter" );
 		
 		ContentValues values = new ContentValues();

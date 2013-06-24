@@ -28,7 +28,7 @@ import org.mythtv.R;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.channel.ChannelDaoHelper;
 import org.mythtv.db.http.EtagDaoHelper;
-import org.mythtv.db.http.EtagInfoDelegate;
+import org.mythtv.db.http.model.EtagInfoDelegate;
 import org.mythtv.service.MythtvService;
 import org.mythtv.service.util.FileHelper;
 import org.mythtv.service.util.NetworkHelper;
@@ -36,6 +36,7 @@ import org.mythtv.services.api.channel.ChannelInfoList;
 import org.mythtv.services.api.channel.ChannelInfos;
 import org.mythtv.services.api.channel.VideoSource;
 import org.mythtv.services.api.channel.VideoSourceList;
+import org.mythtv.services.api.channel.impl.ChannelTemplate;
 import org.mythtv.services.api.channel.impl.ChannelTemplate.Endpoint;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -139,22 +140,52 @@ public class ChannelDownloadService extends MythtvService {
 						for( VideoSource videoSource : videoSourceList.getVideoSources().getVideoSources() ) {
 							Log.i( TAG, "onHandleIntent : videoSourceId = '" + videoSource.getId() + "'" );
 							
-							// Download the channel listing, return list
-							Log.i( TAG, "onHandleIntent : downloading channels" );
-							ChannelInfos channelInfos = download( videoSource.getId(), locationProfile );
-							if( null != channelInfos ) {
-								allChannelLists.add( channelInfos );
+							DateTime date = mEtagDaoHelper.findDateByEndpointAndDataId( this, locationProfile, ChannelTemplate.Endpoint.GET_CHANNEL_INFO_LIST.name(), String.valueOf( videoSource.getId() ) );
+							if( null != date ) {
+								
+								DateTime now = new DateTime();
+								if( now.getMillis() - date.getMillis() > 86400000 ) {
 
-								// Save the file locally
-								Log.i( TAG, "onHandleIntent : save the file locally" );
-								process( videoSource.getId(), channelInfos, locationProfile );
+									// Download the channel listing, return list
+									Log.i( TAG, "onHandleIntent : downloading channels" );
+									ChannelInfos channelInfos = download( videoSource.getId(), locationProfile );
+									if( null != channelInfos ) {
+										allChannelLists.add( channelInfos );
+
+										// Save the file locally
+										Log.i( TAG, "onHandleIntent : save the file locally" );
+										process( videoSource.getId(), channelInfos, locationProfile );
+									}
+
+									// wait a second before downloading the next one (if there are more than one video source)
+									if(  videoSourceList.getVideoSources().getVideoSources().size() > 1 ) {
+										Log.i( TAG, "onHandleIntent : sleeping " + nap + " ms" );
+										Thread.sleep( nap );
+									}
+
+								}
+								
+							} else {
+								
+								// Download the channel listing, return list
+								Log.i( TAG, "onHandleIntent : downloading channels" );
+								ChannelInfos channelInfos = download( videoSource.getId(), locationProfile );
+								if( null != channelInfos ) {
+									allChannelLists.add( channelInfos );
+
+									// Save the file locally
+									Log.i( TAG, "onHandleIntent : save the file locally" );
+									process( videoSource.getId(), channelInfos, locationProfile );
+								}
+
+								// wait a second before downloading the next one (if there are more than one video source)
+								if(  videoSourceList.getVideoSources().getVideoSources().size() > 1 ) {
+									Log.i( TAG, "onHandleIntent : sleeping " + nap + " ms" );
+									Thread.sleep( nap );
+								}
+
 							}
 							
-							// wait a second before downloading the next one (if there are more than one video source)
-							if(  videoSourceList.getVideoSources().getVideoSources().size() > 1 ) {
-								Log.i( TAG, "onHandleIntent : sleeping " + nap + " ms" );
-								Thread.sleep( nap );
-							}
 						}
 
 						// Process the combined lists of downloaded channels
@@ -204,22 +235,16 @@ public class ChannelDownloadService extends MythtvService {
 			ChannelInfoList channelInfoList = responseEntity.getBody();
 			if( null != channelInfoList ) {
 
-				if( null != etag.getValue() ) {
-					Log.i( TAG, "download : " + Endpoint.GET_CHANNEL_INFO_LIST.getEndpoint() + " returned 200 OK" );
-
-					etag.setEndpoint( Endpoint.GET_CHANNEL_INFO_LIST.name() );
-					etag.setDataId( sourceId );
-					etag.setDate( new DateTime() );
-					etag.setMasterHostname( locationProfile.getHostname() );
-					etag.setLastModified( new DateTime() );
-					mEtagDaoHelper.save( this, locationProfile, etag );
-				}
+				etag.setEndpoint( Endpoint.GET_CHANNEL_INFO_LIST.name() );
+				etag.setDataId( sourceId );
+				etag.setDate( new DateTime() );
+				etag.setMasterHostname( locationProfile.getHostname() );
+				etag.setLastModified( new DateTime() );
+				mEtagDaoHelper.save( this, locationProfile, etag );
 
 				if( null != channelInfoList.getChannelInfos() ) {
 					Log.v( TAG, "download : exit, returning channelInfos" );
 
-					etag.setDate( new DateTime() );
-					etag.setLastModified( new DateTime() );
 					return channelInfoList.getChannelInfos();
 				}
 
@@ -227,11 +252,13 @@ public class ChannelDownloadService extends MythtvService {
 
 		}
 
-//		if( responseEntity.getStatusCode().equals( HttpStatus.NOT_MODIFIED ) ) {
-//			Log.i( TAG, "download : " + Endpoint.GET_CHANNEL_INFO_LIST.getEndpoint() + " returned 304 Not Modified" );
-//
-//			mEtagDaoHelper.save( etag, Endpoint.GET_CHANNEL_INFO_LIST.name(), String.valueOf( sourceId ) );
-//		}
+		if( responseEntity.getStatusCode().equals( HttpStatus.NOT_MODIFIED ) ) {
+			Log.i( TAG, "download : " + Endpoint.GET_CHANNEL_INFO_LIST.getEndpoint() + " returned 304 Not Modified" );
+
+			etag.setDate( new DateTime() );
+			etag.setLastModified( new DateTime() );
+			mEtagDaoHelper.save( this, locationProfile, etag );
+		}
 			
 		Log.v( TAG, "download : exit" );
 		return null;
