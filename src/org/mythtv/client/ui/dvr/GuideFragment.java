@@ -20,39 +20,16 @@ package org.mythtv.client.ui.dvr;
 
 //import java.io.File;
 //import java.io.FilenameFilter;
-import org.joda.time.DateTime;
 import org.mythtv.R;
-import org.mythtv.client.MainApplication;
 import org.mythtv.client.ui.AbstractMythFragment;
-import org.mythtv.client.ui.preferences.LocationProfile;
-import org.mythtv.db.channel.ChannelConstants;
-import org.mythtv.db.channel.ChannelDaoHelper;
-import org.mythtv.db.dvr.programGroup.ProgramGroupConstants;
-import org.mythtv.db.preferences.LocationProfileDaoHelper;
-import org.mythtv.service.guide.ProgramGuideCleanupService;
-import org.mythtv.service.util.DateUtils;
-import org.mythtv.services.api.channel.ChannelInfo;
 
-import android.content.Context;
-import android.content.Intent;
-import android.database.Cursor;
-import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
-import android.support.v4.widget.CursorAdapter;
+import android.support.v4.app.FragmentManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.GridView;
-import android.widget.TextView;
-
-import com.nostra13.universalimageloader.core.assist.FailReason;
-import com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener;
+import android.widget.FrameLayout;
 //import org.mythtv.service.util.FileHelper;
 //import org.mythtv.service.util.RunningServiceHelper;
 
@@ -60,133 +37,12 @@ import com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener;
  * @author Daniel Frey
  *
  */
-public class GuideFragment extends AbstractMythFragment implements LoaderManager.LoaderCallbacks<Cursor>, OnClickListener {
+public class GuideFragment extends AbstractMythFragment {
 
 	private static final String TAG = GuideFragment.class.getSimpleName();
-
-	private ProgramGuideCursorAdapter mAdapter;
 	
-	private Button mPreviousButton, mNextButton;
-	private TextView mDateTextView;
+	private GuideChannelFragment mGuideChannelFragment;
 	
-	private DateTime date;
-	private String startDate;
-
-    private MainApplication mainApplication;
-
-//	private ProgramGuideCleanupReceiver mProgramGuideCleanupReceiver = new ProgramGuideCleanupReceiver();
-//	private ProgramGuideDownloadReceiver mProgramGuideDownloaderReceiver = new ProgramGuideDownloadReceiver();
-
-//	private RunningServiceHelper mRunningServiceHelper = RunningServiceHelper.getInstance();
-	
-//	private ProgramGuideLruMemoryCache cache;
-
-	private LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
-	private LocationProfile mLocationProfile;
-
-	/* (non-Javadoc)
-	 * @see android.support.v4.app.LoaderManager.LoaderCallbacks#onCreateLoader(int, android.os.Bundle)
-	 */
-	@Override
-	public Loader<Cursor> onCreateLoader( int id, Bundle args ) {
-		Log.v( TAG, "onCreateLoader : enter" );
-		
-		String[] projection = null;
-		String selection = null;
-		String[] selectionArgs = null;
-		String sortOrder = null;
-		
-		switch( id ) {
-		case 0 :
-		    Log.v( TAG, "onCreateLoader : getting channels" );
-
-			projection = null;
-			selection = ChannelConstants.FIELD_MASTER_HOSTNAME + " = ?";
-			selectionArgs = new String[] { mLocationProfile.getHostname() };
-			sortOrder = ChannelConstants.FIELD_CHAN_NUM_FORMATTED;
-
-			Log.v( TAG, "onCreateLoader : exit" );
-			return new CursorLoader( getActivity(), ChannelConstants.CONTENT_URI, projection, selection, selectionArgs, sortOrder );
-
-		default : 
-		    Log.v( TAG, "onCreateLoader : exit, invalid id" );
-
-		    return null;
-		}
-		
-	}
-
-	/* (non-Javadoc)
-	 * @see android.support.v4.app.LoaderManager.LoaderCallbacks#onLoadFinished(android.support.v4.content.Loader, java.lang.Object)
-	 */
-	@Override
-	public void onLoadFinished( Loader<Cursor> loader, Cursor cursor ) {
-		Log.v( TAG, "onLoadFinished : enter" );
-		
-		mAdapter.swapCursor( cursor );
-		
-		Log.v( TAG, "onLoadFinished : exit" );
-	}
-
-	/* (non-Javadoc)
-	 * @see android.support.v4.app.LoaderManager.LoaderCallbacks#onLoaderReset(android.support.v4.content.Loader)
-	 */
-	@Override
-	public void onLoaderReset( Loader<Cursor> loader ) {
-		Log.v( TAG, "onLoaderReset : enter" );
-		
-		mAdapter.swapCursor( null );
-		
-		Log.v( TAG, "onLoaderReset : exit" );
-	}
-
-	/* (non-Javadoc)
-	 * @see android.support.v4.app.Fragment#onStart()
-	 */
-	@Override
-	public void onStart() {
-		Log.v( TAG, "onStart : enter" );
-		super.onStart();
-
-//	    IntentFilter programGuideCleanupFilter = new IntentFilter();
-//		programGuideCleanupFilter.addAction( ProgramGuideCleanupService.ACTION_COMPLETE );
-//	    getActivity().registerReceiver( mProgramGuideCleanupReceiver, programGuideCleanupFilter );
-//	    
-//		IntentFilter programGuideDownloadFilter = new IntentFilter();
-//		programGuideDownloadFilter.addAction( ProgramGuideDownloadService.ACTION_PROGRESS );
-//	    getActivity().registerReceiver( mProgramGuideDownloaderReceiver, programGuideDownloadFilter );
-	    
-		Log.v( TAG, "onStart : exit" );
-	}
-
-	/* (non-Javadoc)
-	 * @see android.support.v4.app.Fragment#onStop()
-	 */
-	@Override
-	public void onStop() {
-		Log.v( TAG, "onStop : enter" );
-		super.onStop();
-
-		// Unregister for broadcast
-//		if( null != mProgramGuideCleanupReceiver ) {
-//			try {
-//				getActivity().unregisterReceiver( mProgramGuideCleanupReceiver );
-//			} catch( IllegalArgumentException e ) {
-//				Log.e( TAG, "onStop : error", e );
-//			}
-//		}
-//
-//		if( null != mProgramGuideDownloaderReceiver ) {
-//			try {
-//				getActivity().unregisterReceiver( mProgramGuideDownloaderReceiver );
-//			} catch( IllegalArgumentException e ) {
-//				Log.e( TAG, "onStop : error", e );
-//			}
-//		}
-
-		Log.v( TAG, "onStop : exit" );
-	}
-
 	/* (non-Javadoc)
 	 * @see android.support.v4.app.ListFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle)
 	 */
@@ -196,14 +52,6 @@ public class GuideFragment extends AbstractMythFragment implements LoaderManager
 
 		//inflate fragment layout
 		View view = inflater.inflate( R.layout.fragment_dvr_guide, container, false );
-
-//		mPreviousButton = (Button) view.findViewById( R.id.guide_previous );
-//		mPreviousButton.setOnClickListener( this );
-//		
-//		mDateTextView = (TextView) view.findViewById( R.id.guide_date );
-//		
-//		mNextButton = (Button) view.findViewById( R.id.guide_next );
-//		mNextButton.setOnClickListener( this );
 
 		Log.v( TAG, "onCreateView : exit" );
 		return view;
@@ -217,310 +65,28 @@ public class GuideFragment extends AbstractMythFragment implements LoaderManager
 		Log.v( TAG, "onActivityCreated : enter" );
 		super.onActivityCreated( savedInstanceState );
 		
-        mainApplication = (MainApplication) getActivity().getApplicationContext();
-        mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
-        
-//		cache = new ProgramGuideLruMemoryCache( getActivity() );
-
-		date = DateUtils.getEndOfDay( new DateTime() );
-
-	    GridView gridview = (GridView) getActivity().findViewById( R.id.program_guide );
-	    
-	    mAdapter = new ProgramGuideCursorAdapter( getActivity() );
-	    gridview.setAdapter( mAdapter );
-
-		getLoaderManager().initLoader( 0, null, this );
-
-		//update
-//		updateDateHeader();
+		View view = getView();
 		
+		// get child fragment manager
+		FragmentManager manager = this.getChildFragmentManager();
+
+		// look for program guide channels list placeholder frame layout
+		FrameLayout channelsLayout = (FrameLayout) view.findViewById( R.id.frame_layout_program_guide_channels );
+		if( null != channelsLayout ) {
+			Log.v( TAG, "onActivityCreated : loading channels fragment" );
+			
+			mGuideChannelFragment = (GuideChannelFragment) manager.findFragmentByTag( GuideChannelFragment.class.getName() );
+			if( null == mGuideChannelFragment ) {
+				mGuideChannelFragment = (GuideChannelFragment) GuideChannelFragment.instantiate( getActivity(), GuideChannelFragment.class.getName() );
+			}
+
+			manager.beginTransaction()
+				.replace( R.id.frame_layout_program_guide_channels, mGuideChannelFragment, GuideChannelFragment.class.getName() )
+				.commit();
+		
+		}
+        
 		Log.v( TAG, "onActivityCreated : exit" );
 	}
-
-	/* (non-Javadoc)
-	 * @see android.support.v4.app.Fragment#onResume()
-	 */
-	@Override
-	public void onResume() {
-		Log.v( TAG, "onResume : enter" );
-		super.onResume();
-
-		getActivity().startService( new Intent( ProgramGuideCleanupService.ACTION_CLEANUP ) );
-	
-		Log.v( TAG, "onResume : exit" );
-	}
-
-	/* (non-Javadoc)
-	 * @see android.view.View.OnClickListener#onClick(android.view.View)
-	 */
-	@Override
-	public void onClick( View v ) {
-		Log.v( TAG, "onClick : enter" );
-		
-//		if(null != v){
-//			switch( v.getId() ) {
-//				case R.id.guide_previous :
-//					Log.v( TAG, "onClick : selected previous button" );
-//	
-//					date = DateUtils.getPreviousDay( date );
-//					
-//					break;
-//				case R.id.guide_next :
-//					Log.v( TAG, "onClick : selected next button" );
-//	
-//					date = DateUtils.getNextDay( date );
-//					
-//					break;
-//			}
-//		}
-		
-//		updateDateHeader();
-		
-		Log.v( TAG, "onClick : enter" );
-	}
-
-	// internal helpers
-	
-	private class ProgramGuideCursorAdapter extends CursorAdapter {
-		
-		private LayoutInflater mInflater;
-
-		public ProgramGuideCursorAdapter( Context context ) {
-			super( context, null, false );
-			
-			mInflater = LayoutInflater.from( context );
-		}
-
-		/* (non-Javadoc)
-		 * @see android.support.v4.widget.CursorAdapter#bindView(android.view.View, android.content.Context, android.database.Cursor)
-		 */
-		@Override
-		public void bindView( View view, Context context, Cursor cursor ) {
-			
-			ChannelInfo channel = ChannelDaoHelper.convertCursorToChannelInfo( cursor );
-
-	        final ViewHolder mHolder = (ViewHolder) view.getTag();
-			
-			mHolder.channel.setText( channel.getChannelNumber() );
-
-		}
-
-		/* (non-Javadoc)
-		 * @see android.support.v4.widget.CursorAdapter#newView(android.content.Context, android.database.Cursor, android.view.ViewGroup)
-		 */
-		@Override
-		public View newView( Context context, Cursor cursor, ViewGroup parent ) {
-			
-	        View view = mInflater.inflate( R.layout.program_guide_channel, parent, false );
-			
-			ViewHolder refHolder = new ViewHolder();
-			refHolder.channel = (TextView) view.findViewById( R.id.program_guide_channel );
-			
-			view.setTag( refHolder );
-
-			return view;
-		}
-
-	}
-
-	private static class ViewHolder {
-		
-		TextView channel;
-		
-	}
-
-//	private void updateDateHeader() {
-//		Log.v( TAG, "updateDateHeader : enter" );
-//		
-//        mDateTextView.setText( DateTimeFormat.forPattern(mainApplication.getDateFormat()).print(date) );
-//		startDate = DateUtils.dateFormatter.print(date);
-//
-//		DateTime today = new DateTime();
-//		Log.v( TAG, "updateDateHeader : today=" + DateUtils.dateTimeFormatter.print( today ) );
-//		if( today.dayOfYear().equals( date.dayOfYear() ) ) {
-//			mPreviousButton.setEnabled( false );
-//		} else {
-//			mPreviousButton.setEnabled( true );
-//		}
-//
-//		DateTime end = DateUtils.getDaysFromToday( 12 );
-//		Log.v( TAG, "updateDateHeader : end=" + DateUtils.dateTimeFormatter.print( end ) );
-//		if( end.dayOfYear().equals( date.dayOfYear() ) ) {
-//			mNextButton.setEnabled( false );
-//		} else {
-//			mNextButton.setEnabled( true );
-//		}
-//
-//		DateTime now = new DateTime();
-//		MythtvGuidePagerAdapter mAdapter = new MythtvGuidePagerAdapter( this.getChildFragmentManager() );
-//		ViewPager mPager = (ViewPager) getActivity().findViewById( R.id.guide_pager );
-//		mPager.setAdapter( mAdapter );
-//		mPager.setCurrentItem( now.getHourOfDay() );
-//
-//		Log.v( TAG, "updateDateHeader : exit" );
-//	}
-	
-//	private class MythtvGuidePagerAdapter extends FragmentStatePagerAdapter {
-//
-//		private List<String> fragmentHeadings, fragmentLabels;
-//		
-//		public MythtvGuidePagerAdapter( FragmentManager fm ) {
-//			super( fm );
-//			Log.v( TAG, "initialize : exit" );
-//
-//			fragmentHeadings = new ArrayList<String>();
-//			fragmentHeadings.add( "0" );
-//			fragmentHeadings.add( "1" );
-//			fragmentHeadings.add( "2" );
-//			fragmentHeadings.add( "3" );
-//			fragmentHeadings.add( "4" );
-//			fragmentHeadings.add( "5" );
-//			fragmentHeadings.add( "6" );
-//			fragmentHeadings.add( "7" );
-//			fragmentHeadings.add( "8" );
-//			fragmentHeadings.add( "9" );
-//			fragmentHeadings.add( "10" );
-//			fragmentHeadings.add( "11" );
-//			fragmentHeadings.add( "12" );
-//			fragmentHeadings.add( "13" );
-//			fragmentHeadings.add( "14" );
-//			fragmentHeadings.add( "15" );
-//			fragmentHeadings.add( "16" );
-//			fragmentHeadings.add( "17" );
-//			fragmentHeadings.add( "18" );
-//			fragmentHeadings.add( "19" );
-//			fragmentHeadings.add( "20" );
-//			fragmentHeadings.add( "21" );
-//			fragmentHeadings.add( "22" );
-//			fragmentHeadings.add( "23" );
-//
-//            fragmentLabels = new ArrayList<String>();
-//
-//            if (mainApplication.getClockType() != null && mainApplication.getClockType().equals("24")) {
-//
-//                fragmentLabels = fragmentHeadings;
-//            } else {
-//
-//                fragmentLabels.add( "12 AM" );
-//                fragmentLabels.add( "1 AM" );
-//                fragmentLabels.add( "2 AM" );
-//                fragmentLabels.add( "3 AM" );
-//                fragmentLabels.add( "4 AM" );
-//                fragmentLabels.add( "5 AM" );
-//                fragmentLabels.add( "6 AM" );
-//                fragmentLabels.add( "7 AM" );
-//                fragmentLabels.add( "8 AM" );
-//                fragmentLabels.add( "9 AM" );
-//                fragmentLabels.add( "10 AM" );
-//                fragmentLabels.add( "11 AM" );
-//                fragmentLabels.add( "12 PM" );
-//                fragmentLabels.add( "1 PM" );
-//                fragmentLabels.add( "2 PM" );
-//                fragmentLabels.add( "3 PM" );
-//                fragmentLabels.add( "4 PM" );
-//                fragmentLabels.add( "5 PM" );
-//                fragmentLabels.add( "6 PM" );
-//                fragmentLabels.add( "7 PM" );
-//                fragmentLabels.add( "8 PM" );
-//                fragmentLabels.add( "9 PM" );
-//                fragmentLabels.add( "10 PM" );
-//                fragmentLabels.add( "11 PM" );
-//            }
-//
-//            Log.v( TAG, "initialize : exit" );
-//		}
-
-		/* (non-Javadoc)
-		 * @see android.support.v4.app.FragmentStatePagerAdapter#getItem(int)
-		 */
-//		@Override
-//		public Fragment getItem( int position ) {
-////			Log.v( TAG, "getItem : enter" );
-//			
-//			DateTime programGuideDate = date.withTime( Integer.parseInt( fragmentHeadings.get( position ) ), 0, 0, 0 );
-//			ProgramGuide programGuide = cache.get( mLocationProfile.getHostname() + "_" + DateUtils.fileDateTimeFormatter.print( programGuideDate ) );
-//            Log.v( TAG, "ProgramGuide for " + mLocationProfile.getHostname() + "_" + DateUtils.fileDateTimeFormatter.print( programGuideDate ) + " loaded" );
-//
-////			Log.v( TAG, "getItem : exit" );
-//			return GuidePagerFragment.newInstance( startDate, fragmentHeadings.get( position ), programGuide );
-//		}
-//
-//		/* (non-Javadoc)
-//		 * @see android.support.v4.view.PagerAdapter#getCount()
-//		 */
-//		public int getCount() {
-//			return fragmentHeadings.size();
-//		}
-//
-//		/* (non-Javadoc)
-//		 * @see android.support.v4.view.PagerAdapter#getPageTitle(int)
-//		 */
-//		@Override
-//		public CharSequence getPageTitle( int position ) {
-//			return fragmentLabels.get( position );
-//		}
-//		
-//	}
-
-//	private class ProgramGuideCleanupReceiver extends BroadcastReceiver {
-//
-//		@Override
-//		public void onReceive( Context context, Intent intent ) {
-//			
-//	        if ( intent.getAction().equals( ProgramGuideCleanupService.ACTION_COMPLETE ) ) {
-//	        	Log.i( TAG, "ProgramGuideCleanupReceiver.onReceive : " + intent.getStringExtra( ProgramGuideCleanupService.EXTRA_COMPLETE ) );
-//	        	Log.i( TAG, "ProgramGuideCleanupReceiver.onReceive : " + intent.getIntExtra( ProgramGuideCleanupService.EXTRA_COMPLETE_COUNT, 0 ) + " files cleaned up" );
-//
-////	    		FilenameFilter filter = new FilenameFilter() {
-////	    		    
-////	    			public boolean accept( File directory, String fileName ) {
-////	    				
-////	    	            return fileName.startsWith( mLocationProfile.getHostname() + "_" ) &&
-////	    	            		fileName.endsWith( ProgramGuideDownloadService.FILENAME_EXT );
-////	    	        }
-////	    			
-////	    	    };
-////	    		
-////	        	File programGuideCache = FileHelper.getInstance().getProgramGuideDataDirectory();
-////	    		if( null != programGuideCache && programGuideCache.exists() ) {
-////		        	Log.i( TAG, "ProgramGuideCleanupReceiver.onReceive : programGuide count=" + programGuideCache.list( filter ).length );
-////	    			
-////	    			if( programGuideCache.list( filter ).length < ProgramGuideDownloadService.MAX_HOURS ) {
-////	    				if( !mRunningServiceHelper.isServiceRunning( getActivity(), "org.mythtv.service.guide.ProgramGuideDownloadService" ) ) {
-////		    				getActivity().startService( new Intent( ProgramGuideDownloadService.ACTION_DOWNLOAD ) );
-////	    				}
-////	    			}
-////	    			
-////	    		}
-//	    		
-//	        }
-//	        
-//		}
-//		
-//	}
-
-//	private class ProgramGuideDownloadReceiver extends BroadcastReceiver {
-//
-//		@Override
-//		public void onReceive( Context context, Intent intent ) {
-//			
-//	        if ( intent.getAction().equals( ProgramGuideDownloadService.ACTION_PROGRESS ) ) {
-//
-//	        	if( intent.hasExtra( ProgramGuideDownloadService.EXTRA_PROGRESS ) ) {
-//		        	Log.d( TAG, "ProgramGuideDownloadReceiver.onReceive : progress=" + intent.getStringExtra( ProgramGuideDownloadService.EXTRA_PROGRESS ) );
-//		        	
-//		        	DateTime updated = new DateTime( intent.getStringExtra( ProgramGuideDownloadService.EXTRA_PROGRESS_DATE ) );
-//		        	cache.remove( mLocationProfile.getHostname() + "_" + DateUtils.fileDateTimeFormatter.print( updated ) );
-//	        	}
-//	        	
-//	        	if( intent.hasExtra( ProgramGuideDownloadService.EXTRA_PROGRESS_ERROR ) ) {
-//		        	Log.e( TAG, "ProgramGuideDownloadReceiver.onReceive : progress error=" + intent.getStringExtra( ProgramGuideDownloadService.EXTRA_PROGRESS_ERROR ) );
-//	        	}
-//	        	
-//	        }
-//	        
-//		}
-//		
-//	}
 
 }
