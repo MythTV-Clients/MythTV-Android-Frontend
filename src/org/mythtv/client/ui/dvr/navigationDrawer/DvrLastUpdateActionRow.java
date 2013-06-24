@@ -6,7 +6,7 @@ package org.mythtv.client.ui.dvr.navigationDrawer;
 import org.mythtv.R;
 import org.mythtv.client.MainApplication;
 import org.mythtv.client.ui.navigationDrawer.Row;
-import org.mythtv.db.http.EtagInfoDelegate;
+import org.mythtv.db.http.model.EtagInfoDelegate;
 import org.mythtv.service.util.DateUtils;
 
 import android.content.Context;

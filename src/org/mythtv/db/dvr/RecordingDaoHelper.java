@@ -31,7 +31,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
-import android.util.Log;
+//import android.util.Log;
 
 
 /**
@@ -40,7 +40,7 @@ import android.util.Log;
  */
 public class RecordingDaoHelper extends AbstractDaoHelper {
 
-	private static final String TAG = RecordingDaoHelper.class.getSimpleName();
+//	private static final String TAG = RecordingDaoHelper.class.getSimpleName();
 	
 	private static RecordingDaoHelper singleton = null;
 
@@ -82,7 +82,7 @@ public class RecordingDaoHelper extends AbstractDaoHelper {
 	 * @return
 	 */
 	public List<Recording> findAll( final Context context, String[] projection, String selection, String[] selectionArgs, String sortOrder, final String table ) {
-		Log.d( TAG, "findAll : enter" );
+//		Log.d( TAG, "findAll : enter" );
 		
 		if( null == context ) 
 			throw new RuntimeException( "RecordingDaoHelper is not initialized" );
@@ -98,7 +98,7 @@ public class RecordingDaoHelper extends AbstractDaoHelper {
 		}
 		cursor.close();
 
-		Log.d( TAG, "findAll : exit" );
+//		Log.d( TAG, "findAll : exit" );
 		return recordings;
 	}
 	
@@ -106,11 +106,11 @@ public class RecordingDaoHelper extends AbstractDaoHelper {
 	 * @return
 	 */
 	public List<Recording> finalAll( final Context context, final String table ) {
-		Log.d( TAG, "findAll : enter" );
+//		Log.d( TAG, "findAll : enter" );
 		
 		List<Recording> recordings = findAll( context, null, null, null, null, table );
 		
-		Log.d( TAG, "findAll : exit" );
+//		Log.d( TAG, "findAll : exit" );
 		return recordings;
 	}
 	
@@ -123,7 +123,7 @@ public class RecordingDaoHelper extends AbstractDaoHelper {
 	 * @return
 	 */
 	public Recording findOne( final Context context, final Long id, String[] projection, String selection, String[] selectionArgs, String sortOrder, final String table ) {
-		Log.d( TAG, "findOne : enter" );
+//		Log.d( TAG, "findOne : enter" );
 		
 		if( null == context ) 
 			throw new RuntimeException( "RecordingDaoHelper is not initialized" );
@@ -143,7 +143,7 @@ public class RecordingDaoHelper extends AbstractDaoHelper {
 		}
 		cursor.close();
 		
-		Log.d( TAG, "findOne : exit" );
+//		Log.d( TAG, "findOne : exit" );
 		return recording;
 	}
 	
@@ -152,47 +152,19 @@ public class RecordingDaoHelper extends AbstractDaoHelper {
 	 * @return
 	 */
 	public Recording findOne( final Context context, final Long id, final String table ) {
-		Log.d( TAG, "findOne : enter" );
+//		Log.d( TAG, "findOne : enter" );
 		
 		Recording recording = findOne( context, id, null, null, null, null, table );
 		
-		Log.d( TAG, "findOne : exit" );
+//		Log.d( TAG, "findOne : exit" );
 		return recording;
 	}
-
-	/**
-	 * @param recording
-	 * @return
-	 */
-//	public int save( Recording recording ) {
-//		Log.d( TAG, "save : enter" );
-//
-//		ContentValues values = convertRecordingToContentValues( recording );
-//
-//		int updated = -1;
-//		Cursor cursor = mContext.getContentResolver().query( ContentUris.withAppendedId( RecordingConstants.CONTENT_URI, recording.getRecordId() ), null, null, null, null );
-//		if( cursor.moveToFirst() ) {
-//			Log.v( TAG, "save : updating existing channel info" );
-//
-//			updated = mContext.getContentResolver().update( ContentUris.withAppendedId( RecordingConstants.CONTENT_URI, recording.getRecordId() ), values, null, null );
-//		} else {
-//			Uri inserted = mContext.getContentResolver().insert( ContentUris.withAppendedId( RecordingConstants.CONTENT_URI, recording.getRecordId() ), values );
-//			if( null != inserted ) {
-//				updated = 1;
-//			}
-//		}
-//		cursor.close();
-//		Log.v( TAG, "save : updated=" + updated );
-//
-//		Log.d( TAG, "save : exit" );
-//		return updated;
-//	}
 
 	/**
 	 * @return
 	 */
 	public int deleteAll( final Context context, final String table ) {
-		Log.d( TAG, "deleteAll : enter" );
+//		Log.d( TAG, "deleteAll : enter" );
 		
 		if( null == context ) 
 			throw new RuntimeException( "RecordingDaoHelper is not initialized" );
@@ -200,14 +172,14 @@ public class RecordingDaoHelper extends AbstractDaoHelper {
 		RecordingConstants.ContentDetails details = RecordingConstants.ContentDetails.getValueFromParent( table );
 
 		int deleted = context.getContentResolver().delete( details.getContentUri(), null, null );
-		Log.v( TAG, "deleteAll : deleted=" + deleted );
+//		Log.v( TAG, "deleteAll : deleted=" + deleted );
 		
-		Log.d( TAG, "deleteAll : exit" );
+//		Log.d( TAG, "deleteAll : exit" );
 		return deleted;
 	}
 
 	public int delete( final Context context, final Long id, final String where, final String[] selectionArgs, final String table ) {
-		Log.d( TAG, "delete : enter" );
+//		Log.d( TAG, "delete : enter" );
 		
 		if( null == context ) 
 			throw new RuntimeException( "RecordingDaoHelper is not initialized" );
@@ -220,9 +192,9 @@ public class RecordingDaoHelper extends AbstractDaoHelper {
 		}
 		
 		int deleted = context.getContentResolver().delete( uri, where, selectionArgs );
-		Log.v( TAG, "delete : deleted=" + deleted );
+//		Log.v( TAG, "delete : deleted=" + deleted );
 		
-		Log.d( TAG, "delete : exit" );
+//		Log.d( TAG, "delete : exit" );
 		return deleted;
 	}
 
@@ -232,45 +204,23 @@ public class RecordingDaoHelper extends AbstractDaoHelper {
 	 * @return
 	 */
 	public int delete( final Context context, final Long id, final String table ) {
-		Log.d( TAG, "delete : enter" );
+//		Log.d( TAG, "delete : enter" );
 		
 		if( null == context ) 
 			throw new RuntimeException( "RecordingDaoHelper is not initialized" );
 		
 		int deleted = delete( context, id, null, null, table );
-		Log.v( TAG, "delete : deleted=" + deleted );
+//		Log.v( TAG, "delete : deleted=" + deleted );
 		
-		Log.d( TAG, "delete : exit" );
+//		Log.d( TAG, "delete : exit" );
 		return deleted;
 	}
 
 	/**
-	 * @param recordings
-	 * @return
-	 */
-//	public int load( List<Recording> recordings ) {
-//		Log.d( TAG, "load : enter" );
-//		
-//		int loaded = -1;
-//		
-//		ContentValues[] contentValuesArray = convertRecordingsToContentValuesArray( recordings );
-//		if( null != contentValuesArray ) {
-//			Log.v( TAG, "load : channels=" + contentValuesArray.length );
-//
-//			loaded = mContext.getContentResolver().bulkInsert( RecordingConstants.CONTENT_URI, contentValuesArray );
-//			Log.v( TAG, "load : loaded=" + loaded );
-//		}
-//		
-//		
-//		Log.d( TAG, "load : exit" );
-//		return loaded;
-//	}
-	
-	/**
 	 * @param cursor
 	 * @return
 	 */
-	public Recording convertCursorToRecording( final Cursor cursor, final String table ) {
+	public static Recording convertCursorToRecording( final Cursor cursor, final String table ) {
 //		Log.v( TAG, "convertCursorToRecording : enter" );
 
 		RecordingConstants.ContentDetails details = RecordingConstants.ContentDetails.getValueFromParent( table );
@@ -355,14 +305,14 @@ public class RecordingDaoHelper extends AbstractDaoHelper {
 	 * @param recording
 	 * @return
 	 */
-	public ContentValues convertRecordingToContentValues( final LocationProfile locationProfile, final DateTime lastModified, final DateTime startTime, final Recording recording ) {
+	public static ContentValues convertRecordingToContentValues( final LocationProfile locationProfile, final DateTime lastModified, final DateTime startTime, final Recording recording ) {
 //		Log.v( TAG, "convertRecordingToContentValues : enter" );
 		
 		DateTime startTimestamp = null;
 		if( null != recording.getStartTimestamp() ) {
 			startTimestamp = new DateTime( recording.getStartTimestamp().getMillis() );
 		}
-		Log.v( TAG, "convertRecordingToContentValues : startTimestamp = " + startTimestamp.toString() );
+//		Log.v( TAG, "convertRecordingToContentValues : startTimestamp = " + startTimestamp.toString() );
 		
 		DateTime endTimestamp = null;
 		if( null != recording.getStartTimestamp() ) {
@@ -390,34 +340,5 @@ public class RecordingDaoHelper extends AbstractDaoHelper {
 //		Log.v( TAG, "convertRecordingToContentValues : exit" );
 		return values;
 	}
-
-	// internal helpers
-
-//	private ContentValues[] convertRecordingsToContentValuesArray( final List<Recording> recordings ) {
-//		Log.v( TAG, "convertRecordingsToContentValuesArray : enter" );
-//		
-//		if( null != recordings && !recordings.isEmpty() ) {
-//			
-//			ContentValues contentValues;
-//			List<ContentValues> contentValuesArray = new ArrayList<ContentValues>();
-//
-//			for( Recording recording : recordings ) {
-//
-//				contentValues = convertRecordingToContentValues( recording );
-//				contentValuesArray.add( contentValues );
-//
-//			}			
-//			
-//			if( !contentValuesArray.isEmpty() ) {
-//				
-//				Log.v( TAG, "convertRecordingsToContentValuesArray : exit" );
-//				return contentValuesArray.toArray( new ContentValues[ contentValuesArray.size() ] );
-//			}
-//			
-//		}
-//		
-//		Log.v( TAG, "convertRecordingsToContentValuesArray : exit, no recordings to convert" );
-//		return null;
-//	}
 
 }

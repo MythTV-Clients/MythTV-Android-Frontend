@@ -27,7 +27,7 @@ import org.mythtv.R;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.dvr.UpcomingDaoHelper;
 import org.mythtv.db.http.EtagDaoHelper;
-import org.mythtv.db.http.EtagInfoDelegate;
+import org.mythtv.db.http.model.EtagInfoDelegate;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.MythtvService;
 import org.mythtv.service.util.FileHelper;

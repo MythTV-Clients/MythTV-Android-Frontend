@@ -20,58 +20,14 @@
 
 -->
 
-
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="fill_parent"
+<GridView xmlns:android="http://schemas.android.com/apk/res/android" 
+    android:id="@+id/program_guide"
+    android:layout_width="fill_parent" 
     android:layout_height="fill_parent"
-    android:orientation="vertical" >
-
-    <RelativeLayout
-        android:id="@+id/guide_header_row"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal" >
-
-        <Button
-            android:id="@+id/guide_previous"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:text="@string/guide_previous" />
-
-        <TextView
-            android:id="@+id/guide_date"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_centerInParent="true"
-            android:layout_centerVertical="true"
-            android:gravity="center_horizontal"
-            android:text="@string/guide_date"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
-
-        <Button
-            android:id="@+id/guide_next"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:text="@string/guide_next" />
-    </RelativeLayout>
-
-	<android.support.v4.view.ViewPager android:id="@+id/guide_pager"
-   		android:layout_width="match_parent" 
-   		android:layout_height="match_parent" >
-    	
-		<android.support.v4.view.PagerTitleStrip android:id="@+id/pager_title_strip"
-	       	android:layout_width="match_parent"
-    	   	android:layout_height="wrap_content"
-       		android:layout_gravity="top"
-       		android:background="@drawable/gradient_view_pager"
-       		android:textColor="#fff"
-       		android:paddingTop="4dp"
-       		android:paddingBottom="4dp" />
-	    
-	</android.support.v4.view.ViewPager>
-
-</LinearLayout>
+    android:columnWidth="90dp"
+    android:numColumns="1"
+    android:verticalSpacing="10dp"
+    android:horizontalSpacing="10dp"
+    android:stretchMode="columnWidth"
+    android:gravity="center"
+/>

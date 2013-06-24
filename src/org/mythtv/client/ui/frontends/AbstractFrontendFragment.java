@@ -24,7 +24,7 @@ import org.mythtv.client.MainApplication;
 import org.mythtv.client.ui.AbstractMythFragment;
 import org.mythtv.client.ui.MainMenuFragment;
 import org.mythtv.client.ui.preferences.LocationProfile;
-import org.mythtv.db.http.EtagInfoDelegate;
+import org.mythtv.db.http.model.EtagInfoDelegate;
 import org.mythtv.services.api.frontend.FrontendStatus;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -27,7 +27,7 @@ import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.util.MenuHelper;
 import org.mythtv.client.ui.util.ProgramHelper;
 import org.mythtv.db.channel.ChannelDaoHelper;
-import org.mythtv.db.http.EtagInfoDelegate;
+import org.mythtv.db.http.model.EtagInfoDelegate;
 import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.Int;
 import org.mythtv.services.api.channel.ChannelInfo;

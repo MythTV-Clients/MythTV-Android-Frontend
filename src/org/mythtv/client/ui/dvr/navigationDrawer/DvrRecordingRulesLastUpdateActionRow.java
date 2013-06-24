@@ -3,7 +3,7 @@
  */
 package org.mythtv.client.ui.dvr.navigationDrawer;
 
-import org.mythtv.db.http.EtagInfoDelegate;
+import org.mythtv.db.http.model.EtagInfoDelegate;
 
 import android.content.Context;
 

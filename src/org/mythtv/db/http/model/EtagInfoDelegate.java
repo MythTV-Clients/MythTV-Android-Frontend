@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.mythtv.db.http;
+package org.mythtv.db.http.model;
 
 import org.joda.time.DateTime;
 import org.mythtv.services.api.ETagInfo;

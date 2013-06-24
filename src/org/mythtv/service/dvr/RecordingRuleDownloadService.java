@@ -21,13 +21,12 @@ package org.mythtv.service.dvr;
 import java.io.File;
 import java.io.IOException;
 
-import org.apache.commons.io.FileUtils;
 import org.joda.time.DateTime;
 import org.mythtv.R;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.dvr.RecordingRuleDaoHelper;
 import org.mythtv.db.http.EtagDaoHelper;
-import org.mythtv.db.http.EtagInfoDelegate;
+import org.mythtv.db.http.model.EtagInfoDelegate;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.MythtvService;
 import org.mythtv.service.util.FileHelper;
@@ -190,14 +189,6 @@ public class RecordingRuleDownloadService extends MythtvService {
 		}
 			
 		Log.v( TAG, "download : exit" );
-	}
-
-	private void cleanup() throws IOException {
-		Log.v( TAG, "cleanup : enter" );
-		
-		FileUtils.cleanDirectory( recordingRuleDirectory );
-		
-		Log.v( TAG, "cleanup : exit" );
 	}
 
 	private void process( RecRules recRules, final LocationProfile locationProfile ) throws JsonGenerationException, JsonMappingException, IOException, RemoteException, OperationApplicationException {
