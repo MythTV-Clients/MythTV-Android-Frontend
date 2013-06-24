@@ -21,7 +21,7 @@ import android.content.OperationApplicationException;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.RemoteException;
-import android.util.Log;
+//import android.util.Log;
 
 /**
  * @author Daniel Frey
@@ -29,7 +29,7 @@ import android.util.Log;
  */
 public class RecordingRuleDaoHelper extends AbstractDaoHelper {
 
-	private static final String TAG = RecordingRuleDaoHelper.class.getSimpleName();
+//	private static final String TAG = RecordingRuleDaoHelper.class.getSimpleName();
 	
 	private static RecordingRuleDaoHelper singleton = null;
 
@@ -70,7 +70,7 @@ public class RecordingRuleDaoHelper extends AbstractDaoHelper {
 	 * @return
 	 */
 	public List<RecRule> findAll( final Context context, final LocationProfile locationProfile, String[] projection, String selection, String[] selectionArgs, String sortOrder ) {
-		Log.d( TAG, "findAll : enter" );
+//		Log.d( TAG, "findAll : enter" );
 		
 		if( null == context ) 
 			throw new RuntimeException( "RecordingRuleDaoHelper is not initialized" );
@@ -86,7 +86,7 @@ public class RecordingRuleDaoHelper extends AbstractDaoHelper {
 		}
 		cursor.close();
 
-		Log.d( TAG, "findAll : exit" );
+//		Log.d( TAG, "findAll : exit" );
 		return recRules;
 	}
 	
@@ -94,11 +94,11 @@ public class RecordingRuleDaoHelper extends AbstractDaoHelper {
 	 * @return
 	 */
 	public List<RecRule> findAll( final Context context, final LocationProfile locationProfile ) {
-		Log.d( TAG, "findAll : enter" );
+//		Log.d( TAG, "findAll : enter" );
 		
 		List<RecRule> recRules = findAll( context, locationProfile, null, null, null, null );
 		
-		Log.d( TAG, "findAll : exit" );
+//		Log.d( TAG, "findAll : exit" );
 		return recRules;
 	}
 	
@@ -111,7 +111,7 @@ public class RecordingRuleDaoHelper extends AbstractDaoHelper {
 	 * @return
 	 */
 	public RecRule findOne( final Context context, final LocationProfile locationProfile, Long id, String[] projection, String selection, String[] selectionArgs, String sortOrder ) {
-		Log.d( TAG, "findOne : enter" );
+//		Log.d( TAG, "findOne : enter" );
 		
 		if( null == context ) 
 			throw new RuntimeException( "RecordingRuleDaoHelper is not initialized" );
@@ -120,7 +120,7 @@ public class RecordingRuleDaoHelper extends AbstractDaoHelper {
 		
 		Uri uri = RecordingRuleConstants.CONTENT_URI;
 		if( null != id && id > 0 ) {
-			Log.d( TAG, "findOne : appending id=" + id );
+//			Log.d( TAG, "findOne : appending id=" + id );
 			uri = ContentUris.withAppendedId( RecordingRuleConstants.CONTENT_URI, id );
 		}
 		
@@ -132,7 +132,7 @@ public class RecordingRuleDaoHelper extends AbstractDaoHelper {
 		}
 		cursor.close();
 		
-		Log.d( TAG, "findOne : exit" );
+//		Log.d( TAG, "findOne : exit" );
 		return recRule;
 	}
 	
@@ -141,15 +141,15 @@ public class RecordingRuleDaoHelper extends AbstractDaoHelper {
 	 * @return
 	 */
 	public RecRule findOne( final Context context, final LocationProfile locationProfile, final Long id ) {
-		Log.d( TAG, "findOne : enter" );
+//		Log.d( TAG, "findOne : enter" );
 		
 		RecRule recRule = findOne( context, locationProfile, id, null, null, null, null );
-		if( null != recRule ) {
-			Log.v( TAG, "findOne : recRule=" + recRule.toString() );
-		}
+//		if( null != recRule ) {
+//			Log.v( TAG, "findOne : recRule=" + recRule.toString() );
+//		}
 		
 		
-		Log.d( TAG, "findOne : exit" );
+//		Log.d( TAG, "findOne : exit" );
 		return recRule;
 	}
 
@@ -158,19 +158,19 @@ public class RecordingRuleDaoHelper extends AbstractDaoHelper {
 	 * @return
 	 */
 	public RecRule findByRecordingRuleId( final Context context, final LocationProfile locationProfile, final Long recordingRuleId ) {
-		Log.d( TAG, "findByRecordingRuleId : enter" );
+//		Log.d( TAG, "findByRecordingRuleId : enter" );
 		
-		Log.d( TAG, "findByRecordingRuleId : recordingRuleId=" + recordingRuleId );
+//		Log.d( TAG, "findByRecordingRuleId : recordingRuleId=" + recordingRuleId );
 
 		String selection = RecordingRuleConstants.FIELD_REC_RULE_ID + " = ?";
 		String[] selectionArgs = new String[] { String.valueOf( recordingRuleId ) };
 		
 		RecRule recRule = findOne( context, locationProfile, null, null, selection, selectionArgs, null );
-		if( null != recRule ) {
-			Log.v( TAG, "findByRecordingRuleId : recRule=" + recRule.toString() );
-		}
+//		if( null != recRule ) {
+//			Log.v( TAG, "findByRecordingRuleId : recRule=" + recRule.toString() );
+//		}
 				
-		Log.d( TAG, "findByRecordingRuleId : exit" );
+//		Log.d( TAG, "findByRecordingRuleId : exit" );
 		return recRule;
 	}
 
@@ -179,9 +179,9 @@ public class RecordingRuleDaoHelper extends AbstractDaoHelper {
 	 * @return
 	 */
 	public int save( final Context context, final LocationProfile locationProfile, RecRule recRule ) {
-		Log.d( TAG, "save : enter" );
+//		Log.d( TAG, "save : enter" );
 
-		Log.d( TAG, "save : recRule=" + recRule.toString() );
+//		Log.d( TAG, "save : recRule=" + recRule.toString() );
 
 		if( null == context ) 
 			throw new RuntimeException( "RecordingRuleDaoHelper is not initialized" );
@@ -197,12 +197,12 @@ public class RecordingRuleDaoHelper extends AbstractDaoHelper {
 		int updated = -1;
 		Cursor cursor = context.getContentResolver().query( RecordingRuleConstants.CONTENT_URI, projection, selection, selectionArgs, null );
 		if( cursor.moveToFirst() ) {
-			Log.v( TAG, "save : updating existing recRule info" );
+//			Log.v( TAG, "save : updating existing recRule info" );
 			long id = cursor.getLong( cursor.getColumnIndexOrThrow( RecordingRuleConstants._ID ) );
 			
 			updated = context.getContentResolver().update( ContentUris.withAppendedId( RecordingRuleConstants.CONTENT_URI, id ), values, null, null );
 		} else {
-			Log.v( TAG, "save : inserting new recRule info" );
+//			Log.v( TAG, "save : inserting new recRule info" );
 			
 			Uri inserted = context.getContentResolver().insert( RecordingRuleConstants.CONTENT_URI, values );
 			if( null != inserted ) {
@@ -211,12 +211,12 @@ public class RecordingRuleDaoHelper extends AbstractDaoHelper {
 			
 		}
 		cursor.close();
-		Log.v( TAG, "save : updated=" + updated );
+//		Log.v( TAG, "save : updated=" + updated );
 
-		RecRule updatedRecRule = findByRecordingRuleId( context, locationProfile, (long) recRule.getId() );
-		Log.d( TAG, "save : updatedRecRule=" + updatedRecRule.toString() );
+//		RecRule updatedRecRule = findByRecordingRuleId( context, locationProfile, (long) recRule.getId() );
+//		Log.d( TAG, "save : updatedRecRule=" + updatedRecRule.toString() );
 		
-		Log.d( TAG, "save : exit" );
+//		Log.d( TAG, "save : exit" );
 		return updated;
 	}
 
@@ -224,15 +224,15 @@ public class RecordingRuleDaoHelper extends AbstractDaoHelper {
 	 * @return
 	 */
 	public int deleteAll( final Context context ) {
-		Log.d( TAG, "deleteAll : enter" );
+//		Log.d( TAG, "deleteAll : enter" );
 		
 		if( null == context ) 
 			throw new RuntimeException( "RecordingRuleDaoHelper is not initialized" );
 		
 		int deleted = context.getContentResolver().delete( RecordingRuleConstants.CONTENT_URI, null, null );
-		Log.v( TAG, "deleteAll : deleted=" + deleted );
+//		Log.v( TAG, "deleteAll : deleted=" + deleted );
 		
-		Log.d( TAG, "deleteAll : exit" );
+//		Log.d( TAG, "deleteAll : exit" );
 		return deleted;
 	}
 
@@ -241,15 +241,15 @@ public class RecordingRuleDaoHelper extends AbstractDaoHelper {
 	 * @return
 	 */
 	public int delete( final Context context, final Long id ) {
-		Log.d( TAG, "delete : enter" );
+//		Log.d( TAG, "delete : enter" );
 		
 		if( null == context ) 
 			throw new RuntimeException( "RecordingRuleDaoHelper is not initialized" );
 		
 		int deleted = context.getContentResolver().delete( ContentUris.withAppendedId( RecordingRuleConstants.CONTENT_URI, id ), null, null );
-		Log.v( TAG, "delete : deleted=" + deleted );
+//		Log.v( TAG, "delete : deleted=" + deleted );
 		
-		Log.d( TAG, "delete : exit" );
+//		Log.d( TAG, "delete : exit" );
 		return deleted;
 	}
 
@@ -259,7 +259,7 @@ public class RecordingRuleDaoHelper extends AbstractDaoHelper {
 	 * @return
 	 */
 	public int delete( final Context context, final LocationProfile locationProfile, RecRule recRule ) {
-		Log.d( TAG, "delete : enter" );
+//		Log.d( TAG, "delete : enter" );
 		
 		if( null == context ) 
 			throw new RuntimeException( "RecordingRuleDaoHelper is not initialized" );
@@ -270,14 +270,14 @@ public class RecordingRuleDaoHelper extends AbstractDaoHelper {
 		selection = appendLocationHostname( context, locationProfile, selection, RecordingRuleConstants.TABLE_NAME );
 		
 		int deleted = context.getContentResolver().delete( RecordingRuleConstants.CONTENT_URI, selection, selectionArgs );
-		Log.v( TAG, "delete : deleted=" + deleted );
+//		Log.v( TAG, "delete : deleted=" + deleted );
 		
-		Log.d( TAG, "delete : exit" );
+//		Log.d( TAG, "delete : exit" );
 		return deleted;
 	}
 
 	public int load( final Context context, final LocationProfile locationProfile, List<RecRule> allRecordingRulesList ) throws RemoteException, OperationApplicationException {
-		Log.d( TAG, "load : enter" );
+//		Log.d( TAG, "load : enter" );
 		
 		if( null == context ) 
 			throw new RuntimeException( "RecordingRuleDaoHelper is not initialized" );
@@ -303,7 +303,7 @@ public class RecordingRuleDaoHelper extends AbstractDaoHelper {
 			ContentValues recRuleValues = convertRecRuleToContentValues( locationProfile, lastModified, recRule );
 			Cursor recRuleCursor = context.getContentResolver().query( RecordingRuleConstants.CONTENT_URI, recRuleProjection, recRuleSelection, new String[] { String.valueOf( recRule.getId() ) }, null );
 			if( recRuleCursor.moveToFirst() ) {
-				Log.v( TAG, "load : updating recRule " + recRule.toString() );
+//				Log.v( TAG, "load : updating recRule " + recRule.toString() );
 
 				Long id = recRuleCursor.getLong( recRuleCursor.getColumnIndexOrThrow( RecordingRuleConstants._ID ) );
 				ops.add( 
@@ -315,7 +315,7 @@ public class RecordingRuleDaoHelper extends AbstractDaoHelper {
 				totalUpdates++;
 
 			} else {
-				Log.v( TAG, "load : adding recRule " + recRule.getId() );
+//				Log.v( TAG, "load : adding recRule " + recRule.getId() );
 
 				ops.add(  
 						ContentProviderOperation.newInsert( RecordingRuleConstants.CONTENT_URI )
@@ -330,7 +330,7 @@ public class RecordingRuleDaoHelper extends AbstractDaoHelper {
 			count++;
 
 			if( count > BATCH_COUNT_LIMIT ) {
-				Log.v( TAG, "process : batch update/insert" );
+//				Log.v( TAG, "process : batch update/insert" );
 
 				if( !ops.isEmpty() ) {
 
@@ -348,7 +348,7 @@ public class RecordingRuleDaoHelper extends AbstractDaoHelper {
 		}
 
 		if( !ops.isEmpty() ) {
-			Log.v( TAG, "process : final batch update|insert " + count );
+//			Log.v( TAG, "process : final batch update|insert " + count );
 
 			ContentProviderResult[] results = context.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
 			processed += results.length;
@@ -360,7 +360,7 @@ public class RecordingRuleDaoHelper extends AbstractDaoHelper {
 		}
 
 		// Done with the updates/inserts, remove any 'stale' recRules
-		Log.v( TAG, "load : deleting recRules no longer present on mythtv backend" );
+//		Log.v( TAG, "load : deleting recRules no longer present on mythtv backend" );
 		ops.add(  
 			ContentProviderOperation.newDelete( RecordingRuleConstants.CONTENT_URI )
 				.withSelection( RecordingRuleConstants.FIELD_LAST_MODIFIED_DATE + " < ?", new String[] { String.valueOf( lastModified.getMillis() ) } )
@@ -369,7 +369,7 @@ public class RecordingRuleDaoHelper extends AbstractDaoHelper {
 		);
 
 		if( !ops.isEmpty() ) {
-			Log.v( TAG, "process : final batch deletes " + count + "/" + deletecount);
+//			Log.v( TAG, "process : final batch deletes " + count + "/" + deletecount);
 
 			ContentProviderResult[] results = context.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
 			processed += results.length;
@@ -380,10 +380,10 @@ public class RecordingRuleDaoHelper extends AbstractDaoHelper {
 		
 		}
 		
-		Log.d( TAG, "load : totalUpdates: " + totalUpdates );
-		Log.d( TAG, "load : totalInserts: " + totalInserts );
-		Log.d( TAG, "load : totalDeletes: " + totalDeletes );
-		Log.d( TAG, "load : exit" );
+//		Log.d( TAG, "load : totalUpdates: " + totalUpdates );
+//		Log.d( TAG, "load : totalInserts: " + totalInserts );
+//		Log.d( TAG, "load : totalDeletes: " + totalDeletes );
+//		Log.d( TAG, "load : exit" );
 		return processed;
 	}
 	
@@ -583,9 +583,9 @@ public class RecordingRuleDaoHelper extends AbstractDaoHelper {
 			lastDeleted = new DateTime( cursor.getLong( cursor.getColumnIndex( RecordingRuleConstants.TABLE_NAME + "_" + RecordingRuleConstants.FIELD_LAST_DELETED ) ) );
 		}
 		
-		if( cursor.getColumnIndex( RecordingRuleConstants.TABLE_NAME + "_" + RecordingRuleConstants.FIELD_MASTER_HOSTNAME ) != -1 ) {
-			Log.v( TAG, "convertCursorToRecRule : hostname=" + cursor.getString( cursor.getColumnIndex( RecordingRuleConstants.TABLE_NAME + "_" + RecordingRuleConstants.FIELD_MASTER_HOSTNAME ) ) );
-		}
+//		if( cursor.getColumnIndex( RecordingRuleConstants.TABLE_NAME + "_" + RecordingRuleConstants.FIELD_MASTER_HOSTNAME ) != -1 ) {
+//			Log.v( TAG, "convertCursorToRecRule : hostname=" + cursor.getString( cursor.getColumnIndex( RecordingRuleConstants.TABLE_NAME + "_" + RecordingRuleConstants.FIELD_MASTER_HOSTNAME ) ) );
+//		}
 
 		RecRule recRule = new RecRule();
 		recRule.setId( recordingRuleId );
