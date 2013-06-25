@@ -28,6 +28,7 @@ import org.joda.time.DateTime;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.AbstractDaoHelper;
 import org.mythtv.provider.MythtvProvider;
+import org.mythtv.service.util.DateUtils;
 import org.mythtv.services.api.dvr.Program;
 import org.mythtv.services.utils.ArticleCleaner;
 
@@ -160,7 +161,7 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 		if( null == context ) 
 			throw new RuntimeException( "ProgramGroupDaoHelper is not initialized" );
 		
-		ContentValues values = convertProgramGroupToContentValues( locationProfile, new DateTime(), programGroup );
+		ContentValues values = convertProgramGroupToContentValues( locationProfile, DateUtils.convertUtc( new DateTime() ), programGroup );
 
 		String[] projection = new String[] { ProgramGroupConstants._ID };
 		String selection = ProgramGroupConstants.FIELD_PROGRAM_GROUP + " = ?";
@@ -232,7 +233,7 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 		if( null == context ) 
 			throw new RuntimeException( "ProgramGroupDaoHelper is not initialized" );
 		
-		DateTime lastModified = new DateTime();
+		DateTime lastModified = DateUtils.convertUtc( new DateTime() );
 		
 		Log.v( TAG, "load : find all existing recordings" );
 		Map<String, ProgramGroup> existing = new HashMap<String, ProgramGroup>();

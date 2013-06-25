@@ -30,6 +30,7 @@ import org.mythtv.db.http.EtagDaoHelper;
 import org.mythtv.db.http.model.EtagInfoDelegate;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.MythtvService;
+import org.mythtv.service.util.DateUtils;
 import org.mythtv.service.util.FileHelper;
 import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.dvr.ProgramList;
@@ -78,7 +79,7 @@ public class UpcomingDownloadService extends MythtvService {
 	private PendingIntent mContentIntent = null;
 	private int notificationId;
 	
-	private File upcomingDirectory = null;
+//	private File upcomingDirectory = null;
 	private UpcomingDaoHelper mUpcomingDaoHelper = UpcomingDaoHelper.getInstance();
 	private EtagDaoHelper mEtagDaoHelper = EtagDaoHelper.getInstance();
 	private LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
@@ -95,15 +96,15 @@ public class UpcomingDownloadService extends MythtvService {
 		Log.d( TAG, "onHandleIntent : enter" );
 		super.onHandleIntent( intent );
 		
-		upcomingDirectory = FileHelper.getInstance().getProgramUpcomingDataDirectory();
-		if( null == upcomingDirectory || !upcomingDirectory.exists() ) {
-			Intent completeIntent = new Intent( ACTION_COMPLETE );
-			completeIntent.putExtra( EXTRA_COMPLETE, "Program Upcoming location can not be found" );
-			sendBroadcast( completeIntent );
-
-			Log.d( TAG, "onHandleIntent : exit, upcomingDirectory does not exist" );
-			return;
-		}
+//		upcomingDirectory = FileHelper.getInstance().getProgramUpcomingDataDirectory();
+//		if( null == upcomingDirectory || !upcomingDirectory.exists() ) {
+//			Intent completeIntent = new Intent( ACTION_COMPLETE );
+//			completeIntent.putExtra( EXTRA_COMPLETE, "Program Upcoming location can not be found" );
+//			sendBroadcast( completeIntent );
+//
+//			Log.d( TAG, "onHandleIntent : exit, upcomingDirectory does not exist" );
+//			return;
+//		}
 
 		LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile( this );
 		if( !NetworkHelper.getInstance().isMasterBackendConnected( this, locationProfile ) ) {
@@ -155,6 +156,7 @@ public class UpcomingDownloadService extends MythtvService {
 		
 		EtagInfoDelegate etag = mEtagDaoHelper.findByEndpointAndDataId( this, locationProfile, Endpoint.GET_UPCOMING_LIST.name(), "" );
 		
+		DateTime date = DateUtils.convertUtc( new DateTime() );
 		ResponseEntity<ProgramList> responseEntity = mMythtvServiceHelper.getMythServicesApi( locationProfile ).dvrOperations().getUpcomingList( -1, -1, false, etag );
 		if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
 			Log.i( TAG, "download : " + Endpoint.GET_UPCOMING_LIST.getEndpoint() + " returned 200 OK" );
@@ -167,11 +169,12 @@ public class UpcomingDownloadService extends MythtvService {
 					process( programList.getPrograms(), locationProfile );
 				
 					if( null != etag.getValue() ) {
-						
+						Log.i( TAG, "download : saving etag: " + etag.getValue() );
+
 						etag.setEndpoint( Endpoint.GET_UPCOMING_LIST.name() );
-						etag.setDate( new DateTime() );
+						etag.setDate( date );
 						etag.setMasterHostname( locationProfile.getHostname() );
-						etag.setLastModified( new DateTime() );
+						etag.setLastModified( date );
 						mEtagDaoHelper.save( this, locationProfile, etag );
 					}
 						
@@ -185,9 +188,9 @@ public class UpcomingDownloadService extends MythtvService {
 			Log.i( TAG, "download : " + Endpoint.GET_UPCOMING_LIST.getEndpoint() + " returned 304 Not Modified" );
 			
 			if( null != etag.getValue() ) {
+				Log.i( TAG, "download : saving etag: " + etag.getValue() );
 
-				etag.setDate( new DateTime() );
-				etag.setLastModified( new DateTime() );
+				etag.setLastModified( date );
 				mEtagDaoHelper.save( this, locationProfile, etag );
 			}
 			
@@ -201,8 +204,8 @@ public class UpcomingDownloadService extends MythtvService {
 		
 		Log.v( TAG, "process : saving upcoming for host [" + locationProfile.getHostname() + ":" + locationProfile.getUrl() + "]" );
 
-		mMainApplication.getObjectMapper().writeValue( new File( upcomingDirectory, UPCOMING_FILE_PREFIX + locationProfile.getHostname() + UPCOMING_FILE_EXT ), programs );
-		Log.v( TAG, "process : saved upcoming to " + upcomingDirectory.getAbsolutePath() );
+//		mMainApplication.getObjectMapper().writeValue( new File( upcomingDirectory, UPCOMING_FILE_PREFIX + locationProfile.getHostname() + UPCOMING_FILE_EXT ), programs );
+//		Log.v( TAG, "process : saved upcoming to " + upcomingDirectory.getAbsolutePath() );
 		
 		int programsAdded = mUpcomingDaoHelper.load( this, locationProfile, programs.getPrograms() );
 		Log.v( TAG, "process : programsAdded=" + programsAdded );

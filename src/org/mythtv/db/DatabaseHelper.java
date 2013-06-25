@@ -31,6 +31,7 @@ import org.mythtv.db.preferences.LocationProfileConstants;
 import org.mythtv.db.preferences.PlaybackProfileConstants;
 import org.mythtv.db.status.StatusConstants;
 import org.mythtv.db.status.StatusConstants.StatusKey;
+import org.mythtv.service.util.DateUtils;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -48,7 +49,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	private static final String TAG = DatabaseHelper.class.getSimpleName();
 	
 	private static final String DATABASE_NAME = "mythtvdb";
-	private static final int DATABASE_VERSION = 117;
+	private static final int DATABASE_VERSION = 118;
 
 	public DatabaseHelper( Context context ) {
 		super( context, DATABASE_NAME, null, DATABASE_VERSION );
@@ -136,8 +137,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	public void onUpgrade( SQLiteDatabase db, int oldVersion, int newVersion ) {
 		Log.v( TAG, "onUpgrade : enter" );
 
-		if( oldVersion < 117 ) {
-			Log.v( TAG, "onUpgrade : upgrading to db version 117" );
+		if( oldVersion < 118 ) {
+			Log.v( TAG, "onUpgrade : upgrading to db version 118" );
 
 			onCreate( db );
 
@@ -175,7 +176,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		ContentValues values = new ContentValues();
 		values.put( StatusConstants.FIELD_KEY, StatusKey.MASTER_BACKEND_CONNECTED.name() );
 		values.put( StatusConstants.FIELD_VALUE, "FALSE" );
-		values.put( StatusConstants.FIELD_DATE, new DateTime().getMillis() );
+		values.put( StatusConstants.FIELD_DATE, DateUtils.convertUtc( new DateTime() ).getMillis() );
 		db.insert( StatusConstants.TABLE_NAME, null, values );
 
 		Log.v( TAG, "createStatus : exit" );

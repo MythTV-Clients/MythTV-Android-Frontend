@@ -46,14 +46,14 @@ public class DateUtils {
 
 	public static DateTime getToday() {
 		
-		DateTime day = new DateTime();
+		DateTime day = convertUtc( new DateTime() );
 		
 		return getEndOfDay( day );		
 	}
 	
 	public static DateTime getDaysFromToday( int days ) {
 		
-		DateTime day = new DateTime();
+		DateTime day = convertUtc( new DateTime() );
 		day = day.plus( Period.days( days ) );
 		
 		return getEndOfDay( day );		
@@ -61,7 +61,7 @@ public class DateUtils {
 
 	public static DateTime getYesterday() {
 		
-		DateTime day = new DateTime();
+		DateTime day = convertUtc( new DateTime() );
 		
 		return getPreviousDay( day );		
 	}
@@ -82,7 +82,7 @@ public class DateUtils {
 	
 	public static DateTime getNextDayAfterMythfilldatabase() {
 		
-		DateTime day = new DateTime();
+		DateTime day = convertUtc( new DateTime() );
 		day = day.plus( Period.days( 1 ) );
 		
 		return day.withTime( 4, 0, 0, 0 );		
@@ -97,7 +97,8 @@ public class DateUtils {
         return getDateTimeUsingLocaleFormattingPretty(currentDateTime, dateFormat, clockType);
     }
 
-    public static String getDateTimeUsingLocaleFormattingPretty(DateTime dateTime, String dateFormat, String clockType){
+    public static String getDateTimeUsingLocaleFormattingPretty( DateTime dateTime, String dateFormat, String clockType ) {
+    	dateTime = dateTime.withZone( DateTimeZone.getDefault() );
         if(clockType != null && clockType.equals("24")) return DateTimeFormat.forPattern( dateFormat+" "+"HH:mm" ).print(dateTime);
         else return dateTimeFormatterPretty.print(dateTime);
     }

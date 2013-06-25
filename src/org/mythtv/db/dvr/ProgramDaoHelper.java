@@ -47,7 +47,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.RemoteException;
-//import android.util.Log;
+import android.util.Log;
 
 /**
  * @author Daniel Frey
@@ -55,7 +55,7 @@ import android.os.RemoteException;
  */
 public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 
-//	protected static final String TAG = ProgramDaoHelper.class.getSimpleName();
+	protected static final String TAG = ProgramDaoHelper.class.getSimpleName();
 	
 	protected MythtvServiceHelper mMythtvServiceHelper = MythtvServiceHelper.getInstance();
 	protected ChannelDaoHelper mChannelDaoHelper = ChannelDaoHelper.getInstance();
@@ -151,7 +151,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		if( null == context ) 
 			throw new RuntimeException( "ProgramDaoHelper is not initialized" );
 		
-		ContentValues values = convertProgramToContentValues( locationProfile, new DateTime(), program );
+		ContentValues values = convertProgramToContentValues( locationProfile, DateUtils.convertUtc( new DateTime() ), program );
 
 		String[] projection = new String[] { ProgramConstants._ID };
 		String selection = ProgramConstants.FIELD_CHANNEL_ID + " = ? AND " + ProgramConstants.FIELD_START_TIME + " = ?";
@@ -250,7 +250,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		if( null == context ) 
 			throw new RuntimeException( "ProgramDaoHelper is not initialized" );
 		
-		DateTime lastModified = new DateTime();
+		DateTime lastModified = DateUtils.convertUtc( new DateTime() );
 		
 //		Log.v( TAG, "load : find all existing recordings, table=" + table );
 		String recordedSelection = "";
@@ -269,10 +269,32 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		programSelection = appendLocationHostname( context, locationProfile, programSelection, table );
 		
 		boolean inError;
+
+		List<Program> checks = new ArrayList<Program>();
 		
 		RecordingConstants.ContentDetails details = RecordingConstants.ContentDetails.getValueFromParent( table );
 		for( Program program : programs ) {
 
+			Log.w( TAG, "program key - " + program.getChannelInfo().getChannelId() + ":" + program.getStartTime() + ":" + program.getHostname() );
+
+			boolean add = true;
+			if( !checks.isEmpty() ) {
+				for( Program p : checks ) {
+					if( p.getChannelInfo().getChannelId() == program.getChannelInfo().getChannelId()
+							&& p.getStartTime().equals( program.getStartTime() )
+							&& p.getHostname().equals( program.getHostname() )
+					) {
+						Log.w( TAG, "duplicate found!" );
+						add = false;
+					}
+				}
+			} 
+			
+			if( add ) {
+				Log.w( TAG, "adding program to dup checks" );
+				checks.add( program );
+			}
+			
 			if( null == program.getStartTime() || null == program.getEndTime() ) {
 //				Log.w(TAG, "convertProgramToContentValues : null starttime and or endtime" );
 			
@@ -623,8 +645,8 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		
 		boolean inError;
 		
-		DateTime startTime = new DateTime( 0 );
-		DateTime endTime = new DateTime( 0 );
+		DateTime startTime = DateUtils.convertUtc( new DateTime() );
+		DateTime endTime = DateUtils.convertUtc( new DateTime() );
 
 		// If one timestamp is bad, leave them both set to 0.
 		if( null == program.getStartTime() || null == program.getEndTime() ) {
@@ -632,8 +654,8 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		
 			inError = true;
 		} else {
-			startTime = new DateTime( program.getStartTime().getMillis() );
-			endTime = new DateTime( program.getEndTime().getMillis() );
+			startTime = program.getStartTime();
+			endTime = program.getEndTime();
 			
 			inError = false;
 		}

@@ -69,7 +69,7 @@ public class ProgramGuideDownloadServiceNew extends MythtvService {
 
 	private ProgramGuideDaoHelper mProgramGuideDaoHelper = ProgramGuideDaoHelper.getInstance(); 
 	
-	private File programGuideDirectory = null;
+//	private File programGuideDirectory = null;
 
 	public ProgramGuideDownloadServiceNew() {
 		super( "ProgamGuideDownloadServiceNew" );
@@ -85,15 +85,15 @@ public class ProgramGuideDownloadServiceNew extends MythtvService {
 
 		boolean passed = true;
 		
-		programGuideDirectory = FileHelper.getInstance().getProgramGuideDataDirectory();
-		if( null == programGuideDirectory || !programGuideDirectory.exists() ) {
-			Intent completeIntent = new Intent( ACTION_COMPLETE );
-			completeIntent.putExtra( EXTRA_COMPLETE, "Program Guide location can not be found" );
-			sendBroadcast( completeIntent );
-
-			Log.d( TAG, "onHandleIntent : exit, programGuideCache does not exist" );
-			return;
-		}
+//		programGuideDirectory = FileHelper.getInstance().getProgramGuideDataDirectory();
+//		if( null == programGuideDirectory || !programGuideDirectory.exists() ) {
+//			Intent completeIntent = new Intent( ACTION_COMPLETE );
+//			completeIntent.putExtra( EXTRA_COMPLETE, "Program Guide location can not be found" );
+//			sendBroadcast( completeIntent );
+//
+//			Log.d( TAG, "onHandleIntent : exit, programGuideCache does not exist" );
+//			return;
+//		}
 
 		LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile( this );
 		if( !NetworkHelper.getInstance().isMasterBackendConnected( this, locationProfile ) ) {
@@ -144,6 +144,7 @@ public class ProgramGuideDownloadServiceNew extends MythtvService {
 
 		ResponseEntity<ProgramGuideWrapper> responseEntity = mMythtvServiceHelper.getMythServicesApi( locationProfile ).guideOperations().getProgramGuide( start, end, 1, -1, false, etag );
 
+		DateTime date = DateUtils.convertUtc( new DateTime() );
 		if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
 			Log.i( TAG, "download : " + GuideTemplate.Endpoint.GET_PROGRAM_GUIDE.name() + " returned 200 OK" );
 			ProgramGuideWrapper programGuide = responseEntity.getBody();
@@ -160,9 +161,9 @@ public class ProgramGuideDownloadServiceNew extends MythtvService {
 				Log.i( TAG, "download : saving etag: " + etag.getValue() );
 				
 				etag.setEndpoint( GuideTemplate.Endpoint.GET_PROGRAM_GUIDE.name() );
-				etag.setDate( new DateTime() );
+				etag.setDate( date );
 				etag.setMasterHostname( locationProfile.getHostname() );
-				etag.setLastModified( new DateTime() );
+				etag.setLastModified( date );
 				mEtagDaoHelper.save( this, locationProfile, etag );
 			}
 
@@ -170,9 +171,9 @@ public class ProgramGuideDownloadServiceNew extends MythtvService {
 				Log.i( TAG, "download : " + GuideTemplate.Endpoint.GET_PROGRAM_GUIDE.name() + " returned 304 Not Modified" );
 				
 				if( null != etag.getValue() ) {
+					Log.i( TAG, "download : saving etag: " + etag.getValue() );
 
-					etag.setDate( new DateTime() );
-					etag.setLastModified( new DateTime() );
+					etag.setLastModified( date );
 					mEtagDaoHelper.save( this, locationProfile, etag );
 				}
 
@@ -188,8 +189,8 @@ public class ProgramGuideDownloadServiceNew extends MythtvService {
 
 		Log.v( TAG, "process : saving program guide for host [" + locationProfile.getHostname() + ":" + locationProfile.getUrl() + "]" );
 		
-		mMainApplication.getObjectMapper().writeValue( new File( programGuideDirectory, PROGRAM_GUIDE_FILE_PREFIX + locationProfile.getHostname() + PROGRAM_GUIDE_FILE_EXT ), programGuide );
-		Log.v( TAG, "process : saved recorded to " + programGuideDirectory.getAbsolutePath() );
+//		mMainApplication.getObjectMapper().writeValue( new File( programGuideDirectory, PROGRAM_GUIDE_FILE_PREFIX + locationProfile.getHostname() + PROGRAM_GUIDE_FILE_EXT ), programGuide );
+//		Log.v( TAG, "process : saved recorded to " + programGuideDirectory.getAbsolutePath() );
 
 		int programsAdded = mProgramGuideDaoHelper.loadProgramGuide( this, locationProfile, programGuide.getChannels() );
 		Log.v( TAG, "process : programsAdded=" + programsAdded );

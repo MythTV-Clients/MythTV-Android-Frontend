@@ -25,6 +25,7 @@ import org.joda.time.DateTime;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.AbstractDaoHelper;
 import org.mythtv.db.http.model.EtagInfoDelegate;
+import org.mythtv.service.util.DateUtils;
 
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -363,9 +364,9 @@ public class EtagDaoHelper extends AbstractDaoHelper {
 		values.put( EtagConstants.FIELD_ENDPOINT, etag.getEndpoint() );
 		values.put( EtagConstants.FIELD_VALUE, etag.getValue() );
 		values.put( EtagConstants.FIELD_DATA_ID, etag.getDataId() );
-		values.put( EtagConstants.FIELD_DATE, null != etag.getDate() ? etag.getDate().getMillis() : ( new DateTime() ).getMillis() );
+		values.put( EtagConstants.FIELD_DATE, null != etag.getDate() ? etag.getDate().getMillis() : ( DateUtils.convertUtc( new DateTime() ) ).getMillis() );
 		values.put( EtagConstants.FIELD_MASTER_HOSTNAME, etag.getMasterHostname() );
-		values.put( EtagConstants.FIELD_LAST_MODIFIED_DATE, null != etag.getLastModified() ? etag.getLastModified().getMillis() : ( new DateTime() ).getMillis() );
+		values.put( EtagConstants.FIELD_LAST_MODIFIED_DATE, null != etag.getLastModified() ? etag.getLastModified().getMillis() : ( DateUtils.convertUtc( new DateTime() ) ).getMillis() );
 		
 //		Log.v( TAG, "convertChannelToContentValues : exit" );
 		return values;

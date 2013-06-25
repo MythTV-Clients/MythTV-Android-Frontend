@@ -25,6 +25,7 @@ import org.joda.time.DateTime;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.AbstractDaoHelper;
 import org.mythtv.provider.MythtvProvider;
+import org.mythtv.service.util.DateUtils;
 import org.mythtv.services.api.channel.ChannelInfo;
 import org.mythtv.services.api.channel.ChannelInfos;
 
@@ -200,7 +201,7 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 		if( null == context ) 
 			throw new RuntimeException( "ChannelDaoHelper is not initialized" );
 		
-		ContentValues values = convertChannelInfoToContentValues( locationProfile, new DateTime(), channelInfo );
+		ContentValues values = convertChannelInfoToContentValues( locationProfile, DateUtils.convertUtc( new DateTime() ), channelInfo );
 
 		String[] projection = new String[] { ChannelConstants._ID };
 		String selection = ChannelConstants.FIELD_CHAN_ID + " = ?";
@@ -293,7 +294,7 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 		if( null == context ) 
 			throw new RuntimeException( "ChannelDaoHelper is not initialized" );
 		
-		DateTime lastModified = new DateTime();
+		DateTime lastModified = DateUtils.convertUtc( new DateTime() );
 		
 		int count = 0;
 		int deletecount = 0;

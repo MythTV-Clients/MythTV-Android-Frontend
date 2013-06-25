@@ -116,7 +116,7 @@ public class UpcomingActivity extends AbstractMythtvFragmentActivity {
 		DateTime etag = mEtagDaoHelper.findDateByEndpointAndDataId( this, mLocationProfile, Endpoint.GET_UPCOMING_LIST.name(), "" );
 		if( null != etag ) {
 			
-			DateTime now = new DateTime();
+			DateTime now = DateUtils.convertUtc( new DateTime() );
 			if( now.getMillis() - etag.getMillis() > ( 2 * 3600000 ) ) {
 				loadData();
 			}

@@ -83,7 +83,7 @@ public class UpcomingFragment extends MythtvListFragment implements LoaderManage
 		String startDate = args.getString( START_DATE_KEY );
 		DateTime startDay = new DateTime( startDate ).withTimeAtStartOfDay();
 		DateTime endDay = startDay.plusDays( 1 );
-		DateTime now = new DateTime();
+		DateTime now = DateUtils.convertUtc( new DateTime() );
 
         mainApplication = getMainApplication();
 

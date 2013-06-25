@@ -42,6 +42,7 @@ import org.mythtv.db.http.EtagDaoHelper;
 import org.mythtv.service.MythtvService;
 import org.mythtv.service.channel.ChannelDownloadService;
 import org.mythtv.service.guide.ProgramGuideDownloadService;
+import org.mythtv.service.util.DateUtils;
 import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.service.util.RunningServiceHelper;
 import org.mythtv.services.api.channel.impl.ChannelTemplate.Endpoint;
@@ -414,7 +415,7 @@ public class MainMenuFragment extends AbstractMythFragment implements ServiceLis
 			DateTime etag = mEtagDaoHelper.findDateByEndpointAndDataId( getActivity(), profile, Endpoint.GET_CHANNEL_INFO_LIST.name(), "" );
 			if( null != etag ) {
 				
-				DateTime now = new DateTime();
+				DateTime now = DateUtils.convertUtc( new DateTime() );
 				if( now.getMillis() - etag.getMillis() > 86400000 ) {
 					if( !mRunningServiceHelper.isServiceRunning( getActivity(), "org.mythtv.service.channel.ChannelDownloadService" ) ) {
 						getActivity().startService( new Intent( ChannelDownloadService.ACTION_DOWNLOAD ) );

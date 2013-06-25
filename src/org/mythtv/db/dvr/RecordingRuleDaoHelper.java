@@ -10,6 +10,7 @@ import org.joda.time.DateTime;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.AbstractDaoHelper;
 import org.mythtv.provider.MythtvProvider;
+import org.mythtv.service.util.DateUtils;
 import org.mythtv.services.api.dvr.RecRule;
 
 import android.content.ContentProviderOperation;
@@ -186,7 +187,7 @@ public class RecordingRuleDaoHelper extends AbstractDaoHelper {
 		if( null == context ) 
 			throw new RuntimeException( "RecordingRuleDaoHelper is not initialized" );
 		
-		ContentValues values = convertRecRuleToContentValues( locationProfile, new DateTime(), recRule );
+		ContentValues values = convertRecRuleToContentValues( locationProfile, DateUtils.convertUtc( new DateTime() ), recRule );
 
 		String[] projection = new String[] { RecordingRuleConstants._ID };
 		String selection = RecordingRuleConstants.FIELD_REC_RULE_ID + " = ?";
@@ -282,7 +283,7 @@ public class RecordingRuleDaoHelper extends AbstractDaoHelper {
 		if( null == context ) 
 			throw new RuntimeException( "RecordingRuleDaoHelper is not initialized" );
 		
-		DateTime lastModified = new DateTime();
+		DateTime lastModified = DateUtils.convertUtc( new DateTime() );
 		
 		int count = 0;
 		int deletecount = 0;
@@ -673,6 +674,16 @@ public class RecordingRuleDaoHelper extends AbstractDaoHelper {
 	private ContentValues convertRecRuleToContentValues( final LocationProfile locationProfile, final DateTime lastModified, final RecRule recRule ) {
 //		Log.v( TAG, "convertRecRuleToContentValues : enter" );
 		
+		DateTime startTimestamp = DateUtils.convertUtc( new DateTime() );
+		if( null != recRule.getStartTime() ) {
+			startTimestamp = recRule.getStartTime();
+		}
+
+		DateTime endTimestamp = DateUtils.convertUtc( new DateTime() );
+		if( null != recRule.getEndTime() ) {
+			endTimestamp = recRule.getEndTime();
+		}
+
 //		Log.v( TAG, "convertRecRuleToContentValues : recRule=" + recRule.toString() );
 		ContentValues values = new ContentValues();
 		values.put( RecordingRuleConstants.FIELD_REC_RULE_ID, recRule.getId() );
@@ -684,8 +695,8 @@ public class RecordingRuleDaoHelper extends AbstractDaoHelper {
 		values.put( RecordingRuleConstants.FIELD_SEASON, recRule.getSeason() );
 		values.put( RecordingRuleConstants.FIELD_EPISODE, recRule.getEpisode() );
 		values.put( RecordingRuleConstants.FIELD_CATEGORY, recRule.getCategory() );
-		values.put( RecordingRuleConstants.FIELD_START_TIME, recRule.getStartTime().getMillis() );
-		values.put( RecordingRuleConstants.FIELD_END_TIME, recRule.getEndTime().getMillis() );
+		values.put( RecordingRuleConstants.FIELD_START_TIME, startTimestamp.getMillis() );
+		values.put( RecordingRuleConstants.FIELD_END_TIME, endTimestamp.getMillis() );
 		values.put( RecordingRuleConstants.FIELD_SERIES_ID, recRule.getSeriesId() );
 		values.put( RecordingRuleConstants.FIELD_PROGRAM_ID, recRule.getProgramId() );
 		values.put( RecordingRuleConstants.FIELD_INETREF, recRule.getInetref() );

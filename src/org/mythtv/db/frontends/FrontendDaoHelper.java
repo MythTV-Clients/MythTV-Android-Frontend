@@ -10,6 +10,7 @@ import org.joda.time.DateTime;
 import org.mythtv.client.ui.frontends.Frontend;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.AbstractDaoHelper;
+import org.mythtv.service.util.DateUtils;
 
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -222,7 +223,7 @@ public class FrontendDaoHelper extends AbstractDaoHelper {
 		if( null == context ) 
 			throw new RuntimeException( "FrontendDaoHelper is not initialized" );
 		
-		ContentValues values = convertFrontendToContentValues( locationProfile, new DateTime(), frontend );
+		ContentValues values = convertFrontendToContentValues( locationProfile, DateUtils.convertUtc( new DateTime() ), frontend );
 
 		String[] projection = new String[] { FrontendConstants._ID };
 		String selection = FrontendConstants.FIELD_NAME + " = ? AND " + FrontendConstants.FIELD_URL + " = ?";

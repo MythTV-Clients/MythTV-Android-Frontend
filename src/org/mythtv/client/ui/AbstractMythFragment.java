@@ -33,6 +33,7 @@ import org.mythtv.service.dvr.RecordingRuleDownloadService;
 import org.mythtv.service.dvr.UpcomingDownloadService;
 import org.mythtv.service.frontends.FrontendsDiscoveryService;
 import org.mythtv.service.guide.ProgramGuideDownloadServiceNew;
+import org.mythtv.service.util.DateUtils;
 import org.mythtv.service.util.MythtvServiceHelper;
 import org.mythtv.service.util.RunningServiceHelper;
 import org.mythtv.services.api.dvr.impl.DvrTemplate;
@@ -329,7 +330,7 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
 		DateTime guideEtag = mEtagDaoHelper.findDateByEndpointAndDataId( getActivity(), locationProfile, GuideTemplate.Endpoint.GET_PROGRAM_GUIDE.name(), "" );
 		if( null != guideEtag ) {
 			
-			DateTime now = new DateTime();
+			DateTime now = DateUtils.convertUtc( new DateTime() );
 			if( now.getMillis() - guideEtag.getMillis() > ( 24 * 3600000 ) ) {
 				startProgramGuideDownloadService();
 			}
@@ -356,7 +357,7 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
 		DateTime recordedEtag = mEtagDaoHelper.findDateByEndpointAndDataId( getActivity(), locationProfile, DvrTemplate.Endpoint.GET_RECORDED_LIST.name(), "" );
 		if( null != recordedEtag ) {
 			
-			DateTime now = new DateTime();
+			DateTime now = DateUtils.convertUtc( new DateTime() );
 			if( now.getMillis() - recordedEtag.getMillis() > 3600000 ) {
 				startRecordedDownloadService();
 			}
@@ -383,7 +384,7 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
 		DateTime recordingRuleEtag = mEtagDaoHelper.findDateByEndpointAndDataId( getActivity(), locationProfile, DvrTemplate.Endpoint.GET_RECORD_SCHEDULE_LIST.name(), "" );
 		if( null != recordingRuleEtag ) {
 			
-			DateTime now = new DateTime();
+			DateTime now = DateUtils.convertUtc( new DateTime() );
 			if( now.getMillis() - recordingRuleEtag.getMillis() > 3600000 ) {
 				startRecordingRulesDownloadService();
 			}
@@ -410,7 +411,7 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
 		DateTime upcomingEtag = mEtagDaoHelper.findDateByEndpointAndDataId( getActivity(), locationProfile, Endpoint.GET_UPCOMING_LIST.name(), "" );
 		if( null != upcomingEtag ) {
 			
-			DateTime now = new DateTime();
+			DateTime now = DateUtils.convertUtc( new DateTime() );
 			if( now.getMillis() - upcomingEtag.getMillis() > ( 6 * 3600000 ) ) {
 				startUpcomingDownloadService();
 			}

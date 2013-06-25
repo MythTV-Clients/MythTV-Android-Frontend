@@ -29,6 +29,7 @@ import org.mythtv.db.http.EtagDaoHelper;
 import org.mythtv.db.http.model.EtagInfoDelegate;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.MythtvService;
+import org.mythtv.service.util.DateUtils;
 import org.mythtv.service.util.FileHelper;
 import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.dvr.RecRuleList;
@@ -74,7 +75,7 @@ public class RecordingRuleDownloadService extends MythtvService {
 	private NotificationManager mNotificationManager;
 	private int notificationId;
 	
-	private File recordingRuleDirectory = null;
+//	private File recordingRuleDirectory = null;
 	private RecordingRuleDaoHelper mRecordingRuleDaoHelper = RecordingRuleDaoHelper.getInstance();
 	private EtagDaoHelper mEtagDaoHelper = EtagDaoHelper.getInstance();
 	private LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
@@ -93,15 +94,15 @@ public class RecordingRuleDownloadService extends MythtvService {
 		
 		boolean passed = true;
 		
-		recordingRuleDirectory = FileHelper.getInstance().getProgramRecordedDataDirectory();
-		if( null == recordingRuleDirectory || !recordingRuleDirectory.exists() ) {
-			Intent completeIntent = new Intent( ACTION_COMPLETE );
-			completeIntent.putExtra( EXTRA_COMPLETE, "Recording Rule location can not be found" );
-			sendBroadcast( completeIntent );
-
-			Log.d( TAG, "onHandleIntent : exit, recordingRuleDirectory does not exist" );
-			return;
-		}
+//		recordingRuleDirectory = FileHelper.getInstance().getProgramRecordedDataDirectory();
+//		if( null == recordingRuleDirectory || !recordingRuleDirectory.exists() ) {
+//			Intent completeIntent = new Intent( ACTION_COMPLETE );
+//			completeIntent.putExtra( EXTRA_COMPLETE, "Recording Rule location can not be found" );
+//			sendBroadcast( completeIntent );
+//
+//			Log.d( TAG, "onHandleIntent : exit, recordingRuleDirectory does not exist" );
+//			return;
+//		}
 
 		LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile( this );
 		if( !NetworkHelper.getInstance().isMasterBackendConnected( this, locationProfile ) ) {
@@ -155,6 +156,7 @@ public class RecordingRuleDownloadService extends MythtvService {
 		
 		ResponseEntity<RecRuleList> responseEntity = mMythtvServiceHelper.getMythServicesApi( locationProfile ).dvrOperations().getRecordScheduleList( -1, -1, etag );
 
+		DateTime date = DateUtils.convertUtc( new DateTime() );
 		if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
 			Log.i( TAG, "download : " + Endpoint.GET_RECORD_SCHEDULE_LIST.getEndpoint() + " returned 200 OK" );
 			RecRuleList recRuleList = responseEntity.getBody();
@@ -167,9 +169,9 @@ public class RecordingRuleDownloadService extends MythtvService {
 					Log.i( TAG, "download : saving etag: " + etag.getValue() );
 
 					etag.setEndpoint( Endpoint.GET_RECORD_SCHEDULE_LIST.name() );
-					etag.setDate( new DateTime() );
+					etag.setDate( date );
 					etag.setMasterHostname( locationProfile.getHostname() );
-					etag.setLastModified( new DateTime() );
+					etag.setLastModified( date );
 					mEtagDaoHelper.save( this, locationProfile, etag );
 				}
 
@@ -181,8 +183,9 @@ public class RecordingRuleDownloadService extends MythtvService {
 			Log.i( TAG, "download : " + Endpoint.GET_RECORD_SCHEDULE_LIST.getEndpoint() + " returned 304 Not Modified" );
 
 			if( null != etag.getValue() ) {
-				etag.setDate( new DateTime() );
-				etag.setLastModified( new DateTime() );
+				Log.i( TAG, "download : saving etag: " + etag.getValue() );
+
+				etag.setLastModified( date );
 				mEtagDaoHelper.save( this, locationProfile, etag );
 			}
 
@@ -196,8 +199,8 @@ public class RecordingRuleDownloadService extends MythtvService {
 		
 		Log.v( TAG, "process : saving recording rules for host [" + locationProfile.getHostname() + ":" + locationProfile.getUrl() + "]" );
 		
-		mMainApplication.getObjectMapper().writeValue( new File( recordingRuleDirectory, RECORDING_RULE_FILE_PREFIX + locationProfile.getHostname() + RECORDING_RULE_FILE_EXT ), recRules );
-		Log.v( TAG, "process : saved recorded to " + recordingRuleDirectory.getAbsolutePath() );
+//		mMainApplication.getObjectMapper().writeValue( new File( recordingRuleDirectory, RECORDING_RULE_FILE_PREFIX + locationProfile.getHostname() + RECORDING_RULE_FILE_EXT ), recRules );
+//		Log.v( TAG, "process : saved recorded to " + recordingRuleDirectory.getAbsolutePath() );
 
 		int recordingRulesAdded = mRecordingRuleDaoHelper.load( this, locationProfile, recRules.getRecRules() );
 		Log.v( TAG, "process : recordingRulesAdded=" + recordingRulesAdded );

@@ -30,6 +30,7 @@ import org.mythtv.db.channel.ChannelDaoHelper;
 import org.mythtv.db.http.EtagDaoHelper;
 import org.mythtv.db.http.model.EtagInfoDelegate;
 import org.mythtv.service.MythtvService;
+import org.mythtv.service.util.DateUtils;
 import org.mythtv.service.util.FileHelper;
 import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.channel.ChannelInfoList;
@@ -77,7 +78,7 @@ public class ChannelDownloadService extends MythtvService {
 	private NotificationManager mNotificationManager;
 	private int notificationId;
 	
-	private File channelDirectory = null;
+//	private File channelDirectory = null;
 	private ChannelDaoHelper mChannelDaoHelper = ChannelDaoHelper.getInstance();
 	private EtagDaoHelper mEtagDaoHelper = EtagDaoHelper.getInstance();
 	
@@ -93,15 +94,15 @@ public class ChannelDownloadService extends MythtvService {
 		Log.d( TAG, "onHandleIntent : enter" );
 		super.onHandleIntent( intent );
 		
-		channelDirectory = FileHelper.getInstance().getChannelDataDirectory();
-		if( null == channelDirectory || !channelDirectory.exists() ) {
-			Intent completeIntent = new Intent( ACTION_COMPLETE );
-			completeIntent.putExtra( EXTRA_COMPLETE, "Channel location can not be found" );
-			sendBroadcast( completeIntent );
-
-			Log.d( TAG, "onHandleIntent : exit, channelDirectory does not exist" );
-			return;
-		}
+//		channelDirectory = FileHelper.getInstance().getChannelDataDirectory();
+//		if( null == channelDirectory || !channelDirectory.exists() ) {
+//			Intent completeIntent = new Intent( ACTION_COMPLETE );
+//			completeIntent.putExtra( EXTRA_COMPLETE, "Channel location can not be found" );
+//			sendBroadcast( completeIntent );
+//
+//			Log.d( TAG, "onHandleIntent : exit, channelDirectory does not exist" );
+//			return;
+//		}
 
 		LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile( this );
 		if( !NetworkHelper.getInstance().isMasterBackendConnected( this, locationProfile ) ) {
@@ -143,7 +144,7 @@ public class ChannelDownloadService extends MythtvService {
 							DateTime date = mEtagDaoHelper.findDateByEndpointAndDataId( this, locationProfile, ChannelTemplate.Endpoint.GET_CHANNEL_INFO_LIST.name(), String.valueOf( videoSource.getId() ) );
 							if( null != date ) {
 								
-								DateTime now = new DateTime();
+								DateTime now = DateUtils.convertUtc( new DateTime() );
 								if( now.getMillis() - date.getMillis() > 86400000 ) {
 
 									// Download the channel listing, return list
@@ -229,6 +230,7 @@ public class ChannelDownloadService extends MythtvService {
 		
 		ResponseEntity<ChannelInfoList> responseEntity = mMythtvServiceHelper.getMythServicesApi( locationProfile ).channelOperations().getChannelInfoList( sourceId, 0, -1, etag );
 
+		DateTime date = DateUtils.convertUtc( new DateTime() );
 		if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
 			Log.i( TAG, "download : " + Endpoint.GET_CHANNEL_INFO_LIST.getEndpoint() + " returned 200 OK" );
 
@@ -237,9 +239,9 @@ public class ChannelDownloadService extends MythtvService {
 
 				etag.setEndpoint( Endpoint.GET_CHANNEL_INFO_LIST.name() );
 				etag.setDataId( sourceId );
-				etag.setDate( new DateTime() );
+				etag.setDate( date );
 				etag.setMasterHostname( locationProfile.getHostname() );
-				etag.setLastModified( new DateTime() );
+				etag.setLastModified( date );
 				mEtagDaoHelper.save( this, locationProfile, etag );
 
 				if( null != channelInfoList.getChannelInfos() ) {
@@ -255,8 +257,7 @@ public class ChannelDownloadService extends MythtvService {
 		if( responseEntity.getStatusCode().equals( HttpStatus.NOT_MODIFIED ) ) {
 			Log.i( TAG, "download : " + Endpoint.GET_CHANNEL_INFO_LIST.getEndpoint() + " returned 304 Not Modified" );
 
-			etag.setDate( new DateTime() );
-			etag.setLastModified( new DateTime() );
+			etag.setLastModified( date );
 			mEtagDaoHelper.save( this, locationProfile, etag );
 		}
 			
@@ -269,8 +270,8 @@ public class ChannelDownloadService extends MythtvService {
 		
 		Log.v( TAG, "process : saving recorded for host [" + locationProfile.getHostname() + ":" + locationProfile.getUrl() + "]" );
 
-		mMainApplication.getObjectMapper().writeValue( new File( channelDirectory, CHANNELS_FILE_PREFIX + videoSourceId + "_" + locationProfile.getHostname() + CHANNELS_FILE_EXT ), channelInfos );
-		Log.v( TAG, "process : saved channels to " + channelDirectory.getAbsolutePath() );
+//		mMainApplication.getObjectMapper().writeValue( new File( channelDirectory, CHANNELS_FILE_PREFIX + videoSourceId + "_" + locationProfile.getHostname() + CHANNELS_FILE_EXT ), channelInfos );
+//		Log.v( TAG, "process : saved channels to " + channelDirectory.getAbsolutePath() );
 
 		Log.v( TAG, "process : exit" );
 	}
