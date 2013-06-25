@@ -10,8 +10,6 @@ import org.mythtv.db.channel.ChannelConstants;
 import org.mythtv.db.channel.ChannelDaoHelper;
 import org.mythtv.services.api.channel.ChannelInfo;
 
-import com.nostra13.universalimageloader.core.assist.PauseOnScrollListener;
-
 import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -23,6 +21,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
+import android.widget.AbsListView.OnScrollListener;
 import android.widget.TextView;
 
 /**
@@ -33,15 +33,37 @@ public class GuideChannelFragment extends MythtvListFragment implements LoaderMa
 
 	private static final String TAG = GuideChannelFragment.class.getSimpleName();
 
+	private ChannelDaoHelper mChannelDaoHelper = ChannelDaoHelper.getInstance();
+	
 	private ProgramGuideCursorAdapter mAdapter;
-
+	private OnChannelScrollListener mOnChannelScrollListener;
+	
 	private LocationProfile mLocationProfile;
-
+	
+	public interface OnChannelScrollListener {
+		
+		void channelScroll( int firstVisibleItem, int visibleItemCount, int totalItemCount );
+		
+	}
+	
 	/**
 	 * 
 	 */
 	public GuideChannelFragment() { }
 
+	/**
+	 * @param mOnChannelScrollListener the mOnChannelScrollListener to set
+	 */
+	public void setOnChannelScrollListener( OnChannelScrollListener listener ) {
+		this.mOnChannelScrollListener = listener;
+	}
+
+	public ChannelInfo getChannel( int position ) {
+		long id = mAdapter.getItemId( position );
+		
+		return mChannelDaoHelper.findOne( getParentFragment().getActivity(), mLocationProfile, id ); 
+	}
+	
 	/* (non-Javadoc)
 	 * @see android.support.v4.app.LoaderManager.LoaderCallbacks#onCreateLoader(int, android.os.Bundle)
 	 */
@@ -71,7 +93,7 @@ public class GuideChannelFragment extends MythtvListFragment implements LoaderMa
 
 		    return null;
 		}
-		
+			
 	}
 
 	/* (non-Javadoc)
@@ -117,7 +139,33 @@ public class GuideChannelFragment extends MythtvListFragment implements LoaderMa
 		getLoaderManager().initLoader( 0, null, this );
 
 	    getListView().setFastScrollEnabled( true );
-		getListView().setOnScrollListener( new PauseOnScrollListener( false, true ) );
+		getListView().setOnScrollListener( new OnScrollListener() {
+
+			/* (non-Javadoc)
+			 * @see android.widget.AbsListView.OnScrollListener#onScroll(android.widget.AbsListView, int, int, int)
+			 */
+			@Override
+			public void onScroll( AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount ) {
+				Log.v( TAG, "onScroll : enter" );
+
+				mOnChannelScrollListener.channelScroll( firstVisibleItem, visibleItemCount, totalItemCount );
+
+				Log.v( TAG, "onScroll : exit" );
+			}
+
+			/* (non-Javadoc)
+			 * @see android.widget.AbsListView.OnScrollListener#onScrollStateChanged(android.widget.AbsListView, int)
+			 */
+			@Override
+			public void onScrollStateChanged( AbsListView  view, int scrollState ) {
+				Log.v( TAG, "onScrollStateChanged : enter" );
+
+				Log.v( TAG, "onScrollStateChanged : scrollState=" + scrollState );
+
+				Log.v( TAG, "onScrollStateChanged : exit" );
+			}
+			
+		});
 
 		Log.v( TAG, "onActivityCreated : exit" );
 	}
