@@ -91,15 +91,15 @@ public class GuideFragment extends AbstractMythFragment implements GuideChannelF
 	 * @see org.mythtv.client.ui.dvr.GuideChannelFragment.OnChannelScrollListener#channelScroll(int, int, int)
 	 */
 	@Override
-	public void channelScroll( int firstVisibleItem, int visibleItemCount, int totalItemCount ) {
+	public void channelScroll( int first, int last, int screenCount, int totalCount ) {
 		Log.v( TAG, "channelScroll : enter" );
 		
-		Log.v( TAG, "channelScroll : firstVisibleItem=" + firstVisibleItem + ", visibleItemCount=" + visibleItemCount + ", totalItemCount=" + totalItemCount );
+		Log.v( TAG, "channelScroll : first=" + first + ", last=" + last + ", screenCount=" + screenCount + ", totalCount=" + totalCount );
 
-		ChannelInfo start = mGuideChannelFragment.getChannel( firstVisibleItem );
+		ChannelInfo start = mGuideChannelFragment.getChannel( first );
 		Log.v( TAG, "channelScroll : start=" + start.toString() );
 
-		ChannelInfo end = mGuideChannelFragment.getChannel( ( firstVisibleItem + visibleItemCount > totalItemCount ) ? ( totalItemCount - 1 ) : ( firstVisibleItem + visibleItemCount - 1 ) );
+		ChannelInfo end = mGuideChannelFragment.getChannel( last );
 		Log.v( TAG, "channelScroll : end=" + end.toString() );
 		
 		Log.v( TAG, "channelScroll : exit" );

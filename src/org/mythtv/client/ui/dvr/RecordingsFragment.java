@@ -32,6 +32,7 @@ import org.mythtv.db.http.EtagConstants;
 import org.mythtv.db.http.EtagDaoHelper;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.dvr.RecordedService;
+import org.mythtv.service.util.DateUtils;
 import org.mythtv.service.util.RunningServiceHelper;
 import org.mythtv.services.api.dvr.impl.DvrTemplate.Endpoint;
 
@@ -194,7 +195,7 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 		DateTime etag = mEtagDaoHelper.findDateByEndpointAndDataId( getActivity(), mLocationProfile, Endpoint.GET_RECORDED_LIST.name(), "" );
 		if( null != etag ) {
 			
-			DateTime now = new DateTime();
+			DateTime now = DateUtils.convertUtc( new DateTime() );
 			if( now.getMillis() - etag.getMillis() > 3600000 ) {
 				if( !mRunningServiceHelper.isServiceRunning( getActivity(), "org.mythtv.service.dvr.RecordedDownloadService" ) ) {
 					getActivity().startService( new Intent( RecordedService.ACTION_DOWNLOAD ) );

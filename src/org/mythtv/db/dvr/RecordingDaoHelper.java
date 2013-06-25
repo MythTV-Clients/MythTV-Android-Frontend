@@ -24,6 +24,7 @@ import java.util.List;
 import org.joda.time.DateTime;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.AbstractDaoHelper;
+import org.mythtv.service.util.DateUtils;
 import org.mythtv.services.api.dvr.Recording;
 
 import android.content.ContentUris;
@@ -308,22 +309,22 @@ public class RecordingDaoHelper extends AbstractDaoHelper {
 	public static ContentValues convertRecordingToContentValues( final LocationProfile locationProfile, final DateTime lastModified, final DateTime startTime, final Recording recording ) {
 //		Log.v( TAG, "convertRecordingToContentValues : enter" );
 		
-		DateTime startTimestamp = null;
+		DateTime startTimestamp = DateUtils.convertUtc( new DateTime() );
 		if( null != recording.getStartTimestamp() ) {
-			startTimestamp = new DateTime( recording.getStartTimestamp().getMillis() );
+			startTimestamp = recording.getStartTimestamp();
 		}
 //		Log.v( TAG, "convertRecordingToContentValues : startTimestamp = " + startTimestamp.toString() );
 		
-		DateTime endTimestamp = null;
+		DateTime endTimestamp = DateUtils.convertUtc( new DateTime() );
 		if( null != recording.getStartTimestamp() ) {
-			endTimestamp = new DateTime( recording.getEndTimestamp().getMillis() );
+			endTimestamp = recording.getEndTimestamp();
 		}
 		
 		ContentValues values = new ContentValues();
 		values.put( RecordingConstants.FIELD_STATUS, recording.getStatus() );
 		values.put( RecordingConstants.FIELD_PRIORITY, recording.getPriority() );
-		values.put( RecordingConstants.FIELD_START_TS, null != startTimestamp ? startTimestamp.getMillis() : -1 );
-		values.put( RecordingConstants.FIELD_END_TS, null != endTimestamp ? endTimestamp.getMillis() : -1 );
+		values.put( RecordingConstants.FIELD_START_TS, startTimestamp.getMillis() );
+		values.put( RecordingConstants.FIELD_END_TS, endTimestamp.getMillis() );
 		values.put( RecordingConstants.FIELD_RECORD_ID, recording.getRecordId() );
 		values.put( RecordingConstants.FIELD_REC_GROUP, null != recording.getRecordingGroup() ? recording.getRecordingGroup() : "" );
 		values.put( RecordingConstants.FIELD_PLAY_GROUP, null != recording.getPlayGroup() ? recording.getPlayGroup() : "" );

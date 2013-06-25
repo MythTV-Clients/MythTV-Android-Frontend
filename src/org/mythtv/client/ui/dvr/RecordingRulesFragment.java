@@ -189,7 +189,7 @@ public class RecordingRulesFragment extends MythtvListFragment implements Loader
 		DateTime etag = mEtagDaoHelper.findDateByEndpointAndDataId( getActivity(), mLocationProfile, Endpoint.GET_RECORD_SCHEDULE_LIST.name(), "" );
 		if( null != etag ) {
 			
-			DateTime now = new DateTime();
+			DateTime now = DateUtils.convertUtc( new DateTime() );
 			if( now.getMillis() - etag.getMillis() > 3600000 ) {
 				if( !mRunningServiceHelper.isServiceRunning( getActivity(), "org.mythtv.service.dvr.RecordingRuleDownloadService" ) ) {
 					getActivity().startService( new Intent( RecordingRuleDownloadService.ACTION_DOWNLOAD ) );

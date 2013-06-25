@@ -42,7 +42,7 @@ public class GuideChannelFragment extends MythtvListFragment implements LoaderMa
 	
 	public interface OnChannelScrollListener {
 		
-		void channelScroll( int firstVisibleItem, int visibleItemCount, int totalItemCount );
+		void channelScroll( int first, int last, int screenCount, int totalCount );
 		
 	}
 	
@@ -81,8 +81,8 @@ public class GuideChannelFragment extends MythtvListFragment implements LoaderMa
 		    Log.v( TAG, "onCreateLoader : getting channels" );
 
 			projection = null;
-			selection = ChannelConstants.FIELD_MASTER_HOSTNAME + " = ?";
-			selectionArgs = new String[] { mLocationProfile.getHostname() };
+			selection = ChannelConstants.FIELD_VISIBLE + " = ? AND " + ChannelConstants.FIELD_MASTER_HOSTNAME + " = ?";
+			selectionArgs = new String[] { "1", mLocationProfile.getHostname() };
 			sortOrder = ChannelConstants.FIELD_CHAN_NUM_FORMATTED;
 
 			Log.v( TAG, "onCreateLoader : exit" );
@@ -148,7 +148,7 @@ public class GuideChannelFragment extends MythtvListFragment implements LoaderMa
 			public void onScroll( AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount ) {
 				Log.v( TAG, "onScroll : enter" );
 
-				mOnChannelScrollListener.channelScroll( firstVisibleItem, visibleItemCount, totalItemCount );
+				//mOnChannelScrollListener.channelScroll( firstVisibleItem, visibleItemCount, totalItemCount );
 
 				Log.v( TAG, "onScroll : exit" );
 			}
@@ -161,6 +161,14 @@ public class GuideChannelFragment extends MythtvListFragment implements LoaderMa
 				Log.v( TAG, "onScrollStateChanged : enter" );
 
 				Log.v( TAG, "onScrollStateChanged : scrollState=" + scrollState );
+		        
+				int first = view.getFirstVisiblePosition();
+		        int last = view.getLastVisiblePosition();
+		        int count = view.getChildCount();
+
+		        if( scrollState == SCROLL_STATE_IDLE ) {
+		        	mOnChannelScrollListener.channelScroll( first, last, count, mAdapter.getCount() );
+		        }
 
 				Log.v( TAG, "onScrollStateChanged : exit" );
 			}

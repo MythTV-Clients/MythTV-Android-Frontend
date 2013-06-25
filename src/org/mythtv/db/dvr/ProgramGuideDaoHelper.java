@@ -24,6 +24,7 @@ import java.util.List;
 import org.joda.time.DateTime;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.provider.MythtvProvider;
+import org.mythtv.service.util.DateUtils;
 import org.mythtv.services.api.channel.ChannelInfo;
 import org.mythtv.services.api.dvr.Program;
 
@@ -217,11 +218,11 @@ public class ProgramGuideDaoHelper extends ProgramDaoHelper {
 		int totalUpdates = 0;
 		int totalInserts = 0;
 
-		DateTime lastModified = new DateTime();
+		DateTime lastModified = DateUtils.convertUtc( new DateTime() );
 		
 		ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
 
-		DateTime startDate = new DateTime().withTimeAtStartOfDay();
+		DateTime startDate = DateUtils.convertUtc( new DateTime() ).withTimeAtStartOfDay();
 		
 		Log.d( TAG, "load : deleting old" );
 		ops.add(  
