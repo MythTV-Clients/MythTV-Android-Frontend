@@ -20,7 +20,23 @@
 
 -->
 
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
-	android:id="@+id/program_guide_channel"
-	android:layout_width="fill_parent"
-	android:layout_height="wrap_content" />
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+	<TextView
+		android:id="@+id/program_guide_channel"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:layout_gravity="right"
+	/>
+
+	<TextView
+		android:id="@+id/program_guide_callsign"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:layout_gravity="center"
+	/>
+
+</LinearLayout>

@@ -80,7 +80,7 @@ public class GuideChannelFragment extends MythtvListFragment implements LoaderMa
 		case 0 :
 		    Log.v( TAG, "onCreateLoader : getting channels" );
 
-			projection = null;
+			projection = new String[] { ChannelConstants._ID, ChannelConstants.FIELD_CHAN_NUM, ChannelConstants.FIELD_CALLSIGN };
 			selection = ChannelConstants.FIELD_VISIBLE + " = ? AND " + ChannelConstants.FIELD_MASTER_HOSTNAME + " = ?";
 			selectionArgs = new String[] { "1", mLocationProfile.getHostname() };
 			sortOrder = ChannelConstants.FIELD_CHAN_NUM_FORMATTED;
@@ -200,6 +200,7 @@ public class GuideChannelFragment extends MythtvListFragment implements LoaderMa
 	        final ViewHolder mHolder = (ViewHolder) view.getTag();
 			
 			mHolder.channel.setText( channel.getChannelNumber() );
+			mHolder.callsign.setText( channel.getCallSign() );
 
 		}
 
@@ -213,6 +214,7 @@ public class GuideChannelFragment extends MythtvListFragment implements LoaderMa
 			
 			ViewHolder refHolder = new ViewHolder();
 			refHolder.channel = (TextView) view.findViewById( R.id.program_guide_channel );
+			refHolder.callsign = (TextView) view.findViewById( R.id.program_guide_callsign );
 			
 			view.setTag( refHolder );
 
@@ -224,6 +226,7 @@ public class GuideChannelFragment extends MythtvListFragment implements LoaderMa
 	private static class ViewHolder {
 		
 		TextView channel;
+		TextView callsign;
 		
 	}
 
