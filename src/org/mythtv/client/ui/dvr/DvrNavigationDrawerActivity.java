@@ -16,6 +16,7 @@ import org.mythtv.client.ui.dvr.navigationDrawer.DvrRecordingRulesActionRow;
 import org.mythtv.client.ui.dvr.navigationDrawer.DvrRecordingRulesLastUpdateActionRow;
 import org.mythtv.client.ui.dvr.navigationDrawer.DvrRecordingsActionRow;
 import org.mythtv.client.ui.dvr.navigationDrawer.DvrRecordingsLastUpdateActionRow;
+import org.mythtv.client.ui.dvr.navigationDrawer.DvrRowType;
 import org.mythtv.client.ui.dvr.navigationDrawer.DvrUpcomingActionRow;
 import org.mythtv.client.ui.dvr.navigationDrawer.DvrUpcomingLastUpdateActionRow;
 import org.mythtv.client.ui.dvr.navigationDrawer.DvrVersionRow;
@@ -246,7 +247,7 @@ public class DvrNavigationDrawerActivity extends AbstractMythtvFragmentActivity 
          */
         @Override
         public int getViewTypeCount() {
-            return TopLevelRowType.values().length;
+            return DvrRowType.values().length;
         }
 
         /* (non-Javadoc)
