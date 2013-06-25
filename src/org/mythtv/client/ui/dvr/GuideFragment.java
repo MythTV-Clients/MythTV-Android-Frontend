@@ -18,10 +18,9 @@
  */
 package org.mythtv.client.ui.dvr;
 
-//import java.io.File;
-//import java.io.FilenameFilter;
 import org.mythtv.R;
 import org.mythtv.client.ui.AbstractMythFragment;
+import org.mythtv.services.api.channel.ChannelInfo;
 
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
@@ -30,14 +29,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
-//import org.mythtv.service.util.FileHelper;
-//import org.mythtv.service.util.RunningServiceHelper;
 
 /**
  * @author Daniel Frey
  *
  */
-public class GuideFragment extends AbstractMythFragment {
+public class GuideFragment extends AbstractMythFragment implements GuideChannelFragment.OnChannelScrollListener {
 
 	private static final String TAG = GuideFragment.class.getSimpleName();
 	
@@ -78,6 +75,7 @@ public class GuideFragment extends AbstractMythFragment {
 			mGuideChannelFragment = (GuideChannelFragment) manager.findFragmentByTag( GuideChannelFragment.class.getName() );
 			if( null == mGuideChannelFragment ) {
 				mGuideChannelFragment = (GuideChannelFragment) GuideChannelFragment.instantiate( getActivity(), GuideChannelFragment.class.getName() );
+				mGuideChannelFragment.setOnChannelScrollListener( this );
 			}
 
 			manager.beginTransaction()
@@ -87,6 +85,24 @@ public class GuideFragment extends AbstractMythFragment {
 		}
         
 		Log.v( TAG, "onActivityCreated : exit" );
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mythtv.client.ui.dvr.GuideChannelFragment.OnChannelScrollListener#channelScroll(int, int, int)
+	 */
+	@Override
+	public void channelScroll( int firstVisibleItem, int visibleItemCount, int totalItemCount ) {
+		Log.v( TAG, "channelScroll : enter" );
+		
+		Log.v( TAG, "channelScroll : firstVisibleItem=" + firstVisibleItem + ", visibleItemCount=" + visibleItemCount + ", totalItemCount=" + totalItemCount );
+
+		ChannelInfo start = mGuideChannelFragment.getChannel( firstVisibleItem );
+		Log.v( TAG, "channelScroll : start=" + start.toString() );
+
+		ChannelInfo end = mGuideChannelFragment.getChannel( ( firstVisibleItem + visibleItemCount > totalItemCount ) ? ( totalItemCount - 1 ) : ( firstVisibleItem + visibleItemCount - 1 ) );
+		Log.v( TAG, "channelScroll : end=" + end.toString() );
+		
+		Log.v( TAG, "channelScroll : exit" );
 	}
 
 }
