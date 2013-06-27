@@ -270,31 +270,9 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		
 		boolean inError;
 
-		List<Program> checks = new ArrayList<Program>();
-		
 		RecordingConstants.ContentDetails details = RecordingConstants.ContentDetails.getValueFromParent( table );
 		for( Program program : programs ) {
 
-			Log.w( TAG, "program key - " + program.getChannelInfo().getChannelId() + ":" + program.getStartTime() + ":" + program.getHostname() );
-
-			boolean add = true;
-			if( !checks.isEmpty() ) {
-				for( Program p : checks ) {
-					if( p.getChannelInfo().getChannelId() == program.getChannelInfo().getChannelId()
-							&& p.getStartTime().equals( program.getStartTime() )
-							&& p.getHostname().equals( program.getHostname() )
-					) {
-						Log.w( TAG, "duplicate found!" );
-						add = false;
-					}
-				}
-			} 
-			
-			if( add ) {
-				Log.w( TAG, "adding program to dup checks" );
-				checks.add( program );
-			}
-			
 			if( null == program.getStartTime() || null == program.getEndTime() ) {
 //				Log.w(TAG, "convertProgramToContentValues : null starttime and or endtime" );
 			
@@ -308,24 +286,33 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 			ContentValues programValues = convertProgramToContentValues( locationProfile, lastModified, program );
 			Cursor programCursor = context.getContentResolver().query( uri, programProjection, programSelection, new String[] { String.valueOf( program.getChannelInfo().getChannelId() ), String.valueOf( startTime.getMillis() ) }, null );
 			if( programCursor.moveToFirst() ) {
-				//Log.v( TAG, "load : UPDATE PROGRAM channel=" + program.getChannelInfo().getChannelNumber() + ", startTime=" + DateUtils.dateTimeFormatterPretty.print( startTime ) + "(" + startTime + ")" );
+				Log.v( TAG, "load : UPDATE PROGRAM " + count + ":" + program.getChannelInfo().getChannelId() + ":" + program.getStartTime() + ":" + program.getHostname() );
 
 				Long id = programCursor.getLong( programCursor.getColumnIndexOrThrow( ProgramConstants._ID ) );
-				ops.add( 
-						ContentProviderOperation.newUpdate( ContentUris.withAppendedId( uri, id ) )
-							.withValues( programValues )
-							.withYieldAllowed( true )
-							.build()
+//				ops.add( 
+//						ContentProviderOperation.newUpdate( ContentUris.withAppendedId( uri, id ) )
+//							.withValues( programValues )
+//							.withYieldAllowed( true )
+//							.build()
+//					);
+				context.getContentResolver().update(
+						ContentUris.withAppendedId( uri, id ),   // the user dictionary content URI
+						programValues,                       // the columns to update
+					    programSelection,                    // the column to select on
+					    new String[] { String.valueOf( program.getChannelInfo().getChannelId() ), String.valueOf( startTime.getMillis() ) }                      // the value to compare to
 					);
-				
 			} else {
-				//Log.v( TAG, "load : INSERT PROGRAM channel=" + program.getChannelInfo().getChannelNumber() + ", startTime=" + DateUtils.dateTimeFormatterPretty.print( startTime ) + "(" + startTime + ")" );
+				Log.v( TAG, "load : INSERT PROGRAM " + count + ":" + program.getChannelInfo().getChannelId() + ":" + program.getStartTime() + ":" + program.getHostname() );
 
-				ops.add(  
-						ContentProviderOperation.newInsert( uri )
-							.withValues( programValues )
-							.withYieldAllowed( true )
-							.build()
+//				ops.add(  
+//						ContentProviderOperation.newInsert( uri )
+//							.withValues( programValues )
+//							.withYieldAllowed( true )
+//							.build()
+//					);
+				context.getContentResolver().insert(
+						uri,   // the user dictionary content URI
+						programValues                       // the columns to update
 					);
 			}
 			programCursor.close();
@@ -352,7 +339,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 				ContentValues recordingValues = RecordingDaoHelper.convertRecordingToContentValues( locationProfile, lastModified, program.getStartTime(), program.getRecording() );
 				Cursor recordingCursor = context.getContentResolver().query( details.getContentUri(), recordingProjection, recordingSelection, recordingSelectionArgs, null );
 				if( recordingCursor.moveToFirst() ) {
-//					Log.v( TAG, "load : UPDATE RECORDING program=" + program.getTitle() + ", recording=" + program.getRecording().getRecordId() );
+					Log.v( TAG, "load : UPDATE RECORDING " + count + ":" + program.getTitle() + ", recording=" + program.getRecording().getRecordId() );
 
 					Long id = recordingCursor.getLong( recordingCursor.getColumnIndexOrThrow( details.getTableName() + "_" + RecordingConstants._ID ) );					
 					ops.add( 
@@ -362,7 +349,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 						.build()
 					);
 				} else {
-//					Log.v( TAG, "load : INSERT RECORDING program=" + program.getTitle() + ", recording=" + program.getRecording().getRecordId() );
+					Log.v( TAG, "load : INSERT RECORDING " + count + ":" + program.getTitle() + ", recording=" + program.getRecording().getRecordId() );
 
 					ops.add(  
 						ContentProviderOperation.newInsert( details.getContentUri() )
@@ -376,33 +363,43 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 			}
 			
 			if( count > 100 ) {
-//				Log.v( TAG, "process : applying batch for '" + count + "' transactions" );
+				Log.i( TAG, "process : applying batch for '" + count + "' transactions, processing programs" );
 				
 				if( !ops.isEmpty() ) {
-					//Log.v( TAG, "process : applying batch '" + channel.getCallSign() + "'" );
+					Log.v( TAG, "process : applying batch" );
 					
 					ContentProviderResult[] results = context.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
 					loaded += results.length;
 					
 					if( results.length > 0 ) {
 						ops.clear();
+
+						for( ContentProviderResult result : results ) {
+							Log.i( TAG, "process : batch result=" + result.toString() );
+						}
 					}
 				}
 
-				count = -1;
+				count = 0;
 			}
 			
 		}
 
 		if( !ops.isEmpty() ) {
-//			Log.v( TAG, "process : applying final batch for '" + count + "' transactions" );
+			Log.i( TAG, "process : applying final batch for '" + count + "' transactions, after processing programs" );
 
 			ContentProviderResult[] results = context.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
 			loaded += results.length;
 
 			if( results.length > 0 ) {
 				ops.clear();
+
+				for( ContentProviderResult result : results ) {
+					Log.i( TAG, "process : batch result=" + result.toString() );
+				}
 			}
+			
+			count = 0;
 		}
 
 //		Log.v( TAG, "load : remove deleted recordings" );
@@ -434,10 +431,18 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 
 
 		if( !ops.isEmpty() ) {
-//			Log.v( TAG, "process : applying final batch for '" + count + "' transactions" );
+			Log.i( TAG, "process : applying final batch for '" + count + "' transactions, final batch" );
 			
 			ContentProviderResult[] results = context.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
 			loaded += results.length;
+
+			if( results.length > 0 ) {
+				ops.clear();
+
+				for( ContentProviderResult result : results ) {
+					Log.i( TAG, "process : batch result=" + result.toString() );
+				}
+			}
 		}
 
 //		Log.v( TAG, "load : exit" );

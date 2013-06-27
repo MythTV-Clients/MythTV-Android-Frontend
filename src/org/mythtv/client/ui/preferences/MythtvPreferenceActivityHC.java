@@ -47,7 +47,9 @@ import android.net.wifi.WifiManager;
 import android.net.wifi.WifiManager.MulticastLock;
 import android.os.Bundle;
 import android.os.StrictMode;
+import android.preference.ListPreference;
 import android.preference.Preference;
+import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceCategory;
@@ -1064,6 +1066,74 @@ public class MythtvPreferenceActivityHC extends PreferenceActivity {
 
     		}
     		
+			Log.v( TAG, "setupPreferences : exit" );
+		}
+
+	}
+	
+	public static class ProgramGuidePreferenceFragment extends PreferenceFragment {
+		
+		private static final String TAG = ProgramGuidePreferenceFragment.class.getSimpleName();
+
+		private static final String PREFERENCE_PROGRAM_GUIDE_DAYS = "preference_program_guide_days";
+
+		/* (non-Javadoc)
+		 * @see android.preference.PreferenceFragment#onCreate(android.os.Bundle)
+		 */
+		@Override
+		public void onCreate( Bundle savedInstanceState ) {
+			Log.v( TAG, "onCreate : enter" );
+			
+			super.onCreate( savedInstanceState );
+
+            // Load the preferences from an XML resource
+            addPreferencesFromResource( R.xml.mythtv_program_guide_preferences );
+
+			Log.v( TAG, "onCreate : exit" );
+		}
+
+		/* (non-Javadoc)
+		 * @see android.app.Fragment#onResume()
+		 */
+		@Override
+		public void onResume() {
+			Log.v( TAG, "onResume : enter" );
+
+			super.onResume();
+
+			setupPreferences( getActivity() );
+			
+			Log.v( TAG, "onResume : exit" );
+		}
+
+		
+		// internal helpers
+		
+		private void setupPreferences( final Context context ) {
+			Log.v( TAG, "setupPreferences : enter" );
+
+   			Log.v( TAG, "setupPreferences : setting selected Away Playback Profile" );
+    		
+   	        /** Defining PreferenceChangeListener */
+   	        OnPreferenceChangeListener onPreferenceChangeListener = new OnPreferenceChangeListener() {
+   	 
+   	            @Override
+   	            public boolean onPreferenceChange( Preference preference, Object newValue ) {
+//   	                OnPreferenceChangeListener listener = ( OnPreferenceChangeListener) context;
+//   	                listener.onPreferenceChange( preference, newValue );
+   	                return true;
+   	            }
+   	       };
+   	 
+   	        /** Getting the ListPreference from the Preference Resource */
+  			ListPreference preference = (ListPreference) findPreference( PREFERENCE_PROGRAM_GUIDE_DAYS );
+  			if( null == preference.getValue() ) {
+  				preference.setValueIndex( 0 );
+  			}
+   	        
+  			/** Setting Preference change listener for the ListPreference */
+   	        preference.setOnPreferenceChangeListener( onPreferenceChangeListener );
+
 			Log.v( TAG, "setupPreferences : exit" );
 		}
 

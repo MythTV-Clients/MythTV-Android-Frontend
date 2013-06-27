@@ -18,7 +18,6 @@
  */
 package org.mythtv.service.guide;
 
-import java.io.File;
 import java.io.IOException;
 
 import org.joda.time.DateTime;
@@ -27,7 +26,6 @@ import org.mythtv.db.dvr.ProgramGuideDaoHelper;
 import org.mythtv.db.http.model.EtagInfoDelegate;
 import org.mythtv.service.MythtvService;
 import org.mythtv.service.util.DateUtils;
-import org.mythtv.service.util.FileHelper;
 import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.guide.ProgramGuide;
 import org.mythtv.services.api.guide.ProgramGuideWrapper;
@@ -37,7 +35,9 @@ import org.springframework.http.ResponseEntity;
 
 import android.content.Intent;
 import android.content.OperationApplicationException;
+import android.content.SharedPreferences;
 import android.os.RemoteException;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
@@ -51,11 +51,6 @@ public class ProgramGuideDownloadServiceNew extends MythtvService {
 
 	private static final String TAG = ProgramGuideDownloadServiceNew.class.getSimpleName();
 	
-	private static final String PROGRAM_GUIDE_FILE_PREFIX = "guide_";
-	private static final String PROGRAM_GUIDE_FILE_EXT = ".json";
-
-	public static final Integer MAX_HOURS = 288; //288
-
     public static final String ACTION_DOWNLOAD = "org.mythtv.background.programGuideDownloadNew.ACTION_DOWNLOAD";
     public static final String ACTION_PROGRESS = "org.mythtv.background.programGuideDownloadNew.ACTION_PROGRESS";
     public static final String ACTION_COMPLETE = "org.mythtv.background.programGuideDownloadNew.ACTION_COMPLETE";
@@ -69,8 +64,6 @@ public class ProgramGuideDownloadServiceNew extends MythtvService {
 
 	private ProgramGuideDaoHelper mProgramGuideDaoHelper = ProgramGuideDaoHelper.getInstance(); 
 	
-//	private File programGuideDirectory = null;
-
 	public ProgramGuideDownloadServiceNew() {
 		super( "ProgamGuideDownloadServiceNew" );
 	}
@@ -85,16 +78,6 @@ public class ProgramGuideDownloadServiceNew extends MythtvService {
 
 		boolean passed = true;
 		
-//		programGuideDirectory = FileHelper.getInstance().getProgramGuideDataDirectory();
-//		if( null == programGuideDirectory || !programGuideDirectory.exists() ) {
-//			Intent completeIntent = new Intent( ACTION_COMPLETE );
-//			completeIntent.putExtra( EXTRA_COMPLETE, "Program Guide location can not be found" );
-//			sendBroadcast( completeIntent );
-//
-//			Log.d( TAG, "onHandleIntent : exit, programGuideCache does not exist" );
-//			return;
-//		}
-
 		LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile( this );
 		if( !NetworkHelper.getInstance().isMasterBackendConnected( this, locationProfile ) ) {
 			Intent completeIntent = new Intent( ACTION_COMPLETE );
@@ -135,9 +118,13 @@ public class ProgramGuideDownloadServiceNew extends MythtvService {
 	private void download( final LocationProfile locationProfile ) throws Exception {
 		Log.v( TAG, "download : enter" );
 		
+		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences( this );
+		int downloadDays = Integer.parseInt( sp.getString( "preference_program_guide_days", "15" ) );
+		Log.v( TAG, "download : downloadDays=" + downloadDays );
+		
 		DateTime start = new DateTime().withTimeAtStartOfDay();
 		DateTime end = new DateTime( start );
-		end = end.plusDays( 15 ).withTimeAtStartOfDay();
+		end = end.plusDays( downloadDays ).withTimeAtStartOfDay();
 		Log.i( TAG, "download : starting download for " + DateUtils.dateTimeFormatter.print( start ) + ", end time=" + DateUtils.dateTimeFormatter.print( end ) );
 
 		EtagInfoDelegate etag = mEtagDaoHelper.findByEndpointAndDataId( this, locationProfile, GuideTemplate.Endpoint.GET_PROGRAM_GUIDE.name(), "" );
@@ -189,9 +176,6 @@ public class ProgramGuideDownloadServiceNew extends MythtvService {
 
 		Log.v( TAG, "process : saving program guide for host [" + locationProfile.getHostname() + ":" + locationProfile.getUrl() + "]" );
 		
-//		mMainApplication.getObjectMapper().writeValue( new File( programGuideDirectory, PROGRAM_GUIDE_FILE_PREFIX + locationProfile.getHostname() + PROGRAM_GUIDE_FILE_EXT ), programGuide );
-//		Log.v( TAG, "process : saved recorded to " + programGuideDirectory.getAbsolutePath() );
-
 		int programsAdded = mProgramGuideDaoHelper.loadProgramGuide( this, locationProfile, programGuide.getChannels() );
 		Log.v( TAG, "process : programsAdded=" + programsAdded );
 	

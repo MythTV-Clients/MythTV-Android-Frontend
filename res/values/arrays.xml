@@ -27,7 +27,6 @@
         <item>Setup</item>
     </string-array>
 
-
     <string-array name="nav_classes">
         <item>org.mythtv.client.ui.BackendStatusFragment</item>
         <item>org.mythtv.client.ui.BackendStatusFragment</item>
@@ -46,6 +45,23 @@
         <item>org.mythtv.client.ui.dvr.UpcomingPagerFragment</item>
         <item>org.mythtv.client.ui.dvr.GuideFragment</item>
         <item>org.mythtv.client.ui.dvr.RecordingRulesFragment</item>
+    </string-array>
+
+    <string-array name="program_guide_days">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+        <item>8</item>
+        <item>9</item>
+        <item>10</item>
+        <item>11</item>
+        <item>12</item>
+        <item>13</item>
+        <item>14</item>
     </string-array>
 
 </resources>

@@ -434,15 +434,18 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
     
 	private class ChannelDownloadReceiver extends BroadcastReceiver {
 
+		/* (non-Javadoc)
+		 * @see android.content.BroadcastReceiver#onReceive(android.content.Context, android.content.Intent)
+		 */
 		@Override
 		public void onReceive( Context context, Intent intent ) {
 			
 	        if ( intent.getAction().equals( ChannelDownloadService.ACTION_PROGRESS ) ) {
-	        	Log.i( TAG, "ProgramGuideDownloadReceiver.onReceive : progress=" + intent.getStringExtra( ChannelDownloadService.EXTRA_PROGRESS ) );
+	        	Log.i( TAG, "ChannelDownloadReceiver.onReceive : progress=" + intent.getStringExtra( ChannelDownloadService.EXTRA_PROGRESS ) );
 	        }
 	        
 	        if ( intent.getAction().equals( ChannelDownloadService.ACTION_COMPLETE ) ) {
-	        	Log.i( TAG, "ProgramGuideDownloadReceiver.onReceive : " + intent.getStringExtra( ChannelDownloadService.EXTRA_COMPLETE ) );
+	        	Log.i( TAG, "ChannelDownloadReceiver.onReceive : " + intent.getStringExtra( ChannelDownloadService.EXTRA_COMPLETE ) );
 	        	
 	        	if( intent.getBooleanExtra( ChannelDownloadService.EXTRA_COMPLETE_UPTODATE, true ) ) {
 	        		Toast.makeText( getActivity(), "Channels are up to date!", Toast.LENGTH_SHORT ).show();
@@ -463,6 +466,9 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
 
 	private class RecordedDownloadReceiver extends BroadcastReceiver {
 
+		/* (non-Javadoc)
+		 * @see android.content.BroadcastReceiver#onReceive(android.content.Context, android.content.Intent)
+		 */
 		@Override
 		public void onReceive( Context context, Intent intent ) {
         	Log.i( TAG, "RecordedDownloadReceiver.onReceive : enter" );
@@ -500,6 +506,9 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
 
 	private class RecordingRuleDownloadReceiver extends BroadcastReceiver {
 
+		/* (non-Javadoc)
+		 * @see android.content.BroadcastReceiver#onReceive(android.content.Context, android.content.Intent)
+		 */
 		@Override
 		public void onReceive( Context context, Intent intent ) {
         	Log.i( TAG, "RecordingRuleDownloadReceiver.onReceive : enter" );
@@ -528,6 +537,9 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
 
 	private class UpcomingDownloadReceiver extends BroadcastReceiver {
 
+		/* (non-Javadoc)
+		 * @see android.content.BroadcastReceiver#onReceive(android.content.Context, android.content.Intent)
+		 */
 		@Override
 		public void onReceive( Context context, Intent intent ) {
 			
@@ -558,6 +570,9 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
 
 	private class ProgramGuideDownloadReceiver extends BroadcastReceiver {
 
+		/* (non-Javadoc)
+		 * @see android.content.BroadcastReceiver#onReceive(android.content.Context, android.content.Intent)
+		 */
 		@Override
 		public void onReceive( Context context, Intent intent ) {
 			
@@ -584,6 +599,9 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
 
 	private class FrontendsDiscoveryReceiver extends BroadcastReceiver {
 
+		/* (non-Javadoc)
+		 * @see android.content.BroadcastReceiver#onReceive(android.content.Context, android.content.Intent)
+		 */
 		@Override
 		public void onReceive( Context context, Intent intent ) {
 			

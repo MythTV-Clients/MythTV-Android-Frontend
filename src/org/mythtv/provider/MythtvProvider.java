@@ -743,7 +743,7 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 
 		final SQLiteDatabase db = database.getReadableDatabase();
 		
-		SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
+		final SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
 
 		StringBuilder sb = new StringBuilder();
 
