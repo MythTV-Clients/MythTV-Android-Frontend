@@ -137,6 +137,13 @@
 	<string name="preference_playback_profile_edit_text_sample_rate_hint">Audio Sample Rate</string>
 	<string name="preference_playback_profile_text_view_sample_rate_error_invalid">Invalid Sample Rate</string>
 		
+	<string name="preference_program_guide">Program Guide</string>
+	<string name="preference_program_guide_summary">Specify preferences for managing the program guide.</string>
+	<string name="preference_program_guide_modify">Modify Program Guide Preferences</string>
+	<string name="preference_program_guide_modify_summary">Edit Program Guide Preferences</string>
+	<string name="preference_program_guide_days_title">Specify Program Guide Download Days</string>
+	<string name="preference_program_guide_days_default">3</string>
+	
 	<string name="preference_edit_error_dialog_title">Error</string>
 	
 	<string name="btn_ok">OK</string>

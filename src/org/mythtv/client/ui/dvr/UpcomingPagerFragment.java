@@ -203,7 +203,7 @@ public class UpcomingPagerFragment extends AbstractMythFragment {
 			
 			fragmentHeadings = new ArrayList<String>();
 
-			DateTime day = DateUtils.getToday();
+			DateTime day = new DateTime();
 			
 			String formattedDay = null;
 			for( int i = 0; i < 13; i++ ) {

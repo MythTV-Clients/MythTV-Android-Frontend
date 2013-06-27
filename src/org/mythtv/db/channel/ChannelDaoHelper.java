@@ -303,7 +303,7 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 		int totalInserts = 0;
 		int totalDeletes = 0;
 		
-		String[] channelProjection = new String[] { ChannelConstants.TABLE_NAME + "_" + ChannelConstants._ID };
+		String[] channelProjection = new String[] { ChannelConstants._ID };
 		String channelSelection = ChannelConstants.FIELD_CHAN_ID + " = ?";
 
 		channelSelection = appendLocationHostname( context, locationProfile, channelSelection, null );
@@ -320,7 +320,7 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 				if( channelCursor.moveToFirst() ) {
 //					Log.v( TAG, "load : updating channel " + channel.getChannelId() );
 
-					Long id = channelCursor.getLong( channelCursor.getColumnIndexOrThrow( ChannelConstants.TABLE_NAME + ChannelConstants._ID ) );
+					Long id = channelCursor.getLong( channelCursor.getColumnIndexOrThrow( ChannelConstants._ID ) );
 					ops.add( 
 						ContentProviderOperation.newUpdate( ContentUris.withAppendedId( ChannelConstants.CONTENT_URI, id ) )
 							.withValues( channelValues )

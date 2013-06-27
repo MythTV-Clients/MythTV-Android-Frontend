@@ -18,12 +18,10 @@
  */
 package org.mythtv.service.dvr;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
 import org.joda.time.DateTime;
-import org.mythtv.R;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.dvr.RecordedDaoHelper;
 import org.mythtv.db.dvr.programGroup.ProgramGroup;
@@ -33,7 +31,6 @@ import org.mythtv.db.http.model.EtagInfoDelegate;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.MythtvService;
 import org.mythtv.service.util.DateUtils;
-import org.mythtv.service.util.FileHelper;
 import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.Bool;
 import org.mythtv.services.api.MythServiceApiRuntimeException;
@@ -44,10 +41,6 @@ import org.mythtv.services.api.dvr.impl.DvrTemplate.Endpoint;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
 import android.content.OperationApplicationException;
 import android.os.Bundle;
@@ -65,9 +58,6 @@ public class RecordedService extends MythtvService {
 
 	private static final String TAG = RecordedService.class.getSimpleName();
 
-	private static final String RECORDED_FILE_PREFIX = "recorded_";
-	private static final String RECORDED_FILE_EXT = ".json";
-	
     public static final String ACTION_DOWNLOAD = "org.mythtv.background.recorded.ACTION_DOWNLOAD";
     public static final String ACTION_REMOVE = "org.mythtv.background.recorded.ACTION_REMOVE";
     public static final String ACTION_PROGRESS = "org.mythtv.background.recorded.ACTION_PROGRESS";
@@ -83,10 +73,6 @@ public class RecordedService extends MythtvService {
     public static final String EXTRA_COMPLETE_UPTODATE = "COMPLETE_UPTODATE";
     public static final String EXTRA_COMPLETE_OFFLINE = "COMPLETE_OFFLINE";
     
-	private NotificationManager mNotificationManager;
-	private int notificationId;
-	
-//	private File recordedDirectory = null;
 	private RecordedDaoHelper mRecordedDaoHelper = RecordedDaoHelper.getInstance();
 	private ProgramGroupDaoHelper mProgramGroupDaoHelper = ProgramGroupDaoHelper.getInstance();
 	private EtagDaoHelper mEtagDaoHelper = EtagDaoHelper.getInstance();
@@ -106,16 +92,6 @@ public class RecordedService extends MythtvService {
 		
 		boolean passed = true;
 		
-//		recordedDirectory = FileHelper.getInstance().getProgramRecordedDataDirectory();
-//		if( null == recordedDirectory || !recordedDirectory.exists() ) {
-//			Intent completeIntent = new Intent( ACTION_COMPLETE );
-//			completeIntent.putExtra( EXTRA_COMPLETE, "Program Recorded location can not be found" );
-//			sendBroadcast( completeIntent );
-//
-//			Log.d( TAG, "onHandleIntent : exit, programCache does not exist" );
-//			return;
-//		}
-
 		LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile( this );
 		if( !NetworkHelper.getInstance().isMasterBackendConnected( this, locationProfile ) ) {
 			Intent completeIntent = new Intent( ACTION_COMPLETE );
@@ -127,13 +103,10 @@ public class RecordedService extends MythtvService {
 			return;
 		}
 		
-		mNotificationManager = (NotificationManager) getSystemService( Context.NOTIFICATION_SERVICE );
-
 		if ( intent.getAction().equals( ACTION_DOWNLOAD ) ) {
     		Log.i( TAG, "onHandleIntent : DOWNLOAD action selected" );
 
     		try {
-    			sendNotification();
 
     			download( locationProfile );
 
@@ -142,7 +115,6 @@ public class RecordedService extends MythtvService {
 				
 				passed = false;
 			} finally {
-    			completed();
 
     			Intent completeIntent = new Intent( ACTION_COMPLETE );
     			completeIntent.putExtra( EXTRA_COMPLETE, "Recorded Programs Download Service Finished" );
@@ -238,9 +210,6 @@ public class RecordedService extends MythtvService {
 		
 		Log.v( TAG, "process : saving recorded for host [" + locationProfile.getHostname() + ":" + locationProfile.getUrl() + "]" );
 		
-//		mMainApplication.getObjectMapper().writeValue( new File( recordedDirectory, RECORDED_FILE_PREFIX + locationProfile.getHostname() + RECORDED_FILE_EXT ), programs );
-//		Log.v( TAG, "process : saved recorded to " + recordedDirectory.getAbsolutePath() );
-
 		int programsAdded = mRecordedDaoHelper.load( this, locationProfile, programs.getPrograms() );
 		Log.v( TAG, "process : programsAdded=" + programsAdded );
 		
@@ -304,33 +273,4 @@ public class RecordedService extends MythtvService {
 		Log.v( TAG, "removeProgramGroupLocal : exit" );
 	}
 	
-	// internal helpers
-	
-	@SuppressWarnings( "deprecation" )
-	private void sendNotification() {
-
-		long when = System.currentTimeMillis();
-		notificationId = (int) when;
-		
-        Notification mNotification = new Notification( android.R.drawable.stat_notify_sync, getResources().getString( R.string.notification_sync_recordings ), when );
-
-        Intent notificationIntent = new Intent();
-        PendingIntent mContentIntent = PendingIntent.getActivity( this, 0, notificationIntent, 0 );
-
-        mNotification.setLatestEventInfo( this, getResources().getString( R.string.app_name ), getResources().getString( R.string.notification_sync_recordings ), mContentIntent );
-
-        mNotification.flags = Notification.FLAG_ONGOING_EVENT;
-
-        mNotificationManager.notify( notificationId, mNotification );
-	
-	}
-	
-    private void completed()    {
-        
-    	if( null != mNotificationManager ) {
-        	mNotificationManager.cancel( notificationId );
-    	}
-    
-    }
-
 }
