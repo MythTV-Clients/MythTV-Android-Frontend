@@ -163,7 +163,7 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 
 		getLoaderManager().initLoader( 0, null, this );
 		
-		getListView().setOnScrollListener( new PauseOnScrollListener( false, true ) );
+		getListView().setOnScrollListener( new PauseOnScrollListener( imageLoader, false, true ) );
 		
 		Log.v( TAG, "onActivityCreated : exit" );
 	}
@@ -369,7 +369,7 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 				 * @see com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener#onLoadingComplete(android.graphics.Bitmap)
 				 */
 				@Override
-				public void onLoadingComplete( Bitmap loadedImage ) {
+				public void onLoadingComplete( String imageUri, View view, Bitmap loadedImage ) {
 			        mHolder.programGroup.setVisibility( View.GONE );
 			        mHolder.programGroupBanner.setVisibility( View.VISIBLE );
 				}
@@ -378,7 +378,7 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 				 * @see com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener#onLoadingFailed(com.nostra13.universalimageloader.core.assist.FailReason)
 				 */
 				@Override
-				public void onLoadingFailed( FailReason failReason ) {
+				public void onLoadingFailed( String imageUri, View view, FailReason failReason ) {
 			        mHolder.programGroup.setVisibility( View.VISIBLE );
 			        mHolder.programGroupBanner.setVisibility( View.GONE );
 				}

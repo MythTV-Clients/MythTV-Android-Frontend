@@ -65,8 +65,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.nostra13.universalimageloader.core.assist.PauseOnScrollListener;
-
 /**
  * @author Daniel Frey
  *
@@ -157,8 +155,6 @@ public class RecordingRulesFragment extends MythtvListFragment implements Loader
 
 		getLoaderManager().initLoader( 0, null, this );
 		
-		getListView().setOnScrollListener( new PauseOnScrollListener( false, true ) );
-
 		Log.v( TAG, "onActivityCreated : exit" );
 	}
 	

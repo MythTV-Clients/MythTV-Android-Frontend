@@ -32,6 +32,15 @@
 		android:layout_gravity="right"
 	/>
 
+	<ImageButton
+		android:id="@+id/program_guide_icon"
+		android:layout_width="32dp"
+		android:layout_height="32dp"
+		android:layout_gravity="left"
+		android:visibility="gone"
+		android:contentDescription="icon"
+	/>
+	
 	<TextView
 		android:id="@+id/program_guide_callsign"
 		android:layout_width="fill_parent"
