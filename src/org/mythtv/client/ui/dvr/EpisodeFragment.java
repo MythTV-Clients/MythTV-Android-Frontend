@@ -410,7 +410,7 @@ public class EpisodeFragment extends AbstractMythFragment {
 					 * @see com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener#onLoadingComplete(android.graphics.Bitmap)
 					 */
 					@Override
-					public void onLoadingComplete( Bitmap loadedImage ) {
+					public void onLoadingComplete( String imageUri, View view, Bitmap loadedImage ) {
 				        iView.setVisibility( View.VISIBLE );
 					}
 
@@ -418,7 +418,7 @@ public class EpisodeFragment extends AbstractMythFragment {
 					 * @see com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener#onLoadingFailed(com.nostra13.universalimageloader.core.assist.FailReason)
 					 */
 					@Override
-					public void onLoadingFailed( FailReason failReason ) {
+					public void onLoadingFailed( String imageUri, View view, FailReason failReason ) {
 				        iView.setVisibility( View.GONE );
 					}
 					
