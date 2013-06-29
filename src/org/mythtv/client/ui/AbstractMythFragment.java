@@ -447,11 +447,11 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
 	        if ( intent.getAction().equals( ChannelDownloadService.ACTION_COMPLETE ) ) {
 	        	Log.i( TAG, "ChannelDownloadReceiver.onReceive : " + intent.getStringExtra( ChannelDownloadService.EXTRA_COMPLETE ) );
 	        	
-	        	if( intent.getBooleanExtra( ChannelDownloadService.EXTRA_COMPLETE_UPTODATE, true ) ) {
-	        		Toast.makeText( getActivity(), "Channels are up to date!", Toast.LENGTH_SHORT ).show();
-	        	} else {
-	        		Toast.makeText( getActivity(), "Channels are NOT up to date!", Toast.LENGTH_SHORT ).show();
-	        	}
+//	        	if( intent.getBooleanExtra( ChannelDownloadService.EXTRA_COMPLETE_UPTODATE, true ) ) {
+//	        		Toast.makeText( getActivity(), "Channels are up to date!", Toast.LENGTH_SHORT ).show();
+//	        	} else {
+//	        		Toast.makeText( getActivity(), "Channels are NOT up to date!", Toast.LENGTH_SHORT ).show();
+//	        	}
 
         		checkRecordedDownloadService();
         		checkUpcomingDownloadService();
