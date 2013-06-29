@@ -17,9 +17,11 @@ import com.nostra13.universalimageloader.core.assist.PauseOnScrollListener;
 import com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -41,6 +43,9 @@ public class GuideChannelFragment extends MythtvListFragment implements LoaderMa
 
 	private static final String TAG = GuideChannelFragment.class.getSimpleName();
 
+	private SharedPreferences mSharedPreferences;
+	private boolean downloadIcons;
+	
 	private ChannelDaoHelper mChannelDaoHelper = ChannelDaoHelper.getInstance();
 	
 	private ImageLoader imageLoader = ImageLoader.getInstance();
@@ -142,6 +147,11 @@ public class GuideChannelFragment extends MythtvListFragment implements LoaderMa
 		Log.v( TAG, "onActivityCreated : enter" );
 		super.onActivityCreated( savedInstanceState );
 
+		mSharedPreferences = PreferenceManager.getDefaultSharedPreferences( getActivity() );
+		downloadIcons = mSharedPreferences.getBoolean( "preference_program_guide_channel_icon_download", false );
+		Log.v( TAG, "download : downloadIcons=" + downloadIcons );
+
+
 		options = new DisplayImageOptions.Builder()
 //			.showStubImage( R.drawable.ic_stub )
 //			.showImageForEmptyUri( R.drawable.ic_empty )
@@ -222,29 +232,31 @@ public class GuideChannelFragment extends MythtvListFragment implements LoaderMa
 			mHolder.channel.setText( channel.getChannelNumber() );
 			mHolder.callsign.setText( channel.getCallSign() );
 
-			String imageUri = mLocationProfileDaoHelper.findConnectedProfile( getActivity() ).getUrl() + "Guide/GetChannelIcon?ChanId=" + channel.getChannelId() + "&Width=32&Height=32";
-			imageLoader.displayImage( imageUri, mHolder.icon, options, new SimpleImageLoadingListener() {
+			if( downloadIcons ) {
+				String imageUri = mLocationProfileDaoHelper.findConnectedProfile( getActivity() ).getUrl() + "Guide/GetChannelIcon?ChanId=" + channel.getChannelId() + "&Width=32&Height=32";
+				imageLoader.displayImage( imageUri, mHolder.icon, options, new SimpleImageLoadingListener() {
 
-				/* (non-Javadoc)
-				 * @see com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener#onLoadingComplete(android.graphics.Bitmap)
-				 */
-				@Override
-				public void onLoadingComplete( String imageUri, View view, Bitmap loadedImage ) {
-			        mHolder.icon.setVisibility( View.GONE );
-			        mHolder.icon.setVisibility( View.VISIBLE );
-				}
+					/* (non-Javadoc)
+					 * @see com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener#onLoadingComplete(android.graphics.Bitmap)
+					 */
+					@Override
+					public void onLoadingComplete( String imageUri, View view, Bitmap loadedImage ) {
+						mHolder.icon.setVisibility( View.GONE );
+						mHolder.icon.setVisibility( View.VISIBLE );
+					}
 
-				/* (non-Javadoc)
-				 * @see com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener#onLoadingFailed(com.nostra13.universalimageloader.core.assist.FailReason)
-				 */
-				@Override
-				public void onLoadingFailed( String imageUri, View view, FailReason failReason ) {
-			        mHolder.icon.setVisibility( View.VISIBLE );
-			        mHolder.icon.setVisibility( View.GONE );
-				}
-				
-			});
+					/* (non-Javadoc)
+					 * @see com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener#onLoadingFailed(com.nostra13.universalimageloader.core.assist.FailReason)
+					 */
+					@Override
+					public void onLoadingFailed( String imageUri, View view, FailReason failReason ) {
+						mHolder.icon.setVisibility( View.VISIBLE );
+						mHolder.icon.setVisibility( View.GONE );
+					}
 
+				});
+			}
+			
 		}
 
 		/* (non-Javadoc)
