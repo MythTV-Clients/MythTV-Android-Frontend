@@ -143,7 +143,9 @@
 	<string name="preference_program_guide_modify_summary">Edit Program Guide Preferences</string>
 	<string name="preference_program_guide_days_title">Specify Program Guide Download Days</string>
 	<string name="preference_program_guide_days_default">3</string>
-	
+	<string name="preference_program_guide_channel_icon_download_title">Download Channel Icons?</string>
+	<string name="preference_program_guide_channel_icon_download_summary">Download Channel Icons?</string>
+		
 	<string name="preference_edit_error_dialog_title">Error</string>
 	
 	<string name="btn_ok">OK</string>
