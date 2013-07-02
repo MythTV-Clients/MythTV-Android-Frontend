@@ -12,6 +12,7 @@ import org.mythtv.service.util.DateUtils;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
@@ -27,6 +28,14 @@ public abstract class DvrLastUpdateActionRow implements Row {
 	private MainApplication mMainApplication;
 	
 	private EtagInfoDelegate mEtag;
+
+	protected OnRefreshListener listener;
+	
+	public interface OnRefreshListener {
+		
+		void refresh( Row row );
+		
+	}
 
 	/**
 	 * @param context
@@ -70,6 +79,18 @@ public abstract class DvrLastUpdateActionRow implements Row {
             holder.date.setText( "" );
         }
         
+        holder.refresh.setOnClickListener( new OnClickListener() {
+
+			/* (non-Javadoc)
+			 * @see android.view.View.OnClickListener#onClick(android.view.View)
+			 */
+			@Override
+			public void onClick( final View view ) {
+				sendParent();
+			}
+        	
+        });
+        
         return convertView;
 	}
 	
@@ -89,6 +110,12 @@ public abstract class DvrLastUpdateActionRow implements Row {
 		return null;
 	}
 
+	public void setOnRefreshListener( OnRefreshListener listener ) {
+		this.listener = listener;
+	}
+	
+	protected abstract void sendParent();
+	
 	private static class ViewHolder {
 		
 		TextView date;

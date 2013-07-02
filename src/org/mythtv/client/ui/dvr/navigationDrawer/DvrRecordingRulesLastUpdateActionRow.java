@@ -29,4 +29,12 @@ public class DvrRecordingRulesLastUpdateActionRow extends DvrLastUpdateActionRow
 		return DvrRowType.RECORDINGS_LAST_UPDATE_ROW.ordinal();
 	}
 
+	/* (non-Javadoc)
+	 * @see org.mythtv.client.ui.dvr.navigationDrawer.DvrLastUpdateActionRow#sendParent()
+	 */
+	@Override
+	protected void sendParent() {
+		listener.refresh( this );
+	}
+
 }

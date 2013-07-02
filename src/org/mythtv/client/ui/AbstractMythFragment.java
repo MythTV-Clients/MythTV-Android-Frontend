@@ -494,7 +494,7 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
 	        	} else if( intent.getExtras().containsKey( RecordedService.EXTRA_COMPLETE_OFFLINE ) ) {
 	        		Toast.makeText( getActivity(), "Recorded Programs Update failed because Master Backend is not connected!", Toast.LENGTH_SHORT ).show();
 	        	} else {
-	        		Toast.makeText( getActivity(), "Recorded Programs updated!" + ( inError ? " (Backend error(s) detected)" : "" ), Toast.LENGTH_SHORT ).show();
+//	        		Toast.makeText( getActivity(), "Recorded Programs updated!" + ( inError ? " (Backend error(s) detected)" : "" ), Toast.LENGTH_SHORT ).show();
 	        	}
 	        	
 	        }
@@ -525,7 +525,7 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
 	        	} else if( intent.getExtras().containsKey( RecordingRuleDownloadService.EXTRA_COMPLETE_OFFLINE ) ) {
 	        		Toast.makeText( getActivity(), "Recording Rules Update failed because Master Backend is not connected!", Toast.LENGTH_SHORT ).show();
 	        	} else {
-	        		Toast.makeText( getActivity(), "Recording Rules updated!", Toast.LENGTH_SHORT ).show();
+//	        		Toast.makeText( getActivity(), "Recording Rules updated!", Toast.LENGTH_SHORT ).show();
 	        	}
 	        	
 	        }
@@ -560,7 +560,7 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
 	        	} else if( intent.getExtras().containsKey( UpcomingDownloadService.EXTRA_COMPLETE_OFFLINE ) ) {
 	        		Toast.makeText( getActivity(), "Upcoming Programs Update failed because Master Backend is not connected!", Toast.LENGTH_SHORT ).show();
 	        	} else {
-	        		Toast.makeText( getActivity(), "Upcoming Programs updated!", Toast.LENGTH_SHORT ).show();
+//	        		Toast.makeText( getActivity(), "Upcoming Programs updated!", Toast.LENGTH_SHORT ).show();
 	        	}
 	        }
 	        
@@ -589,7 +589,7 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
 	        	} else if( intent.getExtras().containsKey( ProgramGuideDownloadServiceNew.EXTRA_COMPLETE_OFFLINE ) ) {
 	        		Toast.makeText( getActivity(), "Program Guide Update failed because Master Backend is not connected!", Toast.LENGTH_SHORT ).show();
 	        	} else {
-	        		Toast.makeText( getActivity(), "Program Guide updated!", Toast.LENGTH_SHORT ).show();
+//	        		Toast.makeText( getActivity(), "Program Guide updated!", Toast.LENGTH_SHORT ).show();
 	        	}
 	        }
 	        

@@ -29,4 +29,12 @@ public class DvrGuideLastUpdateActionRow extends DvrLastUpdateActionRow {
 		return DvrRowType.GUIDE_LAST_UPDATE_ROW.ordinal();
 	}
 
+	/* (non-Javadoc)
+	 * @see org.mythtv.client.ui.dvr.navigationDrawer.DvrLastUpdateActionRow#sendParent()
+	 */
+	@Override
+	protected void sendParent() {
+		listener.refresh( this );
+	}
+
 }
