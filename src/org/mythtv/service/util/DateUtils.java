@@ -103,6 +103,11 @@ public class DateUtils {
         else return dateTimeFormatterPretty.print(dateTime);
     }
 
+    public static String getDateTimeUsingLocaleFormattingPrettyDateOnly( DateTime dateTime, String dateFormat ) {
+    	dateTime = dateTime.withZone( DateTimeZone.getDefault() );
+        return DateTimeFormat.forPattern( dateFormat ).print( dateTime );
+    }
+
     public static String getDateWithLocaleFormatting(String date, String dateFormat){
         DateTime currentDate = dateFormatter.parseDateTime(date);
         return getDateWithLocaleFormatting(currentDate, dateFormat);

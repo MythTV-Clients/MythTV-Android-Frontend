@@ -18,17 +18,25 @@
  */
 package org.mythtv.client.ui.dvr;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.joda.time.DateTime;
 import org.mythtv.R;
 import org.mythtv.client.ui.AbstractMythFragment;
+import org.mythtv.service.util.DateUtils;
 import org.mythtv.services.api.channel.ChannelInfo;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.TextView;
 
 /**
  * @author Daniel Frey
@@ -38,7 +46,12 @@ public class GuideFragment extends AbstractMythFragment implements GuideChannelF
 
 	private static final String TAG = GuideFragment.class.getSimpleName();
 	
+	private TextView mProgramGuideDate;
 	private GuideChannelFragment mGuideChannelFragment;
+	private GuideTimeslotsFragment mGuideTimeslotsFragment;
+	
+	private DateTime today;
+	private List<DateTime> dateRange = new ArrayList<DateTime>();
 	
 	/* (non-Javadoc)
 	 * @see android.support.v4.app.ListFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle)
@@ -64,6 +77,18 @@ public class GuideFragment extends AbstractMythFragment implements GuideChannelF
 		
 		View view = getView();
 		
+		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences( getActivity() );
+		int downloadDays = Integer.parseInt( sp.getString( "preference_program_guide_days", "14" ) );
+
+		today = new DateTime().withTimeAtStartOfDay();
+		dateRange.add( today );
+		for( int i = 1; i < downloadDays; i++ ) {
+			dateRange.add( today.plusDays( i ) );
+		}
+		
+		mProgramGuideDate = (TextView) getActivity().findViewById( R.id.program_guide_date );
+		mProgramGuideDate.setText( DateUtils.getDateTimeUsingLocaleFormattingPrettyDateOnly( today, getMainApplication().getDateFormat() ) );
+		
 		// get child fragment manager
 		FragmentManager manager = this.getChildFragmentManager();
 
@@ -83,7 +108,23 @@ public class GuideFragment extends AbstractMythFragment implements GuideChannelF
 				.commit();
 		
 		}
-        
+
+		FrameLayout timeslotsLayout = (FrameLayout) view.findViewById( R.id.frame_layout_program_guide_timeslots );
+		if( null != timeslotsLayout ) {
+			Log.v( TAG, "onActivityCreated : loading timeslots fragment" );
+			
+			mGuideTimeslotsFragment = (GuideTimeslotsFragment) manager.findFragmentByTag( GuideTimeslotsFragment.class.getName() );
+			if( null == mGuideTimeslotsFragment ) {
+				mGuideTimeslotsFragment = (GuideTimeslotsFragment) GuideTimeslotsFragment.instantiate( getActivity(), GuideTimeslotsFragment.class.getName() );
+				//mGuideTimeslotsFragment.setOnTimeslotScrollListener( this );
+			}
+
+			manager.beginTransaction()
+				.replace( R.id.frame_layout_program_guide_timeslots, mGuideTimeslotsFragment, GuideTimeslotsFragment.class.getName() )
+				.commit();
+		
+		}
+
 		Log.v( TAG, "onActivityCreated : exit" );
 	}
 

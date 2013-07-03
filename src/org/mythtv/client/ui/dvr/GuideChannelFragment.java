@@ -10,12 +10,6 @@ import org.mythtv.db.channel.ChannelConstants;
 import org.mythtv.db.channel.ChannelDaoHelper;
 import org.mythtv.services.api.channel.ChannelInfo;
 
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.assist.FailReason;
-import com.nostra13.universalimageloader.core.assist.PauseOnScrollListener;
-import com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener;
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -33,7 +27,14 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.FailReason;
+import com.nostra13.universalimageloader.core.assist.PauseOnScrollListener;
+import com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener;
 
 /**
  * @author dmfrey
@@ -208,7 +209,8 @@ public class GuideChannelFragment extends MythtvListFragment implements LoaderMa
 		Log.v( TAG, "onActivityCreated : exit" );
 	}
 
-
+	// internal helpers
+	
 	private class ProgramGuideCursorAdapter extends CursorAdapter {
 		
 		private LayoutInflater mInflater;
@@ -269,7 +271,7 @@ public class GuideChannelFragment extends MythtvListFragment implements LoaderMa
 			
 			ViewHolder refHolder = new ViewHolder();
 			refHolder.channel = (TextView) view.findViewById( R.id.program_guide_channel );
-			refHolder.icon = (ImageButton) view.findViewById( R.id.program_guide_icon );
+			refHolder.icon = (ImageView) view.findViewById( R.id.program_guide_icon );
 			refHolder.callsign = (TextView) view.findViewById( R.id.program_guide_callsign );
 			
 			view.setTag( refHolder );
@@ -282,7 +284,7 @@ public class GuideChannelFragment extends MythtvListFragment implements LoaderMa
 	private static class ViewHolder {
 		
 		TextView channel;
-		ImageButton icon;
+		ImageView icon;
 		TextView callsign;
 		
 	}
