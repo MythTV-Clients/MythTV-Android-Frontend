@@ -23,20 +23,21 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:gravity="center">
 
 	<TextView
 		android:id="@+id/program_guide_channel"
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
-		android:layout_gravity="right"
+		android:gravity="center"
 	/>
 
-	<ImageButton
+	<ImageView
 		android:id="@+id/program_guide_icon"
 		android:layout_width="32dp"
 		android:layout_height="32dp"
-		android:layout_gravity="left"
+		android:gravity="center"
 		android:visibility="gone"
 		android:contentDescription="icon"
 	/>
@@ -45,7 +46,7 @@
 		android:id="@+id/program_guide_callsign"
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
-		android:layout_gravity="center"
+		android:gravity="center"
 	/>
 
 </LinearLayout>

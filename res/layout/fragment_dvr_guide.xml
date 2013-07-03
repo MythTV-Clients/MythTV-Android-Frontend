@@ -20,35 +20,55 @@
 
 -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:baselineAligned="false"
     android:orientation="horizontal">
 
-    <FrameLayout
-        android:id="@+id/frame_layout_program_guide_channels"
-        android:layout_width="0dip"
-        android:layout_height="match_parent"
-        android:layout_weight="0.20" />
-
-    <LinearLayout
-        android:layout_width="0dip"
-        android:layout_height="match_parent"
-        android:layout_weight="0.80"
-        android:orientation="vertical" >
-
+	<TextView
+  		android:id="@+id/program_guide_date"
+  		android:layout_width="match_parent"
+  		android:layout_height="wrap_content"
+  		android:gravity="center_horizontal" />
+    
+    <RelativeLayout
+        android:id="@+id/program_guide_timeslots_row"
+        android:layout_width="match_parent"
+    	android:layout_height="wrap_content"
+    	android:layout_below="@id/program_guide_date"
+    	android:orientation="horizontal">
+        
+		<TextView
+  			android:id="@+id/program_guide_blank"
+  			android:layout_width="100dp"
+  			android:layout_height="wrap_content" />
+  			        
         <FrameLayout
             android:id="@+id/frame_layout_program_guide_timeslots"
-            android:layout_width="match_parent"
-            android:layout_height="0dip"
-            android:layout_weight="0.20" />
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/program_guide_blank" />
+		
+	</RelativeLayout>
+    
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/program_guide_timeslots_row"
+        android:baselineAligned="false"
+        android:orientation="vertical" >
+
+    	<FrameLayout
+        	android:id="@+id/frame_layout_program_guide_channels"
+        	android:layout_width="100dp"
+        	android:layout_height="match_parent" />
 
         <FrameLayout
             android:id="@+id/frame_layout_program_guide"
-            android:layout_width="match_parent"
-            android:layout_height="0dip"
-            android:layout_weight="0.80" />
-    </LinearLayout>
+            android:layout_width="fill_parent"
+            android:layout_height="match_parent"
+            android:layout_toRightOf="@id/frame_layout_program_guide_channels" />
+    </RelativeLayout>
 
-</LinearLayout>
+</RelativeLayout>

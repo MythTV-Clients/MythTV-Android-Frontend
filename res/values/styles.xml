@@ -41,4 +41,12 @@
         <item name="android:background">@null</item>
     </style>
     
+    <style name="ProgramGuideTimeSlotHeader">
+        <item name="android:layout_width">100sp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:gravity">center_horizontal</item>
+		<item name="android:padding">4sp</item>
+		<item name="android:background">@drawable/program_guide_timeslot_header_back</item>
+	</style>
+    
  </resources>
