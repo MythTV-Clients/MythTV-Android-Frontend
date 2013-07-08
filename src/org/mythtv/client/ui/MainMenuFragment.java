@@ -37,7 +37,7 @@ import org.mythtv.client.ui.frontends.Frontend;
 import org.mythtv.client.ui.frontends.MythmoteActivity;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.preferences.MythtvPreferenceActivity;
-import org.mythtv.client.ui.preferences.MythtvPreferenceActivityHC;
+import org.mythtv.client.ui.preferences.MythtvPreferenceActivity;
 import org.mythtv.db.http.EtagDaoHelper;
 import org.mythtv.service.MythtvService;
 import org.mythtv.service.channel.ChannelDownloadService;
@@ -48,6 +48,7 @@ import org.mythtv.service.util.RunningServiceHelper;
 import org.mythtv.services.api.channel.impl.ChannelTemplate.Endpoint;
 
 import android.app.AlertDialog;
+import android.app.Fragment;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -59,7 +60,6 @@ import android.net.wifi.WifiManager.MulticastLock;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
@@ -191,7 +191,7 @@ public class MainMenuFragment extends AbstractMythFragment implements ServiceLis
 			if( Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB ) {
 				startActivity( new Intent( getActivity(), MythtvPreferenceActivity.class ) );
 		    } else {
-		    	startActivity( new Intent( getActivity(), MythtvPreferenceActivityHC.class ) );
+		    	startActivity( new Intent( getActivity(), MythtvPreferenceActivity.class ) );
 		    }
 		}
 	};

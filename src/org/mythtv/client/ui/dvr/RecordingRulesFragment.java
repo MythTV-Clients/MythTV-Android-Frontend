@@ -39,19 +39,18 @@ import org.mythtv.services.api.dvr.impl.DvrTemplate.Endpoint;
 import org.springframework.http.ResponseEntity;
 
 import android.annotation.TargetApi;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
+import android.app.LoaderManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.Loader;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
-import android.support.v4.widget.CursorAdapter;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -61,6 +60,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.CursorAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -299,7 +299,7 @@ public class RecordingRulesFragment extends MythtvListFragment implements Loader
 		if( null != this.getActivity().findViewById( R.id.fragment_dvr_recording_rule ) ) {
 			Log.v( TAG, "onRecordingRuleSelected : adding recording rule to pane" );
 
-			FragmentManager manager = this.getActivity().getSupportFragmentManager();
+			FragmentManager manager = getActivity().getFragmentManager();
 
 			RecordingRuleFragment recordingRuleFragment = (RecordingRuleFragment) manager.findFragmentById( R.id.fragment_dvr_recording_rule );
 			FragmentTransaction transaction = manager.beginTransaction();

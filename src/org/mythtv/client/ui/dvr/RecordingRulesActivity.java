@@ -22,10 +22,10 @@ import org.mythtv.R;
 import org.mythtv.client.ui.AbstractMythtvFragmentActivity;
 import org.mythtv.services.api.dvr.RecRule;
 
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 
 /**
@@ -46,7 +46,7 @@ public class RecordingRulesActivity extends AbstractMythtvFragmentActivity imple
 
 		setContentView( R.layout.activity_dvr_recording_rules );
 
-		RecordingRulesFragment recordingRulesFragment = (RecordingRulesFragment) getSupportFragmentManager().findFragmentById( R.id.fragment_dvr_recording_rules );
+		RecordingRulesFragment recordingRulesFragment = (RecordingRulesFragment) getFragmentManager().findFragmentById( R.id.fragment_dvr_recording_rules );
 		recordingRulesFragment.setOnRecordingRuleListener( this );
 
 		Log.v( TAG, "onCreate : exit" );
@@ -62,7 +62,7 @@ public class RecordingRulesActivity extends AbstractMythtvFragmentActivity imple
 		if( null != findViewById( R.id.fragment_dvr_recording_rule ) ) {
 			Log.v( TAG, "onRecordingRuleSelected : adding recording rule to pane" );
 
-			FragmentManager manager = getSupportFragmentManager();
+			FragmentManager manager = getFragmentManager();
 
 			RecordingRuleFragment recordingRuleFragment = (RecordingRuleFragment) manager.findFragmentById( R.id.fragment_dvr_recording_rule );
 			FragmentTransaction transaction = manager.beginTransaction();

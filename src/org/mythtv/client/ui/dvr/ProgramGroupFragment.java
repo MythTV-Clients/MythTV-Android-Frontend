@@ -31,20 +31,20 @@ import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.util.DateUtils;
 import org.mythtv.services.api.dvr.Program;
 
+import android.app.LoaderManager;
 import android.content.Context;
+import android.content.CursorLoader;
+import android.content.Loader;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
-import android.support.v4.widget.CursorAdapter;
-import android.support.v4.widget.SimpleCursorAdapter;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CursorAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
 /**
@@ -201,6 +201,7 @@ public class ProgramGroupFragment extends MythtvListFragment implements LoaderMa
 	
 	private static class ProgramCursorAdapter extends SimpleCursorAdapter {
 
+		private Context mContext;
 		private LayoutInflater mInflater;
 		
 		public ProgramCursorAdapter( Context context, int layout, Cursor c, String[] from, int[] to, int flags ) {

@@ -46,7 +46,7 @@
 		android:smallScreens="true" />
     
     <uses-sdk
-        android:minSdkVersion="8"
+        android:minSdkVersion="14"
         android:targetSdkVersion="17" />
 
     <application
@@ -71,8 +71,6 @@
 		<!-- Preferences UI -->
 		<activity 
 			android:name=".client.ui.preferences.MythtvPreferenceActivity" />
-		<activity 
-			android:name=".client.ui.preferences.MythtvPreferenceActivityHC" />
 		<activity 
 			android:name=".client.ui.preferences.LocationProfileEditor" />
 		<activity 

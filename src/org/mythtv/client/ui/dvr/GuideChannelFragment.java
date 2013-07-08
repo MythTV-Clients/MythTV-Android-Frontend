@@ -10,22 +10,22 @@ import org.mythtv.db.channel.ChannelConstants;
 import org.mythtv.db.channel.ChannelDaoHelper;
 import org.mythtv.services.api.channel.ChannelInfo;
 
+import android.app.LoaderManager;
 import android.content.Context;
+import android.content.CursorLoader;
+import android.content.Loader;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
-import android.support.v4.widget.CursorAdapter;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
+import android.widget.CursorAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -77,7 +77,7 @@ public class GuideChannelFragment extends MythtvListFragment implements LoaderMa
 	public ChannelInfo getChannel( int position ) {
 		long id = mAdapter.getItemId( position );
 		
-		return mChannelDaoHelper.findOne( getParentFragment().getActivity(), mLocationProfile, id ); 
+		return mChannelDaoHelper.findOne( getActivity(), mLocationProfile, id ); 
 	}
 	
 	/* (non-Javadoc)
@@ -158,9 +158,9 @@ public class GuideChannelFragment extends MythtvListFragment implements LoaderMa
 //			.displayer( new RoundedBitmapDisplayer( 20 ) )
 			.build();
 
-		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( getParentFragment().getActivity() );
+		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
 		
-		mAdapter = new ProgramGuideCursorAdapter( getParentFragment().getActivity() );
+		mAdapter = new ProgramGuideCursorAdapter( getActivity() );
 	    setListAdapter( mAdapter );
 
 		getLoaderManager().initLoader( 0, null, this );

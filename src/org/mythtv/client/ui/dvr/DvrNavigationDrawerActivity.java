@@ -28,14 +28,14 @@ import org.mythtv.services.api.dvr.impl.DvrTemplate;
 import org.mythtv.services.api.guide.impl.GuideTemplate;
 
 import android.annotation.TargetApi;
+import android.app.Fragment;
+import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.Menu;
@@ -238,7 +238,7 @@ public class DvrNavigationDrawerActivity extends AbstractMythtvFragmentActivity 
 			getActionBar().setTitle( row.getTitle() );
 
 			if( selection != oldSelection ) {
-				FragmentTransaction tx = getSupportFragmentManager().beginTransaction();
+				FragmentTransaction tx = getFragmentManager().beginTransaction();
 				tx.replace( R.id.main, Fragment.instantiate( DvrNavigationDrawerActivity.this, row.getFragment() ) );
 				tx.commit();
 			
