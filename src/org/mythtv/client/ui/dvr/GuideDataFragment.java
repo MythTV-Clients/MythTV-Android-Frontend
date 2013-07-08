@@ -12,17 +12,17 @@ import org.mythtv.db.channel.ChannelDaoHelper;
 import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.services.api.channel.ChannelInfo;
 
+import android.app.LoaderManager;
 import android.content.Context;
+import android.content.CursorLoader;
+import android.content.Loader;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
-import android.support.v4.widget.CursorAdapter;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CursorAdapter;
 import android.widget.LinearLayout;
 
 /**
@@ -143,9 +143,9 @@ public class GuideDataFragment extends MythtvListFragment implements LoaderManag
 		Log.v( TAG, "onActivityCreated : enter" );
 		super.onActivityCreated( savedInstanceState );
 
-		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( getParentFragment().getActivity() );
+		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
 		
-		mAdapter = new ProgramGuideChannelCursorAdapter( getParentFragment().getActivity() );
+		mAdapter = new ProgramGuideChannelCursorAdapter( getActivity() );
 	    setListAdapter( mAdapter );
 
 		getLoaderManager().initLoader( 0, null, this );

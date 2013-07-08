@@ -24,11 +24,11 @@ import org.mythtv.client.ui.MainMenuFragment.ContentFragmentRequestedListener;
 import android.animation.ValueAnimator;
 import android.animation.ValueAnimator.AnimatorUpdateListener;
 import android.annotation.TargetApi;
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.MenuItem;
 import android.widget.FrameLayout;
@@ -61,7 +61,7 @@ public class MainActivity extends AbstractMythtvFragmentActivity implements Cont
 		FrameLayout menu = (FrameLayout) findViewById(R.id.frame_layout_main_menu);
 		
 		//get framgment manager and start a transaction
-		FragmentManager fragMgr = this.getSupportFragmentManager();
+		FragmentManager fragMgr = this.getFragmentManager();
 		FragmentTransaction fTran = fragMgr.beginTransaction();
 		
 		//Setup main menu fragment
@@ -296,9 +296,9 @@ public class MainActivity extends AbstractMythtvFragmentActivity implements Cont
 	public void OnFragmentRequested(int fragmentId, String fragmentClassName) {
 	
 		//find fragment and instantiate if necessary
-		Fragment fragment = getSupportFragmentManager().findFragmentById(fragmentId);
+		Fragment fragment = getFragmentManager().findFragmentById(fragmentId);
                 if (null == fragment)
-                    fragment = getSupportFragmentManager().findFragmentByTag(Integer.toString(fragmentId));
+                    fragment = getFragmentManager().findFragmentByTag(Integer.toString(fragmentId));
 		if (null == fragment)
 		    fragment = Fragment.instantiate(this, fragmentClassName);
 		
@@ -322,7 +322,7 @@ public class MainActivity extends AbstractMythtvFragmentActivity implements Cont
 		Log.d(TAG, "OnFragmentRequested() FragmentID: " + sContentId);
 		
 		//get framgment manager and start a transaction
-		FragmentManager fragMgr = getSupportFragmentManager();
+		FragmentManager fragMgr = getFragmentManager();
 		FragmentTransaction fTran = fragMgr.beginTransaction();
 		
 		//replace content fragment with this one

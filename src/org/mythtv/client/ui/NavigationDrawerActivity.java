@@ -24,9 +24,11 @@ import org.mythtv.client.ui.navigationDrawer.VersionRow;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.preferences.LocationProfile.LocationType;
 import org.mythtv.client.ui.preferences.MythtvPreferenceActivity;
-import org.mythtv.client.ui.preferences.MythtvPreferenceActivityHC;
+import org.mythtv.client.ui.preferences.MythtvPreferenceActivity;
 
 import android.annotation.TargetApi;
+import android.app.Fragment;
+import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -34,8 +36,6 @@ import android.content.SharedPreferences.Editor;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.Menu;
@@ -202,11 +202,7 @@ public class NavigationDrawerActivity extends AbstractMythtvFragmentActivity {
 					if( row instanceof ManageProfilesActionRow ) {
 						Log.v( TAG, "onCreate : starting preferences activity" );
 						
-						if( Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB ) {
-							startActivity( new Intent( NavigationDrawerActivity.this, MythtvPreferenceActivity.class ) );
-					    } else {
-					    	startActivity( new Intent( NavigationDrawerActivity.this, MythtvPreferenceActivityHC.class ) );
-					    }
+				    	startActivity( new Intent( NavigationDrawerActivity.this, MythtvPreferenceActivity.class ) );
 						
 					}
 
@@ -321,7 +317,7 @@ public class NavigationDrawerActivity extends AbstractMythtvFragmentActivity {
 		
 		Log.v( TAG, "updateContent : fragment=" + fragment );
 
-        FragmentTransaction tx = getSupportFragmentManager().beginTransaction();
+        FragmentTransaction tx = getFragmentManager().beginTransaction();
         tx.replace( R.id.main, Fragment.instantiate( NavigationDrawerActivity.this, fragment ) );
         tx.commit();
 

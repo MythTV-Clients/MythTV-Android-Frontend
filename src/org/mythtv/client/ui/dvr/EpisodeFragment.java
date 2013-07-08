@@ -37,6 +37,7 @@ import org.mythtv.services.api.dvr.Program;
 import org.springframework.http.ResponseEntity;
 
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -47,7 +48,6 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -395,7 +395,7 @@ public class EpisodeFragment extends AbstractMythFragment {
 			}
 			
 			// get activity to grab views from
-			FragmentActivity activity = this.getActivity();
+			Activity activity = this.getActivity();
 
 			// coverart
 			final ImageView iView = (ImageView) activity.findViewById( R.id.imageView_episode_coverart );

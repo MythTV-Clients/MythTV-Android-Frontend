@@ -44,6 +44,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import android.app.AlertDialog;
+import android.app.Fragment;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -52,7 +53,6 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -228,12 +228,12 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
      * @return
      */
     protected Fragment findChildFragmentByIdOrTag(int id) {
-    	Fragment frag = this.getChildFragmentManager().findFragmentById( id );
+    	Fragment frag = getActivity().getFragmentManager().findFragmentById( id );
     	if( null != frag ) {
     		return frag;
     	}
     	
-    	frag = this.getChildFragmentManager().findFragmentByTag( Integer.toString( id ) );
+    	frag = getActivity().getFragmentManager().findFragmentByTag( Integer.toString( id ) );
 	
     	return frag;
     }

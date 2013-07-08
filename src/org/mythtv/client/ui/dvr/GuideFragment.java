@@ -27,10 +27,10 @@ import org.mythtv.client.ui.AbstractMythFragment;
 import org.mythtv.service.util.DateUtils;
 import org.mythtv.services.api.channel.ChannelInfo;
 
+import android.app.FragmentManager;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v4.app.FragmentManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -93,7 +93,7 @@ public class GuideFragment extends AbstractMythFragment implements GuideChannelF
 		mProgramGuideDate.setText( DateUtils.getDateTimeUsingLocaleFormattingPrettyDateOnly( today, getMainApplication().getDateFormat() ) );
 		
 		// get child fragment manager
-		mFragmentManager = this.getChildFragmentManager();
+		mFragmentManager = this.getFragmentManager();
 
 		// look for program guide channels list placeholder frame layout
 		FrameLayout channelsLayout = (FrameLayout) view.findViewById( R.id.frame_layout_program_guide_channels );

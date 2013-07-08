@@ -30,10 +30,10 @@ import org.mythtv.db.dvr.programGroup.ProgramGroupConstants;
 import org.mythtv.db.dvr.programGroup.ProgramGroupDaoHelper;
 import org.mythtv.services.api.dvr.Program;
 
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -86,7 +86,7 @@ EpisodeFragment.OnEpisodeActionListener {
 		View view = this.getView();
 
 		// get child fragment manager
-		FragmentManager fMan = this.getChildFragmentManager();
+		FragmentManager fMan = getActivity().getFragmentManager();
 
 		// look for recording groups list placeholder framelayout
 		FrameLayout fLayout = (FrameLayout) view.findViewById(R.id.frame_layout_recording_groups);
@@ -174,7 +174,7 @@ EpisodeFragment.OnEpisodeActionListener {
 		}
 
 		if (this.mUseMultiplePanes && null != mProgramGroupFragment) {
-			FragmentManager manager = this.getActivity().getSupportFragmentManager();
+			FragmentManager manager = getActivity().getFragmentManager();
 
 			final boolean programGroupAdded = (mProgramGroupFragment != null);
 			if (programGroupAdded) {
