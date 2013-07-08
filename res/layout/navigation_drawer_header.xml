@@ -1,13 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="fill_parent"
-	android:layout_height="fill_parent"
+	android:layout_height="wrap_content"
+	android:orientation="vertical"
 	android:padding="10dp" >
 
 	<TextView
     	android:id="@+id/navigation_drawer_header"
     	android:layout_width="wrap_content"
     	android:layout_height="wrap_content"
+    	android:textColor="@color/text_header_main_menu"
 	/>
+	
+	<ImageView 
+	    android:src="@drawable/main_menu_horizontal_line"
+	    android:layout_width="fill_parent"
+		android:layout_height="wrap_content" />
 
-</RelativeLayout>
+</LinearLayout>

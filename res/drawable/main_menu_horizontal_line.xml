@@ -23,8 +23,8 @@
     android:shape="line" >
     
     <stroke
-        android:width="0.5dip"
+        android:width="2dip"
         android:color="@color/horizontal_line_main_menu"/>
-    <size android:height="0.5dp" android:width="10dp"/>
+    <size android:height="2dp" android:width="10dp"/>
 
 </shape>
