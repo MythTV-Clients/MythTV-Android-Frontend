@@ -38,6 +38,8 @@
         android:layout_height="match_parent"
         android:layout_gravity="start"
         android:background="@color/background_main_menu"
-        android:choiceMode="singleChoice"/>
+        android:divider="@color/background_main_menu"
+        android:choiceMode="singleChoice"
+        />
 
 </android.support.v4.widget.DrawerLayout>

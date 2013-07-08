@@ -2,13 +2,14 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="fill_parent"
 	android:layout_height="fill_parent"
-	android:padding="10dp" >
+	android:padding="10dp">
 
 	<TextView
     	android:id="@+id/navigation_drawer_version_title"
     	android:layout_width="wrap_content"
     	android:layout_height="wrap_content"
     	android:layout_alignParentLeft="true"
+    	android:layout_alignParentTop="true"
     	android:textColor="@color/text_main_menu"
     	android:text="@string/app_name"
 	/>
@@ -18,7 +19,14 @@
 	    android:layout_width="wrap_content"
 	    android:layout_height="wrap_content"
 	    android:layout_alignParentRight="true"
+	    android:layout_alignParentTop="true"
 	    android:textColor="@color/text_main_menu"
 	    android:text="@string/app_version" />
+	
+	<ImageView 
+	    android:src="@drawable/main_menu_horizontal_line"
+	    android:layout_width="fill_parent"
+		android:layout_height="4dp" 
+		android:layout_below="@id/navigation_drawer_version_title"/>
 
 </RelativeLayout>

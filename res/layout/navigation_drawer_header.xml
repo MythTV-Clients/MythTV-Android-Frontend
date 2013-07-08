@@ -15,6 +15,6 @@
 	<ImageView 
 	    android:src="@drawable/main_menu_horizontal_line"
 	    android:layout_width="fill_parent"
-		android:layout_height="wrap_content" />
+		android:layout_height="4dp" />
 
 </LinearLayout>
