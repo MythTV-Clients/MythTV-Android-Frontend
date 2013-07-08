@@ -26,7 +26,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -137,9 +136,6 @@ public class GuideChannelFragment extends MythtvListFragment implements LoaderMa
 		Log.v( TAG, "onLoaderReset : exit" );
 	}
 
-
-	// internal helpers
-	
 	/* (non-Javadoc)
 	 * @see android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
 	 */
@@ -243,18 +239,18 @@ public class GuideChannelFragment extends MythtvListFragment implements LoaderMa
 					 */
 					@Override
 					public void onLoadingComplete( String imageUri, View view, Bitmap loadedImage ) {
-						mHolder.icon.setVisibility( View.GONE );
+/*						mHolder.icon.setVisibility( View.GONE );
 						mHolder.icon.setVisibility( View.VISIBLE );
-					}
+*/					}
 
 					/* (non-Javadoc)
 					 * @see com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener#onLoadingFailed(com.nostra13.universalimageloader.core.assist.FailReason)
 					 */
 					@Override
 					public void onLoadingFailed( String imageUri, View view, FailReason failReason ) {
-						mHolder.icon.setVisibility( View.VISIBLE );
+/*						mHolder.icon.setVisibility( View.VISIBLE );
 						mHolder.icon.setVisibility( View.GONE );
-					}
+*/					}
 
 				});
 			}

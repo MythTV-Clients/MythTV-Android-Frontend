@@ -46,9 +46,12 @@ public class GuideFragment extends AbstractMythFragment implements GuideChannelF
 
 	private static final String TAG = GuideFragment.class.getSimpleName();
 	
+	private FragmentManager mFragmentManager;
+	
 	private TextView mProgramGuideDate;
 	private GuideChannelFragment mGuideChannelFragment;
 	private GuideTimeslotsFragment mGuideTimeslotsFragment;
+	private GuideDataFragment mGuideDataFragment;
 	
 	private DateTime today;
 	private List<DateTime> dateRange = new ArrayList<DateTime>();
@@ -90,20 +93,20 @@ public class GuideFragment extends AbstractMythFragment implements GuideChannelF
 		mProgramGuideDate.setText( DateUtils.getDateTimeUsingLocaleFormattingPrettyDateOnly( today, getMainApplication().getDateFormat() ) );
 		
 		// get child fragment manager
-		FragmentManager manager = this.getChildFragmentManager();
+		mFragmentManager = this.getChildFragmentManager();
 
 		// look for program guide channels list placeholder frame layout
 		FrameLayout channelsLayout = (FrameLayout) view.findViewById( R.id.frame_layout_program_guide_channels );
 		if( null != channelsLayout ) {
 			Log.v( TAG, "onActivityCreated : loading channels fragment" );
 			
-			mGuideChannelFragment = (GuideChannelFragment) manager.findFragmentByTag( GuideChannelFragment.class.getName() );
+			mGuideChannelFragment = (GuideChannelFragment) mFragmentManager.findFragmentByTag( GuideChannelFragment.class.getName() );
 			if( null == mGuideChannelFragment ) {
 				mGuideChannelFragment = (GuideChannelFragment) GuideChannelFragment.instantiate( getActivity(), GuideChannelFragment.class.getName() );
 				mGuideChannelFragment.setOnChannelScrollListener( this );
 			}
 
-			manager.beginTransaction()
+			mFragmentManager.beginTransaction()
 				.replace( R.id.frame_layout_program_guide_channels, mGuideChannelFragment, GuideChannelFragment.class.getName() )
 				.commit();
 		
@@ -113,14 +116,30 @@ public class GuideFragment extends AbstractMythFragment implements GuideChannelF
 		if( null != timeslotsLayout ) {
 			Log.v( TAG, "onActivityCreated : loading timeslots fragment" );
 			
-			mGuideTimeslotsFragment = (GuideTimeslotsFragment) manager.findFragmentByTag( GuideTimeslotsFragment.class.getName() );
+			mGuideTimeslotsFragment = (GuideTimeslotsFragment) mFragmentManager.findFragmentByTag( GuideTimeslotsFragment.class.getName() );
 			if( null == mGuideTimeslotsFragment ) {
 				mGuideTimeslotsFragment = (GuideTimeslotsFragment) GuideTimeslotsFragment.instantiate( getActivity(), GuideTimeslotsFragment.class.getName() );
 				//mGuideTimeslotsFragment.setOnTimeslotScrollListener( this );
 			}
 
-			manager.beginTransaction()
+			mFragmentManager.beginTransaction()
 				.replace( R.id.frame_layout_program_guide_timeslots, mGuideTimeslotsFragment, GuideTimeslotsFragment.class.getName() )
+				.commit();
+		
+		}
+
+		FrameLayout dataLayout = (FrameLayout) view.findViewById( R.id.frame_layout_program_guide_data );
+		if( null != dataLayout ) {
+			Log.v( TAG, "onActivityCreated : loading data fragment" );
+			
+			mGuideDataFragment = (GuideDataFragment) mFragmentManager.findFragmentByTag( GuideDataFragment.class.getName() );
+			if( null == mGuideDataFragment ) {
+				mGuideDataFragment = (GuideDataFragment) GuideDataFragment.instantiate( getActivity(), GuideDataFragment.class.getName() );
+				//mGuideTimeslotsFragment.setOnDataScrollListener( this );
+			}
+
+			mFragmentManager.beginTransaction()
+				.replace( R.id.frame_layout_program_guide_data, mGuideDataFragment, GuideDataFragment.class.getName() )
 				.commit();
 		
 		}
