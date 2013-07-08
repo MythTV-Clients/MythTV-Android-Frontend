@@ -65,7 +65,7 @@
         	android:layout_height="match_parent" />
 
         <FrameLayout
-            android:id="@+id/frame_layout_program_guide"
+            android:id="@+id/frame_layout_program_guide_data"
             android:layout_width="fill_parent"
             android:layout_height="match_parent"
             android:layout_toRightOf="@id/frame_layout_program_guide_channels" />

@@ -209,6 +209,7 @@
     <string name="episode_watch_button_raw">Play Recoding</string>
     
     <!-- Guide -->
+    <string name="program_guide_icon_content_disposition">icon</string>
     <string name="program_guide_timeslots_00_00_12">12:00 AM</string>
     <string name="program_guide_timeslots_00_00_24">00:00</string>
     <string name="program_guide_timeslots_00_30_12">12:30 AM</string>
