@@ -37,7 +37,7 @@
     <color name="background_main_menu">#454545</color>
     <color name="popup_background_main_menu">#676767</color>
     <color name="text_main_menu">#aaaaaa</color>
-    <color name="horizontal_line_main_menu">#000000</color>
+    <color name="horizontal_line_main_menu">#353535</color>
 
     <color name="whats_on_separator">#4d000000</color>
 
@@ -80,5 +80,6 @@
     <color name="program_category_Unknown">#303030</color>
     <color name="program_category_War">#b06050</color>
     <color name="program_category_Western">#806040</color>
+    <color name="text_header_main_menu">#353535</color>
 
 </resources>
