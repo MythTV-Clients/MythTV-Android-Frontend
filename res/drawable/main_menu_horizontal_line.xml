@@ -20,11 +20,10 @@
 
 -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
-    android:shape="line" >
+    android:shape="line">
     
     <stroke
-        android:width="0.5dip"
-        android:color="@color/horizontal_line_main_menu"/>
-    <size android:height="0.5dp" android:width="10dp"/>
-
+        android:width="2dip"
+    	android:color="@color/horizontal_line_main_menu"/>
+    
 </shape>
