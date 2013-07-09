@@ -34,13 +34,4 @@
         
     </ListView>
     
-    <!-- LinearLayout
-		android:layout_width="wrap_content"
-		android:layout_height="75dp"
-		android:id="@+id/program_guide_data_channel_row_holder"
-        android:orientation="horizontal"
-        style="@style/ProgramGuideChannelHeader">
-    
-    </LinearLayout -->
-        
 </HorizontalScrollView>
