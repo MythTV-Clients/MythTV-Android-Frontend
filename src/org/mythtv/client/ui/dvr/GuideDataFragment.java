@@ -3,126 +3,39 @@
  */
 package org.mythtv.client.ui.dvr;
 
-import org.joda.time.DateTime;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.mythtv.R;
-import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.util.MythtvListFragment;
-import org.mythtv.db.channel.ChannelConstants;
-import org.mythtv.db.channel.ChannelDaoHelper;
-import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.services.api.channel.ChannelInfo;
 
-import android.app.LoaderManager;
 import android.content.Context;
-import android.content.CursorLoader;
-import android.content.Loader;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.BaseAdapter;
 import android.widget.CursorAdapter;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 /**
  * @author dmfrey
  *
  */
-public class GuideDataFragment extends MythtvListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class GuideDataFragment extends MythtvListFragment {
 
 	private static final String TAG = GuideDataFragment.class.getSimpleName();
 	
-	private ProgramGuideChannelCursorAdapter mAdapter;
-	
-	private LocationProfile mLocationProfile;
-
-	private DateTime mDate;
+	private ProgramGuideChannelAdapter mAdapter;
 	
 	/**
 	 * 
 	 */
 	public GuideDataFragment() { }
-
-	public void setDate( DateTime date ) {
-		this.mDate = date;
-	}
-	
-	/* (non-Javadoc)
-	 * @see android.support.v4.app.LoaderManager.LoaderCallbacks#onCreateLoader(int, android.os.Bundle)
-	 */
-	@Override
-	public Loader<Cursor> onCreateLoader( int id, Bundle args ) {
-		Log.v( TAG, "onCreateLoader : enter" );
-		
-		String[] projection = null;
-		String selection = null;
-		String[] selectionArgs = null;
-		String sortOrder = null;
-		
-		switch( id ) {
-		case 0 :
-		    Log.v( TAG, "onCreateLoader : getting channels" );
-
-			projection = new String[] { ChannelConstants._ID, ChannelConstants.FIELD_CHAN_ID + " AS " + ChannelConstants.TABLE_NAME + "_" + ChannelConstants.FIELD_CHAN_ID, ChannelConstants.FIELD_CHAN_NUM + " AS " + ChannelConstants.TABLE_NAME + "_" + ChannelConstants.FIELD_CHAN_NUM, ChannelConstants.FIELD_CALLSIGN + " AS " + ChannelConstants.TABLE_NAME + "_" + ChannelConstants.FIELD_CALLSIGN };
-			selection = ChannelConstants.FIELD_VISIBLE + " = ? AND " + ChannelConstants.FIELD_MASTER_HOSTNAME + " = ?";
-			selectionArgs = new String[] { "1", mLocationProfile.getHostname() };
-			sortOrder = ChannelConstants.FIELD_CHAN_NUM_FORMATTED;
-
-			Log.v( TAG, "onCreateLoader : exit" );
-			return new CursorLoader( getActivity(), ChannelConstants.CONTENT_URI, projection, selection, selectionArgs, sortOrder );
-
-		case 1 :
-		    Log.v( TAG, "onCreateLoader : getting prorgrams for channels" );
-			
-		    int channelId = args.getInt( ProgramConstants.FIELD_CHANNEL_ID );
-		    long date = mDate.getMillis();
-		    
-		    if( args.containsKey( ProgramConstants.FIELD_END_TIME ) ) {
-		    	date = args.getLong( ProgramConstants.FIELD_END_TIME );
-		    }
-		    
-		    DateTime start = new DateTime( date );
-		    
-			projection = new String[] { ProgramConstants._ID, ProgramConstants.FIELD_TITLE, ProgramConstants.FIELD_SUB_TITLE, ProgramConstants.FIELD_CATEGORY, ProgramConstants.FIELD_START_TIME, ProgramConstants.FIELD_END_TIME };
-			selection = ProgramConstants.FIELD_CHANNEL_ID + " = ? AND " + ProgramConstants.FIELD_END_TIME + " >= ? AND " + ProgramConstants.FIELD_START_TIME + " < ? AND " + ProgramConstants.FIELD_MASTER_HOSTNAME + " = ?";
-			selectionArgs = new String[] { String.valueOf( channelId ), String.valueOf( start.getMillis() ), String.valueOf( start.plusDays( 1 ).getMillis() ), mLocationProfile.getHostname() };
-			sortOrder = ProgramConstants.FIELD_START_TIME;
-
-			Log.v( TAG, "onCreateLoader : exit" );
-			return new CursorLoader( getActivity(), ProgramConstants.CONTENT_URI_GUIDE, projection, selection, selectionArgs, sortOrder );
-			
-		default : 
-		    Log.v( TAG, "onCreateLoader : exit, invalid id" );
-
-		    return null;
-		}
-			
-	}
-
-	/* (non-Javadoc)
-	 * @see android.support.v4.app.LoaderManager.LoaderCallbacks#onLoadFinished(android.support.v4.content.Loader, java.lang.Object)
-	 */
-	@Override
-	public void onLoadFinished( Loader<Cursor> loader, Cursor cursor ) {
-		Log.v( TAG, "onLoadFinished : enter" );
-		
-		mAdapter.swapCursor( cursor );
-		
-		Log.v( TAG, "onLoadFinished : exit" );
-	}
-
-	/* (non-Javadoc)
-	 * @see android.support.v4.app.LoaderManager.LoaderCallbacks#onLoaderReset(android.support.v4.content.Loader)
-	 */
-	@Override
-	public void onLoaderReset( Loader<Cursor> loader ) {
-		Log.v( TAG, "onLoaderReset : enter" );
-		
-		mAdapter.swapCursor( null );
-		
-		Log.v( TAG, "onLoaderReset : exit" );
-	}
 
 	/* (non-Javadoc)
 	 * @see android.support.v4.app.ListFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle)
@@ -143,50 +56,93 @@ public class GuideDataFragment extends MythtvListFragment implements LoaderManag
 		Log.v( TAG, "onActivityCreated : enter" );
 		super.onActivityCreated( savedInstanceState );
 
-		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
-		
-		mAdapter = new ProgramGuideChannelCursorAdapter( getActivity() );
+		mAdapter = new ProgramGuideChannelAdapter( getActivity() );
 	    setListAdapter( mAdapter );
-
-		getLoaderManager().initLoader( 0, null, this );
 
 		Log.v( TAG, "onActivityCreated : exit" );
 	}
 
+	public void changeChannels( List<ChannelInfo> channels ) {
+		Log.v( TAG, "changeChannels : enter" );
+
+		mAdapter.setChannels( channels );
+
+		Log.v( TAG, "changeChannels : exit" );
+	}
+	
 	// internal helpers
 	
-	private class ProgramGuideChannelCursorAdapter extends CursorAdapter {
+	private class ProgramGuideChannelAdapter extends BaseAdapter {
 	
 		private LayoutInflater mInflater;
 
-		public ProgramGuideChannelCursorAdapter( Context context ) {
-			super( context, null, false );
+		private List<ChannelInfo> channels = new ArrayList<ChannelInfo>();
+		
+		public ProgramGuideChannelAdapter( Context context ) {
 			
 			mInflater = LayoutInflater.from( context );
-		}
-
-		/* (non-Javadoc)
-		 * @see android.support.v4.widget.CursorAdapter#bindView(android.view.View, android.content.Context, android.database.Cursor)
-		 */
-		@Override
-		public void bindView( View view, Context context, Cursor cursor ) {
-			
-			ChannelInfo channel = ChannelDaoHelper.convertCursorToChannelInfo( cursor );
-
-	        final ChannelViewHolder mHolder = (ChannelViewHolder) view.getTag();
 
 		}
 
+		public void setChannels( List<ChannelInfo> channels ) {
+			this.channels = channels;
+			
+			notifyDataSetChanged();
+		}
+		
 		/* (non-Javadoc)
-		 * @see android.support.v4.widget.CursorAdapter#newView(android.content.Context, android.database.Cursor, android.view.ViewGroup)
+		 * @see android.widget.Adapter#getCount()
 		 */
 		@Override
-		public View newView( Context context, Cursor cursor, ViewGroup parent ) {
+		public int getCount() {
+			return channels.size();
+		}
+
+		/* (non-Javadoc)
+		 * @see android.widget.Adapter#getItem(int)
+		 */
+		@Override
+		public ChannelInfo getItem( int position ) {
+			if( null != channels && !channels.isEmpty() ) {
+				return channels.get( position );
+			}
 			
-			View view = mInflater.inflate( R.layout.program_guide_data_row, parent, false );
-			
+			return null;
+		}
+
+		/* (non-Javadoc)
+		 * @see android.widget.Adapter#getItemId(int)
+		 */
+		@Override
+		public long getItemId( int position ) {
+			return position;
+		}
+
+		/* (non-Javadoc)
+		 * @see android.widget.Adapter#getView(int, android.view.View, android.view.ViewGroup)
+		 */
+		@Override
+		public View getView( int position, View convertView, ViewGroup parent ) {
+
 			ChannelViewHolder refHolder = new ChannelViewHolder();
-			refHolder.row = (LinearLayout) view.findViewById( R.id.program_guide_data_row );
+
+			View view = convertView;
+			if( null == view ) {
+				
+		        view = mInflater.inflate( R.layout.program_guide_data_row, parent, false );
+				
+				refHolder.row = (LinearLayout) view.findViewById( R.id.program_guide_data_row );
+				
+				view.setTag( refHolder );
+
+			} else {
+				refHolder = (ChannelViewHolder) view.getTag();
+			}
+			
+			ChannelInfo channel = getItem( position );
+			if( null != channel ) {
+				
+			}
 			
 			return view;
 		}
@@ -196,6 +152,14 @@ public class GuideDataFragment extends MythtvListFragment implements LoaderManag
 	private static class ChannelViewHolder {
 		
 		LinearLayout row;
+		
+	}
+
+	private static class DataItemViewHolder {
+		
+		View category;
+		TextView title;
+		TextView subTitle;
 		
 	}
 
