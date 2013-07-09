@@ -125,6 +125,21 @@ public class GuideTimeslotsFragment extends AbstractMythFragment {
 
 		instantiateControls();
 		
+		Log.v( TAG, "onActivityCreated : exit" );
+	}
+
+	public void updateTimeslot( DateTime date ) {
+		
+		startingTimeslot = hourTimeslots.get( date.getHourOfDay() );
+		
+		scrollTimeslot();
+		
+	}
+	
+	// internal helpers
+	
+	private void scrollTimeslot() {
+		
 		final HorizontalScrollView hsv = (HorizontalScrollView) getActivity().findViewById( R.id.program_guide_timeslots_scrollview );
 		hsv.post( new Runnable() {
 
@@ -134,18 +149,15 @@ public class GuideTimeslotsFragment extends AbstractMythFragment {
 	        @Override
 	        public void run() {
 	            
-                final View child = ((LinearLayout) hsv.getChildAt( 0 ) ).getChildAt( startingTimeslot );                 
+                final View child = ( (LinearLayout) hsv.getChildAt( 0 ) ).getChildAt( startingTimeslot );                 
 
                 Log.v( TAG, "onActivityCreated : scroll to timeslot(" + child.getWidth() + ") " + startingTimeslot + " at postion '" + ( startingTimeslot * ( child.getWidth() ) ) + "'" );
                 hsv.scrollTo( ( startingTimeslot * ( child.getWidth() ) ), 0 );
 	        }
 
 	    });
-		
-		Log.v( TAG, "onActivityCreated : exit" );
-	}
 
-	// internal helpers
+	}
 	
 	private void instantiateControls() {
 		

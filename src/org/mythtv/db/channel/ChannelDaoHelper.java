@@ -114,7 +114,7 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 	public List<ChannelInfo> findAll( final Context context, final LocationProfile locationProfile ) {
 //		Log.d( TAG, "findAll : enter" );
 		
-		List<ChannelInfo> channelInfos = findAll( context, locationProfile, null, null, null, null );
+		List<ChannelInfo> channelInfos = findAll( context, locationProfile, null, null, null, ChannelConstants.FIELD_CHAN_NUM_FORMATTED + " ASC" );
 		
 //		Log.d( TAG, "findAll : exit" );
 		return channelInfos;

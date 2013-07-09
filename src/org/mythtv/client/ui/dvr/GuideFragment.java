@@ -18,17 +18,21 @@
  */
 package org.mythtv.client.ui.dvr;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.joda.time.DateTime;
 import org.mythtv.R;
 import org.mythtv.client.ui.AbstractMythFragment;
+import org.mythtv.client.ui.preferences.LocationProfile;
+import org.mythtv.db.dvr.ProgramGuideDaoHelper;
 import org.mythtv.service.util.DateUtils;
 import org.mythtv.services.api.channel.ChannelInfo;
+import org.mythtv.services.api.guide.ProgramGuide;
 
 import android.app.FragmentManager;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -48,13 +52,18 @@ public class GuideFragment extends AbstractMythFragment implements GuideChannelF
 	
 	private FragmentManager mFragmentManager;
 	
+	private ProgramGuideDaoHelper mProgramGuideDaoHelper = ProgramGuideDaoHelper.getInstance();
+	
 	private TextView mProgramGuideDate;
 	private GuideChannelFragment mGuideChannelFragment;
 	private GuideTimeslotsFragment mGuideTimeslotsFragment;
 	private GuideDataFragment mGuideDataFragment;
 	
+	private int downloadDays;
 	private DateTime today;
-	private List<DateTime> dateRange = new ArrayList<DateTime>();
+	private Map<DateTime, ProgramGuide> dateRange = new HashMap<DateTime, ProgramGuide>();
+	
+	private LocationProfile mLocationProfile;
 	
 	/* (non-Javadoc)
 	 * @see android.support.v4.app.ListFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle)
@@ -78,22 +87,22 @@ public class GuideFragment extends AbstractMythFragment implements GuideChannelF
 		Log.v( TAG, "onActivityCreated : enter" );
 		super.onActivityCreated( savedInstanceState );
 		
+		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
+		
 		View view = getView();
 		
 		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences( getActivity() );
-		int downloadDays = Integer.parseInt( sp.getString( "preference_program_guide_days", "14" ) );
+		downloadDays = Integer.parseInt( sp.getString( "preference_program_guide_days", "14" ) );
 
 		today = new DateTime().withTimeAtStartOfDay();
-		dateRange.add( today );
-		for( int i = 1; i < downloadDays; i++ ) {
-			dateRange.add( today.plusDays( i ) );
-		}
+		
+		new ProgramGuideTask().execute();
 		
 		mProgramGuideDate = (TextView) getActivity().findViewById( R.id.program_guide_date );
 		mProgramGuideDate.setText( DateUtils.getDateTimeUsingLocaleFormattingPrettyDateOnly( today, getMainApplication().getDateFormat() ) );
 		
 		// get child fragment manager
-		mFragmentManager = this.getFragmentManager();
+		mFragmentManager = getFragmentManager();
 
 		// look for program guide channels list placeholder frame layout
 		FrameLayout channelsLayout = (FrameLayout) view.findViewById( R.id.frame_layout_program_guide_channels );
@@ -126,6 +135,8 @@ public class GuideFragment extends AbstractMythFragment implements GuideChannelF
 				.replace( R.id.frame_layout_program_guide_timeslots, mGuideTimeslotsFragment, GuideTimeslotsFragment.class.getName() )
 				.commit();
 		
+			//mGuideTimeslotsFragment.updateTimeslot( today );
+			
 		}
 
 		FrameLayout dataLayout = (FrameLayout) view.findViewById( R.id.frame_layout_program_guide_data );
@@ -165,4 +176,38 @@ public class GuideFragment extends AbstractMythFragment implements GuideChannelF
 		Log.v( TAG, "channelScroll : exit" );
 	}
 
+	// internal helpers
+	
+	private class ProgramGuideTask extends AsyncTask<Void, Void, Void> {
+
+		/* (non-Javadoc)
+		 * @see android.os.AsyncTask#doInBackground(Params[])
+		 */
+		@Override
+		protected Void doInBackground( Void...voids ) {
+			
+			dateRange.put( today, mProgramGuideDaoHelper.getProgramGuideForDate( getActivity(), mLocationProfile, today ) );
+			for( int i = 1; i < downloadDays; i++ ) {
+				dateRange.put( today.plusDays( i ), mProgramGuideDaoHelper.getProgramGuideForDate( getActivity(), mLocationProfile, today ) );
+			}
+
+			return null;
+		}
+
+		/* (non-Javadoc)
+		 * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
+		 */
+		@Override
+		protected void onPostExecute(Void result) {
+
+			
+			mGuideChannelFragment.changeChannels( ( dateRange.get( today ) ).getChannels() );
+			mGuideDataFragment.changeChannels( ( dateRange.get( today ) ).getChannels() );
+			
+			mGuideTimeslotsFragment.updateTimeslot( new DateTime() );
+			
+		}
+		
+	}
+	
 }

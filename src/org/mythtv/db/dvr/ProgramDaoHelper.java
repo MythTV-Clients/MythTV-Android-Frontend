@@ -67,11 +67,13 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 	}
 	
 	/**
+	 * @param context
 	 * @param uri
 	 * @param projection
 	 * @param selection
 	 * @param selectionArgs
 	 * @param sortOrder
+	 * @param table
 	 * @return
 	 */
 	protected List<Program> findAll( final Context context, final Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder, final String table ) {

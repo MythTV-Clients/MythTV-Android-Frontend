@@ -22,11 +22,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.provider.MythtvProvider;
 import org.mythtv.service.util.DateUtils;
 import org.mythtv.services.api.channel.ChannelInfo;
 import org.mythtv.services.api.dvr.Program;
+import org.mythtv.services.api.guide.ProgramGuide;
 
 import android.content.ContentProviderOperation;
 import android.content.ContentProviderResult;
@@ -74,18 +76,63 @@ public class ProgramGuideDaoHelper extends ProgramDaoHelper {
 		super();
 	}
 
+	public ProgramGuide getProgramGuideForDate( final Context context, final LocationProfile locationProfile, DateTime date ) {
+		Log.d( TAG, "getProgramGuideForDate : enter" );
+
+		ProgramGuide guide = new ProgramGuide();
+		
+		List<ChannelInfo> channels = mChannelDaoHelper.findAll( context, locationProfile );
+		
+		for( ChannelInfo channel : channels ) {
+			List<Program> programs = findAll( context, locationProfile, channel.getChannelId(), date );
+			
+			channel.setPrograms( programs );
+		}
+		guide.setChannels( channels );
+		
+		Log.d( TAG, "getProgramGuideForDate : enter" );
+		return guide;
+	}
+	
+	public List<Program> findAll( final Context context, final LocationProfile locationProfile, int channelId, DateTime date ) {
+//		Log.d( TAG, "findAll : enter" );
+		
+		DateTime start = date.withZone( DateTimeZone.UTC );
+		
+		String[] projection = new String[] { ProgramConstants._ID, ProgramConstants.FIELD_TITLE, ProgramConstants.FIELD_SUB_TITLE, ProgramConstants.FIELD_CATEGORY, ProgramConstants.FIELD_START_TIME, ProgramConstants.FIELD_END_TIME };
+		String selection = ProgramConstants.TABLE_NAME_GUIDE + "." + ProgramConstants.FIELD_CHANNEL_ID + " = ? AND " + ProgramConstants.TABLE_NAME_GUIDE + "." + ProgramConstants.FIELD_END_TIME + " >= ? AND " + ProgramConstants.TABLE_NAME_GUIDE + "." + ProgramConstants.FIELD_START_TIME + " < ?";
+		String[] selectionArgs = new String[] { String.valueOf( channelId ), String.valueOf( start.getMillis() ), String.valueOf( start.plusDays( 1 ).getMillis() ) };
+		String sortOrder = ProgramConstants.TABLE_NAME_GUIDE + "." + ProgramConstants.FIELD_START_TIME;
+		
+		selection = appendLocationHostname( context, locationProfile, selection, ProgramConstants.TABLE_NAME_GUIDE );
+
+//		for( String p : projection ) {
+//			Log.v( TAG, "projection=" + p );
+//		}
+//		Log.v( TAG, "selection=" + selection );
+//		for( String arg : selectionArgs ) {
+//			Log.v( TAG, "arg=" + arg );
+//		}
+//		Log.v( TAG, "sortOrder=" + sortOrder );
+		
+		List<Program> programs = findAll( context, ProgramConstants.CONTENT_URI_GUIDE, projection, selection, selectionArgs, sortOrder, ProgramConstants.TABLE_NAME_GUIDE );
+		
+//		Log.d( TAG, "findAll : exit" );
+		return programs;
+	}
+
 	/* (non-Javadoc)
 	 * @see org.mythtv.db.dvr.ProgramDaoHelper#findAll()
 	 */
 	@Override
 	public List<Program> findAll( final Context context, final LocationProfile locationProfile ) {
-		Log.d( TAG, "findAll : enter" );
+//		Log.d( TAG, "findAll : enter" );
 		
 		String selection = appendLocationHostname( context, locationProfile, "", ProgramConstants.TABLE_NAME_GUIDE );
 
 		List<Program> programs = findAll( context, ProgramConstants.CONTENT_URI_GUIDE, null, selection, null, null, ProgramConstants.TABLE_NAME_GUIDE );
 		
-		Log.d( TAG, "findAll : exit" );
+//		Log.d( TAG, "findAll : exit" );
 		return programs;
 	}
 
