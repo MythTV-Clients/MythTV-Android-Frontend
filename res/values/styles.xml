@@ -56,5 +56,10 @@
 		<item name="android:padding">4sp</item>
 		<item name="android:background">@drawable/program_guide_timeslot_header_back</item>
 	</style>
+	
+    <style name="NavigationDrawerHeader">
+		<item name="android:textColor">@color/text_header_main_menu</item>
+		<item name="android:textSize">16sp</item>
+	</style>
     
  </resources>
