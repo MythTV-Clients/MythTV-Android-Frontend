@@ -4,8 +4,11 @@
 package org.mythtv.client.ui.dvr;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.joda.time.DateTime;
 import org.mythtv.R;
 import org.mythtv.client.MainApplication;
 import org.mythtv.client.ui.util.MythtvListFragment;
@@ -16,7 +19,6 @@ import org.mythtv.services.api.dvr.Program;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.TextUtils.TruncateAt;
 import android.util.Log;
@@ -26,6 +28,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
@@ -42,6 +45,35 @@ public class GuideDataFragment extends MythtvListFragment {
 	
 	private ProgramGuideChannelAdapter mAdapter;
 	
+	private static final Map<Integer, Integer> hourTimeslots = new HashMap<Integer, Integer>();
+	
+	static {
+		hourTimeslots.put( 0, 0 );
+		hourTimeslots.put( 1, 2 );
+		hourTimeslots.put( 2, 4 );
+		hourTimeslots.put( 3, 6 );
+		hourTimeslots.put( 4, 8 );
+		hourTimeslots.put( 5, 10 );
+		hourTimeslots.put( 6, 12 );
+		hourTimeslots.put( 7, 14 );
+		hourTimeslots.put( 8, 16 );
+		hourTimeslots.put( 9, 18 );
+		hourTimeslots.put( 10, 20 );
+		hourTimeslots.put( 11, 22 );
+		hourTimeslots.put( 12, 24 );
+		hourTimeslots.put( 13, 26 );
+		hourTimeslots.put( 14, 28 );
+		hourTimeslots.put( 15, 30 );
+		hourTimeslots.put( 16, 32 );
+		hourTimeslots.put( 17, 34 );
+		hourTimeslots.put( 18, 36 );
+		hourTimeslots.put( 19, 38 );
+		hourTimeslots.put( 20, 40 );
+		hourTimeslots.put( 21, 42 );
+		hourTimeslots.put( 22, 44 );
+		hourTimeslots.put( 23, 46 );
+	}
+
 	/**
 	 * 
 	 */
@@ -84,6 +116,9 @@ public class GuideDataFragment extends MythtvListFragment {
 	
 	private class ProgramGuideChannelAdapter extends BaseAdapter {
 	
+		private static final float DEFAULT_TIMESLOT_WIDTH = 400;
+		private static final float DEFAULT_TIMESLOT_DURATION = 30;
+		
 		private Context mContext;
 		private LayoutInflater mInflater;
 
@@ -156,6 +191,7 @@ public class GuideDataFragment extends MythtvListFragment {
 		        view = mInflater.inflate( R.layout.program_guide_data_row, parent, false );
 				
 		        refHolder = new ChannelViewHolder();
+				refHolder.scroll = (HorizontalScrollView) view.findViewById( R.id.program_guide_data_scroll );
 				refHolder.row = (LinearLayout) view.findViewById( R.id.program_guide_data_row );
 				
 				view.setTag( refHolder );
@@ -169,10 +205,42 @@ public class GuideDataFragment extends MythtvListFragment {
 				
 				if( null != channel.getPrograms() && !channel.getPrograms().isEmpty() ) {
 					
+					float extraWidth = 0;
+					
 					for( Program program : channel.getPrograms() ) {
 
+						float timeslotWidth = ( DEFAULT_TIMESLOT_WIDTH - extraWidth );
+						
+						DateTime start = program.getStartTime();
+						DateTime end = program.getEndTime();
+						
+						float duration = ( end.getMillis() - start.getMillis() ) / 60000;
+						if( DEFAULT_TIMESLOT_DURATION > duration ) {
+							
+							float percentInTimeslot = ( duration / DEFAULT_TIMESLOT_DURATION );
+							float amountInTimeslot = ( DEFAULT_TIMESLOT_WIDTH * percentInTimeslot );
+							Log.v( TAG, "duration < min timeslot, duration=" + duration + ", percentInTimeslot=" + percentInTimeslot + ", amountInTimeslot=" + amountInTimeslot );
+							
+							extraWidth = 0;							
+							timeslotWidth = amountInTimeslot;
+						} else {
+							float timeslots = duration / DEFAULT_TIMESLOT_DURATION;
+							timeslotWidth = DEFAULT_TIMESLOT_WIDTH * ( timeslots % 10 );
+							
+							Log.v( TAG, "duration >= min timeslot, duration=" + duration + ", timeslots=" + timeslots + ", timeslotWidth=" + timeslotWidth );
+							
+							if( duration / DEFAULT_TIMESLOT_DURATION % 10 > 0 ) {
+								extraWidth = ( DEFAULT_TIMESLOT_WIDTH * ( duration / DEFAULT_TIMESLOT_DURATION % 10 ) );
+								
+							} else {
+								extraWidth = 0;
+							}
+
+						}
+						Log.v( TAG, "duration=" + duration + ", timeslotWidth=" + timeslotWidth + "(" + extraWidth + ")" );
+						
 						LinearLayout timeslot = (LinearLayout) new LinearLayout( mContext ); 
-						LayoutParams lParams = new LayoutParams( 300, LayoutParams.MATCH_PARENT );
+						LayoutParams lParams = new LayoutParams( (int) timeslotWidth, LayoutParams.MATCH_PARENT );
 						lParams.gravity = Gravity.CENTER_HORIZONTAL;
 						timeslot.setLayoutParams( lParams ); 
 						timeslot.setPadding( 2, 2, 2, 2 );
@@ -248,6 +316,7 @@ public class GuideDataFragment extends MythtvListFragment {
 
 						refHolder.row.addView( timeslot );
 
+						scrollTimeslot( refHolder.scroll );
 					}
 
 				}
@@ -257,92 +326,37 @@ public class GuideDataFragment extends MythtvListFragment {
 			return view;
 		}
 
+		private void scrollTimeslot( final HorizontalScrollView hsv ) {
+			
+			hsv.post( new Runnable() {
+
+		        /* (non-Javadoc)
+		         * @see java.lang.Runnable#run()
+		         */
+		        @Override
+		        public void run() {
+
+		        	DateTime now = new DateTime();
+		        	int timeslot = hourTimeslots.get( now.getHourOfDay() );
+		        	
+		    		if( now.getMinuteOfHour() > 30 ) {
+		    			timeslot++;
+		    		}
+
+	                Log.v( TAG, "scroll to timeslot " + timeslot + " at postion '" + ( timeslot * DEFAULT_TIMESLOT_WIDTH ) + "'" );
+	                hsv.scrollTo( (int) ( timeslot * DEFAULT_TIMESLOT_WIDTH ), 0 );
+		        }
+
+		    });
+
+		}
 	}
 	
 	private static class ChannelViewHolder {
 		
+		HorizontalScrollView scroll;
 		LinearLayout row;
 		
 	}
 
-/*	private class ProgramGuideChannelRowAdapter extends BaseAdapter {
-		
-		private Context mContext;
-		private LayoutInflater mInflater;
-
-		private List<Program> programs = new ArrayList<Program>();
-		
-		public ProgramGuideChannelRowAdapter( Context context ) {
-			
-			mContext = context;
-			mInflater = LayoutInflater.from( context );
-		}
-
-		 (non-Javadoc)
-		 * @see android.widget.Adapter#getCount()
-		 
-		@Override
-		public int getCount() {
-			return programs.size();
-		}
-
-		 (non-Javadoc)
-		 * @see android.widget.Adapter#getItem(int)
-		 
-		@Override
-		public Program getItem( int position ) {
-			return programs.get( position );
-		}
-
-		 (non-Javadoc)
-		 * @see android.widget.Adapter#getItemId(int)
-		 
-		@Override
-		public long getItemId( int position ) {
-			return position;
-		}
-
-		 (non-Javadoc)
-		 * @see android.widget.Adapter#getView(int, android.view.View, android.view.ViewGroup)
-		 
-		@Override
-		public View getView( int position, View currentView, ViewGroup parent ) {
-			
-			View view = currentView;
-			
-			ProgramGuideDataItemViewHolder refHolder = null;
-			
-			if( null == view ) {
-				
-		        view = mInflater.inflate( R.layout.program_guide_data_item, parent, false );
-				
-		        refHolder = new ProgramGuideDataItemViewHolder();
-				refHolder.category = (View) view.findViewById( R.id.program_guide_data_item_category );
-				refHolder.title = (TextView) view.findViewById( R.id.program_guide_data_item_title );
-				refHolder.subTitle = (TextView) view.findViewById( R.id.program_guide_data_item_sub_title );
-				
-				view.setTag( refHolder );
-
-			} else {
-				refHolder = (ProgramGuideDataItemViewHolder) view.getTag();
-			}
-			
-			Program program = getItem( position );
-			refHolder.category.setBackgroundColor( mProgramHelper.getCategoryColor( program.getCategory() ) );
-			refHolder.title.setText( program.getTitle() );
-			refHolder.subTitle.setText( program.getSubTitle() );
-			
-			return view;
-		}
-		
-	}
-
-	private static class ProgramGuideDataItemViewHolder {
-		
-		View category;
-		TextView title;
-		TextView subTitle;
-		
-	}
-
-*/}
+}
