@@ -186,9 +186,11 @@ public class GuideFragment extends AbstractMythFragment implements GuideChannelF
 		@Override
 		protected Void doInBackground( Void...voids ) {
 			
-			dateRange.put( today, mProgramGuideDaoHelper.getProgramGuideForDate( getActivity(), mLocationProfile, today ) );
+			DateTime add = today.withTimeAtStartOfDay();
+			
+			dateRange.put( add, mProgramGuideDaoHelper.getProgramGuideForDate( getActivity(), mLocationProfile, add ) );
 			for( int i = 1; i < downloadDays; i++ ) {
-				dateRange.put( today.plusDays( i ), mProgramGuideDaoHelper.getProgramGuideForDate( getActivity(), mLocationProfile, today ) );
+				dateRange.put( add.plusDays( i ), mProgramGuideDaoHelper.getProgramGuideForDate( getActivity(), mLocationProfile, add.plusDays( i ) ) );
 			}
 
 			return null;
@@ -199,7 +201,6 @@ public class GuideFragment extends AbstractMythFragment implements GuideChannelF
 		 */
 		@Override
 		protected void onPostExecute(Void result) {
-
 			
 			mGuideChannelFragment.changeChannels( ( dateRange.get( today ) ).getChannels() );
 			mGuideDataFragment.changeChannels( ( dateRange.get( today ) ).getChannels() );
