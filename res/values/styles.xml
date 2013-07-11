@@ -42,7 +42,7 @@
     </style>
     
     <style name="ProgramGuideTimeSlotHeader">
-        <item name="android:layout_width">200sp</item>
+        <item name="android:layout_width">200dp</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:gravity">center_horizontal</item>
 		<item name="android:padding">4sp</item>
@@ -50,8 +50,8 @@
 	</style>
 	
     <style name="ProgramGuideChannelHeader">
-        <item name="android:layout_width">100sp</item>
-        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">100dp</item>
+        <item name="android:layout_height">75dp</item>
         <item name="android:gravity">center_horizontal</item>
 		<item name="android:padding">4sp</item>
 		<item name="android:background">@drawable/program_guide_timeslot_header_back</item>
@@ -62,4 +62,12 @@
 		<item name="android:textSize">16sp</item>
 	</style>
     
+     <style name="ProgramGuideTimeSlotDataItem">
+        <item name="android:layout_width">200dp</item>
+        <item name="android:layout_height">75dp</item>
+        <item name="android:gravity">center_horizontal</item>
+		<item name="android:padding">2sp</item>
+		<item name="android:background">@drawable/program_guide_timeslot_header_back</item>
+	</style>
+	
  </resources>
