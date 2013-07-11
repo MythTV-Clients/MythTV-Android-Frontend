@@ -118,6 +118,7 @@ public class GuideDataFragment extends MythtvListFragment {
 	
 		private static final float DEFAULT_TIMESLOT_WIDTH = 400;
 		private static final float DEFAULT_TIMESLOT_DURATION = 30;
+		private final float MAX_TIMESLOT_WIDTH = ( hourTimeslots.size() * 2 * DEFAULT_TIMESLOT_WIDTH );
 		
 		private Context mContext;
 		private LayoutInflater mInflater;
@@ -206,6 +207,7 @@ public class GuideDataFragment extends MythtvListFragment {
 				if( null != channel.getPrograms() && !channel.getPrograms().isEmpty() ) {
 					
 					float extraWidth = 0;
+					float totalWidth = 0;
 					
 					for( Program program : channel.getPrograms() ) {
 
@@ -219,7 +221,7 @@ public class GuideDataFragment extends MythtvListFragment {
 							
 							float percentInTimeslot = ( duration / DEFAULT_TIMESLOT_DURATION );
 							float amountInTimeslot = ( DEFAULT_TIMESLOT_WIDTH * percentInTimeslot );
-							Log.v( TAG, "duration < min timeslot, duration=" + duration + ", percentInTimeslot=" + percentInTimeslot + ", amountInTimeslot=" + amountInTimeslot );
+//							Log.v( TAG, "duration < min timeslot, duration=" + duration + ", percentInTimeslot=" + percentInTimeslot + ", amountInTimeslot=" + amountInTimeslot );
 							
 							extraWidth = 0;							
 							timeslotWidth = amountInTimeslot;
@@ -227,18 +229,17 @@ public class GuideDataFragment extends MythtvListFragment {
 							float timeslots = duration / DEFAULT_TIMESLOT_DURATION;
 							timeslotWidth = DEFAULT_TIMESLOT_WIDTH * ( timeslots % 10 );
 							
-							Log.v( TAG, "duration >= min timeslot, duration=" + duration + ", timeslots=" + timeslots + ", timeslotWidth=" + timeslotWidth );
-							
-							if( duration / DEFAULT_TIMESLOT_DURATION % 10 > 0 ) {
-								extraWidth = ( DEFAULT_TIMESLOT_WIDTH * ( duration / DEFAULT_TIMESLOT_DURATION % 10 ) );
-								
-							} else {
-								extraWidth = 0;
-							}
-
+							extraWidth = ( timeslotWidth % DEFAULT_TIMESLOT_DURATION );
 						}
-						Log.v( TAG, "duration=" + duration + ", timeslotWidth=" + timeslotWidth + "(" + extraWidth + ")" );
 						
+						if( timeslotWidth > ( MAX_TIMESLOT_WIDTH - totalWidth ) ) {
+							timeslotWidth = ( MAX_TIMESLOT_WIDTH - totalWidth );
+							extraWidth = 0;
+						}
+						
+						Log.v( TAG, "duration=" + duration + ", timeslotWidth=" + timeslotWidth + "(" + extraWidth + ")" );
+						totalWidth += timeslotWidth;
+
 						LinearLayout timeslot = (LinearLayout) new LinearLayout( mContext ); 
 						LayoutParams lParams = new LayoutParams( (int) timeslotWidth, LayoutParams.MATCH_PARENT );
 						lParams.gravity = Gravity.CENTER_HORIZONTAL;
