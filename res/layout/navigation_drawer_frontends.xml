@@ -1,24 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="match_parent"
-	android:layout_height="wrap_content">
+	android:layout_height="wrap_content"
+	android:padding="10dp">
 		        
 	<Spinner
-		android:id="@+id/navigation_drawer_frontends_spinner"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:prompt="@string/frontends_prompt"
-	/>
-		        
+	    android:id="@+id/navigation_drawer_frontends_spinner"
+	    android:layout_width="250dp"
+	    android:layout_height="wrap_content"
+	    android:layout_alignParentLeft="true"
+	    android:layout_alignParentTop="true"
+	    android:layout_toLeftOf="@+id/navigation_drawer_frontends_mythmote"
+	    android:prompt="@string/frontends_prompt" />
+
 	<ImageButton
 	    android:id="@+id/navigation_drawer_frontends_mythmote"
 	    android:layout_width="wrap_content"
 	    android:layout_height="wrap_content"
-	    android:layout_gravity="center"
-	    android:padding="4dp"
+	    android:layout_alignParentRight="true"
+	    android:layout_centerVertical="true"
 	    android:background="@drawable/main_menu_image_button"
 	    android:contentDescription="MythMote"
-	    android:src="@drawable/ic_menu_mythmote_default" 
-	/>
+	    android:padding="4dp"
+	    android:src="@drawable/ic_menu_mythmote_default" />
 	
-</LinearLayout>
+</RelativeLayout>
