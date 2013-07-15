@@ -185,6 +185,40 @@ public class EtagDaoHelper extends AbstractDaoHelper {
 		return etagInfo;
 	}
 
+	/**
+	 * @param endpoint
+	 * @param date
+	 * @return
+	 */
+	public EtagInfoDelegate findByEndpointAndDate( final Context context, final LocationProfile locationProfile, final String endpoint, final DateTime date ) {
+//		Log.d( TAG, "findByEndpointAndDate : enter" );
+		
+		if( null == context ) 
+			throw new RuntimeException( "EtagDaoHelper is not initialized" );
+		
+		String selection = EtagConstants.FIELD_ENDPOINT + " = ?";
+		if( null != date ) {
+			selection += " AND " + EtagConstants.FIELD_DATE + " = ?";
+		}
+		
+		String[] selectionArgs = new String[] { endpoint };
+		if( null != date ) {
+			selectionArgs = new String[] { endpoint, String.valueOf( date.getMillis() ) };
+		}
+		
+		EtagInfoDelegate etagInfo = findOne( context, locationProfile, null, null, selection, selectionArgs, null );
+		
+//		Log.d( TAG, "findByEndpointAndDate : exit" );
+		return etagInfo;
+	}
+
+	/**
+	 * @param context
+	 * @param locationProfile
+	 * @param endpoint
+	 * @param dataId
+	 * @return
+	 */
 	public DateTime findDateByEndpointAndDataId( final Context context, final LocationProfile locationProfile, final String endpoint, final String dataId ) {
 //		Log.d( TAG, "findDateByEndpointAndDataId : enter" );
 		
@@ -364,9 +398,9 @@ public class EtagDaoHelper extends AbstractDaoHelper {
 		values.put( EtagConstants.FIELD_ENDPOINT, etag.getEndpoint() );
 		values.put( EtagConstants.FIELD_VALUE, etag.getValue() );
 		values.put( EtagConstants.FIELD_DATA_ID, etag.getDataId() );
-		values.put( EtagConstants.FIELD_DATE, null != etag.getDate() ? etag.getDate().getMillis() : ( DateUtils.convertUtc( new DateTime() ) ).getMillis() );
+		values.put( EtagConstants.FIELD_DATE, null != etag.getDate() ? etag.getDate().getMillis() : ( DateUtils.convertUtc( new DateTime( System.currentTimeMillis() ) ) ).getMillis() );
 		values.put( EtagConstants.FIELD_MASTER_HOSTNAME, etag.getMasterHostname() );
-		values.put( EtagConstants.FIELD_LAST_MODIFIED_DATE, null != etag.getLastModified() ? etag.getLastModified().getMillis() : ( DateUtils.convertUtc( new DateTime() ) ).getMillis() );
+		values.put( EtagConstants.FIELD_LAST_MODIFIED_DATE, null != etag.getLastModified() ? etag.getLastModified().getMillis() : ( DateUtils.convertUtc( new DateTime( System.currentTimeMillis() ) ) ).getMillis() );
 		
 //		Log.v( TAG, "convertChannelToContentValues : exit" );
 		return values;

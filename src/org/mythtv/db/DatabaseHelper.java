@@ -49,7 +49,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	private static final String TAG = DatabaseHelper.class.getSimpleName();
 	
 	private static final String DATABASE_NAME = "mythtvdb";
-	private static final int DATABASE_VERSION = 118;
+	private static final int DATABASE_VERSION = 120;
 
 	public DatabaseHelper( Context context ) {
 		super( context, DATABASE_NAME, null, DATABASE_VERSION );
@@ -137,8 +137,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	public void onUpgrade( SQLiteDatabase db, int oldVersion, int newVersion ) {
 		Log.v( TAG, "onUpgrade : enter" );
 
-		if( oldVersion < 118 ) {
-			Log.v( TAG, "onUpgrade : upgrading to db version 118" );
+		if( oldVersion < 120 ) {
+			Log.v( TAG, "onUpgrade : upgrading to db version 120" );
 
 			onCreate( db );
 
@@ -176,7 +176,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		ContentValues values = new ContentValues();
 		values.put( StatusConstants.FIELD_KEY, StatusKey.MASTER_BACKEND_CONNECTED.name() );
 		values.put( StatusConstants.FIELD_VALUE, "FALSE" );
-		values.put( StatusConstants.FIELD_DATE, DateUtils.convertUtc( new DateTime() ).getMillis() );
+		values.put( StatusConstants.FIELD_DATE, DateUtils.convertUtc( new DateTime( System.currentTimeMillis() ) ).getMillis() );
 		db.insert( StatusConstants.TABLE_NAME, null, values );
 
 		Log.v( TAG, "createStatus : exit" );
@@ -489,7 +489,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		sqlBuilder.append( ProgramConstants.FIELD_IN_ERROR ).append( " " ).append( ProgramConstants.FIELD_IN_ERROR_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( ProgramConstants.FIELD_MASTER_HOSTNAME ).append( " " ).append( ProgramConstants.FIELD_MASTER_HOSTNAME_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( ProgramConstants.FIELD_LAST_MODIFIED_DATE ).append( " " ).append( ProgramConstants.FIELD_LAST_MODIFIED_DATE_DATA_TYPE ).append( ", " );
-		sqlBuilder.append( "UNIQUE(" ).append( ProgramConstants.FIELD_RECORD_ID ).append( ", " ).append( ProgramConstants.FIELD_START_TIME ).append( ", " ).append( ProgramConstants.FIELD_MASTER_HOSTNAME ).append( ")" ).append( ", " );
+		//sqlBuilder.append( "UNIQUE(" ).append( ProgramConstants.FIELD_RECORD_ID ).append( ", " ).append( ProgramConstants.FIELD_START_TIME ).append( ", " ).append( ProgramConstants.FIELD_MASTER_HOSTNAME ).append( ")" ).append( ", " );
 		sqlBuilder.append( "UNIQUE(" ).append( ProgramConstants.FIELD_CHANNEL_ID ).append( ", " ).append( ProgramConstants.FIELD_START_TIME ).append( ", " ).append( ProgramConstants.FIELD_MASTER_HOSTNAME ).append( ") " );
 		sqlBuilder.append( ");" );
 		String sql = sqlBuilder.toString();
@@ -650,8 +650,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		sqlBuilder.append( RecordingConstants.FIELD_START_TIME ).append( " " ).append( RecordingConstants.FIELD_START_TIME_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( RecordingConstants.FIELD_MASTER_HOSTNAME ).append( " " ).append( RecordingConstants.FIELD_MASTER_HOSTNAME_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( RecordingConstants.FIELD_LAST_MODIFIED_DATE ).append( " " ).append( RecordingConstants.FIELD_LAST_MODIFIED_DATE_DATA_TYPE ).append( ", " );
-		sqlBuilder.append( "UNIQUE(" ).append( RecordingConstants.FIELD_RECORD_ID ).append( ", " ).append( RecordingConstants.FIELD_START_TIME ).append( ", " ).append( RecordingConstants.FIELD_MASTER_HOSTNAME ).append( ")" ).append( ", " );
-		sqlBuilder.append( "FOREIGN KEY (" + RecordingConstants.FIELD_START_TIME + "," + RecordingConstants.FIELD_RECORD_ID + "," + RecordingConstants.FIELD_MASTER_HOSTNAME + ") REFERENCES " + details.getParent() + " (" + ProgramConstants.FIELD_START_TIME + "," + ProgramConstants.FIELD_RECORD_ID + "," + ProgramConstants.FIELD_MASTER_HOSTNAME + ") ON DELETE CASCADE " );
+		sqlBuilder.append( "UNIQUE(" ).append( RecordingConstants.FIELD_RECORD_ID ).append( ", " ).append( RecordingConstants.FIELD_START_TIME ).append( ", " ).append( RecordingConstants.FIELD_MASTER_HOSTNAME ).append( ")" ); //.append( ", " );
+//		sqlBuilder.append( "FOREIGN KEY (" + RecordingConstants.FIELD_START_TIME + "," + RecordingConstants.FIELD_RECORD_ID + "," + RecordingConstants.FIELD_MASTER_HOSTNAME + ") REFERENCES " + details.getParent() + " (" + ProgramConstants.FIELD_START_TIME + "," + ProgramConstants.FIELD_RECORD_ID + "," + ProgramConstants.FIELD_MASTER_HOSTNAME + ") ON DELETE CASCADE " );
 		sqlBuilder.append( ");" );
 		String sql = sqlBuilder.toString();
 		if( Log.isLoggable( TAG, Log.VERBOSE ) ) {

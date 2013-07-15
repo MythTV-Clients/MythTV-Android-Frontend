@@ -152,7 +152,7 @@ public class UpcomingDaoHelper extends ProgramDaoHelper {
 	public int save( final Context context, final LocationProfile locationProfile, Program program ) {
 		Log.d( TAG, "save : enter" );
 
-		int saved = save( context, ProgramConstants.CONTENT_URI_UPCOMING, locationProfile, program );
+		int saved = save( context, ProgramConstants.CONTENT_URI_UPCOMING, locationProfile, program, ProgramConstants.TABLE_NAME_UPCOMING );
 		
 		Log.d( TAG, "save : exit" );
 		return saved;

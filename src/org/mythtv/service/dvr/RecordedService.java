@@ -167,7 +167,7 @@ public class RecordedService extends MythtvService {
 		
 		ResponseEntity<ProgramList> responseEntity = mMythtvServiceHelper.getMythServicesApi( locationProfile ).dvrOperations().getRecordedList( etag );
 
-		DateTime date = DateUtils.convertUtc( new DateTime() );
+		DateTime date = DateUtils.convertUtc( new DateTime( System.currentTimeMillis() ) );
 		if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
 			Log.i( TAG, "download : " + Endpoint.GET_RECORDED_LIST.getEndpoint() + " returned 200 OK" );
 			ProgramList programList = responseEntity.getBody();

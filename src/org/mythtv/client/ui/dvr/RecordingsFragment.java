@@ -195,7 +195,7 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 		DateTime etag = mEtagDaoHelper.findDateByEndpointAndDataId( getActivity(), mLocationProfile, Endpoint.GET_RECORDED_LIST.name(), "" );
 		if( null != etag ) {
 			
-			DateTime now = DateUtils.convertUtc( new DateTime() );
+			DateTime now = DateUtils.convertUtc( new DateTime( System.currentTimeMillis() ) );
 			if( now.getMillis() - etag.getMillis() > 3600000 ) {
 				if( !mRunningServiceHelper.isServiceRunning( getActivity(), "org.mythtv.service.dvr.RecordedDownloadService" ) ) {
 					getActivity().startService( new Intent( RecordedService.ACTION_DOWNLOAD ) );

@@ -223,7 +223,7 @@ public class FrontendDaoHelper extends AbstractDaoHelper {
 		if( null == context ) 
 			throw new RuntimeException( "FrontendDaoHelper is not initialized" );
 		
-		ContentValues values = convertFrontendToContentValues( locationProfile, DateUtils.convertUtc( new DateTime() ), frontend );
+		ContentValues values = convertFrontendToContentValues( locationProfile, DateUtils.convertUtc( new DateTime( System.currentTimeMillis() ) ), frontend );
 
 		String[] projection = new String[] { FrontendConstants._ID };
 		String selection = FrontendConstants.FIELD_NAME + " = ? AND " + FrontendConstants.FIELD_URL + " = ?";

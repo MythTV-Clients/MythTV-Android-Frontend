@@ -201,7 +201,7 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 		if( null == context ) 
 			throw new RuntimeException( "ChannelDaoHelper is not initialized" );
 		
-		ContentValues values = convertChannelInfoToContentValues( locationProfile, DateUtils.convertUtc( new DateTime() ), channelInfo );
+		ContentValues values = convertChannelInfoToContentValues( locationProfile, DateUtils.convertUtc( new DateTime( System.currentTimeMillis() ) ), channelInfo );
 
 		String[] projection = new String[] { ChannelConstants._ID };
 		String selection = ChannelConstants.FIELD_CHAN_ID + " = ?";
@@ -294,7 +294,7 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 		if( null == context ) 
 			throw new RuntimeException( "ChannelDaoHelper is not initialized" );
 		
-		DateTime lastModified = DateUtils.convertUtc( new DateTime() );
+		DateTime lastModified = DateUtils.convertUtc( new DateTime( System.currentTimeMillis() ) );
 		
 		int count = 0;
 		int deletecount = 0;

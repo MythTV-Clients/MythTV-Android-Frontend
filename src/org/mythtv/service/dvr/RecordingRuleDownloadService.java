@@ -128,7 +128,7 @@ public class RecordingRuleDownloadService extends MythtvService {
 		
 		ResponseEntity<RecRuleList> responseEntity = mMythtvServiceHelper.getMythServicesApi( locationProfile ).dvrOperations().getRecordScheduleList( -1, -1, etag );
 
-		DateTime date = DateUtils.convertUtc( new DateTime() );
+		DateTime date = DateUtils.convertUtc( new DateTime( System.currentTimeMillis() ) );
 		if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
 			Log.i( TAG, "download : " + Endpoint.GET_RECORD_SCHEDULE_LIST.getEndpoint() + " returned 200 OK" );
 			RecRuleList recRuleList = responseEntity.getBody();
