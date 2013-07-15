@@ -23,6 +23,7 @@ import java.util.List;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.mythtv.client.MainApplication;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.provider.MythtvProvider;
 import org.mythtv.service.util.DateUtils;
@@ -83,11 +84,11 @@ public class ProgramGuideDaoHelper extends ProgramDaoHelper {
 		
 		List<ChannelInfo> channels = mChannelDaoHelper.findAll( context, locationProfile );
 		
-		for( ChannelInfo channel : channels ) {
-			List<Program> programs = findAll( context, locationProfile, channel.getChannelId(), date );
-			
-			channel.setPrograms( programs );
-		}
+//		for( ChannelInfo channel : channels ) {
+//			List<Program> programs = findAll( context, locationProfile, channel.getChannelId(), date );
+//			
+//			channel.setPrograms( programs );
+//		}
 		guide.setChannels( channels );
 		
 		Log.d( TAG, "getProgramGuideForDate : enter" );
@@ -204,11 +205,11 @@ public class ProgramGuideDaoHelper extends ProgramDaoHelper {
 	 */
 	@Override
 	public int save( final Context context, final LocationProfile locationProfile, Program program ) {
-		Log.d( TAG, "save : enter" );
+//		Log.d( TAG, "save : enter" );
 
-		int saved = save( context, ProgramConstants.CONTENT_URI_GUIDE, locationProfile, program );
+		int saved = save( context, ProgramConstants.CONTENT_URI_GUIDE, locationProfile, program, ProgramConstants.TABLE_NAME_GUIDE );
 		
-		Log.d( TAG, "save : exit" );
+//		Log.d( TAG, "save : exit" );
 		return saved;
 	}
 
@@ -259,17 +260,20 @@ public class ProgramGuideDaoHelper extends ProgramDaoHelper {
 
 		if( null == context ) 
 			throw new RuntimeException( "ProgramDaoHelper is not initialized" );
+
+		MainApplication mainApplication = (MainApplication) context.getApplicationContext();
 		
+		int deleted = 0;
 		int count = 0;
 		int processed = 0;
 		int totalUpdates = 0;
 		int totalInserts = 0;
 
-		DateTime lastModified = DateUtils.convertUtc( new DateTime() );
+		DateTime lastModified = DateUtils.convertUtc( new DateTime( System.currentTimeMillis() ) );
 		
 		ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
 
-		DateTime startDate = DateUtils.convertUtc( new DateTime() ).withTimeAtStartOfDay();
+		DateTime startDate = DateUtils.convertUtc( new DateTime( DateTimeZone.UTC ) ).withTimeAtStartOfDay();
 		
 		Log.d( TAG, "load : deleting old" );
 		ops.add(  
@@ -277,7 +281,15 @@ public class ProgramGuideDaoHelper extends ProgramDaoHelper {
 				.withSelection( ProgramConstants.FIELD_END_TIME + " < ?", new String[] { String.valueOf( startDate.getMillis() ) } )
 				.build()
 		);
-		count++;
+		if( !ops.isEmpty() ) {
+
+			ContentProviderResult[] results = context.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
+			deleted = results.length;
+
+			if( results.length > 0 ) {
+				ops.clear();
+			}
+		}
 
 		String[] programProjection = new String[] { ProgramConstants._ID };
 		String programSelection = ProgramConstants.TABLE_NAME_GUIDE + "." + ProgramConstants.FIELD_CHANNEL_ID + " = ? AND " + ProgramConstants.TABLE_NAME_GUIDE + "." + ProgramConstants.FIELD_START_TIME + " = ?";
@@ -288,17 +300,18 @@ public class ProgramGuideDaoHelper extends ProgramDaoHelper {
 			
 			ChannelInfo channelInfo = mChannelDaoHelper.findByChannelId( context, locationProfile, (long) channel.getChannelId() );
 			if( null != channelInfo ) {
+//				Log.v( TAG, "load : processing programs for channel id [" + channel.getChannelId() + "] with number " + channel.getChannelNumber() + " with program size=" + channel.getPrograms().size() );
 				
 				for( Program program : channel.getPrograms() ) {
 
 					program.setChannelInfo( channelInfo );
 					
-					DateTime startTime = new DateTime( program.getStartTime() );
+//					save( context, locationProfile, program );
 					
 					ContentValues programValues = convertProgramToContentValues( locationProfile, lastModified, program );
-					Cursor programCursor = context.getContentResolver().query( ProgramConstants.CONTENT_URI_GUIDE, programProjection, programSelection, new String[] { String.valueOf( program.getChannelInfo().getChannelId() ), String.valueOf( startTime.getMillis() ) }, null );
+					Cursor programCursor = context.getContentResolver().query( ProgramConstants.CONTENT_URI_GUIDE, programProjection, programSelection, new String[] { String.valueOf( channelInfo.getChannelId() ), String.valueOf( program.getStartTime().getMillis() ) }, null );
 					if( programCursor.moveToFirst() ) {
-//						Log.v( TAG, "load : UPDATE channel=" + program.getChannelInfo().getChannelNumber() + ", startTime=" + DateUtils.dateTimeFormatterPretty.print( startTime ) );
+//						Log.v( TAG, "load : UPDATE title=" + program.getTitle() + ", startTime=" + DateUtils.getDateTimeUsingLocaleFormattingPretty( program.getStartTime(), mainApplication.getDateFormat(), mainApplication.getClockType() ) );
 
 						Long id = programCursor.getLong( programCursor.getColumnIndexOrThrow( ProgramConstants._ID ) );
 						ops.add( 
@@ -310,7 +323,7 @@ public class ProgramGuideDaoHelper extends ProgramDaoHelper {
 						totalUpdates++;
 						
 					} else {
-//						Log.v( TAG, "load : INSERT channel=" + program.getChannelInfo().getChannelNumber() + ", startTime=" + DateUtils.dateTimeFormatterPretty.print( startTime ) );
+//						Log.v( TAG, "load : INSERT title=" + program.getTitle() + ", startTime=" + DateUtils.getDateTimeUsingLocaleFormattingPretty( program.getStartTime(), mainApplication.getDateFormat(), mainApplication.getClockType() ) );
 
 						ops.add(  
 							ContentProviderOperation.newInsert( ProgramConstants.CONTENT_URI_GUIDE )
@@ -341,20 +354,28 @@ public class ProgramGuideDaoHelper extends ProgramDaoHelper {
 
 				}
 
+			} else {
+				Log.v( TAG, "load : channel NOT found for channel id [" + channel.getChannelId() + "]" );
 			}
 
 		}
 		
 		if( !ops.isEmpty() ) {
-			Log.v( TAG, "process : final batch " + count );
+			Log.v( TAG, "load : final batch " + count );
 
 			ContentProviderResult[] results = context.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
 			processed += results.length;
+
+			if( results.length > 0 ) {
+				ops.clear();
+			}
 		}
 
+		Log.v( TAG, "load : delete batch: " + deleted );
 		Log.d( TAG, "load : processed: " + processed );
 		Log.d( TAG, "load : totalUpdates: " + totalUpdates );
 		Log.d( TAG, "load : totalInserts: " + totalInserts );
+		
 		Log.d( TAG, "load : exit" );
 		return processed;
 	}

@@ -18,21 +18,20 @@
  */
 package org.mythtv.client.ui.dvr;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.joda.time.DateTime;
 import org.mythtv.R;
 import org.mythtv.client.ui.AbstractMythFragment;
 import org.mythtv.client.ui.preferences.LocationProfile;
-import org.mythtv.db.dvr.ProgramGuideDaoHelper;
+import org.mythtv.db.channel.ChannelDaoHelper;
+import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.service.util.DateUtils;
 import org.mythtv.services.api.channel.ChannelInfo;
-import org.mythtv.services.api.guide.ProgramGuide;
 
 import android.app.FragmentManager;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -52,18 +51,22 @@ public class GuideFragment extends AbstractMythFragment implements GuideChannelF
 	
 	private FragmentManager mFragmentManager;
 	
-	private ProgramGuideDaoHelper mProgramGuideDaoHelper = ProgramGuideDaoHelper.getInstance();
+	private ChannelDaoHelper mChannelDaoHelper = ChannelDaoHelper.getInstance();
 	
 	private TextView mProgramGuideDate;
 	private GuideChannelFragment mGuideChannelFragment;
 	private GuideTimeslotsFragment mGuideTimeslotsFragment;
 	private GuideDataFragment mGuideDataFragment;
 	
-	private int downloadDays;
+	private List<ChannelInfo> channels = new ArrayList<ChannelInfo>();
+	
 	private DateTime today;
-	private Map<DateTime, ProgramGuide> dateRange = new HashMap<DateTime, ProgramGuide>();
+	private List<DateTime> dateRange = new ArrayList<DateTime>();
 	
 	private LocationProfile mLocationProfile;
+	
+	private int selectedChannelId;
+	private DateTime selectedDate;
 	
 	/* (non-Javadoc)
 	 * @see android.support.v4.app.ListFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle)
@@ -87,22 +90,28 @@ public class GuideFragment extends AbstractMythFragment implements GuideChannelF
 		Log.v( TAG, "onActivityCreated : enter" );
 		super.onActivityCreated( savedInstanceState );
 		
-		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
-		
 		View view = getView();
 		
 		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences( getActivity() );
-		downloadDays = Integer.parseInt( sp.getString( "preference_program_guide_days", "14" ) );
+		int downloadDays = Integer.parseInt( sp.getString( "preference_program_guide_days", "14" ) );
 
-		today = new DateTime().withTimeAtStartOfDay();
+		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
 		
-		new ProgramGuideTask().execute();
+		channels = mChannelDaoHelper.findAll( getActivity(), mLocationProfile );
+		selectedChannelId = channels.get( 0 ).getChannelId();
+		
+		today = new DateTime( System.currentTimeMillis() ).withTimeAtStartOfDay();
+		selectedDate = today;
+		dateRange.add( today );
+		for( int i = 1; i < downloadDays; i++ ) {
+			dateRange.add( today.plusDays( i ) );
+		}
 		
 		mProgramGuideDate = (TextView) getActivity().findViewById( R.id.program_guide_date );
 		mProgramGuideDate.setText( DateUtils.getDateTimeUsingLocaleFormattingPrettyDateOnly( today, getMainApplication().getDateFormat() ) );
 		
 		// get child fragment manager
-		mFragmentManager = getFragmentManager();
+		mFragmentManager = this.getFragmentManager();
 
 		// look for program guide channels list placeholder frame layout
 		FrameLayout channelsLayout = (FrameLayout) view.findViewById( R.id.frame_layout_program_guide_channels );
@@ -135,8 +144,6 @@ public class GuideFragment extends AbstractMythFragment implements GuideChannelF
 				.replace( R.id.frame_layout_program_guide_timeslots, mGuideTimeslotsFragment, GuideTimeslotsFragment.class.getName() )
 				.commit();
 		
-			//mGuideTimeslotsFragment.updateTimeslot( today );
-			
 		}
 
 		FrameLayout dataLayout = (FrameLayout) view.findViewById( R.id.frame_layout_program_guide_data );
@@ -147,8 +154,14 @@ public class GuideFragment extends AbstractMythFragment implements GuideChannelF
 			if( null == mGuideDataFragment ) {
 				mGuideDataFragment = (GuideDataFragment) GuideDataFragment.instantiate( getActivity(), GuideDataFragment.class.getName() );
 				//mGuideTimeslotsFragment.setOnDataScrollListener( this );
-			}
 
+				Bundle args = new Bundle();
+				args.putInt( ProgramConstants.FIELD_CHANNEL_ID, selectedChannelId );
+				args.putLong( ProgramConstants.FIELD_END_TIME, selectedDate.getMillis() );
+				mGuideDataFragment.setArguments( args );
+
+			}
+			
 			mFragmentManager.beginTransaction()
 				.replace( R.id.frame_layout_program_guide_data, mGuideDataFragment, GuideDataFragment.class.getName() )
 				.commit();
@@ -176,39 +189,29 @@ public class GuideFragment extends AbstractMythFragment implements GuideChannelF
 		Log.v( TAG, "channelScroll : exit" );
 	}
 
+	/* (non-Javadoc)
+	 * @see org.mythtv.client.ui.dvr.GuideChannelFragment.OnChannelScrollListener#channelSelect(int)
+	 */
+	@Override
+	public void channelSelect( int channelId ) {
+		Log.v( TAG, "channelSelect : enter" );
+		
+		Log.v( TAG, "channelSelect : channelId=" + channelId );
+		selectedChannelId = channelId;
+		
+		updateView();
+		
+		Log.v( TAG, "channelSelect : exit" );
+	}
+
 	// internal helpers
 	
-	private class ProgramGuideTask extends AsyncTask<Void, Void, Void> {
-
-		/* (non-Javadoc)
-		 * @see android.os.AsyncTask#doInBackground(Params[])
-		 */
-		@Override
-		protected Void doInBackground( Void...voids ) {
-			
-			DateTime add = today.withTimeAtStartOfDay();
-			
-			dateRange.put( add, mProgramGuideDaoHelper.getProgramGuideForDate( getActivity(), mLocationProfile, add ) );
-			for( int i = 1; i < downloadDays; i++ ) {
-				dateRange.put( add.plusDays( i ), mProgramGuideDaoHelper.getProgramGuideForDate( getActivity(), mLocationProfile, add.plusDays( i ) ) );
-			}
-
-			return null;
-		}
-
-		/* (non-Javadoc)
-		 * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
-		 */
-		@Override
-		protected void onPostExecute(Void result) {
-			
-			mGuideChannelFragment.changeChannels( ( dateRange.get( today ) ).getChannels() );
-			mGuideDataFragment.changeChannels( ( dateRange.get( today ) ).getChannels() );
-			
-			mGuideTimeslotsFragment.updateTimeslot( new DateTime() );
-			
-		}
+	private void updateView() {
+		Log.v( TAG, "updateView : enter" );
 		
+		mGuideDataFragment.updateView( selectedChannelId, selectedDate );
+		
+		Log.v( TAG, "updateView : exit" );
 	}
 	
 }

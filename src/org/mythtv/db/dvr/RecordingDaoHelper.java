@@ -309,13 +309,13 @@ public class RecordingDaoHelper extends AbstractDaoHelper {
 	public static ContentValues convertRecordingToContentValues( final LocationProfile locationProfile, final DateTime lastModified, final DateTime startTime, final Recording recording ) {
 //		Log.v( TAG, "convertRecordingToContentValues : enter" );
 		
-		DateTime startTimestamp = DateUtils.convertUtc( new DateTime() );
+		DateTime startTimestamp = DateUtils.convertUtc( new DateTime( System.currentTimeMillis() ) );
 		if( null != recording.getStartTimestamp() ) {
 			startTimestamp = recording.getStartTimestamp();
 		}
 //		Log.v( TAG, "convertRecordingToContentValues : startTimestamp = " + startTimestamp.toString() );
 		
-		DateTime endTimestamp = DateUtils.convertUtc( new DateTime() );
+		DateTime endTimestamp = DateUtils.convertUtc( new DateTime( System.currentTimeMillis() ) );
 		if( null != recording.getStartTimestamp() ) {
 			endTimestamp = recording.getEndTimestamp();
 		}

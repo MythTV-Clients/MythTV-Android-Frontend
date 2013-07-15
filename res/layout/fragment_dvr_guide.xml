@@ -41,7 +41,7 @@
         
 		<TextView
   			android:id="@+id/program_guide_blank"
-  			android:layout_width="100dp"
+  			android:layout_width="70dp"
   			android:layout_height="wrap_content" />
   			        
         <FrameLayout
@@ -61,7 +61,7 @@
 
     	<FrameLayout
         	android:id="@+id/frame_layout_program_guide_channels"
-        	android:layout_width="100dp"
+        	android:layout_width="70dp"
         	android:layout_height="match_parent" />
 
         <FrameLayout

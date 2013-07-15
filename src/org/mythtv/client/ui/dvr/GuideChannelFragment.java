@@ -3,28 +3,32 @@
  */
 package org.mythtv.client.ui.dvr;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.mythtv.R;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.util.MythtvListFragment;
+import org.mythtv.db.channel.ChannelConstants;
 import org.mythtv.db.channel.ChannelDaoHelper;
 import org.mythtv.services.api.channel.ChannelInfo;
 
+import android.app.LoaderManager;
 import android.content.Context;
+import android.content.CursorLoader;
+import android.content.Loader;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
-import android.widget.BaseAdapter;
+import android.widget.CursorAdapter;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
@@ -37,7 +41,7 @@ import com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener;
  * @author dmfrey
  *
  */
-public class GuideChannelFragment extends MythtvListFragment {
+public class GuideChannelFragment extends MythtvListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
 	private static final String TAG = GuideChannelFragment.class.getSimpleName();
 
@@ -49,7 +53,7 @@ public class GuideChannelFragment extends MythtvListFragment {
 	private ImageLoader imageLoader = ImageLoader.getInstance();
 	private DisplayImageOptions options;
 	
-	private ProgramGuideChannelAdapter mAdapter;
+	private ProgramGuideCursorAdapter mAdapter;
 	private OnChannelScrollListener mOnChannelScrollListener;
 	
 	private LocationProfile mLocationProfile;
@@ -57,6 +61,8 @@ public class GuideChannelFragment extends MythtvListFragment {
 	public interface OnChannelScrollListener {
 		
 		void channelScroll( int first, int last, int screenCount, int totalCount );
+		
+		void channelSelect( int channelId );
 		
 	}
 	
@@ -76,6 +82,62 @@ public class GuideChannelFragment extends MythtvListFragment {
 		long id = mAdapter.getItemId( position );
 		
 		return mChannelDaoHelper.findOne( getActivity(), mLocationProfile, id ); 
+	}
+	
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.LoaderManager.LoaderCallbacks#onCreateLoader(int, android.os.Bundle)
+	 */
+	@Override
+	public Loader<Cursor> onCreateLoader( int id, Bundle args ) {
+		Log.v( TAG, "onCreateLoader : enter" );
+		
+		String[] projection = null;
+		String selection = null;
+		String[] selectionArgs = null;
+		String sortOrder = null;
+		
+		switch( id ) {
+		case 0 :
+		    Log.v( TAG, "onCreateLoader : getting channels" );
+
+			projection = new String[] { ChannelConstants._ID, ChannelConstants.FIELD_CHAN_ID + " AS " + ChannelConstants.TABLE_NAME + "_" + ChannelConstants.FIELD_CHAN_ID, ChannelConstants.FIELD_CHAN_NUM + " AS " + ChannelConstants.TABLE_NAME + "_" + ChannelConstants.FIELD_CHAN_NUM, ChannelConstants.FIELD_CALLSIGN + " AS " + ChannelConstants.TABLE_NAME + "_" + ChannelConstants.FIELD_CALLSIGN };
+			selection = ChannelConstants.FIELD_VISIBLE + " = ? AND " + ChannelConstants.FIELD_MASTER_HOSTNAME + " = ?";
+			selectionArgs = new String[] { "1", mLocationProfile.getHostname() };
+			sortOrder = ChannelConstants.FIELD_CHAN_NUM_FORMATTED;
+
+			Log.v( TAG, "onCreateLoader : exit" );
+			return new CursorLoader( getActivity(), ChannelConstants.CONTENT_URI, projection, selection, selectionArgs, sortOrder );
+
+		default : 
+		    Log.v( TAG, "onCreateLoader : exit, invalid id" );
+
+		    return null;
+		}
+			
+	}
+
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.LoaderManager.LoaderCallbacks#onLoadFinished(android.support.v4.content.Loader, java.lang.Object)
+	 */
+	@Override
+	public void onLoadFinished( Loader<Cursor> loader, Cursor cursor ) {
+		Log.v( TAG, "onLoadFinished : enter" );
+		
+		mAdapter.swapCursor( cursor );
+		
+		Log.v( TAG, "onLoadFinished : exit" );
+	}
+
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.LoaderManager.LoaderCallbacks#onLoaderReset(android.support.v4.content.Loader)
+	 */
+	@Override
+	public void onLoaderReset( Loader<Cursor> loader ) {
+		Log.v( TAG, "onLoaderReset : enter" );
+		
+		mAdapter.swapCursor( null );
+		
+		Log.v( TAG, "onLoaderReset : exit" );
 	}
 
 	/* (non-Javadoc)
@@ -102,8 +164,10 @@ public class GuideChannelFragment extends MythtvListFragment {
 
 		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
 		
-		mAdapter = new ProgramGuideChannelAdapter( getActivity() );
+		mAdapter = new ProgramGuideCursorAdapter( getActivity() );
 	    setListAdapter( mAdapter );
+
+		getLoaderManager().initLoader( 0, null, this );
 
 	    getListView().setFastScrollEnabled( true );
 		getListView().setOnScrollListener( new PauseOnScrollListener( imageLoader, false, true, new OnScrollListener() {
@@ -145,118 +209,86 @@ public class GuideChannelFragment extends MythtvListFragment {
 		Log.v( TAG, "onActivityCreated : exit" );
 	}
 
-	public void changeChannels( List<ChannelInfo> channels ) {
-		Log.v( TAG, "changeChannels : enter" );
-
-		mAdapter.setChannels( channels );
-
-		Log.v( TAG, "changeChannels : exit" );
-	}
-	
 	// internal helpers
 	
-	private class ProgramGuideChannelAdapter extends BaseAdapter {
+	private class ProgramGuideCursorAdapter extends CursorAdapter {
 		
 		private LayoutInflater mInflater;
 
-		private List<ChannelInfo> channels = new ArrayList<ChannelInfo>();
-		
-		public ProgramGuideChannelAdapter( Context context ) {
-						
+		public ProgramGuideCursorAdapter( Context context ) {
+			super( context, null, false );
+			
 			mInflater = LayoutInflater.from( context );
-		
-		}
-
-		public void setChannels( List<ChannelInfo> channels ) {
-			this.channels = channels;
-		
-			notifyDataSetChanged();
-		}
-		
-		/* (non-Javadoc)
-		 * @see android.widget.Adapter#getCount()
-		 */
-		@Override
-		public int getCount() {
-			return channels.size();
 		}
 
 		/* (non-Javadoc)
-		 * @see android.widget.Adapter#getItem(int)
+		 * @see android.support.v4.widget.CursorAdapter#bindView(android.view.View, android.content.Context, android.database.Cursor)
 		 */
 		@Override
-		public ChannelInfo getItem( int position ) {
-			if( null != channels && !channels.isEmpty() ) {
-				return channels.get( position );
+		public void bindView( View view, Context context, Cursor cursor ) {
+			
+			final ChannelInfo channel = ChannelDaoHelper.convertCursorToChannelInfo( cursor );
+
+	        final ViewHolder mHolder = (ViewHolder) view.getTag();
+			
+			mHolder.channel.setText( channel.getChannelNumber() );
+			mHolder.callsign.setText( channel.getCallSign() );
+
+			if( downloadIcons ) {
+				String imageUri = mLocationProfileDaoHelper.findConnectedProfile( getActivity() ).getUrl() + "Guide/GetChannelIcon?ChanId=" + channel.getChannelId() + "&Width=32&Height=32";
+				imageLoader.displayImage( imageUri, mHolder.icon, options, new SimpleImageLoadingListener() {
+
+					/* (non-Javadoc)
+					 * @see com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener#onLoadingComplete(android.graphics.Bitmap)
+					 */
+					@Override
+					public void onLoadingComplete( String imageUri, View view, Bitmap loadedImage ) {
+/*						mHolder.icon.setVisibility( View.GONE );
+						mHolder.icon.setVisibility( View.VISIBLE );
+*/					}
+
+					/* (non-Javadoc)
+					 * @see com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener#onLoadingFailed(com.nostra13.universalimageloader.core.assist.FailReason)
+					 */
+					@Override
+					public void onLoadingFailed( String imageUri, View view, FailReason failReason ) {
+/*						mHolder.icon.setVisibility( View.VISIBLE );
+						mHolder.icon.setVisibility( View.GONE );
+*/					}
+
+				});
 			}
 			
-			return null;
-		}
-
-		/* (non-Javadoc)
-		 * @see android.widget.Adapter#getItemId(int)
-		 */
-		@Override
-		public long getItemId( int position ) {
-			return position;
-		}
-
-		/* (non-Javadoc)
-		 * @see android.widget.Adapter#getView(int, android.view.View, android.view.ViewGroup)
-		 */
-		@Override
-		public View getView( int position, View convertView, ViewGroup parent ) {
-
-			ViewHolder refHolder = new ViewHolder();
-
-			View view = convertView;
-			if( null == view ) {
+			mHolder.row.setOnClickListener( new OnClickListener() {
 				
-		        view = mInflater.inflate( R.layout.program_guide_channel, parent, false );
-				
-				refHolder.channel = (TextView) view.findViewById( R.id.program_guide_channel );
-				refHolder.icon = (ImageView) view.findViewById( R.id.program_guide_icon );
-				refHolder.callsign = (TextView) view.findViewById( R.id.program_guide_callsign );
-				
-				view.setTag( refHolder );
-
-			} else {
-				refHolder = (ViewHolder) view.getTag();
-			}
-			
-			ChannelInfo channel = getItem( position );
-			if( null != channel ) {
-				
-				refHolder.channel.setText( channel.getChannelNumber() );
-				refHolder.callsign.setText( channel.getCallSign() );
-
-				if( downloadIcons ) {
-					String imageUri = mLocationProfileDaoHelper.findConnectedProfile( getActivity() ).getUrl() + "Guide/GetChannelIcon?ChanId=" + channel.getChannelId() + "&Width=32&Height=32";
-					imageLoader.displayImage( imageUri, refHolder.icon, options, new SimpleImageLoadingListener() {
-
-						/* (non-Javadoc)
-						 * @see com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener#onLoadingComplete(android.graphics.Bitmap)
-						 */
-						@Override
-						public void onLoadingComplete( String imageUri, View view, Bitmap loadedImage ) {
-/*							mHolder.icon.setVisibility( View.GONE );
-							mHolder.icon.setVisibility( View.VISIBLE );
-*/						}
-
-						/* (non-Javadoc)
-						 * @see com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener#onLoadingFailed(com.nostra13.universalimageloader.core.assist.FailReason)
-						 */
-						@Override
-						public void onLoadingFailed( String imageUri, View view, FailReason failReason ) {
-/*							mHolder.icon.setVisibility( View.VISIBLE );
-							mHolder.icon.setVisibility( View.GONE );
-*/						}
-
-					});
+				/* (non-Javadoc)
+				 * @see android.view.View.OnClickListener#onClick(android.view.View)
+				 */
+				@Override
+				public void onClick( View v ) {
+					mOnChannelScrollListener.channelSelect( channel.getChannelId() );
 				}
-
-			}
+				
+			});
 			
+		}
+
+		/* (non-Javadoc)
+		 * @see android.support.v4.widget.CursorAdapter#newView(android.content.Context, android.database.Cursor, android.view.ViewGroup)
+		 */
+		@Override
+		public View newView( Context context, Cursor cursor, ViewGroup parent ) {
+			
+	        View view = mInflater.inflate( R.layout.program_guide_channel, parent, false );
+			
+			ViewHolder refHolder = new ViewHolder();
+			refHolder.row = (LinearLayout) view.findViewById( R.id.program_guide_channel );
+			refHolder.channel = (TextView) view.findViewById( R.id.program_guide_channel_number );
+			refHolder.icon = (ImageView) view.findViewById( R.id.program_guide_channel_icon );
+			refHolder.callsign = (TextView) view.findViewById( R.id.program_guide_channel_callsign );
+			
+			view.setTag( refHolder );
+
 			return view;
 		}
 
@@ -264,6 +296,7 @@ public class GuideChannelFragment extends MythtvListFragment {
 
 	private static class ViewHolder {
 		
+		LinearLayout row;
 		TextView channel;
 		ImageView icon;
 		TextView callsign;

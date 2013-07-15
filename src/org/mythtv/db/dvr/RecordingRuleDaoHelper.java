@@ -187,7 +187,7 @@ public class RecordingRuleDaoHelper extends AbstractDaoHelper {
 		if( null == context ) 
 			throw new RuntimeException( "RecordingRuleDaoHelper is not initialized" );
 		
-		ContentValues values = convertRecRuleToContentValues( locationProfile, DateUtils.convertUtc( new DateTime() ), recRule );
+		ContentValues values = convertRecRuleToContentValues( locationProfile, DateUtils.convertUtc( new DateTime( System.currentTimeMillis() ) ), recRule );
 
 		String[] projection = new String[] { RecordingRuleConstants._ID };
 		String selection = RecordingRuleConstants.FIELD_REC_RULE_ID + " = ?";
@@ -283,7 +283,7 @@ public class RecordingRuleDaoHelper extends AbstractDaoHelper {
 		if( null == context ) 
 			throw new RuntimeException( "RecordingRuleDaoHelper is not initialized" );
 		
-		DateTime lastModified = DateUtils.convertUtc( new DateTime() );
+		DateTime lastModified = DateUtils.convertUtc( new DateTime( System.currentTimeMillis() ) );
 		
 		int count = 0;
 		int deletecount = 0;
@@ -674,12 +674,12 @@ public class RecordingRuleDaoHelper extends AbstractDaoHelper {
 	private ContentValues convertRecRuleToContentValues( final LocationProfile locationProfile, final DateTime lastModified, final RecRule recRule ) {
 //		Log.v( TAG, "convertRecRuleToContentValues : enter" );
 		
-		DateTime startTimestamp = DateUtils.convertUtc( new DateTime() );
+		DateTime startTimestamp = DateUtils.convertUtc( new DateTime( System.currentTimeMillis() ) );
 		if( null != recRule.getStartTime() ) {
 			startTimestamp = recRule.getStartTime();
 		}
 
-		DateTime endTimestamp = DateUtils.convertUtc( new DateTime() );
+		DateTime endTimestamp = DateUtils.convertUtc( new DateTime( System.currentTimeMillis() ) );
 		if( null != recRule.getEndTime() ) {
 			endTimestamp = recRule.getEndTime();
 		}

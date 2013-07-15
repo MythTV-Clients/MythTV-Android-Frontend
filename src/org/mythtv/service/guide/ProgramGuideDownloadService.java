@@ -158,7 +158,7 @@ public class ProgramGuideDownloadService extends MythtvService {
 				try {
 					sendNotification();
 
-					DateTime start = DateUtils.convertUtc( new DateTime() );
+					DateTime start = DateUtils.convertUtc( new DateTime( System.currentTimeMillis() ) );
 					start = start.withTime( 0, 0, 0, 001 );
 
 					for( int currentHour = 0; currentHour < MAX_HOURS; currentHour++ ) {

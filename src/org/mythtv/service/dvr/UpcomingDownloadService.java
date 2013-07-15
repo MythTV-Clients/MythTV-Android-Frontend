@@ -124,7 +124,7 @@ public class UpcomingDownloadService extends MythtvService {
 		
 		EtagInfoDelegate etag = mEtagDaoHelper.findByEndpointAndDataId( this, locationProfile, Endpoint.GET_UPCOMING_LIST.name(), "" );
 		
-		DateTime date = DateUtils.convertUtc( new DateTime() );
+		DateTime date = DateUtils.convertUtc( new DateTime( System.currentTimeMillis() ) );
 		ResponseEntity<ProgramList> responseEntity = mMythtvServiceHelper.getMythServicesApi( locationProfile ).dvrOperations().getUpcomingList( -1, -1, false, etag );
 		if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
 			Log.i( TAG, "download : " + Endpoint.GET_UPCOMING_LIST.getEndpoint() + " returned 200 OK" );
