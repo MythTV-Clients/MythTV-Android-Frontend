@@ -61,6 +61,11 @@
 		<item name="android:textColor">@color/text_header_main_menu</item>
 		<item name="android:textSize">16sp</item>
 	</style>
+	
+    <style name="BackendStatusHeader">
+        <item name="android:textSize">16sp</item>
+        <item name="android:paddingTop">5dp</item>
+    </style>
     
      <style name="ProgramGuideDataItem">
         <item name="android:layout_width">match_parent</item>

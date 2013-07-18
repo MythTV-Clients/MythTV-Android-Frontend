@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <LinearLayout 
+        android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+	    android:orientation="horizontal"
+	    android:padding="2dp">
+        <TextView
+			android:id="@+id/textView_encoder_devicelabel_header"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:paddingRight="2dp"
+			android:text="@string/encoder_str"/>
+		<TextView
+			android:id="@+id/textView_encoder_devicelabel"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:textColor="@color/body_text_2"/>
+	</LinearLayout>
+	
+    <LinearLayout 
+        android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+	    android:orientation="horizontal"
+	    android:padding="2dp">
+        <TextView
+			android:id="@+id/textView_encoder_host_header"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:paddingRight="2dp"
+			android:text="@string/backend_host_str"/>
+		<TextView
+			android:id="@+id/textView_encoder_host"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:textColor="@color/body_text_2"/>
+	</LinearLayout>
+    
+	<LinearLayout 
+        android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+	    android:orientation="horizontal"
+	    android:padding="2dp">
+        <TextView
+			android:id="@+id/textView_encoder_rec_status_header"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:paddingRight="2dp"
+			android:text="@string/recording_str"/>
+	    <TextView
+	        android:id="@+id/textView_encoder_rec_status"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:textColor="@color/body_text_2" />
+    </LinearLayout>
+
+</LinearLayout>

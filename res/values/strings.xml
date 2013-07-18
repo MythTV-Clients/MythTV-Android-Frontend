@@ -362,4 +362,9 @@
 		
 	<string name="test_title">Test Title</string>
 	
+	<!-- Backend Status -->
+	<string name="encoder_str">Encoder:</string>
+	<string name="backend_host_str">Backend Host:</string>
+	<string name="recording_str">Recording:</string>
+	
 </resources>

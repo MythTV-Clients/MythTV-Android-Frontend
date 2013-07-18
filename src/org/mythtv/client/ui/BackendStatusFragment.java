@@ -18,14 +18,20 @@
  */
 package org.mythtv.client.ui;
 
+import java.util.List;
+
 import org.mythtv.R;
 import org.mythtv.client.ui.preferences.LocationProfile;
-
+import org.mythtv.services.api.dvr.Encoder;
+import org.mythtv.services.api.dvr.Program;
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 
 public class BackendStatusFragment extends AbstractMythFragment {
@@ -33,8 +39,8 @@ public class BackendStatusFragment extends AbstractMythFragment {
 	private static final String TAG = BackendStatusFragment.class.getSimpleName();
 	
 	private View mView;
-	
 	private LocationProfile mLocationProfile;
+	private ListView mListViewEncoders;
 	
 	/* (non-Javadoc)
 	 * @see android.support.v4.app.Fragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle)
@@ -44,6 +50,8 @@ public class BackendStatusFragment extends AbstractMythFragment {
 		Log.d( TAG, "onCreateView : enter" );
 		
 		mView = inflater.inflate( R.layout.fragment_backend_status, container, false );
+		
+		mListViewEncoders = (ListView)mView.findViewById(R.id.listview_encoders);
 		
 		Log.d( TAG, "onCreateView : exit" );
 		return mView;
@@ -117,6 +125,65 @@ public class BackendStatusFragment extends AbstractMythFragment {
 	@Override
     protected void onBackendStatusUpdated(org.mythtv.services.api.status.Status result){
     	
+		List<Encoder> encoders = result.getEncoders().getEncoders();
+		if (null != encoders) {
+			mListViewEncoders.setAdapter(new EncoderArrayAdapter(this
+					.getActivity(), R.layout.encoder_listview_item, encoders));
+		}
     }
+	
+	
+	private class EncoderArrayAdapter extends ArrayAdapter<Encoder>
+	{
+		private List<Encoder> mEncoders;
+		private Context mContext;
+		
+		public EncoderArrayAdapter(Context context, int textViewResourceId,
+				List<Encoder> objects) {
+			super(context, textViewResourceId, objects);
+			mEncoders = objects;
+			mContext = context;
+		}
+
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+			
+			LayoutInflater inflater = (LayoutInflater)mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			View view = (View)inflater.inflate(R.layout.encoder_listview_item, null, true);
+			
+			Encoder encoder = this.mEncoders.get(position);
+			
+			//set device label
+			TextView tView = (TextView)view.findViewById(R.id.textView_encoder_devicelabel);
+			if(null != tView) {
+				tView.setText(Integer.toString(encoder.getId()) + " - " + encoder.getDeviceLabel());
+			}
+			
+			//set device host
+			tView = (TextView)view.findViewById(R.id.textView_encoder_host);
+			if(null != tView) {
+				tView.setText(encoder.getHostname());
+			}
+			
+			//set device recording status
+			tView = (TextView)view.findViewById(R.id.textView_encoder_rec_status);
+			if(null != tView) {
+				Program rec = encoder.getRecording();
+				if(null != rec){
+					tView.setText(rec.getTitle() + " on " + rec.getChannelInfo().getChannelName());
+					//+ rec.getEndTime().toString("hh:mm") );
+				}else{
+					tView.setText("Inactive");
+				}
+			}
+			
+			
+			
+			return view;
+			
+		}
+		
+		
+	}
 
 }
