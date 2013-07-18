@@ -21,6 +21,7 @@ package org.mythtv.service.guide;
 import java.io.IOException;
 
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.dvr.ProgramGuideDaoHelper;
 import org.mythtv.db.http.model.EtagInfoDelegate;
@@ -119,55 +120,59 @@ public class ProgramGuideDownloadServiceNew extends MythtvService {
 		Log.v( TAG, "download : enter" );
 		
 		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences( this );
-		int downloadDays = Integer.parseInt( sp.getString( "preference_program_guide_days", "15" ) );
+		int downloadDays = Integer.parseInt( sp.getString( "preference_program_guide_days", "14" ) );
 		Log.v( TAG, "download : downloadDays=" + downloadDays );
 		
-		DateTime start = new DateTime().withTimeAtStartOfDay();
-		DateTime end = new DateTime( start );
-		end = end.plusDays( downloadDays ).withTimeAtStartOfDay();
-		Log.i( TAG, "download : starting download for " + DateUtils.dateTimeFormatter.print( start ) + ", end time=" + DateUtils.dateTimeFormatter.print( end ) );
+		DateTime start = new DateTime( DateTimeZone.getDefault() ).withTimeAtStartOfDay();
+		DateTime end = start.plusDays( 1 );
+		for( int i = 0; i < downloadDays; i++ ) {
+			Log.i( TAG, "download : starting download for " + DateUtils.getDateTimeUsingLocaleFormattingPretty( start, mMainApplication.getDateFormat(), mMainApplication.getClockType() ) + ", end time=" + DateUtils.getDateTimeUsingLocaleFormattingPretty( end, mMainApplication.getDateFormat(), mMainApplication.getClockType() ) );
 
-		EtagInfoDelegate etag = mEtagDaoHelper.findByEndpointAndDataId( this, locationProfile, GuideTemplate.Endpoint.GET_PROGRAM_GUIDE.name(), "" );
+			EtagInfoDelegate etag = mEtagDaoHelper.findByEndpointAndDate( this, locationProfile, GuideTemplate.Endpoint.GET_PROGRAM_GUIDE.name(), start );
 
-		ResponseEntity<ProgramGuideWrapper> responseEntity = mMythtvServiceHelper.getMythServicesApi( locationProfile ).guideOperations().getProgramGuide( start, end, 1, -1, false, etag );
+			ResponseEntity<ProgramGuideWrapper> responseEntity = mMythtvServiceHelper.getMythServicesApi( locationProfile ).guideOperations().getProgramGuide( start, end, 1, -1, false, etag );
 
-		DateTime date = DateUtils.convertUtc( new DateTime() );
-		if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
-			Log.i( TAG, "download : " + GuideTemplate.Endpoint.GET_PROGRAM_GUIDE.name() + " returned 200 OK" );
-			ProgramGuideWrapper programGuide = responseEntity.getBody();
-				
-			if( null != programGuide ) {
+			DateTime date = DateUtils.convertUtc( new DateTime( DateTimeZone.getDefault() ) );
+			if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
+				Log.i( TAG, "download : " + GuideTemplate.Endpoint.GET_PROGRAM_GUIDE.name() + " returned 200 OK" );
+				ProgramGuideWrapper programGuide = responseEntity.getBody();
 
-				if( null != programGuide.getProgramGuide() ) {
-					process( programGuide.getProgramGuide(), locationProfile );
+				if( null != programGuide ) {
+
+					if( null != programGuide.getProgramGuide() ) {
+						process( programGuide.getProgramGuide(), locationProfile );
+					}
+
 				}
-					
-			}
 
-			if( null != etag.getValue() ) {
-				Log.i( TAG, "download : saving etag: " + etag.getValue() );
-				
-				etag.setEndpoint( GuideTemplate.Endpoint.GET_PROGRAM_GUIDE.name() );
-				etag.setDate( date );
-				etag.setMasterHostname( locationProfile.getHostname() );
-				etag.setLastModified( date );
-				mEtagDaoHelper.save( this, locationProfile, etag );
-			}
-
-			if( responseEntity.getStatusCode().equals( HttpStatus.NOT_MODIFIED ) ) {
-				Log.i( TAG, "download : " + GuideTemplate.Endpoint.GET_PROGRAM_GUIDE.name() + " returned 304 Not Modified" );
-				
 				if( null != etag.getValue() ) {
 					Log.i( TAG, "download : saving etag: " + etag.getValue() );
 
+					etag.setEndpoint( GuideTemplate.Endpoint.GET_PROGRAM_GUIDE.name() );
+					etag.setDate( start );
+					etag.setMasterHostname( locationProfile.getHostname() );
 					etag.setLastModified( date );
 					mEtagDaoHelper.save( this, locationProfile, etag );
 				}
 
+				if( responseEntity.getStatusCode().equals( HttpStatus.NOT_MODIFIED ) ) {
+					Log.i( TAG, "download : " + GuideTemplate.Endpoint.GET_PROGRAM_GUIDE.name() + " returned 304 Not Modified" );
+
+					if( null != etag.getValue() ) {
+						Log.i( TAG, "download : saving etag: " + etag.getValue() );
+
+						etag.setLastModified( date );
+						mEtagDaoHelper.save( this, locationProfile, etag );
+					}
+
+				}
+
 			}
 			
+			start = start.plusDays( 1 );
+			end = end.plusDays( 1 );
 		}
-			
+		
 		Log.v( TAG, "download : exit" );
 	}
 

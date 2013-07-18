@@ -103,7 +103,7 @@ public class UpcomingPagerFragment extends AbstractMythFragment {
 		DateTime etag = mEtagDaoHelper.findDateByEndpointAndDataId( getActivity(), mLocationProfile, Endpoint.GET_UPCOMING_LIST.name(), "" );
 		if( null != etag ) {
 			
-			DateTime now = DateUtils.convertUtc( new DateTime() );
+			DateTime now = DateUtils.convertUtc( new DateTime( System.currentTimeMillis() ) );
 			if( now.getMillis() - etag.getMillis() > ( 2 * 3600000 ) ) {
 				loadData();
 			}
@@ -203,7 +203,7 @@ public class UpcomingPagerFragment extends AbstractMythFragment {
 			
 			fragmentHeadings = new ArrayList<String>();
 
-			DateTime day = new DateTime();
+			DateTime day = new DateTime( System.currentTimeMillis() );
 			
 			String formattedDay = null;
 			for( int i = 0; i < 13; i++ ) {

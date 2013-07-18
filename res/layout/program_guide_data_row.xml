@@ -21,10 +21,9 @@
 -->
 
 <HorizontalScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/program_guide_data_scroll"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginLeft="5dip"
-    android:layout_marginRight="5dip"
     android:fillViewport="true" >
     
     <LinearLayout

@@ -161,7 +161,7 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 		if( null == context ) 
 			throw new RuntimeException( "ProgramGroupDaoHelper is not initialized" );
 		
-		ContentValues values = convertProgramGroupToContentValues( locationProfile, DateUtils.convertUtc( new DateTime() ), programGroup );
+		ContentValues values = convertProgramGroupToContentValues( locationProfile, DateUtils.convertUtc( new DateTime( System.currentTimeMillis() ) ), programGroup );
 
 		String[] projection = new String[] { ProgramGroupConstants._ID };
 		String selection = ProgramGroupConstants.FIELD_PROGRAM_GROUP + " = ?";
@@ -233,7 +233,7 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 		if( null == context ) 
 			throw new RuntimeException( "ProgramGroupDaoHelper is not initialized" );
 		
-		DateTime lastModified = DateUtils.convertUtc( new DateTime() );
+		DateTime lastModified = DateUtils.convertUtc( new DateTime( System.currentTimeMillis() ) );
 		
 		Log.v( TAG, "load : find all existing recordings" );
 		Map<String, ProgramGroup> existing = new HashMap<String, ProgramGroup>();

@@ -339,7 +339,7 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
 		DateTime guideEtag = mEtagDaoHelper.findDateByEndpointAndDataId( getActivity(), locationProfile, GuideTemplate.Endpoint.GET_PROGRAM_GUIDE.name(), "" );
 		if( null != guideEtag ) {
 			
-			DateTime now = DateUtils.convertUtc( new DateTime() );
+			DateTime now = DateUtils.convertUtc( new DateTime( System.currentTimeMillis() ) );
 			if( now.getMillis() - guideEtag.getMillis() > ( 24 * 3600000 ) ) {
 				startProgramGuideDownloadService();
 			}
@@ -366,7 +366,7 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
 		DateTime recordedEtag = mEtagDaoHelper.findDateByEndpointAndDataId( getActivity(), locationProfile, DvrTemplate.Endpoint.GET_RECORDED_LIST.name(), "" );
 		if( null != recordedEtag ) {
 			
-			DateTime now = DateUtils.convertUtc( new DateTime() );
+			DateTime now = DateUtils.convertUtc( new DateTime( System.currentTimeMillis() ) );
 			if( now.getMillis() - recordedEtag.getMillis() > 3600000 ) {
 				startRecordedDownloadService();
 			}
@@ -393,7 +393,7 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
 		DateTime recordingRuleEtag = mEtagDaoHelper.findDateByEndpointAndDataId( getActivity(), locationProfile, DvrTemplate.Endpoint.GET_RECORD_SCHEDULE_LIST.name(), "" );
 		if( null != recordingRuleEtag ) {
 			
-			DateTime now = DateUtils.convertUtc( new DateTime() );
+			DateTime now = DateUtils.convertUtc( new DateTime( System.currentTimeMillis() ) );
 			if( now.getMillis() - recordingRuleEtag.getMillis() > 3600000 ) {
 				startRecordingRulesDownloadService();
 			}
@@ -420,7 +420,7 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
 		DateTime upcomingEtag = mEtagDaoHelper.findDateByEndpointAndDataId( getActivity(), locationProfile, Endpoint.GET_UPCOMING_LIST.name(), "" );
 		if( null != upcomingEtag ) {
 			
-			DateTime now = DateUtils.convertUtc( new DateTime() );
+			DateTime now = DateUtils.convertUtc( new DateTime( System.currentTimeMillis() ) );
 			if( now.getMillis() - upcomingEtag.getMillis() > ( 6 * 3600000 ) ) {
 				startUpcomingDownloadService();
 			}

@@ -90,7 +90,7 @@ public class GuideTimeslotsFragment extends AbstractMythFragment {
 	public GuideTimeslotsFragment() {
 		Log.v( TAG, "initialize : enter" );
 		
-		DateTime now = new DateTime();
+		DateTime now = new DateTime( System.currentTimeMillis() );
 		startingTimeslot = hourTimeslots.get( now.getHourOfDay() );
 		
 		if( now.getMinuteOfHour() > 30 ) {
@@ -125,6 +125,8 @@ public class GuideTimeslotsFragment extends AbstractMythFragment {
 
 		instantiateControls();
 		
+		scrollTimeslot();
+		
 		Log.v( TAG, "onActivityCreated : exit" );
 	}
 
@@ -132,6 +134,10 @@ public class GuideTimeslotsFragment extends AbstractMythFragment {
 		
 		startingTimeslot = hourTimeslots.get( date.getHourOfDay() );
 		
+		if( date.getMinuteOfHour() > 30 ) {
+			startingTimeslot++;
+		}
+
 		scrollTimeslot();
 		
 	}
@@ -141,21 +147,25 @@ public class GuideTimeslotsFragment extends AbstractMythFragment {
 	private void scrollTimeslot() {
 		
 		final HorizontalScrollView hsv = (HorizontalScrollView) getActivity().findViewById( R.id.program_guide_timeslots_scrollview );
-		hsv.post( new Runnable() {
+		if( null != hsv ) {
 
-	        /* (non-Javadoc)
-	         * @see java.lang.Runnable#run()
-	         */
-	        @Override
-	        public void run() {
-	            
-                final View child = ( (LinearLayout) hsv.getChildAt( 0 ) ).getChildAt( startingTimeslot );                 
+			hsv.post( new Runnable() {
 
-                Log.v( TAG, "onActivityCreated : scroll to timeslot(" + child.getWidth() + ") " + startingTimeslot + " at postion '" + ( startingTimeslot * ( child.getWidth() ) ) + "'" );
-                hsv.scrollTo( ( startingTimeslot * ( child.getWidth() ) ), 0 );
-	        }
+				/* (non-Javadoc)
+				 * @see java.lang.Runnable#run()
+				 */
+				@Override
+				public void run() {
 
-	    });
+					final View child = ( (LinearLayout) hsv.getChildAt( 0 ) ).getChildAt( startingTimeslot );                 
+
+					Log.v( TAG, "onActivityCreated : scroll to timeslot(" + child.getWidth() + ") " + startingTimeslot + " at postion '" + ( startingTimeslot * ( child.getWidth() ) ) + "'" );
+					hsv.scrollTo( ( startingTimeslot * ( child.getWidth() ) ), 0 );
+				}
+
+			});
+
+		}
 
 	}
 	

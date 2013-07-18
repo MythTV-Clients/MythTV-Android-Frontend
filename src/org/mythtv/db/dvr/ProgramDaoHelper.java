@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.AbstractDaoHelper;
 import org.mythtv.db.channel.ChannelDaoHelper;
@@ -147,19 +148,19 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 	 * @param program
 	 * @return
 	 */
-	protected int save( final Context context, final Uri uri, final LocationProfile locationProfile, Program program ) {
+	protected int save( final Context context, final Uri uri, final LocationProfile locationProfile, Program program, final String table ) {
 //		Log.v( TAG, "save : enter" );
 
 		if( null == context ) 
 			throw new RuntimeException( "ProgramDaoHelper is not initialized" );
 		
-		ContentValues values = convertProgramToContentValues( locationProfile, DateUtils.convertUtc( new DateTime() ), program );
+		ContentValues values = convertProgramToContentValues( locationProfile, new DateTime( DateTimeZone.UTC ), program );
 
 		String[] projection = new String[] { ProgramConstants._ID };
-		String selection = ProgramConstants.FIELD_CHANNEL_ID + " = ? AND " + ProgramConstants.FIELD_START_TIME + " = ?";
+		String selection = table + "." + ProgramConstants.FIELD_CHANNEL_ID + " = ? AND " + table + "." + ProgramConstants.FIELD_START_TIME + " = ?";
 		String[] selectionArgs = new String[] { String.valueOf( program.getChannelInfo().getChannelId() ), String.valueOf( program.getStartTime().getMillis() ) };
 		
-		selection = appendLocationHostname( context, locationProfile, selection, null );
+		selection = appendLocationHostname( context, locationProfile, selection, table );
 
 		int updated = -1;
 		Cursor cursor = context.getContentResolver().query( uri, projection, selection, selectionArgs, null );
@@ -252,7 +253,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		if( null == context ) 
 			throw new RuntimeException( "ProgramDaoHelper is not initialized" );
 		
-		DateTime lastModified = DateUtils.convertUtc( new DateTime() );
+		DateTime lastModified = DateUtils.convertUtc( new DateTime( System.currentTimeMillis() ) );
 		
 //		Log.v( TAG, "load : find all existing recordings, table=" + table );
 		String recordedSelection = "";
@@ -288,34 +289,34 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 			ContentValues programValues = convertProgramToContentValues( locationProfile, lastModified, program );
 			Cursor programCursor = context.getContentResolver().query( uri, programProjection, programSelection, new String[] { String.valueOf( program.getChannelInfo().getChannelId() ), String.valueOf( startTime.getMillis() ) }, null );
 			if( programCursor.moveToFirst() ) {
-				Log.v( TAG, "load : UPDATE PROGRAM " + count + ":" + program.getChannelInfo().getChannelId() + ":" + program.getStartTime() + ":" + program.getHostname() );
+//				Log.v( TAG, "load : UPDATE PROGRAM " + count + ":" + program.getChannelInfo().getChannelId() + ":" + program.getStartTime() + ":" + program.getHostname() );
 
 				Long id = programCursor.getLong( programCursor.getColumnIndexOrThrow( ProgramConstants._ID ) );
-//				ops.add( 
-//						ContentProviderOperation.newUpdate( ContentUris.withAppendedId( uri, id ) )
-//							.withValues( programValues )
-//							.withYieldAllowed( true )
-//							.build()
-//					);
-				context.getContentResolver().update(
-						ContentUris.withAppendedId( uri, id ),   // the user dictionary content URI
-						programValues,                       // the columns to update
-					    programSelection,                    // the column to select on
-					    new String[] { String.valueOf( program.getChannelInfo().getChannelId() ), String.valueOf( startTime.getMillis() ) }                      // the value to compare to
+				ops.add( 
+						ContentProviderOperation.newUpdate( ContentUris.withAppendedId( uri, id ) )
+							.withValues( programValues )
+							.withYieldAllowed( true )
+							.build()
 					);
+//				context.getContentResolver().update(
+//						ContentUris.withAppendedId( uri, id ),   // the user dictionary content URI
+//						programValues,                       // the columns to update
+//					    programSelection,                    // the column to select on
+//					    new String[] { String.valueOf( program.getChannelInfo().getChannelId() ), String.valueOf( startTime.getMillis() ) }                      // the value to compare to
+//					);
 			} else {
-				Log.v( TAG, "load : INSERT PROGRAM " + count + ":" + program.getChannelInfo().getChannelId() + ":" + program.getStartTime() + ":" + program.getHostname() );
+//				Log.v( TAG, "load : INSERT PROGRAM " + count + ":" + program.getChannelInfo().getChannelId() + ":" + program.getStartTime() + ":" + program.getHostname() );
 
-//				ops.add(  
-//						ContentProviderOperation.newInsert( uri )
-//							.withValues( programValues )
-//							.withYieldAllowed( true )
-//							.build()
-//					);
-				context.getContentResolver().insert(
-						uri,   // the user dictionary content URI
-						programValues                       // the columns to update
+				ops.add(  
+						ContentProviderOperation.newInsert( uri )
+							.withValues( programValues )
+							.withYieldAllowed( true )
+							.build()
 					);
+//				context.getContentResolver().insert(
+//						uri,   // the user dictionary content URI
+//						programValues                       // the columns to update
+//					);
 			}
 			programCursor.close();
 			count++;
@@ -341,7 +342,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 				ContentValues recordingValues = RecordingDaoHelper.convertRecordingToContentValues( locationProfile, lastModified, program.getStartTime(), program.getRecording() );
 				Cursor recordingCursor = context.getContentResolver().query( details.getContentUri(), recordingProjection, recordingSelection, recordingSelectionArgs, null );
 				if( recordingCursor.moveToFirst() ) {
-					Log.v( TAG, "load : UPDATE RECORDING " + count + ":" + program.getTitle() + ", recording=" + program.getRecording().getRecordId() );
+//					Log.v( TAG, "load : UPDATE RECORDING " + count + ":" + program.getTitle() + ", recording=" + program.getRecording().getRecordId() );
 
 					Long id = recordingCursor.getLong( recordingCursor.getColumnIndexOrThrow( details.getTableName() + "_" + RecordingConstants._ID ) );					
 					ops.add( 
@@ -351,7 +352,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 						.build()
 					);
 				} else {
-					Log.v( TAG, "load : INSERT RECORDING " + count + ":" + program.getTitle() + ", recording=" + program.getRecording().getRecordId() );
+//					Log.v( TAG, "load : INSERT RECORDING " + count + ":" + program.getTitle() + ", recording=" + program.getRecording().getRecordId() );
 
 					ops.add(  
 						ContentProviderOperation.newInsert( details.getContentUri() )
@@ -365,10 +366,10 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 			}
 			
 			if( count > 100 ) {
-				Log.i( TAG, "process : applying batch for '" + count + "' transactions, processing programs" );
+				Log.i( TAG, "load : applying batch for '" + count + "' transactions, processing programs" );
 				
 				if( !ops.isEmpty() ) {
-					Log.v( TAG, "process : applying batch" );
+//					Log.v( TAG, "load : applying batch" );
 					
 					ContentProviderResult[] results = context.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
 					loaded += results.length;
@@ -377,7 +378,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 						ops.clear();
 
 						for( ContentProviderResult result : results ) {
-							Log.i( TAG, "process : batch result=" + result.toString() );
+							Log.i( TAG, "load : batch result=" + result.toString() );
 						}
 					}
 				}
@@ -388,7 +389,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		}
 
 		if( !ops.isEmpty() ) {
-			Log.i( TAG, "process : applying final batch for '" + count + "' transactions, after processing programs" );
+			Log.i( TAG, "load : applying final batch for '" + count + "' transactions, after processing programs" );
 
 			ContentProviderResult[] results = context.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
 			loaded += results.length;
@@ -397,7 +398,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 				ops.clear();
 
 				for( ContentProviderResult result : results ) {
-					Log.i( TAG, "process : batch result=" + result.toString() );
+					Log.i( TAG, "load : batch result=" + result.toString() );
 				}
 			}
 			
@@ -433,7 +434,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 
 
 		if( !ops.isEmpty() ) {
-			Log.i( TAG, "process : applying final batch for '" + count + "' transactions, final batch" );
+			Log.i( TAG, "load : applying final batch for '" + count + "' transactions, final batch" );
 			
 			ContentProviderResult[] results = context.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
 			loaded += results.length;
@@ -442,7 +443,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 				ops.clear();
 
 				for( ContentProviderResult result : results ) {
-					Log.i( TAG, "process : batch result=" + result.toString() );
+					Log.i( TAG, "load : batch result=" + result.toString() );
 				}
 			}
 		}
@@ -652,8 +653,8 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		
 		boolean inError;
 		
-		DateTime startTime = DateUtils.convertUtc( new DateTime() );
-		DateTime endTime = DateUtils.convertUtc( new DateTime() );
+		DateTime startTime = DateUtils.convertUtc( new DateTime( System.currentTimeMillis() ) );
+		DateTime endTime = DateUtils.convertUtc( new DateTime( System.currentTimeMillis() ) );
 
 		// If one timestamp is bad, leave them both set to 0.
 		if( null == program.getStartTime() || null == program.getEndTime() ) {

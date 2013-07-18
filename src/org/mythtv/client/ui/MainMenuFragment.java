@@ -415,7 +415,7 @@ public class MainMenuFragment extends AbstractMythFragment implements ServiceLis
 			DateTime etag = mEtagDaoHelper.findDateByEndpointAndDataId( getActivity(), profile, Endpoint.GET_CHANNEL_INFO_LIST.name(), "" );
 			if( null != etag ) {
 				
-				DateTime now = DateUtils.convertUtc( new DateTime() );
+				DateTime now = DateUtils.convertUtc( new DateTime( System.currentTimeMillis() ) );
 				if( now.getMillis() - etag.getMillis() > 86400000 ) {
 					if( !mRunningServiceHelper.isServiceRunning( getActivity(), "org.mythtv.service.channel.ChannelDownloadService" ) ) {
 						getActivity().startService( new Intent( ChannelDownloadService.ACTION_DOWNLOAD ) );

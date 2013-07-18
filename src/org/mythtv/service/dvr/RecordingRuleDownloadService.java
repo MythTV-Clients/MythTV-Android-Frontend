@@ -18,11 +18,9 @@
  */
 package org.mythtv.service.dvr;
 
-import java.io.File;
 import java.io.IOException;
 
 import org.joda.time.DateTime;
-import org.mythtv.R;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.dvr.RecordingRuleDaoHelper;
 import org.mythtv.db.http.EtagDaoHelper;
@@ -30,7 +28,6 @@ import org.mythtv.db.http.model.EtagInfoDelegate;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.MythtvService;
 import org.mythtv.service.util.DateUtils;
-import org.mythtv.service.util.FileHelper;
 import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.dvr.RecRuleList;
 import org.mythtv.services.api.dvr.RecRules;
@@ -38,10 +35,6 @@ import org.mythtv.services.api.dvr.impl.DvrTemplate.Endpoint;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
 import android.content.OperationApplicationException;
 import android.os.RemoteException;
@@ -58,9 +51,6 @@ public class RecordingRuleDownloadService extends MythtvService {
 
 	private static final String TAG = RecordingRuleDownloadService.class.getSimpleName();
 
-	private static final String RECORDING_RULE_FILE_PREFIX = "recording_rule_";
-	private static final String RECORDING_RULE_FILE_EXT = ".json";
-	
     public static final String ACTION_DOWNLOAD = "org.mythtv.background.recordingRuleDownload.ACTION_DOWNLOAD";
     public static final String ACTION_PROGRESS = "org.mythtv.background.recordingRuleDownload.ACTION_PROGRESS";
     public static final String ACTION_COMPLETE = "org.mythtv.background.recordingRuleDownload.ACTION_COMPLETE";
@@ -72,10 +62,6 @@ public class RecordingRuleDownloadService extends MythtvService {
     public static final String EXTRA_COMPLETE_UPTODATE = "COMPLETE_UPTODATE";
     public static final String EXTRA_COMPLETE_OFFLINE = "COMPLETE_OFFLINE";
     
-	private NotificationManager mNotificationManager;
-	private int notificationId;
-	
-//	private File recordingRuleDirectory = null;
 	private RecordingRuleDaoHelper mRecordingRuleDaoHelper = RecordingRuleDaoHelper.getInstance();
 	private EtagDaoHelper mEtagDaoHelper = EtagDaoHelper.getInstance();
 	private LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
@@ -94,16 +80,6 @@ public class RecordingRuleDownloadService extends MythtvService {
 		
 		boolean passed = true;
 		
-//		recordingRuleDirectory = FileHelper.getInstance().getProgramRecordedDataDirectory();
-//		if( null == recordingRuleDirectory || !recordingRuleDirectory.exists() ) {
-//			Intent completeIntent = new Intent( ACTION_COMPLETE );
-//			completeIntent.putExtra( EXTRA_COMPLETE, "Recording Rule location can not be found" );
-//			sendBroadcast( completeIntent );
-//
-//			Log.d( TAG, "onHandleIntent : exit, recordingRuleDirectory does not exist" );
-//			return;
-//		}
-
 		LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile( this );
 		if( !NetworkHelper.getInstance().isMasterBackendConnected( this, locationProfile ) ) {
 			Intent completeIntent = new Intent( ACTION_COMPLETE );
@@ -115,14 +91,11 @@ public class RecordingRuleDownloadService extends MythtvService {
 			return;
 		}
 		
-		mNotificationManager = (NotificationManager) getSystemService( Context.NOTIFICATION_SERVICE );
-
 		if ( intent.getAction().equals( ACTION_DOWNLOAD ) ) {
     		Log.i( TAG, "onHandleIntent : DOWNLOAD action selected" );
 
     		RecRules recordingRules = null;
     		try {
-    			sendNotification();
 
     			download( locationProfile );
 
@@ -131,7 +104,6 @@ public class RecordingRuleDownloadService extends MythtvService {
 				
 				passed = false;
 			} finally {
-    			completed();
 
     			Intent completeIntent = new Intent( ACTION_COMPLETE );
     			completeIntent.putExtra( EXTRA_COMPLETE, "Recording Rules Download Service Finished" );
@@ -156,7 +128,7 @@ public class RecordingRuleDownloadService extends MythtvService {
 		
 		ResponseEntity<RecRuleList> responseEntity = mMythtvServiceHelper.getMythServicesApi( locationProfile ).dvrOperations().getRecordScheduleList( -1, -1, etag );
 
-		DateTime date = DateUtils.convertUtc( new DateTime() );
+		DateTime date = DateUtils.convertUtc( new DateTime( System.currentTimeMillis() ) );
 		if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
 			Log.i( TAG, "download : " + Endpoint.GET_RECORD_SCHEDULE_LIST.getEndpoint() + " returned 200 OK" );
 			RecRuleList recRuleList = responseEntity.getBody();
@@ -199,42 +171,10 @@ public class RecordingRuleDownloadService extends MythtvService {
 		
 		Log.v( TAG, "process : saving recording rules for host [" + locationProfile.getHostname() + ":" + locationProfile.getUrl() + "]" );
 		
-//		mMainApplication.getObjectMapper().writeValue( new File( recordingRuleDirectory, RECORDING_RULE_FILE_PREFIX + locationProfile.getHostname() + RECORDING_RULE_FILE_EXT ), recRules );
-//		Log.v( TAG, "process : saved recorded to " + recordingRuleDirectory.getAbsolutePath() );
-
 		int recordingRulesAdded = mRecordingRuleDaoHelper.load( this, locationProfile, recRules.getRecRules() );
 		Log.v( TAG, "process : recordingRulesAdded=" + recordingRulesAdded );
 		
 		Log.v( TAG, "process : exit" );
 	}
-
-	// internal helpers
-	
-	@SuppressWarnings( "deprecation" )
-	private void sendNotification() {
-
-		long when = System.currentTimeMillis();
-		notificationId = (int) when;
-		
-        Notification mNotification = new Notification( android.R.drawable.stat_notify_sync, getResources().getString( R.string.notification_sync_recording_rules ), when );
-
-        Intent notificationIntent = new Intent();
-        PendingIntent mContentIntent = PendingIntent.getActivity( this, 0, notificationIntent, 0 );
-
-        mNotification.setLatestEventInfo( this, getResources().getString( R.string.app_name ), getResources().getString( R.string.notification_sync_recording_rules ), mContentIntent );
-
-        mNotification.flags = Notification.FLAG_ONGOING_EVENT;
-
-        mNotificationManager.notify( notificationId, mNotification );
-	
-	}
-	
-    public void completed()    {
-        
-    	if( null != mNotificationManager ) {
-        	mNotificationManager.cancel( notificationId );
-    	}
-    
-    }
 
 }

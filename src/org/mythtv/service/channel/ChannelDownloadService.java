@@ -111,7 +111,7 @@ public class ChannelDownloadService extends MythtvService {
 							DateTime date = mEtagDaoHelper.findDateByEndpointAndDataId( this, locationProfile, ChannelTemplate.Endpoint.GET_CHANNEL_INFO_LIST.name(), String.valueOf( videoSource.getId() ) );
 							if( null != date ) {
 								
-								DateTime now = DateUtils.convertUtc( new DateTime() );
+								DateTime now = DateUtils.convertUtc( new DateTime( System.currentTimeMillis() ) );
 								if( now.getMillis() - date.getMillis() > 86400000 ) {
 
 									// Download the channel listing, return list
@@ -194,7 +194,7 @@ public class ChannelDownloadService extends MythtvService {
 		
 		ResponseEntity<ChannelInfoList> responseEntity = mMythtvServiceHelper.getMythServicesApi( locationProfile ).channelOperations().getChannelInfoList( sourceId, 0, -1, etag );
 
-		DateTime date = DateUtils.convertUtc( new DateTime() );
+		DateTime date = DateUtils.convertUtc( new DateTime( System.currentTimeMillis() ) );
 		if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
 			Log.i( TAG, "download : " + Endpoint.GET_CHANNEL_INFO_LIST.getEndpoint() + " returned 200 OK" );
 

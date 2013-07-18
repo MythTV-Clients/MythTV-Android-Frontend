@@ -375,7 +375,7 @@ public class DvrNavigationDrawerActivity extends AbstractMythtvFragmentActivity 
 			
 			rows.add( new DvrVersionRow( mContext, "MAF", "x" ) );
 
-			rows.add( new DvrActionsHeaderRow( mContext, "Actions" ) );
+			rows.add( new DvrActionsHeaderRow( mContext, "DVR Actions" ) );
 			
 			rows.add( new DvrRecordingsActionRow( mContext, "Recordings" ) );
 			if( null != selectedRow && selectedRow instanceof DvrRecordingsActionRow ) {

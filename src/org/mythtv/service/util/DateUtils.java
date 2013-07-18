@@ -46,14 +46,14 @@ public class DateUtils {
 
 	public static DateTime getToday() {
 		
-		DateTime day = convertUtc( new DateTime() );
+		DateTime day = convertUtc( new DateTime( System.currentTimeMillis() ) );
 		
 		return getEndOfDay( day );		
 	}
 	
 	public static DateTime getDaysFromToday( int days ) {
 		
-		DateTime day = convertUtc( new DateTime() );
+		DateTime day = convertUtc( new DateTime( System.currentTimeMillis() ) );
 		day = day.plus( Period.days( days ) );
 		
 		return getEndOfDay( day );		
@@ -61,7 +61,7 @@ public class DateUtils {
 
 	public static DateTime getYesterday() {
 		
-		DateTime day = convertUtc( new DateTime() );
+		DateTime day = convertUtc( new DateTime( System.currentTimeMillis() ) );
 		
 		return getPreviousDay( day );		
 	}
@@ -82,7 +82,7 @@ public class DateUtils {
 	
 	public static DateTime getNextDayAfterMythfilldatabase() {
 		
-		DateTime day = convertUtc( new DateTime() );
+		DateTime day = convertUtc( new DateTime( System.currentTimeMillis() ) );
 		day = day.plus( Period.days( 1 ) );
 		
 		return day.withTime( 4, 0, 0, 0 );		
@@ -92,14 +92,14 @@ public class DateUtils {
 		return day.withZone( DateTimeZone.UTC );
 	}
 
-    public static String getDateTimeUsingLocaleFormattingPretty(String dateTime, String dateFormat, String clockType){
-        DateTime currentDateTime = dateTimeFormatterPretty.parseDateTime(dateTime);
-        return getDateTimeUsingLocaleFormattingPretty(currentDateTime, dateFormat, clockType);
+    public static String getDateTimeUsingLocaleFormattingPretty( String dateTime, String dateFormat, String clockType ) {
+        DateTime currentDateTime = dateTimeFormatterPretty.parseDateTime( dateTime );
+        return getDateTimeUsingLocaleFormattingPretty( currentDateTime, dateFormat, clockType );
     }
 
     public static String getDateTimeUsingLocaleFormattingPretty( DateTime dateTime, String dateFormat, String clockType ) {
     	dateTime = dateTime.withZone( DateTimeZone.getDefault() );
-        if(clockType != null && clockType.equals("24")) return DateTimeFormat.forPattern( dateFormat+" "+"HH:mm" ).print(dateTime);
+        if(clockType != null && clockType.equals("24")) return DateTimeFormat.forPattern( dateFormat+" "+"HH:mm" ).print( dateTime );
         else return dateTimeFormatterPretty.print(dateTime);
     }
 
@@ -108,18 +108,18 @@ public class DateUtils {
         return DateTimeFormat.forPattern( dateFormat ).print( dateTime );
     }
 
-    public static String getDateWithLocaleFormatting(String date, String dateFormat){
-        DateTime currentDate = dateFormatter.parseDateTime(date);
-        return getDateWithLocaleFormatting(currentDate, dateFormat);
+    public static String getDateWithLocaleFormatting( String date, String dateFormat ) {
+        DateTime currentDate = dateFormatter.parseDateTime( date );
+        return getDateWithLocaleFormatting( currentDate, dateFormat );
     }
 
-    public static String getDateWithLocaleFormatting(DateTime date, String dateFormat){
-        return DateTimeFormat.forPattern(dateFormat).print(date);
+    public static String getDateWithLocaleFormatting( DateTime date, String dateFormat ) {
+        return DateTimeFormat.forPattern( dateFormat ).print( date );
     }
 
-    public static String getTimeWithLocaleFormatting(DateTime date, String clockType){
-        if(clockType != null && clockType.equals("24")) return timeFormatter24.print(date);
-        else return timeFormatter.print(date);
+    public static String getTimeWithLocaleFormatting( DateTime date, String clockType ) {
+        if( clockType != null && clockType.equals( "24" ) ) return timeFormatter24.print( date );
+        else return timeFormatter.print( date );
     }
 
 }
