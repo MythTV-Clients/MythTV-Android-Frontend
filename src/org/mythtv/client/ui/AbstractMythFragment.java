@@ -301,13 +301,22 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
         			mLocationProfileDaoHelper.save( getActivity(), mLocationProfile );
         			
         		}
-    		
         		
+        		onBackendStatusUpdated(result);
     		}   
     		
     		Log.i( TAG, "BackendStatusTask.onPostExecute : exit" );
     	}
 
+    }
+    
+    /*
+     *  (non-Javadoc)
+     *  
+     *  Called at the end of BackendStatusTask.onPostExecute() when result is not null.
+     */
+    protected void onBackendStatusUpdated(org.mythtv.services.api.status.Status result){
+    	
     }
 
     private void checkChannelDownloadService() {
