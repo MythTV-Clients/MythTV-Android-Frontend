@@ -102,10 +102,21 @@ public class BackendStatusFragment extends AbstractMythFragment {
 			return "Backend profile is not selected";
 		}
 		
-		new BackendStatusTask().execute();
+		BackendStatusTask backendTask = new BackendStatusTask();
+		backendTask.execute();
 		
 		Log.v( TAG, "getStatusText : exit" );
 		return ( mLocationProfile.isConnected() ? "Connected to " : "NOT Connected to " ) + mLocationProfile.getName();
 	}
+	
+	/*
+     *  (non-Javadoc)
+     *  
+     *  Called at the end of BackendStatusTask.onPostExecute() when result is not null.
+     */
+	@Override
+    protected void onBackendStatusUpdated(org.mythtv.services.api.status.Status result){
+    	
+    }
 
 }
