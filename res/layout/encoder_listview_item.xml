@@ -7,8 +7,7 @@
     <LinearLayout 
         android:layout_width="match_parent"
 	    android:layout_height="wrap_content"
-	    android:orientation="horizontal"
-	    android:padding="2dp">
+	    android:orientation="horizontal">
         <TextView
 			android:id="@+id/textView_encoder_devicelabel_header"
 			android:layout_width="wrap_content"
@@ -25,8 +24,7 @@
     <LinearLayout 
         android:layout_width="match_parent"
 	    android:layout_height="wrap_content"
-	    android:orientation="horizontal"
-	    android:padding="2dp">
+	    android:orientation="horizontal">
         <TextView
 			android:id="@+id/textView_encoder_host_header"
 			android:layout_width="wrap_content"
@@ -43,8 +41,7 @@
 	<LinearLayout 
         android:layout_width="match_parent"
 	    android:layout_height="wrap_content"
-	    android:orientation="horizontal"
-	    android:padding="2dp">
+	    android:orientation="horizontal">
         <TextView
 			android:id="@+id/textView_encoder_rec_status_header"
 			android:layout_width="wrap_content"
