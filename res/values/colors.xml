@@ -39,6 +39,7 @@
     <color name="text_main_menu">#aaaaaa</color>
     <color name="text_header_main_menu">#dddddd</color>
     <color name="horizontal_line_main_menu">#dddddd</color>
+    <color name="horizontal_line_standard">#6d7e84</color>
 
     <color name="whats_on_separator">#4d000000</color>
 
