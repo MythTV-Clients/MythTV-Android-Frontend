@@ -60,5 +60,22 @@
 	    android:layout_width="match_parent"
 	    android:layout_height="wrap_content"
 	    android:paddingLeft="5dp" />
+	
+	<TextView
+	    android:id="@+id/textview_upcoming_recordings_header"
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+	    style="@style/BackendStatusHeader"
+	    android:text="Upcoming Recordings"/>
+	<ImageView 
+	    android:layout_width="match_parent"
+	    android:layout_height="6dp"
+	    android:paddingBottom="2dp"
+	    android:src="@drawable/standard_horizontal_line"/>
+	<ListView
+	    android:id="@+id/listview_upcoming_recordings"
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+	    android:paddingLeft="7dp" />
 
 </LinearLayout>

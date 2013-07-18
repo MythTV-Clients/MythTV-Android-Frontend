@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.mythtv.R;
 import org.mythtv.client.ui.preferences.LocationProfile;
+import org.mythtv.client.ui.util.ProgramHelper;
 import org.mythtv.services.api.dvr.Encoder;
 import org.mythtv.services.api.dvr.Program;
 import android.content.Context;
@@ -34,13 +35,16 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+
 public class BackendStatusFragment extends AbstractMythFragment {
 
 	private static final String TAG = BackendStatusFragment.class.getSimpleName();
 	
+	private ProgramHelper mProgramHelper = ProgramHelper.getInstance();
 	private View mView;
 	private LocationProfile mLocationProfile;
 	private ListView mListViewEncoders;
+	private ListView mListViewUpcomingRecordings;
 	
 	/* (non-Javadoc)
 	 * @see android.support.v4.app.Fragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle)
@@ -52,6 +56,7 @@ public class BackendStatusFragment extends AbstractMythFragment {
 		mView = inflater.inflate( R.layout.fragment_backend_status, container, false );
 		
 		mListViewEncoders = (ListView)mView.findViewById(R.id.listview_encoders);
+		mListViewUpcomingRecordings = (ListView)mView.findViewById(R.id.listview_upcoming_recordings);
 		
 		Log.d( TAG, "onCreateView : exit" );
 		return mView;
@@ -125,31 +130,43 @@ public class BackendStatusFragment extends AbstractMythFragment {
 	@Override
     protected void onBackendStatusUpdated(org.mythtv.services.api.status.Status result){
     	
+		// Set encoder list
 		List<Encoder> encoders = result.getEncoders().getEncoders();
 		if (null != encoders) {
 			mListViewEncoders.setAdapter(new EncoderArrayAdapter(this
 					.getActivity(), R.layout.encoder_listview_item, encoders));
 		}
+		
+		// Set Upcoming recordings list
+		List<Program> programs = result.getScheduled().getPrograms();
+		if(null != programs){
+			mListViewUpcomingRecordings.setAdapter(new SchedualedProgramArrayAdapter(this.getActivity(), R.layout.upcoming_row, programs));
+		}
     }
 	
-	
+	/**
+	 * 
+	 * @author Thomas G. Kenny Jr
+	 *
+	 */
 	private class EncoderArrayAdapter extends ArrayAdapter<Encoder>
 	{
 		private List<Encoder> mEncoders;
 		private Context mContext;
+		private LayoutInflater mInflater;
 		
 		public EncoderArrayAdapter(Context context, int textViewResourceId,
 				List<Encoder> objects) {
 			super(context, textViewResourceId, objects);
 			mEncoders = objects;
 			mContext = context;
+			mInflater = LayoutInflater.from(context);
 		}
 
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 			
-			LayoutInflater inflater = (LayoutInflater)mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			View view = (View)inflater.inflate(R.layout.encoder_listview_item, null, true);
+			View view = (View)mInflater.inflate(R.layout.encoder_listview_item, null, true);
 			
 			Encoder encoder = this.mEncoders.get(position);
 			
@@ -178,12 +195,74 @@ public class BackendStatusFragment extends AbstractMythFragment {
 			}
 			
 			
+			return view;
+			
+		}
+	}
+	
+	/**
+	 * 
+	 * @author Thomas G. Kenny Jr
+	 *
+	 */
+	private class SchedualedProgramArrayAdapter extends ArrayAdapter<Program>
+	{
+		private List<Program> mPrograms;
+		private Context mContext;
+		private LayoutInflater mInflater;
+		
+		public SchedualedProgramArrayAdapter(Context context, int textViewResourceId,
+				List<Program> objects) {
+			super(context, textViewResourceId, objects);
+			mPrograms = objects;
+			mContext = context;
+			mInflater = LayoutInflater.from(context);
+		}
+
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+
+			View view = (View)mInflater.inflate(R.layout.upcoming_row, null, true);
+			
+			Program program = this.mPrograms.get(position);
+			
+			//set category color
+			View category = view.findViewById(R.id.upcoming_category);
+			if(null != category) category.setBackgroundColor(mProgramHelper.getCategoryColor( program.getCategory() ));
+			
+			//set upcoming_title
+			TextView tView = (TextView)view.findViewById(R.id.upcoming_title);
+			if(null != tView) {
+				tView.setText(program.getTitle());
+			}
+			
+			//set upcoming_sub_title
+			tView = (TextView)view.findViewById(R.id.upcoming_sub_title);
+			if(null != tView) {
+				tView.setText(program.getSubTitle());
+			}
+			
+			//set upcoming_channel
+			tView = (TextView)view.findViewById(R.id.upcoming_channel);
+			if(null != tView) {
+				tView.setText(program.getChannelInfo().getCallSign());
+			}
+			
+			//set upcoming_start_time
+			tView = (TextView)view.findViewById(R.id.upcoming_start_time);
+			if(null != tView) {
+				tView.setText(program.getStartTime().toString("hh:mm"));
+			}
+			
+			//set upcoming_duration
+			tView = (TextView)view.findViewById(R.id.upcoming_duration);
+			if(null != tView) {
+				tView.setText(Long.toString(program.getDurationInMinutes()));
+			}
 			
 			return view;
 			
 		}
-		
-		
 	}
 
 }
