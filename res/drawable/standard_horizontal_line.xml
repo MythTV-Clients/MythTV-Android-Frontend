@@ -24,6 +24,6 @@
     
     <stroke
         android:width="2dip"
-    	android:color="@color/horizontal_line_standard"/>
+    	android:color="@color/backend_status_header"/>
     
 </shape>
