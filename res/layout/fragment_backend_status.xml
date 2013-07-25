@@ -37,8 +37,7 @@
 		    android:text="Connection Status"/>
 	    <ImageView 
 		    android:layout_width="match_parent"
-		    android:layout_height="6dp"
-		    android:paddingBottom="2dp"
+		    style="@style/BackendStatusHorizontalLine"
 		    android:src="@drawable/standard_horizontal_line"/>
 		<TextView
 		    android:id="@+id/textview_status"
@@ -56,8 +55,7 @@
 		    android:text="Encoders"/>
 		<ImageView 
 		    android:layout_width="match_parent"
-		    android:layout_height="6dp"
-		    android:paddingBottom="2dp"
+		    style="@style/BackendStatusHorizontalLine"
 		    android:src="@drawable/standard_horizontal_line"/>
 		<ListView
 		    android:id="@+id/listview_encoders"
@@ -73,8 +71,7 @@
 		    android:text="Job Queue"/>
 		<ImageView 
 		    android:layout_width="match_parent"
-		    android:layout_height="6dp"
-		    android:paddingBottom="2dp"
+		    style="@style/BackendStatusHorizontalLine"
 		    android:src="@drawable/standard_horizontal_line"/>
 		<ListView
 		    android:id="@+id/listview_job_queue"
@@ -90,8 +87,7 @@
 		    android:text="Upcoming Recordings"/>
 		<ImageView 
 		    android:layout_width="match_parent"
-		    android:layout_height="6dp"
-		    android:paddingBottom="2dp"
+		    style="@style/BackendStatusHorizontalLine"
 		    android:src="@drawable/standard_horizontal_line"/>
 		<ListView
 		    android:id="@+id/listview_upcoming_recordings"
