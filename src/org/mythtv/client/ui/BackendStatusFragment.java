@@ -395,8 +395,8 @@ public class BackendStatusFragment extends AbstractMythFragment {
 			
 			Job job = this.mJobs.get(position);
 			
-			holder.title.setText(job.getProgram().getTitle());
-			holder.type.setText(job.getType().name());
+			holder.title.setText(job.getProgram() != null ? job.getProgram().getTitle() : "");
+			holder.type.setText(job.getType() != null ? job.getType().name() : "");
 			holder.status.setText(getJobStatusStr(job.getStatus()));
 			
 			return convertView;
