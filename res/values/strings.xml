@@ -385,5 +385,7 @@
 	<string name="job_queue_status_starting">Starting</string>
 	<string name="job_queue_status_stopping">Stopping</string>
 	<string name="job_queue_status_unknown">Unknown</string>
+	<string name="job_queue_title">Title:</string>
+	<string name="job_queue_type">Type:</string>
 	
 </resources>
