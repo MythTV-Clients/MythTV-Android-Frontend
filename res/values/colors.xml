@@ -84,4 +84,6 @@
     <color name="program_category_War">#b06050</color>
     <color name="program_category_Western">#806040</color>
 
+    <color name="gallery_image_background">#ffe0dcdf</color>
+
 </resources>
