@@ -19,17 +19,12 @@
 package org.mythtv.client.ui;
 
 import java.util.List;
-import java.util.zip.Inflater;
-
 import org.mythtv.R;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.util.ProgramHelper;
 import org.mythtv.services.api.dvr.Encoder;
 import org.mythtv.services.api.dvr.Program;
-import org.mythtv.services.api.status.Backends;
 import org.mythtv.services.api.status.Job;
-import org.mythtv.services.api.status.Job.Status;
-
 import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
@@ -37,7 +32,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
