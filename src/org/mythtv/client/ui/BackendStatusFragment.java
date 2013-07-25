@@ -178,7 +178,7 @@ public class BackendStatusFragment extends AbstractMythFragment {
 		// Set Upcoming recordings list
 		List<Program> programs = result.getScheduled().getPrograms();
 		if(null != programs){
-			mListViewUpcomingRecordings.setAdapter(new SchedualedProgramArrayAdapter(this.getActivity(), R.layout.upcoming_row, programs));
+			mListViewUpcomingRecordings.setAdapter(new SchedualedProgramArrayAdapter(this.getActivity(), R.layout.upcoming_row_small_txt, programs));
 		}
 		
 		List<Job> jobs = result.getJobQueue().getJobs();
@@ -270,7 +270,7 @@ public class BackendStatusFragment extends AbstractMythFragment {
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 
-			View view = (View)mInflater.inflate(R.layout.upcoming_row, null, true);
+			View view = (View)mInflater.inflate(R.layout.upcoming_row_small_txt, null, true);
 			
 			Program program = this.mPrograms.get(position);
 			
@@ -372,6 +372,8 @@ public class BackendStatusFragment extends AbstractMythFragment {
 		
 		class ViewHolder
 		{
+			public TextView title;
+			public TextView type;
 			public TextView status;
 			
 		}
@@ -383,6 +385,8 @@ public class BackendStatusFragment extends AbstractMythFragment {
 			if(convertView == null){
 				convertView = (View)mInflater.inflate(R.layout.job_row, parent, false);
 				holder = new ViewHolder();
+				holder.title = (TextView)convertView.findViewById(R.id.textView_job_program_title);
+				holder.type = (TextView)convertView.findViewById(R.id.textView_job_type);
 				holder.status = (TextView)convertView.findViewById(R.id.textView_job_status);
 				convertView.setTag(holder);
 			}else{
@@ -391,6 +395,8 @@ public class BackendStatusFragment extends AbstractMythFragment {
 			
 			Job job = this.mJobs.get(position);
 			
+			holder.title.setText(job.getProgram().getTitle());
+			holder.type.setText(job.getType().name());
 			holder.status.setText(getJobStatusStr(job.getStatus()));
 			
 			return convertView;
