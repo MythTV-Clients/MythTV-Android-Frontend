@@ -19,12 +19,17 @@
 package org.mythtv.client.ui;
 
 import java.util.List;
+import java.util.zip.Inflater;
 
 import org.mythtv.R;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.util.ProgramHelper;
 import org.mythtv.services.api.dvr.Encoder;
 import org.mythtv.services.api.dvr.Program;
+import org.mythtv.services.api.status.Backends;
+import org.mythtv.services.api.status.Job;
+import org.mythtv.services.api.status.Job.Status;
+
 import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
@@ -32,6 +37,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.LinearLayout;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -45,6 +52,34 @@ public class BackendStatusFragment extends AbstractMythFragment {
 	private LocationProfile mLocationProfile;
 	private ListView mListViewEncoders;
 	private ListView mListViewUpcomingRecordings;
+	private ListView mListViewJobQueue;
+	
+	/**
+	 * Sets the height of a listview to match the height of all it's children.
+	 * DO NOT CALL THIS ON LONG LISTS!
+	 * @param listView
+	 */
+	private static void setListViewHeightBasedOnChildren(ListView listView) {
+		ListAdapter listAdapter = listView.getAdapter();
+		if (listAdapter == null) {
+			// pre-condition
+			return;
+		}
+
+		int totalHeight = 0;
+		for (int i = 0; i < listAdapter.getCount(); i++) {
+			View listItem = listAdapter.getView(i, null, listView);
+			listItem.measure(0, 0);
+			totalHeight += listItem.getMeasuredHeight();
+		}
+
+		ViewGroup.LayoutParams params = listView.getLayoutParams();
+		params.height = totalHeight
+				+ (listView.getDividerHeight() * (listAdapter.getCount() - 1));
+		listView.setLayoutParams(params);
+		listView.requestLayout();
+	}
+
 	
 	/* (non-Javadoc)
 	 * @see android.support.v4.app.Fragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle)
@@ -57,6 +92,7 @@ public class BackendStatusFragment extends AbstractMythFragment {
 		
 		mListViewEncoders = (ListView)mView.findViewById(R.id.listview_encoders);
 		mListViewUpcomingRecordings = (ListView)mView.findViewById(R.id.listview_upcoming_recordings);
+		mListViewJobQueue = (ListView)mView.findViewById(R.id.listview_job_queue);
 		
 		Log.d( TAG, "onCreateView : exit" );
 		return mView;
@@ -130,6 +166,8 @@ public class BackendStatusFragment extends AbstractMythFragment {
 	@Override
     protected void onBackendStatusUpdated(org.mythtv.services.api.status.Status result){
     	
+		LayoutInflater inflater = LayoutInflater.from(this.getActivity());
+		
 		// Set encoder list
 		List<Encoder> encoders = result.getEncoders().getEncoders();
 		if (null != encoders) {
@@ -142,6 +180,16 @@ public class BackendStatusFragment extends AbstractMythFragment {
 		if(null != programs){
 			mListViewUpcomingRecordings.setAdapter(new SchedualedProgramArrayAdapter(this.getActivity(), R.layout.upcoming_row, programs));
 		}
+		
+		List<Job> jobs = result.getJobQueue().getJobs();
+		if(null != jobs){
+			mListViewJobQueue.setAdapter(new JobArrayAdapter(this.getActivity(), R.layout.job_row, jobs));
+		}
+		
+		//update listview heights to match children
+		setListViewHeightBasedOnChildren(mListViewEncoders);
+		setListViewHeightBasedOnChildren(mListViewUpcomingRecordings);
+		setListViewHeightBasedOnChildren(mListViewJobQueue);
     }
 	
 	/**
@@ -261,6 +309,91 @@ public class BackendStatusFragment extends AbstractMythFragment {
 			}
 			
 			return view;
+			
+		}
+	}
+	
+	
+	/**
+	 * 
+	 * @author Thomas G. Kenny Jr
+	 *
+	 */
+	private class JobArrayAdapter extends ArrayAdapter<Job>
+	{
+		private List<Job> mJobs;
+		private Context mContext;
+		private LayoutInflater mInflater;
+		
+		public JobArrayAdapter(Context context, int textViewResourceId,
+				List<Job> objects) {
+			super(context, textViewResourceId, objects);
+			mJobs = objects;
+			mContext = context;
+			mInflater = LayoutInflater.from(context);
+		}
+		
+		public String getJobStatusStr(Job.Status status){
+			switch(status){
+			case ABORTED:
+				return mContext.getString(R.string.job_queue_status_aborted);
+			case ABORTING:
+				return mContext.getString(R.string.job_queue_status_aborting);
+			case CANCELLED:
+				return mContext.getString(R.string.job_queue_status_cancelled);
+			case DONE:
+				return mContext.getString(R.string.job_queue_status_done);
+			case ERRORED:
+				return mContext.getString(R.string.job_queue_status_errored);
+			case ERRORING:
+				return mContext.getString(R.string.job_queue_status_erroring);
+			case FINISHED:
+				return mContext.getString(R.string.job_queue_status_finished);
+			case NO_FLAGS:
+				return mContext.getString(R.string.job_queue_status_no_flags);
+			case PAUSED:
+				return mContext.getString(R.string.job_queue_status_paused);
+			case PENDING:
+				return mContext.getString(R.string.job_queue_status_pending);
+			case QUEUED:
+				return mContext.getString(R.string.job_queue_status_queued);
+			case RETRY:
+				return mContext.getString(R.string.job_queue_status_retry);
+			case RUNNING:
+				return mContext.getString(R.string.job_queue_status_running);
+			case STARTING:
+				return mContext.getString(R.string.job_queue_status_starting);
+			case STOPPING:
+				return mContext.getString(R.string.job_queue_status_stopping);
+			default:
+				return mContext.getString(R.string.job_queue_status_unknown);
+			}
+		}
+		
+		class ViewHolder
+		{
+			public TextView status;
+			
+		}
+
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+			ViewHolder holder;
+			
+			if(convertView == null){
+				convertView = (View)mInflater.inflate(R.layout.job_row, parent, false);
+				holder = new ViewHolder();
+				holder.status = (TextView)convertView.findViewById(R.id.textView_job_status);
+				convertView.setTag(holder);
+			}else{
+				holder = (ViewHolder)convertView.getTag();
+			}
+			
+			Job job = this.mJobs.get(position);
+			
+			holder.status.setText(getJobStatusStr(job.getStatus()));
+			
+			return convertView;
 			
 		}
 	}
