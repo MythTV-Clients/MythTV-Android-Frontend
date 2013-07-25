@@ -367,4 +367,23 @@
 	<string name="backend_host_str">Backend Host:</string>
 	<string name="recording_str">Recording:</string>
 	
+	<!-- Job Queue  -->
+	<string name="job_queue_status">Status:</string>
+	<string name="job_queue_status_aborted">Aborted</string>
+	<string name="job_queue_status_aborting">Aborting</string>
+	<string name="job_queue_status_cancelled">Cancelled</string>
+	<string name="job_queue_status_done">Done</string>
+	<string name="job_queue_status_errored">Errored</string>
+	<string name="job_queue_status_erroring">Erroring</string>
+	<string name="job_queue_status_finished">Finished</string>
+	<string name="job_queue_status_no_flags">No Flags</string>
+	<string name="job_queue_status_paused">Paused</string>
+	<string name="job_queue_status_pending">Pending</string>
+	<string name="job_queue_status_queued">Queued</string>
+	<string name="job_queue_status_retry">Retry</string>
+	<string name="job_queue_status_running">Running</string>
+	<string name="job_queue_status_starting">Starting</string>
+	<string name="job_queue_status_stopping">Stopping</string>
+	<string name="job_queue_status_unknown">Unknown</string>
+	
 </resources>
