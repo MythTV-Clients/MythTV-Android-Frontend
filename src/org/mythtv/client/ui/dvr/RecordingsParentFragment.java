@@ -45,14 +45,13 @@ import android.widget.FrameLayout;
  * @author Thomas G. Kenny Jr
  * 
  */
-public class RecordingsParentFragment extends AbstractMythFragment implements
-RecordingsFragment.OnProgramGroupListener,
-ProgramGroupFragment.OnEpisodeSelectedListener,
-EpisodeFragment.OnEpisodeActionListener {
+public class RecordingsParentFragment extends AbstractMythFragment implements RecordingsFragment.OnProgramGroupListener, ProgramGroupFragment.OnEpisodeSelectedListener, EpisodeFragment.OnEpisodeActionListener {
 
 	private static final String TAG = RecordingsParentFragment.class.getSimpleName();
 	private static final String PROGRAM_GROUP_LIST_TAG = "PROGRAM_GROUP_LIST_TAG";
 
+	private FragmentManager mFragmentManager;
+	
 	private boolean mUseMultiplePanes;
 	private RecordedDaoHelper mRecordedDaoHelper = RecordedDaoHelper.getInstance();
 	private ProgramGroupDaoHelper mProgramGroupDaoHelper = ProgramGroupDaoHelper.getInstance();
@@ -67,82 +66,86 @@ EpisodeFragment.OnEpisodeActionListener {
 	 * @see android.support.v4.app.Fragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle)
 	 */
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
-
+	public View onCreateView( LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState ) {
+		Log.v( TAG, "onCreateView : enter" );
+		
 		// inflate recordings activity/parent fragment view
-		View view = inflater.inflate(R.layout.activity_dvr_recordings, container, false);
+		View view = inflater.inflate( R.layout.activity_dvr_recordings, container, false );
 
+		Log.v( TAG, "onCreateView : exit" );
 		return view;
 	}
 
 	/* (non-Javadoc)
-	 * @see android.support.v4.app.Fragment#onResume()
+	 * @see android.app.Fragment#onActivityCreated(android.os.Bundle)
 	 */
 	@Override
-	public void onResume() {
-		super.onResume();
+	public void onActivityCreated( Bundle savedInstanceState ) {
+		Log.v( TAG, "onActivityCreated : enter" );
+		super.onActivityCreated( savedInstanceState );
 
-		View view = this.getView();
+		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
+
+		View view = getView();
 
 		// get child fragment manager
-		FragmentManager fMan = getActivity().getFragmentManager();
+		mFragmentManager = getFragmentManager();
 
 		// look for recording groups list placeholder framelayout
-		FrameLayout fLayout = (FrameLayout) view.findViewById(R.id.frame_layout_recording_groups);
-		if (null != fLayout) {
-			mRecordingsFragment = (RecordingsFragment) fMan.findFragmentByTag(RecordingsFragment.class.getName());
-			if (null == mRecordingsFragment) {
-				mRecordingsFragment = (RecordingsFragment) RecordingsFragment.instantiate(getActivity(), RecordingsFragment.class.getName());
-				mRecordingsFragment.setOnProgramGroupListener(this);
+		FrameLayout recordingGroupsLayout = (FrameLayout) view.findViewById( R.id.frame_layout_recording_groups );
+		if( null != recordingGroupsLayout ) {
+			mRecordingsFragment = (RecordingsFragment) mFragmentManager.findFragmentByTag( RecordingsFragment.class.getName() );
+			if( null == mRecordingsFragment ) {
+				mRecordingsFragment = (RecordingsFragment) RecordingsFragment.instantiate( getActivity(), RecordingsFragment.class.getName() );
+				mRecordingsFragment.setOnProgramGroupListener( this );
 			}
 
-			fMan.beginTransaction()
-			.replace(R.id.frame_layout_recording_groups, mRecordingsFragment, RecordingsFragment.class.getName())
-			.commit();
+			mFragmentManager.beginTransaction()
+				.replace( R.id.frame_layout_recording_groups, mRecordingsFragment, RecordingsFragment.class.getName() )
+				.commit();
 		}
 
 		// look for program group placeholder framelayout
-		fLayout = (FrameLayout) view.findViewById(R.id.frame_layout_program_group);
-		if (null != fLayout) {
+		FrameLayout programGroupLayout = (FrameLayout) view.findViewById( R.id.frame_layout_program_group );
+		if( null != programGroupLayout ) {
 			this.mUseMultiplePanes = true;
 
-			mProgramGroupFragment = (ProgramGroupFragment) this.findChildFragmentByIdOrTag(R.id.fragment_dvr_program_group);
-			if (null == mProgramGroupFragment) {
-				mProgramGroupFragment = (ProgramGroupFragment) ProgramGroupFragment.instantiate(getActivity(), ProgramGroupFragment.class.getName());
-				mProgramGroupFragment.setOnEpisodeSelectedListener(this);
+			mProgramGroupFragment = (ProgramGroupFragment) mFragmentManager.findFragmentByTag( ProgramGroupFragment.class.getName() );
+			if( null == mProgramGroupFragment ) {
+				mProgramGroupFragment = (ProgramGroupFragment) ProgramGroupFragment.instantiate( getActivity(), ProgramGroupFragment.class.getName() );
+				mProgramGroupFragment.setOnEpisodeSelectedListener( this );
 			}
 
-			fMan.beginTransaction()
-			.replace(R.id.frame_layout_program_group, mProgramGroupFragment, Integer.toString(R.id.fragment_dvr_program_group))
-			.commit();
+			mFragmentManager.beginTransaction()
+				.replace( R.id.frame_layout_program_group, mProgramGroupFragment, ProgramGroupFragment.class.getName() )
+				.commit();
 
 		}
 
 		// look for program group placeholder framelayout
-		fLayout = (FrameLayout) view.findViewById(R.id.frame_layout_episode);
-		if (null != fLayout) {
+		FrameLayout episodeLayout = (FrameLayout) view.findViewById( R.id.frame_layout_episode );
+		if( null != episodeLayout ) {
 			this.mUseMultiplePanes = true;
 
-			mEpisodeFragment = (EpisodeFragment) this.findChildFragmentByIdOrTag(R.id.fragment_dvr_episode);
-			if (null == mEpisodeFragment) {
-				mEpisodeFragment = (EpisodeFragment) EpisodeFragment.instantiate(getActivity(),EpisodeFragment.class.getName());
-				mEpisodeFragment.setOnEpisodeActionListener(this);
+			mEpisodeFragment = (EpisodeFragment) mFragmentManager.findFragmentByTag( EpisodeFragment.class.getName() );
+			if( null == mEpisodeFragment ) {
+				mEpisodeFragment = (EpisodeFragment) EpisodeFragment.instantiate( getActivity(), EpisodeFragment.class.getName() );
+				mEpisodeFragment.setOnEpisodeActionListener( this );
 			}
 
-			fMan.beginTransaction()
-			.replace(R.id.frame_layout_episode, mEpisodeFragment,Integer.toString(R.id.fragment_dvr_episode))
-			.commit();
+			mFragmentManager.beginTransaction()
+				.replace( R.id.frame_layout_episode, mEpisodeFragment, EpisodeFragment.class.getName() )
+				.commit();
 		}
 
-		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile(getActivity());
-
-		if (mUseMultiplePanes) {
-			List<ProgramGroup> programGroups = mProgramGroupDaoHelper.findAll(getActivity(), mLocationProfile);
-			if (null != programGroups && !programGroups.isEmpty()) {
+		if( mUseMultiplePanes ) {
+			List<ProgramGroup> programGroups = mProgramGroupDaoHelper.findAll( getActivity(), mLocationProfile );
+			if( null != programGroups && !programGroups.isEmpty() ) {
 				//onProgramGroupSelected(programGroups.get(0));
 			}
 		}
+
+		Log.v( TAG, "onActivityCreated : exit" );
 	}
 
 	/*
