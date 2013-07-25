@@ -363,11 +363,15 @@
 	<string name="test_title">Test Title</string>
 	
 	<!-- Backend Status -->
-	<string name="encoder_str">Encoder:</string>
-	<string name="backend_host_str">Backend Host:</string>
-	<string name="recording_str">Recording:</string>
+	<string name="encoder">Encoder:</string>
+	<string name="backend_host">Backend Host:</string>
+	<string name="recording">Recording:</string>
+	<string name="connection_status">Connection Status</string>
+	<string name="encoders">Encoders</string>
+	<string name="job_queue">Job Queue</string>
+	<string name="upcoming_recordings">Upcoming Recordings</string>
 	
-	<!-- Job Queue  -->
+	<!-- Backend Status - Job Queue  -->
 	<string name="job_queue_status">Status:</string>
 	<string name="job_queue_status_aborted">Aborted</string>
 	<string name="job_queue_status_aborting">Aborting</string>
