@@ -21,100 +21,134 @@
 -->
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
 	    android:layout_width="match_parent"
-	    android:layout_height="match_parent">
+	    android:layout_height="match_parent"
+	    android:background="#888888" >
 	    
 	<LinearLayout
 	    android:layout_width="match_parent"
 	    android:layout_height="wrap_content"
 	    android:orientation="vertical"
-	    android:padding="10dp" >
+	    >
 	    
-	    <TextView
-		    android:id="@+id/textview_status_header"
+	    <LinearLayout
 		    android:layout_width="match_parent"
 		    android:layout_height="wrap_content"
-		    style="@style/BackendStatusHeader"
-		    android:text="Connection Status"/>
-	    <ImageView 
-		    android:layout_width="match_parent"
-		    style="@style/BackendStatusHorizontalLine"
-		    android:src="@drawable/standard_horizontal_line"/>
-		<TextView
-		    android:id="@+id/textview_status"
-		    android:layout_width="match_parent"
-		    android:layout_height="wrap_content"
-		    android:paddingLeft="5dp"
-		    android:text="Backend Status placeholder"/>
+		    android:orientation="vertical"
+		    android:background="@color/background_1"
+		    style="@style/BackendStatusCardLinearLayout" >
+	    
+		    <TextView
+			    android:id="@+id/textview_status_header"
+			    android:layout_width="match_parent"
+			    android:layout_height="wrap_content"
+			    style="@style/BackendStatusHeader"
+			    android:text="@string/connection_status"/>
+		    <ImageView 
+			    android:layout_width="match_parent"
+			    style="@style/BackendStatusHorizontalLine"
+			    android:src="@drawable/standard_horizontal_line"/>
+			<TextView
+			    android:id="@+id/textview_status"
+			    android:layout_width="match_parent"
+			    android:layout_height="wrap_content"
+			    android:paddingLeft="5dp"
+			    android:text="unknown status"/>
+		
+		</LinearLayout>
 		
 		
-		<TextView
-		    android:id="@+id/textview_encoders_header"
+	    <LinearLayout
 		    android:layout_width="match_parent"
 		    android:layout_height="wrap_content"
-		    style="@style/BackendStatusHeader"
-		    android:text="Encoders"/>
-		<ImageView 
-		    android:layout_width="match_parent"
-		    style="@style/BackendStatusHorizontalLine"
-		    android:src="@drawable/standard_horizontal_line"/>
-		<TextView
-		    android:id="@+id/textview_encoders_list_empty"
-		    android:layout_width="match_parent"
-		    android:layout_height="wrap_content"
-		    android:visibility="gone"
-		    android:paddingLeft="5dp"
-		    android:text="Encoders list is empty"/>
-		<ListView
-		    android:id="@+id/listview_encoders"
-		    android:layout_width="match_parent"
-		    android:layout_height="match_parent"
-		    android:paddingLeft="5dp" />
+		    android:orientation="vertical"
+		    android:background="@color/background_1"
+		    style="@style/BackendStatusCardLinearLayout" >
+			
+			<TextView
+			    android:id="@+id/textview_encoders_header"
+			    android:layout_width="match_parent"
+			    android:layout_height="wrap_content"
+			    style="@style/BackendStatusHeader"
+			    android:text="@string/encoders"/>
+			<ImageView 
+			    android:layout_width="match_parent"
+			    style="@style/BackendStatusHorizontalLine"
+			    android:src="@drawable/standard_horizontal_line"/>
+			<TextView
+			    android:id="@+id/textview_encoders_list_empty"
+			    android:layout_width="match_parent"
+			    android:layout_height="wrap_content"
+			    android:visibility="gone"
+			    android:paddingLeft="5dp"
+			    android:text="Encoders list is empty"/>
+			<ListView
+			    android:id="@+id/listview_encoders"
+			    android:layout_width="match_parent"
+			    android:layout_height="0dp"
+			    android:paddingLeft="5dp" />
+		</LinearLayout>
 		
-		<TextView
-		    android:id="@+id/textview_upcoming_job_queue_header"
+	    <LinearLayout
 		    android:layout_width="match_parent"
 		    android:layout_height="wrap_content"
-		    style="@style/BackendStatusHeader"
-		    android:text="Job Queue"/>
-		<ImageView 
-		    android:layout_width="match_parent"
-		    style="@style/BackendStatusHorizontalLine"
-		    android:src="@drawable/standard_horizontal_line"/>
-		<TextView
-		    android:id="@+id/textview_job_queue_empty"
-		    android:layout_width="match_parent"
-		    android:layout_height="wrap_content"
-		    android:visibility="gone"
-		    android:paddingLeft="5dp"
-		    android:text="Job Queue is empty"/>
-		<ListView
-		    android:id="@+id/listview_job_queue"
-		    android:layout_width="match_parent"
-		    android:layout_height="400dp"
-		    android:paddingLeft="7dp" />
+		    android:orientation="vertical"
+		    android:background="@color/background_1"
+		    style="@style/BackendStatusCardLinearLayout" >
+			
+			<TextView
+			    android:id="@+id/textview_upcoming_job_queue_header"
+			    android:layout_width="match_parent"
+			    android:layout_height="wrap_content"
+			    style="@style/BackendStatusHeader"
+			    android:text="@string/job_queue"/>
+			<ImageView 
+			    android:layout_width="match_parent"
+			    style="@style/BackendStatusHorizontalLine"
+			    android:src="@drawable/standard_horizontal_line"/>
+			<TextView
+			    android:id="@+id/textview_job_queue_empty"
+			    android:layout_width="match_parent"
+			    android:layout_height="wrap_content"
+			    android:visibility="gone"
+			    android:paddingLeft="5dp"
+			    android:text="Job Queue is empty"/>
+			<ListView
+			    android:id="@+id/listview_job_queue"
+			    android:layout_width="match_parent"
+			    android:layout_height="0dp"
+			    android:paddingLeft="7dp" />
+		</LinearLayout>
 		
-		<TextView
-		    android:id="@+id/textview_upcoming_recordings_header"
+	    <LinearLayout
 		    android:layout_width="match_parent"
 		    android:layout_height="wrap_content"
-		    style="@style/BackendStatusHeader"
-		    android:text="Upcoming Recordings"/>
-		<ImageView 
-		    android:layout_width="match_parent"
-		    style="@style/BackendStatusHorizontalLine"
-		    android:src="@drawable/standard_horizontal_line"/>
-		<TextView
-		    android:id="@+id/textview_upcoming_rec_empty"
-		    android:layout_width="match_parent"
-		    android:layout_height="wrap_content"
-		    android:visibility="gone"
-		    android:paddingLeft="5dp"
-		    android:text="There are no upcoming recordings"/>
-		<ListView
-		    android:id="@+id/listview_upcoming_recordings"
-		    android:layout_width="match_parent"
-		    android:layout_height="800dp"
-		    android:paddingLeft="7dp" />
+		    android:orientation="vertical"
+		    android:background="@color/background_1"
+		    style="@style/BackendStatusCardLinearLayout" >
+			
+			<TextView
+			    android:id="@+id/textview_upcoming_recordings_header"
+			    android:layout_width="match_parent"
+			    android:layout_height="wrap_content"
+			    style="@style/BackendStatusHeader"
+			    android:text="@string/upcoming_recordings"/>
+			<ImageView 
+			    android:layout_width="match_parent"
+			    style="@style/BackendStatusHorizontalLine"
+			    android:src="@drawable/standard_horizontal_line"/>
+			<TextView
+			    android:id="@+id/textview_upcoming_rec_empty"
+			    android:layout_width="match_parent"
+			    android:layout_height="wrap_content"
+			    android:visibility="gone"
+			    android:paddingLeft="5dp"
+			    android:text="There are no upcoming recordings"/>
+			<ListView
+			    android:id="@+id/listview_upcoming_recordings"
+			    android:layout_width="match_parent"
+			    android:layout_height="0dp"
+			    android:paddingLeft="7dp" />
+		</LinearLayout>
 	
 	</LinearLayout>
 </ScrollView>

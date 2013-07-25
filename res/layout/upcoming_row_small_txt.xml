@@ -45,10 +45,11 @@
 	    	android:paddingRight="8dp" >
 	    
 			<TextView
-  				android:id="@+id/upcoming_title"
-  				android:layout_width="fill_parent"
-  				android:layout_height="wrap_content"
-  				android:textColor="@color/body_text_1" />
+			    android:id="@+id/upcoming_title"
+			    android:layout_width="fill_parent"
+			    android:layout_height="wrap_content"
+			    android:textColor="@color/body_text_1"
+			    android:textStyle="bold" />
 
 			<TextView
 		    	android:id="@+id/upcoming_sub_title"
@@ -60,8 +61,7 @@
 			    android:layout_width="fill_parent"
 			    android:layout_height="wrap_content"
 			    android:orientation="horizontal"
-		    	android:paddingLeft="8dp"
-		    	android:paddingRight="8dp" >
+			    android:paddingRight="8dp" >
 				    		    
 				<TextView
 					android:id="@+id/upcoming_channel"
