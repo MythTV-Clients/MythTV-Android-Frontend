@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+
+    This file is part of MythTV Android Frontend
+
+    MythTV Android Frontend is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MythTV Android Frontend is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MythTV Android Frontend.  If not, see <http://www.gnu.org/licenses/>.
+
+    This software can be found at <https://github.com/MythTV-Clients/MythTV-Android-Frontend/>
+
+-->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+	    android:layout_width="match_parent"
+	    android:layout_height="match_parent"
+	    android:background="#888888" >
+	    
+	
+	    
+	    <LinearLayout 
+	        android:layout_width="match_parent"
+	    	android:layout_height="wrap_content"
+	        android:orientation="horizontal">
+	        
+	       <LinearLayout
+		    android:layout_width="match_parent"
+		    android:layout_height="wrap_content"
+		    android:orientation="vertical"
+		    android:layout_weight="0.5">
+	            
+	    
+	    <LinearLayout
+		    android:layout_width="match_parent"
+		    android:layout_height="wrap_content"
+		    android:orientation="vertical"
+		    android:background="@color/background_1"
+		    style="@style/BackendStatusCardLinearLayout" >
+	    
+		    <TextView
+			    android:id="@+id/textview_status_header"
+			    android:layout_width="match_parent"
+			    android:layout_height="wrap_content"
+			    style="@style/BackendStatusHeader"
+			    android:text="@string/connection_status"/>
+		    <ImageView 
+			    android:layout_width="match_parent"
+			    style="@style/BackendStatusHorizontalLine"
+			    android:src="@drawable/standard_horizontal_line"/>
+			<TextView
+			    android:id="@+id/textview_status"
+			    android:layout_width="match_parent"
+			    android:layout_height="wrap_content"
+			    android:paddingLeft="5dp"
+			    android:text="unknown status"/>
+		
+		</LinearLayout>
+		
+		
+	    <LinearLayout
+		    android:layout_width="match_parent"
+		    android:layout_height="wrap_content"
+		    android:orientation="vertical"
+		    android:background="@color/background_1"
+		    style="@style/BackendStatusCardLinearLayout" >
+			
+			<TextView
+			    android:id="@+id/textview_encoders_header"
+			    android:layout_width="match_parent"
+			    android:layout_height="wrap_content"
+			    style="@style/BackendStatusHeader"
+			    android:text="@string/encoders"/>
+			<ImageView 
+			    android:layout_width="match_parent"
+			    style="@style/BackendStatusHorizontalLine"
+			    android:src="@drawable/standard_horizontal_line"/>
+			<TextView
+			    android:id="@+id/textview_encoders_list_empty"
+			    android:layout_width="match_parent"
+			    android:layout_height="wrap_content"
+			    android:visibility="gone"
+			    android:paddingLeft="5dp"
+			    android:text="Encoders list is empty"/>
+			<ListView
+			    android:id="@+id/listview_encoders"
+			    android:layout_width="match_parent"
+			    android:layout_height="0dp"
+			    android:paddingLeft="5dp" />
+		</LinearLayout>
+		
+	    <LinearLayout
+		    android:layout_width="match_parent"
+		    android:layout_height="wrap_content"
+		    android:orientation="vertical"
+		    android:background="@color/background_1"
+		    style="@style/BackendStatusCardLinearLayout" >
+			
+			<TextView
+			    android:id="@+id/textview_upcoming_job_queue_header"
+			    android:layout_width="match_parent"
+			    android:layout_height="wrap_content"
+			    style="@style/BackendStatusHeader"
+			    android:text="@string/job_queue"/>
+			<ImageView 
+			    android:layout_width="match_parent"
+			    style="@style/BackendStatusHorizontalLine"
+			    android:src="@drawable/standard_horizontal_line"/>
+			<TextView
+			    android:id="@+id/textview_job_queue_empty"
+			    android:layout_width="match_parent"
+			    android:layout_height="wrap_content"
+			    android:visibility="gone"
+			    android:paddingLeft="5dp"
+			    android:text="Job Queue is empty"/>
+			<ListView
+			    android:id="@+id/listview_job_queue"
+			    android:layout_width="match_parent"
+			    android:layout_height="0dp"
+			    android:paddingLeft="7dp" />
+		</LinearLayout>
+		
+	    </LinearLayout>
+		
+	       
+	       
+	       
+	    <LinearLayout
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+	    android:orientation="vertical"
+	    android:layout_weight="0.5">
+		
+	    <LinearLayout
+		    android:layout_width="match_parent"
+		    android:layout_height="wrap_content"
+		    android:orientation="vertical"
+		    android:background="@color/background_1"
+		    style="@style/BackendStatusCardLinearLayout" >
+			
+			<TextView
+			    android:id="@+id/textview_upcoming_recordings_header"
+			    android:layout_width="match_parent"
+			    android:layout_height="wrap_content"
+			    style="@style/BackendStatusHeader"
+			    android:text="@string/upcoming_recordings"/>
+			<ImageView 
+			    android:layout_width="match_parent"
+			    style="@style/BackendStatusHorizontalLine"
+			    android:src="@drawable/standard_horizontal_line"/>
+			<TextView
+			    android:id="@+id/textview_upcoming_rec_empty"
+			    android:layout_width="match_parent"
+			    android:layout_height="wrap_content"
+			    android:visibility="gone"
+			    android:paddingLeft="5dp"
+			    android:text="There are no upcoming recordings"/>
+			<ListView
+			    android:id="@+id/listview_upcoming_recordings"
+			    android:layout_width="match_parent"
+			    android:layout_height="0dp"
+			    android:paddingLeft="7dp" />
+		</LinearLayout>
+		
+	    
+	</LinearLayout>
+	
+	</LinearLayout>
+	
+	    
+</ScrollView>
