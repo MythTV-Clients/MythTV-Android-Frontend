@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <!--
 
     This file is part of MythTV Android Frontend
@@ -20,16 +19,19 @@
     This software can be found at <https://github.com/MythTV-Clients/MythTV-Android-Frontend/>
 
 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:id="@+id/GridItem"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:orientation="vertical"
+              android:background="@color/gallery_image_background"
+              android:gravity="center_horizontal">
 
-<GridView xmlns:android="http://schemas.android.com/apk/res/android"
-          android:id="@+id/gallery_gridview" android:layout_width="match_parent"
-          android:layout_height="fill_parent"
-          android:numColumns="3"
-          android:stretchMode="columnWidth"
-          android:layout_below="@+id/text1view"
-          android:gravity="center"
-          android:horizontalSpacing="5dip"
-          android:verticalSpacing="5dip"
-          android:scrollingCache="true"
-          android:smoothScrollbar="true"
-          android:background="@color/background_1"/>
+    <ImageView android:id="@+id/grid_item_image"
+               android:layout_width="wrap_content"
+               android:layout_height="150dip"
+               android:padding="0dip"
+               android:scaleType="centerCrop"
+               android:layout_margin="0dip">
+    </ImageView>
+</LinearLayout>

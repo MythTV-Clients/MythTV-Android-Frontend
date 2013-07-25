@@ -160,13 +160,6 @@
             </intent-filter>
         </service>
 
-        <service android:name=".service.gallery.GalleryDownloadService" android:process=":gallery" android:exported="false">
-            <intent-filter>
-                <action
-                    android:name="org.mythtv.background.galleryDownload.ACTION_DOWNLOAD"/>
-            </intent-filter>
-        </service>
-
         <service android:name=".service.dvr.UpcomingDownloadService" android:process=":upcoming" android:exported="false">
 			<intent-filter>
                 <action
