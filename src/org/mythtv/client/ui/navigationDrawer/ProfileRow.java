@@ -36,6 +36,73 @@ public class ProfileRow implements Row {
 
 	private LocationProfile mLocationProfile;
 	
+	
+	
+	
+	//mProfileToggleCheckChangedListener
+	private class ProfileToggleCheckChangedListener implements CompoundButton.OnCheckedChangeListener
+	{
+		/* This is the view returned in getView() */
+		public View convertView = null;
+		
+		
+		/* (non-Javadoc)
+		 * @see android.widget.CompoundButton.OnCheckedChangeListener#onCheckedChanged(android.widget.CompoundButton, boolean)
+		 */
+		@Override
+		public void onCheckedChanged( CompoundButton buttonView, boolean isChecked ) {
+			Log.v( TAG, "onCheckedChanged : enter" );
+
+			if( !isChecked ) { //isChecked - false - home
+				Log.v( TAG, "onCheckedChanged : home selected" );
+
+				final LocationProfile profile = mLocationProfileDaoHelper.findSelectedHomeProfile( mContext );
+				if( null == profile ) {
+					
+					AlertDialog.Builder builder = new AlertDialog.Builder( mContext );
+					builder.setTitle( R.string.location_alert_error_title );
+					builder.setNeutralButton( R.string.btn_ok, new DialogInterface.OnClickListener() {
+
+						public void onClick( DialogInterface dialog, int which ) { }
+						
+					});
+					builder.setMessage( R.string.location_alert_error_home_message );
+					builder.show();
+
+				} else {
+					
+					new ConnectBackendTask( convertView ).execute( profile );
+
+				}
+				
+			} else { //ischecked - true - away
+				Log.v( TAG, "onCheckedChanged : away selected" );
+				
+				final LocationProfile profile = mLocationProfileDaoHelper.findSelectedAwayProfile( mContext );
+				if( null == profile ) {
+					
+					AlertDialog.Builder builder = new AlertDialog.Builder( mContext );
+					builder.setTitle( R.string.location_alert_error_title );
+					builder.setNeutralButton( R.string.btn_ok, new DialogInterface.OnClickListener() {
+
+						public void onClick( DialogInterface dialog, int which ) { }
+						
+					});
+					builder.setMessage( R.string.location_alert_error_away_message );
+					builder.show();
+
+				} else {
+
+					new ConnectBackendTask( convertView ).execute( profile );
+				}
+				
+			}
+
+			Log.v( TAG, "onCheckedChanged : exit" );
+		}
+	};
+	private ProfileToggleCheckChangedListener mProfileToggleCheckChangedListener = new ProfileToggleCheckChangedListener();
+	
 	public interface ProfileChangedListener {
         
 		void onProfileChanged();
@@ -53,6 +120,36 @@ public class ProfileRow implements Row {
 		
 		this.mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( mContext );
 		
+	}
+	
+	/**
+	 * Attempts to connect to the selected backend profile by calling into
+	 * the toggle button's oncheckchanged listener with the current state
+	 * of the toggle.
+	 * @return
+	 */
+	public boolean backendConnectionUpdate(){
+		
+		//if the profile toggle check changed listner has been properly init in getView() we can continue
+		if(null != mProfileToggleCheckChangedListener){
+			
+			//create view if necessary
+			if(null == mProfileToggleCheckChangedListener.convertView)
+				mProfileToggleCheckChangedListener.convertView = getView(null);
+			
+			//if it's still null bail
+			if(null == mProfileToggleCheckChangedListener.convertView) return false;
+			
+			//get view holder so we can get the toggle
+			ViewHolder holder = (ViewHolder)mProfileToggleCheckChangedListener.convertView.getTag();
+			
+			//fire a checkchanged event with the current toggle state
+			mProfileToggleCheckChangedListener.onCheckedChanged(holder.toggle, holder.toggle.isChecked());
+			
+			return true;
+		}else{
+			return false;
+		}
 	}
 	
 	/* (non-Javadoc)
@@ -80,64 +177,8 @@ public class ProfileRow implements Row {
         }
         
         final View view = convertView;
-        
-        holder.toggle.setOnCheckedChangeListener( new CompoundButton.OnCheckedChangeListener() {
-			
-			/* (non-Javadoc)
-			 * @see android.widget.CompoundButton.OnCheckedChangeListener#onCheckedChanged(android.widget.CompoundButton, boolean)
-			 */
-			@Override
-			public void onCheckedChanged( CompoundButton buttonView, boolean isChecked ) {
-				Log.v( TAG, "onCheckedChanged : enter" );
-
-				if( !isChecked ) { //isChecked - false - home
-					Log.v( TAG, "onCheckedChanged : home selected" );
-
-					final LocationProfile profile = mLocationProfileDaoHelper.findSelectedHomeProfile( mContext );
-					if( null == profile ) {
-						
-						AlertDialog.Builder builder = new AlertDialog.Builder( mContext );
-						builder.setTitle( R.string.location_alert_error_title );
-						builder.setNeutralButton( R.string.btn_ok, new DialogInterface.OnClickListener() {
-
-							public void onClick( DialogInterface dialog, int which ) { }
-							
-						});
-						builder.setMessage( R.string.location_alert_error_home_message );
-						builder.show();
-
-					} else {
-						
-						new ConnectBackendTask( view ).execute( profile );
-
-					}
-					
-				} else { //ischecked - true - away
-					Log.v( TAG, "onCheckedChanged : away selected" );
-					
-					final LocationProfile profile = mLocationProfileDaoHelper.findSelectedAwayProfile( mContext );
-					if( null == profile ) {
-						
-						AlertDialog.Builder builder = new AlertDialog.Builder( mContext );
-						builder.setTitle( R.string.location_alert_error_title );
-						builder.setNeutralButton( R.string.btn_ok, new DialogInterface.OnClickListener() {
-
-							public void onClick( DialogInterface dialog, int which ) { }
-							
-						});
-						builder.setMessage( R.string.location_alert_error_away_message );
-						builder.show();
-
-					} else {
-
-						new ConnectBackendTask( view ).execute( profile );
-					}
-					
-				}
-
-				Log.v( TAG, "onCheckedChanged : exit" );
-			}
-		});
+        mProfileToggleCheckChangedListener.convertView = convertView;
+        holder.toggle.setOnCheckedChangeListener(mProfileToggleCheckChangedListener);
         
         if( null != mLocationProfile ) {
         	holder.hostname.setText( mLocationProfile.getHostname() );

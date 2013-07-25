@@ -261,7 +261,7 @@ public class NavigationDrawerActivity extends AbstractMythtvFragmentActivity {
 
         Log.v( TAG, "onCreate : exit" );
 	}
-
+	
 	/* (non-Javadoc)
 	 * @see android.app.Activity#onPostCreate(android.os.Bundle)
 	 */
@@ -273,6 +273,20 @@ public class NavigationDrawerActivity extends AbstractMythtvFragmentActivity {
 		drawerToggle.syncState();
 
 		Log.v( TAG, "onPostCreate : exit" );
+	}
+	
+	/* (non-Javadoc)
+	 * @see android.app.Activity#onResume()
+	 */
+	@Override
+	protected void onResume() {
+		
+		ProfileRow pRow = (ProfileRow)mAdapter.getItem(1);
+		if(null != pRow){
+			pRow.backendConnectionUpdate();
+		}
+		
+		super.onResume();
 	}
 
 	/* (non-Javadoc)
