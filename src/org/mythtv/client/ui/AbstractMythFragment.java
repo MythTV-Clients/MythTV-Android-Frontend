@@ -277,7 +277,7 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
     	protected void onPostExecute( 	org.mythtv.services.api.status.Status result ) {
     		Log.i( TAG, "BackendStatusTask.onPostExecute : enter" );
 
-    		if( null != mLocationProfile ) {
+    		if( null != mLocationProfile && null != getActivity()) {
     			
         		if( null != result ) {
         			mStatus = result;
