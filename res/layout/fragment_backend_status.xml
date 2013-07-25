@@ -57,6 +57,13 @@
 		    android:layout_width="match_parent"
 		    style="@style/BackendStatusHorizontalLine"
 		    android:src="@drawable/standard_horizontal_line"/>
+		<TextView
+		    android:id="@+id/textview_encoders_list_empty"
+		    android:layout_width="match_parent"
+		    android:layout_height="wrap_content"
+		    android:visibility="gone"
+		    android:paddingLeft="5dp"
+		    android:text="Encoders list is empty"/>
 		<ListView
 		    android:id="@+id/listview_encoders"
 		    android:layout_width="match_parent"
@@ -73,6 +80,13 @@
 		    android:layout_width="match_parent"
 		    style="@style/BackendStatusHorizontalLine"
 		    android:src="@drawable/standard_horizontal_line"/>
+		<TextView
+		    android:id="@+id/textview_job_queue_empty"
+		    android:layout_width="match_parent"
+		    android:layout_height="wrap_content"
+		    android:visibility="gone"
+		    android:paddingLeft="5dp"
+		    android:text="Job Queue is empty"/>
 		<ListView
 		    android:id="@+id/listview_job_queue"
 		    android:layout_width="match_parent"
@@ -89,6 +103,13 @@
 		    android:layout_width="match_parent"
 		    style="@style/BackendStatusHorizontalLine"
 		    android:src="@drawable/standard_horizontal_line"/>
+		<TextView
+		    android:id="@+id/textview_upcoming_rec_empty"
+		    android:layout_width="match_parent"
+		    android:layout_height="wrap_content"
+		    android:visibility="gone"
+		    android:paddingLeft="5dp"
+		    android:text="There are no upcoming recordings"/>
 		<ListView
 		    android:id="@+id/listview_upcoming_recordings"
 		    android:layout_width="match_parent"
