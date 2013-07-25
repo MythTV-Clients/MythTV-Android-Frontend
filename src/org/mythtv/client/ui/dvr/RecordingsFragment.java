@@ -92,6 +92,8 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 	private ImageLoader imageLoader = ImageLoader.getInstance();
 	private DisplayImageOptions options;
 
+	public RecordingsFragment() { }
+	
 	/* (non-Javadoc)
 	 * @see android.support.v4.app.LoaderManager.LoaderCallbacks#onCreateLoader(int, android.os.Bundle)
 	 */
@@ -161,9 +163,9 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 	    
 	    setListAdapter( adapter );
 
-		getLoaderManager().initLoader( 0, null, this );
-		
 		getListView().setOnScrollListener( new PauseOnScrollListener( imageLoader, false, true ) );
+		
+		getLoaderManager().initLoader( 0, null, this );
 		
 		Log.v( TAG, "onActivityCreated : exit" );
 	}
@@ -190,8 +192,12 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 	@Override
 	public void onResume() {
 		Log.v( TAG, "onResume : enter" );
-		super.onStart();
-	    
+		super.onResume();
+
+		if( null == mLocationProfile ) {
+			mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
+		}
+		
 		DateTime etag = mEtagDaoHelper.findDateByEndpointAndDataId( getActivity(), mLocationProfile, Endpoint.GET_RECORDED_LIST.name(), "" );
 		if( null != etag ) {
 			
