@@ -53,6 +53,9 @@ public class BackendStatusFragment extends AbstractMythFragment {
 	private ListView mListViewEncoders;
 	private ListView mListViewUpcomingRecordings;
 	private ListView mListViewJobQueue;
+	private TextView mTextViewEncodersEmpty;
+	private TextView mTextViewJobQueueEmpty;
+	private TextView mTextViewUpcomingRecEmpty;
 	
 	/**
 	 * Sets the height of a listview to match the height of all it's children.
@@ -93,6 +96,9 @@ public class BackendStatusFragment extends AbstractMythFragment {
 		mListViewEncoders = (ListView)mView.findViewById(R.id.listview_encoders);
 		mListViewUpcomingRecordings = (ListView)mView.findViewById(R.id.listview_upcoming_recordings);
 		mListViewJobQueue = (ListView)mView.findViewById(R.id.listview_job_queue);
+		mTextViewEncodersEmpty = (TextView)mView.findViewById(R.id.textview_encoders_list_empty);
+		mTextViewJobQueueEmpty = (TextView)mView.findViewById(R.id.textview_job_queue_empty);
+		mTextViewUpcomingRecEmpty = (TextView)mView.findViewById(R.id.textview_upcoming_rec_empty);
 		
 		Log.d( TAG, "onCreateView : exit" );
 		return mView;
@@ -171,19 +177,34 @@ public class BackendStatusFragment extends AbstractMythFragment {
 		// Set encoder list
 		List<Encoder> encoders = result.getEncoders().getEncoders();
 		if (null != encoders) {
+			mListViewEncoders.setVisibility(View.VISIBLE);
+			mTextViewEncodersEmpty.setVisibility(View.GONE);
 			mListViewEncoders.setAdapter(new EncoderArrayAdapter(this
 					.getActivity(), R.layout.encoder_listview_item, encoders));
+		}else{
+			mListViewEncoders.setVisibility(View.GONE);
+			mTextViewEncodersEmpty.setVisibility(View.VISIBLE);
 		}
 		
 		// Set Upcoming recordings list
 		List<Program> programs = result.getScheduled().getPrograms();
 		if(null != programs){
+			mListViewUpcomingRecordings.setVisibility(View.VISIBLE);
+			mTextViewUpcomingRecEmpty.setVisibility(View.GONE);
 			mListViewUpcomingRecordings.setAdapter(new SchedualedProgramArrayAdapter(this.getActivity(), R.layout.upcoming_row_small_txt, programs));
+		}else{
+			mListViewUpcomingRecordings.setVisibility(View.GONE);
+			mTextViewUpcomingRecEmpty.setVisibility(View.VISIBLE);
 		}
 		
 		List<Job> jobs = result.getJobQueue().getJobs();
 		if(null != jobs){
+			mListViewJobQueue.setVisibility(View.VISIBLE);
+			mTextViewJobQueueEmpty.setVisibility(View.GONE);
 			mListViewJobQueue.setAdapter(new JobArrayAdapter(this.getActivity(), R.layout.job_row, jobs));
+		}else{
+			mListViewJobQueue.setVisibility(View.GONE);
+			mTextViewJobQueueEmpty.setVisibility(View.VISIBLE);
 		}
 		
 		//update listview heights to match children
