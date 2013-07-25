@@ -25,7 +25,11 @@ import org.mythtv.client.ui.util.ProgramHelper;
 import org.mythtv.services.api.dvr.Encoder;
 import org.mythtv.services.api.dvr.Program;
 import org.mythtv.services.api.status.Job;
+
+import android.app.Fragment;
+import android.app.FragmentTransaction;
 import android.content.Context;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -40,6 +44,7 @@ import android.widget.TextView;
 public class BackendStatusFragment extends AbstractMythFragment {
 
 	private static final String TAG = BackendStatusFragment.class.getSimpleName();
+	public static final String BACKEND_STATUS_FRAGMENT_NAME = "org.mythtv.client.ui.BackendStatusFragment";
 	
 	private ProgramHelper mProgramHelper = ProgramHelper.getInstance();
 	private View mView;
@@ -50,32 +55,6 @@ public class BackendStatusFragment extends AbstractMythFragment {
 	private TextView mTextViewEncodersEmpty;
 	private TextView mTextViewJobQueueEmpty;
 	private TextView mTextViewUpcomingRecEmpty;
-	
-	/**
-	 * Sets the height of a listview to match the height of all it's children.
-	 * DO NOT CALL THIS ON LONG LISTS!
-	 * @param listView
-	 */
-	private static void setListViewHeightBasedOnChildren(ListView listView) {
-		ListAdapter listAdapter = listView.getAdapter();
-		if (listAdapter == null) {
-			// pre-condition
-			return;
-		}
-
-		int totalHeight = 0;
-		for (int i = 0; i < listAdapter.getCount(); i++) {
-			View listItem = listAdapter.getView(i, null, listView);
-			listItem.measure(0, 0);
-			totalHeight += listItem.getMeasuredHeight();
-		}
-
-		ViewGroup.LayoutParams params = listView.getLayoutParams();
-		params.height = totalHeight
-				+ (listView.getDividerHeight() * (listAdapter.getCount() - 1));
-		listView.setLayoutParams(params);
-		listView.requestLayout();
-	}
 
 	
 	/* (non-Javadoc)
@@ -85,17 +64,7 @@ public class BackendStatusFragment extends AbstractMythFragment {
 	public View onCreateView( LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState ) {
 		Log.d( TAG, "onCreateView : enter" );
 		
-		mView = inflater.inflate( R.layout.fragment_backend_status, container, false );
-		
-		mListViewEncoders = (ListView)mView.findViewById(R.id.listview_encoders);
-		mListViewUpcomingRecordings = (ListView)mView.findViewById(R.id.listview_upcoming_recordings);
-		mListViewJobQueue = (ListView)mView.findViewById(R.id.listview_job_queue);
-		mTextViewEncodersEmpty = (TextView)mView.findViewById(R.id.textview_encoders_list_empty);
-		mTextViewJobQueueEmpty = (TextView)mView.findViewById(R.id.textview_job_queue_empty);
-		mTextViewUpcomingRecEmpty = (TextView)mView.findViewById(R.id.textview_upcoming_rec_empty);
-		
-		Log.d( TAG, "onCreateView : exit" );
-		return mView;
+		return inflateView(inflater);
 	}
 	
 	/* (non-Javadoc)
@@ -137,9 +106,22 @@ public class BackendStatusFragment extends AbstractMythFragment {
 	
 		Log.d( TAG, "onResume : exit" );
 	}
+	
+	@Override
+	public void onConfigurationChanged(Configuration newConfig) {
+		
+		//re- attach the fragment forcing the view to be recreated.
+		Fragment currentFragment = getFragmentManager().findFragmentByTag(BACKEND_STATUS_FRAGMENT_NAME);
+	    FragmentTransaction fragTransaction = getFragmentManager().beginTransaction();
+	    fragTransaction.detach(currentFragment);
+	    fragTransaction.attach(currentFragment);
+	    fragTransaction.commit();
+		
+		super.onConfigurationChanged(newConfig);
+	}
 
 	// internal helpers
-
+	
 	private String getStatusText() {
 		Log.v( TAG, "getStatusText : enter" );
 
@@ -156,6 +138,20 @@ public class BackendStatusFragment extends AbstractMythFragment {
 		
 		Log.v( TAG, "getStatusText : exit" );
 		return ( mLocationProfile.isConnected() ? "Connected to " : "NOT Connected to " ) + mLocationProfile.getName();
+	}
+	
+	private View inflateView(LayoutInflater inflater) {
+		mView = inflater.inflate( R.layout.fragment_backend_status, null, false );
+		
+		mListViewEncoders = (ListView)mView.findViewById(R.id.listview_encoders);
+		mListViewUpcomingRecordings = (ListView)mView.findViewById(R.id.listview_upcoming_recordings);
+		mListViewJobQueue = (ListView)mView.findViewById(R.id.listview_job_queue);
+		mTextViewEncodersEmpty = (TextView)mView.findViewById(R.id.textview_encoders_list_empty);
+		mTextViewJobQueueEmpty = (TextView)mView.findViewById(R.id.textview_job_queue_empty);
+		mTextViewUpcomingRecEmpty = (TextView)mView.findViewById(R.id.textview_upcoming_rec_empty);
+		
+		Log.d( TAG, "onCreateView : exit" );
+		return mView;
 	}
 	
 	/*
@@ -206,6 +202,32 @@ public class BackendStatusFragment extends AbstractMythFragment {
 		setListViewHeightBasedOnChildren(mListViewUpcomingRecordings);
 		setListViewHeightBasedOnChildren(mListViewJobQueue);
     }
+	
+	/**
+	 * Sets the height of a listview to match the height of all it's children.
+	 * DO NOT CALL THIS ON LONG LISTS!
+	 * @param listView
+	 */
+	private static void setListViewHeightBasedOnChildren(ListView listView) {
+		ListAdapter listAdapter = listView.getAdapter();
+		if (listAdapter == null) {
+			// pre-condition
+			return;
+		}
+
+		int totalHeight = 0;
+		for (int i = 0; i < listAdapter.getCount(); i++) {
+			View listItem = listAdapter.getView(i, null, listView);
+			listItem.measure(0, 0);
+			totalHeight += listItem.getMeasuredHeight();
+		}
+
+		ViewGroup.LayoutParams params = listView.getLayoutParams();
+		params.height = totalHeight
+				+ (listView.getDividerHeight() * (listAdapter.getCount() - 1));
+		listView.setLayoutParams(params);
+		listView.requestLayout();
+	}
 	
 	/**
 	 * 
@@ -327,7 +349,6 @@ public class BackendStatusFragment extends AbstractMythFragment {
 			
 		}
 	}
-	
 	
 	/**
 	 * 

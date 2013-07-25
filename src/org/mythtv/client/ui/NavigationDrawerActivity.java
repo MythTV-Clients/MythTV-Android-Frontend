@@ -57,7 +57,7 @@ public class NavigationDrawerActivity extends AbstractMythtvFragmentActivity {
 
 	private static final String TAG = NavigationDrawerActivity.class.getSimpleName();
 
-	private static final String BACKEND_STATUS_FRAGMENT = "org.mythtv.client.ui.BackendStatusFragment";
+	
 	
 	private NavigationDrawerAdapter mAdapter;
 	private ActionBarDrawerToggle drawerToggle = null;
@@ -81,7 +81,7 @@ public class NavigationDrawerActivity extends AbstractMythtvFragmentActivity {
 			Log.v( TAG, "onProfileChanged : enter" );
 
 			getActionBar().setTitle( appName + " Status" );
-			updateContent( BACKEND_STATUS_FRAGMENT );
+			updateContent( BackendStatusFragment.BACKEND_STATUS_FRAGMENT_NAME );
             
 			LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile( NavigationDrawerActivity.this );
 			mAdapter.resetConnectedLocationProfile( locationProfile );
@@ -234,7 +234,7 @@ public class NavigationDrawerActivity extends AbstractMythtvFragmentActivity {
 		});
 
 		getActionBar().setTitle( appName + " Status" );
-		updateContent( BACKEND_STATUS_FRAGMENT ); 
+		updateContent( BackendStatusFragment.BACKEND_STATUS_FRAGMENT_NAME ); 
 		getActionBar().setDisplayHomeAsUpEnabled( true );
 		getActionBar().setHomeButtonEnabled( true );
 
@@ -332,7 +332,7 @@ public class NavigationDrawerActivity extends AbstractMythtvFragmentActivity {
 		Log.v( TAG, "updateContent : fragment=" + fragment );
 
         FragmentTransaction tx = getFragmentManager().beginTransaction();
-        tx.replace( R.id.main, Fragment.instantiate( NavigationDrawerActivity.this, fragment ) );
+        tx.replace( R.id.main, Fragment.instantiate( NavigationDrawerActivity.this, fragment ), fragment );
         tx.commit();
 
 		drawer.closeDrawer( navList );
