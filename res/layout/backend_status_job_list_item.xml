@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+    
+    <LinearLayout 
+        android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+	    android:padding="1dp"
+	    android:orientation="horizontal">
+        <TextView
+			android:id="@+id/textView_job_program_title_header"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:paddingRight="2dp"
+            android:textStyle="bold"
+			android:text="@string/job_queue_title"/>
+		<TextView
+			android:id="@+id/textView_job_program_title"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:textColor="@color/body_text_2"/>
+	</LinearLayout>
+	
+    <LinearLayout 
+        android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+	    android:padding="1dp"
+	    android:orientation="horizontal">
+        <TextView
+			android:id="@+id/textView_job_type_header"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:paddingRight="2dp"
+            android:textStyle="bold"
+			android:text="@string/job_queue_type"/>
+		<TextView
+			android:id="@+id/textView_job_type"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:textColor="@color/body_text_2"/>
+	</LinearLayout>
+	
+    <LinearLayout 
+        android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+	    android:padding="1dp"
+	    android:orientation="horizontal">
+        <TextView
+			android:id="@+id/textView_job_status_header"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:paddingRight="2dp"
+            android:textStyle="bold"
+			android:text="@string/job_queue_status"/>
+		<TextView
+			android:id="@+id/textView_job_status"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:textColor="@color/body_text_2"/>
+	</LinearLayout>
+	
+    <View style="@style/BackendStatusItemSeparator"/>
+	
+    
+</LinearLayout>
