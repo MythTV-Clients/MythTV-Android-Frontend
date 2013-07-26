@@ -139,10 +139,10 @@ public class RecordingsParentFragment extends AbstractMythFragment implements Re
 		}
 
 		if( mUseMultiplePanes ) {
-			List<ProgramGroup> programGroups = mProgramGroupDaoHelper.findAll( getActivity(), mLocationProfile );
-			if( null != programGroups && !programGroups.isEmpty() ) {
+//			List<ProgramGroup> programGroups = mProgramGroupDaoHelper.findAll( getActivity(), mLocationProfile );
+//			if( null != programGroups && !programGroups.isEmpty() ) {
 				//onProgramGroupSelected(programGroups.get(0));
-			}
+//			}
 		}
 
 		Log.v( TAG, "onActivityCreated : exit" );
@@ -165,8 +165,7 @@ public class RecordingsParentFragment extends AbstractMythFragment implements Re
 		selectedProgramGroup = programGroup;
 		selectedProgram = null;
 
-		List<Program> programs = mRecordedDaoHelper.findAllByTitle(
-				getActivity(), mLocationProfile, programGroup.getTitle());
+		List<Program> programs = mRecordedDaoHelper.findAllByTitle( getActivity(), mLocationProfile, programGroup.getTitle() );
 		if (null == programs || programs.isEmpty()) {
 			Log.d(TAG, "onProgramGroupSelected : no programs in programGroup");
 			mRecordedDaoHelper.findAll(getActivity(), mLocationProfile);

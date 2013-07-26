@@ -377,9 +377,9 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 					if( results.length > 0 ) {
 						ops.clear();
 
-						for( ContentProviderResult result : results ) {
-							Log.i( TAG, "load : batch result=" + result.toString() );
-						}
+//						for( ContentProviderResult result : results ) {
+//							Log.i( TAG, "load : batch result=" + result.toString() );
+//						}
 					}
 				}
 
@@ -397,9 +397,9 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 			if( results.length > 0 ) {
 				ops.clear();
 
-				for( ContentProviderResult result : results ) {
-					Log.i( TAG, "load : batch result=" + result.toString() );
-				}
+//				for( ContentProviderResult result : results ) {
+//					Log.i( TAG, "load : batch result=" + result.toString() );
+//				}
 			}
 			
 			count = 0;
