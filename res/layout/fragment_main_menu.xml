@@ -50,10 +50,11 @@
 	            android:textOff="@string/btn_home"
 	            android:textOn="@string/btn_away" />
 		    
-		    <ImageView
-		        android:layout_width="match_parent"
-		        android:layout_height="2dp"
-		        android:background="@drawable/main_menu_horizontal_line" />
+		    <View 
+			    android:layout_gravity="center"
+			    android:layout_width="match_parent"
+			    android:layout_height="2dp"
+			    android:background="@color/horizontal_line_main_menu"/>
 		    
 		</LinearLayout>
 	    
@@ -98,11 +99,11 @@
 
 	        
 	        
-	        <ImageView
-	            android:id="@+id/hLine_mainmenu_version"
-	            android:layout_width="match_parent"
-	            android:layout_height="2dp"
-	            android:background="@drawable/main_menu_horizontal_line" />
+	        <View 
+			    android:layout_gravity="center"
+			    android:layout_width="match_parent"
+			    android:layout_height="2dp"
+			    android:background="@color/horizontal_line_main_menu"/>
 	        
 	    </LinearLayout>
 	    
@@ -150,10 +151,11 @@
 	
 		    </LinearLayout>
 		    
-		    <ImageView
-			        android:layout_width="match_parent"
-			        android:layout_height="2dp"
-			        android:background="@drawable/main_menu_horizontal_line" />
+		     <View 
+			    android:layout_gravity="center"
+			    android:layout_width="match_parent"
+			    android:layout_height="2dp"
+			    android:background="@color/horizontal_line_main_menu"/>
 		    
 	    </LinearLayout>
 	    
@@ -172,10 +174,11 @@
             android:textColor="@color/text_main_menu"
             android:background="@drawable/main_menu_image_button" />
 
-        <ImageView
-            android:layout_width="match_parent"
-            android:layout_height="2dp"
-            android:background="@drawable/main_menu_horizontal_line" />
+         <View 
+			    android:layout_gravity="center"
+			    android:layout_width="match_parent"
+			    android:layout_height="2dp"
+			    android:background="@color/horizontal_line_main_menu"/>
 
         
         <!-- recordings Button -->
@@ -192,10 +195,11 @@
             android:textColor="@color/text_main_menu"
             android:background="@drawable/main_menu_image_button" />
 
-        <ImageView
-            android:layout_width="match_parent"
-            android:layout_height="2dp"
-            android:background="@drawable/main_menu_horizontal_line" />
+        <View 
+			    android:layout_gravity="center"
+			    android:layout_width="match_parent"
+			    android:layout_height="2dp"
+			    android:background="@color/horizontal_line_main_menu"/>
 
         
         <!-- rules Button -->
@@ -212,10 +216,11 @@
             android:textColor="@color/text_main_menu"
             android:background="@drawable/main_menu_image_button" />
 
-        <ImageView
-            android:layout_width="match_parent"
-            android:layout_height="2dp"
-            android:background="@drawable/main_menu_horizontal_line" />
+         <View 
+			    android:layout_gravity="center"
+			    android:layout_width="match_parent"
+			    android:layout_height="2dp"
+			    android:background="@color/horizontal_line_main_menu"/>
 
         
         <!-- upcoming Button -->
@@ -232,10 +237,11 @@
             android:textColor="@color/text_main_menu"
             android:background="@drawable/main_menu_image_button" />
 
-        <ImageView
-            android:layout_width="match_parent"
-            android:layout_height="2dp"
-            android:background="@drawable/main_menu_horizontal_line" />
+         <View 
+			    android:layout_gravity="center"
+			    android:layout_width="match_parent"
+			    android:layout_height="2dp"
+			    android:background="@color/horizontal_line_main_menu"/>
 
         
         <!-- music Button -->
@@ -252,10 +258,11 @@
             android:textColor="@color/text_main_menu"
             android:background="@drawable/main_menu_image_button" />
 
-        <ImageView
-            android:layout_width="match_parent"
-            android:layout_height="2dp"
-            android:background="@drawable/main_menu_horizontal_line" />
+         <View 
+			    android:layout_gravity="center"
+			    android:layout_width="match_parent"
+			    android:layout_height="2dp"
+			    android:background="@color/horizontal_line_main_menu"/>
 
         
         <!-- pictures Button -->
@@ -272,10 +279,11 @@
             android:textColor="@color/text_main_menu"
             android:background="@drawable/main_menu_image_button" />
 
-        <ImageView
-            android:layout_width="match_parent"
-            android:layout_height="2dp"
-            android:background="@drawable/main_menu_horizontal_line" />
+         <View 
+			    android:layout_gravity="center"
+			    android:layout_width="match_parent"
+			    android:layout_height="2dp"
+			    android:background="@color/horizontal_line_main_menu"/>
 
         
         <!-- videos Button -->
@@ -292,10 +300,11 @@
             android:textColor="@color/text_main_menu"
             android:background="@drawable/main_menu_image_button" />
 
-        <ImageView
-            android:layout_width="match_parent"
-            android:layout_height="2dp"
-            android:background="@drawable/main_menu_horizontal_line" />
+         <View 
+			    android:layout_gravity="center"
+			    android:layout_width="match_parent"
+			    android:layout_height="2dp"
+			    android:background="@color/horizontal_line_main_menu"/>
 </LinearLayout>
 
 </ScrollView>
