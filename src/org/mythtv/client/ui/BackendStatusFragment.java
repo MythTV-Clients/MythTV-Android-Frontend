@@ -34,8 +34,12 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.MeasureSpec;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -49,9 +53,9 @@ public class BackendStatusFragment extends AbstractMythFragment {
 	private ProgramHelper mProgramHelper = ProgramHelper.getInstance();
 	private View mView;
 	private LocationProfile mLocationProfile;
-	private ListView mListViewEncoders;
-	private ListView mListViewUpcomingRecordings;
-	private ListView mListViewJobQueue;
+	private LinearLayout mLinearLayoutEncoders;
+	private LinearLayout mLinearLayoutUpcomingRecs;
+	private LinearLayout mLinearLayoutJobQueue;
 	private TextView mTextViewEncodersEmpty;
 	private TextView mTextViewJobQueueEmpty;
 	private TextView mTextViewUpcomingRecEmpty;
@@ -64,7 +68,17 @@ public class BackendStatusFragment extends AbstractMythFragment {
 	public View onCreateView( LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState ) {
 		Log.d( TAG, "onCreateView : enter" );
 		
-		return inflateView(inflater);
+		mView = inflater.inflate( R.layout.fragment_backend_status, null, false );
+		
+		mLinearLayoutEncoders = (LinearLayout)mView.findViewById(R.id.linearlayout_encoders_list);
+		mLinearLayoutUpcomingRecs = (LinearLayout)mView.findViewById(R.id.linearlayout_upcoming_recordings_list);
+		mLinearLayoutJobQueue = (LinearLayout)mView.findViewById(R.id.linearlayout_job_queue);
+		mTextViewEncodersEmpty = (TextView)mView.findViewById(R.id.textview_encoders_list_empty);
+		mTextViewJobQueueEmpty = (TextView)mView.findViewById(R.id.textview_job_queue_empty);
+		mTextViewUpcomingRecEmpty = (TextView)mView.findViewById(R.id.textview_upcoming_rec_empty);
+		
+		Log.d( TAG, "onCreateView : exit" );
+		return mView;
 	}
 	
 	/* (non-Javadoc)
@@ -140,20 +154,6 @@ public class BackendStatusFragment extends AbstractMythFragment {
 		return ( mLocationProfile.isConnected() ? "Connected to " : "NOT Connected to " ) + mLocationProfile.getName();
 	}
 	
-	private View inflateView(LayoutInflater inflater) {
-		mView = inflater.inflate( R.layout.fragment_backend_status, null, false );
-		
-		mListViewEncoders = (ListView)mView.findViewById(R.id.listview_encoders);
-		mListViewUpcomingRecordings = (ListView)mView.findViewById(R.id.listview_upcoming_recordings);
-		mListViewJobQueue = (ListView)mView.findViewById(R.id.listview_job_queue);
-		mTextViewEncodersEmpty = (TextView)mView.findViewById(R.id.textview_encoders_list_empty);
-		mTextViewJobQueueEmpty = (TextView)mView.findViewById(R.id.textview_job_queue_empty);
-		mTextViewUpcomingRecEmpty = (TextView)mView.findViewById(R.id.textview_upcoming_rec_empty);
-		
-		Log.d( TAG, "onCreateView : exit" );
-		return mView;
-	}
-	
 	/*
      *  (non-Javadoc)
      *  
@@ -164,279 +164,191 @@ public class BackendStatusFragment extends AbstractMythFragment {
     	
 		LayoutInflater inflater = LayoutInflater.from(this.getActivity());
 		
+		//clear lists
+		mLinearLayoutEncoders.removeAllViews();
+		mLinearLayoutUpcomingRecs.removeAllViews();
+		mLinearLayoutJobQueue.removeAllViews();
+		
 		// Set encoder list
 		List<Encoder> encoders = result.getEncoders().getEncoders();
 		if (null != encoders) {
-			mListViewEncoders.setVisibility(View.VISIBLE);
+			mLinearLayoutEncoders.setVisibility(View.VISIBLE);
 			mTextViewEncodersEmpty.setVisibility(View.GONE);
-			mListViewEncoders.setAdapter(new EncoderArrayAdapter(this
-					.getActivity(), R.layout.encoder_listview_item, encoders));
+			
+			for(int i=0; i<encoders.size(); i++){
+				mLinearLayoutEncoders.addView(this.getEncoderView(inflater, encoders.get(i)));
+			}
 		}else{
-			mListViewEncoders.setVisibility(View.GONE);
+			mLinearLayoutEncoders.setVisibility(View.GONE);
 			mTextViewEncodersEmpty.setVisibility(View.VISIBLE);
 		}
 		
 		// Set Upcoming recordings list
 		List<Program> programs = result.getScheduled().getPrograms();
 		if(null != programs){
-			mListViewUpcomingRecordings.setVisibility(View.VISIBLE);
+			mLinearLayoutUpcomingRecs.setVisibility(View.VISIBLE);
 			mTextViewUpcomingRecEmpty.setVisibility(View.GONE);
-			mListViewUpcomingRecordings.setAdapter(new SchedualedProgramArrayAdapter(this.getActivity(), R.layout.upcoming_row_small_txt, programs));
+			
+			for(int i=0; i<programs.size(); i++){
+				mLinearLayoutUpcomingRecs.addView(this.getUpcomingRecView(inflater, programs.get(i)));
+			}
 		}else{
-			mListViewUpcomingRecordings.setVisibility(View.GONE);
+			mLinearLayoutUpcomingRecs.setVisibility(View.GONE);
 			mTextViewUpcomingRecEmpty.setVisibility(View.VISIBLE);
 		}
 		
 		List<Job> jobs = result.getJobQueue().getJobs();
 		if(null != jobs){
-			mListViewJobQueue.setVisibility(View.VISIBLE);
+			mLinearLayoutJobQueue.setVisibility(View.VISIBLE);
 			mTextViewJobQueueEmpty.setVisibility(View.GONE);
-			mListViewJobQueue.setAdapter(new JobArrayAdapter(this.getActivity(), R.layout.job_row, jobs));
+			
+			for(int i=0; i<jobs.size(); i++){
+				mLinearLayoutJobQueue.addView(this.getJobView(inflater, jobs.get(i)));
+			}
 		}else{
-			mListViewJobQueue.setVisibility(View.GONE);
+			mLinearLayoutJobQueue.setVisibility(View.GONE);
 			mTextViewJobQueueEmpty.setVisibility(View.VISIBLE);
 		}
-		
-		//update listview heights to match children
-		setListViewHeightBasedOnChildren(mListViewEncoders);
-		setListViewHeightBasedOnChildren(mListViewUpcomingRecordings);
-		setListViewHeightBasedOnChildren(mListViewJobQueue);
     }
 	
-	/**
-	 * Sets the height of a listview to match the height of all it's children.
-	 * DO NOT CALL THIS ON LONG LISTS!
-	 * @param listView
-	 */
-	private static void setListViewHeightBasedOnChildren(ListView listView) {
-		ListAdapter listAdapter = listView.getAdapter();
-		if (listAdapter == null) {
-			// pre-condition
-			return;
-		}
-
-		int totalHeight = 0;
-		for (int i = 0; i < listAdapter.getCount(); i++) {
-			View listItem = listAdapter.getView(i, null, listView);
-			listItem.measure(0, 0);
-			totalHeight += listItem.getMeasuredHeight();
-		}
-
-		ViewGroup.LayoutParams params = listView.getLayoutParams();
-		params.height = totalHeight
-				+ (listView.getDividerHeight() * (listAdapter.getCount() - 1));
-		listView.setLayoutParams(params);
-		listView.requestLayout();
-	}
 	
-	/**
-	 * 
-	 * @author Thomas G. Kenny Jr
-	 *
-	 */
-	private class EncoderArrayAdapter extends ArrayAdapter<Encoder>
-	{
-		private List<Encoder> mEncoders;
-		private Context mContext;
-		private LayoutInflater mInflater;
+	private View getEncoderView(LayoutInflater inflater, Encoder encoder) {
 		
-		public EncoderArrayAdapter(Context context, int textViewResourceId,
-				List<Encoder> objects) {
-			super(context, textViewResourceId, objects);
-			mEncoders = objects;
-			mContext = context;
-			mInflater = LayoutInflater.from(context);
-		}
-
-		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
-			
-			View view = (View)mInflater.inflate(R.layout.encoder_listview_item, null, true);
-			
-			Encoder encoder = this.mEncoders.get(position);
-			
-			//set device label
-			TextView tView = (TextView)view.findViewById(R.id.textView_encoder_devicelabel);
-			if(null != tView) {
-				tView.setText(Integer.toString(encoder.getId()) + " - " + encoder.getDeviceLabel());
-			}
-			
-			//set device host
-			tView = (TextView)view.findViewById(R.id.textView_encoder_host);
-			if(null != tView) {
-				tView.setText(encoder.getHostname());
-			}
-			
-			//set device recording status
-			tView = (TextView)view.findViewById(R.id.textView_encoder_rec_status);
-			if(null != tView) {
-				Program rec = encoder.getRecording();
-				if(null != rec){
-					tView.setText(rec.getTitle() + " on " + rec.getChannelInfo().getChannelName());
-					//+ rec.getEndTime().toString("hh:mm") );
-				}else{
-					tView.setText("Inactive");
-				}
-			}
-			
-			
-			return view;
-			
-		}
-	}
-	
-	/**
-	 * 
-	 * @author Thomas G. Kenny Jr
-	 *
-	 */
-	private class SchedualedProgramArrayAdapter extends ArrayAdapter<Program>
-	{
-		private List<Program> mPrograms;
-		private Context mContext;
-		private LayoutInflater mInflater;
+		View view = (View)inflater.inflate(R.layout.backend_status_encoder_list_item, null, false);
 		
-		public SchedualedProgramArrayAdapter(Context context, int textViewResourceId,
-				List<Program> objects) {
-			super(context, textViewResourceId, objects);
-			mPrograms = objects;
-			mContext = context;
-			mInflater = LayoutInflater.from(context);
-		}
-
-		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
-
-			View view = (View)mInflater.inflate(R.layout.upcoming_row_small_txt, null, true);
-			
-			Program program = this.mPrograms.get(position);
-			
-			//set category color
-			View category = view.findViewById(R.id.upcoming_category);
-			if(null != category) category.setBackgroundColor(mProgramHelper.getCategoryColor( program.getCategory() ));
-			
-			//set upcoming_title
-			TextView tView = (TextView)view.findViewById(R.id.upcoming_title);
-			if(null != tView) {
-				tView.setText(program.getTitle());
-			}
-			
-			//set upcoming_sub_title
-			tView = (TextView)view.findViewById(R.id.upcoming_sub_title);
-			if(null != tView) {
-				tView.setText(program.getSubTitle());
-			}
-			
-			//set upcoming_channel
-			tView = (TextView)view.findViewById(R.id.upcoming_channel);
-			if(null != tView) {
-				tView.setText(program.getChannelInfo().getCallSign());
-			}
-			
-			//set upcoming_start_time
-			tView = (TextView)view.findViewById(R.id.upcoming_start_time);
-			if(null != tView) {
-				tView.setText(program.getStartTime().toString("hh:mm"));
-			}
-			
-			//set upcoming_duration
-			tView = (TextView)view.findViewById(R.id.upcoming_duration);
-			if(null != tView) {
-				tView.setText(Long.toString(program.getDurationInMinutes()));
-			}
-			
-			return view;
-			
-		}
-	}
-	
-	/**
-	 * 
-	 * @author Thomas G. Kenny Jr
-	 *
-	 */
-	private class JobArrayAdapter extends ArrayAdapter<Job>
-	{
-		private List<Job> mJobs;
-		private Context mContext;
-		private LayoutInflater mInflater;
-		
-		public JobArrayAdapter(Context context, int textViewResourceId,
-				List<Job> objects) {
-			super(context, textViewResourceId, objects);
-			mJobs = objects;
-			mContext = context;
-			mInflater = LayoutInflater.from(context);
+		//set device label
+		TextView tView = (TextView)view.findViewById(R.id.textView_encoder_devicelabel);
+		if(null != tView) {
+			tView.setText(Integer.toString(encoder.getId()) + " - " + encoder.getDeviceLabel());
 		}
 		
-		public String getJobStatusStr(Job.Status status){
-			switch(status){
-			case ABORTED:
-				return mContext.getString(R.string.job_queue_status_aborted);
-			case ABORTING:
-				return mContext.getString(R.string.job_queue_status_aborting);
-			case CANCELLED:
-				return mContext.getString(R.string.job_queue_status_cancelled);
-			case DONE:
-				return mContext.getString(R.string.job_queue_status_done);
-			case ERRORED:
-				return mContext.getString(R.string.job_queue_status_errored);
-			case ERRORING:
-				return mContext.getString(R.string.job_queue_status_erroring);
-			case FINISHED:
-				return mContext.getString(R.string.job_queue_status_finished);
-			case NO_FLAGS:
-				return mContext.getString(R.string.job_queue_status_no_flags);
-			case PAUSED:
-				return mContext.getString(R.string.job_queue_status_paused);
-			case PENDING:
-				return mContext.getString(R.string.job_queue_status_pending);
-			case QUEUED:
-				return mContext.getString(R.string.job_queue_status_queued);
-			case RETRY:
-				return mContext.getString(R.string.job_queue_status_retry);
-			case RUNNING:
-				return mContext.getString(R.string.job_queue_status_running);
-			case STARTING:
-				return mContext.getString(R.string.job_queue_status_starting);
-			case STOPPING:
-				return mContext.getString(R.string.job_queue_status_stopping);
-			default:
-				return mContext.getString(R.string.job_queue_status_unknown);
-			}
+		//set device host
+		tView = (TextView)view.findViewById(R.id.textView_encoder_host);
+		if(null != tView) {
+			tView.setText(encoder.getHostname());
 		}
 		
-		class ViewHolder
-		{
-			public TextView title;
-			public TextView type;
-			public TextView status;
-			
-		}
-
-		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
-			ViewHolder holder;
-			
-			if(convertView == null){
-				convertView = (View)mInflater.inflate(R.layout.job_row, parent, false);
-				holder = new ViewHolder();
-				holder.title = (TextView)convertView.findViewById(R.id.textView_job_program_title);
-				holder.type = (TextView)convertView.findViewById(R.id.textView_job_type);
-				holder.status = (TextView)convertView.findViewById(R.id.textView_job_status);
-				convertView.setTag(holder);
+		//set device recording status
+		tView = (TextView)view.findViewById(R.id.textView_encoder_rec_status);
+		if(null != tView) {
+			Program rec = encoder.getRecording();
+			if(null != rec){
+				tView.setText(rec.getTitle() + " on " + rec.getChannelInfo().getChannelName());
+				//+ rec.getEndTime().toString("hh:mm") );
 			}else{
-				holder = (ViewHolder)convertView.getTag();
+				tView.setText("Inactive");
 			}
-			
-			Job job = this.mJobs.get(position);
-			
-			holder.title.setText(job.getProgram() != null ? job.getProgram().getTitle() : "");
-			holder.type.setText(job.getType() != null ? job.getType().name() : "");
-			holder.status.setText(getJobStatusStr(job.getStatus()));
-			
-			return convertView;
-			
+		}
+		
+		
+		return view;
+		
+	}
+	
+	public View getUpcomingRecView(LayoutInflater inflater, Program program) {
+
+		View view = (View)inflater.inflate(R.layout.backend_status_upcoming_list_item, null, false);
+		
+		//set category color
+		View category = view.findViewById(R.id.upcoming_category);
+		if(null != category) category.setBackgroundColor(mProgramHelper.getCategoryColor( program.getCategory() ));
+		
+		//set upcoming_title
+		TextView tView = (TextView)view.findViewById(R.id.upcoming_title);
+		if(null != tView) {
+			tView.setText(program.getTitle());
+		}
+		
+		//set upcoming_sub_title
+		tView = (TextView)view.findViewById(R.id.upcoming_sub_title);
+		if(null != tView) {
+			tView.setText(program.getSubTitle());
+		}
+		
+		//set upcoming_channel
+		tView = (TextView)view.findViewById(R.id.upcoming_channel);
+		if(null != tView) {
+			tView.setText(program.getChannelInfo().getCallSign());
+		}
+		
+		//set upcoming_start_time
+		tView = (TextView)view.findViewById(R.id.upcoming_start_time);
+		if(null != tView) {
+			tView.setText(program.getStartTime().toString("hh:mm"));
+		}
+		
+		//set upcoming_duration
+		tView = (TextView)view.findViewById(R.id.upcoming_duration);
+		if(null != tView) {
+			tView.setText(Long.toString(program.getDurationInMinutes()));
+		}
+		
+		return view;
+		
+	}
+	
+	
+	private View getJobView(LayoutInflater inflater, Job job) {
+
+		View view = (View)inflater.inflate(R.layout.backend_status_job_list_item, null, false);
+
+		//set title
+		TextView tView = (TextView)view.findViewById(R.id.textView_job_program_title);
+		if(null != tView) {
+			tView.setText(job.getProgram() != null ? job.getProgram().getTitle() : "");
+		}
+		
+		//set type
+		tView = (TextView)view.findViewById(R.id.textView_job_type);
+		if(null != tView) {
+			tView.setText(job.getType() != null ? job.getType().name() : "");
+		}
+		
+		//set status
+		tView = (TextView)view.findViewById(R.id.textView_job_status);
+		if(null != tView) {
+			tView.setText(getJobStatusStr(job.getStatus()));
+		}
+		
+		return view;
+		
+	}
+	
+	
+	private String getJobStatusStr(Job.Status status){
+		switch(status){
+		case ABORTED:
+			return getString(R.string.job_queue_status_aborted);
+		case ABORTING:
+			return getString(R.string.job_queue_status_aborting);
+		case CANCELLED:
+			return getString(R.string.job_queue_status_cancelled);
+		case DONE:
+			return getString(R.string.job_queue_status_done);
+		case ERRORED:
+			return getString(R.string.job_queue_status_errored);
+		case ERRORING:
+			return getString(R.string.job_queue_status_erroring);
+		case FINISHED:
+			return getString(R.string.job_queue_status_finished);
+		case NO_FLAGS:
+			return getString(R.string.job_queue_status_no_flags);
+		case PAUSED:
+			return getString(R.string.job_queue_status_paused);
+		case PENDING:
+			return getString(R.string.job_queue_status_pending);
+		case QUEUED:
+			return getString(R.string.job_queue_status_queued);
+		case RETRY:
+			return getString(R.string.job_queue_status_retry);
+		case RUNNING:
+			return getString(R.string.job_queue_status_running);
+		case STARTING:
+			return getString(R.string.job_queue_status_starting);
+		case STOPPING:
+			return getString(R.string.job_queue_status_stopping);
+		default:
+			return getString(R.string.job_queue_status_unknown);
 		}
 	}
 

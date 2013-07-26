@@ -40,6 +40,7 @@
     <color name="text_header_main_menu">#dddddd</color>
     <color name="horizontal_line_main_menu">#dddddd</color>
     <color name="backend_status_header">#526367</color>
+    <color name="backend_status_item_separator">#c5c5c5</color>
 
     <color name="whats_on_separator">#4d000000</color>
 

@@ -23,10 +23,11 @@
 	    android:text="@string/app_version"
 	    style="@style/NavigationDrawerHeader" />
 	
-	<ImageView 
-	    android:src="@drawable/main_menu_horizontal_line"
-	    android:layout_width="fill_parent"
-		android:layout_height="4dp" 
-		android:layout_below="@id/navigation_drawer_version_title"/>
+	 <View 
+	    android:layout_below="@id/navigation_drawer_version_title"
+	    android:layout_gravity="center"
+	    android:layout_width="match_parent"
+	    android:layout_height="2dp"
+	    android:background="@color/horizontal_line_main_menu"/>
 
 </RelativeLayout>

@@ -12,9 +12,10 @@
     	style="@style/NavigationDrawerHeader"
 	/>
 	
-	<ImageView 
-	    android:src="@drawable/main_menu_horizontal_line"
+	<View 
+	    android:layout_gravity="center"
 	    android:layout_width="fill_parent"
-		android:layout_height="4dp" />
+	    android:layout_height="2dp"
+	    android:background="@color/horizontal_line_main_menu"/>
 
 </LinearLayout>
