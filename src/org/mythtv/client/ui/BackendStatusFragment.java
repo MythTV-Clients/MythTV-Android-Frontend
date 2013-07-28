@@ -19,29 +19,26 @@
 package org.mythtv.client.ui;
 
 import java.util.List;
+
+import org.joda.time.DateTimeZone;
 import org.mythtv.R;
+import org.mythtv.client.MainApplication;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.util.ProgramHelper;
+import org.mythtv.service.util.DateUtils;
 import org.mythtv.services.api.dvr.Encoder;
 import org.mythtv.services.api.dvr.Program;
 import org.mythtv.services.api.status.Job;
 
 import android.app.Fragment;
 import android.app.FragmentTransaction;
-import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.MeasureSpec;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
-import android.widget.ListAdapter;
-import android.widget.ListView;
 import android.widget.TextView;
 
 
@@ -49,6 +46,8 @@ public class BackendStatusFragment extends AbstractMythFragment {
 
 	private static final String TAG = BackendStatusFragment.class.getSimpleName();
 	public static final String BACKEND_STATUS_FRAGMENT_NAME = "org.mythtv.client.ui.BackendStatusFragment";
+	
+	private MainApplication mMainApplication;
 	
 	private ProgramHelper mProgramHelper = ProgramHelper.getInstance();
 	private View mView;
@@ -60,7 +59,6 @@ public class BackendStatusFragment extends AbstractMythFragment {
 	private TextView mTextViewJobQueueEmpty;
 	private TextView mTextViewUpcomingRecEmpty;
 
-	
 	/* (non-Javadoc)
 	 * @see android.support.v4.app.Fragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle)
 	 */
@@ -89,6 +87,8 @@ public class BackendStatusFragment extends AbstractMythFragment {
 		Log.d( TAG, "onActivityCreated : enter" );
 		super.onActivityCreated( savedInstanceState );
 
+		mMainApplication = getMainApplication();
+		
 		if( null != mView ) {
 			
 			TextView tView = (TextView) mView.findViewById( R.id.textview_status );
@@ -185,7 +185,7 @@ public class BackendStatusFragment extends AbstractMythFragment {
 		
 		// Set Upcoming recordings list
 		List<Program> programs = result.getScheduled().getPrograms();
-		if(null != programs){
+		if(null != programs && !programs.isEmpty() ) {
 			mLinearLayoutUpcomingRecs.setVisibility(View.VISIBLE);
 			mTextViewUpcomingRecEmpty.setVisibility(View.GONE);
 			
@@ -274,7 +274,7 @@ public class BackendStatusFragment extends AbstractMythFragment {
 		//set upcoming_start_time
 		tView = (TextView)view.findViewById(R.id.upcoming_start_time);
 		if(null != tView) {
-			tView.setText(program.getStartTime().toString("hh:mm"));
+			tView.setText( DateUtils.getDateTimeUsingLocaleFormattingPretty( program.getStartTime().withZone( DateTimeZone.getDefault() ), mMainApplication.getDateFormat(), mMainApplication.getClockType() ) );
 		}
 		
 		//set upcoming_duration
