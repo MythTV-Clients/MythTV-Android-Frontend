@@ -249,9 +249,9 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
     	protected org.mythtv.services.api.status.Status doInBackground( Void... params ) {
     		Log.i( TAG, "BackendStatusTask.doInBackground : enter" );
 
-    		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
-
     		try {
+    			mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
+    			
     			EtagInfoDelegate etag = EtagInfoDelegate.createEmptyETag();
     			ResponseEntity<org.mythtv.services.api.status.Status> status = mMythtvServiceHelper.getMythServicesApi( mLocationProfile ).statusOperations().getStatus( etag );
 
