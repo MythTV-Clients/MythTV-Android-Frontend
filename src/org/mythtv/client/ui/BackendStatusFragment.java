@@ -274,7 +274,7 @@ public class BackendStatusFragment extends AbstractMythFragment {
 		//set upcoming_start_time
 		tView = (TextView)view.findViewById(R.id.upcoming_start_time);
 		if(null != tView) {
-			tView.setText( DateUtils.getDateTimeUsingLocaleFormattingPretty( program.getStartTime().withZone( DateTimeZone.getDefault() ), mMainApplication.getDateFormat(), mMainApplication.getClockType() ) );
+			tView.setText( DateUtils.getDayTimeWithLocaleFormatting( program.getStartTime().withZone( DateTimeZone.getDefault() ), mMainApplication.getClockType() ) );
 		}
 		
 		//set upcoming_duration
