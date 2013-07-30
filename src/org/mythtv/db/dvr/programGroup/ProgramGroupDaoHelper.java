@@ -246,8 +246,7 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 			
 			if( null != program.getRecording() ) {
 				
-				if( null != program.getRecording().getRecordingGroup() && !"livetv".equalsIgnoreCase( program.getRecording().getRecordingGroup() ) ) {
-					
+				if( null != program.getRecording().getRecordingGroup() && !"livetv".equalsIgnoreCase( program.getRecording().getRecordingGroup() ) && !"deleted".equalsIgnoreCase( program.getRecording().getRecordingGroup() ) ) {
 					String cleaned = ArticleCleaner.clean( program.getTitle() );
 					if( !programGroups.containsKey( cleaned ) ) {
 						
