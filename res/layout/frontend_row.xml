@@ -31,7 +31,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textColor="@color/text_main_menu"
-        android:textAppearance="?android:attr/textAppearanceSmallInverse" >
+        android:textAppearance="?android:attr/textAppearanceSmallInverse"
+        android:singleLine="true" >
     </TextView>
 
     <TextView
@@ -39,7 +40,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textColor="@color/text_main_menu"
-        android:textAppearance="?android:attr/textAppearanceSmallInverse" >
+        android:textAppearance="?android:attr/textAppearanceSmallInverse"
+        android:singleLine="true"  >
     </TextView>
     
 </LinearLayout>
