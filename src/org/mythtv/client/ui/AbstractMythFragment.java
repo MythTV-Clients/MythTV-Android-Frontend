@@ -249,6 +249,9 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
     	protected org.mythtv.services.api.status.Status doInBackground( Void... params ) {
     		Log.i( TAG, "BackendStatusTask.doInBackground : enter" );
 
+    		//leave if fragment is not added to activity
+    		if(!isAdded()) return null;
+    		
     		try {
     			mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
     			
@@ -276,8 +279,11 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
     	@Override
     	protected void onPostExecute( 	org.mythtv.services.api.status.Status result ) {
     		Log.i( TAG, "BackendStatusTask.onPostExecute : enter" );
+    		
+    		//leave if fragment is not added to activity
+    		if(!isAdded()) return;
 
-    		if( null != mLocationProfile && null != getActivity()) {
+    		if( null != mLocationProfile) {
     			
         		if( null != result ) {
         			mStatus = result;
