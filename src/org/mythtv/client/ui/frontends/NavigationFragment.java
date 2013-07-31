@@ -20,6 +20,7 @@ package org.mythtv.client.ui.frontends;
 
 import org.mythtv.R;
 import org.mythtv.client.ui.MainMenuFragment;
+import org.mythtv.client.ui.navigationDrawer.FrontendsRow;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -78,7 +79,7 @@ public class NavigationFragment extends AbstractFrontendFragment implements OnCl
 	@Override
 	public void onClick(View v) {
 		
-		final Frontend fe = MainMenuFragment.getSelectedFrontend();
+		final Frontend fe = FrontendsRow.getSelectedFrontend();
 		
 		//exit if we don't have a frontend
 		if(null == fe) return;
