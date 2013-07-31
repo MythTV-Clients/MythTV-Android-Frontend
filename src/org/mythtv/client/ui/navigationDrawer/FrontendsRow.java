@@ -7,17 +7,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.mythtv.R;
+import org.mythtv.client.ui.MainMenuFragment;
 import org.mythtv.client.ui.frontends.Frontend;
+import org.mythtv.client.ui.frontends.MythmoteActivity;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.frontends.FrontendConstants;
 import org.mythtv.db.frontends.FrontendDaoHelper;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
+import org.mythtv.service.util.NetworkHelper;
 
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.Spinner;
@@ -27,13 +34,30 @@ import android.widget.TextView;
  * @author dmfrey
  *
  */
-public class FrontendsRow implements Row {
+public class FrontendsRow implements Row, OnItemSelectedListener {
 
+	private final static String TAG = FrontendsRow.class.getSimpleName();
+	
+	private static Frontend selectedFrontend;
+	
 	private Context mContext;
 	private LayoutInflater mLayoutInflater;
-	
+	private List<Frontend> mFrontends;
     private FrontendDaoHelper mFrontendDaoHelper = FrontendDaoHelper.getInstance();
     private LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
+    
+    private OnClickListener mythmoteButtonOnClick = new OnClickListener(){
+		@Override
+		public void onClick(View v) {
+			
+			//leave if context is not set
+			if(null == mContext) return;
+			
+			if( NetworkHelper.getInstance().isNetworkConnected( mContext ) && !mContext.getClass().equals(MythmoteActivity.class) ) {
+				mContext.startActivity( new Intent( mContext, MythmoteActivity.class ) );
+			}
+		}
+	};
 	
 	public FrontendsRow( Context context ) {
 		this.mContext = context;
@@ -54,7 +78,9 @@ public class FrontendsRow implements Row {
 
     		holder = new ViewHolder();
     		holder.spinner = (Spinner) convertView.findViewById( R.id.navigation_drawer_frontends_spinner );
+    		holder.spinner.setOnItemSelectedListener(this);
     		holder.mythmote = (ImageButton) convertView.findViewById( R.id.navigation_drawer_frontends_mythmote );
+    		holder.mythmote.setOnClickListener(mythmoteButtonOnClick);
     		
     		convertView.setTag( holder );
      			
@@ -70,9 +96,9 @@ public class FrontendsRow implements Row {
         String selection = FrontendConstants.TABLE_NAME + "." + FrontendConstants.FIELD_AVAILABLE + " = ?";
         String[] selectionArgs = new String[] { "1" };
 		
-		List<Frontend> frontends = mFrontendDaoHelper.findAll( mContext, locationProfile, null, selection, selectionArgs, FrontendConstants.TABLE_NAME + "." + FrontendConstants.FIELD_NAME );
-		if( null != frontends && !frontends.isEmpty() ) {
-			FrontendAdapter adapter = new FrontendAdapter(mContext, R.layout.frontend_row, frontends);
+        mFrontends = mFrontendDaoHelper.findAll( mContext, locationProfile, null, selection, selectionArgs, FrontendConstants.TABLE_NAME + "." + FrontendConstants.FIELD_NAME );
+		if( null != mFrontends && !mFrontends.isEmpty() ) {
+			FrontendAdapter adapter = new FrontendAdapter(mContext, R.layout.frontend_row, mFrontends);
 			holder.spinner.setAdapter( adapter );
 		}
         
@@ -108,6 +134,14 @@ public class FrontendsRow implements Row {
 		Spinner spinner;
 		ImageButton mythmote;
 		
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public static Frontend getSelectedFrontend(){
+		return selectedFrontend;
 	}
 	
 	
@@ -178,6 +212,28 @@ public class FrontendsRow implements Row {
 			TextView url;
 		}
 
+	}
+
+
+
+	@Override
+	public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2,
+			long arg3) {
+		//leave if we don't have frontends, should never happen
+		if(null == mFrontends || mFrontends.size() <= 0){
+			Log.e(TAG, "Frontend selected but no frontends in ArrayList");
+			return;
+		}
+		
+		//set selected frontend
+		if(arg2 >= 0 && arg2 < mFrontends.size()){
+			selectedFrontend = mFrontends.get(arg2);
+		}
+	}
+
+	@Override
+	public void onNothingSelected(AdapterView<?> arg0) {
+		
 	}
 	
 }
