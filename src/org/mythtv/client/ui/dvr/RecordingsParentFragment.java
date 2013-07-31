@@ -30,6 +30,7 @@ import org.mythtv.db.dvr.programGroup.ProgramGroupConstants;
 import org.mythtv.db.dvr.programGroup.ProgramGroupDaoHelper;
 import org.mythtv.services.api.dvr.Program;
 
+import android.app.Activity;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Intent;
@@ -89,7 +90,7 @@ public class RecordingsParentFragment extends AbstractMythFragment implements Re
 		View view = getView();
 
 		// get child fragment manager
-		mFragmentManager = getFragmentManager();
+		mFragmentManager = this.getChildFragmentManager();
 
 		// look for recording groups list placeholder framelayout
 		FrameLayout recordingGroupsLayout = (FrameLayout) view.findViewById( R.id.frame_layout_recording_groups );
@@ -99,7 +100,7 @@ public class RecordingsParentFragment extends AbstractMythFragment implements Re
 				mRecordingsFragment = (RecordingsFragment) RecordingsFragment.instantiate( getActivity(), RecordingsFragment.class.getName() );
 				mRecordingsFragment.setOnProgramGroupListener( this );
 			}
-
+			
 			mFragmentManager.beginTransaction()
 				.replace( R.id.frame_layout_recording_groups, mRecordingsFragment, RecordingsFragment.class.getName() )
 				.commit();
@@ -137,13 +138,15 @@ public class RecordingsParentFragment extends AbstractMythFragment implements Re
 				.replace( R.id.frame_layout_episode, mEpisodeFragment, EpisodeFragment.class.getName() )
 				.commit();
 		}
-
-		if( mUseMultiplePanes ) {
-//			List<ProgramGroup> programGroups = mProgramGroupDaoHelper.findAll( getActivity(), mLocationProfile );
+		
+		
+//		if( mUseMultiplePanes ) {
+//			List<ProgramGroup> programGroups = mProgramGroupDaoHelper.findAll( getActivity(),  mLocationProfile );
 //			if( null != programGroups && !programGroups.isEmpty() ) {
-				//onProgramGroupSelected(programGroups.get(0));
+//				onProgramGroupSelected(programGroups.get(0));
 //			}
-		}
+//		}
+		
 
 		Log.v( TAG, "onActivityCreated : exit" );
 	}
@@ -161,6 +164,9 @@ public class RecordingsParentFragment extends AbstractMythFragment implements Re
 			Log.d(TAG, "onProgramGroupSelected : exit, programGroups is empty");
 			return;
 		}
+		
+		//leave if fragment is not added to activity
+		if(!isAdded()) return;
 
 		selectedProgramGroup = programGroup;
 		selectedProgram = null;
