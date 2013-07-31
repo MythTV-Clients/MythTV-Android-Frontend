@@ -14,11 +14,14 @@ import org.mythtv.db.frontends.FrontendDaoHelper;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 /**
  * @author dmfrey
@@ -69,14 +72,7 @@ public class FrontendsRow implements Row {
 		
 		List<Frontend> frontends = mFrontendDaoHelper.findAll( mContext, locationProfile, null, selection, selectionArgs, FrontendConstants.TABLE_NAME + "." + FrontendConstants.FIELD_NAME );
 		if( null != frontends && !frontends.isEmpty() ) {
-
-			List<String> labels = new ArrayList<String>();
-			for( Frontend fe : frontends ) {
-				System.out.println( fe.toString() );
-				labels.add( fe.getName() );
-			}
-			ArrayAdapter<String> adapter = new ArrayAdapter<String>( mContext, android.R.layout.simple_spinner_item, labels );
-
+			FrontendAdapter adapter = new FrontendAdapter(mContext, R.layout.frontend_row, frontends);
 			holder.spinner.setAdapter( adapter );
 		}
         
@@ -112,6 +108,76 @@ public class FrontendsRow implements Row {
 		Spinner spinner;
 		ImageButton mythmote;
 		
+	}
+	
+	
+	
+	private class FrontendAdapter extends ArrayAdapter<Frontend> {
+
+		private final String TAG = FrontendAdapter.class.getSimpleName();
+
+		private int layoutResourceId;
+		private List<Frontend> frontends = null;
+
+		FrontendAdapter(Context context, int layoutResourceId,
+				List<Frontend> frontends) {
+			super(context, layoutResourceId, frontends);
+			Log.v(TAG, "initialize : enter");
+
+			this.layoutResourceId = layoutResourceId;
+			this.frontends = frontends;
+
+			Log.v(TAG, "initialize : exit");
+		}
+		
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+			return getFrontendView(position, convertView, parent);
+		}
+
+		@Override
+		public View getDropDownView(int position, View convertView, ViewGroup parent) {
+			return getFrontendView(position, convertView, parent);
+		}
+		
+		
+		
+		private View getFrontendView(int position, View convertView, ViewGroup parent){
+			Log.v(TAG, "getFrontendView : enter");
+			
+			View row = convertView;
+			FrontendHolder holder = null;
+
+			if (row == null) {
+				Log.v(TAG, "getFrontendView : row is null");
+
+				row = mLayoutInflater.inflate(layoutResourceId, parent, false);
+
+				holder = new FrontendHolder();
+				holder.name = (TextView) row.findViewById(R.id.frontend_name);
+				holder.url = (TextView) row.findViewById(R.id.frontend_url);
+				
+				row.setTag(holder);
+			} else {
+				holder = (FrontendHolder) row.getTag();
+			}
+
+			Frontend frontend = frontends.get(position);
+
+			holder.name.setText(frontend.getName());
+			holder.url.setText(frontend.getUrl());
+
+			Log.v(TAG, "getFrontendView : exit");
+			return row;
+		}
+		
+		
+
+		class FrontendHolder {
+			TextView name;
+			TextView url;
+		}
+
 	}
 	
 }
