@@ -30,6 +30,8 @@ import org.mythtv.services.api.dvr.Encoder;
 import org.mythtv.services.api.dvr.Program;
 import org.mythtv.services.api.status.Job;
 
+import android.animation.ValueAnimator;
+import android.animation.ValueAnimator.AnimatorUpdateListener;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.content.res.Configuration;
@@ -47,14 +49,16 @@ public class BackendStatusFragment extends AbstractMythFragment {
 	private static final String TAG = BackendStatusFragment.class.getSimpleName();
 	public static final String BACKEND_STATUS_FRAGMENT_NAME = "org.mythtv.client.ui.BackendStatusFragment";
 	
-	private MainApplication mMainApplication;
-	
 	private ProgramHelper mProgramHelper = ProgramHelper.getInstance();
 	private View mView;
 	private LocationProfile mLocationProfile;
-	private LinearLayout mLinearLayoutEncoders;
-	private LinearLayout mLinearLayoutUpcomingRecs;
-	private LinearLayout mLinearLayoutJobQueue;
+	private LinearLayout mLinearLayoutEncodersList;
+	private LinearLayout mLinearLayoutUpcomingRecsList;
+	private LinearLayout mLinearLayoutJobQueueList;
+	private LinearLayout mLinearLayoutStatusCard;
+	private LinearLayout mLinearLayoutEncodersCard;
+	private LinearLayout mLinearLayoutUpcomingRecsCard;
+	private LinearLayout mLinearLayoutJobQueueCard;
 	private TextView mTextViewEncodersEmpty;
 	private TextView mTextViewJobQueueEmpty;
 	private TextView mTextViewUpcomingRecEmpty;
@@ -68,37 +72,29 @@ public class BackendStatusFragment extends AbstractMythFragment {
 		
 		mView = inflater.inflate( R.layout.fragment_backend_status, null, false );
 		
-		mLinearLayoutEncoders = (LinearLayout)mView.findViewById(R.id.linearlayout_encoders_list);
-		mLinearLayoutUpcomingRecs = (LinearLayout)mView.findViewById(R.id.linearlayout_upcoming_recordings_list);
-		mLinearLayoutJobQueue = (LinearLayout)mView.findViewById(R.id.linearlayout_job_queue);
+		mLinearLayoutEncodersList = (LinearLayout)mView.findViewById(R.id.linearlayout_encoders_list);
+		mLinearLayoutUpcomingRecsList = (LinearLayout)mView.findViewById(R.id.linearlayout_upcoming_recordings_list);
+		mLinearLayoutJobQueueList = (LinearLayout)mView.findViewById(R.id.linearlayout_job_queue);
+		
+		mLinearLayoutStatusCard = (LinearLayout)mView.findViewById(R.id.linearlayout_backendstatus_status_card);
+		mLinearLayoutStatusCard.setAlpha(0);
+		mLinearLayoutStatusCard.setTranslationY(container.getHeight()+1);
+		mLinearLayoutEncodersCard = (LinearLayout)mView.findViewById(R.id.linearlayout_backendstatus_encoders_card);
+		mLinearLayoutEncodersCard.setAlpha(0);
+		mLinearLayoutEncodersCard.setTranslationY(container.getHeight()+1);
+		mLinearLayoutUpcomingRecsCard = (LinearLayout)mView.findViewById(R.id.linearlayout_backendstatus_upcoming_recordings_card);
+		mLinearLayoutUpcomingRecsCard.setAlpha(0);
+		mLinearLayoutUpcomingRecsCard.setTranslationY(container.getHeight()+1);
+		mLinearLayoutJobQueueCard = (LinearLayout)mView.findViewById(R.id.linearlayout_backendstatus_job_queue_card);
+		mLinearLayoutJobQueueCard.setAlpha(0);
+		mLinearLayoutJobQueueCard.setTranslationY(container.getHeight()+1);
+		
 		mTextViewEncodersEmpty = (TextView)mView.findViewById(R.id.textview_encoders_list_empty);
 		mTextViewJobQueueEmpty = (TextView)mView.findViewById(R.id.textview_job_queue_empty);
 		mTextViewUpcomingRecEmpty = (TextView)mView.findViewById(R.id.textview_upcoming_rec_empty);
 		
 		Log.d( TAG, "onCreateView : exit" );
 		return mView;
-	}
-	
-	/* (non-Javadoc)
-	 * @see android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
-	 */
-	@Override
-	public void onActivityCreated( Bundle savedInstanceState ) {
-		Log.d( TAG, "onActivityCreated : enter" );
-		super.onActivityCreated( savedInstanceState );
-
-		mMainApplication = getMainApplication();
-		
-		if( null != mView ) {
-			
-			TextView tView = (TextView) mView.findViewById( R.id.textview_status );
-			if( null != tView ) {
-//				tView.setText( this.getStatusText() );
-			}
-			
-		}
-		
-		Log.d( TAG, "onActivityCreated : exit" );
 	}
 
 	/* (non-Javadoc)
@@ -115,7 +111,10 @@ public class BackendStatusFragment extends AbstractMythFragment {
 			if( null != tView ) {
 				tView.setText( this.getStatusText() );
 			}
-			
+		}
+		
+		if(null != mLinearLayoutStatusCard){
+			animateCardLinearLayout(mLinearLayoutStatusCard);
 		}
 	
 		Log.d( TAG, "onResume : exit" );
@@ -135,6 +134,26 @@ public class BackendStatusFragment extends AbstractMythFragment {
 	}
 
 	// internal helpers
+	
+	private void animateCardLinearLayout(final LinearLayout linearLayout){
+		linearLayout.setAlpha(1);
+		
+		//animator that translates linearlayout
+		AnimatorUpdateListener translationAnimatorListener = new AnimatorUpdateListener(){
+			@Override
+			public void onAnimationUpdate(ValueAnimator animation) {
+				Float w = (Float)animation.getAnimatedValue();
+				linearLayout.setTranslationY(w);
+			}
+		};
+		
+		ValueAnimator scaleAnimator = ValueAnimator.ofFloat(linearLayout.getTranslationY(), 0f);
+		scaleAnimator.setDuration(500);
+		scaleAnimator.setRepeatCount(0);
+		scaleAnimator.addUpdateListener(translationAnimatorListener);
+
+		scaleAnimator.start();
+	}
 	
 	private String getStatusText() {
 		Log.v( TAG, "getStatusText : enter" );
@@ -165,50 +184,64 @@ public class BackendStatusFragment extends AbstractMythFragment {
 		LayoutInflater inflater = LayoutInflater.from(this.getActivity());
 		
 		//clear lists
-		mLinearLayoutEncoders.removeAllViews();
-		mLinearLayoutUpcomingRecs.removeAllViews();
-		mLinearLayoutJobQueue.removeAllViews();
+		mLinearLayoutEncodersList.removeAllViews();
+		mLinearLayoutUpcomingRecsList.removeAllViews();
+		mLinearLayoutJobQueueList.removeAllViews();
 		
 		// Set encoder list
 		List<Encoder> encoders = result.getEncoders().getEncoders();
 		if (null != encoders) {
-			mLinearLayoutEncoders.setVisibility(View.VISIBLE);
+			mLinearLayoutEncodersList.setVisibility(View.VISIBLE);
 			mTextViewEncodersEmpty.setVisibility(View.GONE);
 			
 			for(int i=0; i<encoders.size(); i++){
-				mLinearLayoutEncoders.addView(this.getEncoderView(inflater, encoders.get(i)));
+				mLinearLayoutEncodersList.addView(this.getEncoderView(inflater, encoders.get(i)));
 			}
 		}else{
-			mLinearLayoutEncoders.setVisibility(View.GONE);
+			mLinearLayoutEncodersList.setVisibility(View.GONE);
 			mTextViewEncodersEmpty.setVisibility(View.VISIBLE);
+		}
+		
+		if(null != mLinearLayoutEncodersCard){
+			animateCardLinearLayout(mLinearLayoutEncodersCard);
 		}
 		
 		// Set Upcoming recordings list
 		List<Program> programs = result.getScheduled().getPrograms();
 		if(null != programs && !programs.isEmpty() ) {
-			mLinearLayoutUpcomingRecs.setVisibility(View.VISIBLE);
+			mLinearLayoutUpcomingRecsList.setVisibility(View.VISIBLE);
 			mTextViewUpcomingRecEmpty.setVisibility(View.GONE);
 			
 			for(int i=0; i<programs.size(); i++){
-				mLinearLayoutUpcomingRecs.addView(this.getUpcomingRecView(inflater, programs.get(i)));
+				mLinearLayoutUpcomingRecsList.addView(this.getUpcomingRecView(inflater, programs.get(i)));
 			}
 		}else{
-			mLinearLayoutUpcomingRecs.setVisibility(View.GONE);
+			mLinearLayoutUpcomingRecsList.setVisibility(View.GONE);
 			mTextViewUpcomingRecEmpty.setVisibility(View.VISIBLE);
 		}
 		
+		if(null != mLinearLayoutUpcomingRecsCard){
+			animateCardLinearLayout(mLinearLayoutUpcomingRecsCard);
+		}
+		
+		
 		List<Job> jobs = result.getJobQueue().getJobs();
 		if(null != jobs){
-			mLinearLayoutJobQueue.setVisibility(View.VISIBLE);
+			mLinearLayoutJobQueueList.setVisibility(View.VISIBLE);
 			mTextViewJobQueueEmpty.setVisibility(View.GONE);
 			
 			for(int i=0; i<jobs.size(); i++){
-				mLinearLayoutJobQueue.addView(this.getJobView(inflater, jobs.get(i)));
+				mLinearLayoutJobQueueList.addView(this.getJobView(inflater, jobs.get(i)));
 			}
 		}else{
-			mLinearLayoutJobQueue.setVisibility(View.GONE);
+			mLinearLayoutJobQueueList.setVisibility(View.GONE);
 			mTextViewJobQueueEmpty.setVisibility(View.VISIBLE);
 		}
+		
+		if(null != mLinearLayoutJobQueueCard){
+			animateCardLinearLayout(mLinearLayoutJobQueueCard);
+		}
+		
     }
 	
 	
@@ -274,7 +307,7 @@ public class BackendStatusFragment extends AbstractMythFragment {
 		//set upcoming_start_time
 		tView = (TextView)view.findViewById(R.id.upcoming_start_time);
 		if(null != tView) {
-			tView.setText( DateUtils.getDayTimeWithLocaleFormatting( program.getStartTime().withZone( DateTimeZone.getDefault() ), mMainApplication.getClockType() ) );
+			tView.setText( DateUtils.getDayTimeWithLocaleFormatting( program.getStartTime().withZone( DateTimeZone.getDefault() ), getMainApplication().getClockType() ) );
 		}
 		
 		//set upcoming_duration

@@ -39,6 +39,7 @@
 	            
 	    
 	    <LinearLayout
+	        android:id="@+id/linearlayout_backendstatus_status_card"
 		    android:layout_width="match_parent"
 		    android:layout_height="wrap_content"
 		    android:orientation="vertical"
@@ -63,6 +64,7 @@
 		
 		
 	    <LinearLayout
+	        android:id="@+id/linearlayout_backendstatus_encoders_card"
 		    android:layout_width="match_parent"
 		    android:layout_height="wrap_content"
 		    android:orientation="vertical"
@@ -92,6 +94,7 @@
 		</LinearLayout>
 		
 	    <LinearLayout
+	        android:id="@+id/linearlayout_backendstatus_job_queue_card"
 		    android:layout_width="match_parent"
 		    android:layout_height="wrap_content"
 		    android:orientation="vertical"
@@ -132,6 +135,7 @@
 	    android:layout_weight="0.5">
 		
 	    <LinearLayout
+	        android:id="@+id/linearlayout_backendstatus_upcoming_recordings_card"
 		    android:layout_width="match_parent"
 		    android:layout_height="wrap_content"
 		    android:orientation="vertical"
