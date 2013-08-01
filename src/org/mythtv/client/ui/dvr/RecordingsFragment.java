@@ -36,18 +36,18 @@ import org.mythtv.service.util.DateUtils;
 import org.mythtv.service.util.RunningServiceHelper;
 import org.mythtv.services.api.dvr.impl.DvrTemplate.Endpoint;
 
-import android.app.LoaderManager;
 import android.content.BroadcastReceiver;
 import android.content.ContentUris;
 import android.content.Context;
-import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.Loader;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -149,12 +149,8 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
 		
 		options = new DisplayImageOptions.Builder()
-//			.showStubImage( R.drawable.ic_stub )
-//			.showImageForEmptyUri( R.drawable.ic_empty )
-//			.showImageOnFail( R.drawable.ic_error )
-			.cacheInMemory()
-			.cacheOnDisc()
-//			.displayer( new RoundedBitmapDisplayer( 20 ) )
+			.cacheInMemory( true )
+			.cacheOnDisc( true )
 			.build();
 		
 		setHasOptionsMenu( true );

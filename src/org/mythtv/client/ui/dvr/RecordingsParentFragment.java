@@ -27,14 +27,12 @@ import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.dvr.RecordedDaoHelper;
 import org.mythtv.db.dvr.programGroup.ProgramGroup;
 import org.mythtv.db.dvr.programGroup.ProgramGroupConstants;
-import org.mythtv.db.dvr.programGroup.ProgramGroupDaoHelper;
 import org.mythtv.services.api.dvr.Program;
 
-import android.app.Activity;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -55,7 +53,6 @@ public class RecordingsParentFragment extends AbstractMythFragment implements Re
 	
 	private boolean mUseMultiplePanes;
 	private RecordedDaoHelper mRecordedDaoHelper = RecordedDaoHelper.getInstance();
-	private ProgramGroupDaoHelper mProgramGroupDaoHelper = ProgramGroupDaoHelper.getInstance();
 	private RecordingsFragment mRecordingsFragment;
 	private ProgramGroupFragment mProgramGroupFragment;
 	private EpisodeFragment mEpisodeFragment;
@@ -182,7 +179,7 @@ public class RecordingsParentFragment extends AbstractMythFragment implements Re
 		}
 
 		if (this.mUseMultiplePanes && null != mProgramGroupFragment) {
-			FragmentManager manager = getActivity().getFragmentManager();
+			FragmentManager manager = getActivity().getSupportFragmentManager();
 
 			final boolean programGroupAdded = (mProgramGroupFragment != null);
 			if (programGroupAdded) {

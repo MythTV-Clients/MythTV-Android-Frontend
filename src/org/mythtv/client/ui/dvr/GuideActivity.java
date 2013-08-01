@@ -44,7 +44,7 @@ public class GuideActivity extends AbstractMythtvFragmentActivity {
 
 		setupActionBar();
 
-		GuideFragment guideFragment = (GuideFragment) getFragmentManager().findFragmentById( R.id.fragment_dvr_guide );
+		GuideFragment guideFragment = (GuideFragment) getSupportFragmentManager().findFragmentById( R.id.fragment_dvr_guide );
 		
 		Log.v( TAG, "onCreate : exit" );
 	}

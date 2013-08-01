@@ -61,7 +61,7 @@ public class EpisodeActivity extends AbstractMythtvFragmentActivity implements E
 		int channelId = args.getInt( ProgramConstants.FIELD_CHANNEL_ID, -1 );
 		Long startTime = args.getLong( ProgramConstants.FIELD_START_TIME, -1 );
 		
-		episodeFragment = (EpisodeFragment) getFragmentManager().findFragmentById( R.id.fragment_dvr_episode );
+		episodeFragment = (EpisodeFragment) getSupportFragmentManager().findFragmentById( R.id.fragment_dvr_episode );
 		episodeFragment.setOnEpisodeActionListener( this );
 		
 		episodeFragment.loadEpisode( channelId, new DateTime( startTime ) );

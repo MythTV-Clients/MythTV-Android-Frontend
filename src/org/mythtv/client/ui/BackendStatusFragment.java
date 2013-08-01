@@ -22,7 +22,6 @@ import java.util.List;
 
 import org.joda.time.DateTimeZone;
 import org.mythtv.R;
-import org.mythtv.client.MainApplication;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.util.ProgramHelper;
 import org.mythtv.service.util.DateUtils;
@@ -32,10 +31,10 @@ import org.mythtv.services.api.status.Job;
 
 import android.animation.ValueAnimator;
 import android.animation.ValueAnimator.AnimatorUpdateListener;
-import android.app.Fragment;
-import android.app.FragmentTransaction;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -124,8 +123,8 @@ public class BackendStatusFragment extends AbstractMythFragment {
 	public void onConfigurationChanged(Configuration newConfig) {
 		
 		//re- attach the fragment forcing the view to be recreated.
-		Fragment currentFragment = getFragmentManager().findFragmentByTag(BACKEND_STATUS_FRAGMENT_NAME);
-	    FragmentTransaction fragTransaction = getFragmentManager().beginTransaction();
+		Fragment currentFragment = getChildFragmentManager().findFragmentByTag( BACKEND_STATUS_FRAGMENT_NAME );
+	    FragmentTransaction fragTransaction = getChildFragmentManager().beginTransaction();
 	    fragTransaction.detach(currentFragment);
 	    fragTransaction.attach(currentFragment);
 	    fragTransaction.commit();

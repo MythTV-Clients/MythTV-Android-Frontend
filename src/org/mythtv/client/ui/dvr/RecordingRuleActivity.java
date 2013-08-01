@@ -59,7 +59,7 @@ public class RecordingRuleActivity extends AbstractMythtvFragmentActivity {
 		
 		setContentView( R.layout.fragment_dvr_recording_rule );
 
-		recordingRuleFragment = (RecordingRuleFragment) getFragmentManager().findFragmentById( R.id.fragment_dvr_recording_rule );
+		recordingRuleFragment = (RecordingRuleFragment) getSupportFragmentManager().findFragmentById( R.id.fragment_dvr_recording_rule );
 		recordingRuleFragment.loadRecordingRule( recordingRuleId );
 		
 		Log.v( TAG, "onCreate : exit" );

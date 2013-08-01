@@ -10,15 +10,15 @@ import org.mythtv.db.channel.ChannelConstants;
 import org.mythtv.db.channel.ChannelDaoHelper;
 import org.mythtv.services.api.channel.ChannelInfo;
 
-import android.app.LoaderManager;
 import android.content.Context;
-import android.content.CursorLoader;
-import android.content.Loader;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -141,6 +141,20 @@ public class GuideChannelFragment extends MythtvListFragment implements LoaderMa
 	}
 
 	/* (non-Javadoc)
+	 * @see android.app.ListFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle)
+	 */
+/*	@Override
+	public View onCreateView( LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState ) {
+		Log.v( TAG, "onCreateView : enter" );
+
+		//inflate fragment layout
+		View view = inflater.inflate( R.layout.program_guide_channel, container, false );
+
+		Log.v( TAG, "onCreateView : exit" );
+		return view;
+	}
+*/
+	/* (non-Javadoc)
 	 * @see android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
 	 */
 	@Override
@@ -154,12 +168,8 @@ public class GuideChannelFragment extends MythtvListFragment implements LoaderMa
 
 
 		options = new DisplayImageOptions.Builder()
-//			.showStubImage( R.drawable.ic_stub )
-//			.showImageForEmptyUri( R.drawable.ic_empty )
-//			.showImageOnFail( R.drawable.ic_error )
-			.cacheInMemory()
-			.cacheOnDisc()
-//			.displayer( new RoundedBitmapDisplayer( 20 ) )
+			.cacheInMemory( true )
+			.cacheOnDisc( true )
 			.build();
 
 		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
@@ -279,7 +289,7 @@ public class GuideChannelFragment extends MythtvListFragment implements LoaderMa
 		@Override
 		public View newView( Context context, Cursor cursor, ViewGroup parent ) {
 			
-	        View view = mInflater.inflate( R.layout.program_guide_channel, parent, false );
+	        View view = mInflater.inflate( R.layout.program_guide_channel_row, parent, false );
 			
 			ViewHolder refHolder = new ViewHolder();
 			refHolder.row = (LinearLayout) view.findViewById( R.id.program_guide_channel );
