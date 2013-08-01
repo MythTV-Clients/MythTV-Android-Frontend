@@ -31,11 +31,11 @@ import org.mythtv.service.util.RunningServiceHelper;
 
 import android.annotation.TargetApi;
 import android.app.ActionBar;
-import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
@@ -45,7 +45,7 @@ import android.view.MenuItem;
  * @author Daniel Frey
  *
  */
-public abstract class AbstractMythtvFragmentActivity extends Activity implements MythtvApplicationContext {
+public abstract class AbstractMythtvFragmentActivity extends FragmentActivity implements MythtvApplicationContext {
 
 	protected static final String TAG = AbstractMythtvFragmentActivity.class.getSimpleName();
 

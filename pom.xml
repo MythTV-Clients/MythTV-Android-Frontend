@@ -11,7 +11,7 @@
     <properties>
         <java-version>1.6</java-version>
         <google.android-version>4.1.1.4</google.android-version>
-        <google.android.support-version>r13</google.android.support-version>
+        <google.android.support-version>r18</google.android.support-version>
         <org.springframework.android-version>1.0.1.RELEASE</org.springframework.android-version>
         <jdmns-version>3.4.1</jdmns-version>
         <joda-time-version>2.1</joda-time-version>

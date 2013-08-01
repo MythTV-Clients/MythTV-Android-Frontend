@@ -18,6 +18,8 @@
  */
 package org.mythtv.client;
 
+import java.io.File;
+
 import org.mythtv.client.ui.util.MenuHelper;
 import org.mythtv.client.ui.util.ProgramHelper;
 import org.mythtv.db.channel.ChannelDaoHelper;
@@ -45,10 +47,10 @@ import android.util.Log;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
-import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
+import com.nostra13.universalimageloader.cache.disc.impl.UnlimitedDiscCache;
+import com.nostra13.universalimageloader.cache.memory.impl.UsingFreqLimitedMemoryCache;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
-import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
 
 /**
  * @author Daniel Frey
@@ -137,24 +139,22 @@ public class MainApplication extends Application {
     //***************************************
 
 	public static void initImageLoader( Context context ) {
-		int memoryCacheSize;
-		if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.ECLAIR ) {
-			int memClass = ( (ActivityManager) context.getSystemService( Context.ACTIVITY_SERVICE ) ).getMemoryClass();
-			memoryCacheSize = (memClass / 8) * 1024 * 1024; // 1/8 of app memory limit 
-		} else {
-			memoryCacheSize = 2 * 1024 * 1024;
-		}
 
+		File cacheDir = new File( context.getCacheDir(), "images" );
+		if( !cacheDir.exists() ) {
+			cacheDir.mkdir();
+		}
+				
 		// This configuration tuning is custom. You can tune every option, you may tune some of them, 
 		// or you can create default configuration by
 		//  ImageLoaderConfiguration.createDefault(this);
 		// method.
 		ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder( context )
-			.threadPriority( Thread.NORM_PRIORITY - 2 )
-			.memoryCacheSize( memoryCacheSize )
+			.threadPoolSize( 5 )
+			.threadPriority( Thread.MIN_PRIORITY + 3 )
 			.denyCacheImageMultipleSizesInMemory()
-			.discCacheFileNameGenerator( new Md5FileNameGenerator() )
-			.tasksProcessingOrder( QueueProcessingType.LIFO )
+			.memoryCache( new UsingFreqLimitedMemoryCache( 2000000 ) )
+			.discCache( new UnlimitedDiscCache( cacheDir ) )
 			.build();
 		
 		// Initialize ImageLoader with configuration.

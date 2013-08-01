@@ -25,13 +25,13 @@ import org.mythtv.R;
 
 import android.annotation.TargetApi;
 import android.app.ActionBar;
-import android.app.Fragment;
-import android.app.FragmentManager;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
-import android.support.v13.app.FragmentStatePagerAdapter;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.MenuItem;
@@ -131,7 +131,7 @@ public class MythmoteActivity extends AbstractFrontendsActivity {
 		if (null != pager) {
 			
 			//get fragment manager
-			FragmentManager fm = getFragmentManager();
+			FragmentManager fm = getSupportFragmentManager();
 			
 			//create fragment and header arrays
 			fragmentArrayList = new ArrayList<Fragment>();
@@ -153,7 +153,7 @@ public class MythmoteActivity extends AbstractFrontendsActivity {
 //			headerArrayList.add(this.getString(R.string.mythmote_page_actionlist));
 			
 			//set pager adapter and initial item
-			pager.setAdapter( new MythmotePagerAdapter( getFragmentManager() ) );
+			pager.setAdapter( new MythmotePagerAdapter( fm ) );
 			pager.setCurrentItem(0);
 
 		}

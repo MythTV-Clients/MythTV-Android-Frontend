@@ -34,14 +34,14 @@ import org.mythtv.service.util.RunningServiceHelper;
 import org.mythtv.services.api.dvr.impl.DvrTemplate.Endpoint;
 
 import android.annotation.TargetApi;
-import android.app.Fragment;
-import android.app.FragmentManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.support.v13.app.FragmentStatePagerAdapter;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.Menu;
@@ -81,7 +81,7 @@ public class UpcomingActivity extends AbstractMythtvFragmentActivity {
 
 		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( this );
 		
-		mAdapter = new MythtvUpcomingPagerAdapter( getFragmentManager() );
+		mAdapter = new MythtvUpcomingPagerAdapter( getSupportFragmentManager() );
 		ViewPager mPager = (ViewPager) findViewById( R.id.dvr_upcoming_pager );
 		mPager.setAdapter( mAdapter );
 		mPager.setCurrentItem( 0 );
