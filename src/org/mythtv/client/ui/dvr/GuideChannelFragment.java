@@ -3,6 +3,9 @@
  */
 package org.mythtv.client.ui.dvr;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.mythtv.R;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.util.MythtvListFragment;
@@ -14,6 +17,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.LoaderManager;
@@ -141,20 +145,6 @@ public class GuideChannelFragment extends MythtvListFragment implements LoaderMa
 	}
 
 	/* (non-Javadoc)
-	 * @see android.app.ListFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle)
-	 */
-/*	@Override
-	public View onCreateView( LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState ) {
-		Log.v( TAG, "onCreateView : enter" );
-
-		//inflate fragment layout
-		View view = inflater.inflate( R.layout.program_guide_channel, container, false );
-
-		Log.v( TAG, "onCreateView : exit" );
-		return view;
-	}
-*/
-	/* (non-Javadoc)
 	 * @see android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
 	 */
 	@Override
@@ -215,7 +205,7 @@ public class GuideChannelFragment extends MythtvListFragment implements LoaderMa
 			}
 			
 		}));
-
+		
 		Log.v( TAG, "onActivityCreated : exit" );
 	}
 
@@ -223,12 +213,20 @@ public class GuideChannelFragment extends MythtvListFragment implements LoaderMa
 	
 	private class ProgramGuideCursorAdapter extends CursorAdapter {
 		
+		private List<View> selectedViews = new ArrayList<View>();
+		
+		private Drawable mBackground;
+		private Drawable mBackgroundSelected;
+		
 		private LayoutInflater mInflater;
 
 		public ProgramGuideCursorAdapter( Context context ) {
 			super( context, null, false );
 			
 			mInflater = LayoutInflater.from( context );
+			
+			mBackground =  getResources().getDrawable( R.drawable.program_guide_channel_header_back );
+			mBackgroundSelected =  getResources().getDrawable( R.drawable.program_guide_channel_header_back_selected );
 		}
 
 		/* (non-Javadoc)
@@ -241,6 +239,7 @@ public class GuideChannelFragment extends MythtvListFragment implements LoaderMa
 
 	        final ViewHolder mHolder = (ViewHolder) view.getTag();
 			
+	        
 			mHolder.channel.setText( channel.getChannelNumber() );
 			mHolder.callsign.setText( channel.getCallSign() );
 
@@ -276,7 +275,17 @@ public class GuideChannelFragment extends MythtvListFragment implements LoaderMa
 				 */
 				@Override
 				public void onClick( View v ) {
+
 					mOnChannelScrollListener.channelSelect( channel.getChannelId() );
+					
+					for( View view : selectedViews ) {
+						view.setBackgroundDrawable( mBackground );
+					}
+					selectedViews.clear();
+					
+					v.setBackgroundDrawable( mBackgroundSelected );
+					
+					selectedViews.add( v );
 				}
 				
 			});
