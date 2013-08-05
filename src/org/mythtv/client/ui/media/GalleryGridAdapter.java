@@ -26,8 +26,8 @@ public class GalleryGridAdapter extends BaseAdapter {
     private final Context mContext;
 
     final DisplayImageOptions options = new DisplayImageOptions.Builder()
-    			.showStubImage( R.drawable.ic_stub )
-    			.showImageForEmptyUri( R.drawable.ic_empty )
+    //			.showStubImage( R.drawable.ic_stub )
+    //			.showImageForEmptyUri( R.drawable.ic_empty )
     //			.showImageOnFail( R.drawable.ic_error )
     			.cacheInMemory()
     			.cacheOnDisc()
