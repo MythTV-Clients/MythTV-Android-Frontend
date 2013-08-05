@@ -19,14 +19,17 @@
 package org.mythtv.client.ui.media;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.EditText;
 import android.widget.GridView;
 import org.mythtv.R;
 import org.mythtv.client.MainApplication;
 import org.mythtv.client.ui.MythtvApplicationContext;
-import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.services.api.Bool;
 import org.mythtv.services.api.ETagInfo;
@@ -64,11 +67,29 @@ public class GalleryActivity extends Activity implements MythtvApplicationContex
         mLocationProfileDaoHelper = new LocationProfileDaoHelper( this );
 
         gridView = (GridView) findViewById(R.id.gallery_gridview);
-        new LoadFileListTask().execute();
+        new LoadFileListTask(this).execute();
+
         Log.v(TAG, "onCreate : exit");
     }
 
     private class LoadFileListTask extends AsyncTask<Void, Void, List<GalleryImageItem>> {
+
+        public GalleryActivity activity;
+        boolean hasBackendGallerySG = false;
+        boolean isBackendAndFrontendShareHostname = false;
+        boolean isGalleryDirPresentInSettings = false;
+        boolean createStorageGroup = false;
+        final String gallerySGName = "Gallery";
+        String galleryDir = "";
+        final String gallerySetting = "GalleryDir";
+
+        public LoadFileListTask(GalleryActivity galleryActivity) {
+            activity = galleryActivity;
+        }
+
+        private GalleryActivity getActivity() {
+            return activity;
+        }
 
         @Override
         protected List<GalleryImageItem> doInBackground(Void... params) {
@@ -78,20 +99,12 @@ public class GalleryActivity extends Activity implements MythtvApplicationContex
             try {
                 ETagInfo eTag = ETagInfo.createEmptyETag();
 
-                boolean hasBackendGallerySG = false;
-                boolean isBackendAndFrontendShareHostname = false;
-                boolean isGalleryDirPresentInSettings = false;
-                String gallerySGName = "Gallery";
-                String galleryDir = "";
-                String gallerySetting = "GalleryDir";
-
                 // 800p screen / 3 columns = 266,67 for each
                 // 720p screen / 3 columns = 240 for each
                 String previewWidth = "256";
-                LocationProfile profile = mLocationProfileDaoHelper.findConnectedProfile();
 
                 // Check if StorageGroup Gallery actually exists, doing an GetFileList will return Default SG if Gallery SG is not present.,
-                ResponseEntity<StorageGroupDirectoryList> responseEntity = getMainApplication().getMythServicesApi().mythOperations().getStorageGroupDirectories(gallerySGName, profile.getHostname(), eTag);
+                ResponseEntity<StorageGroupDirectoryList> responseEntity = getMainApplication().getMythServicesApi().mythOperations().getStorageGroupDirectories(gallerySGName, mLocationProfileDaoHelper.findConnectedProfile().getHostname(), eTag);
                 if (responseEntity.getStatusCode().equals(HttpStatus.OK)) {
                     StorageGroupDirectoryList storageGroups = responseEntity.getBody();
                     for(StorageGroupDirectory sg: storageGroups.getStorageGroupDirectories().getStorageGroupDirectories()){
@@ -105,10 +118,10 @@ public class GalleryActivity extends Activity implements MythtvApplicationContex
                 } else {
 
                     // Get all hosts registered on Backend
-                    isBackendAndFrontendShareHostname = getHosts(profile);
+                    isBackendAndFrontendShareHostname = getHosts();
 
                     if(isBackendAndFrontendShareHostname){
-                        ResponseEntity<SettingList> responseEntity2 = getMainApplication().getMythServicesApi().mythOperations().getSetting(profile.getHostname(), gallerySetting, "", eTag);
+                        ResponseEntity<SettingList> responseEntity2 = getMainApplication().getMythServicesApi().mythOperations().getSetting(mLocationProfileDaoHelper.findConnectedProfile().getHostname(), gallerySetting, "", eTag);
                         if(responseEntity2.getStatusCode().equals(HttpStatus.OK)){
                             SettingList settingList = responseEntity2.getBody();
                             galleryDir = settingList.getSetting().getSettings().get(gallerySetting);
@@ -118,31 +131,6 @@ public class GalleryActivity extends Activity implements MythtvApplicationContex
                         }
                     }
 
-                    if(isBackendAndFrontendShareHostname && isGalleryDirPresentInSettings){
-
-                        // AddStorageGroupDir
-                        ResponseEntity<Bool> responseEntity3 = getMainApplication().getMythServicesApi().mythOperations().addStorageGroupDir(gallerySGName, galleryDir, profile.getHostname());
-                        if (responseEntity3.getStatusCode().equals(HttpStatus.OK)) {
-                            Bool bool = responseEntity3.getBody();
-                            if(bool.getBool()){
-                                // success
-                                String test = "";
-                            }
-                        }
-                    }
-
-                    getImages(images,gallerySGName, previewWidth);
-
-
-                    // Just for testing, RemoveStorageGroupDir
-                    ResponseEntity<Bool> responseEntity4 = getMainApplication().getMythServicesApi().mythOperations().removeStorageGroupDirectory(gallerySGName, galleryDir, profile.getHostname());
-                    if (responseEntity4.getStatusCode().equals(HttpStatus.OK)) {
-                        Bool bool = responseEntity4.getBody();
-                        if(bool.getBool()){
-                            // success
-                            String test = "";
-                        }
-                    }
                 }
 
             } catch (Exception e) {
@@ -153,14 +141,14 @@ public class GalleryActivity extends Activity implements MythtvApplicationContex
             return images;
        }
 
-        private boolean getHosts(LocationProfile profile) {
+        private boolean getHosts() {
             ETagInfo eTag = ETagInfo.createEmptyETag();
 
             ResponseEntity<StringList> responseEntity = getMainApplication().getMythServicesApi().mythOperations().getHosts(eTag);
             if (responseEntity.getStatusCode().equals(HttpStatus.OK)) {
                 StringList hosts = responseEntity.getBody();
                 for(String host : hosts.getStringList()){
-                    if(host.equals(profile.getHostname())){
+                    if(host.equals(mLocationProfileDaoHelper.findConnectedProfile().getHostname())){
                         return true;
                     }
                 }
@@ -188,12 +176,86 @@ public class GalleryActivity extends Activity implements MythtvApplicationContex
         }
 
         @Override
-       protected void onPostExecute(List<GalleryImageItem> imageItems) {
-           GalleryGridAdapter adapter = new GalleryGridAdapter(GalleryActivity.this, imageItems);
-           gridView.setAdapter(adapter);
+        protected void onPostExecute(List<GalleryImageItem> imageItems) {
 
-       }
+            if(hasBackendGallerySG){
+                GalleryGridAdapter adapter = new GalleryGridAdapter(GalleryActivity.this, imageItems);
+                gridView.setAdapter(adapter);
+
+            } else {
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+
+                if(isBackendAndFrontendShareHostname){
+
+                    EditText input = null;
+
+                    if(isGalleryDirPresentInSettings){
+                        builder.setMessage(getResources().getString(R.string.gallery_sg_exist_create)+mLocationProfileDaoHelper.findConnectedProfile().getHostname()+getResources().getString(R.string.gallery_sg_exist_create2));
+                    } else {
+                        builder.setMessage(R.string.gallery_sg_create);
+
+                        input = new EditText(getActivity());
+                        input.setHint(R.string.gallery_sg_create_hint);
+                        builder.setView(input);
+                    }
+                    final EditText finalInput = input;
+                    builder.setPositiveButton(R.string.btn_ok, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            clickedPosButton(id, finalInput);
+                        }
+                    });
+                    builder.setNegativeButton(R.string.btn_cancel, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            // User cancelled the dialog
+                        }
+                    });
+                } else {
+                    builder.setMessage(R.string.gallery_sg_error);
+                }
+
+                AlertDialog dialog = builder.create();
+                dialog.show();
+            }
+        }
+
+        private void clickedPosButton(int result, EditText directoryName){
+
+            createStorageGroup = true;
+            if(directoryName != null){
+                galleryDir = directoryName.getText().toString();
+            }
+            new CreateSGTask().execute(gallerySGName, galleryDir);
+
+        }
    }
 
+    private class CreateSGTask extends AsyncTask<String, Void, Bool> {
 
+        @Override
+        protected Bool doInBackground(String... params) {
+
+            Bool bool = new Bool();
+            bool.setBool(false);
+            if(params[1] != null && !"".equalsIgnoreCase(params[1])){
+
+                // AddStorageGroupDir
+                ResponseEntity<Bool> responseEntity = getMainApplication().getMythServicesApi().mythOperations().addStorageGroupDir(params[0], params[1], mLocationProfileDaoHelper.findConnectedProfile().getHostname());
+                if (responseEntity.getStatusCode().equals(HttpStatus.OK)) {
+                    bool = responseEntity.getBody();
+                    return bool;
+                }
+            }
+            return bool;
+        }
+
+        @Override
+        protected void onPostExecute(Bool bool) {
+            super.onPostExecute(bool);
+            // TODO: Check if there is better way to "jump" back to Activity.
+            Intent gallery = new Intent(getApplicationContext(), GalleryActivity.class);
+            startActivity(gallery);
+            finish();
+        }
+    }
 }

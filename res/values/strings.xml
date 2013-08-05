@@ -393,4 +393,16 @@
 	<string name="job_queue_title">Title:</string>
 	<string name="job_queue_type">Type:</string>
 	
+
+    <!-- Gallery Dialog -->
+    <string name="gallery_sg_create">The Gallery requires a StorageGroup called \'Gallery\' to work, no such StorageGroup was found on the Master Backend. Want to create such a StorageGroup?</string>
+    <string name="gallery_sg_create_done">Successfully created StorageGroup \'Gallery\' on Master Backend, please populate with pictures to get Gallery to work.</string>
+    <string name="gallery_sg_create_hint">Default directory for StorageGroup on Master Backend.</string>
+
+    <string name="gallery_sg_exist_create">The Gallery requires a StorageGroup called \'Gallery\' to work. Your Master Backend and frontend called \'</string>
+    <string name="gallery_sg_exist_create2">\' seems to have MythGallery installed, but no StorageGroup, want to create it?</string>
+    <string name="gallery_sg_exist_create_done">Successfully created StorageGroup \'Gallery\' on Master Backend.</string>
+
+    <string name="gallery_sg_error">The Gallery only works with StorageGroups. Please manually create a StorageGroup called \'Gallery\' via mythtv-setup on the Master backend, slave backends or separate frontends are not supported.</string>
+
 </resources>
