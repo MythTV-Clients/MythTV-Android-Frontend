@@ -82,7 +82,7 @@ public class GalleryActivity extends Activity implements MythtvApplicationContex
         boolean backendAndFrontendShareHostname = false;
         boolean galleryDirPresentInSettings = false;
         boolean createStorageGroup = false;
-        final String gallerySGName = "Gallery7";
+        final String gallerySGName = "Gallery";
         final String gallerySetting = "GalleryDir";
         String galleryDir = "";
 
@@ -127,7 +127,7 @@ public class GalleryActivity extends Activity implements MythtvApplicationContex
                         if(responseEntity2.getStatusCode().equals(HttpStatus.OK)){
                             SettingList settingList = responseEntity2.getBody();
                             galleryDir = settingList.getSetting().getSettings().get(gallerySetting);
-                            if(galleryDir != null || !"".equalsIgnoreCase(galleryDir)){
+                            if(galleryDir != null && !"".equalsIgnoreCase(galleryDir)){
                                 galleryDirPresentInSettings = true;
                             }
                         }
@@ -208,7 +208,7 @@ public class GalleryActivity extends Activity implements MythtvApplicationContex
                     });
                     builder.setNegativeButton(R.string.btn_cancel, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
-                            // User cancelled the dialog
+                            clickedNegButton(id);
                         }
                     });
                 } else {
@@ -226,12 +226,22 @@ public class GalleryActivity extends Activity implements MythtvApplicationContex
             if(directoryName != null){
                 galleryDir = directoryName.getText().toString();
             }
-            new CreateSGTask().execute(gallerySGName, galleryDir);
+            new CreateSGTask(getActivity()).execute(gallerySGName, galleryDir);
 
         }
    }
 
     private class CreateSGTask extends AsyncTask<String, Void, Bool> {
+
+        GalleryActivity activity;
+
+        private CreateSGTask(GalleryActivity galleryActivity) {
+            activity = galleryActivity;
+        }
+
+        private GalleryActivity getActivity() {
+            return activity;
+        }
 
         @Override
         protected Bool doInBackground(String... params) {
@@ -253,10 +263,30 @@ public class GalleryActivity extends Activity implements MythtvApplicationContex
         @Override
         protected void onPostExecute(Bool bool) {
             super.onPostExecute(bool);
-            // TODO: Check if there is better way to "jump" back to Activity.
-            Intent gallery = new Intent(getApplicationContext(), GalleryActivity.class);
-            startActivity(gallery);
-            finish();
+
+            if (bool.getBool()) {
+                // TODO: Check if there is better way to "jump" back to Activity.
+                Intent gallery = new Intent(getApplicationContext(), GalleryActivity.class);
+                startActivity(gallery);
+                finish();
+            } else {
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setMessage(R.string.gallery_sg_failed);
+                builder.setNeutralButton(R.string.btn_ok, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        clickedNegButton(id);
+                    }
+
+                });
+                AlertDialog dialog = builder.create();
+                dialog.show();
+            }
         }
+
+
+    }
+
+    private void clickedNegButton(int id) {
+        finish();
     }
 }
