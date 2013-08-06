@@ -27,6 +27,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.EditText;
 import android.widget.GridView;
+
 import org.mythtv.R;
 import org.mythtv.client.MainApplication;
 import org.mythtv.client.ui.MythtvApplicationContext;
@@ -52,19 +53,22 @@ public class GalleryActivity extends Activity implements MythtvApplicationContex
 
     private LocationProfileDaoHelper mLocationProfileDaoHelper;
 
+    private boolean hasBackendGallerySG = false;
+
     @Override
     public MainApplication getMainApplication() {
         return (MainApplication) super.getApplicationContext();
     }
 
     private GridView gridView;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         Log.v(TAG, "onCreate : enter");
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_gallery);
-        mLocationProfileDaoHelper = new LocationProfileDaoHelper( this );
+        mLocationProfileDaoHelper = new LocationProfileDaoHelper(this);
 
         gridView = (GridView) findViewById(R.id.gallery_gridview);
         new LoadFileListTask(this).execute();
@@ -74,14 +78,13 @@ public class GalleryActivity extends Activity implements MythtvApplicationContex
 
     private class LoadFileListTask extends AsyncTask<Void, Void, List<GalleryImageItem>> {
 
-        public GalleryActivity activity;
-        boolean hasBackendGallerySG = false;
-        boolean isBackendAndFrontendShareHostname = false;
-        boolean isGalleryDirPresentInSettings = false;
+        GalleryActivity activity;
+        boolean backendAndFrontendShareHostname = false;
+        boolean galleryDirPresentInSettings = false;
         boolean createStorageGroup = false;
-        final String gallerySGName = "Gallery";
-        String galleryDir = "";
+        final String gallerySGName = "Gallery7";
         final String gallerySetting = "GalleryDir";
+        String galleryDir = "";
 
         public LoadFileListTask(GalleryActivity galleryActivity) {
             activity = galleryActivity;
@@ -113,24 +116,22 @@ public class GalleryActivity extends Activity implements MythtvApplicationContex
                 }
 
                 if(hasBackendGallerySG){
-                    getImages(images, gallerySGName, previewWidth);
+                    getImageList(images, gallerySGName, previewWidth);
 
                 } else {
 
-                    // Get all hosts registered on Backend
-                    isBackendAndFrontendShareHostname = getHosts();
+                    backendAndFrontendShareHostname = isConnectedProfileInHostsList();
 
-                    if(isBackendAndFrontendShareHostname){
+                    if(backendAndFrontendShareHostname){
                         ResponseEntity<SettingList> responseEntity2 = getMainApplication().getMythServicesApi().mythOperations().getSetting(mLocationProfileDaoHelper.findConnectedProfile().getHostname(), gallerySetting, "", eTag);
                         if(responseEntity2.getStatusCode().equals(HttpStatus.OK)){
                             SettingList settingList = responseEntity2.getBody();
                             galleryDir = settingList.getSetting().getSettings().get(gallerySetting);
                             if(galleryDir != null || !"".equalsIgnoreCase(galleryDir)){
-                                isGalleryDirPresentInSettings = true;
+                                galleryDirPresentInSettings = true;
                             }
                         }
                     }
-
                 }
 
             } catch (Exception e) {
@@ -139,16 +140,16 @@ public class GalleryActivity extends Activity implements MythtvApplicationContex
             }
 
             return images;
-       }
+        }
 
-        private boolean getHosts() {
+        private boolean isConnectedProfileInHostsList() {
             ETagInfo eTag = ETagInfo.createEmptyETag();
 
             ResponseEntity<StringList> responseEntity = getMainApplication().getMythServicesApi().mythOperations().getHosts(eTag);
             if (responseEntity.getStatusCode().equals(HttpStatus.OK)) {
                 StringList hosts = responseEntity.getBody();
-                for(String host : hosts.getStringList()){
-                    if(host.equals(mLocationProfileDaoHelper.findConnectedProfile().getHostname())){
+                for (String host : hosts.getStringList()) {
+                    if (host.equals(mLocationProfileDaoHelper.findConnectedProfile().getHostname())) {
                         return true;
                     }
                 }
@@ -156,7 +157,7 @@ public class GalleryActivity extends Activity implements MythtvApplicationContex
             return false;
         }
 
-        private void getImages(List<GalleryImageItem> images, String gallerySGName, String previewWidth) {
+        private void getImageList(List<GalleryImageItem> images, String gallerySGName, String previewWidth) {
             ETagInfo eTag = ETagInfo.createEmptyETag();
 
             ResponseEntity<StringList> responseEntity = getMainApplication().getMythServicesApi().contentOperations().getFileList(gallerySGName, eTag);
@@ -167,7 +168,7 @@ public class GalleryActivity extends Activity implements MythtvApplicationContex
 
                 for(String file: filesOnStorageGroup.getStringList()){
 
-                    // First look for image files, then skip files with reoccuring WxH suffixes made by MythTV's getImageFile scaler.
+                    // First look for image suffixes, then skip files with reoccurring WxH suffixes made by MythTVs getImageFile scalar.
                     if(file.matches(".+(?i)(jpg|png|gif|bmp)$") && !file.matches(".+(?i)(jpg|png|gif|bmp).\\d+x\\d.(?i)(jpg|png|gif|bmp)$")){
                         images.add(new GalleryImageItem(0, "", imageUri+file, true));
                     }
@@ -186,11 +187,11 @@ public class GalleryActivity extends Activity implements MythtvApplicationContex
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
-                if(isBackendAndFrontendShareHostname){
+                if(backendAndFrontendShareHostname){
 
                     EditText input = null;
 
-                    if(isGalleryDirPresentInSettings){
+                    if(galleryDirPresentInSettings){
                         builder.setMessage(getResources().getString(R.string.gallery_sg_exist_create)+mLocationProfileDaoHelper.findConnectedProfile().getHostname()+getResources().getString(R.string.gallery_sg_exist_create2));
                     } else {
                         builder.setMessage(R.string.gallery_sg_create);
