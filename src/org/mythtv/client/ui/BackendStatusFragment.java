@@ -42,7 +42,11 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-
+/**
+ * 
+ * @author Thomas G. Kenny Jr
+ *
+ */
 public class BackendStatusFragment extends AbstractMythFragment {
 
 	private static final String TAG = BackendStatusFragment.class.getSimpleName();
@@ -113,7 +117,7 @@ public class BackendStatusFragment extends AbstractMythFragment {
 		}
 		
 		if(null != mLinearLayoutStatusCard){
-			animateCardLinearLayout(mLinearLayoutStatusCard);
+			animateCardLinearLayout(mLinearLayoutStatusCard, 0);
 		}
 	
 		Log.d( TAG, "onResume : exit" );
@@ -134,7 +138,7 @@ public class BackendStatusFragment extends AbstractMythFragment {
 
 	// internal helpers
 	
-	private void animateCardLinearLayout(final LinearLayout linearLayout){
+	private void animateCardLinearLayout(final LinearLayout linearLayout, long startDelay){
 		linearLayout.setAlpha(1);
 		
 		//animator that translates linearlayout
@@ -149,6 +153,7 @@ public class BackendStatusFragment extends AbstractMythFragment {
 		ValueAnimator scaleAnimator = ValueAnimator.ofFloat(linearLayout.getTranslationY(), 0f);
 		scaleAnimator.setDuration(500);
 		scaleAnimator.setRepeatCount(0);
+		scaleAnimator.setStartDelay(startDelay);
 		scaleAnimator.addUpdateListener(translationAnimatorListener);
 
 		scaleAnimator.start();
@@ -202,7 +207,24 @@ public class BackendStatusFragment extends AbstractMythFragment {
 		}
 		
 		if(null != mLinearLayoutEncodersCard){
-			animateCardLinearLayout(mLinearLayoutEncodersCard);
+			animateCardLinearLayout(mLinearLayoutEncodersCard, 0);
+		}
+		
+		List<Job> jobs = result.getJobQueue().getJobs();
+		if(null != jobs){
+			mLinearLayoutJobQueueList.setVisibility(View.VISIBLE);
+			mTextViewJobQueueEmpty.setVisibility(View.GONE);
+			
+			for(int i=0; i<jobs.size(); i++){
+				mLinearLayoutJobQueueList.addView(this.getJobView(inflater, jobs.get(i)));
+			}
+		}else{
+			mLinearLayoutJobQueueList.setVisibility(View.GONE);
+			mTextViewJobQueueEmpty.setVisibility(View.VISIBLE);
+		}
+		
+		if(null != mLinearLayoutJobQueueCard){
+			animateCardLinearLayout(mLinearLayoutJobQueueCard, 250);
 		}
 		
 		// Set Upcoming recordings list
@@ -220,27 +242,9 @@ public class BackendStatusFragment extends AbstractMythFragment {
 		}
 		
 		if(null != mLinearLayoutUpcomingRecsCard){
-			animateCardLinearLayout(mLinearLayoutUpcomingRecsCard);
+			animateCardLinearLayout(mLinearLayoutUpcomingRecsCard, 500);
 		}
-		
-		
-		List<Job> jobs = result.getJobQueue().getJobs();
-		if(null != jobs){
-			mLinearLayoutJobQueueList.setVisibility(View.VISIBLE);
-			mTextViewJobQueueEmpty.setVisibility(View.GONE);
-			
-			for(int i=0; i<jobs.size(); i++){
-				mLinearLayoutJobQueueList.addView(this.getJobView(inflater, jobs.get(i)));
-			}
-		}else{
-			mLinearLayoutJobQueueList.setVisibility(View.GONE);
-			mTextViewJobQueueEmpty.setVisibility(View.VISIBLE);
-		}
-		
-		if(null != mLinearLayoutJobQueueCard){
-			animateCardLinearLayout(mLinearLayoutJobQueueCard);
-		}
-		
+
     }
 	
 	
