@@ -242,7 +242,12 @@ public class GuideChannelFragment extends MythtvListFragment implements LoaderMa
 	        
 			mHolder.channel.setText( channel.getChannelNumber() );
 			mHolder.callsign.setText( channel.getCallSign() );
-			view.setBackgroundDrawable( mSelectedChannel != null && mSelectedChannel.getChannelId() == channel.getChannelId() ? mBackgroundSelected : mBackground );
+			if(mSelectedChannel == null || mSelectedChannel.getChannelId() != channel.getChannelId()){
+				view.setBackgroundDrawable( mBackground );
+			}else {
+				view.setBackgroundDrawable( mBackgroundSelected );
+				selectedViews.add(view);
+			}
 
 			if( downloadIcons ) {
 				String imageUri = mLocationProfileDaoHelper.findConnectedProfile( getActivity() ).getUrl() + "Guide/GetChannelIcon?ChanId=" + channel.getChannelId() + "&Width=32&Height=32";
