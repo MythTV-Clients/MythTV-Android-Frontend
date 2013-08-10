@@ -217,7 +217,7 @@ public class GuideChannelFragment extends MythtvListFragment implements LoaderMa
 		
 		private Drawable mBackground;
 		private Drawable mBackgroundSelected;
-		
+		private ChannelInfo mSelectedChannel;
 		private LayoutInflater mInflater;
 
 		public ProgramGuideCursorAdapter( Context context ) {
@@ -242,6 +242,7 @@ public class GuideChannelFragment extends MythtvListFragment implements LoaderMa
 	        
 			mHolder.channel.setText( channel.getChannelNumber() );
 			mHolder.callsign.setText( channel.getCallSign() );
+			view.setBackgroundDrawable( mSelectedChannel != null && mSelectedChannel.getChannelId() == channel.getChannelId() ? mBackgroundSelected : mBackground );
 
 			if( downloadIcons ) {
 				String imageUri = mLocationProfileDaoHelper.findConnectedProfile( getActivity() ).getUrl() + "Guide/GetChannelIcon?ChanId=" + channel.getChannelId() + "&Width=32&Height=32";
@@ -277,6 +278,7 @@ public class GuideChannelFragment extends MythtvListFragment implements LoaderMa
 				public void onClick( View v ) {
 
 					mOnChannelScrollListener.channelSelect( channel.getChannelId() );
+					mSelectedChannel = channel;
 					
 					for( View view : selectedViews ) {
 						view.setBackgroundDrawable( mBackground );
