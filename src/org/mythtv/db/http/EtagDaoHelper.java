@@ -102,10 +102,25 @@ public class EtagDaoHelper extends AbstractDaoHelper {
 	/**
 	 * @return
 	 */
-	public List<EtagInfoDelegate> finalAll( final Context context, final LocationProfile locationProfile ) {
+	public List<EtagInfoDelegate> findAll( final Context context, final LocationProfile locationProfile ) {
 //		Log.d( TAG, "findAll : enter" );
 		
 		List<EtagInfoDelegate> etagInfos = findAll( context, locationProfile, null, null, null, null );
+		
+//		Log.d( TAG, "findAll : exit" );
+		return etagInfos;
+	}
+	
+	/**
+	 * @return
+	 */
+	public List<EtagInfoDelegate> findAllByEndpoint( final Context context, final LocationProfile locationProfile, final String endpoint ) {
+//		Log.d( TAG, "findAll : enter" );
+		
+		String selection = EtagConstants.FIELD_ENDPOINT + " = ?";
+		String[] selectionArgs = new String[] { endpoint };
+
+		List<EtagInfoDelegate> etagInfos = findAll( context, locationProfile, null, selection, selectionArgs, null );
 		
 //		Log.d( TAG, "findAll : exit" );
 		return etagInfos;

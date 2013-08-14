@@ -166,6 +166,11 @@ public class EtagInfoDelegate extends ETagInfo {
 			builder.append(endpoint);
 			builder.append(", ");
 		}
+		if (getETag() != null) {
+			builder.append("ETAG=");
+			builder.append(getETag());
+			builder.append(", ");
+		}
 		if (value != null) {
 			builder.append("value=");
 			builder.append(value);

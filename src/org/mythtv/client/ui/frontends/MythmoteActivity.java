@@ -23,7 +23,6 @@ import java.util.List;
 
 import org.mythtv.R;
 
-import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.content.Context;
 import android.os.Build;
@@ -69,8 +68,10 @@ public class MythmoteActivity extends AbstractFrontendsActivity {
 		Log.v( TAG, "onCreate : exit" );
 	}
 
+	/* (non-Javadoc)
+	 * @see org.mythtv.client.ui.AbstractMythtvFragmentActivity#setupActionBar()
+	 */
 	@Override
-	@TargetApi( 11 )
 	protected void setupActionBar() {
 		super.setupActionBar();
 		Log.v( TAG, "MythmoteActivity.setupActionBar : enter" );
