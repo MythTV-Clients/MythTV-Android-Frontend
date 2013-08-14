@@ -38,7 +38,6 @@ import org.mythtv.service.util.MythtvServiceHelper;
 import org.mythtv.service.util.RunningServiceHelper;
 import org.mythtv.services.api.dvr.impl.DvrTemplate;
 import org.mythtv.services.api.dvr.impl.DvrTemplate.Endpoint;
-import org.mythtv.services.api.guide.impl.GuideTemplate;
 import org.mythtv.services.api.status.Status;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -325,20 +324,7 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
     
     private void checkProgramGuideDownloadService() {
 
-		LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
-		DateTime guideEtag = mEtagDaoHelper.findDateByEndpointAndDataId( getActivity(), locationProfile, GuideTemplate.Endpoint.GET_PROGRAM_GUIDE.name(), "" );
-		if( null != guideEtag ) {
-			
-			DateTime now = DateUtils.convertUtc( new DateTime( System.currentTimeMillis() ) );
-			if( now.getMillis() - guideEtag.getMillis() > ( 24 * 3600000 ) ) {
-				startProgramGuideDownloadService();
-			}
-			
-		} else {
-		
-			startProgramGuideDownloadService();
-			
-		}
+		startProgramGuideDownloadService();
 
     }
     

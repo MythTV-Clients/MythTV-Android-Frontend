@@ -261,15 +261,13 @@ public class ProgramGuideDaoHelper extends ProgramDaoHelper {
 		if( null == context ) 
 			throw new RuntimeException( "ProgramDaoHelper is not initialized" );
 
-		MainApplication mainApplication = (MainApplication) context.getApplicationContext();
-		
 		int deleted = 0;
 		int count = 0;
 		int processed = 0;
 		int totalUpdates = 0;
 		int totalInserts = 0;
 
-		DateTime lastModified = DateUtils.convertUtc( new DateTime( System.currentTimeMillis() ) );
+		DateTime lastModified = DateUtils.convertUtc( new DateTime( DateTimeZone.getDefault() ) );
 		
 		ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
 

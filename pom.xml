@@ -62,7 +62,7 @@
         	<version>${google.android.support-version}</version>
         </dependency>
         
- 		<!-- Spring Android -->
+        <!-- Spring Android -->
         <dependency>
     		<groupId>org.springframework.android</groupId>
     		<artifactId>spring-android-rest-template</artifactId>
