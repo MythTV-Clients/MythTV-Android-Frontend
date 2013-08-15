@@ -24,8 +24,7 @@ import org.mythtv.db.preferences.LocationProfileConstants;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.MythtvService;
 import org.mythtv.service.util.NetworkHelper;
-import org.mythtv.services.api.dvr.ProgramList;
-import org.mythtv.services.api.dvr.Programs;
+import org.mythtv.services.api.status.Status;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -102,14 +101,14 @@ public class PreferencesRecordedDownloadService extends MythtvService {
     			return;
     		}
     		
-    		Programs programs = null;
+    		Status status = null;
     		try {
 
-    			programs = download( profile );
-    			if( null != programs ) {
+    			status = download( profile );
+    			if( null != status ) {
     				
-    				profile.setVersion( programs.getVersion() );
-    				profile.setProtocolVersion( programs.getProtocolVersion() );
+    				profile.setVersion( status.getVersion() );
+    				profile.setProtocolVersion( String.valueOf( status.getProtocolVersion() ) );
     				
     				locationProfileDaoHelper.save( this, profile );
     				
@@ -124,7 +123,7 @@ public class PreferencesRecordedDownloadService extends MythtvService {
 
     			Intent completeIntent = new Intent( ACTION_COMPLETE );
     			completeIntent.putExtra( EXTRA_COMPLETE, "Preferences Recorded Programs Download Service Finished" );
-    			if( null == programs ) {
+    			if( null == status ) {
     				completeIntent.putExtra( EXTRA_COMPLETE_UPTODATE, passed );
     			}
     			
@@ -138,19 +137,19 @@ public class PreferencesRecordedDownloadService extends MythtvService {
 
 	// internal helpers
 	
-	private Programs download( LocationProfile profile ) throws Exception {
+	private Status download( LocationProfile profile ) throws Exception {
 		Log.v( TAG, "download : enter" );
 
 		EtagInfoDelegate etag = EtagInfoDelegate.createEmptyETag();
 		
-		ResponseEntity<ProgramList> responseEntity = mMythtvServiceHelper.getMythServicesApi( profile ).dvrOperations().getRecordedList( etag );
+		ResponseEntity<Status> responseEntity = mMythtvServiceHelper.getMythServicesApi( profile ).statusOperations().getStatus( etag );
 
 		if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
-			ProgramList programList = responseEntity.getBody();
+			Status status = responseEntity.getBody();
 
-			if( null != programList.getPrograms() ) {
+			if( null != status ) {
 
-				return programList.getPrograms();	
+				return status;	
 
 			}
 

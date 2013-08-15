@@ -273,6 +273,13 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
 
         			Log.d( TAG, "BackendStatusTask.onPostExecute : setting connected profile" );
         			mLocationProfile.setConnected( true );
+        			mLocationProfile.setVersion( result.getVersion() );
+        			mLocationProfile.setProtocolVersion( String.valueOf( result.getProtocolVersion() ) );
+        			if( null != result.getMachineInfo() ) {
+        				if( null != result.getMachineInfo().getGuide() ) {
+        					mLocationProfile.setNextMythFillDatabase( result.getMachineInfo().getGuide().getNext() );
+        				}
+        			}
         			mLocationProfileDaoHelper.save( getActivity(), mLocationProfile );
         			
         			checkChannelDownloadService();
