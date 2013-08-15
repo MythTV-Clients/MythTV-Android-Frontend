@@ -18,6 +18,8 @@
  */
 package org.mythtv.client.ui.preferences;
 
+import org.joda.time.DateTime;
+
 /**
  * @author Daniel Frey
  *
@@ -36,6 +38,7 @@ public class LocationProfile {
 	private String protocolVersion;
 	private String wolAddress;
 	private String hostname;
+	private DateTime nextMythFillDatabase;
 	
 	public LocationProfile() { }
 
@@ -179,68 +182,74 @@ public class LocationProfile {
 		this.hostname = hostname;
 	}
 
+	/**
+	 * @return the nextMythFillDatabase
+	 */
+	public DateTime getNextMythFillDatabase() {
+		return nextMythFillDatabase;
+	}
+
+	/**
+	 * @param nextMythFillDatabase the nextMythFillDatabase to set
+	 */
+	public void setNextMythFillDatabase(DateTime nextMythFillDatabase) {
+		this.nextMythFillDatabase = nextMythFillDatabase;
+	}
+
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		
-		builder.append( "LocationProfile [id=" );
-		builder.append( id );
-		builder.append( ", " );
-		
-		if( type != null ) {
-			builder.append( "type=" );
-			builder.append( type );
-			builder.append( ", " );
+		builder.append("LocationProfile [id=");
+		builder.append(id);
+		builder.append(", ");
+		if (type != null) {
+			builder.append("type=");
+			builder.append(type);
+			builder.append(", ");
 		}
-		
-		if( name != null ) {
-			builder.append( "name=" );
-			builder.append( name );
-			builder.append( ", " );
+		if (name != null) {
+			builder.append("name=");
+			builder.append(name);
+			builder.append(", ");
 		}
-		
-		if( url != null ) {
-			builder.append( "url=" );
-			builder.append( url );
-			builder.append( ", " );
+		if (url != null) {
+			builder.append("url=");
+			builder.append(url);
+			builder.append(", ");
 		}
-		
-		if( version != null ) {
-			builder.append( "version=" );
-			builder.append( version );
-			builder.append( ", " );
+		builder.append("selected=");
+		builder.append(selected);
+		builder.append(", connected=");
+		builder.append(connected);
+		builder.append(", ");
+		if (version != null) {
+			builder.append("version=");
+			builder.append(version);
+			builder.append(", ");
 		}
-		
-		if( protocolVersion != null ) {
-			builder.append( "protocolVersion=" );
-			builder.append( protocolVersion );
-			builder.append( ", " );
+		if (protocolVersion != null) {
+			builder.append("protocolVersion=");
+			builder.append(protocolVersion);
+			builder.append(", ");
 		}
-		
-		if( wolAddress != null ) {
-			builder.append( "wolAddress=" );
-			builder.append( wolAddress );
-			builder.append( ", " );
+		if (wolAddress != null) {
+			builder.append("wolAddress=");
+			builder.append(wolAddress);
+			builder.append(", ");
 		}
-		
-		if( hostname != null ) {
-			builder.append( "hostname=" );
-			builder.append( hostname );
-			builder.append( ", " );
+		if (hostname != null) {
+			builder.append("hostname=");
+			builder.append(hostname);
+			builder.append(", ");
 		}
-		
-		builder.append( "selected=" );
-		builder.append( selected );
-		builder.append( ", " );
-		
-		builder.append( "connected=" );
-		builder.append( connected );
-		
-		builder.append( "]" );
-	
+		if (nextMythFillDatabase != null) {
+			builder.append("nextMythFillDatabase=");
+			builder.append(nextMythFillDatabase);
+		}
+		builder.append("]");
 		return builder.toString();
 	}
 	

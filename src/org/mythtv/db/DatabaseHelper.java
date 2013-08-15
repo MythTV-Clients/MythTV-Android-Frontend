@@ -49,7 +49,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	private static final String TAG = DatabaseHelper.class.getSimpleName();
 	
 	private static final String DATABASE_NAME = "mythtvdb";
-	private static final int DATABASE_VERSION = 122;
+	private static final int DATABASE_VERSION = 123;
 
 	public DatabaseHelper( Context context ) {
 		super( context, DATABASE_NAME, null, DATABASE_VERSION );
@@ -137,7 +137,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	public void onUpgrade( SQLiteDatabase db, int oldVersion, int newVersion ) {
 		Log.v( TAG, "onUpgrade : enter" );
 
-		if( oldVersion < 122 ) {
+		if( oldVersion < 123 ) {
 			Log.v( TAG, "onUpgrade : upgrading to db version 122" );
 
 			onCreate( db );
@@ -226,7 +226,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		sqlBuilder.append( LocationProfileConstants.FIELD_VERSION ).append( " " ).append( LocationProfileConstants.FIELD_VERSION_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( LocationProfileConstants.FIELD_PROTOCOL_VERSION ).append( " " ).append( LocationProfileConstants.FIELD_PROTOCOL_VERSION_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( LocationProfileConstants.FIELD_WOL_ADDRESS ).append( " " ).append( LocationProfileConstants.FIELD_WOL_ADDRESS_DATA_TYPE ).append( ", " );
-		sqlBuilder.append( LocationProfileConstants.FIELD_HOSTNAME ).append( " " ).append( LocationProfileConstants.FIELD_HOSTNAME_DATA_TYPE );
+		sqlBuilder.append( LocationProfileConstants.FIELD_HOSTNAME ).append( " " ).append( LocationProfileConstants.FIELD_HOSTNAME_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( LocationProfileConstants.FIELD_NEXT_MYTHFILLDATABASE ).append( " " ).append( LocationProfileConstants.FIELD_NEXT_MYTHFILLDATABASE_DATA_TYPE );
 		sqlBuilder.append( ");" );
 		String sql = sqlBuilder.toString();
 		if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
@@ -627,8 +628,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	
 	private void createRecording( SQLiteDatabase db, String tableName ) {
 		Log.v( TAG, "createRecording : enter" );
-		
-		RecordingConstants.ContentDetails details = RecordingConstants.ContentDetails.getValueFromTableName( tableName );
 		
 		StringBuilder sqlBuilder = new StringBuilder();
 		sqlBuilder.append( "CREATE TABLE " + tableName + " (" );

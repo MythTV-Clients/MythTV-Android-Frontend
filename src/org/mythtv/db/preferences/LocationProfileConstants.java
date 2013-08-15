@@ -75,6 +75,9 @@ public class LocationProfileConstants implements BaseColumns {
 	public static final String FIELD_HOSTNAME_DATA_TYPE = "TEXT";
 	public static final String FIELD_HOSTNAME_DEFAULT = "";
 
+	public static final String FIELD_NEXT_MYTHFILLDATABASE = "NEXT_MYTHFILLDATABASE";
+	public static final String FIELD_NEXT_MYTHFILLDATABASE_DATA_TYPE = "INTEGER";
+
 	static {
 	
 		StringBuilder insert = new StringBuilder();
@@ -89,8 +92,9 @@ public class LocationProfileConstants implements BaseColumns {
 		insert.append( FIELD_PROTOCOL_VERSION ).append( "," );
 		insert.append( FIELD_WOL_ADDRESS ).append( "," );
 		insert.append( FIELD_HOSTNAME );
+		insert.append( FIELD_NEXT_MYTHFILLDATABASE ).append( "," );
 		insert.append( " ) " );
-		insert.append( "VALUES( ?,?,?,?,?,?,?,?,? )" );
+		insert.append( "VALUES( ?,?,?,?,?,?,?,?,?,? )" );
 		
 		INSERT_ROW = insert.toString();
 
@@ -106,6 +110,7 @@ public class LocationProfileConstants implements BaseColumns {
 		update.append( FIELD_PROTOCOL_VERSION ).append( " = ?, " );
 		update.append( FIELD_WOL_ADDRESS ).append( " = ?, " );
 		update.append( FIELD_HOSTNAME ).append( " = ? " );
+		update.append( FIELD_NEXT_MYTHFILLDATABASE ).append( " = ? " );
 		update.append( "WHERE " );
 		update.append( _ID ).append( " = ?" );
 		
