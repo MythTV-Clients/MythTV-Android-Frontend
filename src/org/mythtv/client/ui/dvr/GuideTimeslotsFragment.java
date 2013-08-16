@@ -158,7 +158,7 @@ public class GuideTimeslotsFragment extends AbstractMythFragment {
 				public void run() {
 
 					final View child = ( (LinearLayout) hsv.getChildAt( 0 ) ).getChildAt( startingTimeslot );                 
-
+					
 					Log.v( TAG, "onActivityCreated : scroll to timeslot(" + child.getWidth() + ") " + startingTimeslot + " at postion '" + ( startingTimeslot * ( child.getWidth() ) ) + "'" );
 					hsv.scrollTo( ( startingTimeslot * ( child.getWidth() ) ), 0 );
 				}

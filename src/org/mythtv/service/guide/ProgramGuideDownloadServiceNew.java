@@ -134,47 +134,55 @@ public class ProgramGuideDownloadServiceNew extends MythtvService {
 			EtagInfoDelegate etag = mEtagDaoHelper.findByEndpointAndDataId( this, locationProfile, GuideTemplate.Endpoint.GET_PROGRAM_GUIDE.name(), String.valueOf( i ) );
 			Log.v( TAG, "download : etag=" + etag.toString() );
 			
-			ResponseEntity<ProgramGuideWrapper> responseEntity = mMythtvServiceHelper.getMythServicesApi( locationProfile ).guideOperations().getProgramGuide( start, end, 1, -1, false, etag );
+			if( null == etag.getDate() || start.isAfter( etag.getDate() ) ) {
+				Log.v( TAG, "download : next mythfilldatabase has passed" );
+				
+				ResponseEntity<ProgramGuideWrapper> responseEntity = mMythtvServiceHelper.getMythServicesApi( locationProfile ).guideOperations().getProgramGuide( start, end, 1, -1, false, etag );
 
-			if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
-				Log.i( TAG, "download : " + GuideTemplate.Endpoint.GET_PROGRAM_GUIDE.name() + " returned 200 OK" );
-				ProgramGuideWrapper programGuide = responseEntity.getBody();
+				if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
+					Log.i( TAG, "download : " + GuideTemplate.Endpoint.GET_PROGRAM_GUIDE.name() + " returned 200 OK" );
+					ProgramGuideWrapper programGuide = responseEntity.getBody();
 
-				if( null != programGuide ) {
+					if( null != programGuide ) {
 
-					if( null != programGuide.getProgramGuide() ) {
-						process( programGuide.getProgramGuide(), locationProfile );
+						if( null != programGuide.getProgramGuide() ) {
+							process( programGuide.getProgramGuide(), locationProfile );
+						}
+
+					}
+
+					if( null != etag.getValue() ) {
+						Log.i( TAG, "download : saving etag: " + etag.getValue() );
+
+						etag.setEndpoint( GuideTemplate.Endpoint.GET_PROGRAM_GUIDE.name() );
+						etag.setDataId( i );
+						etag.setDate( locationProfile.getNextMythFillDatabase() );
+						etag.setMasterHostname( locationProfile.getHostname() );
+						etag.setLastModified( DateUtils.convertUtc( new DateTime( DateTimeZone.getDefault() ) ) );
+						mEtagDaoHelper.save( this, locationProfile, etag );
 					}
 
 				}
 
-				if( null != etag.getValue() ) {
-					Log.i( TAG, "download : saving etag: " + etag.getValue() );
+				if( responseEntity.getStatusCode().equals( HttpStatus.NOT_MODIFIED ) ) {
+					Log.i( TAG, "download : " + GuideTemplate.Endpoint.GET_PROGRAM_GUIDE.name() + " returned 304 Not Modified" );
 
-					etag.setEndpoint( GuideTemplate.Endpoint.GET_PROGRAM_GUIDE.name() );
-					etag.setDataId( i );
-					etag.setDate( start );
-					etag.setMasterHostname( locationProfile.getHostname() );
-					etag.setLastModified( DateUtils.convertUtc( new DateTime( DateTimeZone.getDefault() ) ) );
-					mEtagDaoHelper.save( this, locationProfile, etag );
+					if( null != etag.getValue() ) {
+						Log.i( TAG, "download : saving etag: " + etag.getValue() );
+
+						etag.setLastModified( DateUtils.convertUtc( new DateTime( DateTimeZone.getDefault() ) ) );
+						mEtagDaoHelper.save( this, locationProfile, etag );
+					}
+
 				}
 
+				start = end;
+				end = end.plusHours( 3 );
+
+			} else {
+				Log.v( TAG, "download : next mythfilldatabase has NOT passed!" );
 			}
 			
-			if( responseEntity.getStatusCode().equals( HttpStatus.NOT_MODIFIED ) ) {
-				Log.i( TAG, "download : " + GuideTemplate.Endpoint.GET_PROGRAM_GUIDE.name() + " returned 304 Not Modified" );
-
-				if( null != etag.getValue() ) {
-					Log.i( TAG, "download : saving etag: " + etag.getValue() );
-
-					etag.setLastModified( DateUtils.convertUtc( new DateTime( DateTimeZone.getDefault() ) ) );
-					mEtagDaoHelper.save( this, locationProfile, etag );
-				}
-
-			}
-
-			start = end;
-			end = end.plusHours( 3 );
 		}
 
 		Log.i( TAG, "download : interval=" + new Interval( startDownloading, new DateTime() ).toString() );
