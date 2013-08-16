@@ -49,7 +49,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	private static final String TAG = DatabaseHelper.class.getSimpleName();
 	
 	private static final String DATABASE_NAME = "mythtvdb";
-	private static final int DATABASE_VERSION = 123;
+	private static final int DATABASE_VERSION = 124;
 
 	public DatabaseHelper( Context context ) {
 		super( context, DATABASE_NAME, null, DATABASE_VERSION );
@@ -137,8 +137,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	public void onUpgrade( SQLiteDatabase db, int oldVersion, int newVersion ) {
 		Log.v( TAG, "onUpgrade : enter" );
 
-		if( oldVersion < 123 ) {
-			Log.v( TAG, "onUpgrade : upgrading to db version 122" );
+		if( oldVersion < 124 ) {
+			Log.v( TAG, "onUpgrade : upgrading to db version 124" );
 
 			onCreate( db );
 
@@ -198,7 +198,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		sqlBuilder.append( EtagConstants._ID ).append( " " ).append( EtagConstants.FIELD_ID_DATA_TYPE ).append( " " ).append( EtagConstants.FIELD_ID_PRIMARY_KEY ).append( ", " );
 		sqlBuilder.append( EtagConstants.FIELD_ENDPOINT ).append( " " ).append( EtagConstants.FIELD_ENDPOINT_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( EtagConstants.FIELD_VALUE ).append( " " ).append( EtagConstants.FIELD_VALUE_DATA_TYPE ).append( ", " );
-		sqlBuilder.append( EtagConstants.FIELD_DATA_ID ).append( " " ).append( EtagConstants.FIELD_DATA_ID_DATA_TYPE ).append( " default" ).append( EtagConstants.FIELD_DATA_ID_DEFAULT ).append( ", " );
+		sqlBuilder.append( EtagConstants.FIELD_DATA_ID ).append( " " ).append( EtagConstants.FIELD_DATA_ID_DATA_TYPE ).append( " default " ).append( EtagConstants.FIELD_DATA_ID_DEFAULT ).append( ", " );
 		sqlBuilder.append( EtagConstants.FIELD_DATE ).append( " " ).append( EtagConstants.FIELD_DATE_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( EtagConstants.FIELD_MASTER_HOSTNAME ).append( " " ).append( EtagConstants.FIELD_MASTER_HOSTNAME_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( EtagConstants.FIELD_LAST_MODIFIED_DATE ).append( " " ).append( EtagConstants.FIELD_LAST_MODIFIED_DATE_DATA_TYPE );
@@ -606,6 +606,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		sqlBuilder.append( ProgramGroupConstants.FIELD_TITLE ).append( " " ).append( ProgramGroupConstants.FIELD_TITLE_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( ProgramGroupConstants.FIELD_CATEGORY ).append( " " ).append( ProgramGroupConstants.FIELD_CATEGORY_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( ProgramGroupConstants.FIELD_INETREF ).append( " " ).append( ProgramGroupConstants.FIELD_INETREF_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ProgramGroupConstants.FIELD_SORT ).append( " " ).append( ProgramGroupConstants.FIELD_SORT_DATA_TYPE ).append( " default " ).append( ProgramGroupConstants.FIELD_SORT_DEFAULT ).append( ", " );
 		sqlBuilder.append( ProgramGroupConstants.FIELD_MASTER_HOSTNAME ).append( " " ).append( ProgramGroupConstants.FIELD_MASTER_HOSTNAME_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( ProgramGroupConstants.FIELD_LAST_MODIFIED_DATE ).append( " " ).append( ProgramGroupConstants.FIELD_LAST_MODIFIED_DATE_DATA_TYPE );
 		sqlBuilder.append( ");" );

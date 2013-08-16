@@ -104,7 +104,7 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 		String[] projection = null;
 		String selection = ProgramGroupConstants.FIELD_MASTER_HOSTNAME + " = ?";
 		String[] selectionArgs = new String[] { mLocationProfile.getHostname() };
-		String sortOrder = ProgramGroupConstants.FIELD_PROGRAM_GROUP;
+		String sortOrder = ProgramGroupConstants.FIELD_SORT + " DESC, " + ProgramGroupConstants.FIELD_PROGRAM_GROUP;
 		
 	    CursorLoader cursorLoader = new CursorLoader( getActivity(), ProgramGroupConstants.CONTENT_URI, projection, selection, selectionArgs, sortOrder );
 		

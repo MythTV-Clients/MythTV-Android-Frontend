@@ -29,15 +29,17 @@ public class ProgramGroup {
 	private String title;
 	private String category;
 	private String inetref;
+	private int sort;
 	
 	public ProgramGroup() { }
 
-	public ProgramGroup( Long id, String programGroup, String title, String category, String inetref ) {
+	public ProgramGroup( Long id, String programGroup, String title, String category, String inetref, int sort ) {
 		this.id = id;
 		this.programGroup = programGroup;
 		this.title = title;
 		this.category = category;
 		this.inetref = inetref;
+		this.sort = sort;
 	}
 
 	/**
@@ -110,38 +112,55 @@ public class ProgramGroup {
 		this.inetref = inetref;
 	}
 
+	/**
+	 * @return the sort
+	 */
+	public int getSort() {
+		return sort;
+	}
+
+	/**
+	 * @param sort the sort to set
+	 */
+	public void setSort(int sort) {
+		this.sort = sort;
+	}
+
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append( "ProgramGroup [" );
-		if( id != null ) {
-			builder.append( "id=" );
-			builder.append( id );
-			builder.append( ", " );
+		builder.append("ProgramGroup [");
+		if (id != null) {
+			builder.append("id=");
+			builder.append(id);
+			builder.append(", ");
 		}
-		if( programGroup != null ) {
-			builder.append( "programGroup=" );
-			builder.append( programGroup );
-			builder.append( ", " );
+		if (programGroup != null) {
+			builder.append("programGroup=");
+			builder.append(programGroup);
+			builder.append(", ");
 		}
-		if( title != null ) {
-			builder.append( "title=" );
-			builder.append( title );
-			builder.append( ", " );
+		if (title != null) {
+			builder.append("title=");
+			builder.append(title);
+			builder.append(", ");
 		}
-		if( category != null ) {
-			builder.append( "category=" );
-			builder.append( category );
-			builder.append( ", " );
+		if (category != null) {
+			builder.append("category=");
+			builder.append(category);
+			builder.append(", ");
 		}
-		if( inetref != null ) {
-			builder.append( "inetref=" );
-			builder.append( inetref );
+		if (inetref != null) {
+			builder.append("inetref=");
+			builder.append(inetref);
+			builder.append(", ");
 		}
-		builder.append( "]" );
+		builder.append("sort=");
+		builder.append(sort);
+		builder.append("]");
 		return builder.toString();
 	}
 	

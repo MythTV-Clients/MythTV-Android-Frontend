@@ -25,8 +25,10 @@ import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.util.MythtvListFragment;
 import org.mythtv.client.ui.util.ProgramHelper;
 import org.mythtv.db.dvr.ProgramConstants;
+import org.mythtv.db.dvr.ProgramDaoHelper;
 import org.mythtv.db.dvr.RecordedDaoHelper;
 import org.mythtv.db.dvr.programGroup.ProgramGroup;
+import org.mythtv.db.dvr.programGroup.ProgramGroupDaoHelper;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.util.DateUtils;
 import org.mythtv.services.api.dvr.Program;
@@ -44,7 +46,6 @@ import android.view.ViewGroup;
 import android.widget.CursorAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
 /**
@@ -66,8 +67,9 @@ public class ProgramGroupFragment extends MythtvListFragment implements LoaderMa
 	private OnEpisodeSelectedListener mEpisodeListener;
 	
 	private static ProgramHelper mProgramHelper = ProgramHelper.getInstance();;
+	private static ProgramGroupDaoHelper mProgramGroupDaoHelper = ProgramGroupDaoHelper.getInstance();;
+	private static RecordedDaoHelper mRecordedDaoHelper = RecordedDaoHelper.getInstance();
 	private LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
-	private RecordedDaoHelper mRecordedDaoHelper = RecordedDaoHelper.getInstance();
 	
 	private ProgramGroup programGroup;
 	
@@ -82,11 +84,28 @@ public class ProgramGroupFragment extends MythtvListFragment implements LoaderMa
 
 		LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
 		
+		if( null == programGroup ) {
+			programGroup = mProgramGroupDaoHelper.findByTitle( getActivity(), locationProfile, "All" );
+		}
+		
 		String[] projection = { ProgramConstants._ID, ProgramConstants.FIELD_TITLE, ProgramConstants.FIELD_SUB_TITLE, ProgramConstants.FIELD_CATEGORY, ProgramConstants.FIELD_START_TIME };
-		String selection = ProgramConstants.FIELD_TITLE + " = ? AND " + ProgramConstants.TABLE_NAME_RECORDED + "." + ProgramConstants.FIELD_MASTER_HOSTNAME + " = ? AND " + ProgramConstants.TABLE_NAME_RECORDED + "." + ProgramConstants.FIELD_IN_ERROR + " = ?";
-		String[] selectionArgs = { ( null != programGroup && null != programGroup.getTitle() ? programGroup.getTitle() : "" ), locationProfile.getHostname(), "0" };
-		 
-	    CursorLoader cursorLoader = new CursorLoader( getActivity(), ProgramConstants.CONTENT_URI_RECORDED, projection, selection, selectionArgs, ( ProgramConstants.TABLE_NAME_RECORDED + "." + ProgramConstants.FIELD_PROGRAM_ID ) + " DESC, " + ( ProgramConstants.TABLE_NAME_RECORDED + "." + ProgramConstants.FIELD_SEASON ) + " DESC ," + ( ProgramConstants.TABLE_NAME_RECORDED + "." + ProgramConstants.FIELD_EPISODE ) + " DESC, " + ( ProgramConstants.TABLE_NAME_RECORDED + "." + ProgramConstants.FIELD_START_TIME ) + " DESC" );
+		
+		String selection = ProgramConstants.TABLE_NAME_RECORDED + "." + ProgramConstants.FIELD_MASTER_HOSTNAME + " = ? AND " + ProgramConstants.TABLE_NAME_RECORDED + "." + ProgramConstants.FIELD_IN_ERROR + " = ?";
+		if( !"All".equals( programGroup.getTitle() ) ) {
+			selection = ProgramConstants.FIELD_TITLE + " = ? AND " + selection;
+		}
+		
+		String[] selectionArgs = { locationProfile.getHostname(), "0" };
+		if( !"All".equals( programGroup.getTitle() ) ) {
+			selectionArgs = new String[] { ( null != programGroup && null != programGroup.getTitle() ? programGroup.getTitle() : "" ), locationProfile.getHostname(), "0" };
+		}
+		
+		String sort = ( ProgramConstants.TABLE_NAME_RECORDED + "." + ProgramConstants.FIELD_END_TIME ) + " DESC";
+		if( !"All".equals( programGroup.getTitle() ) ) {
+			sort = ( ProgramConstants.TABLE_NAME_RECORDED + "." + ProgramConstants.FIELD_PROGRAM_ID ) + " DESC, " + ( ProgramConstants.TABLE_NAME_RECORDED + "." + ProgramConstants.FIELD_SEASON ) + " DESC ," + ( ProgramConstants.TABLE_NAME_RECORDED + "." + ProgramConstants.FIELD_EPISODE ) + " DESC, " + ( ProgramConstants.TABLE_NAME_RECORDED + "." + ProgramConstants.FIELD_START_TIME ) + " DESC";
+		}
+		
+	    CursorLoader cursorLoader = new CursorLoader( getActivity(), ProgramConstants.CONTENT_URI_RECORDED, projection, selection, selectionArgs, sort );
 	    
 	    Log.v( TAG, "onCreateLoader : exit" );
 		return cursorLoader;
@@ -135,10 +154,7 @@ public class ProgramGroupFragment extends MythtvListFragment implements LoaderMa
 		Log.i( TAG, "onActivityCreated : enter" );
 		super.onActivityCreated( savedInstanceState );
 	    
-		mAdapter = new ProgramCursorAdapter(
-	            getActivity().getApplicationContext(), R.layout.program_row,
-	            null, new String[] { ProgramConstants.FIELD_SUB_TITLE }, new int[] { R.id.program_sub_title },
-	            CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER );
+		mAdapter = new ProgramCursorAdapter( getActivity() );
 
 	    setListAdapter( mAdapter );
 
@@ -193,58 +209,84 @@ public class ProgramGroupFragment extends MythtvListFragment implements LoaderMa
 		Log.v( TAG, "loadProgramGroup : exit" );
 	}
 	
-	public void setOnEpisodeSelectedListener(OnEpisodeSelectedListener listener){
+	public void setOnEpisodeSelectedListener( OnEpisodeSelectedListener listener ) {
 		this.mEpisodeListener = listener;
 	}
 	
 	// internal helpers
 	
-	private static class ProgramCursorAdapter extends SimpleCursorAdapter {
+	private class ProgramCursorAdapter extends CursorAdapter {
 
 		private Context mContext;
 		private LayoutInflater mInflater;
 		
-		public ProgramCursorAdapter( Context context, int layout, Cursor c, String[] from, int[] to, int flags ) {
-			super( context, layout, c, from, to, flags );
+		private MainApplication mainApplication;
+		
+		public ProgramCursorAdapter( Context context ) {
+			super( context, null, false );
 		
 			mContext = context;
 			mInflater = LayoutInflater.from( context );
+			
+			mainApplication = (MainApplication) mContext.getApplicationContext();
 		}
 
+		/* (non-Javadoc)
+		 * @see android.widget.CursorAdapter#newView(android.content.Context, android.database.Cursor, android.view.ViewGroup)
+		 */
 		@Override
-		public View getView( int position, View convertView, ViewGroup parent ) {
-			Log.v( TAG, "getView : enter" );
+		public View newView( Context context, Cursor cursor, ViewGroup parent ) {
+			Log.v( TAG, "newView : enter" );
 
-            MainApplication mainApplication = (MainApplication) mContext.getApplicationContext();
-			View v = convertView;
-			ViewHolder mHolder;
+	        View view = mInflater.inflate( R.layout.program_row, parent, false );
 			
-			if( null == v ) {
-				v = mInflater.inflate( R.layout.program_row, parent, false );
-				
-				mHolder = new ViewHolder();				
-				mHolder.programGroupDetail = (LinearLayout) v.findViewById( R.id.program_group_detail );
-				mHolder.category = (View) v.findViewById( R.id.program_category );
-				mHolder.subTitle = (TextView) v.findViewById( R.id.program_sub_title );
-				
-				v.setTag( mHolder );
-			} else {
-				mHolder = (ViewHolder) v.getTag();
+			ViewHolder refHolder = new ViewHolder();
+			refHolder.programGroupDetail = (LinearLayout) view.findViewById( R.id.program_group_detail );
+			refHolder.category = (View) view.findViewById( R.id.program_category );
+			refHolder.subTitle = (TextView) view.findViewById( R.id.program_sub_title );
+			
+			view.setTag( refHolder );
+			
+			Log.v( TAG, "newView : enter" );
+			return view;
+		}
+
+		/* (non-Javadoc)
+		 * @see android.widget.CursorAdapter#bindView(android.view.View, android.content.Context, android.database.Cursor)
+		 */
+		@Override
+		public void bindView(View view, Context context, Cursor cursor) {
+			Log.v( TAG, "bindView : enter" );
+
+			Program program = ProgramDaoHelper.convertCursorToProgram( cursor, ProgramConstants.TABLE_NAME_RECORDED );
+			if( null != program ) {
+				Log.v( TAG, "bindView : program=" + program.toString() );
 			}
-						
-			getCursor().moveToPosition( position );
+			
+			String title = "";
+			if( "All".equals( programGroup.getProgramGroup() ) ) {
+				
+				if( null != program.getSubTitle() && !"".equals( program.getSubTitle() ) ) {
+					title = program.getTitle() + " : " + program.getSubTitle();
+				} else {
+					title = program.getTitle() + " - " + DateUtils.getDateTimeUsingLocaleFormattingPretty( program.getStartTime(), mainApplication.getDateFormat(), mainApplication.getClockType() );
+				}
 
-			Long id = getCursor().getLong( getCursor().getColumnIndexOrThrow( ProgramConstants._ID ) );
-	        String title = getCursor().getString( getCursor().getColumnIndexOrThrow( ProgramConstants.FIELD_TITLE ) );
-	        String subTitle = getCursor().getString( getCursor().getColumnIndexOrThrow( ProgramConstants.FIELD_SUB_TITLE ) );
-	        String category = getCursor().getString( getCursor().getColumnIndexOrThrow( ProgramConstants.FIELD_CATEGORY ) );
-			Long startTime = getCursor().getLong( getCursor().getColumnIndexOrThrow( ProgramConstants.FIELD_START_TIME ) );
-	        Log.v( TAG, "getView : id=" + id + ", title=" + title + ", subTitle=" + subTitle );
+			} else {
 
-	        mHolder.subTitle.setText(!"".equals(subTitle) ? subTitle : DateUtils.getDateTimeUsingLocaleFormattingPretty(new DateTime(startTime), mainApplication.getDateFormat(), mainApplication.getClockType()));
-			mHolder.category.setBackgroundColor( mProgramHelper.getCategoryColor( category ) );
+				if( null != program.getSubTitle() && !"".equals( program.getSubTitle() ) ) {
+					title = program.getSubTitle();
+				} else {
+					title = DateUtils.getDateTimeUsingLocaleFormattingPretty( program.getStartTime(), mainApplication.getDateFormat(), mainApplication.getClockType() );
+				}
 
-			return v;
+			}
+			
+			final ViewHolder mHolder = (ViewHolder) view.getTag();
+	        mHolder.subTitle.setText( title  );
+			mHolder.category.setBackgroundColor( mProgramHelper.getCategoryColor( program.getCategory() ) );
+			
+			Log.v( TAG, "bindView : exit" );
 		}
 
 	}

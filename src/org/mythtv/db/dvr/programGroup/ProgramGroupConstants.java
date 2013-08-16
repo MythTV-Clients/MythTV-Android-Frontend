@@ -47,18 +47,23 @@ public class ProgramGroupConstants extends AbstractBaseConstants {
 	public static final String FIELD_INETREF = "INETREF";
 	public static final String FIELD_INETREF_DATA_TYPE = "TEXT";
 
+	public static final String FIELD_SORT = "SORT";
+	public static final String FIELD_SORT_DATA_TYPE = "INTEGER";
+	public static final String FIELD_SORT_DEFAULT = "0";
+
 	static {
 		StringBuilder insert = new StringBuilder();
 		insert.append( FIELD_PROGRAM_GROUP ).append( "," );
 		insert.append( FIELD_TITLE ).append( "," );
 		insert.append( FIELD_CATEGORY ).append( "," );
 		insert.append( FIELD_INETREF ).append( "," );
+		insert.append( FIELD_SORT ).append( "," );
 		insert.append( FIELD_MASTER_HOSTNAME ).append( ",");
 		insert.append( FIELD_LAST_MODIFIED_DATE );
 		
 		StringBuilder values = new StringBuilder();
 		values.append( " ) " );
-		values.append( "VALUES( ?,?,?,?,?,? )" );
+		values.append( "VALUES( ?,?,?,?,?,?,? )" );
 		
 		StringBuilder insertProgramGroup = new StringBuilder();
 		insertProgramGroup.append( "INSERT INTO " ).append( TABLE_NAME ).append( " ( " );
@@ -71,6 +76,7 @@ public class ProgramGroupConstants extends AbstractBaseConstants {
 		update.append( FIELD_TITLE ).append( " = ?, " );
 		update.append( FIELD_CATEGORY ).append( " = ?, " );
 		update.append( FIELD_INETREF ).append( " = ?, " );
+		update.append( FIELD_SORT ).append( " = ?, " );
 		update.append( FIELD_MASTER_HOSTNAME ).append( " = ?," );
 		update.append( FIELD_LAST_MODIFIED_DATE ).append( " = ?" );
 		update.append( " WHERE " );

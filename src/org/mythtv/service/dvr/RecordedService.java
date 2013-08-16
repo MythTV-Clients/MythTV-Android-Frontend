@@ -266,7 +266,9 @@ public class RecordedService extends MythtvService {
 		List<Program> programs = mRecordedDaoHelper.findAllByTitle( this, locationProfile, title );
 		if( null == programs || programs.isEmpty() ) {
 
-			mProgramGroupDaoHelper.delete( this, programGroup );
+			if( !"All".equals( programGroup.getTitle() ) ) {
+				mProgramGroupDaoHelper.delete( this, programGroup );
+			}
 			
 		}
 
