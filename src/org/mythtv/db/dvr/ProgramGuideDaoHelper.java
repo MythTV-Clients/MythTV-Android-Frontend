@@ -23,7 +23,6 @@ import java.util.List;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.mythtv.client.MainApplication;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.provider.MythtvProvider;
 import org.mythtv.service.util.DateUtils;

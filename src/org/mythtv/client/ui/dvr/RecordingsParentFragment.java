@@ -168,7 +168,13 @@ public class RecordingsParentFragment extends AbstractMythFragment implements Re
 		selectedProgramGroup = programGroup;
 		selectedProgram = null;
 
-		List<Program> programs = mRecordedDaoHelper.findAllByTitle( getActivity(), mLocationProfile, programGroup.getTitle() );
+		List<Program> programs = null;
+		if( "All".equals( selectedProgramGroup.getProgramGroup() ) ) {
+			programs = mRecordedDaoHelper.findAll( getActivity(), mLocationProfile );
+		} else {
+			programs = mRecordedDaoHelper.findAllByTitle( getActivity(), mLocationProfile, programGroup.getTitle() );
+		}
+		
 		if (null == programs || programs.isEmpty()) {
 			Log.d(TAG, "onProgramGroupSelected : no programs in programGroup");
 			mRecordedDaoHelper.findAll(getActivity(), mLocationProfile);
@@ -219,7 +225,7 @@ public class RecordingsParentFragment extends AbstractMythFragment implements Re
 			Log.v(TAG, "onProgramGroupSelected : starting program group activity");
 
 			Intent i = new Intent(this.getActivity(), ProgramGroupActivity.class);
-			i.putExtra(ProgramGroupConstants.FIELD_TITLE, programGroup.getTitle());
+			i.putExtra( ProgramGroupConstants.FIELD_TITLE, programGroup.getTitle() );
 			startActivity(i);
 		}
 

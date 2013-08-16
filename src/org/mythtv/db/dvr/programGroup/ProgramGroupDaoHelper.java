@@ -19,7 +19,6 @@
 package org.mythtv.db.dvr.programGroup;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -155,7 +154,7 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 	 * @param programGroup
 	 * @return
 	 */
-	protected int save( final Context context, final LocationProfile locationProfile, ProgramGroup programGroup ) {
+	public int save( final Context context, final LocationProfile locationProfile, ProgramGroup programGroup ) {
 		Log.v( TAG, "save : enter" );
 
 		if( null == context ) 
@@ -235,12 +234,6 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 		
 		DateTime lastModified = DateUtils.convertUtc( new DateTime( System.currentTimeMillis() ) );
 		
-		Log.v( TAG, "load : find all existing recordings" );
-		Map<String, ProgramGroup> existing = new HashMap<String, ProgramGroup>();
-		for( ProgramGroup programGroup : findAll( context, locationProfile ) ) {
-			existing.put( programGroup.getProgramGroup(), programGroup );
-		}
-
 		Map<String, ProgramGroup> programGroups = new TreeMap<String, ProgramGroup>();
 		for( Program program : programs ) {
 			
@@ -254,9 +247,9 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 						programGroup.setTitle( program.getTitle() );
 						programGroup.setCategory( program.getCategory() );
 						programGroup.setInetref( program.getInetref() );
+						programGroup.setSort( 0 );
 						
 						programGroups.put( cleaned, programGroup );
-						existing.remove( cleaned );
 					}
 
 				}
@@ -265,6 +258,10 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 			
 		}
 		
+		Log.v( TAG, "load : adding 'All' program group in programGroups" );
+		ProgramGroup all = new ProgramGroup( null, "All", "All", "All", "", 1 );
+		programGroups.put( all.getProgramGroup(), all );
+
 		int loaded = -1;
 		int count = 0;
 
@@ -276,6 +273,8 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 		programGroupSelection = appendLocationHostname( context, locationProfile, programGroupSelection, null );
 
 		for( String key : programGroups.keySet() ) {
+			Log.v( TAG, "load : processing programGroup '" + key + "'" );
+			
 			ProgramGroup programGroup = programGroups.get( key );
 			
 			ContentValues programValues = convertProgramGroupToContentValues( locationProfile, lastModified, programGroup );
@@ -284,20 +283,20 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 
 				Long id = programGroupCursor.getLong( programGroupCursor.getColumnIndexOrThrow( ProgramGroupConstants._ID ) );
 				ops.add( 
-						ContentProviderOperation.newUpdate( ContentUris.withAppendedId( ProgramGroupConstants.CONTENT_URI, id ) )
-							.withValues( programValues )
-							.withYieldAllowed( true )
-							.build()
-					);
+					ContentProviderOperation.newUpdate( ContentUris.withAppendedId( ProgramGroupConstants.CONTENT_URI, id ) )
+						.withValues( programValues )
+						.withYieldAllowed( true )
+						.build()
+				);
 				
 			} else {
 
 				ops.add(  
-						ContentProviderOperation.newInsert( ProgramGroupConstants.CONTENT_URI )
-							.withValues( programValues )
-							.withYieldAllowed( true )
-							.build()
-					);
+					ContentProviderOperation.newInsert( ProgramGroupConstants.CONTENT_URI )
+						.withValues( programValues )
+						.withYieldAllowed( true )
+						.build()
+				);
 			}
 			programGroupCursor.close();
 			count++;
@@ -320,49 +319,16 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 
 		}
 
-		Log.v( TAG, "process : applying final batch for '" + count + "' transactions" );
-		
-		if( !ops.isEmpty() ) {
-
-			ContentProviderResult[] results = context.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
-			loaded += results.length;
-
-			if( results.length > 0 ) {
-				ops.clear();
-			}
-		}
-
 		Log.v( TAG, "load : remove deleted program groups" );
-		for( String key : existing.keySet() ) {
-
-			ops.add(  
-				ContentProviderOperation.newDelete( ProgramGroupConstants.CONTENT_URI )
-				.withSelection( programGroupSelection, new String[] { key } )
-				.withYieldAllowed( true )
-				.build()
-			);
+		ops.add(  
+			ContentProviderOperation.newDelete( ProgramGroupConstants.CONTENT_URI )
+			.withSelection( ProgramGroupConstants.FIELD_LAST_MODIFIED_DATE + " < ?", new String[] { String.valueOf( lastModified.getMillis() ) } )
+			.withYieldAllowed( true )
+			.build()
+		);
 			
-			if( count > 100 ) {
-				Log.v( TAG, "process : applying batch for '" + count + "' transactions" );
-				
-				if( !ops.isEmpty() ) {
-					
-					ContentProviderResult[] results = context.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
-					loaded += results.length;
-					
-					if( results.length > 0 ) {
-						ops.clear();
-					}
-
-				}
-
-				count = -1;
-			}
-
-		}
-
 		if( !ops.isEmpty() ) {
-			Log.v( TAG, "process : applying final batch for '" + count + "' transactions" );
+			Log.v( TAG, "load : applying final batch for '" + count + "' transactions" );
 			
 			ContentProviderResult[] results = context.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
 			loaded += results.length;
@@ -381,6 +347,7 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 
 		Long id = null;
 		String programGroup = "", title = "", category = "", inetref = "";
+		int sort = 0;
 		
 		if( cursor.getColumnIndex( ProgramGroupConstants._ID ) != -1 ) {
 			id = cursor.getLong( cursor.getColumnIndex( ProgramGroupConstants._ID ) );
@@ -402,6 +369,10 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 			inetref = cursor.getString( cursor.getColumnIndex( ProgramGroupConstants.FIELD_INETREF ) );
 		}
 
+		if( cursor.getColumnIndex( ProgramGroupConstants.FIELD_SORT ) != -1 ) {
+			sort = cursor.getInt( cursor.getColumnIndex( ProgramGroupConstants.FIELD_SORT ) );
+		}
+
 		if( cursor.getColumnIndex( ProgramGroupConstants.FIELD_MASTER_HOSTNAME ) != -1 ) {
 			Log.v( TAG, "convertCursorToProgramGroup : hostname=" + cursor.getString( cursor.getColumnIndex( ProgramGroupConstants.FIELD_MASTER_HOSTNAME ) ) );
 		}
@@ -412,6 +383,7 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 		group.setTitle( title );
 		group.setCategory( category );
 		group.setInetref( inetref );
+		group.setSort( sort );
 		
 		Log.v( TAG, "convertCursorToProgramGroup : exit" );
 		return group;
@@ -453,6 +425,7 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 		values.put( ProgramGroupConstants.FIELD_TITLE, null != programGroup.getTitle() ? programGroup.getTitle() : "" );
 		values.put( ProgramGroupConstants.FIELD_CATEGORY, null != programGroup.getCategory() ? programGroup.getCategory() : "" );
 		values.put( ProgramGroupConstants.FIELD_INETREF, null != programGroup.getInetref() ? programGroup.getInetref() : "" );
+		values.put( ProgramGroupConstants.FIELD_SORT, programGroup.getSort() );
 		values.put( ProgramGroupConstants.FIELD_MASTER_HOSTNAME, locationProfile.getHostname() );
 		values.put( ProgramGroupConstants.FIELD_LAST_MODIFIED_DATE, lastModified.getMillis() );
 		
