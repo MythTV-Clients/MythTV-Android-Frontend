@@ -25,6 +25,7 @@ import org.joda.time.DateTime;
 import org.mythtv.R;
 import org.mythtv.client.ui.AbstractMythFragment;
 import org.mythtv.client.ui.preferences.LocationProfile;
+import org.mythtv.client.ui.util.MenuHelper;
 import org.mythtv.db.channel.ChannelDaoHelper;
 import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.service.util.DateUtils;
@@ -36,6 +37,9 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentManager;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -45,13 +49,17 @@ import android.widget.TextView;
  * @author Daniel Frey
  *
  */
-public class GuideFragment extends AbstractMythFragment implements GuideChannelFragment.OnChannelScrollListener {
+public class GuideFragment extends AbstractMythFragment 
+	implements 
+		GuideChannelFragment.OnChannelScrollListener,
+		GuideDatePickerFragment.OnDialogResultListener {
 
 	private static final String TAG = GuideFragment.class.getSimpleName();
 	
 	private FragmentManager mFragmentManager;
 	
 	private ChannelDaoHelper mChannelDaoHelper = ChannelDaoHelper.getInstance();
+	private MenuHelper mMenuHelper = MenuHelper.getInstance();
 	
 	private TextView mProgramGuideDate;
 	private GuideChannelFragment mGuideChannelFragment;
@@ -65,9 +73,25 @@ public class GuideFragment extends AbstractMythFragment implements GuideChannelF
 	
 	private LocationProfile mLocationProfile;
 	
+	private int downloadDays;
 	private int selectedChannelId;
 	private DateTime selectedDate;
-	
+
+	/* (non-Javadoc)
+	 * @see org.mythtv.client.ui.dvr.GuideDatePickerFragment.OnDialogResultListener#onDateChanged(org.joda.time.DateTime)
+	 */
+	@Override
+	public void onDateChanged( DateTime selectedDate ) {
+		Log.v( TAG, "onDateChanged : enter" );
+
+		this.selectedDate = selectedDate;
+		Log.v( TAG, "onDateChanged : selectedDate=" + selectedDate.toString() );
+		
+		updateView();
+		
+		Log.v( TAG, "onDateChanged : enter" );
+	}
+
 	/* (non-Javadoc)
 	 * @see android.support.v4.app.ListFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle)
 	 */
@@ -90,10 +114,12 @@ public class GuideFragment extends AbstractMythFragment implements GuideChannelF
 		Log.v( TAG, "onActivityCreated : enter" );
 		super.onActivityCreated( savedInstanceState );
 		
+		setHasOptionsMenu( true );
+
 		View view = getView();
 		
 		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences( getActivity() );
-		int downloadDays = Integer.parseInt( sp.getString( "preference_program_guide_days", "14" ) );
+		downloadDays = Integer.parseInt( sp.getString( "preference_program_guide_days", "14" ) );
 
 		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
 		
@@ -172,6 +198,42 @@ public class GuideFragment extends AbstractMythFragment implements GuideChannelF
 	}
 
 	/* (non-Javadoc)
+	 * @see android.support.v4.app.Fragment#onCreateOptionsMenu(android.view.Menu, android.view.MenuInflater)
+	 */
+	@Override
+	public void onCreateOptionsMenu( Menu menu, MenuInflater inflater ) {
+		Log.v( TAG, "onCreateOptionsMenu : enter" );
+		super.onCreateOptionsMenu( menu, inflater );
+
+		if( downloadDays > 1 ) {
+			mMenuHelper.guideDayMenuItem( getActivity(), menu );
+		}
+		
+		Log.v( TAG, "onCreateOptionsMenu : exit" );
+	}
+
+
+	/* (non-Javadoc)
+	 * @see org.mythtv.client.ui.dvr.AbstractRecordingsActivity#onOptionsItemSelected(android.view.MenuItem)
+	 */
+	@Override
+	public boolean onOptionsItemSelected( MenuItem item ) {
+		Log.v( TAG, "onOptionsItemSelected : enter" );
+		
+		switch( item.getItemId() ) {
+		case MenuHelper.GUIDE_ID:
+			Log.d( TAG, "onOptionsItemSelected : guide day selected" );
+
+			showDatePickerFragment();
+			
+	        return true;
+		}
+		
+		Log.v( TAG, "onOptionsItemSelected : exit" );
+		return super.onOptionsItemSelected( item );
+	}
+
+	/* (non-Javadoc)
 	 * @see org.mythtv.client.ui.dvr.GuideChannelFragment.OnChannelScrollListener#channelScroll(int, int, int)
 	 */
 	@Override
@@ -209,9 +271,26 @@ public class GuideFragment extends AbstractMythFragment implements GuideChannelF
 	private void updateView() {
 		Log.v( TAG, "updateView : enter" );
 		
+		mProgramGuideDate.setText( DateUtils.getDateTimeUsingLocaleFormattingPrettyDateOnly( selectedDate, getMainApplication().getDateFormat() ) );
 		mGuideDataFragment.updateView( selectedChannelId, selectedDate );
 		
 		Log.v( TAG, "updateView : exit" );
+	}
+	
+	private void showDatePickerFragment() {
+		Log.v( TAG, "showDatePickerFragment : enter" );
+
+		Bundle args = new Bundle();
+		args.putLong( "selectedDate", selectedDate.getMillis() );
+		args.putInt( "downloadDays", downloadDays );
+		
+		GuideDatePickerFragment datePickerFragment = new GuideDatePickerFragment();
+		datePickerFragment.setOnDialogResultListener( this );
+		datePickerFragment.setArguments( args );
+		
+		datePickerFragment.show( getChildFragmentManager(), "datePickerFragment" );
+
+		Log.v( TAG, "showDatePickerFragment : exit" );
 	}
 	
 }

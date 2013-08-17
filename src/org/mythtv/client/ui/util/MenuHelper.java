@@ -21,12 +21,10 @@ package org.mythtv.client.ui.util;
 import org.mythtv.R;
 import org.mythtv.service.util.NetworkHelper;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.net.Uri;
-import android.os.Build;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -58,6 +56,8 @@ public class MenuHelper {
 	public static final int ADD_ID = Menu.FIRST + 205;
 	public static final int WATCH_ON_TV_ID = Menu.FIRST + 206;
 	public static final int CLEAR_ID = Menu.FIRST + 207;
+	
+	public static final int GUIDE_ID = Menu.FIRST + 300;
 	
 	private static final String TAG = MenuHelper.class.getSimpleName();
 	
@@ -95,7 +95,6 @@ public class MenuHelper {
 	 * @param menu
 	 * @return
 	 */
-	@TargetApi( Build.VERSION_CODES.HONEYCOMB )
 	public MenuItem prefMenuItem( Context context, Menu menu ) {
 		
 		if( null == context ) 
@@ -105,9 +104,7 @@ public class MenuHelper {
 
 	    MenuItem menuItem = menu.add( Menu.NONE, EDIT_ID, Menu.NONE, resources.getString( R.string.menu_prefs ) );
     	menuItem.setIcon( android.R.drawable.ic_menu_preferences );
-	    if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-	    	menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
-	    }
+    	menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
 
 	    return menuItem;
 	}
@@ -118,7 +115,6 @@ public class MenuHelper {
 	 * @param menu
 	 * @return
 	 */
-	@TargetApi( Build.VERSION_CODES.HONEYCOMB )
 	public MenuItem aboutMenuItem( Context context, Menu menu ) {
 		
 		if( null == context ) 
@@ -128,9 +124,7 @@ public class MenuHelper {
 
 	    MenuItem menuItem = menu.add( Menu.NONE, ABOUT_ID, Menu.NONE, resources.getString( R.string.menu_about ) );
     	menuItem.setIcon( android.R.drawable.ic_menu_info_details );
-	    if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-	    	menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_NEVER );
-	    }
+    	menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_NEVER );
 
 	    return menuItem;
 	}
@@ -179,7 +173,6 @@ public class MenuHelper {
 	 * @param menu
 	 * @return
 	 */
-	@TargetApi( Build.VERSION_CODES.HONEYCOMB )
 	public MenuItem faqMenuItem( Context context, Menu menu ) {
 		
 		if( null == context ) 
@@ -189,9 +182,7 @@ public class MenuHelper {
 
 	    MenuItem menuItem = menu.add( Menu.NONE, FAQ_ID, Menu.NONE, resources.getString( R.string.menu_help_faq ) );
     	menuItem.setIcon( android.R.drawable.ic_menu_info_details );
-	    if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-	    	menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_NEVER );
-	    }
+    	menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_NEVER );
 
 	    return menuItem;
 	}
@@ -216,7 +207,6 @@ public class MenuHelper {
 	 * @param menu
 	 * @return
 	 */
-	@TargetApi( Build.VERSION_CODES.HONEYCOMB )
 	public MenuItem troubleshootMenuItem( Context context, Menu menu ) {
 		
 		if( null == context ) 
@@ -225,9 +215,7 @@ public class MenuHelper {
 		Resources resources = context.getResources();
 
 	    MenuItem menuItem = menu.add( Menu.NONE, TROUBLESHOOT_ID, Menu.NONE, resources.getString( R.string.menu_help_troubleshoot ) );
-	    if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-	    	menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_NEVER );
-	    }
+    	menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_NEVER );
 
 	    return menuItem;
 	}
@@ -252,7 +240,6 @@ public class MenuHelper {
 	 * @param menu
 	 * @return
 	 */
-	@TargetApi( Build.VERSION_CODES.HONEYCOMB )
 	public MenuItem issuesMenuItem( Context context, Menu menu ) {
 		
 		if( null == context ) 
@@ -261,9 +248,7 @@ public class MenuHelper {
 		Resources resources = context.getResources();
 
 	    MenuItem menuItem = menu.add( Menu.NONE, ISSUES_ID, Menu.NONE, resources.getString( R.string.menu_help_issues ) );
-	    if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-	    	menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_NEVER );
-	    }
+    	menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_NEVER );
 
 	    return menuItem;
 	}
@@ -288,7 +273,6 @@ public class MenuHelper {
 	 * @param menu
 	 * @return
 	 */
-	@TargetApi( Build.VERSION_CODES.HONEYCOMB )
 	public MenuItem mythmoteMenuItem( Context context, Menu menu ) {
 		
 		if( null == context ) 
@@ -299,9 +283,7 @@ public class MenuHelper {
 		if( NetworkHelper.getInstance().isNetworkConnected( context ) ) {
 			MenuItem menuItem = menu.add( Menu.NONE, MYTHMOTE_ID, Menu.NONE, resources.getString( R.string.frontends_title ) );
 			menuItem.setIcon( R.drawable.ic_menu_mythmote_default );
-			if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-				menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
-			}
+			menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
 
 			return menuItem;
 		}
@@ -315,7 +297,6 @@ public class MenuHelper {
 	 * @param menu
 	 * @return
 	 */
-	@TargetApi( Build.VERSION_CODES.HONEYCOMB )
 	public MenuItem refreshMenuItem( Context context, Menu menu ) {
 		
 		if( null == context ) 
@@ -326,9 +307,7 @@ public class MenuHelper {
 		if( NetworkHelper.getInstance().isNetworkConnected( context ) ) {
 			MenuItem menuItem = menu.add( Menu.NONE, REFRESH_ID, Menu.NONE, resources.getString( R.string.menu_refresh ) );
 			menuItem.setIcon( R.drawable.ic_menu_refresh );
-			if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-				menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
-			}
+			menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
 
 			return menuItem;
 		}
@@ -342,7 +321,6 @@ public class MenuHelper {
 	 * @param menu
 	 * @return
 	 */
-	@TargetApi( Build.VERSION_CODES.HONEYCOMB )
 	public MenuItem editMenuItem( Context context, Menu menu ) {
 		
 		if( null == context ) 
@@ -353,9 +331,7 @@ public class MenuHelper {
 		if( NetworkHelper.getInstance().isNetworkConnected( context ) ) {
 			MenuItem menuItem = menu.add( Menu.NONE, EDIT_ID, Menu.NONE, resources.getString( R.string.menu_edit ) );
 			menuItem.setIcon( android.R.drawable.ic_menu_edit );
-			if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-				menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
-			}
+			menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
 
 			return menuItem;
 		}
@@ -369,7 +345,6 @@ public class MenuHelper {
 	 * @param menu
 	 * @return
 	 */
-	@TargetApi( Build.VERSION_CODES.HONEYCOMB )
 	public MenuItem saveMenuItem( Context context, Menu menu ) {
 		
 		if( null == context ) 
@@ -380,9 +355,7 @@ public class MenuHelper {
 		if( NetworkHelper.getInstance().isNetworkConnected( context ) ) {
 			MenuItem menuItem = menu.add( Menu.NONE, SAVE_ID, Menu.NONE, resources.getString( R.string.menu_save ) );
 			menuItem.setIcon( android.R.drawable.ic_menu_save );
-			if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-				menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
-			}
+			menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
 
 			return menuItem;
 		}
@@ -396,7 +369,6 @@ public class MenuHelper {
 	 * @param menu
 	 * @return
 	 */
-	@TargetApi( Build.VERSION_CODES.HONEYCOMB )
 	public MenuItem resetMenuItem( Context context, Menu menu ) {
 		
 		if( null == context ) 
@@ -407,9 +379,7 @@ public class MenuHelper {
 		if( NetworkHelper.getInstance().isNetworkConnected( context ) ) {
 			MenuItem menuItem = menu.add( Menu.NONE, RESET_ID, Menu.NONE, resources.getString( R.string.menu_reset ) );
 			menuItem.setIcon( android.R.drawable.ic_menu_revert );
-			if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-				menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
-			}
+			menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
 
 			return menuItem;
 		}
@@ -423,7 +393,6 @@ public class MenuHelper {
 	 * @param menu
 	 * @return
 	 */
-	@TargetApi( Build.VERSION_CODES.HONEYCOMB )
 	public MenuItem deleteMenuItem( Context context, Menu menu ) {
 		
 		if( null == context ) 
@@ -434,9 +403,7 @@ public class MenuHelper {
 		if( NetworkHelper.getInstance().isNetworkConnected( context ) ) {
 			MenuItem menuItem = menu.add( Menu.NONE, DELETE_ID, Menu.NONE, resources.getString( R.string.menu_delete ) );
 			menuItem.setIcon( android.R.drawable.ic_menu_delete );
-			if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-				menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
-			}
+			menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
 
 			return menuItem;
 		}
@@ -450,7 +417,6 @@ public class MenuHelper {
 	 * @param menu
 	 * @return
 	 */
-	@TargetApi( Build.VERSION_CODES.HONEYCOMB )
 	public MenuItem watchMenuItem( Context context, Menu menu ) {
 		
 		if( null == context ) 
@@ -461,9 +427,7 @@ public class MenuHelper {
 		if( NetworkHelper.getInstance().isNetworkConnected( context ) ) {
 			MenuItem menuItem = menu.add( Menu.NONE, WATCH_ID, Menu.NONE, resources.getString( R.string.menu_watch ) );
 			menuItem.setIcon( android.R.drawable.ic_menu_view );
-			if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-				menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
-			}
+			menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
 
 			return menuItem;
 		}
@@ -477,7 +441,6 @@ public class MenuHelper {
 	 * @param menu
 	 * @return
 	 */
-	@TargetApi( Build.VERSION_CODES.HONEYCOMB )
 	public MenuItem watchOnFrontendMenuItem( Context context, Menu menu ) {
 		
 		if( null == context ) 
@@ -488,9 +451,7 @@ public class MenuHelper {
 		if( NetworkHelper.getInstance().isNetworkConnected( context ) ) {
 			MenuItem menuItem = menu.add( Menu.NONE, WATCH_ON_TV_ID, Menu.NONE, resources.getString( R.string.menu_watch ) );
 			menuItem.setIcon( android.R.drawable.ic_menu_send );
-			if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-				menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
-			}
+			menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
 
 			return menuItem;
 		}
@@ -504,7 +465,6 @@ public class MenuHelper {
 	 * @param menu
 	 * @return
 	 */
-	@TargetApi( Build.VERSION_CODES.HONEYCOMB )
 	public MenuItem addMenuItem( Context context, Menu menu ) {
 		
 		if( null == context ) 
@@ -515,9 +475,7 @@ public class MenuHelper {
 		if( NetworkHelper.getInstance().isNetworkConnected( context ) ) {
 			MenuItem menuItem = menu.add( Menu.NONE, ADD_ID, Menu.NONE, resources.getString( R.string.menu_add ) );
 			menuItem.setIcon( android.R.drawable.ic_menu_add );
-			if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-				menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
-			}
+			menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
 
 			return menuItem;
 		}
@@ -525,7 +483,6 @@ public class MenuHelper {
 		return null;
 	}
 
-	@TargetApi( Build.VERSION_CODES.HONEYCOMB )
 	public MenuItem clearMenuItem( Context context, Menu menu ) {
 		
 		if( null == context ) 
@@ -536,14 +493,32 @@ public class MenuHelper {
 		if( NetworkHelper.getInstance().isNetworkConnected( context ) ) {
 			MenuItem menuItem = menu.add( Menu.NONE, CLEAR_ID, Menu.NONE, resources.getString( R.string.menu_clear ) );
 			menuItem.setIcon( android.R.drawable.ic_menu_close_clear_cancel );
-			if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-				menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
-			}
+			menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
 
 			return menuItem;
 		}
 		
 		return null;
+	}
+
+	/**
+	 * Build Guide Day MenuItem
+	 * 
+	 * @param menu
+	 * @return
+	 */
+	public MenuItem guideDayMenuItem( Context context, Menu menu ) {
+		
+		if( null == context ) 
+			throw new RuntimeException( "MenuHelper is not initialized" );
+		
+		Resources resources = context.getResources();
+
+	    MenuItem menuItem = menu.add( Menu.NONE, GUIDE_ID, Menu.NONE, resources.getString( R.string.menu_guide_day ) );
+		menuItem.setIcon( android.R.drawable.ic_menu_day );
+    	menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
+
+	    return menuItem;
 	}
 
 	// internal helpers
