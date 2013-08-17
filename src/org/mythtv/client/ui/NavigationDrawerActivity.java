@@ -24,6 +24,7 @@ import org.mythtv.client.ui.navigationDrawer.VersionRow;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.preferences.LocationProfile.LocationType;
 import org.mythtv.client.ui.preferences.MythtvPreferenceActivity;
+import org.mythtv.client.ui.util.MenuHelper;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -313,11 +314,21 @@ public class NavigationDrawerActivity extends AbstractMythtvFragmentActivity {
 
     	if( null != drawer && null != navList ) {
     		
-/*    		MenuItem item = menu.findItem( R.id.add );
-    		if( item != null ) {
-    			item.setVisible( !drawer.isDrawerOpen( navList ) );
+    		MenuItem about = menu.findItem( MenuHelper.ABOUT_ID );
+    		if( about != null ) {
+    			about.setVisible( !drawer.isDrawerOpen( navList ) );
     		}
-*/    		
+    		
+    		MenuItem help = menu.findItem( MenuHelper.HELP_ID );
+    		if( help != null ) {
+    			help.setVisible( !drawer.isDrawerOpen( navList ) );
+    		}
+    		
+    		MenuItem troubleshoot = menu.findItem( MenuHelper.TROUBLESHOOT_ID );
+    		if( troubleshoot != null ) {
+    			troubleshoot.setVisible( !drawer.isDrawerOpen( navList ) );
+    		}
+    		
     	}
     	
     	return super.onPrepareOptionsMenu( menu );
