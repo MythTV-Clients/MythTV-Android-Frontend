@@ -23,6 +23,7 @@ import org.mythtv.client.ui.dvr.navigationDrawer.DvrUpcomingLastUpdateActionRow;
 import org.mythtv.client.ui.dvr.navigationDrawer.DvrVersionRow;
 import org.mythtv.client.ui.navigationDrawer.Row;
 import org.mythtv.client.ui.preferences.LocationProfile;
+import org.mythtv.client.ui.util.MenuHelper;
 import org.mythtv.db.http.model.EtagInfoDelegate;
 import org.mythtv.services.api.dvr.impl.DvrTemplate;
 import org.mythtv.services.api.guide.impl.GuideTemplate;
@@ -216,11 +217,57 @@ public class DvrNavigationDrawerActivity extends AbstractMythtvFragmentActivity 
 
     	if( null != drawer && null != navList ) {
     		
-/*    		MenuItem item = menu.findItem( R.id.add );
-    		if( item != null ) {
-    			item.setVisible( !drawer.isDrawerOpen( navList ) );
+    		MenuItem about = menu.findItem( MenuHelper.ABOUT_ID );
+    		if( null != about ) {
+    			about.setVisible( !drawer.isDrawerOpen( navList ) );
     		}
-*/    		
+
+    		MenuItem help = menu.findItem( MenuHelper.HELP_ID );
+    		if( null != help ) {
+    			help.setVisible( !drawer.isDrawerOpen( navList ) );
+    		}
+
+    		MenuItem refresh = menu.findItem( MenuHelper.REFRESH_ID );
+    		if( null != refresh ) {
+    			refresh.setVisible( !drawer.isDrawerOpen( navList ) );
+    		}
+
+    		MenuItem watch = menu.findItem( MenuHelper.WATCH_ID );
+    		if( null != watch ) {
+    			watch.setVisible( !drawer.isDrawerOpen( navList ) );
+    		}
+
+    		MenuItem watchOnTv = menu.findItem( MenuHelper.WATCH_ON_TV_ID );
+    		if( null != watchOnTv ) {
+    			watchOnTv.setVisible( !drawer.isDrawerOpen( navList ) );
+    		}
+
+    		MenuItem add = menu.findItem( MenuHelper.ADD_ID );
+    		if( null != add ) {
+    			add.setVisible( !drawer.isDrawerOpen( navList ) );
+    		}
+
+    		MenuItem edit = menu.findItem( MenuHelper.EDIT_ID );
+    		if( null != edit ) {
+    			edit.setVisible( !drawer.isDrawerOpen( navList ) );
+    		}
+
+    		MenuItem save = menu.findItem( MenuHelper.SAVE_ID );
+    		if( null != save ) {
+    			save.setVisible( !drawer.isDrawerOpen( navList ) );
+    		}
+
+
+    		MenuItem delete = menu.findItem( MenuHelper.DELETE_ID );
+    		if( null != delete ) {
+    			delete.setVisible( !drawer.isDrawerOpen( navList ) );
+    		}
+
+    		MenuItem guideDay = menu.findItem( MenuHelper.GUIDE_ID );
+    		if( null != guideDay ) {
+    			guideDay.setVisible( !drawer.isDrawerOpen( navList ) );
+    		}
+    		
     	}
     	
 		Log.v( TAG, "onPrepareOptionsMenu : exit" );
