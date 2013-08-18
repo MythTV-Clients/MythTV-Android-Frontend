@@ -57,6 +57,14 @@
   				android:layout_height="wrap_content"
   				android:layout_weight=".20"
   			/>
+	    	
+	    	<ImageView 
+	    	    android:id="@+id/program_guide_data_item_record_status_img"
+	    	    android:layout_width="wrap_content"
+	    	    android:layout_height="wrap_content"
+	    		android:visibility="gone"
+	    		android:alpha="0.5"
+	    	    android:src="@drawable/mythmote_btn_media_rec"/>
 
 		</LinearLayout>
 	    

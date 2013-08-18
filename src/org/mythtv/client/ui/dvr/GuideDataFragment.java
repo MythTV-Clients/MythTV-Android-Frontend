@@ -11,9 +11,15 @@ import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.util.MythtvListFragment;
 import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.db.dvr.ProgramDaoHelper;
+import org.mythtv.db.dvr.RecordingConstants;
 import org.mythtv.service.util.DateUtils;
 import org.mythtv.services.api.dvr.Program;
+import org.mythtv.services.api.dvr.Recording;
 
+import android.animation.Animator;
+import android.animation.Animator.AnimatorListener;
+import android.animation.ValueAnimator.AnimatorUpdateListener;
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -25,6 +31,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CursorAdapter;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -69,10 +76,28 @@ public class GuideDataFragment extends MythtvListFragment implements LoaderManag
 		    DateTime start = new DateTime( date );
 		    Log.v( TAG, "onCreateLoader : getting prorgrams for channel " + channelId + " on " + start.toString() );
 		    
-			projection = new String[] { ProgramConstants._ID, ProgramConstants.FIELD_TITLE, ProgramConstants.FIELD_SUB_TITLE, ProgramConstants.FIELD_CATEGORY, ProgramConstants.FIELD_START_TIME, ProgramConstants.FIELD_END_TIME };
-			selection = ProgramConstants.TABLE_NAME_GUIDE + "." + ProgramConstants.FIELD_CHANNEL_ID + " = ? AND " + ProgramConstants.TABLE_NAME_GUIDE + "." + ProgramConstants.FIELD_END_TIME + " > ? AND " + ProgramConstants.TABLE_NAME_GUIDE + "." + ProgramConstants.FIELD_START_TIME + " < ? AND " + ProgramConstants.TABLE_NAME_GUIDE + "." + ProgramConstants.FIELD_MASTER_HOSTNAME + " = ?";
-			selectionArgs = new String[] { String.valueOf( channelId ), String.valueOf( start.withZone( DateTimeZone.UTC ).getMillis() ), String.valueOf( start.plusDays( 1 ).withZone( DateTimeZone.UTC ).getMillis() ), mLocationProfile.getHostname() };
-			sortOrder = ProgramConstants.TABLE_NAME_GUIDE + "." + ProgramConstants.FIELD_START_TIME;
+			projection = new String[] { ProgramConstants._ID,
+					ProgramConstants.FIELD_TITLE,
+					ProgramConstants.FIELD_SUB_TITLE,
+					ProgramConstants.FIELD_CATEGORY,
+					ProgramConstants.FIELD_START_TIME,
+					ProgramConstants.FIELD_END_TIME,
+					ProgramConstants.FIELD_RECORD_ID};
+			selection = ProgramConstants.TABLE_NAME_GUIDE + "."
+					+ ProgramConstants.FIELD_CHANNEL_ID + " = ? AND "
+					+ ProgramConstants.TABLE_NAME_GUIDE + "."
+					+ ProgramConstants.FIELD_END_TIME + " > ? AND "
+					+ ProgramConstants.TABLE_NAME_GUIDE + "."
+					+ ProgramConstants.FIELD_START_TIME + " < ? AND "
+					+ ProgramConstants.TABLE_NAME_GUIDE + "."
+					+ ProgramConstants.FIELD_MASTER_HOSTNAME + " = ?";
+			selectionArgs = new String[] {
+					String.valueOf(channelId),
+					String.valueOf(start.withZone(DateTimeZone.UTC).getMillis()),
+					String.valueOf(start.plusDays(1).withZone(DateTimeZone.UTC)
+							.getMillis()), mLocationProfile.getHostname() };
+			sortOrder = ProgramConstants.TABLE_NAME_GUIDE + "."
+					+ ProgramConstants.FIELD_START_TIME;
 
 			Log.v( TAG, "onCreateLoader : exit" );
 			return new CursorLoader( getActivity(), ProgramConstants.CONTENT_URI_GUIDE, projection, selection, selectionArgs, sortOrder );
@@ -184,7 +209,43 @@ public class GuideDataFragment extends MythtvListFragment implements LoaderManag
 	        	mHolder.title.setText( program.getTitle() );
 	        	mHolder.subTitle.setText( program.getSubTitle() );
 	        	mHolder.startTime.setText( DateUtils.getTimeWithLocaleFormatting( program.getStartTime(), mMainApplication.getClockType() ) );
+	        	
+//	        	Recording rec = program.getRecording();
+//	        	if(null != rec){
+//	        		//TODO: status CASES are a total guess and will need to be fixed to reality
+//	        		switch(rec.getStatus()){
+//	        		
+//	        		//Will record or has recorded
+//	        		case 1:
+//	        		case 3:
+//	        			mHolder.recStatus.setAlpha(0.5f);
+//	        			mHolder.recStatus.setVisibility(View.VISIBLE);
+//	        			break;
+//	        			
+//	        		//currently recording
+//	        		case 2:
+//	        			mHolder.recStatus.setAlpha(1f);
+//	        			mHolder.recStatus.setVisibility(View.VISIBLE);
+//	        			setRecordingAnimation(mHolder);
+//	        			break;
+//	        			
+//	        		//Not recordings
+//	        		default:
+//	        		case 0:
+//	        			mHolder.recStatus.setVisibility(View.GONE);
+//	        			break;
+//	        		
+//	        		};
+//	        	}else{
+//	        		mHolder.recStatus.setVisibility(View.GONE);
+//	        	}
+	        	
+	        	//TODO: TEMP Make every item look like it's recording
+	        	mHolder.recStatus.setAlpha(1f);
+    			mHolder.recStatus.setVisibility(View.VISIBLE);
+    			setRecordingAnimation(mHolder);
 
+	        	
 	        	long duration = ( program.getEndTime().getMillis() - program.getStartTime().getMillis() ) / 60000;
 	        	mHolder.duration.setText( duration + " mins" );
 	        	
@@ -207,10 +268,35 @@ public class GuideDataFragment extends MythtvListFragment implements LoaderManag
 			refHolder.subTitle = (TextView) view.findViewById( R.id.program_guide_data_item_sub_title );
 			refHolder.startTime = (TextView) view.findViewById( R.id.program_guide_data_item_start_time );
 			refHolder.duration = (TextView) view.findViewById( R.id.program_guide_data_item_duration );
+			refHolder.recStatus = (ImageView) view.findViewById( R.id.program_guide_data_item_record_status_img ); 
 			
 			view.setTag( refHolder );
 			
 			return view;
+		}
+		
+		
+		//Internal helpers
+		
+		private void setRecordingAnimation(final ProgramViewHolder mHolder) {
+			//animator that translates linearlayout
+			AnimatorUpdateListener scaleAnimatorListener = new AnimatorUpdateListener(){
+				@Override
+				public void onAnimationUpdate(ValueAnimator animation) {
+					Float w = (Float)animation.getAnimatedValue();
+					mHolder.recStatus.setScaleX(w);
+					mHolder.recStatus.setScaleY(w);
+				}
+			};
+			
+			ValueAnimator scaleAnimator = ValueAnimator.ofFloat(1f, 0.6f);
+			scaleAnimator.setDuration(500);
+			scaleAnimator.setRepeatCount(ValueAnimator.INFINITE);
+			scaleAnimator.setRepeatMode(ValueAnimator.REVERSE);
+			scaleAnimator.setStartDelay(0);
+			scaleAnimator.addUpdateListener(scaleAnimatorListener);
+
+			scaleAnimator.start();
 		}
 
 	}
@@ -224,6 +310,7 @@ public class GuideDataFragment extends MythtvListFragment implements LoaderManag
 		TextView subTitle;
 		TextView startTime;
 		TextView duration;
+		ImageView recStatus;
 		
 	}
 
