@@ -49,7 +49,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.RemoteException;
-import android.util.Log;
 
 /**
  * @author Daniel Frey
@@ -373,7 +372,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 			}
 			
 			if( count > 100 ) {
-				Log.i( TAG, "load : applying batch for '" + count + "' transactions, processing programs" );
+//				Log.i( TAG, "load : applying batch for '" + count + "' transactions, processing programs" );
 				
 				if( !ops.isEmpty() ) {
 //					Log.v( TAG, "load : applying batch" );
@@ -396,7 +395,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		}
 
 		if( !ops.isEmpty() ) {
-			Log.i( TAG, "load : applying final batch for '" + count + "' transactions, after processing programs" );
+//			Log.i( TAG, "load : applying final batch for '" + count + "' transactions, after processing programs" );
 
 			ContentProviderResult[] results = context.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
 			loaded += results.length;
@@ -444,7 +443,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 
 
 		if( !ops.isEmpty() ) {
-			Log.i( TAG, "load : applying final batch for '" + count + "' transactions, final batch" );
+//			Log.i( TAG, "load : applying final batch for '" + count + "' transactions, final batch" );
 			
 			ContentProviderResult[] results = context.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
 			loaded += results.length;
