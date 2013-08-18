@@ -18,25 +18,18 @@
  */
 package org.mythtv.db.dvr;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.mythtv.client.ui.preferences.LocationProfile;
-import org.mythtv.provider.MythtvProvider;
-import org.mythtv.service.util.DateUtils;
 import org.mythtv.services.api.channel.ChannelInfo;
 import org.mythtv.services.api.dvr.Program;
 import org.mythtv.services.api.guide.ProgramGuide;
 
-import android.content.ContentProviderOperation;
-import android.content.ContentProviderResult;
 import android.content.ContentUris;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.OperationApplicationException;
-import android.database.Cursor;
 import android.os.RemoteException;
 import android.util.Log;
 
@@ -243,7 +236,13 @@ public class ProgramGuideDaoHelper extends ProgramDaoHelper {
 	 */
 	@Override
 	public int load( final Context context, final LocationProfile locationProfile, final List<Program> programs ) throws RemoteException, OperationApplicationException {
-		return 0;
+//		Log.d( TAG, "load : enter" );
+
+		int loaded = load( context, ProgramConstants.CONTENT_URI_GUIDE, locationProfile, programs, ProgramConstants.TABLE_NAME_GUIDE );
+//		Log.d( TAG, "load : loaded=" + loaded );
+		
+//		Log.d( TAG, "load : exit" );
+		return loaded;
 	}
 
 	/**
@@ -260,19 +259,20 @@ public class ProgramGuideDaoHelper extends ProgramDaoHelper {
 		if( null == context ) 
 			throw new RuntimeException( "ProgramDaoHelper is not initialized" );
 
-		int deleted = 0;
+		int processed = 0;
+/*		int deleted = 0;
 		int count = 0;
 		int processed = 0;
 		int totalUpdates = 0;
 		int totalInserts = 0;
 
-		DateTime lastModified = DateUtils.convertUtc( new DateTime( DateTimeZone.getDefault() ) );
+		DateTime lastModified = new DateTime( DateTimeZone.UTC );
 		
 		ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
 
-		DateTime startDate = DateUtils.convertUtc( new DateTime( DateTimeZone.UTC ) ).withTimeAtStartOfDay();
-		
-		Log.d( TAG, "load : deleting old" );
+		DateTime startDate = new DateTime( DateTimeZone.UTC ).withTimeAtStartOfDay();
+*/		
+/*		Log.d( TAG, "load : deleting old" );
 		ops.add(  
 			ContentProviderOperation.newDelete( ProgramConstants.CONTENT_URI_GUIDE )
 				.withSelection( ProgramConstants.FIELD_END_TIME + " < ?", new String[] { String.valueOf( startDate.getMillis() ) } )
@@ -287,15 +287,24 @@ public class ProgramGuideDaoHelper extends ProgramDaoHelper {
 				ops.clear();
 			}
 		}
-
-		String[] programProjection = new String[] { ProgramConstants._ID };
+*/
+/*		String[] programProjection = new String[] { ProgramConstants._ID };
 		String programSelection = ProgramConstants.TABLE_NAME_GUIDE + "." + ProgramConstants.FIELD_CHANNEL_ID + " = ? AND " + ProgramConstants.TABLE_NAME_GUIDE + "." + ProgramConstants.FIELD_START_TIME + " = ?";
 		
 		programSelection = appendLocationHostname( context, locationProfile, programSelection, ProgramConstants.TABLE_NAME_GUIDE );
-		
+*/		
 		for( ChannelInfo channel : channelInfos ) {
+
+			ChannelInfo copy = copy( channel );
+			for( Program program : channel.getPrograms() ) {
+
+				program.setChannelInfo( copy );
 			
-			ChannelInfo channelInfo = mChannelDaoHelper.findByChannelId( context, locationProfile, (long) channel.getChannelId() );
+			}
+			
+			processed += load( context, locationProfile, channel.getPrograms() );
+			
+/*			ChannelInfo channelInfo = mChannelDaoHelper.findByChannelId( context, locationProfile, (long) channel.getChannelId() );
 			if( null != channelInfo ) {
 //				Log.v( TAG, "load : processing programs for channel id [" + channel.getChannelId() + "] with number " + channel.getChannelNumber() + " with program size=" + channel.getPrograms().size() );
 				
@@ -355,9 +364,9 @@ public class ProgramGuideDaoHelper extends ProgramDaoHelper {
 				Log.v( TAG, "load : channel NOT found for channel id [" + channel.getChannelId() + "]" );
 			}
 
-		}
+*/		}
 		
-		if( !ops.isEmpty() ) {
+/*		if( !ops.isEmpty() ) {
 			Log.v( TAG, "load : final batch " + count );
 
 			ContentProviderResult[] results = context.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
@@ -372,9 +381,41 @@ public class ProgramGuideDaoHelper extends ProgramDaoHelper {
 		Log.d( TAG, "load : processed: " + processed );
 		Log.d( TAG, "load : totalUpdates: " + totalUpdates );
 		Log.d( TAG, "load : totalInserts: " + totalInserts );
-		
+*/		
 		Log.d( TAG, "load : exit" );
 		return processed;
 	}
 
+	private ChannelInfo copy( ChannelInfo channel ) {
+		
+		ChannelInfo copy = new ChannelInfo();
+		copy.setChannelId( channel.getChannelId() );
+		copy.setChannelNumber( channel.getChannelNumber() );
+		copy.setCallSign( channel.getCallSign() );
+		copy.setIconUrl( channel.getIconUrl() );
+		copy.setChannelName( channel.getChannelName() );
+		copy.setMultiplexId( channel.getMultiplexId() );
+		copy.setTransportId( channel.getTransportId() );
+		copy.setServiceId( channel.getServiceId() );
+		copy.setNetworkId( channel.getNetworkId() );
+		copy.setAtscMajorChannel( channel.getAtscMajorChannel() );
+		copy.setAtscMinorChannel( channel.getAtscMinorChannel() );
+		copy.setFormat( channel.getFormat() );
+		copy.setModulation( channel.getModulation() );
+		copy.setFrequency( channel.getFrequency() );
+		copy.setFrequencyId( channel.getFrequencyId() );
+		copy.setFrequenceTable( channel.getFrequenceTable() );
+		copy.setFineTune( channel.getFineTune() );
+		copy.setSiStandard( channel.getSiStandard() );
+		copy.setChannelFilters( channel.getChannelFilters() );
+		copy.setSourceId( channel.getSourceId() );
+		copy.setInputId( channel.getInputId() );
+		copy.setCommercialFree( channel.getCommercialFree() );
+		copy.setUseEit( channel.isUseEit() );
+		copy.setVisable( channel.isVisable() );
+		copy.setXmltvId( channel.getXmltvId() );
+		copy.setDefaultAuth( channel.getDefaultAuth() );
+
+		return copy;
+	}
 }
