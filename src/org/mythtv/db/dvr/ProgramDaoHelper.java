@@ -25,6 +25,7 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.AbstractDaoHelper;
+import org.mythtv.db.channel.ChannelConstants;
 import org.mythtv.db.channel.ChannelDaoHelper;
 import org.mythtv.db.content.LiveStreamConstants;
 import org.mythtv.db.content.LiveStreamDaoHelper;
@@ -253,7 +254,8 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		if( null == context ) 
 			throw new RuntimeException( "ProgramDaoHelper is not initialized" );
 		
-		DateTime lastModified = DateUtils.convertUtc( new DateTime( System.currentTimeMillis() ) );
+		DateTime today = new DateTime( DateTimeZone.UTC ).withTimeAtStartOfDay();
+		DateTime lastModified = new DateTime( DateTimeZone.UTC );
 		
 //		Log.v( TAG, "load : find all existing recordings, table=" + table );
 		String recordedSelection = "";
@@ -298,12 +300,6 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 							.withYieldAllowed( true )
 							.build()
 					);
-//				context.getContentResolver().update(
-//						ContentUris.withAppendedId( uri, id ),   // the user dictionary content URI
-//						programValues,                       // the columns to update
-//					    programSelection,                    // the column to select on
-//					    new String[] { String.valueOf( program.getChannelInfo().getChannelId() ), String.valueOf( startTime.getMillis() ) }                      // the value to compare to
-//					);
 			} else {
 //				Log.v( TAG, "load : INSERT PROGRAM " + count + ":" + program.getChannelInfo().getChannelId() + ":" + program.getStartTime() + ":" + program.getHostname() );
 
@@ -313,21 +309,32 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 							.withYieldAllowed( true )
 							.build()
 					);
-//				context.getContentResolver().insert(
-//						uri,   // the user dictionary content URI
-//						programValues                       // the columns to update
-//					);
 			}
 			programCursor.close();
 			count++;
 			
 			if( null != program.getChannelInfo() ) {
 				
-				if( null == mChannelDaoHelper.findByChannelId( context, locationProfile, (long) program.getChannelInfo().getChannelId() ) ) {
-//					Log.v( TAG, "load : adding non-existent channel" );
+				String[] channelProjection = new String[] { ChannelConstants._ID };
+				String channelSelection = ChannelConstants.FIELD_CHAN_ID + " = ?";
 
-					mChannelDaoHelper.save( context, locationProfile, program.getChannelInfo() );
+				channelSelection = appendLocationHostname( context, locationProfile, channelSelection, null );
+
+				ContentValues channelValues = ChannelDaoHelper.convertChannelInfoToContentValues( locationProfile, lastModified, program.getChannelInfo() );
+				Cursor channelCursor = context.getContentResolver().query( ChannelConstants.CONTENT_URI, channelProjection, channelSelection, new String[] { String.valueOf( program.getChannelInfo().getChannelId() ) }, null );
+				if( !channelCursor.moveToFirst() ) {
+//					Log.v( TAG, "load : adding channel " + program.getChannelInfo().getChannelId() );
+					
+					// catch all for channels not in regular linups (i.e. added as a result of integrating miro bridge)
+					ops.add(  
+						ContentProviderOperation.newInsert( ChannelConstants.CONTENT_URI )
+							.withValues( channelValues )
+							.withYieldAllowed( true )
+							.build()
+					);
+					count++;
 				}
+				channelCursor.close();
 				
 			}
 			
@@ -406,28 +413,31 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		}
 
 //		Log.v( TAG, "load : remove deleted recordings" );
-		String deletedSelection = table + "." + ProgramConstants.FIELD_LAST_MODIFIED + " < ?";
-		String[] deletedSelectionArgs = new String[] { String.valueOf( lastModified.getMillis() ) };
-		List<Program> deleted = findAll( context, uri, null, deletedSelection, deletedSelectionArgs, null, table );
-		for( Program program : deleted ) {
-//			Log.v( TAG, "load : remove deleted recording - " + program.getTitle() + " [" + program.getSubTitle() + "]" );
-			
-			// Delete any live stream details
-			LiveStreamInfo liveStreamInfo = mLiveStreamDaoHelper.findByProgram( context, locationProfile, program );
-			if( null != liveStreamInfo ) {
-//				Log.v( TAG, "load : remove live stream" );
-				
-				RemoveStreamTask removeStreamTask = new RemoveStreamTask();
-				removeStreamTask.setContext( context );
-				removeStreamTask.setLocationProfile( locationProfile );
-				removeStreamTask.execute( liveStreamInfo );
+		if( table.equals( ProgramConstants.TABLE_NAME_RECORDED ) ) {
+			String deletedSelection = table + "." + ProgramConstants.FIELD_LAST_MODIFIED + " < ?";
+			String[] deletedSelectionArgs = new String[] { String.valueOf( today.getMillis() ) };
+			List<Program> deleted = findAll( context, uri, null, deletedSelection, deletedSelectionArgs, null, table );
+			for( Program program : deleted ) {
+				//			Log.v( TAG, "load : remove deleted recording - " + program.getTitle() + " [" + program.getSubTitle() + "]" );
+
+				// Delete any live stream details
+				LiveStreamInfo liveStreamInfo = mLiveStreamDaoHelper.findByProgram( context, locationProfile, program );
+				if( null != liveStreamInfo ) {
+					//				Log.v( TAG, "load : remove live stream" );
+
+					RemoveStreamTask removeStreamTask = new RemoveStreamTask();
+					removeStreamTask.setContext( context );
+					removeStreamTask.setLocationProfile( locationProfile );
+					removeStreamTask.execute( liveStreamInfo );
+				}
+
 			}
-			
 		}
-		
+
+//		Log.v( TAG, "load : DELETE PROGRAMS" );
 		ops.add(  
 			ContentProviderOperation.newDelete( uri )
-				.withSelection( table + "." + ProgramConstants.FIELD_LAST_MODIFIED_DATE + " < ?", new String[] { String.valueOf( lastModified.getMillis() ) } )
+				.withSelection( table + "." + ProgramConstants.FIELD_LAST_MODIFIED_DATE + " < ?", new String[] { String.valueOf( today.getMillis() ) } )
 				.withYieldAllowed( true )
 				.build()
 		);
@@ -442,9 +452,9 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 			if( results.length > 0 ) {
 				ops.clear();
 
-				for( ContentProviderResult result : results ) {
-					Log.i( TAG, "load : batch result=" + result.toString() );
-				}
+//				for( ContentProviderResult result : results ) {
+//					Log.i( TAG, "load : batch result=" + result.toString() );
+//				}
 			}
 		}
 
