@@ -19,9 +19,11 @@
 package org.mythtv.service.dvr;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.joda.time.DateTime;
 import org.mythtv.client.ui.preferences.LocationProfile;
+import org.mythtv.db.dvr.ProgramGuideDaoHelper;
 import org.mythtv.db.dvr.UpcomingDaoHelper;
 import org.mythtv.db.http.EtagDaoHelper;
 import org.mythtv.db.http.model.EtagInfoDelegate;
@@ -29,6 +31,7 @@ import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.MythtvService;
 import org.mythtv.service.util.DateUtils;
 import org.mythtv.service.util.NetworkHelper;
+import org.mythtv.services.api.dvr.Program;
 import org.mythtv.services.api.dvr.ProgramList;
 import org.mythtv.services.api.dvr.Programs;
 import org.mythtv.services.api.dvr.impl.DvrTemplate.Endpoint;
@@ -65,6 +68,7 @@ public class UpcomingDownloadService extends MythtvService {
 	private UpcomingDaoHelper mUpcomingDaoHelper = UpcomingDaoHelper.getInstance();
 	private EtagDaoHelper mEtagDaoHelper = EtagDaoHelper.getInstance();
 	private LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
+	private ProgramGuideDaoHelper mProgramGuideDaoHelper = ProgramGuideDaoHelper.getInstance();
 
 	public UpcomingDownloadService() {
 		super( "UpcomingDownloadService" );
@@ -97,7 +101,8 @@ public class UpcomingDownloadService extends MythtvService {
     		try {
 
     			download( locationProfile );
-
+    			updateUpcoming( locationProfile );
+    			
 			} catch( Exception e ) {
 				Log.e( TAG, "onHandleIntent : error loading upcoming data", e );
 				
@@ -178,4 +183,32 @@ public class UpcomingDownloadService extends MythtvService {
 		Log.v( TAG, "process : exit" );
 	}
 
+	private void updateUpcoming( final LocationProfile locationProfile ) {
+		Log.v( TAG, "updateUpcoming : enter" );
+		
+		List<Program> upcomings = mUpcomingDaoHelper.findAll( this, locationProfile );
+		if( null != upcomings && !upcomings.isEmpty() ) {
+			
+			for( Program upcoming : upcomings ) {
+//				Log.v( TAG, "updateUpcoming : upcoming=" + upcomings.toString() );
+			
+				Program program = mProgramGuideDaoHelper.findOne( this, locationProfile, upcoming.getChannelInfo().getChannelId(), upcoming.getStartTime() );
+				if( null != program ) {
+					
+					if( null == program.getRecording() || ( null != program.getRecording() && program.getRecording().getStatus() > -2 ) ) {
+						program.setRecording( upcoming.getRecording() );
+						mProgramGuideDaoHelper.save( this, locationProfile, program );
+					
+						Log.v( TAG, "updateUpcoming : program updated!" );
+					}
+					
+				}
+				
+			}
+			
+		}
+		
+		Log.v( TAG, "updateUpcoming : exit" );
+	}
+	
 }

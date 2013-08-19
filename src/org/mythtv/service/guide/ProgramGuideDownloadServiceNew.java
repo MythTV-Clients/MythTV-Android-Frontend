@@ -19,16 +19,19 @@
 package org.mythtv.service.guide;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Interval;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.dvr.ProgramGuideDaoHelper;
+import org.mythtv.db.dvr.UpcomingDaoHelper;
 import org.mythtv.db.http.model.EtagInfoDelegate;
 import org.mythtv.service.MythtvService;
 import org.mythtv.service.util.DateUtils;
 import org.mythtv.service.util.NetworkHelper;
+import org.mythtv.services.api.dvr.Program;
 import org.mythtv.services.api.guide.ProgramGuide;
 import org.mythtv.services.api.guide.ProgramGuideWrapper;
 import org.mythtv.services.api.guide.impl.GuideTemplate;
@@ -65,6 +68,7 @@ public class ProgramGuideDownloadServiceNew extends MythtvService {
     public static final String EXTRA_COMPLETE_OFFLINE = "COMPLETE_OFFLINE";
 
 	private ProgramGuideDaoHelper mProgramGuideDaoHelper = ProgramGuideDaoHelper.getInstance(); 
+	private UpcomingDaoHelper mUpcomingDaoHelper = UpcomingDaoHelper.getInstance(); 
 	
 	public ProgramGuideDownloadServiceNew() {
 		super( "ProgamGuideDownloadServiceNew" );
@@ -96,7 +100,8 @@ public class ProgramGuideDownloadServiceNew extends MythtvService {
 			try {
 
 				download( locationProfile );
-
+				updateUpcoming( locationProfile );
+				
 			} catch( Exception e ) {
 				Log.e( TAG, "onHandleIntent : error", e );
 				
@@ -201,4 +206,32 @@ public class ProgramGuideDownloadServiceNew extends MythtvService {
 		Log.v( TAG, "process : exit" );
 	}
 
+	private void updateUpcoming( final LocationProfile locationProfile ) {
+		Log.v( TAG, "updateUpcoming : enter" );
+		
+		List<Program> upcomings = mUpcomingDaoHelper.findAll( this, locationProfile );
+		if( null != upcomings && !upcomings.isEmpty() ) {
+			
+			for( Program upcoming : upcomings ) {
+//				Log.v( TAG, "updateUpcoming : upcoming=" + upcomings.toString() );
+			
+				Program program = mProgramGuideDaoHelper.findOne( this, locationProfile, upcoming.getChannelInfo().getChannelId(), upcoming.getStartTime() );
+				if( null != program ) {
+					
+					if( null == program.getRecording() || ( null != program.getRecording() && program.getRecording().getStatus() > -2 ) ) {
+						program.setRecording( upcoming.getRecording() );
+						mProgramGuideDaoHelper.save( this, locationProfile, program );
+					
+						Log.v( TAG, "updateUpcoming : program updated!" );
+					}
+					
+				}
+				
+			}
+			
+		}
+		
+		Log.v( TAG, "updateUpcoming : exit" );
+	}
+	
 }

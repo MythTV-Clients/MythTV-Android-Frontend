@@ -86,17 +86,9 @@ public class RecordingConstants  extends AbstractBaseConstants {
 			
 			return tableNameMap.get( tableName );
 		}
-		
+
 	};
 	
-//	public static final String TABLE_NAME_RECORDING_GUIDE = "recording_guide";
-//	public static final String TABLE_NAME_RECORDING_RECORDED = "recording_recorded";
-//	public static final String TABLE_NAME_RECORDING_UPCOMING = "recording_upcoming";
-//
-//	public static final Uri CONTENT_URI_RECORDING_GUIDE = Uri.parse( "content://" + MythtvProvider.AUTHORITY + "/" + TABLE_NAME_RECORDING_GUIDE );
-//	public static final Uri CONTENT_URI_RECORDING_RECORDED = Uri.parse( "content://" + MythtvProvider.AUTHORITY + "/" + TABLE_NAME_RECORDING_RECORDED );
-//	public static final Uri CONTENT_URI_RECORDING_UPCOMING = Uri.parse( "content://" + MythtvProvider.AUTHORITY + "/" + TABLE_NAME_RECORDING_UPCOMING );
-
 	public static final String INSERT_RECORDING_GUIDE_ROW, UPDATE_RECORDING_GUIDE_ROW, INSERT_RECORDING_RECORDED_ROW, UPDATE_RECORDING_RECORDED_ROW, INSERT_RECORDING_UPCOMING_ROW, UPDATE_RECORDING_UPCOMING_ROW;
 
 	// db fields

@@ -24,6 +24,7 @@ import org.mythtv.client.MainApplication;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.preferences.LocationProfile.LocationType;
 import org.mythtv.db.dvr.ProgramConstants;
+import org.mythtv.db.dvr.ProgramGuideDaoHelper;
 import org.mythtv.db.http.EtagDaoHelper;
 import org.mythtv.db.http.model.EtagInfoDelegate;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
@@ -36,6 +37,8 @@ import org.mythtv.service.guide.ProgramGuideDownloadServiceNew;
 import org.mythtv.service.util.DateUtils;
 import org.mythtv.service.util.MythtvServiceHelper;
 import org.mythtv.service.util.RunningServiceHelper;
+import org.mythtv.services.api.dvr.Encoder;
+import org.mythtv.services.api.dvr.Program;
 import org.mythtv.services.api.dvr.impl.DvrTemplate;
 import org.mythtv.services.api.dvr.impl.DvrTemplate.Endpoint;
 import org.mythtv.services.api.status.Status;
@@ -68,6 +71,7 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
 	protected EtagDaoHelper mEtagDaoHelper = EtagDaoHelper.getInstance();
 	protected RunningServiceHelper mRunningServiceHelper = RunningServiceHelper.getInstance();
 	protected LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
+	protected ProgramGuideDaoHelper mProgramGuideDaoHelper = ProgramGuideDaoHelper.getInstance();
 	
 	private ChannelDownloadReceiver channelDownloadReceiver = new ChannelDownloadReceiver();
 	private FrontendsDiscoveryReceiver frontendsDiscoveryReceiver = new FrontendsDiscoveryReceiver();
@@ -284,6 +288,51 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
         			
         			checkChannelDownloadService();
 
+        			if( null != result.getScheduled() ) {
+        				
+        				if( null != result.getScheduled().getPrograms() && !result.getScheduled().getPrograms().isEmpty() ) {
+        					
+        					for( Program upcoming : result.getScheduled().getPrograms() ) {
+
+        						Program program = mProgramGuideDaoHelper.findOne( getActivity(), mLocationProfile, upcoming.getChannelInfo().getChannelId(), upcoming.getStartTime() );
+       							if( null != program ) {
+
+       								program.setRecording( upcoming.getRecording() );
+       								mProgramGuideDaoHelper.save( getActivity(), mLocationProfile, program );
+        								
+       								Log.v( TAG, "BackendStatusTask.onPostExecute : upcoming program updated! program=" + program.toString() );
+       							}
+        							
+       						}
+
+        				}
+        					
+        			}
+        			
+        			if( null != result.getEncoders() ) {
+        				
+        				if( null != result.getEncoders().getEncoders() && !result.getEncoders().getEncoders().isEmpty() ) {
+        					
+        					for( Encoder encoder : result.getEncoders().getEncoders() ) {
+        						
+        						if( null != encoder.getRecording() ) {
+        							
+        							Program program = mProgramGuideDaoHelper.findOne( getActivity(), mLocationProfile, encoder.getRecording().getChannelInfo().getChannelId(), encoder.getRecording().getStartTime() );
+        							if( null != program ) {
+        								program.setRecording( encoder.getRecording().getRecording() );
+        								mProgramGuideDaoHelper.save( getActivity(), mLocationProfile, program );
+        								
+        								Log.v( TAG, "BackendStatusTask.onPostExecute : current recording program updated!" );
+        							}
+        							
+        						}
+        				
+        					}
+        					
+        				}
+        				
+        			}
+        			
         			if( mLocationProfile.getType().equals( LocationType.HOME ) ) {
         				if( !mRunningServiceHelper.isServiceRunning( getActivity(), "org.mythtv.service.frontends.FrontendsDiscoveryService" ) ) {
         					getActivity().startService( new Intent( FrontendsDiscoveryService.ACTION_DISCOVER ) );
@@ -298,7 +347,7 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
         			
         		}
         		
-        		onBackendStatusUpdated(result);
+        		onBackendStatusUpdated( result );
     		}   
     		
     		Log.i( TAG, "BackendStatusTask.onPostExecute : exit" );
