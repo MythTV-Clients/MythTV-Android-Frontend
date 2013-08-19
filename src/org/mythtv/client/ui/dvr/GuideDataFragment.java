@@ -14,6 +14,7 @@ import org.mythtv.db.dvr.ProgramDaoHelper;
 import org.mythtv.db.dvr.RecordingConstants;
 import org.mythtv.service.util.DateUtils;
 import org.mythtv.services.api.dvr.Program;
+import org.mythtv.services.api.dvr.Recording;
 
 import android.animation.ValueAnimator;
 import android.animation.ValueAnimator.AnimatorUpdateListener;
@@ -211,41 +212,35 @@ public class GuideDataFragment extends MythtvListFragment implements LoaderManag
 	        	mHolder.subTitle.setText( program.getSubTitle() );
 	        	mHolder.startTime.setText( DateUtils.getTimeWithLocaleFormatting( program.getStartTime(), mMainApplication.getClockType() ) );
 	        	
-//	        	Recording rec = program.getRecording();
-//	        	if(null != rec){
-//	        		//TODO: status CASES are a total guess and will need to be fixed to reality
-//	        		switch(rec.getStatus()){
-//	        		
-//	        		//Will record or has recorded
-//	        		case 1:
-//	        		case 3:
-//	        			mHolder.recStatus.setAlpha(0.5f);
-//	        			mHolder.recStatus.setVisibility(View.VISIBLE);
-//	        			break;
-//	        			
-//	        		//currently recording
-//	        		case 2:
-//	        			mHolder.recStatus.setAlpha(1f);
-//	        			mHolder.recStatus.setVisibility(View.VISIBLE);
-//	        			setRecordingAnimation(mHolder);
-//	        			break;
-//	        			
-//	        		//Not recordings
-//	        		default:
-//	        		case 0:
-//	        			mHolder.recStatus.setVisibility(View.GONE);
-//	        			break;
-//	        		
-//	        		};
-//	        	}else{
-//	        		mHolder.recStatus.setVisibility(View.GONE);
-//	        	}
-	        	
-	        	//TODO: TEMP Make every item look like it's recording
-	        	mHolder.recStatus.setAlpha(1f);
-    			mHolder.recStatus.setVisibility(View.VISIBLE);
-    			setRecordingAnimation(mHolder);
+	        	Recording rec = program.getRecording();
+	        	if( null != rec ) {
 
+	        		switch( rec.getStatus() ) {
+	        		
+	        		//Will record or has recorded
+	        		case -1:
+	        		case -3:
+	        			mHolder.recStatus.setAlpha( 0.5f );
+	        			mHolder.recStatus.setVisibility( View.VISIBLE );
+	        			break;
+	        			
+	        		//currently recording
+	        		case -2:
+	        			mHolder.recStatus.setAlpha(1f);
+	        			mHolder.recStatus.setVisibility( View.VISIBLE );
+	        			setRecordingAnimation( mHolder );
+	        			break;
+	        			
+	        		//Not recordings
+	        		default:
+	        		case 0:
+	        			mHolder.recStatus.setVisibility( View.GONE );
+	        			break;
+	        		
+	        		};
+	        	}else{
+	        		mHolder.recStatus.setVisibility( View.GONE );
+	        	}
 	        	
 	        	long duration = ( program.getEndTime().getMillis() - program.getStartTime().getMillis() ) / 60000;
 	        	mHolder.duration.setText( duration + " mins" );
