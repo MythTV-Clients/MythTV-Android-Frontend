@@ -25,6 +25,7 @@ import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.preferences.LocationProfile.LocationType;
 import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.db.dvr.ProgramGuideDaoHelper;
+import org.mythtv.db.dvr.UpcomingDaoHelper;
 import org.mythtv.db.http.EtagDaoHelper;
 import org.mythtv.db.http.model.EtagInfoDelegate;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
@@ -72,6 +73,7 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
 	protected RunningServiceHelper mRunningServiceHelper = RunningServiceHelper.getInstance();
 	protected LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
 	protected ProgramGuideDaoHelper mProgramGuideDaoHelper = ProgramGuideDaoHelper.getInstance();
+	protected UpcomingDaoHelper mUpcomingDaoHelper = UpcomingDaoHelper.getInstance();
 	
 	private ChannelDownloadReceiver channelDownloadReceiver = new ChannelDownloadReceiver();
 	private FrontendsDiscoveryReceiver frontendsDiscoveryReceiver = new FrontendsDiscoveryReceiver();
@@ -317,14 +319,22 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
         						
         						if( null != encoder.getRecording() ) {
         							
-        							Program program = mProgramGuideDaoHelper.findOne( getActivity(), mLocationProfile, encoder.getRecording().getChannelInfo().getChannelId(), encoder.getRecording().getStartTime() );
-        							if( null != program ) {
-        								program.setRecording( encoder.getRecording().getRecording() );
-        								mProgramGuideDaoHelper.save( getActivity(), mLocationProfile, program );
+        							Program programGuide = mProgramGuideDaoHelper.findOne( getActivity(), mLocationProfile, encoder.getRecording().getChannelInfo().getChannelId(), encoder.getRecording().getStartTime() );
+        							if( null != programGuide ) {
+        								programGuide.setRecording( encoder.getRecording().getRecording() );
+        								mProgramGuideDaoHelper.save( getActivity(), mLocationProfile, programGuide );
         								
-        								Log.v( TAG, "BackendStatusTask.onPostExecute : current recording program updated!" );
+        								Log.v( TAG, "BackendStatusTask.onPostExecute : current recording in program guide updated!" );
         							}
         							
+        							Program upcoming = mUpcomingDaoHelper.findOne( getActivity(), mLocationProfile, encoder.getRecording().getChannelInfo().getChannelId(), encoder.getRecording().getStartTime() );
+        							if( null != upcoming ) {
+        								upcoming.setRecording( encoder.getRecording().getRecording() );
+        								mProgramGuideDaoHelper.save( getActivity(), mLocationProfile, upcoming );
+        								
+        								Log.v( TAG, "BackendStatusTask.onPostExecute : current recording in upcoming updated!" );
+        							}
+
         						}
         				
         					}
