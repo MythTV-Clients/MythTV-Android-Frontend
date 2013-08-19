@@ -14,12 +14,9 @@ import org.mythtv.db.dvr.ProgramDaoHelper;
 import org.mythtv.db.dvr.RecordingConstants;
 import org.mythtv.service.util.DateUtils;
 import org.mythtv.services.api.dvr.Program;
-import org.mythtv.services.api.dvr.Recording;
 
-import android.animation.Animator;
-import android.animation.Animator.AnimatorListener;
-import android.animation.ValueAnimator.AnimatorUpdateListener;
 import android.animation.ValueAnimator;
+import android.animation.ValueAnimator.AnimatorUpdateListener;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -77,12 +74,15 @@ public class GuideDataFragment extends MythtvListFragment implements LoaderManag
 		    Log.v( TAG, "onCreateLoader : getting prorgrams for channel " + channelId + " on " + start.toString() );
 		    
 			projection = new String[] { ProgramConstants._ID,
-					ProgramConstants.FIELD_TITLE,
-					ProgramConstants.FIELD_SUB_TITLE,
-					ProgramConstants.FIELD_CATEGORY,
-					ProgramConstants.FIELD_START_TIME,
-					ProgramConstants.FIELD_END_TIME,
-					ProgramConstants.FIELD_RECORD_ID};
+					ProgramConstants.TABLE_NAME_GUIDE + "." + ProgramConstants.FIELD_TITLE,
+					ProgramConstants.TABLE_NAME_GUIDE + "." + ProgramConstants.FIELD_SUB_TITLE,
+					ProgramConstants.TABLE_NAME_GUIDE + "." + ProgramConstants.FIELD_CATEGORY,
+					ProgramConstants.TABLE_NAME_GUIDE + "." + ProgramConstants.FIELD_START_TIME,
+					ProgramConstants.TABLE_NAME_GUIDE + "." + ProgramConstants.FIELD_END_TIME,
+					ProgramConstants.TABLE_NAME_GUIDE + "." + ProgramConstants.FIELD_RECORD_ID,
+					RecordingConstants.ContentDetails.GUIDE + "_" + RecordingConstants.FIELD_RECORD_ID,
+					RecordingConstants.ContentDetails.GUIDE + "_" + RecordingConstants.FIELD_STATUS
+			};
 			selection = ProgramConstants.TABLE_NAME_GUIDE + "."
 					+ ProgramConstants.FIELD_CHANNEL_ID + " = ? AND "
 					+ ProgramConstants.TABLE_NAME_GUIDE + "."
@@ -202,6 +202,7 @@ public class GuideDataFragment extends MythtvListFragment implements LoaderManag
 
 			if( null != program ) {
 				Log.v( TAG, "bindView : title=" + program.getTitle() + ", startTime=" + DateUtils.getDateTimeUsingLocaleFormattingPretty( program.getStartTime(), mMainApplication.getDateFormat(), mMainApplication.getClockType() ) );
+				Log.v( TAG, "bindView : program.recording=" + ( null != program.getRecording() ? program.getRecording().toString() : "empty" ) );
 				
 				final ProgramViewHolder mHolder = (ProgramViewHolder) view.getTag();
 	        
@@ -266,7 +267,7 @@ public class GuideDataFragment extends MythtvListFragment implements LoaderManag
 			refHolder.category = (View) view.findViewById( R.id.program_guide_data_item_category );
 			refHolder.title = (TextView) view.findViewById( R.id.program_guide_data_item_title );
 			refHolder.subTitle = (TextView) view.findViewById( R.id.program_guide_data_item_sub_title );
-			refHolder.startTime = (TextView) view.findViewById( R.id.program_guide_data_item_start_time );
+			refHolder.startTime = (TextView) view.findViewById( R.id.program_guide_data_item_start_time ); 
 			refHolder.duration = (TextView) view.findViewById( R.id.program_guide_data_item_duration );
 			refHolder.recStatus = (ImageView) view.findViewById( R.id.program_guide_data_item_record_status_img ); 
 			
