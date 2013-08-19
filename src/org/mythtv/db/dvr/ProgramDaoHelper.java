@@ -587,8 +587,8 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		if( cursor.getColumnIndex( ProgramConstants.FIELD_CHANNEL_ID ) != -1 ) {
 			channelInfo = ChannelDaoHelper.convertCursorToChannelInfo( cursor );
 		}
-		
-		if( cursor.getColumnIndex( ProgramConstants.FIELD_RECORD_ID ) != -1 ) {
+
+		if( cursor.getColumnIndex( RecordingConstants.ContentDetails.getValueFromParent( table ).getTableName() + "_" + RecordingConstants.FIELD_RECORD_ID ) != -1 ) {
 			recording = RecordingDaoHelper.convertCursorToRecording( cursor, table );
 		}
 		
