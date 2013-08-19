@@ -49,6 +49,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.RemoteException;
+import android.util.Log;
 
 /**
  * @author Daniel Frey
@@ -177,6 +178,15 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 			}
 		}
 		cursor.close();
+
+		if( null != program.getRecording() ) {
+			if( program.getRecording().getRecordId() != 0 ) {
+
+				mRecordingDaoHelper.save( context, RecordingConstants.ContentDetails.getValueFromParent( table ).getContentUri(), locationProfile, program.getStartTime(), program.getRecording(), RecordingConstants.ContentDetails.getValueFromParent( table ).getTableName() );
+
+			}
+		}
+		
 //		Log.v( TAG, "save : updated=" + updated );
 
 //		Log.v( TAG, "save : exit" );
@@ -275,10 +285,12 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		boolean inError;
 
 		RecordingConstants.ContentDetails details = RecordingConstants.ContentDetails.getValueFromParent( table );
+		Log.w(TAG, "load : details - parent=" + details.getParent() + ", tableName=" + details.getTableName() + ", contentUri=" + details.getContentUri().toString() );
+
 		for( Program program : programs ) {
 
 			if( null == program.getStartTime() || null == program.getEndTime() ) {
-//				Log.w(TAG, "convertProgramToContentValues : null starttime and or endtime" );
+//				Log.w(TAG, "load : null starttime and or endtime" );
 			
 				inError = true;
 			} else {
@@ -339,36 +351,41 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 			
 			if( !inError && null != program.getRecording() ) {
 				
-				String[] recordingProjection = new String[] { details.getTableName() + "_" + RecordingConstants._ID };
-				String recordingSelection = RecordingConstants.FIELD_RECORD_ID + " = ? AND " + RecordingConstants.FIELD_START_TIME + " = ? AND " + RecordingConstants.FIELD_MASTER_HOSTNAME + " = ?";
-				String[] recordingSelectionArgs = new String[] { String.valueOf( program.getRecording().getRecordId() ), String.valueOf( program.getStartTime().getMillis() ), locationProfile.getHostname() };
+				if( program.getRecording().getRecordId() < 0 ) {
 				
-//				Log.v( TAG, "load : recording=" + program.getRecording().toString() );
-				
-				ContentValues recordingValues = RecordingDaoHelper.convertRecordingToContentValues( locationProfile, lastModified, program.getStartTime(), program.getRecording() );
-				Cursor recordingCursor = context.getContentResolver().query( details.getContentUri(), recordingProjection, recordingSelection, recordingSelectionArgs, null );
-				if( recordingCursor.moveToFirst() ) {
-//					Log.v( TAG, "load : UPDATE RECORDING " + count + ":" + program.getTitle() + ", recording=" + program.getRecording().getRecordId() );
+					String[] recordingProjection = new String[] { details.getTableName() + "_" + RecordingConstants._ID };
+					String recordingSelection = RecordingConstants.FIELD_RECORD_ID + " = ? AND " + RecordingConstants.FIELD_START_TIME + " = ? AND " + RecordingConstants.FIELD_MASTER_HOSTNAME + " = ?";
+					String[] recordingSelectionArgs = new String[] { String.valueOf( program.getRecording().getRecordId() ), String.valueOf( program.getStartTime().getMillis() ), locationProfile.getHostname() };
 
-					Long id = recordingCursor.getLong( recordingCursor.getColumnIndexOrThrow( details.getTableName() + "_" + RecordingConstants._ID ) );					
-					ops.add( 
-						ContentProviderOperation.newUpdate( ContentUris.withAppendedId( details.getContentUri(), id ) )
-						.withValues( recordingValues )
-						.withYieldAllowed( true )
-						.build()
-					);
-				} else {
-//					Log.v( TAG, "load : INSERT RECORDING " + count + ":" + program.getTitle() + ", recording=" + program.getRecording().getRecordId() );
+					//Log.v( TAG, "load : recording=" + program.getRecording().toString() );
 
-					ops.add(  
-						ContentProviderOperation.newInsert( details.getContentUri() )
-						.withValues( recordingValues )
-						.withYieldAllowed( true )
-						.build()
-					);
+					ContentValues recordingValues = RecordingDaoHelper.convertRecordingToContentValues( locationProfile, lastModified, program.getStartTime(), program.getRecording() );
+					Cursor recordingCursor = context.getContentResolver().query( details.getContentUri(), recordingProjection, recordingSelection, recordingSelectionArgs, null );
+					if( recordingCursor.moveToFirst() ) {
+						//Log.v( TAG, "load : UPDATE RECORDING " + count + ":" + program.getTitle() + ", recording=" + program.getRecording().getRecordId() );
+
+						Long id = recordingCursor.getLong( recordingCursor.getColumnIndexOrThrow( details.getTableName() + "_" + RecordingConstants._ID ) );					
+						ops.add( 
+							ContentProviderOperation.newUpdate( ContentUris.withAppendedId( details.getContentUri(), id ) )
+								.withValues( recordingValues )
+								.withYieldAllowed( true )
+								.build()
+							);
+					} else {
+						//Log.v( TAG, "load : INSERT RECORDING " + count + ":" + program.getTitle() + ", recording=" + program.getRecording().getRecordId() );
+
+						ops.add(  
+							ContentProviderOperation.newInsert( details.getContentUri() )
+								.withValues( recordingValues )
+								.withYieldAllowed( true )
+								.build()
+							);
+					}
+					recordingCursor.close();
+					count++;
+
 				}
-				recordingCursor.close();
-				count++;
+				
 			}
 			
 			if( count > 100 ) {
@@ -441,6 +458,13 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 				.build()
 		);
 
+//		Log.v( TAG, "load : DELETE RECORDINGS" );
+		ops.add(  
+			ContentProviderOperation.newDelete( details.getContentUri() )
+				.withSelection( details.getTableName() + "." + RecordingConstants.FIELD_LAST_MODIFIED_DATE + " < ?", new String[] { String.valueOf( today.getMillis() ) } )
+				.withYieldAllowed( true )
+				.build()
+		);
 
 		if( !ops.isEmpty() ) {
 //			Log.i( TAG, "load : applying final batch for '" + count + "' transactions, final batch" );

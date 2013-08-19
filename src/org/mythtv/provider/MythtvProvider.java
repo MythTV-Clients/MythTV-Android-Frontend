@@ -425,7 +425,7 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 
 			case RECORDING_UPCOMING:
 
-				deleted = db.delete( RecordingConstants.ContentDetails.RECORDED.getTableName(), selection, selectionArgs );
+				deleted = db.delete( RecordingConstants.ContentDetails.UPCOMING.getTableName(), selection, selectionArgs );
 				
 				getContext().getContentResolver().notifyChange( uri, null );
 				

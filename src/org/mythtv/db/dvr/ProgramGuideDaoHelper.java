@@ -161,9 +161,9 @@ public class ProgramGuideDaoHelper extends ProgramDaoHelper {
 		Log.d( TAG, "findOne : id=" + id );
 		
 		Program program = findOne( context, ContentUris.withAppendedId( ProgramConstants.CONTENT_URI_GUIDE, id ), null, null, null, null, ProgramConstants.TABLE_NAME_GUIDE );
-		if( null != program ) {
-			Log.d( TAG, "findOne : program=" + program.toString() );
-		}
+//		if( null != program ) {
+//			Log.d( TAG, "findOne : program=" + program.toString() );
+//		}
 		
 		Log.d( TAG, "findOne : exit" );
 		return program;
@@ -182,11 +182,11 @@ public class ProgramGuideDaoHelper extends ProgramDaoHelper {
 		selection = appendLocationHostname( context, locationProfile, selection, ProgramConstants.TABLE_NAME_GUIDE );
 		
 		Program program = findOne( context, ProgramConstants.CONTENT_URI_GUIDE, null, selection, selectionArgs, null, ProgramConstants.TABLE_NAME_GUIDE );
-		if( null != program ) {
-			Log.v( TAG, "findOne : program=" + program.toString() );
-		} else {
-			Log.v( TAG, "findOne : program not found!" );
-		}
+//		if( null != program ) {
+//			Log.v( TAG, "findOne : program=" + program.toString() );
+//		} else {
+//			Log.v( TAG, "findOne : program not found!" );
+//		}
 		
 		Log.d( TAG, "findOne : exit" );
 		return program;

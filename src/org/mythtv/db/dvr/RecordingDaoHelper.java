@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.AbstractDaoHelper;
 import org.mythtv.service.util.DateUtils;
@@ -32,7 +33,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
-//import android.util.Log;
+import android.util.Log;
 
 
 /**
@@ -41,7 +42,7 @@ import android.net.Uri;
  */
 public class RecordingDaoHelper extends AbstractDaoHelper {
 
-//	private static final String TAG = RecordingDaoHelper.class.getSimpleName();
+	private static final String TAG = RecordingDaoHelper.class.getSimpleName();
 	
 	private static RecordingDaoHelper singleton = null;
 
@@ -159,6 +160,48 @@ public class RecordingDaoHelper extends AbstractDaoHelper {
 		
 //		Log.d( TAG, "findOne : exit" );
 		return recording;
+	}
+
+	/**
+	 * @param uri
+	 * @param program
+	 * @return
+	 */
+	protected int save( final Context context, final Uri uri, final LocationProfile locationProfile, final DateTime startTime, Recording recording, final String table ) {
+		Log.v( TAG, "save : enter" );
+
+		if( null == context ) 
+			throw new RuntimeException( "RecordingDaoHelper is not initialized" );
+		
+		ContentValues values = convertRecordingToContentValues( locationProfile, new DateTime( DateTimeZone.UTC ), startTime, recording );
+
+		String[] projection = new String[] { table + "_" + RecordingConstants._ID };
+		String selection = RecordingConstants.FIELD_RECORD_ID + " = ? AND " + RecordingConstants.FIELD_START_TIME + " = ? AND " + RecordingConstants.FIELD_MASTER_HOSTNAME + " = ?";
+		String[] selectionArgs = new String[] { String.valueOf( recording.getRecordId() ), String.valueOf( startTime.getMillis() ), locationProfile.getHostname() };
+
+		selection = appendLocationHostname( context, locationProfile, selection, table );
+
+		int updated = -1;
+		Cursor cursor = context.getContentResolver().query( uri, projection, selection, selectionArgs, null );
+		if( cursor.moveToFirst() ) {
+			//Log.v( TAG, "load : UPDATE RECORDING " + count + ":" + program.getTitle() + ", recording=" + program.getRecording().getRecordId() );
+
+			Long id = cursor.getLong( cursor.getColumnIndexOrThrow( table + "_" + RecordingConstants._ID ) );
+			
+			updated = context.getContentResolver().update( ContentUris.withAppendedId( uri, id ), values, null, null );
+		} else {
+			//Log.v( TAG, "load : INSERT RECORDING " + count + ":" + program.getTitle() + ", recording=" + program.getRecording().getRecordId() );
+
+			Uri inserted = context.getContentResolver().insert( uri, values );
+			if( null != inserted ) {
+				updated = 1;
+			}
+		}
+		cursor.close();
+		Log.v( TAG, "save : updated=" + updated );
+
+		Log.v( TAG, "save : exit" );
+		return updated;
 	}
 
 	/**
