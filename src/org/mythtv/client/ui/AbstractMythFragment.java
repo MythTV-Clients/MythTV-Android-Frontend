@@ -84,7 +84,7 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
 	
 	protected Status mStatus;
 	
-	//***************************************
+    // ***************************************
     // MythActivity methods
     // ***************************************
     public MainApplication getMainApplication() {

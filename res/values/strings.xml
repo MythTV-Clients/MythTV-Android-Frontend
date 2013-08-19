@@ -22,7 +22,7 @@
 
 <resources>
     
-    <string name="app_version">1.0.5</string>
+    <string name="app_version">1.20.0</string>
 
     <string name="hello">Hello World!</string>
     <string name="app_name">MythTV Android Frontend</string>
