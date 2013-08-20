@@ -129,7 +129,7 @@ public class UpcomingDaoHelper extends ProgramDaoHelper {
 	public Program findOne( final Context context, final LocationProfile locationProfile, final int channelId, final DateTime startTime ) {
 		Log.d( TAG, "findOne : enter" );
 		
-		String selection = ProgramConstants.TABLE_NAME_RECORDED + "." + ProgramConstants.FIELD_CHANNEL_ID + " = ? AND " + ProgramConstants.TABLE_NAME_RECORDED + "." + ProgramConstants.FIELD_START_TIME + " = ?";
+		String selection = ProgramConstants.TABLE_NAME_UPCOMING + "." + ProgramConstants.FIELD_CHANNEL_ID + " = ? AND " + ProgramConstants.TABLE_NAME_UPCOMING + "." + ProgramConstants.FIELD_START_TIME + " = ?";
 		String[] selectionArgs = new String[] { String.valueOf( channelId ), String.valueOf( startTime.getMillis() ) };
 
 		selection = appendLocationHostname( context, locationProfile, selection, ProgramConstants.TABLE_NAME_UPCOMING );
