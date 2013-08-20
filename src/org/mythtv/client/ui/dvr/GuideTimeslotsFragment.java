@@ -14,10 +14,11 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
 /**
  * @author dmfrey
@@ -29,7 +30,9 @@ public class GuideTimeslotsFragment extends AbstractMythFragment {
 	
 	private static final Map<Integer, Integer> hourTimeslots = new HashMap<Integer, Integer>();
 	
-	private TextView 
+	private OnTimeslotScrollListener listener;
+	
+	private Button 
 		timeslot_00_00 = null, timeslot_00_30 = null,
 		timeslot_01_00 = null, timeslot_01_30 = null,
 		timeslot_02_00 = null, timeslot_02_30 = null,
@@ -84,6 +87,12 @@ public class GuideTimeslotsFragment extends AbstractMythFragment {
 		hourTimeslots.put( 23, 46 );
 	}
 	
+	public interface OnTimeslotScrollListener {
+		
+		void timeslotSelect( String time );
+		
+	}
+
 	/**
 	 * 
 	 */
@@ -130,6 +139,10 @@ public class GuideTimeslotsFragment extends AbstractMythFragment {
 		Log.v( TAG, "onActivityCreated : exit" );
 	}
 
+	public void setOnTimeslotScrollListener( OnTimeslotScrollListener listener ) {
+		this.listener = listener;
+	}
+	
 	public void updateTimeslot( DateTime date ) {
 		
 		startingTimeslot = hourTimeslots.get( date.getHourOfDay() );
@@ -171,58 +184,731 @@ public class GuideTimeslotsFragment extends AbstractMythFragment {
 	
 	private void instantiateControls() {
 		
-		timeslot_00_00 = (TextView) getActivity().findViewById( R.id.program_guide_timeslots_00_00 );
-		timeslot_00_30 = (TextView) getActivity().findViewById( R.id.program_guide_timeslots_00_30 );
-		timeslot_01_00 = (TextView) getActivity().findViewById( R.id.program_guide_timeslots_01_00 );
-		timeslot_01_30 = (TextView) getActivity().findViewById( R.id.program_guide_timeslots_01_30 );
-		timeslot_02_00 = (TextView) getActivity().findViewById( R.id.program_guide_timeslots_02_00 );
-		timeslot_02_30 = (TextView) getActivity().findViewById( R.id.program_guide_timeslots_02_30 );
-		timeslot_03_00 = (TextView) getActivity().findViewById( R.id.program_guide_timeslots_03_00 );
-		timeslot_03_30 = (TextView) getActivity().findViewById( R.id.program_guide_timeslots_03_30 );
-		timeslot_04_00 = (TextView) getActivity().findViewById( R.id.program_guide_timeslots_04_00 );
-		timeslot_04_30 = (TextView) getActivity().findViewById( R.id.program_guide_timeslots_04_30 );
-		timeslot_05_00 = (TextView) getActivity().findViewById( R.id.program_guide_timeslots_05_00 );
-		timeslot_05_30 = (TextView) getActivity().findViewById( R.id.program_guide_timeslots_05_30 );
-		timeslot_06_00 = (TextView) getActivity().findViewById( R.id.program_guide_timeslots_06_00 );
-		timeslot_06_30 = (TextView) getActivity().findViewById( R.id.program_guide_timeslots_06_30 );
-		timeslot_07_00 = (TextView) getActivity().findViewById( R.id.program_guide_timeslots_07_00 );
-		timeslot_07_30 = (TextView) getActivity().findViewById( R.id.program_guide_timeslots_07_30 );
-		timeslot_08_00 = (TextView) getActivity().findViewById( R.id.program_guide_timeslots_08_00 );
-		timeslot_08_30 = (TextView) getActivity().findViewById( R.id.program_guide_timeslots_08_30 );
-		timeslot_09_00 = (TextView) getActivity().findViewById( R.id.program_guide_timeslots_09_00 );
-		timeslot_09_30 = (TextView) getActivity().findViewById( R.id.program_guide_timeslots_09_30 );
-		timeslot_10_00 = (TextView) getActivity().findViewById( R.id.program_guide_timeslots_10_00 );
-		timeslot_10_30 = (TextView) getActivity().findViewById( R.id.program_guide_timeslots_10_30 );
-		timeslot_11_00 = (TextView) getActivity().findViewById( R.id.program_guide_timeslots_11_00 );
-		timeslot_11_30 = (TextView) getActivity().findViewById( R.id.program_guide_timeslots_11_30 );
-		timeslot_12_00 = (TextView) getActivity().findViewById( R.id.program_guide_timeslots_12_00 );
-		timeslot_12_30 = (TextView) getActivity().findViewById( R.id.program_guide_timeslots_12_30 );
-		timeslot_13_00 = (TextView) getActivity().findViewById( R.id.program_guide_timeslots_13_00 );
-		timeslot_13_30 = (TextView) getActivity().findViewById( R.id.program_guide_timeslots_13_30 );
-		timeslot_14_00 = (TextView) getActivity().findViewById( R.id.program_guide_timeslots_14_00 );
-		timeslot_14_30 = (TextView) getActivity().findViewById( R.id.program_guide_timeslots_14_30 );
-		timeslot_15_00 = (TextView) getActivity().findViewById( R.id.program_guide_timeslots_15_00 );
-		timeslot_15_30 = (TextView) getActivity().findViewById( R.id.program_guide_timeslots_15_30 );
-		timeslot_16_00 = (TextView) getActivity().findViewById( R.id.program_guide_timeslots_16_00 );
-		timeslot_16_30 = (TextView) getActivity().findViewById( R.id.program_guide_timeslots_16_30 );
-		timeslot_17_00 = (TextView) getActivity().findViewById( R.id.program_guide_timeslots_17_00 );
-		timeslot_17_30 = (TextView) getActivity().findViewById( R.id.program_guide_timeslots_17_30 );
-		timeslot_18_00 = (TextView) getActivity().findViewById( R.id.program_guide_timeslots_18_00 );
-		timeslot_18_30 = (TextView) getActivity().findViewById( R.id.program_guide_timeslots_18_30 );
-		timeslot_19_00 = (TextView) getActivity().findViewById( R.id.program_guide_timeslots_19_00 );
-		timeslot_19_30 = (TextView) getActivity().findViewById( R.id.program_guide_timeslots_19_30 );
-		timeslot_20_00 = (TextView) getActivity().findViewById( R.id.program_guide_timeslots_20_00 );
-		timeslot_20_30 = (TextView) getActivity().findViewById( R.id.program_guide_timeslots_20_30 );
-		timeslot_21_00 = (TextView) getActivity().findViewById( R.id.program_guide_timeslots_21_00 );
-		timeslot_21_30 = (TextView) getActivity().findViewById( R.id.program_guide_timeslots_21_30 );
-		timeslot_22_00 = (TextView) getActivity().findViewById( R.id.program_guide_timeslots_22_00 );
-		timeslot_22_30 = (TextView) getActivity().findViewById( R.id.program_guide_timeslots_22_30 );
-		timeslot_23_00 = (TextView) getActivity().findViewById( R.id.program_guide_timeslots_23_00 );
-		timeslot_23_30 = (TextView) getActivity().findViewById( R.id.program_guide_timeslots_23_30 );
+		timeslot_00_00 = (Button) getActivity().findViewById( R.id.program_guide_timeslots_00_00 );
+		timeslot_00_00.setOnClickListener( new OnClickListener() {
+			
+			/* (non-Javadoc)
+			 * @see android.view.View.OnClickListener#onClick(android.view.View)
+			 */
+			@Override
+			public void onClick( View v ) {
+				
+				listener.timeslotSelect( "00:00:00" );
+				
+			}
+			
+		});
+		
+		timeslot_00_30 = (Button) getActivity().findViewById( R.id.program_guide_timeslots_00_30 );
+		timeslot_00_30.setOnClickListener( new OnClickListener() {
+			
+			/* (non-Javadoc)
+			 * @see android.view.View.OnClickListener#onClick(android.view.View)
+			 */
+			@Override
+			public void onClick( View v ) {
+				
+				listener.timeslotSelect( "00:30:00" );
+				
+			}
+			
+		});
+		
+		timeslot_01_00 = (Button) getActivity().findViewById( R.id.program_guide_timeslots_01_00 );
+		timeslot_01_00.setOnClickListener( new OnClickListener() {
+			
+			/* (non-Javadoc)
+			 * @see android.view.View.OnClickListener#onClick(android.view.View)
+			 */
+			@Override
+			public void onClick( View v ) {
+				
+				listener.timeslotSelect( "01:00:00" );
+				
+			}
+			
+		});
+		
+		timeslot_01_30 = (Button) getActivity().findViewById( R.id.program_guide_timeslots_01_30 );
+		timeslot_01_30.setOnClickListener( new OnClickListener() {
+			
+			/* (non-Javadoc)
+			 * @see android.view.View.OnClickListener#onClick(android.view.View)
+			 */
+			@Override
+			public void onClick( View v ) {
+				
+				listener.timeslotSelect( "01:30:00" );
+				
+			}
+			
+		});
+		
+		timeslot_02_00 = (Button) getActivity().findViewById( R.id.program_guide_timeslots_02_00 );
+		timeslot_02_00.setOnClickListener( new OnClickListener() {
+			
+			/* (non-Javadoc)
+			 * @see android.view.View.OnClickListener#onClick(android.view.View)
+			 */
+			@Override
+			public void onClick( View v ) {
+				
+				listener.timeslotSelect( "02:00:00" );
+				
+			}
+			
+		});
+		
+		timeslot_02_30 = (Button) getActivity().findViewById( R.id.program_guide_timeslots_02_30 );
+		timeslot_02_30.setOnClickListener( new OnClickListener() {
+			
+			/* (non-Javadoc)
+			 * @see android.view.View.OnClickListener#onClick(android.view.View)
+			 */
+			@Override
+			public void onClick( View v ) {
+				
+				listener.timeslotSelect( "02:30:00" );
+				
+			}
+			
+		});
+		
+		timeslot_03_00 = (Button) getActivity().findViewById( R.id.program_guide_timeslots_03_00 );
+		timeslot_03_00.setOnClickListener( new OnClickListener() {
+			
+			/* (non-Javadoc)
+			 * @see android.view.View.OnClickListener#onClick(android.view.View)
+			 */
+			@Override
+			public void onClick( View v ) {
+				
+				listener.timeslotSelect( "03:00:00" );
+				
+			}
+			
+		});
+		
+		timeslot_03_30 = (Button) getActivity().findViewById( R.id.program_guide_timeslots_03_30 );
+		timeslot_03_30.setOnClickListener( new OnClickListener() {
+			
+			/* (non-Javadoc)
+			 * @see android.view.View.OnClickListener#onClick(android.view.View)
+			 */
+			@Override
+			public void onClick( View v ) {
+				
+				listener.timeslotSelect( "03:30:00" );
+				
+			}
+			
+		});
+		
+		timeslot_04_00 = (Button) getActivity().findViewById( R.id.program_guide_timeslots_04_00 );
+		timeslot_04_00.setOnClickListener( new OnClickListener() {
+			
+			/* (non-Javadoc)
+			 * @see android.view.View.OnClickListener#onClick(android.view.View)
+			 */
+			@Override
+			public void onClick( View v ) {
+				
+				listener.timeslotSelect( "04:00:00" );
+				
+			}
+			
+		});
+		
+		timeslot_04_30 = (Button) getActivity().findViewById( R.id.program_guide_timeslots_04_30 );
+		timeslot_04_30.setOnClickListener( new OnClickListener() {
+			
+			/* (non-Javadoc)
+			 * @see android.view.View.OnClickListener#onClick(android.view.View)
+			 */
+			@Override
+			public void onClick( View v ) {
+				
+				listener.timeslotSelect( "04:30:00" );
+				
+			}
+			
+		});
+		
+		timeslot_05_00 = (Button) getActivity().findViewById( R.id.program_guide_timeslots_05_00 );
+		timeslot_05_00.setOnClickListener( new OnClickListener() {
+			
+			/* (non-Javadoc)
+			 * @see android.view.View.OnClickListener#onClick(android.view.View)
+			 */
+			@Override
+			public void onClick( View v ) {
+				
+				listener.timeslotSelect( "05:00:00" );
+				
+			}
+			
+		});
+		
+		timeslot_05_30 = (Button) getActivity().findViewById( R.id.program_guide_timeslots_05_30 );
+		timeslot_05_30.setOnClickListener( new OnClickListener() {
+			
+			/* (non-Javadoc)
+			 * @see android.view.View.OnClickListener#onClick(android.view.View)
+			 */
+			@Override
+			public void onClick( View v ) {
+				
+				listener.timeslotSelect( "05:30:00" );
+				
+			}
+			
+		});
+		
+		timeslot_06_00 = (Button) getActivity().findViewById( R.id.program_guide_timeslots_06_00 );
+		timeslot_06_00.setOnClickListener( new OnClickListener() {
+			
+			/* (non-Javadoc)
+			 * @see android.view.View.OnClickListener#onClick(android.view.View)
+			 */
+			@Override
+			public void onClick( View v ) {
+				
+				listener.timeslotSelect( "06:00:00" );
+				
+			}
+			
+		});
+		
+		timeslot_06_30 = (Button) getActivity().findViewById( R.id.program_guide_timeslots_06_30 );
+		timeslot_06_30.setOnClickListener( new OnClickListener() {
+			
+			/* (non-Javadoc)
+			 * @see android.view.View.OnClickListener#onClick(android.view.View)
+			 */
+			@Override
+			public void onClick( View v ) {
+				
+				listener.timeslotSelect( "06:30:00" );
+				
+			}
+			
+		});
+		
+		timeslot_07_00 = (Button) getActivity().findViewById( R.id.program_guide_timeslots_07_00 );
+		timeslot_07_00.setOnClickListener( new OnClickListener() {
+			
+			/* (non-Javadoc)
+			 * @see android.view.View.OnCli4ckListener#onClick(android.view.View)
+			 */
+			@Override
+			public void onClick( View v ) {
+				
+				listener.timeslotSelect( "07:00:00" );
+				
+			}
+			
+		});
+		
+		timeslot_07_30 = (Button) getActivity().findViewById( R.id.program_guide_timeslots_07_30 );
+		timeslot_07_30.setOnClickListener( new OnClickListener() {
+			
+			/* (non-Javadoc)
+			 * @see android.view.View.OnClickListener#onClick(android.view.View)
+			 */
+			@Override
+			public void onClick( View v ) {
+				
+				listener.timeslotSelect( "07:30:00" );
+				
+			}
+			
+		});
+		
+		timeslot_08_00 = (Button) getActivity().findViewById( R.id.program_guide_timeslots_08_00 );
+		timeslot_08_00.setOnClickListener( new OnClickListener() {
+			
+			/* (non-Javadoc)
+			 * @see android.view.View.OnClickListener#onClick(android.view.View)
+			 */
+			@Override
+			public void onClick( View v ) {
+				
+				listener.timeslotSelect( "08:00:00" );
+				
+			}
+			
+		});
+		
+		timeslot_08_30 = (Button) getActivity().findViewById( R.id.program_guide_timeslots_08_30 );
+		timeslot_08_30.setOnClickListener( new OnClickListener() {
+			
+			/* (non-Javadoc)
+			 * @see android.view.View.OnClickListener#onClick(android.view.View)
+			 */
+			@Override
+			public void onClick( View v ) {
+				
+				listener.timeslotSelect( "00:00:00" );
+				
+			}
+			
+		});
+		
+		timeslot_09_00 = (Button) getActivity().findViewById( R.id.program_guide_timeslots_09_00 );
+		timeslot_09_00.setOnClickListener( new OnClickListener() {
+			
+			/* (non-Javadoc)
+			 * @see android.view.View.OnClickListener#onClick(android.view.View)
+			 */
+			@Override
+			public void onClick( View v ) {
+				
+				listener.timeslotSelect( "09:00:00" );
+				
+			}
+			
+		});
+		
+		timeslot_09_30 = (Button) getActivity().findViewById( R.id.program_guide_timeslots_09_30 );
+		timeslot_09_30.setOnClickListener( new OnClickListener() {
+			
+			/* (non-Javadoc)
+			 * @see android.view.View.OnClickListener#onClick(android.view.View)
+			 */
+			@Override
+			public void onClick( View v ) {
+				
+				listener.timeslotSelect( "09:30:00" );
+				
+			}
+			
+		});
+		
+		timeslot_10_00 = (Button) getActivity().findViewById( R.id.program_guide_timeslots_10_00 );
+		timeslot_10_00.setOnClickListener( new OnClickListener() {
+			
+			/* (non-Javadoc)
+			 * @see android.view.View.OnClickListener#onClick(android.view.View)
+			 */
+			@Override
+			public void onClick( View v ) {
+				
+				listener.timeslotSelect( "10:00:00" );
+				
+			}
+			
+		});
+		
+		timeslot_10_30 = (Button) getActivity().findViewById( R.id.program_guide_timeslots_10_30 );
+		timeslot_10_30.setOnClickListener( new OnClickListener() {
+			
+			/* (non-Javadoc)
+			 * @see android.view.View.OnClickListener#onClick(android.view.View)
+			 */
+			@Override
+			public void onClick( View v ) {
+				
+				listener.timeslotSelect( "10:30:00" );
+				
+			}
+			
+		});
+		
+		timeslot_11_00 = (Button) getActivity().findViewById( R.id.program_guide_timeslots_11_00 );
+		timeslot_11_00.setOnClickListener( new OnClickListener() {
+			
+			/* (non-Javadoc)
+			 * @see android.view.View.OnClickListener#onClick(android.view.View)
+			 */
+			@Override
+			public void onClick( View v ) {
+				
+				listener.timeslotSelect( "11:00:00" );
+				
+			}
+			
+		});
+		
+		timeslot_11_30 = (Button) getActivity().findViewById( R.id.program_guide_timeslots_11_30 );
+		timeslot_11_30.setOnClickListener( new OnClickListener() {
+			
+			/* (non-Javadoc)
+			 * @see android.view.View.OnClickListener#onClick(android.view.View)
+			 */
+			@Override
+			public void onClick( View v ) {
+				
+				listener.timeslotSelect( "11:30:00" );
+				
+			}
+			
+		});
+		
+		timeslot_12_00 = (Button) getActivity().findViewById( R.id.program_guide_timeslots_12_00 );
+		timeslot_12_00.setOnClickListener( new OnClickListener() {
+			
+			/* (non-Javadoc)
+			 * @see android.view.View.OnClickListener#onClick(android.view.View)
+			 */
+			@Override
+			public void onClick( View v ) {
+				
+				listener.timeslotSelect( "12:00:00" );
+				
+			}
+			
+		});
+		
+		timeslot_12_30 = (Button) getActivity().findViewById( R.id.program_guide_timeslots_12_30 );
+		timeslot_12_30.setOnClickListener( new OnClickListener() {
+			
+			/* (non-Javadoc)
+			 * @see android.view.View.OnClickListener#onClick(android.view.View)
+			 */
+			@Override
+			public void onClick( View v ) {
+				
+				listener.timeslotSelect( "12:30:00" );
+				
+			}
+			
+		});
+		
+		timeslot_13_00 = (Button) getActivity().findViewById( R.id.program_guide_timeslots_13_00 );
+		timeslot_13_00.setOnClickListener( new OnClickListener() {
+			
+			/* (non-Javadoc)
+			 * @see android.view.View.OnClickListener#onClick(android.view.View)
+			 */
+			@Override
+			public void onClick( View v ) {
+				
+				listener.timeslotSelect( "13:00:00" );
+				
+			}
+			
+		});
+		
+		timeslot_13_30 = (Button) getActivity().findViewById( R.id.program_guide_timeslots_13_30 );
+		timeslot_13_30.setOnClickListener( new OnClickListener() {
+			
+			/* (non-Javadoc)
+			 * @see android.view.View.OnClickListener#onClick(android.view.View)
+			 */
+			@Override
+			public void onClick( View v ) {
+				
+				listener.timeslotSelect( "13:30:00" );
+				
+			}
+			
+		});
+		
+		timeslot_14_00 = (Button) getActivity().findViewById( R.id.program_guide_timeslots_14_00 );
+		timeslot_14_00.setOnClickListener( new OnClickListener() {
+			
+			/* (non-Javadoc)
+			 * @see android.view.View.OnClickListener#onClick(android.view.View)
+			 */
+			@Override
+			public void onClick( View v ) {
+				
+				listener.timeslotSelect( "14:00:00" );
+				
+			}
+			
+		});
+		
+		timeslot_14_30 = (Button) getActivity().findViewById( R.id.program_guide_timeslots_14_30 );
+		timeslot_14_30.setOnClickListener( new OnClickListener() {
+			
+			/* (non-Javadoc)
+			 * @see android.view.View.OnClickListener#onClick(android.view.View)
+			 */
+			@Override
+			public void onClick( View v ) {
+				
+				listener.timeslotSelect( "14:30:00" );
+				
+			}
+			
+		});
+		
+		timeslot_15_00 = (Button) getActivity().findViewById( R.id.program_guide_timeslots_15_00 );
+		timeslot_15_00.setOnClickListener( new OnClickListener() {
+			
+			/* (non-Javadoc)
+			 * @see android.view.View.OnClickListener#onClick(android.view.View)
+			 */
+			@Override
+			public void onClick( View v ) {
+				
+				listener.timeslotSelect( "15:00:00" );
+				
+			}
+			
+		});
+		
+		timeslot_15_30 = (Button) getActivity().findViewById( R.id.program_guide_timeslots_15_30 );
+		timeslot_15_30.setOnClickListener( new OnClickListener() {
+			
+			/* (non-Javadoc)
+			 * @see android.view.View.OnClickListener#onClick(android.view.View)
+			 */
+			@Override
+			public void onClick( View v ) {
+				
+				listener.timeslotSelect( "15:30:00" );
+				
+			}
+			
+		});
+		
+		timeslot_16_00 = (Button) getActivity().findViewById( R.id.program_guide_timeslots_16_00 );
+		timeslot_16_00.setOnClickListener( new OnClickListener() {
+			
+			/* (non-Javadoc)
+			 * @see android.view.View.OnClickListener#onClick(android.view.View)
+			 */
+			@Override
+			public void onClick( View v ) {
+				
+				listener.timeslotSelect( "16:00:00" );
+				
+			}
+			
+		});
+		
+		timeslot_16_30 = (Button) getActivity().findViewById( R.id.program_guide_timeslots_16_30 );
+		timeslot_16_30.setOnClickListener( new OnClickListener() {
+			
+			/* (non-Javadoc)
+			 * @see android.view.View.OnClickListener#onClick(android.view.View)
+			 */
+			@Override
+			public void onClick( View v ) {
+				
+				listener.timeslotSelect( "16:30:00" );
+				
+			}
+			
+		});
+		
+		timeslot_17_00 = (Button) getActivity().findViewById( R.id.program_guide_timeslots_17_00 );
+		timeslot_17_00.setOnClickListener( new OnClickListener() {
+			
+			/* (non-Javadoc)
+			 * @see android.view.View.OnClickListener#onClick(android.view.View)
+			 */
+			@Override
+			public void onClick( View v ) {
+				
+				listener.timeslotSelect( "17:00:00" );
+				
+			}
+			
+		});
+		
+		timeslot_17_30 = (Button) getActivity().findViewById( R.id.program_guide_timeslots_17_30 );
+		timeslot_17_30.setOnClickListener( new OnClickListener() {
+			
+			/* (non-Javadoc)
+			 * @see android.view.View.OnClickListener#onClick(android.view.View)
+			 */
+			@Override
+			public void onClick( View v ) {
+				
+				listener.timeslotSelect( "17:30:00" );
+				
+			}
+			
+		});
+		
+		timeslot_18_00 = (Button) getActivity().findViewById( R.id.program_guide_timeslots_18_00 );
+		timeslot_18_00.setOnClickListener( new OnClickListener() {
+			
+			/* (non-Javadoc)
+			 * @see android.view.View.OnClickListener#onClick(android.view.View)
+			 */
+			@Override
+			public void onClick( View v ) {
+				
+				listener.timeslotSelect( "18:00:00" );
+				
+			}
+			
+		});
+		
+		timeslot_18_30 = (Button) getActivity().findViewById( R.id.program_guide_timeslots_18_30 );
+		timeslot_18_30.setOnClickListener( new OnClickListener() {
+			
+			/* (non-Javadoc)
+			 * @see android.view.View.OnClickListener#onClick(android.view.View)
+			 */
+			@Override
+			public void onClick( View v ) {
+				
+				listener.timeslotSelect( "18:30:00" );
+				
+			}
+			
+		});
+		
+		timeslot_19_00 = (Button) getActivity().findViewById( R.id.program_guide_timeslots_19_00 );
+		timeslot_19_00.setOnClickListener( new OnClickListener() {
+			
+			/* (non-Javadoc)
+			 * @see android.view.View.OnClickListener#onClick(android.view.View)
+			 */
+			@Override
+			public void onClick( View v ) {
+				
+				listener.timeslotSelect( "19:00:00" );
+				
+			}
+			
+		});
+		
+		timeslot_19_30 = (Button) getActivity().findViewById( R.id.program_guide_timeslots_19_30 );
+		timeslot_19_30.setOnClickListener( new OnClickListener() {
+			
+			/* (non-Javadoc)
+			 * @see android.view.View.OnClickListener#onClick(android.view.View)
+			 */
+			@Override
+			public void onClick( View v ) {
+				
+				listener.timeslotSelect( "19:30:00" );
+				
+			}
+			
+		});
+		
+		timeslot_20_00 = (Button) getActivity().findViewById( R.id.program_guide_timeslots_20_00 );
+		timeslot_20_00.setOnClickListener( new OnClickListener() {
+			
+			/* (non-Javadoc)
+			 * @see android.view.View.OnClickListener#onClick(android.view.View)
+			 */
+			@Override
+			public void onClick( View v ) {
+				
+				listener.timeslotSelect( "20:00:00" );
+				
+			}
+			
+		});
+		
+		timeslot_20_30 = (Button) getActivity().findViewById( R.id.program_guide_timeslots_20_30 );
+		timeslot_20_30.setOnClickListener( new OnClickListener() {
+			
+			/* (non-Javadoc)
+			 * @see android.view.View.OnClickListener#onClick(android.view.View)
+			 */
+			@Override
+			public void onClick( View v ) {
+				
+				listener.timeslotSelect( "20:30:00" );
+				
+			}
+			
+		});
+		
+		timeslot_21_00 = (Button) getActivity().findViewById( R.id.program_guide_timeslots_21_00 );
+		timeslot_21_00.setOnClickListener( new OnClickListener() {
+			
+			/* (non-Javadoc)
+			 * @see android.view.View.OnClickListener#onClick(android.view.View)
+			 */
+			@Override
+			public void onClick( View v ) {
+				
+				listener.timeslotSelect( "21:00:00" );
+				
+			}
+			
+		});
+		
+		timeslot_21_30 = (Button) getActivity().findViewById( R.id.program_guide_timeslots_21_30 );
+		timeslot_21_30.setOnClickListener( new OnClickListener() {
+			
+			/* (non-Javadoc)
+			 * @see android.view.View.OnClickListener#onClick(android.view.View)
+			 */
+			@Override
+			public void onClick( View v ) {
+				
+				listener.timeslotSelect( "21:30:00" );
+				
+			}
+			
+		});
+		
+		timeslot_22_00 = (Button) getActivity().findViewById( R.id.program_guide_timeslots_22_00 );
+		timeslot_22_00.setOnClickListener( new OnClickListener() {
+			
+			/* (non-Javadoc)
+			 * @see android.view.View.OnClickListener#onClick(android.view.View)
+			 */
+			@Override
+			public void onClick( View v ) {
+				
+				listener.timeslotSelect( "22:00:00" );
+				
+			}
+			
+		});
+		
+		timeslot_22_30 = (Button) getActivity().findViewById( R.id.program_guide_timeslots_22_30 );
+		timeslot_22_30.setOnClickListener( new OnClickListener() {
+			
+			/* (non-Javadoc)
+			 * @see android.view.View.OnClickListener#onClick(android.view.View)
+			 */
+			@Override
+			public void onClick( View v ) {
+				
+				listener.timeslotSelect( "22:30:00" );
+				
+			}
+			
+		});
+		
+		timeslot_23_00 = (Button) getActivity().findViewById( R.id.program_guide_timeslots_23_00 );
+		timeslot_23_00.setOnClickListener( new OnClickListener() {
+			
+			/* (non-Javadoc)
+			 * @see android.view.View.OnClickListener#onClick(android.view.View)
+			 */
+			@Override
+			public void onClick( View v ) {
+				
+				listener.timeslotSelect( "23:00:00" );
+				
+			}
+			
+		});
+		
+		timeslot_23_30 = (Button) getActivity().findViewById( R.id.program_guide_timeslots_23_30 );
+		timeslot_23_30.setOnClickListener( new OnClickListener() {
+			
+			/* (non-Javadoc)
+			 * @see android.view.View.OnClickListener#onClick(android.view.View)
+			 */
+			@Override
+			public void onClick( View v ) {
+				
+				listener.timeslotSelect( "23:30:00" );
+				
+			}
+			
+		});
+		
 
 		if( getMainApplication().getClockType() != null && getMainApplication().getClockType().equals( "24" ) ) {
 			update24HourLabels();
 		}
+		
 	}
 
 	private void update24HourLabels() {

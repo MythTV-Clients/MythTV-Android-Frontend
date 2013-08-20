@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.mythtv.R;
 import org.mythtv.client.ui.AbstractMythFragment;
 import org.mythtv.client.ui.preferences.LocationProfile;
@@ -52,6 +53,7 @@ import android.widget.TextView;
 public class GuideFragment extends AbstractMythFragment 
 	implements 
 		GuideChannelFragment.OnChannelScrollListener,
+		GuideTimeslotsFragment.OnTimeslotScrollListener,
 		GuideDatePickerFragment.OnDialogResultListener {
 
 	private static final String TAG = GuideFragment.class.getSimpleName();
@@ -126,7 +128,7 @@ public class GuideFragment extends AbstractMythFragment
 		channels = mChannelDaoHelper.findAll( getActivity(), mLocationProfile );
 		selectedChannelId = channels.get( 0 ).getChannelId();
 		
-		today = new DateTime( System.currentTimeMillis() ).withTimeAtStartOfDay();
+		today = new DateTime( DateTimeZone.UTC ).withTimeAtStartOfDay();
 		selectedDate = today;
 		dateRange.add( today );
 		for( int i = 1; i < downloadDays; i++ ) {
@@ -163,7 +165,7 @@ public class GuideFragment extends AbstractMythFragment
 			mGuideTimeslotsFragment = (GuideTimeslotsFragment) mFragmentManager.findFragmentByTag( GuideTimeslotsFragment.class.getName() );
 			if( null == mGuideTimeslotsFragment ) {
 				mGuideTimeslotsFragment = (GuideTimeslotsFragment) GuideTimeslotsFragment.instantiate( getActivity(), GuideTimeslotsFragment.class.getName() );
-				//mGuideTimeslotsFragment.setOnTimeslotScrollListener( this );
+				mGuideTimeslotsFragment.setOnTimeslotScrollListener( this );
 			}
 
 			mFragmentManager.beginTransaction()
@@ -233,6 +235,8 @@ public class GuideFragment extends AbstractMythFragment
 		return super.onOptionsItemSelected( item );
 	}
 
+	// GuideChannelFragment interface
+	
 	/* (non-Javadoc)
 	 * @see org.mythtv.client.ui.dvr.GuideChannelFragment.OnChannelScrollListener#channelScroll(int, int, int)
 	 */
@@ -264,6 +268,26 @@ public class GuideFragment extends AbstractMythFragment
 		updateView();
 		
 		Log.v( TAG, "channelSelect : exit" );
+	}
+
+	// GuideTimeslotsFragment interface
+	
+	/* (non-Javadoc)
+	 * @see org.mythtv.client.ui.dvr.GuideTimeslotsFragment.OnTimeslotScrollListener#timeslotSelect(java.lang.String)
+	 */
+	@Override
+	public void timeslotSelect( String time ) {
+		Log.v( TAG, "timeslotSelect : enter" );
+		
+		Log.v( TAG, "timeslotSelect : time=" + time );
+		
+		String[] values = time.split( ":" );
+		DateTime scrollDate = selectedDate.withTime( Integer.parseInt( values[ 0 ] ), Integer.parseInt( values[ 1 ] ), Integer.parseInt( values[ 2 ] ), 0 );
+		Log.v( TAG, "timeslotSelect : scrollDate=" + scrollDate );
+		
+		mGuideDataFragment.scroll( selectedChannelId, scrollDate );
+		
+		Log.v( TAG, "timeslotSelect : exit" );
 	}
 
 	// internal helpers

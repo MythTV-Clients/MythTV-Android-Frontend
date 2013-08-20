@@ -3,6 +3,8 @@
  */
 package org.mythtv.client.ui.dvr;
 
+import java.util.List;
+
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.mythtv.R;
@@ -11,6 +13,7 @@ import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.util.MythtvListFragment;
 import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.db.dvr.ProgramDaoHelper;
+import org.mythtv.db.dvr.ProgramGuideDaoHelper;
 import org.mythtv.db.dvr.RecordingConstants;
 import org.mythtv.service.util.DateUtils;
 import org.mythtv.services.api.dvr.Program;
@@ -41,6 +44,8 @@ public class GuideDataFragment extends MythtvListFragment implements LoaderManag
 
 	private static final String TAG = GuideDataFragment.class.getSimpleName();
 
+	private static ProgramGuideDaoHelper mProgramGuideDaoHelper = ProgramGuideDaoHelper.getInstance();
+	
 	private MainApplication mMainApplication;
 	
 	private ProgramGuideChannelCursorAdapter mAdapter;
@@ -181,6 +186,54 @@ public class GuideDataFragment extends MythtvListFragment implements LoaderManag
 		Log.v( TAG, "updateView : exit" );
 	}
 	
+	public void scroll( final int channelId, final DateTime selectedDate ) {
+		Log.v( TAG, "scroll : enter" );
+		
+		Log.v( TAG, "scroll : selectedDate=" + selectedDate.toString() );
+		getListView().postDelayed( new Runnable() {
+
+			/* (non-Javadoc)
+			 * @see java.lang.Runnable#run()
+			 */
+			@Override
+			public void run() {
+				Log.v( TAG, "postDelayed : enter" );
+				
+				DateTime selectedDateUtc = DateUtils.convertUtc( selectedDate );
+				//Log.v( TAG, "postDelayed : selectedDateUtc=" + selectedDateUtc.toString() );
+				
+				DateTime start = selectedDateUtc.withTimeAtStartOfDay();
+				List<Program> programs = mProgramGuideDaoHelper.findAll( getActivity(), mLocationProfile, channelId, start );
+				if( null != programs && !programs.isEmpty() ) {
+					
+					int selectedPosition = 0;
+					for( int i = 0; i < programs.size(); i++ ) {
+						Program program = programs.get( i );
+						Log.v( TAG, "postDelayed : postion '" + i + "', startTime=" + program.getStartTime().toString() );
+						
+						if( selectedDate.isBefore( program.getEndTime() ) ) {
+							Log.v( TAG, "postDelayed : selecting postion '" + i + "'" );
+
+							selectedPosition = i;
+							
+							break;
+						}
+					}
+					
+					Log.v( TAG, "postDelayed : scrolling to postion '" + selectedPosition + "' of '" + getListView().getCount() + "'" );
+					getListView().smoothScrollToPosition( selectedPosition );
+					
+				}
+
+				Log.v( TAG, "postDelayed : enter" );
+				
+			}
+			
+		}, 100 );
+		
+		Log.v( TAG, "scroll : exit" );
+	}
+	
 	// internal helpers
 	
 	private class ProgramGuideChannelCursorAdapter extends CursorAdapter {
@@ -202,8 +255,8 @@ public class GuideDataFragment extends MythtvListFragment implements LoaderManag
 			Program program = ProgramDaoHelper.convertCursorToProgram( cursor, ProgramConstants.TABLE_NAME_GUIDE );
 
 			if( null != program ) {
-				Log.v( TAG, "bindView : title=" + program.getTitle() + ", startTime=" + DateUtils.getDateTimeUsingLocaleFormattingPretty( program.getStartTime(), mMainApplication.getDateFormat(), mMainApplication.getClockType() ) );
-				Log.v( TAG, "bindView : program.recording=" + ( null != program.getRecording() ? program.getRecording().toString() : "empty" ) );
+//				Log.v( TAG, "bindView : title=" + program.getTitle() + ", startTime=" + DateUtils.getDateTimeUsingLocaleFormattingPretty( program.getStartTime(), mMainApplication.getDateFormat(), mMainApplication.getClockType() ) );
+//				Log.v( TAG, "bindView : program.recording=" + ( null != program.getRecording() ? program.getRecording().toString() : "empty" ) );
 				
 				final ProgramViewHolder mHolder = (ProgramViewHolder) view.getTag();
 	        
