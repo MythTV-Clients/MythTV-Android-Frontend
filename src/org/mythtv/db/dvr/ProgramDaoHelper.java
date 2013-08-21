@@ -285,7 +285,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		boolean inError;
 
 		RecordingConstants.ContentDetails details = RecordingConstants.ContentDetails.getValueFromParent( table );
-		Log.w(TAG, "load : details - parent=" + details.getParent() + ", tableName=" + details.getTableName() + ", contentUri=" + details.getContentUri().toString() );
+//		Log.w(TAG, "load : details - parent=" + details.getParent() + ", tableName=" + details.getTableName() + ", contentUri=" + details.getContentUri().toString() );
 
 		for( Program program : programs ) {
 
