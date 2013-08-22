@@ -63,7 +63,7 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.CursorAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
+//import android.widget.Toast;
 
 /**
  * @author Daniel Frey
@@ -370,12 +370,12 @@ public class RecordingRulesFragment extends MythtvListFragment implements Loader
 				if( null != recRule ) {
 					mRecordingRuleDaoHelper.save( getActivity(), mLocationProfile, recRule );
 				
-        			Toast.makeText( getActivity(), "Recording Rule '" + recRule.getTitle() + "' updated!", Toast.LENGTH_SHORT ).show();
-				} else {
-        			Toast.makeText( getActivity(), "Recording Rule NOT updated!", Toast.LENGTH_SHORT ).show();
+//        			Toast.makeText( getActivity(), "Recording Rule '" + recRule.getTitle() + "' updated!", Toast.LENGTH_SHORT ).show();
+//				} else {
+//        			Toast.makeText( getActivity(), "Recording Rule NOT updated!", Toast.LENGTH_SHORT ).show();
 				}
-			} else {
-    			Toast.makeText( getActivity(), "Recording Rule NOT updated!", Toast.LENGTH_SHORT ).show();
+//			} else {
+//    			Toast.makeText( getActivity(), "Recording Rule NOT updated!", Toast.LENGTH_SHORT ).show();
 			}
 			
 		}
@@ -499,11 +499,11 @@ public class RecordingRulesFragment extends MythtvListFragment implements Loader
 	        	Log.i( TAG, "RecordingRuleDownloadReceiver.onReceive : complete=" + intent.getStringExtra( RecordingRuleDownloadService.EXTRA_COMPLETE ) );
 	        	
 	        	if( intent.getExtras().containsKey( RecordingRuleDownloadService.EXTRA_COMPLETE_UPTODATE ) ) {
-	        		Toast.makeText( getActivity(), "Recording Rules are up to date!", Toast.LENGTH_SHORT ).show();
+//	        		Toast.makeText( getActivity(), "Recording Rules are up to date!", Toast.LENGTH_SHORT ).show();
 	        	} else if( intent.getExtras().containsKey( RecordingRuleDownloadService.EXTRA_COMPLETE_OFFLINE ) ) {
-	        		Toast.makeText( getActivity(), "Recording Rules update failed because Master Backend is not connected!", Toast.LENGTH_SHORT ).show();
+//	        		Toast.makeText( getActivity(), "Recording Rules update failed because Master Backend is not connected!", Toast.LENGTH_SHORT ).show();
 	        	} else {
-	        		Toast.makeText( getActivity(), "Recording Rules updated!", Toast.LENGTH_SHORT ).show();
+//	        		Toast.makeText( getActivity(), "Recording Rules updated!", Toast.LENGTH_SHORT ).show();
 
 	        		adapter.notifyDataSetChanged();
 	        	}

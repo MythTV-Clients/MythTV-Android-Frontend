@@ -57,7 +57,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
-import android.widget.Toast;
+//import android.widget.Toast;
 
 /**
  * @author Daniel Frey
@@ -540,13 +540,13 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
 	        	}
 	        	errorCursor.close();
 
-	        	if( intent.getExtras().containsKey( RecordedService.EXTRA_COMPLETE_UPTODATE ) ) {
+//	        	if( intent.getExtras().containsKey( RecordedService.EXTRA_COMPLETE_UPTODATE ) ) {
 //	        		Toast.makeText( getActivity(), "Recorded Programs are up to date!" + ( inError ? " (Backend error(s) detected)" : "" ), Toast.LENGTH_SHORT ).show();
-	        	} else if( intent.getExtras().containsKey( RecordedService.EXTRA_COMPLETE_OFFLINE ) ) {
-	        		Toast.makeText( getActivity(), "Recorded Programs Update failed because Master Backend is not connected!", Toast.LENGTH_SHORT ).show();
-	        	} else {
+//	        	} else if( intent.getExtras().containsKey( RecordedService.EXTRA_COMPLETE_OFFLINE ) ) {
+//	        		Toast.makeText( getActivity(), "Recorded Programs Update failed because Master Backend is not connected!", Toast.LENGTH_SHORT ).show();
+//	        	} else {
 //	        		Toast.makeText( getActivity(), "Recorded Programs updated!" + ( inError ? " (Backend error(s) detected)" : "" ), Toast.LENGTH_SHORT ).show();
-	        	}
+//	        	}
 	        	
 	        }
 
@@ -571,13 +571,13 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
 	        if ( intent.getAction().equals( RecordingRuleDownloadService.ACTION_COMPLETE ) ) {
 	        	Log.i( TAG, "RecordingRuleDownloadReceiver.onReceive : complete=" + intent.getStringExtra( RecordingRuleDownloadService.EXTRA_COMPLETE ) );
 	        	
-	        	if( intent.getExtras().containsKey( RecordingRuleDownloadService.EXTRA_COMPLETE_UPTODATE ) ) {
+//	        	if( intent.getExtras().containsKey( RecordingRuleDownloadService.EXTRA_COMPLETE_UPTODATE ) ) {
 //	        		Toast.makeText( getActivity(), "Recording Rules are up to date!", Toast.LENGTH_SHORT ).show();
-	        	} else if( intent.getExtras().containsKey( RecordingRuleDownloadService.EXTRA_COMPLETE_OFFLINE ) ) {
-	        		Toast.makeText( getActivity(), "Recording Rules Update failed because Master Backend is not connected!", Toast.LENGTH_SHORT ).show();
-	        	} else {
+//	        	} else if( intent.getExtras().containsKey( RecordingRuleDownloadService.EXTRA_COMPLETE_OFFLINE ) ) {
+//	        		Toast.makeText( getActivity(), "Recording Rules Update failed because Master Backend is not connected!", Toast.LENGTH_SHORT ).show();
+//	        	} else {
 //	        		Toast.makeText( getActivity(), "Recording Rules updated!", Toast.LENGTH_SHORT ).show();
-	        	}
+//	        	}
 	        	
 	        }
 
@@ -606,13 +606,13 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
 	        if ( intent.getAction().equals( UpcomingDownloadService.ACTION_COMPLETE ) ) {
 	        	Log.i( TAG, "UpcomingDownloadReceiver.onReceive : " + intent.getStringExtra( UpcomingDownloadService.EXTRA_COMPLETE ) );
 	        	
-	        	if( intent.getExtras().containsKey( UpcomingDownloadService.EXTRA_COMPLETE_UPTODATE ) ) {
+//	        	if( intent.getExtras().containsKey( UpcomingDownloadService.EXTRA_COMPLETE_UPTODATE ) ) {
 //	        		Toast.makeText( getActivity(), "Upcoming Programs are up to date!", Toast.LENGTH_SHORT ).show();
-	        	} else if( intent.getExtras().containsKey( UpcomingDownloadService.EXTRA_COMPLETE_OFFLINE ) ) {
-	        		Toast.makeText( getActivity(), "Upcoming Programs Update failed because Master Backend is not connected!", Toast.LENGTH_SHORT ).show();
-	        	} else {
+//	        	} else if( intent.getExtras().containsKey( UpcomingDownloadService.EXTRA_COMPLETE_OFFLINE ) ) {
+//	        		Toast.makeText( getActivity(), "Upcoming Programs Update failed because Master Backend is not connected!", Toast.LENGTH_SHORT ).show();
+//	        	} else {
 //	        		Toast.makeText( getActivity(), "Upcoming Programs updated!", Toast.LENGTH_SHORT ).show();
-	        	}
+//	        	}
 	        }
 	        
 		}
@@ -635,13 +635,13 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
 	        if ( intent.getAction().equals( ProgramGuideDownloadServiceNew.ACTION_COMPLETE ) ) {
 	        	Log.i( TAG, "ProgramGuideDownloadReceiver.onReceive : " + intent.getStringExtra( ProgramGuideDownloadServiceNew.EXTRA_COMPLETE ) );
 	        	
-	        	if( intent.getExtras().containsKey( ProgramGuideDownloadServiceNew.EXTRA_COMPLETE_UPTODATE ) ) {
+//	        	if( intent.getExtras().containsKey( ProgramGuideDownloadServiceNew.EXTRA_COMPLETE_UPTODATE ) ) {
 //	        		Toast.makeText( getActivity(), "Program Guide is up to date!", Toast.LENGTH_SHORT ).show();
-	        	} else if( intent.getExtras().containsKey( ProgramGuideDownloadServiceNew.EXTRA_COMPLETE_OFFLINE ) ) {
-	        		Toast.makeText( getActivity(), "Program Guide Update failed because Master Backend is not connected!", Toast.LENGTH_SHORT ).show();
-	        	} else {
+//	        	} else if( intent.getExtras().containsKey( ProgramGuideDownloadServiceNew.EXTRA_COMPLETE_OFFLINE ) ) {
+//	        		Toast.makeText( getActivity(), "Program Guide Update failed because Master Backend is not connected!", Toast.LENGTH_SHORT ).show();
+//	        	} else {
 //	        		Toast.makeText( getActivity(), "Program Guide updated!", Toast.LENGTH_SHORT ).show();
-	        	}
+//	        	}
 	        }
 	        
 		}
