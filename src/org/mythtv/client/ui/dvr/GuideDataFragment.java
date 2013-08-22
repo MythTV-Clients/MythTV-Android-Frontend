@@ -98,12 +98,12 @@ public class GuideDataFragment extends MythtvListFragment implements LoaderManag
 					+ ProgramConstants.TABLE_NAME_GUIDE + "."
 					+ ProgramConstants.FIELD_MASTER_HOSTNAME + " = ?";
 			selectionArgs = new String[] {
-					String.valueOf(channelId),
-					String.valueOf(start.withZone(DateTimeZone.UTC).getMillis()),
-					String.valueOf(start.plusDays(1).withZone(DateTimeZone.UTC)
-							.getMillis()), mLocationProfile.getHostname() };
-			sortOrder = ProgramConstants.TABLE_NAME_GUIDE + "."
-					+ ProgramConstants.FIELD_START_TIME;
+					String.valueOf( channelId ),
+					String.valueOf( start.withTimeAtStartOfDay().withZone( DateTimeZone.UTC ).getMillis() ),
+					String.valueOf( start.withTimeAtStartOfDay().plusDays( 1 ).withZone( DateTimeZone.UTC ).getMillis() ), 
+					mLocationProfile.getHostname() 
+			};
+			sortOrder = ProgramConstants.TABLE_NAME_GUIDE + "."	+ ProgramConstants.FIELD_START_TIME;
 
 			Log.v( TAG, "onCreateLoader : exit" );
 			return new CursorLoader( getActivity(), ProgramConstants.CONTENT_URI_GUIDE, projection, selection, selectionArgs, sortOrder );
@@ -205,13 +205,14 @@ public class GuideDataFragment extends MythtvListFragment implements LoaderManag
 				DateTime start = selectedDateUtc.withTimeAtStartOfDay();
 				List<Program> programs = mProgramGuideDaoHelper.findAll( getActivity(), mLocationProfile, channelId, start );
 				if( null != programs && !programs.isEmpty() ) {
+					Log.v( TAG, "postDelayed : programs size=" + programs.size() );
 					
 					int selectedPosition = 0;
 					for( int i = 0; i < programs.size(); i++ ) {
 						Program program = programs.get( i );
-						Log.v( TAG, "postDelayed : postion '" + i + "', startTime=" + program.getStartTime().toString() );
+						Log.v( TAG, "postDelayed : postion '" + i + "', title=" + program.getTitle() + ", startTime=" + program.getStartTime().toString() + ", endTime=" + program.getEndTime().toString() + " [" + ( program.getStartTime().isEqual( selectedDate ) || ( program.getStartTime().isBefore( selectedDate ) && program.getEndTime().isAfter( selectedDate ) ) ) + "]" );
 						
-						if( selectedDate.isBefore( program.getEndTime() ) ) {
+						if( program.getStartTime().isEqual( selectedDate ) || ( program.getStartTime().isAfter( selectedDate ) && program.getEndTime().isAfter( selectedDate ) ) ) {
 							Log.v( TAG, "postDelayed : selecting postion '" + i + "'" );
 
 							selectedPosition = i;

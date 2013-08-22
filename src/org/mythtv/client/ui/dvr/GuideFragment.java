@@ -86,7 +86,7 @@ public class GuideFragment extends AbstractMythFragment
 	public void onDateChanged( DateTime selectedDate ) {
 		Log.v( TAG, "onDateChanged : enter" );
 
-		this.selectedDate = selectedDate;
+		this.selectedDate = DateUtils.convertUtc( selectedDate ).withTimeAtStartOfDay();
 		Log.v( TAG, "onDateChanged : selectedDate=" + selectedDate.toString() );
 		
 		updateView();
@@ -282,7 +282,7 @@ public class GuideFragment extends AbstractMythFragment
 		Log.v( TAG, "timeslotSelect : time=" + time );
 		
 		String[] values = time.split( ":" );
-		DateTime scrollDate = selectedDate.withTime( Integer.parseInt( values[ 0 ] ), Integer.parseInt( values[ 1 ] ), Integer.parseInt( values[ 2 ] ), 0 );
+		DateTime scrollDate = selectedDate.withZone( DateTimeZone.getDefault() ).withTime( Integer.parseInt( values[ 0 ] ), Integer.parseInt( values[ 1 ] ), Integer.parseInt( values[ 2 ] ), 0 );
 		Log.v( TAG, "timeslotSelect : scrollDate=" + scrollDate );
 		
 		mGuideDataFragment.scroll( selectedChannelId, scrollDate );
@@ -295,8 +295,8 @@ public class GuideFragment extends AbstractMythFragment
 	private void updateView() {
 		Log.v( TAG, "updateView : enter" );
 		
-		mProgramGuideDate.setText( DateUtils.getDateTimeUsingLocaleFormattingPrettyDateOnly( selectedDate, getMainApplication().getDateFormat() ) );
 		mGuideDataFragment.updateView( selectedChannelId, selectedDate );
+		mProgramGuideDate.setText( DateUtils.getDateTimeUsingLocaleFormattingPrettyDateOnly( selectedDate, getMainApplication().getDateFormat() ) );
 		
 		Log.v( TAG, "updateView : exit" );
 	}
