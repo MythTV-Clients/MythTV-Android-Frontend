@@ -287,6 +287,8 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		RecordingConstants.ContentDetails details = RecordingConstants.ContentDetails.getValueFromParent( table );
 //		Log.w(TAG, "load : details - parent=" + details.getParent() + ", tableName=" + details.getTableName() + ", contentUri=" + details.getContentUri().toString() );
 
+		List<Integer> channelsChecked = new ArrayList<Integer>();
+		
 		for( Program program : programs ) {
 
 			if( null == program.getStartTime() || null == program.getEndTime() ) {
@@ -325,33 +327,39 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 			count++;
 			
 			if( null != program.getChannelInfo() ) {
-				
-				String[] channelProjection = new String[] { ChannelConstants._ID };
-				String channelSelection = ChannelConstants.FIELD_CHAN_ID + " = ?";
 
-				channelSelection = appendLocationHostname( context, locationProfile, channelSelection, null );
-
-				ContentValues channelValues = ChannelDaoHelper.convertChannelInfoToContentValues( locationProfile, lastModified, program.getChannelInfo() );
-				Cursor channelCursor = context.getContentResolver().query( ChannelConstants.CONTENT_URI, channelProjection, channelSelection, new String[] { String.valueOf( program.getChannelInfo().getChannelId() ) }, null );
-				if( !channelCursor.moveToFirst() ) {
-//					Log.v( TAG, "load : adding channel " + program.getChannelInfo().getChannelId() );
+				if( !channelsChecked.contains( program.getChannelInfo().getChannelId() ) ) {
 					
-					// catch all for channels not in regular linups (i.e. added as a result of integrating miro bridge)
-					ops.add(  
-						ContentProviderOperation.newInsert( ChannelConstants.CONTENT_URI )
-							.withValues( channelValues )
-							.withYieldAllowed( true )
-							.build()
-					);
-					count++;
+					String[] channelProjection = new String[] { ChannelConstants._ID };
+					String channelSelection = ChannelConstants.FIELD_CHAN_ID + " = ?";
+
+					channelSelection = appendLocationHostname( context, locationProfile, channelSelection, null );
+
+					ContentValues channelValues = ChannelDaoHelper.convertChannelInfoToContentValues( locationProfile, lastModified, program.getChannelInfo() );
+					Cursor channelCursor = context.getContentResolver().query( ChannelConstants.CONTENT_URI, channelProjection, channelSelection, new String[] { String.valueOf( program.getChannelInfo().getChannelId() ) }, null );
+					if( !channelCursor.moveToFirst() ) {
+//						Log.v( TAG, "load : adding channel " + program.getChannelInfo().getChannelId() );
+						
+						// catch all for channels not in regular linups (i.e. added as a result of integrating miro bridge)
+						ops.add(  
+							ContentProviderOperation.newInsert( ChannelConstants.CONTENT_URI )
+								.withValues( channelValues )
+								.withYieldAllowed( true )
+								.build()
+						);
+						count++;
+					}
+					channelCursor.close();
+					
+					channelsChecked.add( program.getChannelInfo().getChannelId() );
+			
 				}
-				channelCursor.close();
-				
+
 			}
 			
 			if( !inError && null != program.getRecording() ) {
 				
-				if( program.getRecording().getRecordId() < 0 ) {
+				if( program.getRecording().getRecordId() > 0 ) {
 				
 					String[] recordingProjection = new String[] { details.getTableName() + "_" + RecordingConstants._ID };
 					String recordingSelection = RecordingConstants.FIELD_RECORD_ID + " = ? AND " + RecordingConstants.FIELD_START_TIME + " = ? AND " + RecordingConstants.FIELD_MASTER_HOSTNAME + " = ?";

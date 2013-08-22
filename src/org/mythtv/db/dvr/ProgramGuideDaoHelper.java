@@ -31,7 +31,6 @@ import android.content.ContentUris;
 import android.content.Context;
 import android.content.OperationApplicationException;
 import android.os.RemoteException;
-import android.util.Log;
 
 /**
  * @author Daniel Frey
@@ -39,7 +38,7 @@ import android.util.Log;
  */
 public class ProgramGuideDaoHelper extends ProgramDaoHelper {
 
-	private static final String TAG = ProgramGuideDaoHelper.class.getSimpleName();
+//	private static final String TAG = ProgramGuideDaoHelper.class.getSimpleName();
 	
 	private static ProgramGuideDaoHelper singleton = null;
 
@@ -70,7 +69,7 @@ public class ProgramGuideDaoHelper extends ProgramDaoHelper {
 	}
 
 	public ProgramGuide getProgramGuideForDate( final Context context, final LocationProfile locationProfile, DateTime date ) {
-		Log.d( TAG, "getProgramGuideForDate : enter" );
+//		Log.d( TAG, "getProgramGuideForDate : enter" );
 
 		ProgramGuide guide = new ProgramGuide();
 		
@@ -83,7 +82,7 @@ public class ProgramGuideDaoHelper extends ProgramDaoHelper {
 //		}
 		guide.setChannels( channels );
 		
-		Log.d( TAG, "getProgramGuideForDate : enter" );
+//		Log.d( TAG, "getProgramGuideForDate : enter" );
 		return guide;
 	}
 	
@@ -134,7 +133,7 @@ public class ProgramGuideDaoHelper extends ProgramDaoHelper {
 	 * @return
 	 */
 	public List<Program> findAllByTitle( final Context context, final LocationProfile locationProfile, final String title ) {
-		Log.d( TAG, "findAllByTitle : enter" );
+//		Log.d( TAG, "findAllByTitle : enter" );
 		
 		String selection = ProgramConstants.FIELD_TITLE + " = ?";
 		String[] selectionArgs = new String[] { title };
@@ -142,13 +141,13 @@ public class ProgramGuideDaoHelper extends ProgramDaoHelper {
 		selection = appendLocationHostname( context, locationProfile, selection, ProgramConstants.TABLE_NAME_GUIDE );
 		
 		List<Program> programs = findAll( context, ProgramConstants.CONTENT_URI_GUIDE, null, selection, selectionArgs, null, ProgramConstants.TABLE_NAME_GUIDE );
-		if( null != programs && !programs.isEmpty() ) {
-			for( Program program : programs ) {
-				Log.v( TAG, "findAllByTitle : channelId=" + program.getChannelInfo().getChannelId() + ", startTime=" + program.getStartTime().getMillis() + ", program=" + program.toString() );
-			}
-		}
+//		if( null != programs && !programs.isEmpty() ) {
+//			for( Program program : programs ) {
+//				Log.v( TAG, "findAllByTitle : channelId=" + program.getChannelInfo().getChannelId() + ", startTime=" + program.getStartTime().getMillis() + ", program=" + program.toString() );
+//			}
+//		}
 		
-		Log.d( TAG, "findAllByTitle : exit" );
+//		Log.d( TAG, "findAllByTitle : exit" );
 		return programs;
 	}
 
@@ -157,15 +156,15 @@ public class ProgramGuideDaoHelper extends ProgramDaoHelper {
 	 * @return
 	 */
 	public Program findOne( final Context context, final Long id ) {
-		Log.d( TAG, "findOne : enter" );
-		Log.d( TAG, "findOne : id=" + id );
+//		Log.d( TAG, "findOne : enter" );
+//		Log.d( TAG, "findOne : id=" + id );
 		
 		Program program = findOne( context, ContentUris.withAppendedId( ProgramConstants.CONTENT_URI_GUIDE, id ), null, null, null, null, ProgramConstants.TABLE_NAME_GUIDE );
 //		if( null != program ) {
 //			Log.d( TAG, "findOne : program=" + program.toString() );
 //		}
 		
-		Log.d( TAG, "findOne : exit" );
+//		Log.d( TAG, "findOne : exit" );
 		return program;
 	}
 
@@ -174,7 +173,7 @@ public class ProgramGuideDaoHelper extends ProgramDaoHelper {
 	 */
 	@Override
 	public Program findOne( final Context context, final LocationProfile locationProfile, final int channelId, final DateTime startTime ) {
-		Log.d( TAG, "findOne : enter" );
+//		Log.d( TAG, "findOne : enter" );
 		
 		String selection = ProgramConstants.TABLE_NAME_GUIDE + "." + ProgramConstants.FIELD_CHANNEL_ID + " = ? AND " + ProgramConstants.TABLE_NAME_GUIDE + "." + ProgramConstants.FIELD_START_TIME + " = ?";
 		String[] selectionArgs = new String[] { String.valueOf( channelId ), String.valueOf( startTime.getMillis() ) };
@@ -188,7 +187,7 @@ public class ProgramGuideDaoHelper extends ProgramDaoHelper {
 //			Log.v( TAG, "findOne : program not found!" );
 //		}
 		
-		Log.d( TAG, "findOne : exit" );
+//		Log.d( TAG, "findOne : exit" );
 		return program;
 	}
 
@@ -210,11 +209,11 @@ public class ProgramGuideDaoHelper extends ProgramDaoHelper {
 	 */
 	@Override
 	public int deleteAll( final Context context ) {
-		Log.d( TAG, "deleteAll : enter" );
+//		Log.d( TAG, "deleteAll : enter" );
 
 		int deleted = deleteAll( context, ProgramConstants.CONTENT_URI_GUIDE );
 		
-		Log.d( TAG, "deleteAll : exit" );
+//		Log.d( TAG, "deleteAll : exit" );
 		return deleted;
 	}
 
@@ -223,11 +222,11 @@ public class ProgramGuideDaoHelper extends ProgramDaoHelper {
 	 */
 	@Override
 	public int delete( final Context context, final LocationProfile locationProfile, Program program ) {
-		Log.d( TAG, "delete : enter" );
+//		Log.d( TAG, "delete : enter" );
 
 		int deleted = delete( context, ProgramConstants.CONTENT_URI_GUIDE, locationProfile, program, ProgramConstants.TABLE_NAME_GUIDE );
 		
-		Log.d( TAG, "delete : exit" );
+//		Log.d( TAG, "delete : exit" );
 		return deleted;
 	}
 
@@ -254,45 +253,12 @@ public class ProgramGuideDaoHelper extends ProgramDaoHelper {
 	 * @throws OperationApplicationException
 	 */
 	public int loadProgramGuide( final Context context, final LocationProfile locationProfile, final List<ChannelInfo> channelInfos ) throws RemoteException, OperationApplicationException {
-		Log.d( TAG, "load : enter" );
+//		Log.d( TAG, "load : enter" );
 
 		if( null == context ) 
 			throw new RuntimeException( "ProgramDaoHelper is not initialized" );
 
 		int processed = 0;
-/*		int deleted = 0;
-		int count = 0;
-		int processed = 0;
-		int totalUpdates = 0;
-		int totalInserts = 0;
-
-		DateTime lastModified = new DateTime( DateTimeZone.UTC );
-		
-		ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
-
-		DateTime startDate = new DateTime( DateTimeZone.UTC ).withTimeAtStartOfDay();
-*/		
-/*		Log.d( TAG, "load : deleting old" );
-		ops.add(  
-			ContentProviderOperation.newDelete( ProgramConstants.CONTENT_URI_GUIDE )
-				.withSelection( ProgramConstants.FIELD_END_TIME + " < ?", new String[] { String.valueOf( startDate.getMillis() ) } )
-				.build()
-		);
-		if( !ops.isEmpty() ) {
-
-			ContentProviderResult[] results = context.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
-			deleted = results.length;
-
-			if( results.length > 0 ) {
-				ops.clear();
-			}
-		}
-*/
-/*		String[] programProjection = new String[] { ProgramConstants._ID };
-		String programSelection = ProgramConstants.TABLE_NAME_GUIDE + "." + ProgramConstants.FIELD_CHANNEL_ID + " = ? AND " + ProgramConstants.TABLE_NAME_GUIDE + "." + ProgramConstants.FIELD_START_TIME + " = ?";
-		
-		programSelection = appendLocationHostname( context, locationProfile, programSelection, ProgramConstants.TABLE_NAME_GUIDE );
-*/		
 		for( ChannelInfo channel : channelInfos ) {
 
 			ChannelInfo copy = copy( channel );
@@ -304,85 +270,9 @@ public class ProgramGuideDaoHelper extends ProgramDaoHelper {
 			
 			processed += load( context, locationProfile, channel.getPrograms() );
 			
-/*			ChannelInfo channelInfo = mChannelDaoHelper.findByChannelId( context, locationProfile, (long) channel.getChannelId() );
-			if( null != channelInfo ) {
-//				Log.v( TAG, "load : processing programs for channel id [" + channel.getChannelId() + "] with number " + channel.getChannelNumber() + " with program size=" + channel.getPrograms().size() );
-				
-				for( Program program : channel.getPrograms() ) {
-
-					program.setChannelInfo( channelInfo );
-					
-//					save( context, locationProfile, program );
-					
-					ContentValues programValues = convertProgramToContentValues( locationProfile, lastModified, program );
-					Cursor programCursor = context.getContentResolver().query( ProgramConstants.CONTENT_URI_GUIDE, programProjection, programSelection, new String[] { String.valueOf( channelInfo.getChannelId() ), String.valueOf( program.getStartTime().getMillis() ) }, null );
-					if( programCursor.moveToFirst() ) {
-//						Log.v( TAG, "load : UPDATE title=" + program.getTitle() + ", startTime=" + DateUtils.getDateTimeUsingLocaleFormattingPretty( program.getStartTime(), mainApplication.getDateFormat(), mainApplication.getClockType() ) );
-
-						Long id = programCursor.getLong( programCursor.getColumnIndexOrThrow( ProgramConstants._ID ) );
-						ops.add( 
-							ContentProviderOperation.newUpdate( ContentUris.withAppendedId( ProgramConstants.CONTENT_URI_GUIDE, id ) )
-								.withValues( programValues )
-								.withYieldAllowed( true )
-								.build()
-						);
-						totalUpdates++;
-						
-					} else {
-//						Log.v( TAG, "load : INSERT title=" + program.getTitle() + ", startTime=" + DateUtils.getDateTimeUsingLocaleFormattingPretty( program.getStartTime(), mainApplication.getDateFormat(), mainApplication.getClockType() ) );
-
-						ops.add(  
-							ContentProviderOperation.newInsert( ProgramConstants.CONTENT_URI_GUIDE )
-								.withValues( programValues )
-								.withYieldAllowed( true )
-								.build()
-						);
-						totalInserts++;
-					}
-					programCursor.close();
-					count++;
-					
-					if( count > BATCH_COUNT_LIMIT ) {
-						Log.v( TAG, "process : batch update/insert" );
-
-						if( !ops.isEmpty() ) {
-
-							ContentProviderResult[] results = context.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
-							processed += results.length;
-
-							if( results.length > 0 ) {
-								ops.clear();
-							}
-						}
-
-						count = 0;
-					}
-
-				}
-
-			} else {
-				Log.v( TAG, "load : channel NOT found for channel id [" + channel.getChannelId() + "]" );
-			}
-
-*/		}
-		
-/*		if( !ops.isEmpty() ) {
-			Log.v( TAG, "load : final batch " + count );
-
-			ContentProviderResult[] results = context.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
-			processed += results.length;
-
-			if( results.length > 0 ) {
-				ops.clear();
-			}
 		}
 
-		Log.v( TAG, "load : delete batch: " + deleted );
-		Log.d( TAG, "load : processed: " + processed );
-		Log.d( TAG, "load : totalUpdates: " + totalUpdates );
-		Log.d( TAG, "load : totalInserts: " + totalInserts );
-*/		
-		Log.d( TAG, "load : exit" );
+//		Log.d( TAG, "load : exit" );
 		return processed;
 	}
 

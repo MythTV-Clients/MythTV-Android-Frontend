@@ -302,7 +302,7 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
        								program.setRecording( upcoming.getRecording() );
        								mProgramGuideDaoHelper.save( getActivity(), mLocationProfile, program );
         								
-       								Log.v( TAG, "BackendStatusTask.onPostExecute : upcoming program updated! program=" + program.toString() );
+//       								Log.v( TAG, "BackendStatusTask.onPostExecute : upcoming program updated! program=" + program.toString() );
        							}
         							
        						}
@@ -324,7 +324,7 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
         								programGuide.setRecording( encoder.getRecording().getRecording() );
         								mProgramGuideDaoHelper.save( getActivity(), mLocationProfile, programGuide );
         								
-        								Log.v( TAG, "BackendStatusTask.onPostExecute : current recording in program guide updated!" );
+//        								Log.v( TAG, "BackendStatusTask.onPostExecute : current recording in program guide updated!" );
         							}
         							
         							Program upcoming = mUpcomingDaoHelper.findOne( getActivity(), mLocationProfile, encoder.getRecording().getChannelInfo().getChannelId(), encoder.getRecording().getStartTime() );
@@ -332,7 +332,7 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
         								upcoming.setRecording( encoder.getRecording().getRecording() );
         								mProgramGuideDaoHelper.save( getActivity(), mLocationProfile, upcoming );
         								
-        								Log.v( TAG, "BackendStatusTask.onPostExecute : current recording in upcoming updated!" );
+//        								Log.v( TAG, "BackendStatusTask.onPostExecute : current recording in upcoming updated!" );
         							}
 
         						}
