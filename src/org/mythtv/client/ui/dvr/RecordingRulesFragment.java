@@ -499,9 +499,9 @@ public class RecordingRulesFragment extends MythtvListFragment implements Loader
 	        	Log.i( TAG, "RecordingRuleDownloadReceiver.onReceive : complete=" + intent.getStringExtra( RecordingRuleDownloadService.EXTRA_COMPLETE ) );
 	        	
 	        	if( intent.getExtras().containsKey( RecordingRuleDownloadService.EXTRA_COMPLETE_UPTODATE ) ) {
-	        		Toast.makeText( getActivity(), "Recorded Program are up to date!", Toast.LENGTH_SHORT ).show();
+	        		Toast.makeText( getActivity(), "Recording Rules are up to date!", Toast.LENGTH_SHORT ).show();
 	        	} else if( intent.getExtras().containsKey( RecordingRuleDownloadService.EXTRA_COMPLETE_OFFLINE ) ) {
-	        		Toast.makeText( getActivity(), "Recording Rules Update failed because Master Backend is not connected!", Toast.LENGTH_SHORT ).show();
+	        		Toast.makeText( getActivity(), "Recording Rules update failed because Master Backend is not connected!", Toast.LENGTH_SHORT ).show();
 	        	} else {
 	        		Toast.makeText( getActivity(), "Recording Rules updated!", Toast.LENGTH_SHORT ).show();
 
