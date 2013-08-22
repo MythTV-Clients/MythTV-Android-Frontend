@@ -76,8 +76,12 @@ public class GuideDataFragment extends MythtvListFragment implements LoaderManag
 		    int channelId = args.getInt( ProgramConstants.FIELD_CHANNEL_ID );
 		    long date = args.getLong( ProgramConstants.FIELD_END_TIME );
 		    
-		    DateTime start = new DateTime( date );
-		    Log.v( TAG, "onCreateLoader : getting prorgrams for channel " + channelId + " on " + start.toString() );
+		    DateTime start = new DateTime( date ).withTimeAtStartOfDay();
+		    DateTime end = start.plusDays( 1 );
+		    Log.v( TAG, "onCreateLoader : getting prorgrams for channel " + channelId + " on " + start.toString() + " until " + end.toString() );
+		    
+		    start = start.withZone( DateTimeZone.UTC );
+		    end = end.withZone( DateTimeZone.UTC );
 		    
 			projection = new String[] { ProgramConstants._ID,
 					ProgramConstants.TABLE_NAME_GUIDE + "." + ProgramConstants.FIELD_TITLE,
@@ -89,18 +93,15 @@ public class GuideDataFragment extends MythtvListFragment implements LoaderManag
 					RecordingConstants.ContentDetails.GUIDE + "_" + RecordingConstants.FIELD_RECORD_ID,
 					RecordingConstants.ContentDetails.GUIDE + "_" + RecordingConstants.FIELD_STATUS
 			};
-			selection = ProgramConstants.TABLE_NAME_GUIDE + "."
-					+ ProgramConstants.FIELD_CHANNEL_ID + " = ? AND "
-					+ ProgramConstants.TABLE_NAME_GUIDE + "."
-					+ ProgramConstants.FIELD_END_TIME + " > ? AND "
-					+ ProgramConstants.TABLE_NAME_GUIDE + "."
-					+ ProgramConstants.FIELD_START_TIME + " < ? AND "
-					+ ProgramConstants.TABLE_NAME_GUIDE + "."
-					+ ProgramConstants.FIELD_MASTER_HOSTNAME + " = ?";
+			selection = 
+					ProgramConstants.TABLE_NAME_GUIDE + "." + ProgramConstants.FIELD_CHANNEL_ID + " = ? AND "
+					+ ProgramConstants.TABLE_NAME_GUIDE + "." + ProgramConstants.FIELD_END_TIME + " > ? AND "
+					+ ProgramConstants.TABLE_NAME_GUIDE + "." + ProgramConstants.FIELD_START_TIME + " < ? AND "
+					+ ProgramConstants.TABLE_NAME_GUIDE + "." + ProgramConstants.FIELD_MASTER_HOSTNAME + " = ?";
 			selectionArgs = new String[] {
 					String.valueOf( channelId ),
-					String.valueOf( start.withTimeAtStartOfDay().withZone( DateTimeZone.UTC ).getMillis() ),
-					String.valueOf( start.withTimeAtStartOfDay().plusDays( 1 ).withZone( DateTimeZone.UTC ).getMillis() ), 
+					String.valueOf( start.getMillis() ),
+					String.valueOf( end.getMillis() ), 
 					mLocationProfile.getHostname() 
 			};
 			sortOrder = ProgramConstants.TABLE_NAME_GUIDE + "."	+ ProgramConstants.FIELD_START_TIME;
@@ -199,11 +200,11 @@ public class GuideDataFragment extends MythtvListFragment implements LoaderManag
 			public void run() {
 				Log.v( TAG, "postDelayed : enter" );
 				
-				DateTime selectedDateUtc = DateUtils.convertUtc( selectedDate );
+				//DateTime selectedDateUtc = DateUtils.convertUtc( selectedDate );
 				//Log.v( TAG, "postDelayed : selectedDateUtc=" + selectedDateUtc.toString() );
 				
-				DateTime start = selectedDateUtc.withTimeAtStartOfDay();
-				List<Program> programs = mProgramGuideDaoHelper.findAll( getActivity(), mLocationProfile, channelId, start );
+				//DateTime start = selectedDateUtc.withTimeAtStartOfDay();
+				List<Program> programs = mProgramGuideDaoHelper.findAll( getActivity(), mLocationProfile, channelId, selectedDate.withTimeAtStartOfDay() );
 				if( null != programs && !programs.isEmpty() ) {
 					Log.v( TAG, "postDelayed : programs size=" + programs.size() );
 					

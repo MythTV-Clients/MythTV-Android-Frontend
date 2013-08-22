@@ -83,13 +83,17 @@ public class GuideFragment extends AbstractMythFragment
 	 * @see org.mythtv.client.ui.dvr.GuideDatePickerFragment.OnDialogResultListener#onDateChanged(org.joda.time.DateTime)
 	 */
 	@Override
-	public void onDateChanged( DateTime selectedDate ) {
+	public void onDateChanged( DateTime date ) {
 		Log.v( TAG, "onDateChanged : enter" );
 
-		this.selectedDate = DateUtils.convertUtc( selectedDate ).withTimeAtStartOfDay();
+		Log.v( TAG, "onDateChanged : date=" + date.toString() );
+
+		selectedDate = date.withTimeAtStartOfDay();
 		Log.v( TAG, "onDateChanged : selectedDate=" + selectedDate.toString() );
 		
 		updateView();
+		
+		timeslotSelect( date.getHourOfDay() + ":00:00" );
 		
 		Log.v( TAG, "onDateChanged : enter" );
 	}
@@ -128,8 +132,10 @@ public class GuideFragment extends AbstractMythFragment
 		channels = mChannelDaoHelper.findAll( getActivity(), mLocationProfile );
 		selectedChannelId = channels.get( 0 ).getChannelId();
 		
-		today = new DateTime( DateTimeZone.UTC ).withTimeAtStartOfDay();
+		today = new DateTime( DateTimeZone.getDefault() ).withTimeAtStartOfDay();
 		selectedDate = today;
+		Log.v( TAG, "onActivityCreated : selectedDate=" + selectedDate.toString() );
+		
 		dateRange.add( today );
 		for( int i = 1; i < downloadDays; i++ ) {
 			dateRange.add( today.plusDays( i ) );
@@ -200,6 +206,19 @@ public class GuideFragment extends AbstractMythFragment
 	}
 
 	/* (non-Javadoc)
+	 * @see android.support.v4.app.Fragment#onResume()
+	 */
+	@Override
+	public void onResume() {
+		Log.v( TAG, "onResume : enter" );
+		super.onResume();
+
+		timeslotSelect( new DateTime().getHourOfDay() + ":00:00" );
+
+		Log.v( TAG, "onResume : exit" );
+	}
+
+	/* (non-Javadoc)
 	 * @see android.support.v4.app.Fragment#onCreateOptionsMenu(android.view.Menu, android.view.MenuInflater)
 	 */
 	@Override
@@ -266,7 +285,8 @@ public class GuideFragment extends AbstractMythFragment
 		selectedChannelId = channelId;
 		
 		updateView();
-		
+		timeslotSelect( new DateTime().getHourOfDay() + ":00:00" );
+
 		Log.v( TAG, "channelSelect : exit" );
 	}
 
@@ -282,7 +302,7 @@ public class GuideFragment extends AbstractMythFragment
 		Log.v( TAG, "timeslotSelect : time=" + time );
 		
 		String[] values = time.split( ":" );
-		DateTime scrollDate = selectedDate.withZone( DateTimeZone.getDefault() ).withTime( Integer.parseInt( values[ 0 ] ), Integer.parseInt( values[ 1 ] ), Integer.parseInt( values[ 2 ] ), 0 );
+		DateTime scrollDate = selectedDate.withTime( Integer.parseInt( values[ 0 ] ), Integer.parseInt( values[ 1 ] ), Integer.parseInt( values[ 2 ] ), 0 );
 		Log.v( TAG, "timeslotSelect : scrollDate=" + scrollDate );
 		
 		mGuideDataFragment.scroll( selectedChannelId, scrollDate );
