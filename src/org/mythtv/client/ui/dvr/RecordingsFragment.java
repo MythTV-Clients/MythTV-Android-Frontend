@@ -424,9 +424,9 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 	        	errorCursor.close();
 
 	        	if( intent.getExtras().containsKey( RecordedService.EXTRA_COMPLETE_UPTODATE ) ) {
-	        		Toast.makeText( getActivity(), "Recorded Program are up to date!" + ( inError ? " (Backend error(s) detected)" : "" ), Toast.LENGTH_SHORT ).show();
+	        		Toast.makeText( getActivity(), "Recorded Programs are up to date!" + ( inError ? " (Backend error(s) detected)" : "" ), Toast.LENGTH_SHORT ).show();
 	        	} else if( intent.getExtras().containsKey( RecordedService.EXTRA_COMPLETE_OFFLINE ) ) {
-	        		Toast.makeText( getActivity(), "Recorded Programs Update failed because Master Backend is not connected!", Toast.LENGTH_SHORT ).show();
+	        		Toast.makeText( getActivity(), "Recorded Programs update failed because Master Backend is not connected!", Toast.LENGTH_SHORT ).show();
 	        	} else {
 	        		Toast.makeText( getActivity(), "Recorded Programs updated!" + ( inError ? " (Backend error(s) detected)" : "" ), Toast.LENGTH_SHORT ).show();
 
