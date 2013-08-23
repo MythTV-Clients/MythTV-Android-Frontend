@@ -6,6 +6,7 @@ buildscript {
         classpath 'com.android.tools.build:gradle:0.5.+'
     }
 }
+
 apply plugin: 'android'
 
 repositories {
@@ -13,7 +14,6 @@ repositories {
 }
 
 dependencies {
-	// compile files('lib/com/google/android/support-v4/r18/support-v4-18.jar')
 	compile 'com.android.support:support-v4:18.0.0'
 	compile 'org.springframework.android:spring-android-rest-template:1.0.1.RELEASE'
 	compile 'javax.jmdns:jmdns:3.4.1'
@@ -21,7 +21,7 @@ dependencies {
 	compile 'org.joda:joda-convert:1.2'
 	compile 'com.nostra13.universalimageloader:universal-image-loader:1.8.6'
 	compile 'org.apache.commons:commons-io:1.3.2'
-	compile 'org.mythtv.android:mythtv-service-api:0.0.32'
+	compile 'org.mythtv.android:mythtv-service-api:1.0.6'
 }
 
 android {
@@ -56,4 +56,5 @@ android {
         debug.setRoot('build-types/debug')
         release.setRoot('build-types/release')
     }
+
 }

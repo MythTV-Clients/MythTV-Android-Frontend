@@ -9,3 +9,4 @@ libs
 /temp
 .idea
 /.gradle
+local.properties
