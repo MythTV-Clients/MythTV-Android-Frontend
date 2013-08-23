@@ -127,11 +127,13 @@ public class BackendStatusFragment extends AbstractMythFragment {
 	public void onConfigurationChanged(Configuration newConfig) {
 		
 		//re- attach the fragment forcing the view to be recreated.
-		Fragment currentFragment = getChildFragmentManager().findFragmentByTag( BACKEND_STATUS_FRAGMENT_NAME );
-	    FragmentTransaction fragTransaction = getChildFragmentManager().beginTransaction();
-	    fragTransaction.detach(currentFragment);
-	    fragTransaction.attach(currentFragment);
-	    fragTransaction.commit();
+		Fragment currentFragment = this.getFragmentManager().findFragmentByTag( BACKEND_STATUS_FRAGMENT_NAME );
+		if(null != currentFragment){
+		    FragmentTransaction fragTransaction = getFragmentManager().beginTransaction();
+		    fragTransaction.detach(currentFragment);
+		    fragTransaction.attach(currentFragment);
+		    fragTransaction.commit();
+		}
 		
 		super.onConfigurationChanged(newConfig);
 	}
