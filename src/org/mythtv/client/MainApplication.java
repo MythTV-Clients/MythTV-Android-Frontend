@@ -16,16 +16,26 @@
  *
  * This software can be found at <https://github.com/MythTV-Clients/MythTV-Android-Frontend/>
  */
+
+/**
+ * This file is part of MythTV Android Frontend
+ *
+ * MythTV Android Frontend is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * MythTV Android Frontend is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with MythTV Android Frontend.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * This software can be found at <https://github.com/MythTV-Clients/MythTV-Android-Frontend/>
+ */
 package org.mythtv.client;
-
-import java.util.logging.Level;
-
-import org.mythtv.client.ui.preferences.LocationProfile;
-import org.mythtv.client.ui.preferences.PlaybackProfile;
-import org.mythtv.db.preferences.LocationProfileDaoHelper;
-import org.mythtv.db.preferences.PlaybackProfileDaoHelper;
-import org.mythtv.services.api.MythServices;
-import org.mythtv.services.connect.MythServicesServiceProvider;
 
 import android.app.ActivityManager;
 import android.app.Application;
@@ -33,13 +43,20 @@ import android.content.Context;
 import android.os.Build;
 import android.provider.Settings;
 import android.util.Log;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
+import org.mythtv.client.ui.preferences.LocationProfile;
+import org.mythtv.client.ui.preferences.PlaybackProfile;
+import org.mythtv.db.preferences.LocationProfileDaoHelper;
+import org.mythtv.db.preferences.PlaybackProfileDaoHelper;
+import org.mythtv.services.api.MythServices;
+import org.mythtv.services.connect.MythServicesServiceProvider;
+
+import java.util.logging.Level;
 
 /**
  * @author Daniel Frey
@@ -148,7 +165,6 @@ public class MainApplication extends Application {
 			.denyCacheImageMultipleSizesInMemory()
 			.discCacheFileNameGenerator( new Md5FileNameGenerator() )
 			.tasksProcessingOrder( QueueProcessingType.LIFO )
-			.enableLogging() // Not necessary in common
 			.build();
 		
 		// Initialize ImageLoader with configuration.

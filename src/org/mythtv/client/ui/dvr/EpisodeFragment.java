@@ -16,10 +16,45 @@
  *
  * This software can be found at <https://github.com/MythTV-Clients/MythTV-Android-Frontend/>
  */
+
+/**
+ * This file is part of MythTV Android Frontend
+ *
+ * MythTV Android Frontend is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * MythTV Android Frontend is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with MythTV Android Frontend.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * This software can be found at <https://github.com/MythTV-Clients/MythTV-Android-Frontend/>
+ */
 package org.mythtv.client.ui.dvr;
 
-import java.util.List;
-
+import android.annotation.TargetApi;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.os.AsyncTask;
+import android.os.AsyncTask.Status;
+import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+import android.util.Log;
+import android.view.*;
+import android.widget.*;
+import android.widget.CompoundButton.OnCheckedChangeListener;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.FailReason;
+import com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener;
 import org.joda.time.DateTime;
 import org.mythtv.R;
 import org.mythtv.client.ui.AbstractMythFragment;
@@ -42,34 +77,7 @@ import org.mythtv.services.api.dvr.Program;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import android.annotation.TargetApi;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.os.AsyncTask;
-import android.os.AsyncTask.Status;
-import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.CompoundButton.OnCheckedChangeListener;
-import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
-
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.assist.FailReason;
-import com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener;
+import java.util.List;
 
 public class EpisodeFragment extends AbstractMythFragment {
 
@@ -512,7 +520,7 @@ public class EpisodeFragment extends AbstractMythFragment {
 					 * @see com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener#onLoadingComplete(android.graphics.Bitmap)
 					 */
 					@Override
-					public void onLoadingComplete( Bitmap loadedImage ) {
+					public void onLoadingComplete(String imageUri, View view,  Bitmap loadedImage ) {
 				        iView.setVisibility( View.VISIBLE );
 					}
 
@@ -520,7 +528,7 @@ public class EpisodeFragment extends AbstractMythFragment {
 					 * @see com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener#onLoadingFailed(com.nostra13.universalimageloader.core.assist.FailReason)
 					 */
 					@Override
-					public void onLoadingFailed( FailReason failReason ) {
+					public void onLoadingFailed(String imageUri, View view,  FailReason failReason ) {
 				        iView.setVisibility( View.GONE );
 					}
 					

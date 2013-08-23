@@ -16,8 +16,45 @@
  *
  * This software can be found at <https://github.com/MythTV-Clients/MythTV-Android-Frontend/>
  */
+
+/**
+ * This file is part of MythTV Android Frontend
+ *
+ * MythTV Android Frontend is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * MythTV Android Frontend is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with MythTV Android Frontend.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * This software can be found at <https://github.com/MythTV-Clients/MythTV-Android-Frontend/>
+ */
 package org.mythtv.client.ui.dvr;
 
+import android.annotation.TargetApi;
+import android.content.*;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.net.Uri;
+import android.os.Bundle;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
+import android.support.v4.widget.CursorAdapter;
+import android.util.Log;
+import android.view.*;
+import android.widget.*;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.FailReason;
+import com.nostra13.universalimageloader.core.assist.PauseOnScrollListener;
+import com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener;
 import org.joda.time.DateTime;
 import org.mythtv.R;
 import org.mythtv.client.ui.preferences.LocationProfile;
@@ -34,39 +71,6 @@ import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.dvr.RecordedDownloadService;
 import org.mythtv.service.util.RunningServiceHelper;
 import org.mythtv.services.api.dvr.impl.DvrTemplate.Endpoint;
-
-import android.annotation.TargetApi;
-import android.content.BroadcastReceiver;
-import android.content.ContentUris;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.net.Uri;
-import android.os.Bundle;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
-import android.support.v4.widget.CursorAdapter;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.TextView;
-import android.widget.Toast;
-
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.assist.FailReason;
-import com.nostra13.universalimageloader.core.assist.PauseOnScrollListener;
-import com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener;
 
 /**
  * @author Daniel Frey
@@ -174,7 +178,7 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 
 		getLoaderManager().initLoader( 0, null, this );
 		
-		getListView().setOnScrollListener( new PauseOnScrollListener( false, true ) );
+		getListView().setOnScrollListener( new PauseOnScrollListener(imageLoader, false, true ) );
 		
 		Log.v( TAG, "onActivityCreated : exit" );
 	}
@@ -381,7 +385,7 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 				 * @see com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener#onLoadingComplete(android.graphics.Bitmap)
 				 */
 				@Override
-				public void onLoadingComplete( Bitmap loadedImage ) {
+				public void onLoadingComplete(String imageUri, View view,  Bitmap loadedImage ) {
 			        mHolder.programGroup.setVisibility( View.GONE );
 			        mHolder.programGroupBanner.setVisibility( View.VISIBLE );
 				}
@@ -390,7 +394,7 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 				 * @see com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener#onLoadingFailed(com.nostra13.universalimageloader.core.assist.FailReason)
 				 */
 				@Override
-				public void onLoadingFailed( FailReason failReason ) {
+				public void onLoadingFailed(String imageUri, View view,  FailReason failReason ) {
 			        mHolder.programGroup.setVisibility( View.VISIBLE );
 			        mHolder.programGroupBanner.setVisibility( View.GONE );
 				}
