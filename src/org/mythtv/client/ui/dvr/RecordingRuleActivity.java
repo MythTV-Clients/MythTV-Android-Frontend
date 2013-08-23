@@ -19,6 +19,7 @@
 package org.mythtv.client.ui.dvr;
 
 import org.mythtv.R;
+import org.mythtv.client.ui.AbstractMythtvFragmentActivity;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -28,7 +29,7 @@ import android.view.Menu;
  * @author Daniel Frey
  * 
  */
-public class RecordingRuleActivity extends AbstractDvrActivity {
+public class RecordingRuleActivity extends AbstractMythtvFragmentActivity {
 
 	private static final String TAG = RecordingRuleActivity.class.getSimpleName();
 	private static final int EDIT_ID = Menu.FIRST + 2;
@@ -37,7 +38,7 @@ public class RecordingRuleActivity extends AbstractDvrActivity {
 
 	private RecordingRuleFragment recordingRuleFragment = null;
 
-	private Integer recordingRuleId;
+	private Long recordingRuleId;
 	
 	// ***************************************
 	// Activity methods
@@ -54,7 +55,7 @@ public class RecordingRuleActivity extends AbstractDvrActivity {
 		super.onCreate( savedInstanceState );
 
 		Bundle extras = getIntent().getExtras(); 
-		recordingRuleId = extras.getInt( EXTRA_RECORDING_RULE_KEY );
+		recordingRuleId = extras.getLong( EXTRA_RECORDING_RULE_KEY );
 		
 		setContentView( R.layout.fragment_dvr_recording_rule );
 

@@ -18,19 +18,20 @@
  */
 package org.mythtv.db;
 
-import static android.provider.BaseColumns._ID;
-
 import org.joda.time.DateTime;
 import org.mythtv.db.channel.ChannelConstants;
 import org.mythtv.db.content.LiveStreamConstants;
 import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.db.dvr.RecordingConstants;
+import org.mythtv.db.dvr.RecordingRuleConstants;
 import org.mythtv.db.dvr.programGroup.ProgramGroupConstants;
+import org.mythtv.db.frontends.FrontendConstants;
 import org.mythtv.db.http.EtagConstants;
 import org.mythtv.db.preferences.LocationProfileConstants;
 import org.mythtv.db.preferences.PlaybackProfileConstants;
 import org.mythtv.db.status.StatusConstants;
 import org.mythtv.db.status.StatusConstants.StatusKey;
+import org.mythtv.service.util.DateUtils;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -48,7 +49,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	private static final String TAG = DatabaseHelper.class.getSimpleName();
 	
 	private static final String DATABASE_NAME = "mythtvdb";
-	private static final int DATABASE_VERSION = 106;
+	private static final int DATABASE_VERSION = 124;
 
 	public DatabaseHelper( Context context ) {
 		super( context, DATABASE_NAME, null, DATABASE_VERSION );
@@ -57,6 +58,23 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		Log.v( TAG, "initialize : exit" );
 	}
 	
+	/* (non-Javadoc)
+	 * @see android.database.sqlite.SQLiteOpenHelper#onOpen(android.database.sqlite.SQLiteDatabase)
+	 */
+	@Override
+	public void onOpen( SQLiteDatabase db ) {
+		Log.v( TAG, "onOpen : enter" );
+		super.onOpen( db );
+
+		if( !db.isReadOnly() ) {
+			Log.i( TAG, "onOpen : turning on referencial integrity" );
+
+			db.execSQL( "PRAGMA foreign_keys = ON;" );
+		}
+		
+		Log.v( TAG, "onOpen : exit" );
+	}
+
 	/* (non-Javadoc)
 	 * @see android.database.sqlite.SQLiteOpenHelper#onCreate(android.database.sqlite.SQLiteDatabase)
 	 */
@@ -79,26 +97,35 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		dropChannel( db );
 		createChannel( db );
 		
+		dropFrontend( db );
+		createFrontend( db );
+		
 		dropProgram( db, ProgramConstants.TABLE_NAME_RECORDED );
 		createProgram( db, ProgramConstants.TABLE_NAME_RECORDED );
 		
 		dropProgram( db, ProgramConstants.TABLE_NAME_UPCOMING );
 		createProgram( db, ProgramConstants.TABLE_NAME_UPCOMING );
 
-		dropProgram( db, ProgramConstants.TABLE_NAME_PROGRAM );
-		createProgram( db, ProgramConstants.TABLE_NAME_PROGRAM );
+		dropProgram( db, ProgramConstants.TABLE_NAME_GUIDE );
+		createProgram( db, ProgramConstants.TABLE_NAME_GUIDE );
 
 		dropProgramGroup( db );
 		createProgramGroup( db );
 		
-		dropRecording( db );
-		createRecording( db );
+		dropRecording( db, RecordingConstants.ContentDetails.GUIDE.getTableName() );
+		createRecording( db, RecordingConstants.ContentDetails.GUIDE.getTableName() );
+		
+		dropRecording( db, RecordingConstants.ContentDetails.RECORDED.getTableName() );
+		createRecording( db, RecordingConstants.ContentDetails.RECORDED.getTableName() );
+
+		dropRecording( db, RecordingConstants.ContentDetails.UPCOMING.getTableName() );
+		createRecording( db, RecordingConstants.ContentDetails.UPCOMING.getTableName() );
 
 		dropLiveStream( db );
 		createLiveStream( db );
 		
-		dropCleanup( db );
-		createCleanup( db );
+		dropRecordingRule( db );
+		createRecordingRule( db );
 		
 		Log.v( TAG, "onCreate : exit" );
 	}
@@ -110,8 +137,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	public void onUpgrade( SQLiteDatabase db, int oldVersion, int newVersion ) {
 		Log.v( TAG, "onUpgrade : enter" );
 
-		if( oldVersion < 106 ) {
-			Log.v( TAG, "onUpgrade : upgrading to db version 106" );
+		if( oldVersion < 124 ) {
+			Log.v( TAG, "onUpgrade : upgrading to db version 124" );
 
 			onCreate( db );
 
@@ -122,37 +149,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 	// internal helpers
 	
-	private void dropCleanup( SQLiteDatabase db ) {
-		Log.v( TAG, "dropCleanup : enter" );
-		
-		db.execSQL( "DROP TABLE IF EXISTS CLEANUP" );
-		
-		Log.v( TAG, "dropCleanup : exit" );
-	}
-
-	private void createCleanup( SQLiteDatabase db ) {
-		Log.v( TAG, "createCleanup : enter" );
-		
-		StringBuilder sqlBuilder = new StringBuilder();
-		sqlBuilder.append( "CREATE TABLE CLEANUP (" );
-		sqlBuilder.append( _ID ).append( " " ).append( "INTEGER PRIMARY KEY AUTOINCREMENT, " );
-		sqlBuilder.append( "KEY TEXT, " );
-		sqlBuilder.append( "VALUE TEXT" );
-		sqlBuilder.append( ");" );
-		String sql = sqlBuilder.toString();
-		if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
-			Log.v( TAG, "createCleanup : sql=" + sql );
-		}
-		db.execSQL( sql );
-
-		ContentValues values = new ContentValues();
-		values.put( "KEY", "CLEANUP_PROGRAM_GUIDE" );
-		values.put( "VALUE", "FALSE" );
-		db.insert( "CLEANUP", null, values );
-
-		Log.v( TAG, "createCleanup : exit" );
-	}
-
 	private void dropStatus( SQLiteDatabase db ) {
 		Log.v( TAG, "dropStatus : enter" );
 		
@@ -180,7 +176,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		ContentValues values = new ContentValues();
 		values.put( StatusConstants.FIELD_KEY, StatusKey.MASTER_BACKEND_CONNECTED.name() );
 		values.put( StatusConstants.FIELD_VALUE, "FALSE" );
-		values.put( StatusConstants.FIELD_DATE, new DateTime().getMillis() );
+		values.put( StatusConstants.FIELD_DATE, DateUtils.convertUtc( new DateTime( System.currentTimeMillis() ) ).getMillis() );
 		db.insert( StatusConstants.TABLE_NAME, null, values );
 
 		Log.v( TAG, "createStatus : exit" );
@@ -202,9 +198,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		sqlBuilder.append( EtagConstants._ID ).append( " " ).append( EtagConstants.FIELD_ID_DATA_TYPE ).append( " " ).append( EtagConstants.FIELD_ID_PRIMARY_KEY ).append( ", " );
 		sqlBuilder.append( EtagConstants.FIELD_ENDPOINT ).append( " " ).append( EtagConstants.FIELD_ENDPOINT_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( EtagConstants.FIELD_VALUE ).append( " " ).append( EtagConstants.FIELD_VALUE_DATA_TYPE ).append( ", " );
-		sqlBuilder.append( EtagConstants.FIELD_DATA_ID ).append( " " ).append( EtagConstants.FIELD_DATA_ID_DATA_TYPE ).append( " default" ).append( EtagConstants.FIELD_DATA_ID_DEFAULT ).append( ", " );
+		sqlBuilder.append( EtagConstants.FIELD_DATA_ID ).append( " " ).append( EtagConstants.FIELD_DATA_ID_DATA_TYPE ).append( " default " ).append( EtagConstants.FIELD_DATA_ID_DEFAULT ).append( ", " );
 		sqlBuilder.append( EtagConstants.FIELD_DATE ).append( " " ).append( EtagConstants.FIELD_DATE_DATA_TYPE ).append( ", " );
-		sqlBuilder.append( EtagConstants.FIELD_HOSTNAME ).append( " " ).append( EtagConstants.FIELD_HOSTNAME_DATA_TYPE );
+		sqlBuilder.append( EtagConstants.FIELD_MASTER_HOSTNAME ).append( " " ).append( EtagConstants.FIELD_MASTER_HOSTNAME_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( EtagConstants.FIELD_LAST_MODIFIED_DATE ).append( " " ).append( EtagConstants.FIELD_LAST_MODIFIED_DATE_DATA_TYPE );
 		sqlBuilder.append( ");" );
 		String sql = sqlBuilder.toString();
 		if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
@@ -229,7 +226,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		sqlBuilder.append( LocationProfileConstants.FIELD_VERSION ).append( " " ).append( LocationProfileConstants.FIELD_VERSION_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( LocationProfileConstants.FIELD_PROTOCOL_VERSION ).append( " " ).append( LocationProfileConstants.FIELD_PROTOCOL_VERSION_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( LocationProfileConstants.FIELD_WOL_ADDRESS ).append( " " ).append( LocationProfileConstants.FIELD_WOL_ADDRESS_DATA_TYPE ).append( ", " );
-		sqlBuilder.append( LocationProfileConstants.FIELD_HOSTNAME ).append( " " ).append( LocationProfileConstants.FIELD_HOSTNAME_DATA_TYPE );
+		sqlBuilder.append( LocationProfileConstants.FIELD_HOSTNAME ).append( " " ).append( LocationProfileConstants.FIELD_HOSTNAME_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( LocationProfileConstants.FIELD_NEXT_MYTHFILLDATABASE ).append( " " ).append( LocationProfileConstants.FIELD_NEXT_MYTHFILLDATABASE_DATA_TYPE );
 		sqlBuilder.append( ");" );
 		String sql = sqlBuilder.toString();
 		if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
@@ -489,7 +487,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		sqlBuilder.append( ProgramConstants.FIELD_EPISODE ).append( " " ).append( ProgramConstants.FIELD_EPISODE_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( ProgramConstants.FIELD_CHANNEL_ID ).append( " " ).append( ProgramConstants.FIELD_CHANNEL_ID_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( ProgramConstants.FIELD_RECORD_ID ).append( " " ).append( ProgramConstants.FIELD_RECORD_ID_DATA_TYPE ).append( ", " );
-		sqlBuilder.append( ProgramConstants.FIELD_IN_ERROR ).append( " " ).append( ProgramConstants.FIELD_IN_ERROR_DATA_TYPE );
+		sqlBuilder.append( ProgramConstants.FIELD_IN_ERROR ).append( " " ).append( ProgramConstants.FIELD_IN_ERROR_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ProgramConstants.FIELD_MASTER_HOSTNAME ).append( " " ).append( ProgramConstants.FIELD_MASTER_HOSTNAME_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ProgramConstants.FIELD_LAST_MODIFIED_DATE ).append( " " ).append( ProgramConstants.FIELD_LAST_MODIFIED_DATE_DATA_TYPE ).append( ", " );
+		//sqlBuilder.append( "UNIQUE(" ).append( ProgramConstants.FIELD_RECORD_ID ).append( ", " ).append( ProgramConstants.FIELD_START_TIME ).append( ", " ).append( ProgramConstants.FIELD_MASTER_HOSTNAME ).append( ")" ).append( ", " );
+		sqlBuilder.append( "UNIQUE(" ).append( ProgramConstants.FIELD_CHANNEL_ID ).append( ", " ).append( ProgramConstants.FIELD_START_TIME ).append( ", " ).append( ProgramConstants.FIELD_MASTER_HOSTNAME ).append( ") ON CONFLICT REPLACE " );
 		sqlBuilder.append( ");" );
 		String sql = sqlBuilder.toString();
 		if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
@@ -518,6 +520,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		sqlBuilder.append( ChannelConstants._ID ).append( " " ).append( ChannelConstants.FIELD_ID_DATA_TYPE ).append( " " ).append( ChannelConstants.FIELD_ID_PRIMARY_KEY ).append( ", " );
 		sqlBuilder.append( ChannelConstants.FIELD_CHAN_ID ).append( " " ).append( ChannelConstants.FIELD_CHAN_ID_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( ChannelConstants.FIELD_CHAN_NUM ).append( " " ).append( ChannelConstants.FIELD_CHAN_NUM_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ChannelConstants.FIELD_CHAN_NUM_FORMATTED ).append( " " ).append( ChannelConstants.FIELD_CHAN_NUM_FORMATTED_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( ChannelConstants.FIELD_CALLSIGN ).append( " " ).append( ChannelConstants.FIELD_CALLSIGN_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( ChannelConstants.FIELD_ICON_URL ).append( " " ).append( ChannelConstants.FIELD_ICON_URL_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( ChannelConstants.FIELD_CHANNEL_NAME ).append( " " ).append( ChannelConstants.FIELD_CHANNEL_NAME_DATA_TYPE ).append( ", " );
@@ -542,8 +545,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		sqlBuilder.append( ChannelConstants.FIELD_VISIBLE ).append( " " ).append( ChannelConstants.FIELD_VISIBLE_DATA_TYPE ).append( " default " ).append( ChannelConstants.FIELD_VISIBLE_DEFAULT ).append( ", " );
 		sqlBuilder.append( ChannelConstants.FIELD_XMLTV_ID ).append( " " ).append( ChannelConstants.FIELD_XMLTV_ID_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( ChannelConstants.FIELD_DEFAULT_AUTH ).append( " " ).append( ChannelConstants.FIELD_DEFAULT_AUTH_DATA_TYPE ).append( ", " );
-		sqlBuilder.append( ChannelConstants.FIELD_HOSTNAME ).append( " " ).append( ChannelConstants.FIELD_HOSTNAME_DATA_TYPE ).append( ", " );
-		sqlBuilder.append( "UNIQUE(" ).append( ChannelConstants.FIELD_CHAN_ID ).append( ", " ).append( ChannelConstants.FIELD_HOSTNAME ).append( ")" );
+		sqlBuilder.append( ChannelConstants.FIELD_MASTER_HOSTNAME ).append( " " ).append( ChannelConstants.FIELD_MASTER_HOSTNAME_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ChannelConstants.FIELD_LAST_MODIFIED_DATE ).append( " " ).append( ChannelConstants.FIELD_LAST_MODIFIED_DATE_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( "UNIQUE(" ).append( ChannelConstants.FIELD_CHAN_ID ).append( ", " ).append( ChannelConstants.FIELD_MASTER_HOSTNAME ).append( ")" );
 		sqlBuilder.append( ");" );
 		String sql = sqlBuilder.toString();
 		if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
@@ -562,6 +566,36 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		Log.v( TAG, "dropChannel : exit" );
 	}
 	
+	private void createFrontend( SQLiteDatabase db ) {
+		Log.v( TAG, "createFrontend : enter" );
+		
+		StringBuilder sqlBuilder = new StringBuilder();
+		sqlBuilder.append( "CREATE TABLE " + FrontendConstants.TABLE_NAME + " (" );
+		sqlBuilder.append( FrontendConstants._ID ).append( " " ).append( FrontendConstants.FIELD_ID_DATA_TYPE ).append( " " ).append( FrontendConstants.FIELD_ID_PRIMARY_KEY ).append( ", " );
+		sqlBuilder.append( FrontendConstants.FIELD_NAME ).append( " " ).append( FrontendConstants.FIELD_NAME_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( FrontendConstants.FIELD_URL ).append( " " ).append( FrontendConstants.FIELD_URL_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( FrontendConstants.FIELD_AVAILABLE ).append( " " ).append( FrontendConstants.FIELD_AVAILABLE_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( FrontendConstants.FIELD_MASTER_HOSTNAME ).append( " " ).append( FrontendConstants.FIELD_MASTER_HOSTNAME_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( FrontendConstants.FIELD_LAST_MODIFIED_DATE ).append( " " ).append( FrontendConstants.FIELD_LAST_MODIFIED_DATE_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( "UNIQUE(" ).append( FrontendConstants.FIELD_NAME ).append( ", " ).append( FrontendConstants.FIELD_URL ).append( ", " ).append( FrontendConstants.FIELD_MASTER_HOSTNAME ).append( ")" );
+		sqlBuilder.append( ");" );
+		String sql = sqlBuilder.toString();
+		if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
+			Log.v( TAG, "createFrontend : sql=" + sql );
+		}
+		db.execSQL( sql );
+	
+		Log.v( TAG, "createFrontend : exit" );
+	}
+	
+	private void dropFrontend( SQLiteDatabase db ) {
+		Log.v( TAG, "dropFrontend : enter" );
+		
+		db.execSQL( "DROP TABLE IF EXISTS " + FrontendConstants.TABLE_NAME );
+		
+		Log.v( TAG, "dropFrontend : exit" );
+	}
+	
 	private void createProgramGroup( SQLiteDatabase db ) {
 		Log.v( TAG, "createProgramGroup : enter" );
 		
@@ -572,7 +606,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		sqlBuilder.append( ProgramGroupConstants.FIELD_TITLE ).append( " " ).append( ProgramGroupConstants.FIELD_TITLE_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( ProgramGroupConstants.FIELD_CATEGORY ).append( " " ).append( ProgramGroupConstants.FIELD_CATEGORY_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( ProgramGroupConstants.FIELD_INETREF ).append( " " ).append( ProgramGroupConstants.FIELD_INETREF_DATA_TYPE ).append( ", " );
-		sqlBuilder.append( ProgramGroupConstants.FIELD_HOSTNAME ).append( " " ).append( ProgramGroupConstants.FIELD_HOSTNAME_DATA_TYPE );
+		sqlBuilder.append( ProgramGroupConstants.FIELD_SORT ).append( " " ).append( ProgramGroupConstants.FIELD_SORT_DATA_TYPE ).append( " default " ).append( ProgramGroupConstants.FIELD_SORT_DEFAULT ).append( ", " );
+		sqlBuilder.append( ProgramGroupConstants.FIELD_MASTER_HOSTNAME ).append( " " ).append( ProgramGroupConstants.FIELD_MASTER_HOSTNAME_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( ProgramGroupConstants.FIELD_LAST_MODIFIED_DATE ).append( " " ).append( ProgramGroupConstants.FIELD_LAST_MODIFIED_DATE_DATA_TYPE );
 		sqlBuilder.append( ");" );
 		String sql = sqlBuilder.toString();
 		if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
@@ -591,11 +627,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		Log.v( TAG, "dropProgramGroup : exit" );
 	}
 	
-	private void createRecording( SQLiteDatabase db ) {
+	private void createRecording( SQLiteDatabase db, String tableName ) {
 		Log.v( TAG, "createRecording : enter" );
 		
 		StringBuilder sqlBuilder = new StringBuilder();
-		sqlBuilder.append( "CREATE TABLE " + RecordingConstants.TABLE_NAME + " (" );
+		sqlBuilder.append( "CREATE TABLE " + tableName + " (" );
 		sqlBuilder.append( RecordingConstants._ID ).append( " " ).append( RecordingConstants.FIELD_ID_DATA_TYPE ).append( " " ).append( RecordingConstants.FIELD_ID_PRIMARY_KEY ).append( ", " );
 		sqlBuilder.append( RecordingConstants.FIELD_STATUS ).append( " " ).append( RecordingConstants.FIELD_STATUS_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( RecordingConstants.FIELD_PRIORITY ).append( " " ).append( RecordingConstants.FIELD_PRIORITY_DATA_TYPE ).append( ", " );
@@ -612,8 +648,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		sqlBuilder.append( RecordingConstants.FIELD_PROFILE ).append( " " ).append( RecordingConstants.FIELD_PROFILE_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( RecordingConstants.FIELD_PROGRAM_ID ).append( " " ).append( RecordingConstants.FIELD_PROGRAM_ID_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( RecordingConstants.FIELD_START_TIME ).append( " " ).append( RecordingConstants.FIELD_START_TIME_DATA_TYPE ).append( ", " );
-		sqlBuilder.append( RecordingConstants.FIELD_HOSTNAME ).append( " " ).append( RecordingConstants.FIELD_HOSTNAME ).append( ", " );
-		sqlBuilder.append( "UNIQUE(" ).append( RecordingConstants.FIELD_RECORD_ID ).append( ", " ).append( RecordingConstants.FIELD_START_TIME ).append( ", " ).append( RecordingConstants.FIELD_HOSTNAME ).append( ")" );
+		sqlBuilder.append( RecordingConstants.FIELD_MASTER_HOSTNAME ).append( " " ).append( RecordingConstants.FIELD_MASTER_HOSTNAME_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingConstants.FIELD_LAST_MODIFIED_DATE ).append( " " ).append( RecordingConstants.FIELD_LAST_MODIFIED_DATE_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( "UNIQUE(" ).append( RecordingConstants.FIELD_RECORD_ID ).append( ", " ).append( RecordingConstants.FIELD_START_TIME ).append( ", " ).append( RecordingConstants.FIELD_MASTER_HOSTNAME ).append( ")" ); //.append( ", " );
+//		sqlBuilder.append( "FOREIGN KEY (" + RecordingConstants.FIELD_START_TIME + "," + RecordingConstants.FIELD_RECORD_ID + "," + RecordingConstants.FIELD_MASTER_HOSTNAME + ") REFERENCES " + details.getParent() + " (" + ProgramConstants.FIELD_START_TIME + "," + ProgramConstants.FIELD_RECORD_ID + "," + ProgramConstants.FIELD_MASTER_HOSTNAME + ") ON DELETE CASCADE " );
 		sqlBuilder.append( ");" );
 		String sql = sqlBuilder.toString();
 		if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
@@ -624,10 +662,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		Log.v( TAG, "createRecording : exit" );
 	}
 	
-	private void dropRecording( SQLiteDatabase db ) {
+	private void dropRecording( SQLiteDatabase db, String tableName ) {
 		Log.v( TAG, "dropRecording : enter" );
 		
-		db.execSQL( "DROP TABLE IF EXISTS " + RecordingConstants.TABLE_NAME );
+		db.execSQL( "DROP TABLE IF EXISTS " + tableName );
 		
 		Log.v( TAG, "dropRecording : exit" );
 	}
@@ -663,8 +701,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		sqlBuilder.append( LiveStreamConstants.FIELD_AUDIO_ONLY_BITRATE ).append( " " ).append( LiveStreamConstants.FIELD_AUDIO_ONLY_BITRATE_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( LiveStreamConstants.FIELD_START_TIME ).append( " " ).append( LiveStreamConstants.FIELD_START_TIME_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( LiveStreamConstants.FIELD_CHAN_ID ).append( " " ).append( LiveStreamConstants.FIELD_CHAN_ID_DATA_TYPE ).append( ", " );
-		sqlBuilder.append( LiveStreamConstants.FIELD_HOSTNAME ).append( " " ).append( LiveStreamConstants.FIELD_HOSTNAME ).append( ", " );
-		sqlBuilder.append( "UNIQUE(" ).append( LiveStreamConstants.FIELD_START_TIME ).append( ", " ).append( LiveStreamConstants.FIELD_CHAN_ID ).append( ", " ).append( LiveStreamConstants.FIELD_HOSTNAME ).append( ")" );
+		sqlBuilder.append( LiveStreamConstants.FIELD_MASTER_HOSTNAME ).append( " " ).append( LiveStreamConstants.FIELD_MASTER_HOSTNAME_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( "UNIQUE(" ).append( LiveStreamConstants.FIELD_START_TIME ).append( ", " ).append( LiveStreamConstants.FIELD_CHAN_ID ).append( ", " ).append( LiveStreamConstants.FIELD_MASTER_HOSTNAME ).append( ")" ).append( ", " );
+		sqlBuilder.append( "FOREIGN KEY (" + LiveStreamConstants.FIELD_START_TIME + "," + LiveStreamConstants.FIELD_CHAN_ID + "," + LiveStreamConstants.FIELD_MASTER_HOSTNAME + ") REFERENCES " + ProgramConstants.TABLE_NAME_RECORDED + " (" + ProgramConstants.FIELD_START_TIME + "," + ProgramConstants.FIELD_CHANNEL_ID + "," + ProgramConstants.FIELD_MASTER_HOSTNAME + ") ON DELETE CASCADE " );
 		sqlBuilder.append( ");" );
 		String sql = sqlBuilder.toString();
 		if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
@@ -684,4 +723,78 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	}
 	
 
+	private void createRecordingRule( SQLiteDatabase db ) {
+		Log.v( TAG, "createRecordingRule : enter" );
+		
+		StringBuilder sqlBuilder = new StringBuilder();
+		sqlBuilder.append( "CREATE TABLE " + RecordingRuleConstants.TABLE_NAME + " (" );
+		sqlBuilder.append( RecordingRuleConstants._ID ).append( " " ).append( RecordingRuleConstants.FIELD_ID_DATA_TYPE ).append( " " ).append( RecordingRuleConstants.FIELD_ID_PRIMARY_KEY ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_REC_RULE_ID ).append( " " ).append( RecordingRuleConstants.FIELD_REC_RULE_ID_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_PARENT_ID ).append( " " ).append( RecordingRuleConstants.FIELD_PARENT_ID_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_INACTIVE ).append( " " ).append( RecordingRuleConstants.FIELD_INACTIVE_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_TITLE ).append( " " ).append( RecordingRuleConstants.FIELD_TITLE_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_SUB_TITLE ).append( " " ).append( RecordingRuleConstants.FIELD_SUB_TITLE_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_DESCRIPTION ).append( " " ).append( RecordingRuleConstants.FIELD_DESCRIPTION_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_SEASON ).append( " " ).append( RecordingRuleConstants.FIELD_SEASON_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_EPISODE ).append( " " ).append( RecordingRuleConstants.FIELD_EPISODE_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_CATEGORY ).append( " " ).append( RecordingRuleConstants.FIELD_CATEGORY_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_START_TIME ).append( " " ).append( RecordingRuleConstants.FIELD_START_TIME_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_END_TIME ).append( " " ).append( RecordingRuleConstants.FIELD_END_TIME_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_SERIES_ID ).append( " " ).append( RecordingRuleConstants.FIELD_SERIES_ID_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_PROGRAM_ID ).append( " " ).append( RecordingRuleConstants.FIELD_PROGRAM_ID_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_INETREF ).append( " " ).append( RecordingRuleConstants.FIELD_INETREF_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_CHAN_ID ).append( " " ).append( RecordingRuleConstants.FIELD_CHAN_ID_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_CALLSIGN ).append( " " ).append( RecordingRuleConstants.FIELD_CALLSIGN_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_DAY ).append( " " ).append( RecordingRuleConstants.FIELD_DAY_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_TIME ).append( " " ).append( RecordingRuleConstants.FIELD_TIME_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_FIND_ID ).append( " " ).append( RecordingRuleConstants.FIELD_FIND_ID_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_TYPE ).append( " " ).append( RecordingRuleConstants.FIELD_TYPE_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_SEARCH_TYPE ).append( " " ).append( RecordingRuleConstants.FIELD_SEARCH_TYPE_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_REC_PRIORITY ).append( " " ).append( RecordingRuleConstants.FIELD_REC_PRIORITY_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_PREFERRED_INPUT ).append( " " ).append( RecordingRuleConstants.FIELD_PREFERRED_INPUT_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_START_OFFSET ).append( " " ).append( RecordingRuleConstants.FIELD_START_OFFSET_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_END_OFFSET ).append( " " ).append( RecordingRuleConstants.FIELD_END_OFFSET_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_DUP_METHOD ).append( " " ).append( RecordingRuleConstants.FIELD_DUP_METHOD_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_DUP_IN ).append( " " ).append( RecordingRuleConstants.FIELD_DUP_IN_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_FILTER ).append( " " ).append( RecordingRuleConstants.FIELD_FILTER_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_REC_PROFILE ).append( " " ).append( RecordingRuleConstants.FIELD_REC_PROFILE_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_REC_GROUP ).append( " " ).append( RecordingRuleConstants.FIELD_REC_GROUP_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_STORAGE_GROUP ).append( " " ).append( RecordingRuleConstants.FIELD_STORAGE_GROUP_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_PLAY_GROUP ).append( " " ).append( RecordingRuleConstants.FIELD_PLAY_GROUP_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_AUTO_EXPIRE ).append( " " ).append( RecordingRuleConstants.FIELD_AUTO_EXPIRE_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_MAX_EPISODES ).append( " " ).append( RecordingRuleConstants.FIELD_MAX_EPISODES_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_MAX_NEWEST ).append( " " ).append( RecordingRuleConstants.FIELD_MAX_NEWEST_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_AUTO_COMMFLAG ).append( " " ).append( RecordingRuleConstants.FIELD_AUTO_COMMFLAG_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_AUTO_TRANSCODE ).append( " " ).append( RecordingRuleConstants.FIELD_AUTO_TRANSCODE_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_AUTO_METADATA ).append( " " ).append( RecordingRuleConstants.FIELD_AUTO_METADATA_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_AUTO_USER_JOB_1 ).append( " " ).append( RecordingRuleConstants.FIELD_AUTO_USER_JOB_1_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_AUTO_USER_JOB_2 ).append( " " ).append( RecordingRuleConstants.FIELD_AUTO_USER_JOB_2_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_AUTO_USER_JOB_3 ).append( " " ).append( RecordingRuleConstants.FIELD_AUTO_USER_JOB_3_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_AUTO_USER_JOB_4 ).append( " " ).append( RecordingRuleConstants.FIELD_AUTO_USER_JOB_4_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_TRANSCODER ).append( " " ).append( RecordingRuleConstants.FIELD_TRANSCODER_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_NEXT_RECORDING ).append( " " ).append( RecordingRuleConstants.FIELD_NEXT_RECORDING_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_LAST_RECORDED ).append( " " ).append( RecordingRuleConstants.FIELD_LAST_RECORDED_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_LAST_DELETED ).append( " " ).append( RecordingRuleConstants.FIELD_LAST_DELETED_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_AVERAGE_DELAY ).append( " " ).append( RecordingRuleConstants.FIELD_AVERAGE_DELAY_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_MASTER_HOSTNAME ).append( " " ).append( RecordingRuleConstants.FIELD_MASTER_HOSTNAME_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_LAST_MODIFIED_DATE ).append( " " ).append( RecordingRuleConstants.FIELD_LAST_MODIFIED_DATE_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( "UNIQUE(" ).append( RecordingRuleConstants.FIELD_REC_RULE_ID ).append( ", " ).append( RecordingRuleConstants.FIELD_MASTER_HOSTNAME ).append( ")" );
+		sqlBuilder.append( ");" );
+		String sql = sqlBuilder.toString();
+		if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
+			Log.v( TAG, "createRecordingRule : sql=" + sql );
+		}
+		db.execSQL( sql );
+	
+		Log.v( TAG, "createRecordingRule : exit" );
+	}
+	
+	private void dropRecordingRule( SQLiteDatabase db ) {
+		Log.v( TAG, "dropRecordingRule : enter" );
+		
+		db.execSQL( "DROP TABLE IF EXISTS " + RecordingRuleConstants.TABLE_NAME );
+		
+		Log.v( TAG, "dropRecordingRule : exit" );
+	}
+	
 }

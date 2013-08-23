@@ -23,7 +23,6 @@ import java.util.List;
 
 import org.mythtv.R;
 
-import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.content.Context;
 import android.os.Build;
@@ -34,6 +33,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
+import android.view.MenuItem;
 
 /**
  * @author Daniel Frey
@@ -68,8 +68,10 @@ public class MythmoteActivity extends AbstractFrontendsActivity {
 		Log.v( TAG, "onCreate : exit" );
 	}
 
+	/* (non-Javadoc)
+	 * @see org.mythtv.client.ui.AbstractMythtvFragmentActivity#setupActionBar()
+	 */
 	@Override
-	@TargetApi( 11 )
 	protected void setupActionBar() {
 		super.setupActionBar();
 		Log.v( TAG, "MythmoteActivity.setupActionBar : enter" );
@@ -100,6 +102,23 @@ public class MythmoteActivity extends AbstractFrontendsActivity {
 	}
 
 	
+	/* (non-Javadoc)
+	 * @see android.app.Activity#onOptionsItemSelected(android.view.MenuItem)
+	 */
+	@Override
+	public boolean onOptionsItemSelected( MenuItem item ) {
+		Log.d( TAG, "onOptionsItemSelected : enter" );
+
+		switch( item.getItemId() ) {			
+		case android.R.id.home:
+		    this.finish();
+		    return true;
+		};
+
+		Log.d( TAG, "onOptionsItemSelected : exit" );
+		return super.onOptionsItemSelected( item );
+	}
+	
 	/**
 	 * Setups up the viewpager and MythmotePagerAdapter if
 	 * the current layout contains the mythmote_pager view pager.
@@ -113,7 +132,7 @@ public class MythmoteActivity extends AbstractFrontendsActivity {
 		if (null != pager) {
 			
 			//get fragment manager
-			FragmentManager fm = this.getSupportFragmentManager();
+			FragmentManager fm = getSupportFragmentManager();
 			
 			//create fragment and header arrays
 			fragmentArrayList = new ArrayList<Fragment>();
@@ -129,13 +148,13 @@ public class MythmoteActivity extends AbstractFrontendsActivity {
 			fragmentArrayList.add(num);
 			headerArrayList.add(this.getString(R.string.mythmote_page_numbers));
 			
-			//mythmote action list fragment
-			Fragment actions = Fragment.instantiate(this, MythmoteActionListFragment.class.getName());
-			fragmentArrayList.add(actions);
-			headerArrayList.add(this.getString(R.string.mythmote_page_actionlist));
+//			//mythmote action list fragment
+//			Fragment actions = Fragment.instantiate(this, MythmoteActionListFragment.class.getName());
+//			fragmentArrayList.add(actions);
+//			headerArrayList.add(this.getString(R.string.mythmote_page_actionlist));
 			
 			//set pager adapter and initial item
-			pager.setAdapter(new MythmotePagerAdapter(this.getSupportFragmentManager()));
+			pager.setAdapter( new MythmotePagerAdapter( fm ) );
 			pager.setCurrentItem(0);
 
 		}

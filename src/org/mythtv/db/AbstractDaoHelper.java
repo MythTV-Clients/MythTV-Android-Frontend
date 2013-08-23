@@ -33,27 +33,17 @@ import android.text.TextUtils;
  */
 public abstract class AbstractDaoHelper {
 
-	protected Context mContext;
-	
-	protected LocationProfileDaoHelper mLocationProfileDaoHelper;
-	
-	protected LocationProfile mLocationProfile;
-	
-	public AbstractDaoHelper( Context context ) {
-		this.mContext = context;
-		
-		mLocationProfileDaoHelper = new LocationProfileDaoHelper( mContext );
-		
-		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile();
-	}
-	
-	protected String appendLocationHostname( String selection, String table ) {
-		
-		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile();
+	protected static final int BATCH_COUNT_LIMIT = 99;
 
-		return ( !TextUtils.isEmpty( table ) ? ( table + "." ) : "" ) + AbstractBaseConstants.FIELD_HOSTNAME
+	protected LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
+	
+	protected AbstractDaoHelper() { }
+
+	protected String appendLocationHostname( final Context context, final LocationProfile locationProfile, String selection, String table ) {
+		
+		return ( !TextUtils.isEmpty( table ) ? ( table + "." ) : "" ) + AbstractBaseConstants.FIELD_MASTER_HOSTNAME
 				+ " = '"
-				+ mLocationProfile.getHostname()
+				+ locationProfile.getHostname()
 				+ "'"
 				+ ( !TextUtils.isEmpty( selection ) ? " AND (" + selection + ')' : "" );
 	}

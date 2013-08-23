@@ -19,12 +19,12 @@
 package org.mythtv.service.preferences;
 
 import org.mythtv.client.ui.preferences.LocationProfile;
+import org.mythtv.db.http.model.EtagInfoDelegate;
 import org.mythtv.db.preferences.LocationProfileConstants;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.MythtvService;
-import org.mythtv.services.api.ETagInfo;
-import org.mythtv.services.api.dvr.ProgramList;
-import org.mythtv.services.api.dvr.Programs;
+import org.mythtv.service.util.NetworkHelper;
+import org.mythtv.services.api.status.Status;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -49,7 +49,7 @@ public class PreferencesRecordedDownloadService extends MythtvService {
     public static final String EXTRA_COMPLETE_UPTODATE = "COMPLETE_UPTODATE";
     public static final String EXTRA_COMPLETE_OFFLINE = "COMPLETE_OFFLINE";
     
-    private LocationProfileDaoHelper locationProfileDaoHelper;
+    private LocationProfileDaoHelper locationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
     
 	public PreferencesRecordedDownloadService() {
 		super( "PreferencesRecordedDownloadService" );
@@ -80,8 +80,7 @@ public class PreferencesRecordedDownloadService extends MythtvService {
 		if ( intent.getAction().equals( ACTION_DOWNLOAD ) ) {
     		Log.i( TAG, "onHandleIntent : DOWNLOAD action selected" );
 
-    		locationProfileDaoHelper = new LocationProfileDaoHelper( this );
-    		LocationProfile profile = locationProfileDaoHelper.findOne( id );
+    		LocationProfile profile = locationProfileDaoHelper.findOne( this, id );
     		if( null == profile ) {
     			Intent completeIntent = new Intent( ACTION_COMPLETE );
     			completeIntent.putExtra( EXTRA_COMPLETE, "Location Profile not found" );
@@ -92,7 +91,7 @@ public class PreferencesRecordedDownloadService extends MythtvService {
     			return;
     		}
     		
-    		if( !mNetworkHelper.isMasterBackendConnected( profile ) ) {
+    		if( !NetworkHelper.getInstance().isMasterBackendConnected( this, profile ) ) {
     			Intent completeIntent = new Intent( ACTION_COMPLETE );
     			completeIntent.putExtra( EXTRA_COMPLETE, "Master Backend not connected" );
     			completeIntent.putExtra( EXTRA_COMPLETE_OFFLINE, Boolean.TRUE );
@@ -102,16 +101,16 @@ public class PreferencesRecordedDownloadService extends MythtvService {
     			return;
     		}
     		
-    		Programs programs = null;
+    		Status status = null;
     		try {
 
-    			programs = download( profile );
-    			if( null != programs ) {
+    			status = download( profile );
+    			if( null != status ) {
     				
-    				profile.setVersion( programs.getVersion() );
-    				profile.setProtocolVersion( programs.getProtocolVersion() );
+    				profile.setVersion( status.getVersion() );
+    				profile.setProtocolVersion( String.valueOf( status.getProtocolVersion() ) );
     				
-    				locationProfileDaoHelper.save( profile );
+    				locationProfileDaoHelper.save( this, profile );
     				
     				Log.v( TAG, "onHandleIntent : location profile updated" );
     			}
@@ -124,7 +123,7 @@ public class PreferencesRecordedDownloadService extends MythtvService {
 
     			Intent completeIntent = new Intent( ACTION_COMPLETE );
     			completeIntent.putExtra( EXTRA_COMPLETE, "Preferences Recorded Programs Download Service Finished" );
-    			if( null == programs ) {
+    			if( null == status ) {
     				completeIntent.putExtra( EXTRA_COMPLETE_UPTODATE, passed );
     			}
     			
@@ -138,19 +137,19 @@ public class PreferencesRecordedDownloadService extends MythtvService {
 
 	// internal helpers
 	
-	private Programs download( LocationProfile profile ) throws Exception {
+	private Status download( LocationProfile profile ) throws Exception {
 		Log.v( TAG, "download : enter" );
 
-		ETagInfo etag = ETagInfo.createEmptyETag();
+		EtagInfoDelegate etag = EtagInfoDelegate.createEmptyETag();
 		
-		ResponseEntity<ProgramList> responseEntity = mMainApplication.getMythServicesApi( profile ).dvrOperations().getRecordedList( etag );
+		ResponseEntity<Status> responseEntity = mMythtvServiceHelper.getMythServicesApi( profile ).statusOperations().getStatus( etag );
 
 		if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
-			ProgramList programList = responseEntity.getBody();
+			Status status = responseEntity.getBody();
 
-			if( null != programList.getPrograms() ) {
+			if( null != status ) {
 
-				return programList.getPrograms();	
+				return status;	
 
 			}
 

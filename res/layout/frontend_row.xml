@@ -30,14 +30,18 @@
         android:id="@+id/frontend_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="12dp" >
+        android:textColor="@color/text_main_menu"
+        android:textAppearance="?android:attr/textAppearanceSmallInverse"
+        android:singleLine="true" >
     </TextView>
 
     <TextView
         android:id="@+id/frontend_url"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="10dp" >
+        android:textColor="@color/text_main_menu"
+        android:textAppearance="?android:attr/textAppearanceSmallInverse"
+        android:singleLine="true"  >
     </TextView>
     
 </LinearLayout>

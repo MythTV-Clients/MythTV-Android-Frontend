@@ -29,15 +29,15 @@ import android.net.Uri;
  */
 public class ProgramConstants extends AbstractBaseConstants {
 
-	public static final String TABLE_NAME_PROGRAM = "program";
+	public static final String TABLE_NAME_GUIDE = "guide";
 	public static final String TABLE_NAME_RECORDED = "recorded";
 	public static final String TABLE_NAME_UPCOMING = "upcoming";
 
-	public static final Uri CONTENT_URI_PROGRAM = Uri.parse( "content://" + MythtvProvider.AUTHORITY + "/" + TABLE_NAME_PROGRAM );
+	public static final Uri CONTENT_URI_GUIDE = Uri.parse( "content://" + MythtvProvider.AUTHORITY + "/" + TABLE_NAME_GUIDE );
 	public static final Uri CONTENT_URI_RECORDED = Uri.parse( "content://" + MythtvProvider.AUTHORITY + "/" + TABLE_NAME_RECORDED );
 	public static final Uri CONTENT_URI_UPCOMING = Uri.parse( "content://" + MythtvProvider.AUTHORITY + "/" + TABLE_NAME_UPCOMING );
 
-	public static final String INSERT_PROGRAM_ROW, UPDATE_PROGRAM_ROW, INSERT_RECORDED_ROW, UPDATE_RECORDED_ROW, INSERT_UPCOMING_ROW, UPDATE_UPCOMING_ROW;
+	public static final String INSERT_GUIDE_ROW, UPDATE_GUIDE_ROW, INSERT_RECORDED_ROW, UPDATE_RECORDED_ROW, INSERT_UPCOMING_ROW, UPDATE_UPCOMING_ROW;
 	
 	// db fields
 	public static final String FIELD_START_TIME = "START_TIME";
@@ -89,6 +89,9 @@ public class ProgramConstants extends AbstractBaseConstants {
 	public static final String FIELD_PROGRAM_FLAGS = "PROGRAM_FLAGS";
 	public static final String FIELD_PROGRAM_FLAGS_DATA_TYPE = "TEXT";
 	
+	public static final String FIELD_HOSTNAME = "HOSTNAME";
+	public static final String FIELD_HOSTNAME_DATA_TYPE = "TEXT";
+
 	public static final String FIELD_FILENAME = "FILENAME";
 	public static final String FIELD_FILENAME_DATA_TYPE = "TEXT";
 	
@@ -120,7 +123,8 @@ public class ProgramConstants extends AbstractBaseConstants {
 		FIELD_START_TIME, FIELD_END_TIME, FIELD_TITLE, FIELD_SUB_TITLE, FIELD_CATEGORY, FIELD_CATEGORY_TYPE, FIELD_REPEAT,
 		FIELD_VIDEO_PROPS, FIELD_AUDIO_PROPS, FIELD_SUB_PROPS, FIELD_SERIES_ID, FIELD_PROGRAM_ID, FIELD_STARS, FIELD_FILE_SIZE,
 		FIELD_LAST_MODIFIED, FIELD_PROGRAM_FLAGS, FIELD_HOSTNAME, FIELD_FILENAME, FIELD_AIR_DATE, FIELD_DESCRIPTION,
-		FIELD_INETREF, FIELD_SEASON, FIELD_EPISODE, FIELD_CHANNEL_ID, FIELD_RECORD_ID, FIELD_IN_ERROR
+		FIELD_INETREF, FIELD_SEASON, FIELD_EPISODE, FIELD_CHANNEL_ID, FIELD_RECORD_ID, FIELD_IN_ERROR, FIELD_MASTER_HOSTNAME,
+		FIELD_LAST_MODIFIED
 	};
 	
 	static {
@@ -150,17 +154,19 @@ public class ProgramConstants extends AbstractBaseConstants {
 		insert.append( FIELD_EPISODE ).append( "," );
 		insert.append( FIELD_CHANNEL_ID ).append( ", " );
 		insert.append( FIELD_RECORD_ID ).append( ", " );
-		insert.append( FIELD_IN_ERROR );
+		insert.append( FIELD_IN_ERROR ).append( ", " );
+		insert.append( FIELD_MASTER_HOSTNAME ).append( ", " );
+		insert.append( FIELD_LAST_MODIFIED );
 		
 		StringBuilder values = new StringBuilder();
 		values.append( " ) " );
-		values.append( "VALUES( ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? )" );
+		values.append( "VALUES( ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? )" );
 		
-		StringBuilder insertProgram = new StringBuilder();
-		insertProgram.append( "INSERT INTO " ).append( TABLE_NAME_PROGRAM ).append( " ( " );
-		insertProgram.append( insert.toString() );
-		insertProgram.append( values.toString() );
-		INSERT_PROGRAM_ROW = insertProgram.toString();
+		StringBuilder insertGuide = new StringBuilder();
+		insertGuide.append( "INSERT INTO " ).append( TABLE_NAME_GUIDE ).append( " ( " );
+		insertGuide.append( insert.toString() );
+		insertGuide.append( values.toString() );
+		INSERT_GUIDE_ROW = insertGuide.toString();
 		
 		StringBuilder insertRecorded = new StringBuilder();
 		insertRecorded.append( "INSERT INTO " ).append( TABLE_NAME_RECORDED ).append( " ( " );
@@ -197,17 +203,19 @@ public class ProgramConstants extends AbstractBaseConstants {
 		update.append( FIELD_EPISODE ).append( " = ?, " );
 		update.append( FIELD_CHANNEL_ID ).append( " = ?, " );
 		update.append( FIELD_RECORD_ID ).append( " = ?, " );
-		update.append( FIELD_HOSTNAME ).append( "= ?" );
-		update.append( FIELD_IN_ERROR ).append( "= ?" );
+		update.append( FIELD_HOSTNAME ).append( "= ?," );
+		update.append( FIELD_IN_ERROR ).append( "= ?," );
+		update.append( FIELD_MASTER_HOSTNAME ).append( "= ?," );
+		update.append( FIELD_LAST_MODIFIED_DATE ).append( "= ?" );
 		update.append( " WHERE " );
 		update.append( FIELD_CHANNEL_ID ).append( " = ? AND " );
 		update.append( FIELD_START_TIME ).append( " = ?" );
 		
-		StringBuilder updateProgram = new StringBuilder();
-		updateProgram.append( "UPDATE " ).append( TABLE_NAME_PROGRAM );
-		updateProgram.append( " SET " );
-		updateProgram.append( update.toString() );
-		UPDATE_PROGRAM_ROW = updateProgram.toString();
+		StringBuilder updateGuide = new StringBuilder();
+		updateGuide.append( "UPDATE " ).append( TABLE_NAME_GUIDE );
+		updateGuide.append( " SET " );
+		updateGuide.append( update.toString() );
+		UPDATE_GUIDE_ROW = updateGuide.toString();
 		
 		StringBuilder updateRecorded = new StringBuilder();
 		updateRecorded.append( "UPDATE " ).append( TABLE_NAME_RECORDED );

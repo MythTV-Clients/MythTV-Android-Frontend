@@ -1,24 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-  ~ This file is part of MythTV Android Frontend
-  ~
-  ~ MythTV Android Frontend is free software: you can redistribute it and/or modify
-  ~ it under the terms of the GNU General Public License as published by
-  ~ the Free Software Foundation, either version 3 of the License, or
-  ~ (at your option) any later version.
-  ~
-  ~ MythTV Android Frontend is distributed in the hope that it will be useful,
-  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
-  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  ~ GNU General Public License for more details.
-  ~
-  ~ You should have received a copy of the GNU General Public License
-  ~ along with MythTV Android Frontend.  If not, see <http://www.gnu.org/licenses/>.
-  ~
-  ~ This software can be found at <https://github.com/MythTV-Clients/MythTV-Android-Frontend/>
-  -->
-
-<!--
+<!-- 
  *  This file is part of MythTV for Android
  * 
  *  MythTV for Android is free software: you can redistribute it and/or modify
@@ -40,16 +21,23 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.mythtv"
-    android:versionCode="6"
-    android:versionName="1.10.1" >
+    android:versionCode="7"
+    android:versionName="@string/app_version" >
 
     <uses-permission android:name="android.permission.INTERNET" />
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
   	<uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    
+    <!-- Read income phone numbers to post caller ID to frontend as a message -->
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    
+    <!-- Mythmote fragments will keep the screen on -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+    
+    <!-- Match incoming number to contact name when posting caller ID to frontend as a message  
+    <uses-permission android:name="android.permission.READ_CONTACTS" />-->
 
     <supports-screens 
         android:anyDensity="true"
@@ -59,7 +47,7 @@
     
     <uses-sdk
         android:minSdkVersion="14"
-        android:targetSdkVersion="17" />
+        android:targetSdkVersion="18" />
 
     <application
         android:hardwareAccelerated="true"
@@ -70,7 +58,8 @@
         android:allowBackup="true">
 
 		<activity 
-			android:name=".client.ui.LocationActivity">
+			android:name=".client.ui.NavigationDrawerActivity"
+			android:configChanges="keyboard|keyboardHidden|orientation|screenSize">
 			
 			<intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -83,8 +72,6 @@
 		<activity 
 			android:name=".client.ui.preferences.MythtvPreferenceActivity" />
 		<activity 
-			android:name=".client.ui.preferences.MythtvPreferenceActivityHC" />
-		<activity 
 			android:name=".client.ui.preferences.LocationProfileEditor" />
 		<activity 
 			android:name=".client.ui.preferences.PlaybackProfileEditor" />
@@ -96,6 +83,9 @@
 			android:name=".client.ui.AwayActivity" />
 				
 		<!-- DVR Activities -->
+		<activity 
+			android:name=".client.ui.dvr.DvrNavigationDrawerActivity"
+			android:uiOptions="splitActionBarWhenNarrow" />
 		<activity 
 			android:name=".client.ui.dvr.EpisodeActivity"
 			android:uiOptions="splitActionBarWhenNarrow" />
@@ -113,10 +103,10 @@
 		<activity 
 			android:name=".client.ui.dvr.GuideActivity"
 			android:configChanges="keyboard|keyboardHidden|orientation|screenSize" />
-		<activity 
+		<!-- activity 
 			android:name=".client.ui.dvr.RecordingRulesActivity"
 			android:uiOptions="splitActionBarWhenNarrow"
-			android:configChanges="keyboard|keyboardHidden|orientation|screenSize" />
+			android:configChanges="keyboard|keyboardHidden|orientation|screenSize" / -->
 		<activity 
 			android:name=".client.ui.dvr.RecordingRuleActivity"
 			android:uiOptions="splitActionBarWhenNarrow"
@@ -155,9 +145,29 @@
             </intent-filter>
 		</service>
 		
-		<service android:name=".service.dvr.RecordedDownloadService" android:process=":recorded" android:exported="false">
+		<service android:name=".service.frontends.FrontendsDiscoveryService" android:process=":frontends" android:exported="false">
 			<intent-filter>
-                <action android:name="org.mythtv.background.recordedDownload.ACTION_DOWNLOAD" />
+                <action android:name="org.mythtv.background.frontends.ACTION_DISCOVER" />
+                <action android:name="org.mythtv.background.frontends.ACTION_PROGRESS" />
+                <action android:name="org.mythtv.background.frontends.ACTION_COMPLETE" />
+            </intent-filter>
+		</service>
+		
+				<service android:name=".service.dvr.LiveStreamService" android:process=":liveStream" android:exported="false">
+			<intent-filter>
+                <action android:name="org.mythtv.background.liveStream.ACTION_COMPLETE" />
+                <action android:name="org.mythtv.background.liveStream.ACTION_PROGRESS" />
+                <action android:name="org.mythtv.background.liveStream.ACTION_CREATE" />
+                <action android:name="org.mythtv.background.liveStream.ACTION_PLAY" />
+                <action android:name="org.mythtv.background.liveStream.ACTION_UPDATE" />
+                <action android:name="org.mythtv.background.liveStream.ACTION_REMOVE" />
+            </intent-filter>
+        </service>
+		
+		<service android:name=".service.dvr.RecordedService" android:process=":recorded" android:exported="false">
+			<intent-filter>
+                <action android:name="org.mythtv.background.recorded.ACTION_DOWNLOAD" />
+                <action android:name="org.mythtv.background.recorded.ACTION_REMOVE" />
             </intent-filter>
         </service>
 		
@@ -167,21 +177,7 @@
             </intent-filter>
         </service>
 		
-		<service android:name=".service.dvr.BannerDownloadService" android:process=":banner" android:exported="false">
-			<intent-filter>
-                <action
-                    android:name="org.mythtv.background.bannerDownload.ACTION_DOWNLOAD" />
-            </intent-filter>
-        </service>
-		
-		<service android:name=".service.dvr.CoverartDownloadService" android:process=":coverart" android:exported="false">
-			<intent-filter>
-                <action
-                    android:name="org.mythtv.background.coverartDownload.ACTION_DOWNLOAD" />
-            </intent-filter>
-        </service>
-
-        <service android:name=".service.dvr.UpcomingDownloadService" android:process=":upcoming" android:exported="false">
+		<service android:name=".service.dvr.UpcomingDownloadService" android:process=":upcoming" android:exported="false">
 			<intent-filter>
                 <action
                     android:name="org.mythtv.background.upcomingDownload.ACTION_DOWNLOAD" />
@@ -197,8 +193,9 @@
 		
 		<service android:name=".service.guide.ProgramGuideDownloadServiceNew" android:process=":programGuideNew" android:exported="false">
 			<intent-filter>
-                <action
-                    android:name="org.mythtv.background.programGuideDownloadNew.ACTION_DOWNLOAD" />
+                <action android:name="org.mythtv.background.programGuideDownloadNew.ACTION_DOWNLOAD" />
+                <action android:name="org.mythtv.background.programGuideDownloadNew.ACTION_PROGRESS" />
+                <action android:name="org.mythtv.background.programGuideDownloadNew.ACTION_COMPLETE" />
             </intent-filter>
         </service>
 		
@@ -209,6 +206,12 @@
             </intent-filter>
 		</service>
 			
+		<service android:name=".service.dvr.RecordingRuleDownloadService" android:process=":recordingRule" android:exported="false">
+			<intent-filter>
+                <action android:name="org.mythtv.background.recordingRuleDownload.ACTION_DOWNLOAD" />
+            </intent-filter>
+        </service>
+		
 		<!-- MythTV Android Providers -->
 		<provider
             android:name=".provider.MythtvProvider"

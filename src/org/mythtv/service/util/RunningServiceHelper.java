@@ -31,21 +31,44 @@ public class RunningServiceHelper {
 
 	private static final String TAG = RunningServiceHelper.class.getSimpleName();
 	
-	private Context mContext;
-	
-	public static RunningServiceHelper newInstance( Context context ) {
-		return new RunningServiceHelper( context );
+	private static RunningServiceHelper singleton = null;
+
+	/**
+	 * Returns the one and only RunningServiceHelper. init() must be called before 
+	 * any 
+	 * 
+	 * @return
+	 */
+	public static RunningServiceHelper getInstance() {
+		if( null == singleton ) {
+
+			synchronized( RunningServiceHelper.class ) {
+
+				if( null == singleton ) {
+					singleton = new RunningServiceHelper();
+				}
+			
+			}
+			
+		}
+		
+		return singleton;
 	}
 	
-	protected RunningServiceHelper( Context context ) {
-		mContext = context;
-	}
+	/**
+	 * Constructor. No one but getInstance() can do this.
+	 */
+	private RunningServiceHelper() { }
 	
-	public boolean isServiceRunning( String serviceName ) {
+	public boolean isServiceRunning( Context context, String serviceName ) {
 		Log.v( TAG, "isServiceRunning : enter" );
+		
+		if( null == context ) 
+			throw new RuntimeException( "RunningServiceHelper is not initialized" );
+		
 		Log.d( TAG, "isServiceRunning : checking for running server '" + serviceName + "'" );
 		
-		ActivityManager manager = (ActivityManager) mContext.getSystemService( Context.ACTIVITY_SERVICE );
+		ActivityManager manager = (ActivityManager) context.getSystemService( Context.ACTIVITY_SERVICE );
 
 		for( RunningServiceInfo service : manager.getRunningServices( Integer.MAX_VALUE ) ) {
 
@@ -59,4 +82,13 @@ public class RunningServiceHelper {
 		Log.v( TAG, "isServiceRunning : exit" );
 		return false;
 	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#clone()
+	 */
+	@Override
+	public Object clone() throws CloneNotSupportedException {
+		throw new CloneNotSupportedException();
+	}
+	
 }

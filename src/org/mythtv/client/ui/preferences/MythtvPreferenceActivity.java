@@ -25,6 +25,7 @@ import java.util.List;
 
 import javax.jmdns.JmDNS;
 import javax.jmdns.ServiceEvent;
+import javax.jmdns.ServiceInfo;
 import javax.jmdns.ServiceListener;
 
 import org.mythtv.R;
@@ -34,6 +35,8 @@ import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.db.preferences.PlaybackProfileConstants;
 import org.mythtv.db.preferences.PlaybackProfileDaoHelper;
 
+import android.annotation.TargetApi;
+import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -43,523 +46,82 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.net.wifi.WifiManager.MulticastLock;
 import android.os.Bundle;
+import android.os.StrictMode;
+import android.preference.ListPreference;
 import android.preference.Preference;
+import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceCategory;
+import android.preference.PreferenceFragment;
 import android.util.Log;
+import android.view.MenuItem;
 
 /**
  * @author Daniel Frey
+ * @author John Baab
  *
  */
-public class MythtvPreferenceActivity extends PreferenceActivity implements ServiceListener {
+@TargetApi( 11 )
+public class MythtvPreferenceActivity extends PreferenceActivity {
 
 	private static final String TAG = MythtvPreferenceActivity.class.getSimpleName();
-
-	private static final String PREFERENCE_HOME_SELECTED_ID = "preference_home_profiles_default_id";
-	private static final String PREFERENCE_HOME_ADD_KEY = "preference_home_profiles_add";
-	private static final String PREFERENCE_HOME_SCAN_KEY = "preference_home_profiles_scan";
-	private static final String PREFERENCE_HOME_DELETE_KEY = "preference_home_profiles_delete";
-	private static final String PREFERENCE_CATEGORY_HOME_SAVED_KEY = "preference_home_profiles_saved";
-	private static final String PREFERENCE_HOME_PLAYBACK_SELECTED_ID = "preference_home_playback_profiles_default_id";
-	private static final String PREFERENCE_CATEGORY_HOME_PLAYBACK_SAVED_KEY = "preference_home_playback_profiles_saved";
-	private static final String PREFERENCE_AWAY_SELECTED_ID = "preference_away_profiles_default_id";
-	private static final String PREFERENCE_AWAY_ADD_KEY = "preference_away_profiles_add";
-	private static final String PREFERENCE_AWAY_DELETE_KEY = "preference_away_profiles_delete";
-	private static final String PREFERENCE_CATEGORY_AWAY_SAVED_KEY = "preference_away_profiles_saved";
-	private static final String PREFERENCE_AWAY_PLAYBACK_SELECTED_ID = "preference_away_playback_profiles_default_id";
-	private static final String PREFERENCE_CATEGORY_AWAY_PLAYBACK_SAVED_KEY = "preference_away_playback_profiles_saved";
 	
-	private static final String MYTHTV_MASTER_BACKEND_TYPE = "_mythbackend-master._tcp.local.";
-	private static final String HOSTNAME = "mythandroid";
-
-	private static JmDNS zeroConf = null;
-	private static MulticastLock mLock = null;
-
-	private static LocationProfileDaoHelper mLocationProfileDaoHelper;
-	private static PlaybackProfileDaoHelper mPlaybackProfileDaoHelper;
+	private static LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
+	private static PlaybackProfileDaoHelper mPlaybackProfileDaoHelper = PlaybackProfileDaoHelper.getInstance();
 	
-	private ProgressDialog mProgressDialog;
+	/* (non-Javadoc)
+	 * @see android.preference.PreferenceActivity#onBuildHeaders(java.util.List)
+	 */
+	@Override
+	public void onBuildHeaders( List<Header> target ) {
+		Log.v( TAG, "onBuildHeaders : enter" );
+
+		loadHeadersFromResource( R.xml.mythtv_preference_headers, target );
+
+		Log.v( TAG, "onBuildHeaders : exit" );
+	}
 
 	/* (non-Javadoc)
 	 * @see android.preference.PreferenceActivity#onCreate(android.os.Bundle)
 	 */
-	@SuppressWarnings( "deprecation" )
 	@Override
 	protected void onCreate( Bundle savedInstanceState ) {
 		Log.v( TAG, "onCreate : enter" );
+
 		super.onCreate( savedInstanceState );
 
-		mLocationProfileDaoHelper = new LocationProfileDaoHelper( this );
-		mPlaybackProfileDaoHelper = new PlaybackProfileDaoHelper( this );
+		ActionBar actionBar = getActionBar();
+		actionBar.setDisplayHomeAsUpEnabled( true );
+		actionBar.setTitle( R.string.preferences_title );
 		
-		// Load the preferences from an XML resource
-        addPreferencesFromResource( R.xml.mythtv_home_profile_preferences );
-        addPreferencesFromResource( R.xml.mythtv_home_playback_profile_preferences );
-        addPreferencesFromResource( R.xml.mythtv_away_profile_preferences );
-        addPreferencesFromResource( R.xml.mythtv_away_playback_profile_preferences );
-
-        Log.v( TAG, "onCreate : exit" );
+		Log.v( TAG, "onCreate : exit" );
 	}
 
 	/* (non-Javadoc)
-	 * @see android.app.Activity#onResume()
+	 * @see android.app.Activity#onOptionsItemSelected(android.view.MenuItem)
 	 */
 	@Override
-	protected void onResume() {
-		Log.v( TAG, "onResume : enter" );
-		super.onResume();
+	public boolean onOptionsItemSelected( MenuItem item ) {
+		Log.v( TAG, "onOptionsItemSelected : enter" );
 
-		setupPreferences( this );
-		
-		Log.v( TAG, "onResume : exit" );
-	}
-	
-	/* (non-Javadoc)
-	 * @see android.app.Fragment#onPause()
-	 */
-	@Override
-	public void onPause() {
-		Log.v( TAG, "onPause : enter" );
-		super.onPause();
-		
-		if( null != mProgressDialog ) {
-			mProgressDialog.dismiss();
-			mProgressDialog = null;
+		switch( item.getItemId() ) {
+			case android.R.id.home:
+				finish();
+//				// app icon in action bar clicked; go home
+//				Intent intent = new Intent( this, LocationActivity.class );
+//				intent.addFlags( Intent.FLAG_ACTIVITY_CLEAR_TOP );
+//				startActivity( intent );
+				return true;
 		}
 
-		Log.v( TAG, "onPause : exit" );
+		Log.v( TAG, "onOptionsItemSelected : exit" );
+		return super.onOptionsItemSelected( item );
 	}
 
+	private abstract static class BasePreferenceFragment extends PreferenceFragment {
 
-	// ***************************************
-	// JMDNS ServiceListener methods
-	// ***************************************
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.jmdns.ServiceListener#serviceAdded(javax.jmdns.ServiceEvent)
-	 */
-	@SuppressWarnings( "deprecation" )
-	public void serviceAdded( ServiceEvent event ) {
-		Log.v( TAG, "serviceAdded : enter" );
-
-		if( null != mProgressDialog ) {
-			mProgressDialog.dismiss();
-			mProgressDialog = null;
-		}
-		
-		Log.v( TAG, "serviceAdded : " + event.getDNS().getServiceInfo( event.getType(), event.getName() ).toString() );
-		
-		final String hostname = event.getDNS().getServiceInfo( event.getType(), event.getName() ).getInet4Address().getHostAddress();
-		final int port = event.getDNS().getServiceInfo( event.getType(), event.getName() ).getPort();
-		Log.v( TAG, "serviceAdded : masterbackend=" + ( "http://" + hostname + ":" + port + "/" ) );
-
-		if( null != hostname && !"".equals( hostname ) ) {
-			
-			LocationProfile profile = new LocationProfile();
-			profile.setId( -1 );
-			profile.setType( LocationType.HOME );
-			profile.setName( event.getName() );
-			profile.setUrl( "http://" + hostname + ":" + port + "/" );
-		
-			showLocationProfileEditDialog( this, profile );
-		
-		} else {
-
-			AlertDialog.Builder builder = new AlertDialog.Builder( this );
-			builder.setTitle( R.string.preference_edit_error_dialog_title );
-			builder.setNeutralButton( R.string.btn_ok, new DialogInterface.OnClickListener() {
-
-				public void onClick( DialogInterface dialog, int which ) { }
-				
-			});
-
-			builder.setMessage( R.string.preference_home_profiles_scan_error_message );
-			builder.show();
-
-		}
-
-		Log.v( TAG, "serviceAdded : exit" );
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.jmdns.ServiceListener#serviceRemoved(javax.jmdns.ServiceEvent)
-	 */
-	public void serviceRemoved( ServiceEvent event ) {
-		Log.v( TAG, "serviceRemoved : enter" );
-
-		Log.v( TAG, "serviceRemoved : event=" + event.toString() );
-
-		Log.v( TAG, "serviceRemoved : exit" );
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * javax.jmdns.ServiceListener#serviceResolved(javax.jmdns.ServiceEvent)
-	 */
-	public void serviceResolved( ServiceEvent event ) {
-		Log.v( TAG, "serviceResolved : enter" );
-
-		Log.v( TAG, "serviceResolved : event=" + event.toString() );
-
-		Log.v( TAG, "serviceResolved : exit" );
-	}
-
-	
-	/**
-	 * @throws IOException
-	 */
-	private void startProbe() throws IOException {
-		Log.v( TAG, "startProbe : enter" );
-
-		if( zeroConf != null ) {
-			stopProbe();
-		}
-
-		try {
-			mProgressDialog = ProgressDialog.show( this, "Please wait...", "Scanning network for MythTV Backend.", true, false );
-		} catch( Exception e ) {
-			Log.w( TAG, "startProbe : error", e );
-		}
-
-		// figure out our wifi address, otherwise bail
-		WifiManager wifi = (WifiManager) this.getSystemService( Context.WIFI_SERVICE );
-
-		WifiInfo wifiinfo = wifi.getConnectionInfo();
-		int intaddr = wifiinfo.getIpAddress();
-
-		byte[] byteaddr = new byte[] { (byte) ( intaddr & 0xff ), (byte) ( intaddr >> 8 & 0xff ), (byte) ( intaddr >> 16 & 0xff ), (byte) ( intaddr >> 24 & 0xff ) };
-		InetAddress addr = InetAddress.getByAddress( byteaddr );
-		Log.d( TAG, "startProbe : wifi address=" + addr.toString() );
-		
-		// start multicast lock
-		mLock = wifi.createMulticastLock( "mythtv_lock" );
-		mLock.setReferenceCounted( true );
-		mLock.acquire();
-
-		zeroConf = JmDNS.create( addr, HOSTNAME );
-		zeroConf.addServiceListener( MYTHTV_MASTER_BACKEND_TYPE, this );
-
-		Log.v( TAG, "startProbe : exit" );
-	}
-
-	/**
-	 * @throws IOException
-	 */
-	private void stopProbe() throws IOException {
-		Log.v( TAG, "stopProbe : enter" );
-
-		zeroConf.removeServiceListener( MYTHTV_MASTER_BACKEND_TYPE, this );
-		zeroConf.close();
-		zeroConf = null;
-
-		mLock.release();
-		mLock = null;
-
-		Log.v( TAG, "stopProbe : exit" );
-	}
-
-	// internal helpers
-	
-	@SuppressWarnings( "deprecation" )
-	private void setupPreferences( final Context context ) {
-		Log.v( TAG, "setupPreferences : enter" );
-
-		Preference addHomeLocationProfilePreference = findPreference( PREFERENCE_HOME_ADD_KEY );
-		addHomeLocationProfilePreference.setOnPreferenceClickListener( new OnPreferenceClickListener() {
-
-			public boolean onPreferenceClick( Preference preference ) {
-				
-				LocationProfile profile = new LocationProfile();
-				profile.setId( -1 );
-				profile.setType( LocationType.HOME );
-				
-				showLocationProfileEditDialog( context, profile );
-					
-				return false;
-			}
-
-		});
-
-		Preference scanHomeLocationProfilePreference = findPreference( PREFERENCE_HOME_SCAN_KEY );
-		scanHomeLocationProfilePreference.setOnPreferenceClickListener( new OnPreferenceClickListener() {
-
-			public boolean onPreferenceClick( Preference preference ) {
-				
-				try {
-					startProbe();
-				} catch( IOException e ) {
-					Log.e( TAG, "scanHomeLocationProfilePreference : error", e );
-					
-					AlertDialog.Builder builder = new AlertDialog.Builder( context );
-					builder.setTitle( context.getString( R.string.preference_home_profiles_scan_error_title ) );
-					builder.setNeutralButton( R.string.btn_ok, new DialogInterface.OnClickListener() {
-
-						public void onClick( DialogInterface dialog, int which ) { }
-
-					});
-					builder.setMessage( context.getString( R.string.preference_home_profiles_scan_error_message ) );
-					builder.show();
-				}
-					
-				return false;
-			}
-
-		});
-
-		PreferenceCategory homeProfilesPreferenceCategory = (PreferenceCategory) findPreference( PREFERENCE_CATEGORY_HOME_SAVED_KEY );
-		homeProfilesPreferenceCategory.removeAll();
-
-		final List<LocationProfile> homeLocationProfiles = mLocationProfileDaoHelper.findAllHomeLocationProfiles();
-		if( null != homeLocationProfiles && !homeLocationProfiles.isEmpty() ) {
-			Log.v( TAG, "setupPreferences : setting Home Location Profiles" );
-			
-	        for( int i = 0; i < homeLocationProfiles.size(); i++ ) {
-	        	LocationProfile profile = homeLocationProfiles.get( i );
-	        	homeProfilesPreferenceCategory.addPreference( createLocationProfilePreference( context, profile ) );
-	        }
-	        
-		}
-		
-		LocationProfile selectedHomeLocationProfile = mLocationProfileDaoHelper.findSelectedHomeProfile();
-
-		Preference deleteHomeLocationProfilePreference = findPreference( PREFERENCE_HOME_DELETE_KEY );
-		deleteHomeLocationProfilePreference.setOnPreferenceClickListener( new OnPreferenceClickListener() {
-
-			public boolean onPreferenceClick( Preference preference ) {
-				
-				deleteLocationProfile( context, homeLocationProfiles, new LocationProfileChangedEventListener() {
-
-					@Override
-					public void defaultLocationProfileChanged() {
-						// reset preference list with updated selection
-						setupPreferences( context );
-					}
-
-				});
-				
-				return false;
-			}
-
-		});
-
-		if( null != selectedHomeLocationProfile ) {
-			Log.v( TAG, "setupPreferences : setting selected Home Location Profile" );
-			
-			Preference preference = findPreference( PREFERENCE_HOME_SELECTED_ID );
-			preference.setDefaultValue( selectedHomeLocationProfile.getId() );
-			preference.setSummary( selectedHomeLocationProfile.getName() );
-			preference.setOnPreferenceClickListener( new OnPreferenceClickListener() {
-
-				public boolean onPreferenceClick( Preference preference ) {
-
-					// Displays the list of configured location profiles.
-					// Fires the locationChanged event when the user selects a
-					// location even if the user selects the same location already 
-					// selected.
-					selectLocationProfile( context, homeLocationProfiles, LocationType.HOME, new LocationProfileChangedEventListener() {
-
-						@Override
-						public void defaultLocationProfileChanged() {
-							// reset preference list with updated selection
-							setupPreferences( context );
-						}
-
-					});
-					
-					return true;
-				}
-			});
-
-		}
-
-		PreferenceCategory homePlaybackProfilesPreferenceCategory = (PreferenceCategory) findPreference( PREFERENCE_CATEGORY_HOME_PLAYBACK_SAVED_KEY );
-		homePlaybackProfilesPreferenceCategory.removeAll();
-
-		final List<PlaybackProfile> homePlaybackProfiles = mPlaybackProfileDaoHelper.findAllHomePlaybackProfiles();
-		if( null != homePlaybackProfiles && !homePlaybackProfiles.isEmpty() ) {
-			Log.v( TAG, "setupPreferences : setting Home Playback Profiles" );
-			
-	        for( int i = 0; i < homePlaybackProfiles.size(); i++ ) {
-	        	PlaybackProfile profile = homePlaybackProfiles.get( i );
-	        	homePlaybackProfilesPreferenceCategory.addPreference( createPlaybackProfilePreference( context, profile ) );
-	        }
-	        
-		}
-		
-		PlaybackProfile selectedHomePlaybackProfile = mPlaybackProfileDaoHelper.findSelectedHomeProfile();
-
-		if( null != selectedHomePlaybackProfile ) {
-			Log.v( TAG, "setupPreferences : setting selected Home Playback Profile" );
-			
-			Preference preference = findPreference( PREFERENCE_HOME_PLAYBACK_SELECTED_ID );
-			preference.setDefaultValue( selectedHomePlaybackProfile.getId() );
-			preference.setSummary( selectedHomePlaybackProfile.getName() );
-			preference.setOnPreferenceClickListener( new OnPreferenceClickListener() {
-
-				public boolean onPreferenceClick( Preference preference ) {
-
-					// Displays the list of configured location profiles.
-					// Fires the locationChanged event when the user selects a
-					// location even if the user selects the same location already 
-					// selected.
-					selectPlaybackProfile( context, homePlaybackProfiles, LocationType.HOME, new PlaybackProfileChangedEventListener() {
-
-						@Override
-						public void defaultPlaybackProfileChanged() {
-							// reset preference list with updated selection
-							setupPreferences( context );
-						}
-
-					} );
-					
-					return true;
-				}
-			});
-
-		}
-
-		Preference addAwayLocationProfilePreference = findPreference( PREFERENCE_AWAY_ADD_KEY );
-		addAwayLocationProfilePreference.setOnPreferenceClickListener( new OnPreferenceClickListener() {
-
-			public boolean onPreferenceClick( Preference preference ) {
-				
-				LocationProfile profile = new LocationProfile();
-				profile.setId( -1 );
-				profile.setType( LocationType.AWAY );
-				
-				showLocationProfileEditDialog( context, profile );
-					
-				return false;
-			}
-
-		});
-
-		PreferenceCategory awayProfilesPreferenceCategory = (PreferenceCategory) findPreference( PREFERENCE_CATEGORY_AWAY_SAVED_KEY );
-		awayProfilesPreferenceCategory.removeAll();
-
-		final List<LocationProfile> awayLocationProfiles = mLocationProfileDaoHelper.findAllAwayLocationProfiles();
-		if( null != awayLocationProfiles && !awayLocationProfiles.isEmpty() ) {
-			Log.v( TAG, "setupPreferences : setting Away Location Profiles" );
-			
-	        for( int i = 0; i < awayLocationProfiles.size(); i++ ) {
-	        	LocationProfile profile = awayLocationProfiles.get( i );
-	        	awayProfilesPreferenceCategory.addPreference( createLocationProfilePreference( context, profile ) );
-	        }
-	        
-		}
-		
-		LocationProfile selectedAwayLocationProfile = mLocationProfileDaoHelper.findSelectedAwayProfile();
-
-		Preference deleteAwayLocationProfilePreference = findPreference( PREFERENCE_AWAY_DELETE_KEY );
-		deleteAwayLocationProfilePreference.setOnPreferenceClickListener( new OnPreferenceClickListener() {
-
-			public boolean onPreferenceClick( Preference preference ) {
-				
-				deleteLocationProfile( context, awayLocationProfiles, new LocationProfileChangedEventListener() {
-
-					@Override
-					public void defaultLocationProfileChanged() {
-						// reset preference list with updated selection
-						setupPreferences( context );
-					}
-
-				});
-				
-				return false;
-			}
-
-		});
-
-		if( null != selectedAwayLocationProfile ) {
-			Log.v( TAG, "setupPreferences : setting selected Away Location Profile" );
-			
-			Preference preference = findPreference( PREFERENCE_AWAY_SELECTED_ID );
-			preference.setDefaultValue( selectedAwayLocationProfile.getId() );
-			preference.setSummary( selectedAwayLocationProfile.getName() );
-			preference.setOnPreferenceClickListener( new OnPreferenceClickListener() {
-
-				public boolean onPreferenceClick( Preference preference ) {
-
-					// Displays the list of configured location profiles.
-					// Fires the locationChanged event when the user selects a
-					// location even if the user selects the same location already 
-					// selected.
-					selectLocationProfile( context, awayLocationProfiles, LocationType.AWAY, new LocationProfileChangedEventListener() {
-
-						@Override
-						public void defaultLocationProfileChanged() {
-							// reset preference list with updated selection
-							setupPreferences( context );
-						}
-
-					} );
-					
-					return true;
-				}
-			});
-
-		}
-
-		PreferenceCategory awayPlaybackProfilesPreferenceCategory = (PreferenceCategory) findPreference( PREFERENCE_CATEGORY_AWAY_PLAYBACK_SAVED_KEY );
-		awayPlaybackProfilesPreferenceCategory.removeAll();
-
-		final List<PlaybackProfile> awayPlaybackProfiles = mPlaybackProfileDaoHelper.findAllAwayPlaybackProfiles();
-		if( null != awayPlaybackProfiles && !awayPlaybackProfiles.isEmpty() ) {
-			Log.v( TAG, "setupPreferences : setting Away Playback Profiles" );
-			
-	        for( int i = 0; i < awayPlaybackProfiles.size(); i++ ) {
-	        	PlaybackProfile profile = awayPlaybackProfiles.get( i );
-	        	awayPlaybackProfilesPreferenceCategory.addPreference( createPlaybackProfilePreference( context, profile ) );
-	        }
-	        
-		}
-		
-		PlaybackProfile selectedAwayPlaybackProfile = mPlaybackProfileDaoHelper.findSelectedAwayProfile();
-
-		if( null != selectedAwayPlaybackProfile ) {
-			Log.v( TAG, "setupPreferences : setting selected Away Playback Profile" );
-			
-			Preference preference = findPreference( PREFERENCE_AWAY_PLAYBACK_SELECTED_ID );
-			preference.setDefaultValue( selectedAwayPlaybackProfile.getId() );
-			preference.setSummary( selectedAwayPlaybackProfile.getName() );
-			preference.setOnPreferenceClickListener( new OnPreferenceClickListener() {
-
-				public boolean onPreferenceClick( Preference preference ) {
-
-					// Displays the list of configured location profiles.
-					// Fires the locationChanged event when the user selects a
-					// location even if the user selects the same location already 
-					// selected.
-					selectPlaybackProfile( context, awayPlaybackProfiles, LocationType.AWAY, new PlaybackProfileChangedEventListener() {
-
-						@Override
-						public void defaultPlaybackProfileChanged() {
-							// reset preference list with updated selection
-							setupPreferences( context );
-						}
-
-					} );
-					
-					return true;
-				}
-			});
-
-		}
-		
-		Log.v( TAG, "setupPreferences : exit" );
-	}
-	
-//	private abstract static class BasePreference {
-
-//		protected static final String TAG = BasePreference.class.getSimpleName();
+		protected static final String TAG = BasePreferenceFragment.class.getSimpleName();
 
 		protected interface LocationProfileChangedEventListener extends EventListener {
 
@@ -591,7 +153,7 @@ public class MythtvPreferenceActivity extends PreferenceActivity implements Serv
 
 				public boolean onPreferenceClick( Preference preference ) {
 					
-					LocationProfile profile = mLocationProfileDaoHelper.findOne( Long.parseLong( preference.getKey() ) );
+					LocationProfile profile = mLocationProfileDaoHelper.findOne( context, Long.parseLong( preference.getKey() ) );
 					
 					// show location editor
 					showLocationProfileEditDialog( context, profile );
@@ -623,7 +185,7 @@ public class MythtvPreferenceActivity extends PreferenceActivity implements Serv
 
 				public boolean onPreferenceClick( Preference preference ) {
 					
-					PlaybackProfile profile = mPlaybackProfileDaoHelper.findOne( Long.parseLong( preference.getKey() ) );
+					PlaybackProfile profile = mPlaybackProfileDaoHelper.findOne( context, Long.parseLong( preference.getKey() ) );
 					
 					// show playback profile editor
 					showPlaybackProfileEditDialog( context, profile );
@@ -653,6 +215,7 @@ public class MythtvPreferenceActivity extends PreferenceActivity implements Serv
 				intent.putExtra( LocationProfileConstants.FIELD_NAME, profile.getName() );
 				intent.putExtra( LocationProfileConstants.FIELD_URL, profile.getUrl() );
 				intent.putExtra( LocationProfileConstants.FIELD_SELECTED, ( profile.isSelected() ? 1 : 0 ) );
+				intent.putExtra( LocationProfileConstants.FIELD_WOL_ADDRESS, profile.getWolAddress() );
 			}
 
 			// start activity
@@ -795,12 +358,12 @@ public class MythtvPreferenceActivity extends PreferenceActivity implements Serv
 			case HOME :
 				Log.v( TAG, "saveSelectedLocationProfile : setting home selected location profile" );
 
-				mLocationProfileDaoHelper.setSelectedLocationProfile( (long) id );
+				mLocationProfileDaoHelper.setSelectedLocationProfile( context, (long) id );
 				break;
 			case AWAY :
 				Log.v( TAG, "saveSelectedLocationProfile : setting away selected location profile" );
 
-				mLocationProfileDaoHelper.setSelectedLocationProfile( (long) id );
+				mLocationProfileDaoHelper.setSelectedLocationProfile( context, (long) id );
 				break;
 			} 
 			
@@ -819,12 +382,12 @@ public class MythtvPreferenceActivity extends PreferenceActivity implements Serv
 			case HOME :
 				Log.v( TAG, "saveSelectedPlaybackProfile : setting home selected playback profile" );
 
-				mPlaybackProfileDaoHelper.setSelectedPlaybackProfile( (long) id );
+				mPlaybackProfileDaoHelper.setSelectedPlaybackProfile( context, (long) id );
 				break;
 			case AWAY :
 				Log.v( TAG, "saveSelectedPlaybackProfile : setting away selected playback profile" );
 
-				mPlaybackProfileDaoHelper.setSelectedPlaybackProfile( (long) id );
+				mPlaybackProfileDaoHelper.setSelectedPlaybackProfile( context, (long) id );
 				break;
 			} 
 			
@@ -845,14 +408,14 @@ public class MythtvPreferenceActivity extends PreferenceActivity implements Serv
 			}
 
 			// show list of locations as a single selected list
-			AlertDialog.Builder builder = new AlertDialog.Builder(context);
+			AlertDialog.Builder builder = new AlertDialog.Builder( context );
 			builder.setTitle( R.string.preferences_profile_delete );
 			builder.setItems( names, new DialogInterface.OnClickListener() {
 
 				public void onClick( DialogInterface dialog, int which ) {
 
 					// delete  location
-					mLocationProfileDaoHelper.delete( (long) ids[ which ] );
+					mLocationProfileDaoHelper.delete( context, (long) ids[ which ] );
 					
 					listener.defaultLocationProfileChanged();
 				}
@@ -863,6 +426,717 @@ public class MythtvPreferenceActivity extends PreferenceActivity implements Serv
 			Log.v( TAG, "deleteLocationProfile : exit" );
 		}
 
-//	}
+	}
+	
+	public static class HomeProfilesPreferenceFragment extends BasePreferenceFragment implements ServiceListener {
+
+		private static final String TAG = HomeProfilesPreferenceFragment.class.getSimpleName();
+		
+		private static final String PREFERENCE_HOME_SELECTED_ID = "preference_home_profiles_default_id";
+		private static final String PREFERENCE_HOME_ADD_KEY = "preference_home_profiles_add";
+		private static final String PREFERENCE_HOME_SCAN_KEY = "preference_home_profiles_scan";
+		private static final String PREFERENCE_HOME_DELETE_KEY = "preference_home_profiles_delete";
+		private static final String PREFERENCE_CATEGORY_HOME_SAVED_KEY = "preference_home_profiles_saved";
+		
+		private static final String MYTHTV_MASTER_BACKEND_TYPE = "_mythbackend-master._tcp.local.";
+		private static final String HOSTNAME = "mythandroid";
+
+		private static JmDNS zeroConf = null;
+		private static MulticastLock mLock = null;
+
+		private ProgressDialog mProgressDialog;
+
+		/* (non-Javadoc)
+		 * @see android.preference.PreferenceFragment#onCreate(android.os.Bundle)
+		 */
+		@Override
+		public void onCreate( Bundle savedInstanceState ) {
+			Log.v( TAG, "onCreate : enter" );
+			
+			super.onCreate( savedInstanceState );
+
+			if( android.os.Build.VERSION.SDK_INT > 9 ) {
+				StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+				StrictMode.setThreadPolicy( policy );
+			}
+
+			// Load the preferences from an XML resource
+            addPreferencesFromResource( R.xml.mythtv_home_profile_preferences );
+
+            Log.v( TAG, "onCreate : exit" );
+		}
+		
+		/* (non-Javadoc)
+		 * @see android.app.Fragment#onResume()
+		 */
+		@Override
+		public void onResume() {
+			Log.v( TAG, "onResume : enter" );
+
+			super.onResume();
+
+			setupPreferences( getActivity() );
+			
+			Log.v( TAG, "onResume : exit" );
+		}
+		
+		/* (non-Javadoc)
+		 * @see android.app.Fragment#onPause()
+		 */
+		@Override
+		public void onPause() {
+			Log.v( TAG, "onPause : enter" );
+			super.onPause();
+			
+			if( null != mProgressDialog ) {
+				mProgressDialog.dismiss();
+				mProgressDialog = null;
+			}
+
+			Log.v( TAG, "onPause : exit" );
+		}
+
+
+		// ***************************************
+		// JMDNS ServiceListener methods
+		// ***************************************
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see javax.jmdns.ServiceListener#serviceAdded(javax.jmdns.ServiceEvent)
+		 */
+		@SuppressWarnings( "deprecation" )
+		public void serviceAdded( ServiceEvent event ) {
+			Log.v( TAG, "serviceAdded : enter" );
+
+			if( null != mProgressDialog ) {
+				mProgressDialog.dismiss();
+				mProgressDialog = null;
+			}
+			
+			Log.v( TAG, "serviceAdded : " + event.getDNS().getServiceInfo( event.getType(), event.getName() ).toString() );
+
+			ServiceInfo info = event.getDNS().getServiceInfo( event.getType(), event.getName() );
+			final String hostname = info.getInet4Address().getHostAddress();
+			final int port = info.getPort();
+			Log.v( TAG, "serviceAdded : masterbackend=" + ( "http://" + hostname + ":" + port + "/" ) );
+
+			if( null != hostname && !hostname.isEmpty() ) {
+			
+				LocationProfile profile = new LocationProfile();
+				profile.setId( -1 );
+				profile.setType( LocationType.HOME );
+				profile.setName( event.getName() );
+				profile.setUrl( "http://" + hostname + ":" + port + "/" );
+			
+				showLocationProfileEditDialog( getActivity(), profile );
+			
+			} else {
+
+				AlertDialog.Builder builder = new AlertDialog.Builder( getActivity() );
+				builder.setTitle( R.string.preference_edit_error_dialog_title );
+				builder.setNeutralButton( R.string.btn_ok, new DialogInterface.OnClickListener() {
+
+					public void onClick( DialogInterface dialog, int which ) { }
+					
+				});
+
+				builder.setMessage( R.string.preference_home_profiles_scan_error_message );
+				builder.show();
+
+			}
+
+			Log.v( TAG, "serviceAdded : exit" );
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see javax.jmdns.ServiceListener#serviceRemoved(javax.jmdns.ServiceEvent)
+		 */
+		public void serviceRemoved( ServiceEvent event ) {
+			Log.v( TAG, "serviceRemoved : enter" );
+
+			Log.v( TAG, "serviceRemoved : event=" + event.toString() );
+
+			Log.v( TAG, "serviceRemoved : exit" );
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see
+		 * javax.jmdns.ServiceListener#serviceResolved(javax.jmdns.ServiceEvent)
+		 */
+		public void serviceResolved( ServiceEvent event ) {
+			Log.v( TAG, "serviceResolved : enter" );
+
+			Log.v( TAG, "serviceResolved : event=" + event.toString() );
+
+			Log.v( TAG, "serviceResolved : exit" );
+		}
+
+		
+		// internal helpers
+		
+		/**
+		 * @throws IOException
+		 */
+		private void startProbe() throws IOException {
+			Log.v( TAG, "startProbe : enter" );
+
+			if( zeroConf != null ) {
+				stopProbe();
+			}
+
+    		try {
+    			mProgressDialog = ProgressDialog.show( getActivity(), "Please wait...", "Scanning network for MythTV Backend.", true, false );
+    		} catch( Exception e ) {
+    			Log.w( TAG, "startProbe : error", e );
+    		}
+
+			// figure out our wifi address, otherwise bail
+			WifiManager wifi = (WifiManager) getActivity().getSystemService( Context.WIFI_SERVICE );
+
+			WifiInfo wifiinfo = wifi.getConnectionInfo();
+			int intaddr = wifiinfo.getIpAddress();
+
+			byte[] byteaddr = new byte[] { (byte) ( intaddr & 0xff ), (byte) ( intaddr >> 8 & 0xff ), (byte) ( intaddr >> 16 & 0xff ), (byte) ( intaddr >> 24 & 0xff ) };
+			InetAddress addr = InetAddress.getByAddress( byteaddr );
+			Log.d( TAG, "startProbe : wifi address=" + addr.toString() );
+			
+			// start multicast lock
+			mLock = wifi.createMulticastLock( "mythtv_lock" );
+			mLock.setReferenceCounted( true );
+			mLock.acquire();
+
+			zeroConf = JmDNS.create( addr, HOSTNAME );
+			zeroConf.addServiceListener( MYTHTV_MASTER_BACKEND_TYPE, this );
+
+			Log.v( TAG, "startProbe : exit" );
+		}
+
+		/**
+		 * @throws IOException
+		 */
+		private void stopProbe() throws IOException {
+			Log.v( TAG, "stopProbe : enter" );
+
+			if( null != mProgressDialog ) {
+				mProgressDialog.dismiss();
+				mProgressDialog = null;
+			}
+
+			zeroConf.removeServiceListener( MYTHTV_MASTER_BACKEND_TYPE, this );
+			zeroConf.close();
+			zeroConf = null;
+
+			mLock.release();
+			mLock = null;
+
+			Log.v( TAG, "stopProbe : exit" );
+		}
+
+		private void setupPreferences( final Context context ) {
+			Log.v( TAG, "setupPreferences : enter" );
+
+    		Preference addHomeLocationProfilePreference = findPreference( PREFERENCE_HOME_ADD_KEY );
+    		addHomeLocationProfilePreference.setOnPreferenceClickListener( new OnPreferenceClickListener() {
+
+    			public boolean onPreferenceClick( Preference preference ) {
+    				
+    				LocationProfile profile = new LocationProfile();
+    				profile.setId( -1 );
+    				profile.setType( LocationType.HOME );
+    				
+    				showLocationProfileEditDialog( context, profile );
+    					
+    				return false;
+    			}
+
+    		});
+
+    		Preference scanHomeLocationProfilePreference = findPreference( PREFERENCE_HOME_SCAN_KEY );
+    		scanHomeLocationProfilePreference.setOnPreferenceClickListener( new OnPreferenceClickListener() {
+
+    			public boolean onPreferenceClick( Preference preference ) {
+    				
+    				try {
+    					startProbe();
+    				} catch( IOException e ) {
+    					Log.e( TAG, "scanHomeLocationProfilePreference : error", e );
+    					
+    					AlertDialog.Builder builder = new AlertDialog.Builder( context );
+    					builder.setTitle( context.getString( R.string.preference_home_profiles_scan_error_title ) );
+    					builder.setNeutralButton( R.string.btn_ok, new DialogInterface.OnClickListener() {
+
+    						public void onClick( DialogInterface dialog, int which ) { }
+
+    					});
+    					builder.setMessage( context.getString( R.string.preference_home_profiles_scan_error_message ) );
+    					builder.show();
+    				}
+    					
+    				return false;
+    			}
+
+    		});
+
+    		PreferenceCategory homeProfilesPreferenceCategory = (PreferenceCategory) findPreference( PREFERENCE_CATEGORY_HOME_SAVED_KEY );
+    		homeProfilesPreferenceCategory.removeAll();
+
+    		final List<LocationProfile> homeLocationProfiles = mLocationProfileDaoHelper.findAllHomeLocationProfiles( context );
+    		if( null != homeLocationProfiles && !homeLocationProfiles.isEmpty() ) {
+    			Log.v( TAG, "setupPreferences : setting Home Location Profiles" );
+    			
+    	        for( int i = 0; i < homeLocationProfiles.size(); i++ ) {
+    	        	LocationProfile profile = homeLocationProfiles.get( i );
+    	        	homeProfilesPreferenceCategory.addPreference( createLocationProfilePreference( context, profile ) );
+    	        }
+    	        
+    		}
+    		
+    		LocationProfile selectedHomeLocationProfile = mLocationProfileDaoHelper.findSelectedHomeProfile( context );
+
+    		Preference deleteHomeLocationProfilePreference = findPreference( PREFERENCE_HOME_DELETE_KEY );
+    		deleteHomeLocationProfilePreference.setOnPreferenceClickListener( new OnPreferenceClickListener() {
+
+    			public boolean onPreferenceClick( Preference preference ) {
+    				
+    				deleteLocationProfile( context, homeLocationProfiles, new LocationProfileChangedEventListener() {
+
+						@Override
+						public void defaultLocationProfileChanged() {
+							// reset preference list with updated selection
+							setupPreferences( context );
+						}
+
+					});
+    				
+    				return false;
+    			}
+
+    		});
+
+    		if( null != selectedHomeLocationProfile ) {
+    			Log.v( TAG, "setupPreferences : setting selected Home Location Profile" );
+    			
+    			Preference preference = findPreference( PREFERENCE_HOME_SELECTED_ID );
+    			preference.setDefaultValue( selectedHomeLocationProfile.getId() );
+    			preference.setSummary( selectedHomeLocationProfile.getName() );
+    			preference.setOnPreferenceClickListener( new OnPreferenceClickListener() {
+
+    				public boolean onPreferenceClick( Preference preference ) {
+
+    					// Displays the list of configured location profiles.
+    					// Fires the locationChanged event when the user selects a
+    					// location even if the user selects the same location already 
+    					// selected.
+    					selectLocationProfile( context, homeLocationProfiles, LocationType.HOME, new LocationProfileChangedEventListener() {
+
+    						@Override
+    						public void defaultLocationProfileChanged() {
+    							// reset preference list with updated selection
+    							setupPreferences( context );
+    						}
+
+    					});
+    					
+    					return true;
+    				}
+    			});
+
+    		}
+
+			Log.v( TAG, "setupPreferences : exit" );
+		}
+
+	}
+	
+	public static class HomePlaybackProfilesPreferenceFragment extends BasePreferenceFragment {
+	
+		private static final String TAG = HomePlaybackProfilesPreferenceFragment.class.getSimpleName();
+
+		private static final String PREFERENCE_HOME_PLAYBACK_SELECTED_ID = "preference_home_playback_profiles_default_id";
+		private static final String PREFERENCE_CATEGORY_HOME_PLAYBACK_SAVED_KEY = "preference_home_playback_profiles_saved";
+
+		/* (non-Javadoc)
+		 * @see android.preference.PreferenceFragment#onCreate(android.os.Bundle)
+		 */
+		@Override
+		public void onCreate( Bundle savedInstanceState ) {
+			Log.v( TAG, "onCreate : enter" );
+			
+			super.onCreate( savedInstanceState );
+
+            // Load the preferences from an XML resource
+            addPreferencesFromResource( R.xml.mythtv_home_playback_profile_preferences );
+
+			Log.v( TAG, "onCreate : exit" );
+		}
+
+		/* (non-Javadoc)
+		 * @see android.app.Fragment#onResume()
+		 */
+		@Override
+		public void onResume() {
+			Log.v( TAG, "onResume : enter" );
+
+			super.onResume();
+
+			setupPreferences( getActivity() );
+			
+			Log.v( TAG, "onResume : exit" );
+		}
+
+		
+		// internal helpers
+		
+		private void setupPreferences( final Context context ) {
+			Log.v( TAG, "setupPreferences : enter" );
+
+    		PreferenceCategory homePlaybackProfilesPreferenceCategory = (PreferenceCategory) findPreference( PREFERENCE_CATEGORY_HOME_PLAYBACK_SAVED_KEY );
+    		homePlaybackProfilesPreferenceCategory.removeAll();
+
+    		final List<PlaybackProfile> homePlaybackProfiles = mPlaybackProfileDaoHelper.findAllHomePlaybackProfiles( context );
+    		if( null != homePlaybackProfiles && !homePlaybackProfiles.isEmpty() ) {
+    			Log.v( TAG, "setupPreferences : setting Home Playback Profiles" );
+    			
+    	        for( int i = 0; i < homePlaybackProfiles.size(); i++ ) {
+    	        	PlaybackProfile profile = homePlaybackProfiles.get( i );
+    	        	homePlaybackProfilesPreferenceCategory.addPreference( createPlaybackProfilePreference( context, profile ) );
+    	        }
+    	        
+    		}
+    		
+    		PlaybackProfile selectedHomePlaybackProfile = mPlaybackProfileDaoHelper.findSelectedHomeProfile( context );
+
+    		if( null != selectedHomePlaybackProfile ) {
+    			Log.v( TAG, "setupPreferences : setting selected Home Playback Profile" );
+    			
+    			Preference preference = findPreference( PREFERENCE_HOME_PLAYBACK_SELECTED_ID );
+    			preference.setDefaultValue( selectedHomePlaybackProfile.getId() );
+    			preference.setSummary( selectedHomePlaybackProfile.getName() );
+    			preference.setOnPreferenceClickListener( new OnPreferenceClickListener() {
+
+    				public boolean onPreferenceClick( Preference preference ) {
+
+    					// Displays the list of configured location profiles.
+    					// Fires the locationChanged event when the user selects a
+    					// location even if the user selects the same location already 
+    					// selected.
+    					selectPlaybackProfile( context, homePlaybackProfiles, LocationType.HOME, new PlaybackProfileChangedEventListener() {
+
+    						@Override
+    						public void defaultPlaybackProfileChanged() {
+    							// reset preference list with updated selection
+    							setupPreferences( context );
+    						}
+
+    					} );
+    					
+    					return true;
+    				}
+    			});
+
+    		}
+
+    		Log.v( TAG, "setupPreferences : exit" );
+		}
+
+	}
+	
+	public static class AwayProfilesPreferenceFragment extends BasePreferenceFragment {
+
+		private static final String TAG = AwayProfilesPreferenceFragment.class.getSimpleName();
+		
+		private static final String PREFERENCE_AWAY_SELECTED_ID = "preference_away_profiles_default_id";
+		private static final String PREFERENCE_AWAY_ADD_KEY = "preference_away_profiles_add";
+		private static final String PREFERENCE_AWAY_DELETE_KEY = "preference_away_profiles_delete";
+		private static final String PREFERENCE_CATEGORY_AWAY_SAVED_KEY = "preference_away_profiles_saved";
+
+		/* (non-Javadoc)
+		 * @see android.preference.PreferenceFragment#onCreate(android.os.Bundle)
+		 */
+		@Override
+		public void onCreate( Bundle savedInstanceState ) {
+			Log.v( TAG, "onCreate : enter" );
+			
+			super.onCreate( savedInstanceState );
+
+            // Load the preferences from an XML resource
+            addPreferencesFromResource( R.xml.mythtv_away_profile_preferences );
+
+			Log.v( TAG, "onCreate : exit" );
+		}
+
+		/* (non-Javadoc)
+		 * @see android.app.Fragment#onResume()
+		 */
+		@Override
+		public void onResume() {
+			Log.v( TAG, "onResume : enter" );
+
+			super.onResume();
+
+			setupPreferences( getActivity() );
+			
+			Log.v( TAG, "onResume : exit" );
+		}
+
+		
+		// internal helpers
+		
+		private void setupPreferences( final Context context ) {
+			Log.v( TAG, "setupPreferences : enter" );
+
+    		Preference addAwayLocationProfilePreference = findPreference( PREFERENCE_AWAY_ADD_KEY );
+    		addAwayLocationProfilePreference.setOnPreferenceClickListener( new OnPreferenceClickListener() {
+
+    			public boolean onPreferenceClick( Preference preference ) {
+    				
+    				LocationProfile profile = new LocationProfile();
+    				profile.setId( -1 );
+    				profile.setType( LocationType.AWAY );
+    				
+    				showLocationProfileEditDialog( context, profile );
+    					
+    				return false;
+    			}
+
+    		});
+
+    		PreferenceCategory awayProfilesPreferenceCategory = (PreferenceCategory) findPreference( PREFERENCE_CATEGORY_AWAY_SAVED_KEY );
+    		awayProfilesPreferenceCategory.removeAll();
+
+    		final List<LocationProfile> awayLocationProfiles = mLocationProfileDaoHelper.findAllAwayLocationProfiles( context );
+    		if( null != awayLocationProfiles && !awayLocationProfiles.isEmpty() ) {
+    			Log.v( TAG, "setupPreferences : setting Away Location Profiles" );
+    			
+    	        for( int i = 0; i < awayLocationProfiles.size(); i++ ) {
+    	        	LocationProfile profile = awayLocationProfiles.get( i );
+    	        	awayProfilesPreferenceCategory.addPreference( createLocationProfilePreference( context, profile ) );
+    	        }
+    	        
+    		}
+    		
+    		LocationProfile selectedAwayLocationProfile = mLocationProfileDaoHelper.findSelectedAwayProfile( context );
+
+    		Preference deleteAwayLocationProfilePreference = findPreference( PREFERENCE_AWAY_DELETE_KEY );
+    		deleteAwayLocationProfilePreference.setOnPreferenceClickListener( new OnPreferenceClickListener() {
+
+    			public boolean onPreferenceClick( Preference preference ) {
+    				
+    				deleteLocationProfile( context, awayLocationProfiles, new LocationProfileChangedEventListener() {
+
+						@Override
+						public void defaultLocationProfileChanged() {
+							// reset preference list with updated selection
+							setupPreferences( context );
+						}
+
+					});
+    				
+    				return false;
+    			}
+
+    		});
+
+    		if( null != selectedAwayLocationProfile ) {
+    			Log.v( TAG, "setupPreferences : setting selected Away Location Profile" );
+    			
+    			Preference preference = findPreference( PREFERENCE_AWAY_SELECTED_ID );
+    			preference.setDefaultValue( selectedAwayLocationProfile.getId() );
+    			preference.setSummary( selectedAwayLocationProfile.getName() );
+    			preference.setOnPreferenceClickListener( new OnPreferenceClickListener() {
+
+    				public boolean onPreferenceClick( Preference preference ) {
+
+    					// Displays the list of configured location profiles.
+    					// Fires the locationChanged event when the user selects a
+    					// location even if the user selects the same location already 
+    					// selected.
+    					selectLocationProfile( context, awayLocationProfiles, LocationType.AWAY, new LocationProfileChangedEventListener() {
+
+    						@Override
+    						public void defaultLocationProfileChanged() {
+    							// reset preference list with updated selection
+    							setupPreferences( context );
+    						}
+
+    					} );
+    					
+    					return true;
+    				}
+    			});
+
+    		}
+
+			Log.v( TAG, "setupPreferences : exit" );
+		}
+		
+	}
+	
+	public static class AwayPlaybackProfilesPreferenceFragment extends BasePreferenceFragment {
+		
+		private static final String TAG = AwayPlaybackProfilesPreferenceFragment.class.getSimpleName();
+
+		private static final String PREFERENCE_AWAY_PLAYBACK_SELECTED_ID = "preference_away_playback_profiles_default_id";
+		private static final String PREFERENCE_CATEGORY_AWAY_PLAYBACK_SAVED_KEY = "preference_away_playback_profiles_saved";
+
+		/* (non-Javadoc)
+		 * @see android.preference.PreferenceFragment#onCreate(android.os.Bundle)
+		 */
+		@Override
+		public void onCreate( Bundle savedInstanceState ) {
+			Log.v( TAG, "onCreate : enter" );
+			
+			super.onCreate( savedInstanceState );
+
+            // Load the preferences from an XML resource
+            addPreferencesFromResource( R.xml.mythtv_away_playback_profile_preferences );
+
+			Log.v( TAG, "onCreate : exit" );
+		}
+
+		/* (non-Javadoc)
+		 * @see android.app.Fragment#onResume()
+		 */
+		@Override
+		public void onResume() {
+			Log.v( TAG, "onResume : enter" );
+
+			super.onResume();
+
+			setupPreferences( getActivity() );
+			
+			Log.v( TAG, "onResume : exit" );
+		}
+
+		
+		// internal helpers
+		
+		private void setupPreferences( final Context context ) {
+			Log.v( TAG, "setupPreferences : enter" );
+
+    		PreferenceCategory awayPlaybackProfilesPreferenceCategory = (PreferenceCategory) findPreference( PREFERENCE_CATEGORY_AWAY_PLAYBACK_SAVED_KEY );
+    		awayPlaybackProfilesPreferenceCategory.removeAll();
+
+    		final List<PlaybackProfile> awayPlaybackProfiles = mPlaybackProfileDaoHelper.findAllAwayPlaybackProfiles( context );
+    		if( null != awayPlaybackProfiles && !awayPlaybackProfiles.isEmpty() ) {
+    			Log.v( TAG, "setupPreferences : setting Away Playback Profiles" );
+    			
+    	        for( int i = 0; i < awayPlaybackProfiles.size(); i++ ) {
+    	        	PlaybackProfile profile = awayPlaybackProfiles.get( i );
+    	        	awayPlaybackProfilesPreferenceCategory.addPreference( createPlaybackProfilePreference( context, profile ) );
+    	        }
+    	        
+    		}
+    		
+    		PlaybackProfile selectedAwayPlaybackProfile = mPlaybackProfileDaoHelper.findSelectedAwayProfile( context );
+
+    		if( null != selectedAwayPlaybackProfile ) {
+    			Log.v( TAG, "setupPreferences : setting selected Away Playback Profile" );
+    			
+    			Preference preference = findPreference( PREFERENCE_AWAY_PLAYBACK_SELECTED_ID );
+    			preference.setDefaultValue( selectedAwayPlaybackProfile.getId() );
+    			preference.setSummary( selectedAwayPlaybackProfile.getName() );
+    			preference.setOnPreferenceClickListener( new OnPreferenceClickListener() {
+
+    				public boolean onPreferenceClick( Preference preference ) {
+
+    					// Displays the list of configured location profiles.
+    					// Fires the locationChanged event when the user selects a
+    					// location even if the user selects the same location already 
+    					// selected.
+    					selectPlaybackProfile( context, awayPlaybackProfiles, LocationType.AWAY, new PlaybackProfileChangedEventListener() {
+
+    						@Override
+    						public void defaultPlaybackProfileChanged() {
+    							// reset preference list with updated selection
+    							setupPreferences( context );
+    						}
+
+    					} );
+    					
+    					return true;
+    				}
+    			});
+
+    		}
+    		
+			Log.v( TAG, "setupPreferences : exit" );
+		}
+
+	}
+	
+	public static class ProgramGuidePreferenceFragment extends PreferenceFragment {
+		
+		private static final String TAG = ProgramGuidePreferenceFragment.class.getSimpleName();
+
+		private static final String PREFERENCE_PROGRAM_GUIDE_DAYS = "preference_program_guide_days";
+
+		/* (non-Javadoc)
+		 * @see android.preference.PreferenceFragment#onCreate(android.os.Bundle)
+		 */
+		@Override
+		public void onCreate( Bundle savedInstanceState ) {
+			Log.v( TAG, "onCreate : enter" );
+			
+			super.onCreate( savedInstanceState );
+
+            // Load the preferences from an XML resource
+            addPreferencesFromResource( R.xml.mythtv_program_guide_preferences );
+
+			Log.v( TAG, "onCreate : exit" );
+		}
+
+		/* (non-Javadoc)
+		 * @see android.app.Fragment#onResume()
+		 */
+		@Override
+		public void onResume() {
+			Log.v( TAG, "onResume : enter" );
+
+			super.onResume();
+
+			setupPreferences( getActivity() );
+			
+			Log.v( TAG, "onResume : exit" );
+		}
+
+		
+		// internal helpers
+		
+		private void setupPreferences( final Context context ) {
+			Log.v( TAG, "setupPreferences : enter" );
+
+   			Log.v( TAG, "setupPreferences : setting selected Away Playback Profile" );
+    		
+   	        /** Defining PreferenceChangeListener */
+   	        OnPreferenceChangeListener onPreferenceChangeListener = new OnPreferenceChangeListener() {
+   	 
+   	            @Override
+   	            public boolean onPreferenceChange( Preference preference, Object newValue ) {
+//   	                OnPreferenceChangeListener listener = ( OnPreferenceChangeListener) context;
+//   	                listener.onPreferenceChange( preference, newValue );
+   	                return true;
+   	            }
+   	       };
+   	 
+   	        /** Getting the ListPreference from the Preference Resource */
+  			ListPreference preference = (ListPreference) findPreference( PREFERENCE_PROGRAM_GUIDE_DAYS );
+  			if( null == preference.getValue() ) {
+  				preference.setValueIndex( 0 );
+  			}
+   	        
+  			/** Setting Preference change listener for the ListPreference */
+   	        preference.setOnPreferenceChangeListener( onPreferenceChangeListener );
+
+			Log.v( TAG, "setupPreferences : exit" );
+		}
+
+	}
 	
 }

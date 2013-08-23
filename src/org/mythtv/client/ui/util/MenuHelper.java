@@ -21,12 +21,10 @@ package org.mythtv.client.ui.util;
 import org.mythtv.R;
 import org.mythtv.service.util.NetworkHelper;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.net.Uri;
-import android.os.Build;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -59,22 +57,37 @@ public class MenuHelper {
 	public static final int WATCH_ON_TV_ID = Menu.FIRST + 206;
 	public static final int CLEAR_ID = Menu.FIRST + 207;
 	
+	public static final int GUIDE_ID = Menu.FIRST + 300;
+	
 	private static final String TAG = MenuHelper.class.getSimpleName();
 	
-	private Context mContext;
-	private NetworkHelper mNetworkHelper;
-	private Resources mResources;
-	
-	public static MenuHelper newInstance( Context context ) {
-		return new MenuHelper( context );
-	}
-	
-	protected MenuHelper( Context context ) {
-		this.mContext = context;
+	private static MenuHelper singleton = null;
+
+	/**
+	 * Returns the one and only MenuHelper. init() must be called before 
+	 * any 
+	 * @return
+	 */
+	public static MenuHelper getInstance() {
+		if( null == singleton ) {
+			
+			synchronized( MenuHelper.class ) {
+
+				if( null == singleton ) {
+					singleton = new MenuHelper();
+				}
+			
+			}
+			
+		}
 		
-		mResources = mContext.getResources();
-		mNetworkHelper = NetworkHelper.newInstance( mContext );
+		return singleton;
 	}
+	
+	/**
+	 * Constructor. No one but getInstance() can do this.
+	 */
+	private MenuHelper() { }
 	
 	/**
 	 * Build About MenuItem
@@ -82,14 +95,16 @@ public class MenuHelper {
 	 * @param menu
 	 * @return
 	 */
-	@TargetApi( Build.VERSION_CODES.HONEYCOMB )
-	public MenuItem prefMenuItem( Menu menu ) {
+	public MenuItem prefMenuItem( Context context, Menu menu ) {
 		
-	    MenuItem menuItem = menu.add( Menu.NONE, EDIT_ID, Menu.NONE, mResources.getString( R.string.menu_prefs ) );
+		if( null == context ) 
+			throw new RuntimeException( "MenuHelper is not initialized" );
+		
+		Resources resources = context.getResources();
+
+	    MenuItem menuItem = menu.add( Menu.NONE, EDIT_ID, Menu.NONE, resources.getString( R.string.menu_prefs ) );
     	menuItem.setIcon( android.R.drawable.ic_menu_preferences );
-	    if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-	    	menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
-	    }
+    	menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
 
 	    return menuItem;
 	}
@@ -100,14 +115,16 @@ public class MenuHelper {
 	 * @param menu
 	 * @return
 	 */
-	@TargetApi( Build.VERSION_CODES.HONEYCOMB )
-	public MenuItem aboutMenuItem( Menu menu ) {
+	public MenuItem aboutMenuItem( Context context, Menu menu ) {
 		
-	    MenuItem menuItem = menu.add( Menu.NONE, ABOUT_ID, Menu.NONE, mResources.getString( R.string.menu_about ) );
+		if( null == context ) 
+			throw new RuntimeException( "MenuHelper is not initialized" );
+		
+		Resources resources = context.getResources();
+
+	    MenuItem menuItem = menu.add( Menu.NONE, ABOUT_ID, Menu.NONE, resources.getString( R.string.menu_about ) );
     	menuItem.setIcon( android.R.drawable.ic_menu_info_details );
-	    if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-	    	menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_NEVER );
-	    }
+    	menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_NEVER );
 
 	    return menuItem;
 	}
@@ -115,10 +132,13 @@ public class MenuHelper {
 	/**
 	 * Handle About MenuItem
 	 */
-	public void handleAboutMenu() {
+	public void handleAboutMenu( Context context ) {
 		Log.v( TAG, "handleAboutMenu : enter" );
 		
-		startWebActivity( "https://github.com/MythTV-Clients/MythTV-Android-Frontend/wiki" );
+		if( null == context ) 
+			throw new RuntimeException( "MenuHelper is not initialized" );
+		
+		startWebActivity( context, "https://github.com/MythTV-Clients/MythTV-Android-Frontend/wiki" );
 
 		Log.v( TAG, "handleAboutMenu : exit" );
 	}
@@ -129,14 +149,19 @@ public class MenuHelper {
 	 * @param menu
 	 * @return
 	 */
-	public SubMenu helpSubMenu( Menu menu ) {
+	public SubMenu helpSubMenu( Context context, Menu menu ) {
 		Log.v( TAG, "helpSubMenu : enter" );
 		
-		SubMenu subMenu = menu.addSubMenu( Menu.NONE, HELP_ID, Menu.NONE, mResources.getString( R.string.menu_help ) );
+		if( null == context ) 
+			throw new RuntimeException( "MenuHelper is not initialized" );
+		
+		Resources resources = context.getResources();
+
+		SubMenu subMenu = menu.addSubMenu( Menu.NONE, HELP_ID, Menu.NONE, resources.getString( R.string.menu_help ) );
 		subMenu.setIcon( android.R.drawable.ic_menu_help );
-		subMenu.add( Menu.NONE, FAQ_ID, Menu.NONE, mResources.getString( R.string.menu_help_faq ) );
-		subMenu.add( Menu.NONE, TROUBLESHOOT_ID, Menu.NONE, mResources.getString( R.string.menu_help_troubleshoot ) );
-		subMenu.add( Menu.NONE, ISSUES_ID, Menu.NONE, mResources.getString( R.string.menu_help_issues ) );
+		subMenu.add( Menu.NONE, FAQ_ID, Menu.NONE, resources.getString( R.string.menu_help_faq ) );
+		subMenu.add( Menu.NONE, TROUBLESHOOT_ID, Menu.NONE, resources.getString( R.string.menu_help_troubleshoot ) );
+		subMenu.add( Menu.NONE, ISSUES_ID, Menu.NONE, resources.getString( R.string.menu_help_issues ) );
 		
 		Log.v( TAG, "helpSubMenu : exit" );
 		return subMenu;
@@ -148,14 +173,16 @@ public class MenuHelper {
 	 * @param menu
 	 * @return
 	 */
-	@TargetApi( Build.VERSION_CODES.HONEYCOMB )
-	public MenuItem faqMenuItem( Menu menu ) {
+	public MenuItem faqMenuItem( Context context, Menu menu ) {
 		
-	    MenuItem menuItem = menu.add( Menu.NONE, FAQ_ID, Menu.NONE, mResources.getString( R.string.menu_help_faq ) );
+		if( null == context ) 
+			throw new RuntimeException( "MenuHelper is not initialized" );
+		
+		Resources resources = context.getResources();
+
+	    MenuItem menuItem = menu.add( Menu.NONE, FAQ_ID, Menu.NONE, resources.getString( R.string.menu_help_faq ) );
     	menuItem.setIcon( android.R.drawable.ic_menu_info_details );
-	    if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-	    	menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_NEVER );
-	    }
+    	menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_NEVER );
 
 	    return menuItem;
 	}
@@ -163,10 +190,13 @@ public class MenuHelper {
 	/**
 	 * Handle FAQ MenuItem
 	 */
-	public void handleFaqMenu() {
+	public void handleFaqMenu( Context context ) {
 		Log.v( TAG, "handleFaqMenu : enter" );
 
-		startWebActivity( "https://github.com/MythTV-Clients/MythTV-Android-Frontend/wiki/FAQ" );
+		if( null == context ) 
+			throw new RuntimeException( "MenuHelper is not initialized" );
+		
+		startWebActivity( context, "https://github.com/MythTV-Clients/MythTV-Android-Frontend/wiki/FAQ" );
 
 		Log.v( TAG, "handleFaqMenu : exit" );
 	}
@@ -177,13 +207,15 @@ public class MenuHelper {
 	 * @param menu
 	 * @return
 	 */
-	@TargetApi( Build.VERSION_CODES.HONEYCOMB )
-	public MenuItem troubleshootMenuItem( Menu menu ) {
+	public MenuItem troubleshootMenuItem( Context context, Menu menu ) {
 		
-	    MenuItem menuItem = menu.add( Menu.NONE, TROUBLESHOOT_ID, Menu.NONE, mResources.getString( R.string.menu_help_troubleshoot ) );
-	    if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-	    	menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_NEVER );
-	    }
+		if( null == context ) 
+			throw new RuntimeException( "MenuHelper is not initialized" );
+		
+		Resources resources = context.getResources();
+
+	    MenuItem menuItem = menu.add( Menu.NONE, TROUBLESHOOT_ID, Menu.NONE, resources.getString( R.string.menu_help_troubleshoot ) );
+    	menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_NEVER );
 
 	    return menuItem;
 	}
@@ -191,10 +223,13 @@ public class MenuHelper {
 	/**
 	 * Handle Troubleshoot MenuItem
 	 */
-	public void handleTroubleshootMenu() {
+	public void handleTroubleshootMenu( Context context ) {
 		Log.v( TAG, "handleTroubleshootMenu : enter" );
 
-		startWebActivity( "https://github.com/MythTV-Clients/MythTV-Android-Frontend/wiki/Connection-Troubleshooting-Guidelines" );
+		if( null == context ) 
+			throw new RuntimeException( "MenuHelper is not initialized" );
+		
+		startWebActivity( context, "https://github.com/MythTV-Clients/MythTV-Android-Frontend/wiki/Connection-Troubleshooting-Guidelines" );
 
 		Log.v( TAG, "handleTroubleshootMenu : exit" );
 	}
@@ -205,13 +240,15 @@ public class MenuHelper {
 	 * @param menu
 	 * @return
 	 */
-	@TargetApi( Build.VERSION_CODES.HONEYCOMB )
-	public MenuItem issuesMenuItem( Menu menu ) {
+	public MenuItem issuesMenuItem( Context context, Menu menu ) {
 		
-	    MenuItem menuItem = menu.add( Menu.NONE, ISSUES_ID, Menu.NONE, mResources.getString( R.string.menu_help_issues ) );
-	    if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-	    	menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_NEVER );
-	    }
+		if( null == context ) 
+			throw new RuntimeException( "MenuHelper is not initialized" );
+		
+		Resources resources = context.getResources();
+
+	    MenuItem menuItem = menu.add( Menu.NONE, ISSUES_ID, Menu.NONE, resources.getString( R.string.menu_help_issues ) );
+    	menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_NEVER );
 
 	    return menuItem;
 	}
@@ -219,10 +256,13 @@ public class MenuHelper {
 	/**
 	 * Handle Issues MenuItem
 	 */
-	public void handleIssuesMenu() {
+	public void handleIssuesMenu( Context context ) {
 		Log.v( TAG, "handleIssuesMenu : enter" );
 
-		startWebActivity( "https://github.com/MythTV-Clients/MythTV-Android-Frontend/issues" );
+		if( null == context ) 
+			throw new RuntimeException( "MenuHelper is not initialized" );
+		
+		startWebActivity( context, "https://github.com/MythTV-Clients/MythTV-Android-Frontend/issues" );
 
 		Log.v( TAG, "handleIssuesMenu : exit" );
 	}
@@ -233,15 +273,17 @@ public class MenuHelper {
 	 * @param menu
 	 * @return
 	 */
-	@TargetApi( Build.VERSION_CODES.HONEYCOMB )
-	public MenuItem mythmoteMenuItem( Menu menu ) {
+	public MenuItem mythmoteMenuItem( Context context, Menu menu ) {
 		
-		if( mNetworkHelper.isNetworkConnected() ) {
-			MenuItem menuItem = menu.add( Menu.NONE, MYTHMOTE_ID, Menu.NONE, mResources.getString( R.string.frontends_title ) );
+		if( null == context ) 
+			throw new RuntimeException( "MenuHelper is not initialized" );
+		
+		Resources resources = context.getResources();
+
+		if( NetworkHelper.getInstance().isNetworkConnected( context ) ) {
+			MenuItem menuItem = menu.add( Menu.NONE, MYTHMOTE_ID, Menu.NONE, resources.getString( R.string.frontends_title ) );
 			menuItem.setIcon( R.drawable.ic_menu_mythmote_default );
-			if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-				menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
-			}
+			menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
 
 			return menuItem;
 		}
@@ -255,15 +297,17 @@ public class MenuHelper {
 	 * @param menu
 	 * @return
 	 */
-	@TargetApi( Build.VERSION_CODES.HONEYCOMB )
-	public MenuItem refreshMenuItem( Menu menu ) {
+	public MenuItem refreshMenuItem( Context context, Menu menu ) {
 		
-		if( mNetworkHelper.isNetworkConnected() ) {
-			MenuItem menuItem = menu.add( Menu.NONE, REFRESH_ID, Menu.NONE, mResources.getString( R.string.menu_refresh ) );
+		if( null == context ) 
+			throw new RuntimeException( "MenuHelper is not initialized" );
+		
+		Resources resources = context.getResources();
+
+		if( NetworkHelper.getInstance().isNetworkConnected( context ) ) {
+			MenuItem menuItem = menu.add( Menu.NONE, REFRESH_ID, Menu.NONE, resources.getString( R.string.menu_refresh ) );
 			menuItem.setIcon( R.drawable.ic_menu_refresh );
-			if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-				menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
-			}
+			menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
 
 			return menuItem;
 		}
@@ -277,15 +321,17 @@ public class MenuHelper {
 	 * @param menu
 	 * @return
 	 */
-	@TargetApi( Build.VERSION_CODES.HONEYCOMB )
-	public MenuItem editMenuItem( Menu menu ) {
+	public MenuItem editMenuItem( Context context, Menu menu ) {
 		
-		if( mNetworkHelper.isNetworkConnected() ) {
-			MenuItem menuItem = menu.add( Menu.NONE, EDIT_ID, Menu.NONE, mResources.getString( R.string.menu_edit ) );
+		if( null == context ) 
+			throw new RuntimeException( "MenuHelper is not initialized" );
+		
+		Resources resources = context.getResources();
+
+		if( NetworkHelper.getInstance().isNetworkConnected( context ) ) {
+			MenuItem menuItem = menu.add( Menu.NONE, EDIT_ID, Menu.NONE, resources.getString( R.string.menu_edit ) );
 			menuItem.setIcon( android.R.drawable.ic_menu_edit );
-			if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-				menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
-			}
+			menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
 
 			return menuItem;
 		}
@@ -299,15 +345,17 @@ public class MenuHelper {
 	 * @param menu
 	 * @return
 	 */
-	@TargetApi( Build.VERSION_CODES.HONEYCOMB )
-	public MenuItem saveMenuItem( Menu menu ) {
+	public MenuItem saveMenuItem( Context context, Menu menu ) {
 		
-		if( mNetworkHelper.isNetworkConnected() ) {
-			MenuItem menuItem = menu.add( Menu.NONE, SAVE_ID, Menu.NONE, mResources.getString( R.string.menu_save ) );
+		if( null == context ) 
+			throw new RuntimeException( "MenuHelper is not initialized" );
+		
+		Resources resources = context.getResources();
+
+		if( NetworkHelper.getInstance().isNetworkConnected( context ) ) {
+			MenuItem menuItem = menu.add( Menu.NONE, SAVE_ID, Menu.NONE, resources.getString( R.string.menu_save ) );
 			menuItem.setIcon( android.R.drawable.ic_menu_save );
-			if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-				menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
-			}
+			menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
 
 			return menuItem;
 		}
@@ -321,15 +369,17 @@ public class MenuHelper {
 	 * @param menu
 	 * @return
 	 */
-	@TargetApi( Build.VERSION_CODES.HONEYCOMB )
-	public MenuItem resetMenuItem( Menu menu ) {
+	public MenuItem resetMenuItem( Context context, Menu menu ) {
 		
-		if( mNetworkHelper.isNetworkConnected() ) {
-			MenuItem menuItem = menu.add( Menu.NONE, RESET_ID, Menu.NONE, mResources.getString( R.string.menu_reset ) );
+		if( null == context ) 
+			throw new RuntimeException( "MenuHelper is not initialized" );
+		
+		Resources resources = context.getResources();
+
+		if( NetworkHelper.getInstance().isNetworkConnected( context ) ) {
+			MenuItem menuItem = menu.add( Menu.NONE, RESET_ID, Menu.NONE, resources.getString( R.string.menu_reset ) );
 			menuItem.setIcon( android.R.drawable.ic_menu_revert );
-			if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-				menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
-			}
+			menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
 
 			return menuItem;
 		}
@@ -343,15 +393,17 @@ public class MenuHelper {
 	 * @param menu
 	 * @return
 	 */
-	@TargetApi( Build.VERSION_CODES.HONEYCOMB )
-	public MenuItem deleteMenuItem( Menu menu ) {
+	public MenuItem deleteMenuItem( Context context, Menu menu ) {
 		
-		if( mNetworkHelper.isNetworkConnected() ) {
-			MenuItem menuItem = menu.add( Menu.NONE, DELETE_ID, Menu.NONE, mResources.getString( R.string.menu_delete ) );
+		if( null == context ) 
+			throw new RuntimeException( "MenuHelper is not initialized" );
+		
+		Resources resources = context.getResources();
+
+		if( NetworkHelper.getInstance().isNetworkConnected( context ) ) {
+			MenuItem menuItem = menu.add( Menu.NONE, DELETE_ID, Menu.NONE, resources.getString( R.string.menu_delete ) );
 			menuItem.setIcon( android.R.drawable.ic_menu_delete );
-			if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-				menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
-			}
+			menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
 
 			return menuItem;
 		}
@@ -365,15 +417,17 @@ public class MenuHelper {
 	 * @param menu
 	 * @return
 	 */
-	@TargetApi( Build.VERSION_CODES.HONEYCOMB )
-	public MenuItem watchMenuItem( Menu menu ) {
+	public MenuItem watchMenuItem( Context context, Menu menu ) {
 		
-		if( mNetworkHelper.isNetworkConnected() ) {
-			MenuItem menuItem = menu.add( Menu.NONE, WATCH_ID, Menu.NONE, mResources.getString( R.string.menu_watch ) );
+		if( null == context ) 
+			throw new RuntimeException( "MenuHelper is not initialized" );
+		
+		Resources resources = context.getResources();
+
+		if( NetworkHelper.getInstance().isNetworkConnected( context ) ) {
+			MenuItem menuItem = menu.add( Menu.NONE, WATCH_ID, Menu.NONE, resources.getString( R.string.menu_watch ) );
 			menuItem.setIcon( android.R.drawable.ic_menu_view );
-			if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-				menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
-			}
+			menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
 
 			return menuItem;
 		}
@@ -387,15 +441,17 @@ public class MenuHelper {
 	 * @param menu
 	 * @return
 	 */
-	@TargetApi( Build.VERSION_CODES.HONEYCOMB )
-	public MenuItem watchOnFrontendMenuItem( Menu menu ) {
+	public MenuItem watchOnFrontendMenuItem( Context context, Menu menu ) {
 		
-		if( mNetworkHelper.isNetworkConnected() ) {
-			MenuItem menuItem = menu.add( Menu.NONE, WATCH_ON_TV_ID, Menu.NONE, mResources.getString( R.string.menu_watch ) );
+		if( null == context ) 
+			throw new RuntimeException( "MenuHelper is not initialized" );
+		
+		Resources resources = context.getResources();
+
+		if( NetworkHelper.getInstance().isNetworkConnected( context ) ) {
+			MenuItem menuItem = menu.add( Menu.NONE, WATCH_ON_TV_ID, Menu.NONE, resources.getString( R.string.menu_watch ) );
 			menuItem.setIcon( android.R.drawable.ic_menu_send );
-			if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-				menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
-			}
+			menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
 
 			return menuItem;
 		}
@@ -409,15 +465,17 @@ public class MenuHelper {
 	 * @param menu
 	 * @return
 	 */
-	@TargetApi( Build.VERSION_CODES.HONEYCOMB )
-	public MenuItem addMenuItem( Menu menu ) {
+	public MenuItem addMenuItem( Context context, Menu menu ) {
 		
-		if( mNetworkHelper.isNetworkConnected() ) {
-			MenuItem menuItem = menu.add( Menu.NONE, ADD_ID, Menu.NONE, mResources.getString( R.string.menu_add ) );
+		if( null == context ) 
+			throw new RuntimeException( "MenuHelper is not initialized" );
+		
+		Resources resources = context.getResources();
+
+		if( NetworkHelper.getInstance().isNetworkConnected( context ) ) {
+			MenuItem menuItem = menu.add( Menu.NONE, ADD_ID, Menu.NONE, resources.getString( R.string.menu_add ) );
 			menuItem.setIcon( android.R.drawable.ic_menu_add );
-			if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-				menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
-			}
+			menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
 
 			return menuItem;
 		}
@@ -425,32 +483,59 @@ public class MenuHelper {
 		return null;
 	}
 
-	@TargetApi( Build.VERSION_CODES.HONEYCOMB )
-	public MenuItem clearMenuItem( Menu menu ) {
+	public MenuItem clearMenuItem( Context context, Menu menu ) {
 		
-		if( mNetworkHelper.isNetworkConnected() ) {
-			MenuItem menuItem = menu.add( Menu.NONE, CLEAR_ID, Menu.NONE, mResources.getString( R.string.menu_clear ) );
+		if( null == context ) 
+			throw new RuntimeException( "MenuHelper is not initialized" );
+		
+		Resources resources = context.getResources();
+
+		if( NetworkHelper.getInstance().isNetworkConnected( context ) ) {
+			MenuItem menuItem = menu.add( Menu.NONE, CLEAR_ID, Menu.NONE, resources.getString( R.string.menu_clear ) );
 			menuItem.setIcon( android.R.drawable.ic_menu_close_clear_cancel );
-			if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-				menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
-			}
+			menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
 
 			return menuItem;
 		}
 		
 		return null;
+	}
+
+	/**
+	 * Build Guide Day MenuItem
+	 * 
+	 * @param menu
+	 * @return
+	 */
+	public MenuItem guideDayMenuItem( Context context, Menu menu ) {
+		
+		if( null == context ) 
+			throw new RuntimeException( "MenuHelper is not initialized" );
+		
+		Resources resources = context.getResources();
+
+	    MenuItem menuItem = menu.add( Menu.NONE, GUIDE_ID, Menu.NONE, resources.getString( R.string.menu_guide_day ) );
+		menuItem.setIcon( android.R.drawable.ic_menu_day );
+    	menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
+
+	    return menuItem;
 	}
 
 	// internal helpers
 	
-	private void startWebActivity( String url ) {
+	private void startWebActivity( Context context, String url ) {
 		Log.v( TAG, "startActivity : enter" );
 
-		if( mNetworkHelper.isNetworkConnected() ) {
+		if( null == context ) 
+			throw new RuntimeException( "MenuHelper is not initialized" );
+		
+		Resources resources = context.getResources();
+
+		if( NetworkHelper.getInstance().isNetworkConnected( context ) ) {
 			Intent webIntent = new Intent( Intent.ACTION_VIEW, Uri.parse( url ) );
-			mContext.startActivity( webIntent );
+			context.startActivity( webIntent );
 		} else {
-			Toast.makeText( mContext, mResources.getString( R.string.menu_help_not_connected ), Toast.LENGTH_SHORT ).show();
+			Toast.makeText( context, resources.getString( R.string.menu_help_not_connected ), Toast.LENGTH_SHORT ).show();
 		}
 		
 		Log.v( TAG, "startActivity : exit" );

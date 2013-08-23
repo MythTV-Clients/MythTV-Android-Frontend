@@ -19,12 +19,14 @@
 package org.mythtv.client.ui.frontends;
 
 import org.mythtv.R;
+import org.mythtv.client.ui.MainMenuFragment;
+import org.mythtv.client.ui.navigationDrawer.FrontendsRow;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.Button;
 
 public class NumbersFragment extends AbstractFrontendFragment implements OnClickListener  {
@@ -56,8 +58,7 @@ public class NumbersFragment extends AbstractFrontendFragment implements OnClick
 	@Override
 	public void onClick(View v) {
 		
-		final FrontendsFragment frontends = (FrontendsFragment) getFragmentManager().findFragmentById( R.id.frontends_fragment );
-		final Frontend fe = frontends.getSelectedFrontend();
+		final Frontend fe = FrontendsRow.getSelectedFrontend();
 		
 		//exit if we don't have a frontend
 		if(null == fe) return;

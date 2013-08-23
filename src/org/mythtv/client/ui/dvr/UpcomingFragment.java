@@ -36,12 +36,11 @@ import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v4.widget.CursorAdapter;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
+import android.widget.CursorAdapter;
 import android.widget.TextView;
 
 /**
@@ -57,9 +56,9 @@ public class UpcomingFragment extends MythtvListFragment implements LoaderManage
 
     private MainApplication mainApplication;
 
-    private LocationProfileDaoHelper mLocationProfileDaoHelper;
-	private ProgramHelper mProgramHelper;
-	private UpcomingDaoHelper mUpcomingDaoHelper;
+    private LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
+	private ProgramHelper mProgramHelper = ProgramHelper.getInstance();
+	private UpcomingDaoHelper mUpcomingDaoHelper = UpcomingDaoHelper.getInstance();
 	
 	public static UpcomingFragment newInstance( String formattedDay ) {
 		
@@ -82,14 +81,15 @@ public class UpcomingFragment extends MythtvListFragment implements LoaderManage
 		Log.v( TAG, "onCreateLoader : enter" );
 		
 		String startDate = args.getString( START_DATE_KEY );
+		Log.v( TAG, "onCreateLoader : startDate=" + startDate );
+		
 		DateTime startDay = new DateTime( startDate ).withTimeAtStartOfDay();
 		DateTime endDay = startDay.plusDays( 1 );
-		DateTime now = new DateTime();
+		DateTime now = new DateTime( System.currentTimeMillis() );
 
         mainApplication = getMainApplication();
 
-		mLocationProfileDaoHelper = ( (AbstractDvrActivity) getActivity() ).getLocationProfileDaoHelper();
-		LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile();
+		LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
 		Log.v( TAG, "onCreateLoader : loading upcoming for profile " + locationProfile.getHostname() + " [" + locationProfile.getUrl() + "]" );
 
 		String[] projection = { ProgramConstants._ID, ProgramConstants.FIELD_TITLE, ProgramConstants.FIELD_SUB_TITLE, ProgramConstants.FIELD_START_TIME, ProgramConstants.FIELD_CATEGORY };
@@ -97,7 +97,7 @@ public class UpcomingFragment extends MythtvListFragment implements LoaderManage
 		String selection = ProgramConstants.TABLE_NAME_UPCOMING + "." + ProgramConstants.FIELD_START_TIME + " >= ? AND " + 
 						   ProgramConstants.TABLE_NAME_UPCOMING + "." + ProgramConstants.FIELD_START_TIME + " < ? AND " + 
 						   ProgramConstants.TABLE_NAME_UPCOMING + "." + ProgramConstants.FIELD_START_TIME + " >= ? AND " + 
-						   ProgramConstants.TABLE_NAME_UPCOMING + "." + ProgramConstants.FIELD_HOSTNAME + " = ?";
+						   ProgramConstants.TABLE_NAME_UPCOMING + "." + ProgramConstants.FIELD_MASTER_HOSTNAME + " = ?";
 		
 		String[] selectionArgs = new String[] { String.valueOf( startDay.getMillis() ), String.valueOf( endDay.getMillis() ), String.valueOf( now.getMillis() ), locationProfile.getHostname() };
 		
@@ -141,15 +141,9 @@ public class UpcomingFragment extends MythtvListFragment implements LoaderManage
 		Log.v( TAG, "onActivityCreated : enter" );
 		super.onActivityCreated( savedInstanceState );
 
-		mProgramHelper = ProgramHelper.createInstance( getActivity() );
-
-		if( UpcomingActivity.class.isInstance( getActivity() ) ) {
-			mUpcomingDaoHelper = ( (UpcomingActivity) getActivity() ).getUpcomingDaoHelper();
-		}
-		
 		setHasOptionsMenu( true );
 		
-		setRetainInstance( true );
+//		setRetainInstance( true );
 
 		getLoaderManager().initLoader( 0, getArguments(), this );
 		adapter = new UpcomingCursorAdapter( getActivity().getApplicationContext() );
@@ -183,7 +177,6 @@ public class UpcomingFragment extends MythtvListFragment implements LoaderManage
 			View view = mInflater.inflate( R.layout.upcoming_row, parent, false );
 		    
 			ViewHolder refHolder = new ViewHolder();
-		    refHolder.detail = (LinearLayout) view.findViewById( R.id.upcoming_detail_row );
 		    refHolder.category = (View) view.findViewById( R.id.upcoming_category );
 		    refHolder.title = (TextView) view.findViewById( R.id.upcoming_title );
 		    refHolder.subTitle = (TextView) view.findViewById( R.id.upcoming_sub_title );
@@ -223,7 +216,6 @@ public class UpcomingFragment extends MythtvListFragment implements LoaderManage
 
 	private static class ViewHolder {
 		
-		LinearLayout detail;
 		View category;
 		TextView title;
 		TextView subTitle;

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+
+    This file is part of MythTV Android Frontend
+
+    MythTV Android Frontend is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MythTV Android Frontend is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MythTV Android Frontend.  If not, see <http://www.gnu.org/licenses/>.
+
+    This software can be found at <https://github.com/MythTV-Clients/MythTV-Android-Frontend/>
+
+-->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent"
+	android:layout_height="fill_parent"
+	android:padding="10dp" >
+	
+    <ToggleButton
+	    android:id="@+id/navigation_drawer_connected_profile_toggle"
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+	    android:layout_alignParentTop="true"
+	    android:background="@drawable/main_menu_home_away_button"
+	    android:textOff="@string/btn_home"
+	    android:textOn="@string/btn_away"
+	    android:textColor="@color/text_header_main_menu" />
+
+    <LinearLayout
+    	android:layout_width="wrap_content"
+    	android:layout_height="wrap_content"
+    	android:orientation="vertical"
+    	android:layout_below="@id/navigation_drawer_connected_profile_toggle"
+    	android:paddingTop="10dp">
+
+		<TextView
+    		android:id="@+id/navigation_drawer_connected_profile_hostname"
+    		android:layout_width="wrap_content"
+    		android:layout_height="wrap_content"
+    		android:textColor="@color/text_main_menu"
+		/>
+	
+		<TextView
+    		android:id="@+id/navigation_drawer_connected_profile_url"
+    		android:layout_width="wrap_content"
+    		android:layout_height="wrap_content"
+    		android:textColor="@color/text_main_menu"
+		/>
+	
+	</LinearLayout>
+
+	
+	
+</RelativeLayout>

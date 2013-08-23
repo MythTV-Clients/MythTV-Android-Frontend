@@ -20,6 +20,8 @@ package org.mythtv.client.ui.dvr;
 
 import org.joda.time.DateTime;
 import org.mythtv.R;
+import org.mythtv.client.ui.AbstractMythtvFragmentActivity;
+import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.db.dvr.programGroup.ProgramGroup;
 import org.mythtv.db.dvr.programGroup.ProgramGroupConstants;
@@ -34,7 +36,7 @@ import android.view.MenuItem;
  * @author John Baab
  * 
  */
-public class ProgramGroupActivity extends AbstractDvrActivity implements ProgramGroupFragment.OnEpisodeSelectedListener {
+public class ProgramGroupActivity extends AbstractMythtvFragmentActivity implements ProgramGroupFragment.OnEpisodeSelectedListener {
 
 	private static final String TAG = ProgramGroupActivity.class.getSimpleName();
 
@@ -42,6 +44,8 @@ public class ProgramGroupActivity extends AbstractDvrActivity implements Program
 	
 	private ProgramGroup selectedProgramGroup;
 
+	private LocationProfile mLocationProfile;
+	
 	// ***************************************
 	// Activity methods
 	// ***************************************
@@ -58,17 +62,16 @@ public class ProgramGroupActivity extends AbstractDvrActivity implements Program
 
 		setContentView( R.layout.activity_dvr_program_group );
 
+		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( this );
+		
 		Bundle extras = getIntent().getExtras(); 
 		String programGroup = extras.getString( ProgramGroupConstants.FIELD_TITLE );
 		if( null == programGroup || "".equals( programGroup ) ) {
-			Intent intent = new Intent( this, RecordingsActivity.class );
-			intent.addFlags( Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK );
-			startActivity( intent );
 			
 			finish();
 		}
 
-		selectedProgramGroup = mProgramGroupDaoHelper.findByTitle( programGroup );		
+		selectedProgramGroup = mProgramGroupDaoHelper.findByTitle( this, mLocationProfile, programGroup );		
 		
 		mProgramGroupFragment = (ProgramGroupFragment) getSupportFragmentManager().findFragmentById( R.id.fragment_dvr_program_group );
 		mProgramGroupFragment.setOnEpisodeSelectedListener( this );
@@ -86,10 +89,10 @@ public class ProgramGroupActivity extends AbstractDvrActivity implements Program
 
 		switch( item.getItemId() ) {
 			case android.R.id.home:
-				// app icon in action bar clicked; go home
-				Intent intent = new Intent( this, RecordingsActivity.class );
-				intent.addFlags( Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK );
-				startActivity( intent );
+//				// app icon in action bar clicked; go home
+//				Intent intent = new Intent( this, RecordingsActivity.class );
+//				intent.addFlags( Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK );
+//				startActivity( intent );
 				
 				finish();
 				

@@ -20,9 +20,7 @@ package org.mythtv.client.ui.setup;
 
 import org.mythtv.R;
 import org.mythtv.client.ui.AbstractMythFragment;
-import org.mythtv.client.ui.setup.capture.CaptureCardsActivity;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -43,8 +41,6 @@ public class SetupDashboardFragment extends AbstractMythFragment {
 		root.findViewById( R.id.setup_btn_capture ).setOnClickListener( new View.OnClickListener() {
 			public void onClick( View view ) {
 				Log.v( TAG, "recordings.onClick : enter" );
-				
-				startActivity( new Intent( getActivity(), CaptureCardsActivity.class ) );
 
 //				if( UIUtils.isHoneycombTablet( getActivity() ) ) {
 //					startActivity( new Intent( getActivity(), ScheduleMultiPaneActivity.class ) );

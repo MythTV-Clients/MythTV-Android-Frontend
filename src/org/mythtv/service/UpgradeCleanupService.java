@@ -23,6 +23,7 @@ import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
 import org.mythtv.db.MythtvDatabaseManager;
+import org.mythtv.service.util.FileHelper;
 
 import android.content.Intent;
 import android.util.Log;
@@ -91,7 +92,7 @@ public class UpgradeCleanupService extends MythtvService {
 		progressIntent.putExtra( EXTRA_PROGESS, "Upgrade Program Guide Cleanup Service Started" );
 		sendBroadcast( progressIntent );
 
-		File programGuideCache = mFileHelper.getProgramGuideDataDirectory();
+		File programGuideCache = FileHelper.getInstance().getProgramGuideDataDirectory();
 		if( null != programGuideCache && programGuideCache.exists() ) {
 			Log.v( TAG, "cleanupProgramGuide : found program guide cache" );
 

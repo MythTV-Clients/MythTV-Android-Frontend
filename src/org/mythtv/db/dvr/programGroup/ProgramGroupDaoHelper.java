@@ -19,13 +19,15 @@
 package org.mythtv.db.dvr.programGroup;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.joda.time.DateTime;
+import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.AbstractDaoHelper;
 import org.mythtv.provider.MythtvProvider;
+import org.mythtv.service.util.DateUtils;
 import org.mythtv.services.api.dvr.Program;
 import org.mythtv.services.utils.ArticleCleaner;
 
@@ -48,24 +50,51 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 
 	private static final String TAG = ProgramGroupDaoHelper.class.getSimpleName();
 	
-	public ProgramGroupDaoHelper( Context context ) {
-		super( context );
+	private static ProgramGroupDaoHelper singleton = null;
+
+	/**
+	 * Returns the one and only ProgramGroupDaoHelper. init() must be called before 
+	 * any 
+	 * 
+	 * @return
+	 */
+	public static ProgramGroupDaoHelper getInstance() {
+		if( null == singleton ) {
+
+			synchronized( ProgramGroupDaoHelper.class ) {
+
+				if( null == singleton ) {
+					singleton = new ProgramGroupDaoHelper();
+				}
+			
+			}
+
+		}
+		
+		return singleton;
 	}
 	
+	private ProgramGroupDaoHelper() {
+		super();
+	}
+
 	/**
 	 * @return
 	 */
-	public List<ProgramGroup> findAll() {
+	public List<ProgramGroup> findAll( final Context context, final LocationProfile locationProfile ) {
 		Log.v( TAG, "findAll : enter" );
+		
+		if( null == context ) 
+			throw new RuntimeException( "ProgramGroupDaoHelper is not initialized" );
 		
 		String selection = "";
 		String[] selectionArgs = null;
 
-		selection = appendLocationHostname( selection, null );
+		selection = appendLocationHostname( context, locationProfile, selection, null );
 		
 		List<ProgramGroup> programGroups = new ArrayList<ProgramGroup>();
 		
-		Cursor cursor = mContext.getContentResolver().query( ProgramGroupConstants.CONTENT_URI, null, selection, selectionArgs, ProgramGroupConstants.FIELD_PROGRAM_GROUP );
+		Cursor cursor = context.getContentResolver().query( ProgramGroupConstants.CONTENT_URI, null, selection, selectionArgs, ProgramGroupConstants.FIELD_PROGRAM_GROUP );
 		while( cursor.moveToNext() ) {
 			ProgramGroup programGroup = convertCursorToProgramGroup( cursor );
 			programGroups.add( programGroup );
@@ -80,12 +109,15 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 	 * @param id
 	 * @return
 	 */
-	public ProgramGroup findOne( Long id ) {
+	public ProgramGroup findOne( final Context context, final Long id ) {
 		Log.v( TAG, "findOne : enter" );
+		
+		if( null == context ) 
+			throw new RuntimeException( "ProgramGroupDaoHelper is not initialized" );
 		
 		ProgramGroup programGroup = null;
 		
-		Cursor cursor = mContext.getContentResolver().query( ContentUris.withAppendedId( ProgramGroupConstants.CONTENT_URI, id ), null, null, null, null );
+		Cursor cursor = context.getContentResolver().query( ContentUris.withAppendedId( ProgramGroupConstants.CONTENT_URI, id ), null, null, null, null );
 		if( cursor.moveToFirst() ) {
 			programGroup = convertCursorToProgramGroup( cursor );
 		}
@@ -95,17 +127,20 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 		return programGroup;
 	}
 
-	public ProgramGroup findByTitle( String title ) {
+	public ProgramGroup findByTitle( final Context context, final LocationProfile locationProfile, final String title ) {
 		Log.v( TAG, "findOne : enter" );
+		
+		if( null == context ) 
+			throw new RuntimeException( "ProgramGroupDaoHelper is not initialized" );
 		
 		String selection = ProgramGroupConstants.FIELD_TITLE + " = ?";
 		String[] selectionArgs = new String[] { title };
 
-		selection = appendLocationHostname( selection, null );
+		selection = appendLocationHostname( context, locationProfile, selection, null );
 		
 		ProgramGroup programGroup = null;
 		
-		Cursor cursor = mContext.getContentResolver().query( ProgramGroupConstants.CONTENT_URI, null, selection, selectionArgs, null );
+		Cursor cursor = context.getContentResolver().query( ProgramGroupConstants.CONTENT_URI, null, selection, selectionArgs, null );
 		if( cursor.moveToFirst() ) {
 			programGroup = convertCursorToProgramGroup( cursor );
 		}
@@ -119,27 +154,30 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 	 * @param programGroup
 	 * @return
 	 */
-	protected int save( ProgramGroup programGroup ) {
+	public int save( final Context context, final LocationProfile locationProfile, ProgramGroup programGroup ) {
 		Log.v( TAG, "save : enter" );
 
-		ContentValues values = convertProgramGroupToContentValues( programGroup );
+		if( null == context ) 
+			throw new RuntimeException( "ProgramGroupDaoHelper is not initialized" );
+		
+		ContentValues values = convertProgramGroupToContentValues( locationProfile, DateUtils.convertUtc( new DateTime( System.currentTimeMillis() ) ), programGroup );
 
 		String[] projection = new String[] { ProgramGroupConstants._ID };
 		String selection = ProgramGroupConstants.FIELD_PROGRAM_GROUP + " = ?";
 		String[] selectionArgs = new String[] { programGroup.getProgramGroup() };
 		
-		selection = appendLocationHostname( selection, null );
+		selection = appendLocationHostname( context, locationProfile, selection, null );
 
 		int updated = -1;
-		Cursor cursor = mContext.getContentResolver().query( ProgramGroupConstants.CONTENT_URI, projection, selection, selectionArgs, null );
+		Cursor cursor = context.getContentResolver().query( ProgramGroupConstants.CONTENT_URI, projection, selection, selectionArgs, null );
 		if( cursor.moveToFirst() ) {
 			Log.v( TAG, "save : updating existing program group" );
 
 			Long id = cursor.getLong( cursor.getColumnIndexOrThrow( ProgramGroupConstants._ID ) );
 			
-			updated = mContext.getContentResolver().update( ContentUris.withAppendedId( ProgramGroupConstants.CONTENT_URI, id ), values, null, null );
+			updated = context.getContentResolver().update( ContentUris.withAppendedId( ProgramGroupConstants.CONTENT_URI, id ), values, null, null );
 		} else {
-			Uri inserted = mContext.getContentResolver().insert( ProgramGroupConstants.CONTENT_URI, values );
+			Uri inserted = context.getContentResolver().insert( ProgramGroupConstants.CONTENT_URI, values );
 			if( null != inserted ) {
 				updated = 1;
 			}
@@ -154,14 +192,17 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 	/**
 	 * @return
 	 */
-	public int deleteAll() {
+	public int deleteAll( final Context context, final LocationProfile locationProfile ) {
 		Log.v( TAG, "deleteAll : enter" );
+		
+		if( null == context ) 
+			throw new RuntimeException( "ProgramGroupDaoHelper is not initialized" );
 		
 		String selection = "";
 		
-		selection = appendLocationHostname( selection, null );
+		selection = appendLocationHostname( context, locationProfile, selection, null );
 		
-		int deleted = mContext.getContentResolver().delete( ProgramGroupConstants.CONTENT_URI, selection, null );
+		int deleted = context.getContentResolver().delete( ProgramGroupConstants.CONTENT_URI, selection, null );
 		Log.v( TAG, "deleteAll : deleted=" + deleted );
 		
 		Log.v( TAG, "deleteAll : exit" );
@@ -172,34 +213,33 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 	 * @param programGroup
 	 * @return
 	 */
-	public int delete( ProgramGroup programGroup ) {
+	public int delete( final Context context, ProgramGroup programGroup ) {
 		Log.v( TAG, "delete : enter" );
 		
-		int deleted = mContext.getContentResolver().delete( ContentUris.withAppendedId( ProgramGroupConstants.CONTENT_URI, programGroup.getId() ), null, null );
+		if( null == context ) 
+			throw new RuntimeException( "ProgramGroupDaoHelper is not initialized" );
+		
+		int deleted = context.getContentResolver().delete( ContentUris.withAppendedId( ProgramGroupConstants.CONTENT_URI, programGroup.getId() ), null, null );
 		Log.v( TAG, "delete : deleted=" + deleted );
 		
 		Log.v( TAG, "delete : exit" );
 		return deleted;
 	}
 
-	public int load( List<Program> programs ) throws RemoteException, OperationApplicationException {
+	public int load( final Context context, final LocationProfile locationProfile, List<Program> programs ) throws RemoteException, OperationApplicationException {
 		Log.v( TAG, "load : enter" );
 		
-		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile();
+		if( null == context ) 
+			throw new RuntimeException( "ProgramGroupDaoHelper is not initialized" );
 		
-		Log.v( TAG, "load : find all existing recordings" );
-		Map<String, ProgramGroup> existing = new HashMap<String, ProgramGroup>();
-		for( ProgramGroup programGroup : findAll() ) {
-			existing.put( programGroup.getProgramGroup(), programGroup );
-		}
-
+		DateTime lastModified = DateUtils.convertUtc( new DateTime( System.currentTimeMillis() ) );
+		
 		Map<String, ProgramGroup> programGroups = new TreeMap<String, ProgramGroup>();
 		for( Program program : programs ) {
 			
 			if( null != program.getRecording() ) {
 				
-				if( null != program.getRecording().getRecordingGroup() && !"livetv".equalsIgnoreCase( program.getRecording().getRecordingGroup() ) ) {
-					
+				if( null != program.getRecording().getRecordingGroup() && !"livetv".equalsIgnoreCase( program.getRecording().getRecordingGroup() ) && !"deleted".equalsIgnoreCase( program.getRecording().getRecordingGroup() ) ) {
 					String cleaned = ArticleCleaner.clean( program.getTitle() );
 					if( !programGroups.containsKey( cleaned ) ) {
 						
@@ -207,9 +247,9 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 						programGroup.setTitle( program.getTitle() );
 						programGroup.setCategory( program.getCategory() );
 						programGroup.setInetref( program.getInetref() );
+						programGroup.setSort( 0 );
 						
 						programGroups.put( cleaned, programGroup );
-						existing.remove( cleaned );
 					}
 
 				}
@@ -218,6 +258,10 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 			
 		}
 		
+		Log.v( TAG, "load : adding 'All' program group in programGroups" );
+		ProgramGroup all = new ProgramGroup( null, "All", "All", "All", "", 1 );
+		programGroups.put( all.getProgramGroup(), all );
+
 		int loaded = -1;
 		int count = 0;
 
@@ -226,31 +270,33 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 		String[] programGroupProjection = new String[] { ProgramGroupConstants._ID };
 		String programGroupSelection = ProgramGroupConstants.FIELD_PROGRAM_GROUP + " = ?";
 
-		programGroupSelection = appendLocationHostname( programGroupSelection, null );
+		programGroupSelection = appendLocationHostname( context, locationProfile, programGroupSelection, null );
 
 		for( String key : programGroups.keySet() ) {
+			Log.v( TAG, "load : processing programGroup '" + key + "'" );
+			
 			ProgramGroup programGroup = programGroups.get( key );
 			
-			ContentValues programValues = convertProgramGroupToContentValues( programGroup );
-			Cursor programGroupCursor = mContext.getContentResolver().query( ProgramGroupConstants.CONTENT_URI, programGroupProjection, programGroupSelection, new String[] { key }, null );
+			ContentValues programValues = convertProgramGroupToContentValues( locationProfile, lastModified, programGroup );
+			Cursor programGroupCursor = context.getContentResolver().query( ProgramGroupConstants.CONTENT_URI, programGroupProjection, programGroupSelection, new String[] { key }, null );
 			if( programGroupCursor.moveToFirst() ) {
 
 				Long id = programGroupCursor.getLong( programGroupCursor.getColumnIndexOrThrow( ProgramGroupConstants._ID ) );
 				ops.add( 
-						ContentProviderOperation.newUpdate( ContentUris.withAppendedId( ProgramGroupConstants.CONTENT_URI, id ) )
-							.withValues( programValues )
-							.withYieldAllowed( true )
-							.build()
-					);
+					ContentProviderOperation.newUpdate( ContentUris.withAppendedId( ProgramGroupConstants.CONTENT_URI, id ) )
+						.withValues( programValues )
+						.withYieldAllowed( true )
+						.build()
+				);
 				
 			} else {
 
 				ops.add(  
-						ContentProviderOperation.newInsert( ProgramGroupConstants.CONTENT_URI )
-							.withValues( programValues )
-							.withYieldAllowed( true )
-							.build()
-					);
+					ContentProviderOperation.newInsert( ProgramGroupConstants.CONTENT_URI )
+						.withValues( programValues )
+						.withYieldAllowed( true )
+						.build()
+				);
 			}
 			programGroupCursor.close();
 			count++;
@@ -260,7 +306,7 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 				
 				if( !ops.isEmpty() ) {
 					
-					ContentProviderResult[] results = mContext.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
+					ContentProviderResult[] results = context.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
 					loaded += results.length;
 					
 					if( results.length > 0 ) {
@@ -271,53 +317,20 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 				count = -1;
 			}
 
-		}
-
-		Log.v( TAG, "process : applying final batch for '" + count + "' transactions" );
-		
-		if( !ops.isEmpty() ) {
-
-			ContentProviderResult[] results = mContext.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
-			loaded += results.length;
-
-			if( results.length > 0 ) {
-				ops.clear();
-			}
 		}
 
 		Log.v( TAG, "load : remove deleted program groups" );
-		for( String key : existing.keySet() ) {
-
-			ops.add(  
-				ContentProviderOperation.newDelete( ProgramGroupConstants.CONTENT_URI )
-				.withSelection( programGroupSelection, new String[] { key } )
-				.withYieldAllowed( true )
-				.build()
-			);
+		ops.add(  
+			ContentProviderOperation.newDelete( ProgramGroupConstants.CONTENT_URI )
+			.withSelection( ProgramGroupConstants.FIELD_LAST_MODIFIED_DATE + " < ?", new String[] { String.valueOf( lastModified.getMillis() ) } )
+			.withYieldAllowed( true )
+			.build()
+		);
 			
-			if( count > 100 ) {
-				Log.v( TAG, "process : applying batch for '" + count + "' transactions" );
-				
-				if( !ops.isEmpty() ) {
-					
-					ContentProviderResult[] results = mContext.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
-					loaded += results.length;
-					
-					if( results.length > 0 ) {
-						ops.clear();
-					}
-
-				}
-
-				count = -1;
-			}
-
-		}
-
 		if( !ops.isEmpty() ) {
-			Log.v( TAG, "process : applying final batch for '" + count + "' transactions" );
+			Log.v( TAG, "load : applying final batch for '" + count + "' transactions" );
 			
-			ContentProviderResult[] results = mContext.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
+			ContentProviderResult[] results = context.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
 			loaded += results.length;
 		}
 
@@ -334,6 +347,7 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 
 		Long id = null;
 		String programGroup = "", title = "", category = "", inetref = "";
+		int sort = 0;
 		
 		if( cursor.getColumnIndex( ProgramGroupConstants._ID ) != -1 ) {
 			id = cursor.getLong( cursor.getColumnIndex( ProgramGroupConstants._ID ) );
@@ -355,8 +369,12 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 			inetref = cursor.getString( cursor.getColumnIndex( ProgramGroupConstants.FIELD_INETREF ) );
 		}
 
-		if( cursor.getColumnIndex( ProgramGroupConstants.FIELD_HOSTNAME ) != -1 ) {
-			Log.v( TAG, "convertCursorToProgramGroup : hostname=" + cursor.getString( cursor.getColumnIndex( ProgramGroupConstants.FIELD_HOSTNAME ) ) );
+		if( cursor.getColumnIndex( ProgramGroupConstants.FIELD_SORT ) != -1 ) {
+			sort = cursor.getInt( cursor.getColumnIndex( ProgramGroupConstants.FIELD_SORT ) );
+		}
+
+		if( cursor.getColumnIndex( ProgramGroupConstants.FIELD_MASTER_HOSTNAME ) != -1 ) {
+			Log.v( TAG, "convertCursorToProgramGroup : hostname=" + cursor.getString( cursor.getColumnIndex( ProgramGroupConstants.FIELD_MASTER_HOSTNAME ) ) );
 		}
 
 		ProgramGroup group = new ProgramGroup();
@@ -365,6 +383,7 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 		group.setTitle( title );
 		group.setCategory( category );
 		group.setInetref( inetref );
+		group.setSort( sort );
 		
 		Log.v( TAG, "convertCursorToProgramGroup : exit" );
 		return group;
@@ -372,7 +391,7 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 
 	// internal helpers
 	
-	private ContentValues[] convertProgramGroupsToContentValuesArray( final List<ProgramGroup> programGroups ) {
+	private ContentValues[] convertProgramGroupsToContentValuesArray( final LocationProfile locationProfile, final DateTime lastModified, final List<ProgramGroup> programGroups ) {
 //		Log.v( TAG, "convertProgramGroupsToContentValuesArray : enter" );
 		
 		if( null != programGroups && !programGroups.isEmpty() ) {
@@ -382,7 +401,7 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 
 			for( ProgramGroup programGroup : programGroups ) {
 
-				contentValues = convertProgramGroupToContentValues( programGroup );
+				contentValues = convertProgramGroupToContentValues( locationProfile, lastModified, programGroup );
 				contentValuesArray.add( contentValues );
 				
 			}			
@@ -399,14 +418,16 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 		return null;
 	}
 
-	private ContentValues convertProgramGroupToContentValues( final ProgramGroup programGroup ) {
+	private ContentValues convertProgramGroupToContentValues( final LocationProfile locationProfile, final DateTime lastModified, final ProgramGroup programGroup ) {
 		
 		ContentValues values = new ContentValues();
 		values.put( ProgramGroupConstants.FIELD_PROGRAM_GROUP, null != programGroup.getTitle() ? ArticleCleaner.clean( programGroup.getTitle() ) : "" );
 		values.put( ProgramGroupConstants.FIELD_TITLE, null != programGroup.getTitle() ? programGroup.getTitle() : "" );
 		values.put( ProgramGroupConstants.FIELD_CATEGORY, null != programGroup.getCategory() ? programGroup.getCategory() : "" );
 		values.put( ProgramGroupConstants.FIELD_INETREF, null != programGroup.getInetref() ? programGroup.getInetref() : "" );
-		values.put( ProgramGroupConstants.FIELD_HOSTNAME, mLocationProfile.getHostname() );
+		values.put( ProgramGroupConstants.FIELD_SORT, programGroup.getSort() );
+		values.put( ProgramGroupConstants.FIELD_MASTER_HOSTNAME, locationProfile.getHostname() );
+		values.put( ProgramGroupConstants.FIELD_LAST_MODIFIED_DATE, lastModified.getMillis() );
 		
 		return values;
 	}

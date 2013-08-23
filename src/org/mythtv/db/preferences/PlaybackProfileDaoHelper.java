@@ -39,21 +39,47 @@ public class PlaybackProfileDaoHelper {
 
 	private static final String TAG = PlaybackProfileDaoHelper.class.getSimpleName();
 	
-	private Context mContext;
-	
-	public PlaybackProfileDaoHelper( Context context ) {
-		this.mContext = context;
+	private static PlaybackProfileDaoHelper singleton = null;
+
+	/**
+	 * Returns the one and only PlaybackProfileDaoHelper. init() must be called before 
+	 * any 
+	 * 
+	 * @return
+	 */
+	public static PlaybackProfileDaoHelper getInstance() {
+		if( null == singleton ) {
+
+			synchronized( PlaybackProfileDaoHelper.class ) {
+
+				if( null == singleton ) {
+					singleton = new PlaybackProfileDaoHelper();
+				}
+			
+			}
+
+		}
+		
+		return singleton;
 	}
+	
+	/**
+	 * Constructor. No one but getInstance() can do this.
+	 */
+	private PlaybackProfileDaoHelper() { }
 	
 	/**
 	 * @return
 	 */
-	public List<PlaybackProfile> findAll() {
+	public List<PlaybackProfile> findAll( Context context ) {
 		Log.d( TAG, "findAll : enter" );
+		
+		if( null == context ) 
+			throw new RuntimeException( "PlaybackProfileDaoHelper is not initialized" );
 		
 		List<PlaybackProfile> profiles = new ArrayList<PlaybackProfile>();
 		
-		Cursor cursor = mContext.getContentResolver().query( PlaybackProfileConstants.CONTENT_URI, null, null, null, null );
+		Cursor cursor = context.getContentResolver().query( PlaybackProfileConstants.CONTENT_URI, null, null, null, null );
 		while( cursor.moveToNext() ) {
 			PlaybackProfile profile = convertCursorToPlaybackProfile( cursor );
 			profiles.add( profile );
@@ -67,10 +93,10 @@ public class PlaybackProfileDaoHelper {
 	/**
 	 * @return
 	 */
-	public List<PlaybackProfile> findAllHomePlaybackProfiles() {
+	public List<PlaybackProfile> findAllHomePlaybackProfiles( Context context ) {
 		Log.d( TAG, "findAllHomePlaybackProfiles : enter" );
 
-		List<PlaybackProfile> profiles = findAllByType( LocationType.HOME );
+		List<PlaybackProfile> profiles = findAllByType( context, LocationType.HOME );
 
 		Log.d( TAG, "findAllHomePlaybackProfiles : exit" );
 		return profiles;
@@ -79,10 +105,10 @@ public class PlaybackProfileDaoHelper {
 	/**
 	 * @return
 	 */
-	public List<PlaybackProfile> findAllAwayPlaybackProfiles() {
+	public List<PlaybackProfile> findAllAwayPlaybackProfiles( Context context ) {
 		Log.d( TAG, "findAllAwayPlaybackProfiles : enter" );
 
-		List<PlaybackProfile> profiles = findAllByType( LocationType.AWAY );
+		List<PlaybackProfile> profiles = findAllByType( context, LocationType.AWAY );
 
 		Log.d( TAG, "findAllAwayPlaybackProfiles : exit" );
 		return profiles;
@@ -92,13 +118,16 @@ public class PlaybackProfileDaoHelper {
 	 * @param id
 	 * @return
 	 */
-	public PlaybackProfile findOne( Long id ) {
+	public PlaybackProfile findOne( Context context, Long id ) {
 		Log.d( TAG, "findOne : enter" );
+		
+		if( null == context ) 
+			throw new RuntimeException( "PlaybackProfileDaoHelper is not initialized" );
 		
 		PlaybackProfile profile = null;
 		
 		if( id > 0 ) {
-			Cursor cursor = mContext.getContentResolver().query( ContentUris.withAppendedId( PlaybackProfileConstants.CONTENT_URI, id ), null, null, null, null );
+			Cursor cursor = context.getContentResolver().query( ContentUris.withAppendedId( PlaybackProfileConstants.CONTENT_URI, id ), null, null, null, null );
 			if( cursor.moveToFirst() ) {
 				profile = convertCursorToPlaybackProfile( cursor );
 			}
@@ -113,24 +142,27 @@ public class PlaybackProfileDaoHelper {
 	 * @param profile
 	 * @return
 	 */
-	public boolean save( PlaybackProfile profile ) {
+	public boolean save( Context context, PlaybackProfile profile ) {
 		Log.d( TAG, "save : enter" );
 
+		if( null == context ) 
+			throw new RuntimeException( "PlaybackProfileDaoHelper is not initialized" );
+		
 		boolean ret = false;
 		
 		ContentValues values = convertProfileToContentValues( profile );
 
 		if( profile.getId() == -1 ) {
-			Uri inserted = mContext.getContentResolver().insert( PlaybackProfileConstants.CONTENT_URI, values );
+			Uri inserted = context.getContentResolver().insert( PlaybackProfileConstants.CONTENT_URI, values );
 			if( null != inserted ) {
 				ret = true;
 
-				Cursor profiles = mContext.getContentResolver().query( inserted, new String[] { PlaybackProfileConstants._ID }, PlaybackProfileConstants.FIELD_TYPE + " = ?", new String[] { profile.getType().name() }, null );
+				Cursor profiles = context.getContentResolver().query( inserted, new String[] { PlaybackProfileConstants._ID }, PlaybackProfileConstants.FIELD_TYPE + " = ?", new String[] { profile.getType().name() }, null );
 				if( profiles.getCount() == 1 ) {
 					ContentValues selected = new ContentValues();
 					selected.put( PlaybackProfileConstants.FIELD_SELECTED, 1 );
 					
-					mContext.getContentResolver().update( inserted, selected, null, null );
+					context.getContentResolver().update( inserted, selected, null, null );
 					Log.v( TAG, "save : selecting default location profile" );
 				}
 				profiles.close();
@@ -139,27 +171,27 @@ public class PlaybackProfileDaoHelper {
 			return ret;
 		}
 		
-		Cursor cursor = mContext.getContentResolver().query( ContentUris.withAppendedId( PlaybackProfileConstants.CONTENT_URI, profile.getId() ), null, null, null, null );
+		Cursor cursor = context.getContentResolver().query( ContentUris.withAppendedId( PlaybackProfileConstants.CONTENT_URI, profile.getId() ), null, null, null, null );
 		if( cursor.moveToFirst() ) {
 			Log.v( TAG, "save : updating existing playback profile" );
 
-			int count = mContext.getContentResolver().update( ContentUris.withAppendedId( PlaybackProfileConstants.CONTENT_URI, profile.getId() ), values, null, null );
+			int count = context.getContentResolver().update( ContentUris.withAppendedId( PlaybackProfileConstants.CONTENT_URI, profile.getId() ), values, null, null );
 			if( count > 0 ) {
 				ret = true;
 			}
 		} else {
 			Log.v( TAG, "save : saving new playback profile" );
 
-			Uri inserted = mContext.getContentResolver().insert( PlaybackProfileConstants.CONTENT_URI, values );
+			Uri inserted = context.getContentResolver().insert( PlaybackProfileConstants.CONTENT_URI, values );
 			if( null != inserted ) {
 				ret = true;
 
-				Cursor profiles = mContext.getContentResolver().query( PlaybackProfileConstants.CONTENT_URI, new String[] { PlaybackProfileConstants._ID }, PlaybackProfileConstants.FIELD_TYPE + " = ?", new String[] { profile.getType().name() }, null );
+				Cursor profiles = context.getContentResolver().query( PlaybackProfileConstants.CONTENT_URI, new String[] { PlaybackProfileConstants._ID }, PlaybackProfileConstants.FIELD_TYPE + " = ?", new String[] { profile.getType().name() }, null );
 				if( profiles.getCount() == 1 ) {
 					ContentValues selected = new ContentValues();
 					selected.put( PlaybackProfileConstants.FIELD_SELECTED, 1 );
 					
-					mContext.getContentResolver().update( ContentUris.withAppendedId( PlaybackProfileConstants.CONTENT_URI, profile.getId() ), selected, null, null );
+					context.getContentResolver().update( ContentUris.withAppendedId( PlaybackProfileConstants.CONTENT_URI, profile.getId() ), selected, null, null );
 					Log.v( TAG, "save : selecting default playback profile" );
 				}
 				profiles.close();
@@ -175,12 +207,15 @@ public class PlaybackProfileDaoHelper {
 	 * @param id
 	 * @return
 	 */
-	public boolean delete( Long id ) {
+	public boolean delete( Context context, Long id ) {
 		Log.d( TAG, "delete : enter" );
+		
+		if( null == context ) 
+			throw new RuntimeException( "PlaybackProfileDaoHelper is not initialized" );
 		
 		boolean ret = false;
 		
-		int deleted = mContext.getContentResolver().delete( ContentUris.withAppendedId( PlaybackProfileConstants.CONTENT_URI, id ), null, null );
+		int deleted = context.getContentResolver().delete( ContentUris.withAppendedId( PlaybackProfileConstants.CONTENT_URI, id ), null, null );
 		if( deleted > 0 ) {
 			ret = true;
 		}
@@ -193,15 +228,15 @@ public class PlaybackProfileDaoHelper {
 	 * @param profileId
 	 * @return
 	 */
-	public boolean setSelectedPlaybackProfile( Long profileId ) {
+	public boolean setSelectedPlaybackProfile( Context context, Long profileId ) {
 		Log.d( TAG, "setSelectedPlaybackProfile : enter" );
 		
-		PlaybackProfile profile = findOne( profileId );
+		PlaybackProfile profile = findOne( context, profileId );
 
-		resetSelectedProfiles( profile.getType() );
+		resetSelectedProfiles( context, profile.getType() );
 		
 		profile.setSelected( true );
-		boolean saved = save( profile );
+		boolean saved = save( context, profile );
 		
 		Log.d( TAG, "setSelectedPlaybackProfile : exit" );
 		return saved;
@@ -210,10 +245,10 @@ public class PlaybackProfileDaoHelper {
 	/**
 	 * @return
 	 */
-	public PlaybackProfile findSelectedHomeProfile() {
+	public PlaybackProfile findSelectedHomeProfile( Context context ) {
 		Log.d( TAG, "findSelectedHomeProfile : enter" );
 		
-		PlaybackProfile profile = findSelectedProfile( LocationType.HOME );
+		PlaybackProfile profile = findSelectedProfile( context, LocationType.HOME );
 		
 		Log.d( TAG, "findSelectedHomeProfile : exit" );
 		return profile;
@@ -222,10 +257,10 @@ public class PlaybackProfileDaoHelper {
 	/**
 	 * @return
 	 */
-	public PlaybackProfile findSelectedAwayProfile() {
+	public PlaybackProfile findSelectedAwayProfile( Context context ) {
 		Log.d( TAG, "findSelectedAwayProfile : enter" );
 		
-		PlaybackProfile profile = findSelectedProfile( LocationType.AWAY );
+		PlaybackProfile profile = findSelectedProfile( context, LocationType.AWAY );
 		
 		Log.d( TAG, "findSelectedAwayProfile : exit" );
 		return profile;
@@ -278,12 +313,15 @@ public class PlaybackProfileDaoHelper {
 		return profile;
 	}
 
-	private List<PlaybackProfile> findAllByType( LocationType type ) {
+	private List<PlaybackProfile> findAllByType( Context context, LocationType type ) {
 		Log.d( TAG, "findAllByType : enter" );
+		
+		if( null == context ) 
+			throw new RuntimeException( "PlaybackProfileDaoHelper is not initialized" );
 		
 		List<PlaybackProfile> profiles = new ArrayList<PlaybackProfile>();
 		
-		Cursor cursor = mContext.getContentResolver().query( PlaybackProfileConstants.CONTENT_URI, null, PlaybackProfileConstants.FIELD_TYPE + " = ?", new String[] { type.name() }, null );
+		Cursor cursor = context.getContentResolver().query( PlaybackProfileConstants.CONTENT_URI, null, PlaybackProfileConstants.FIELD_TYPE + " = ?", new String[] { type.name() }, null );
 		while( cursor.moveToNext() ) {
 			PlaybackProfile profile = convertCursorToPlaybackProfile( cursor );
 			profiles.add( profile );
@@ -294,12 +332,15 @@ public class PlaybackProfileDaoHelper {
 		return profiles;
 	}
 
-	private PlaybackProfile findSelectedProfile( LocationType type ) {
+	private PlaybackProfile findSelectedProfile( Context context, LocationType type ) {
 		Log.d( TAG, "findSelectedProfile : enter" );
+		
+		if( null == context ) 
+			throw new RuntimeException( "PlaybackProfileDaoHelper is not initialized" );
 		
 		PlaybackProfile profile = null;
 		
-		Cursor cursor = mContext.getContentResolver().query( PlaybackProfileConstants.CONTENT_URI, null, PlaybackProfileConstants.FIELD_TYPE + " = ? AND " + PlaybackProfileConstants.FIELD_SELECTED + " = ?", new String[] { type.name(), "1" }, null );
+		Cursor cursor = context.getContentResolver().query( PlaybackProfileConstants.CONTENT_URI, null, PlaybackProfileConstants.FIELD_TYPE + " = ? AND " + PlaybackProfileConstants.FIELD_SELECTED + " = ?", new String[] { type.name(), "1" }, null );
 		if( cursor.moveToNext() ) {
 			profile = convertCursorToPlaybackProfile( cursor );
 		}
@@ -309,14 +350,17 @@ public class PlaybackProfileDaoHelper {
 		return profile;
 	}
 
-	private boolean resetSelectedProfiles( LocationType type ) {
+	private boolean resetSelectedProfiles( Context context, LocationType type ) {
 		Log.d( TAG, "resetSelectedProfiles : enter" );
 
+		if( null == context ) 
+			throw new RuntimeException( "PlaybackProfileDaoHelper is not initialized" );
+		
 		boolean ret = false;
 		
 		ContentValues values = new ContentValues();
 		values.put( PlaybackProfileConstants.FIELD_SELECTED, 0 );
-		int updated = mContext.getContentResolver().update( PlaybackProfileConstants.CONTENT_URI, values, PlaybackProfileConstants.FIELD_TYPE + " = ?", new String[] { type.name() } );
+		int updated = context.getContentResolver().update( PlaybackProfileConstants.CONTENT_URI, values, PlaybackProfileConstants.FIELD_TYPE + " = ?", new String[] { type.name() } );
 		if( updated > 0 ) {
 			Log.v( TAG, "resetSelectedProfiles : reset all selected playback profiles by type" );
 		}

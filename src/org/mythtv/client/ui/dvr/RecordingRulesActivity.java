@@ -19,6 +19,8 @@
 package org.mythtv.client.ui.dvr;
 
 import org.mythtv.R;
+import org.mythtv.client.ui.AbstractMythtvFragmentActivity;
+import org.mythtv.services.api.dvr.RecRule;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -30,7 +32,7 @@ import android.util.Log;
  * @author Daniel Frey
  *
  */
-public class RecordingRulesActivity extends AbstractDvrActivity implements RecordingRulesFragment.OnRecordingRuleListener {
+public class RecordingRulesActivity extends AbstractMythtvFragmentActivity implements RecordingRulesFragment.OnRecordingRuleListener {
 
 	private static final String TAG = RecordingRulesActivity.class.getSimpleName();
 	
@@ -54,7 +56,7 @@ public class RecordingRulesActivity extends AbstractDvrActivity implements Recor
 	 * @see org.mythtv.client.ui.dvr.RecordingRulesFragment.OnRecordingRuleListener#onRecordingRuleSelected(java.lang.Integer)
 	 */
 	@Override
-	public void onRecordingRuleSelected( Integer recordingRuleId ) {
+	public boolean onRecordingRuleSelected( RecRule recordingRule ) {
 		Log.d( TAG, "onRecordingRuleSelected : enter" );
 		
 		if( null != findViewById( R.id.fragment_dvr_recording_rule ) ) {
@@ -69,7 +71,7 @@ public class RecordingRulesActivity extends AbstractDvrActivity implements Recor
 				Log.v( TAG, "onRecordingRuleSelected : creating new recordingRuleFragment" );
 				
 				Bundle args = new Bundle();
-				args.putInt( "RECORDING_RULE_ID", recordingRuleId );
+				args.putLong( "RECORDING_RULE_ID", recordingRule.getId() );
 				recordingRuleFragment = RecordingRuleFragment.newInstance( args );
 				
 				transaction
@@ -80,16 +82,18 @@ public class RecordingRulesActivity extends AbstractDvrActivity implements Recor
 			}
 			
 			Log.v( TAG, "onRecordingRuleSelected : setting recording rule to display" );
-			recordingRuleFragment.loadRecordingRule( recordingRuleId );
+			recordingRuleFragment.loadRecordingRule( (long) recordingRule.getId() );
 		} else {
 			Log.v( TAG, "onRecordingRuleSelected : starting recording rule activity" );
 
 			Intent i = new Intent( this, RecordingRuleActivity.class );
-			i.putExtra( RecordingRuleActivity.EXTRA_RECORDING_RULE_KEY, recordingRuleId );
+			i.putExtra( RecordingRuleActivity.EXTRA_RECORDING_RULE_KEY, recordingRule.getId() );
 			startActivity( i );
 		}
 
+		
 		Log.d( TAG, "onRecordingRuleSelected : exit" );
+		return true;
 	}
 
 }

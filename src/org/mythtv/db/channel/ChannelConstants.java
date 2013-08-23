@@ -42,6 +42,9 @@ public class ChannelConstants extends AbstractBaseConstants {
 	public static final String FIELD_CHAN_NUM = "CHAN_NUM";
 	public static final String FIELD_CHAN_NUM_DATA_TYPE = "TEXT";
 	
+	public static final String FIELD_CHAN_NUM_FORMATTED = "CHAN_NUM_FORMATTED";
+	public static final String FIELD_CHAN_NUM_FORMATTED_DATA_TYPE = "TEXT";
+	
 	public static final String FIELD_CALLSIGN = "CALLSIGN";
 	public static final String FIELD_CALLSIGN_DATA_TYPE = "TEXT";
 	
@@ -117,10 +120,10 @@ public class ChannelConstants extends AbstractBaseConstants {
 	public static final String FIELD_DEFAULT_AUTH_DATA_TYPE = "TEXT";
 
 	public static final String[] COLUMN_MAP = { _ID,
-		FIELD_CHAN_ID, FIELD_CHAN_NUM, FIELD_CALLSIGN, FIELD_ICON_URL, FIELD_CHANNEL_NAME, FIELD_MPLEX_ID, FIELD_TRANSPORT_ID, FIELD_SERVICE_ID,
+		FIELD_CHAN_ID, FIELD_CHAN_NUM, FIELD_CHAN_NUM_FORMATTED, FIELD_CALLSIGN, FIELD_ICON_URL, FIELD_CHANNEL_NAME, FIELD_MPLEX_ID, FIELD_TRANSPORT_ID, FIELD_SERVICE_ID,
 		FIELD_NETWORK_ID, FIELD_ATSC_MAJOR_CHAN, FIELD_ATSC_MINOR_CHAN, FIELD_FORMAT, FIELD_MODULATION, FIELD_FREQUENCY, FIELD_FREQUENCY_ID,
 		FIELD_FREQUENCY_TABLE, FIELD_FINE_TUNE, FIELD_SIS_STANDARD, FIELD_CHAN_FILTERS, FIELD_SOURCE_ID, FIELD_INPUT_ID, FIELD_SOURCE_ID,
-		FIELD_INPUT_ID, FIELD_COMM_FREE, FIELD_USE_EIT, FIELD_VISIBLE, FIELD_XMLTV_ID, FIELD_DEFAULT_AUTH
+		FIELD_INPUT_ID, FIELD_COMM_FREE, FIELD_USE_EIT, FIELD_VISIBLE, FIELD_XMLTV_ID, FIELD_DEFAULT_AUTH, FIELD_LAST_MODIFIED_DATE
 	};
 	
 	static {
@@ -129,6 +132,7 @@ public class ChannelConstants extends AbstractBaseConstants {
 		sb.append( "INSERT INTO " ).append( TABLE_NAME ).append( " ( " );
 		sb.append( FIELD_CHAN_ID ).append( "," );
 		sb.append( FIELD_CHAN_NUM ).append( "," );
+		sb.append( FIELD_CHAN_NUM_FORMATTED ).append( "," );
 		sb.append( FIELD_CALLSIGN ).append( "," );
 		sb.append( FIELD_ICON_URL ).append( "," );
 		sb.append( FIELD_CHANNEL_NAME ).append( "," );
@@ -153,9 +157,10 @@ public class ChannelConstants extends AbstractBaseConstants {
 		sb.append( FIELD_VISIBLE ).append( "," );
 		sb.append( FIELD_XMLTV_ID ).append( "," );
 		sb.append( FIELD_DEFAULT_AUTH ).append( "," );
-		sb.append( FIELD_HOSTNAME );
+		sb.append( FIELD_MASTER_HOSTNAME ).append( "," );
+		sb.append( FIELD_LAST_MODIFIED_DATE );
 		sb.append( " ) " );
-		sb.append( "VALUES( ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? )" );
+		sb.append( "VALUES( ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? )" );
 		
 		INSERT_ROW = sb.toString();
 	}

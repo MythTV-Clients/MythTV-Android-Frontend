@@ -16,26 +16,27 @@
  *
  * This software can be found at <https://github.com/MythTV-Clients/MythTV-Android-Frontend/>
  */
-
-/**
- * This file is part of MythTV Android Frontend
- *
- * MythTV Android Frontend is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * MythTV Android Frontend is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with MythTV Android Frontend.  If not, see <http://www.gnu.org/licenses/>.
- *
- * This software can be found at <https://github.com/MythTV-Clients/MythTV-Android-Frontend/>
- */
 package org.mythtv.client;
+
+import java.io.File;
+
+import org.mythtv.client.ui.util.MenuHelper;
+import org.mythtv.client.ui.util.ProgramHelper;
+import org.mythtv.db.channel.ChannelDaoHelper;
+import org.mythtv.db.content.LiveStreamDaoHelper;
+import org.mythtv.db.dvr.ProgramGuideDaoHelper;
+import org.mythtv.db.dvr.RecordedDaoHelper;
+import org.mythtv.db.dvr.RecordingDaoHelper;
+import org.mythtv.db.dvr.UpcomingDaoHelper;
+import org.mythtv.db.dvr.programGroup.ProgramGroupDaoHelper;
+import org.mythtv.db.frontends.FrontendDaoHelper;
+import org.mythtv.db.http.EtagDaoHelper;
+import org.mythtv.db.preferences.LocationProfileDaoHelper;
+import org.mythtv.db.preferences.PlaybackProfileDaoHelper;
+import org.mythtv.service.util.FileHelper;
+import org.mythtv.service.util.MythtvServiceHelper;
+import org.mythtv.service.util.NetworkHelper;
+import org.mythtv.service.util.RunningServiceHelper;
 
 import android.app.ActivityManager;
 import android.app.Application;
@@ -43,20 +44,13 @@ import android.content.Context;
 import android.os.Build;
 import android.provider.Settings;
 import android.util.Log;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
-import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
+import com.nostra13.universalimageloader.cache.disc.impl.UnlimitedDiscCache;
+import com.nostra13.universalimageloader.cache.memory.impl.UsingFreqLimitedMemoryCache;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
-import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
-import org.mythtv.client.ui.preferences.LocationProfile;
-import org.mythtv.client.ui.preferences.PlaybackProfile;
-import org.mythtv.db.preferences.LocationProfileDaoHelper;
-import org.mythtv.db.preferences.PlaybackProfileDaoHelper;
-import org.mythtv.services.api.MythServices;
-import org.mythtv.services.connect.MythServicesServiceProvider;
-
-import java.util.logging.Level;
 
 /**
  * @author Daniel Frey
@@ -66,11 +60,6 @@ import java.util.logging.Level;
 public class MainApplication extends Application {
 
 	private static final String TAG = MainApplication.class.getSimpleName();
-	
-	private LocationProfileDaoHelper mLocationProfileDaoHelper;
-	private PlaybackProfileDaoHelper mPlaybackProfileDaoHelper;
-	
-	private MythServicesServiceProvider provider;
 	
     private String clockType = "12h";
     private String dateFormat = "yyyy-MM-dd";
@@ -89,11 +78,31 @@ public class MainApplication extends Application {
 		Log.v( TAG, "onCreate : enter" );
 		super.onCreate();
 		
+		//init Image Loader
 		initImageLoader( getApplicationContext() );
 		
-		mLocationProfileDaoHelper = new LocationProfileDaoHelper( this );
-		mPlaybackProfileDaoHelper = new PlaybackProfileDaoHelper( this );
+		//Initialize DAO Helpers
+		EtagDaoHelper.getInstance();
+		LocationProfileDaoHelper.getInstance();
+		MythtvServiceHelper.getInstance();
+		ChannelDaoHelper.getInstance();
+		FrontendDaoHelper.getInstance();
+		LiveStreamDaoHelper.getInstance();
+		RecordingDaoHelper.getInstance();
+		PlaybackProfileDaoHelper.getInstance();
+		ProgramGuideDaoHelper.getInstance();
+		ProgramGroupDaoHelper.getInstance();
 		
+		RecordedDaoHelper.getInstance();
+		UpcomingDaoHelper.getInstance();
+		
+		//Initialize Helpers
+		FileHelper.getInstance().init( this.getExternalCacheDir() );
+		NetworkHelper.getInstance();
+		RunningServiceHelper.getInstance();
+		ProgramHelper.getInstance().init( this );
+		MenuHelper.getInstance();
+
 		String systemClock = Settings.System.getString( getApplicationContext().getContentResolver(), Settings.System.TIME_12_24 );
         if( null != systemClock ) {
         	this.clockType = systemClock;
@@ -128,43 +137,24 @@ public class MainApplication extends Application {
 	//***************************************
     // Public methods
     //***************************************
-	public MythServices getMythServicesApi() {
-		Log.v( TAG, "getMythServicesApi : enter" );
-		
-		provider = new MythServicesServiceProvider( getMasterBackend(), Level.FINE );
-		
-		Log.v( TAG, "getMythServicesApi : exit" );
-		return provider.getApi();
-	}
-
-	public MythServices getMythServicesApi( LocationProfile profile ) {
-		Log.v( TAG, "getMythServicesApi : enter" );
-		
-		MythServicesServiceProvider provider = new MythServicesServiceProvider( profile.getUrl() );
-		
-		Log.v( TAG, "getMythServicesApi : exit" );
-		return provider.getApi();
-	}
 
 	public static void initImageLoader( Context context ) {
-		int memoryCacheSize;
-		if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.ECLAIR ) {
-			int memClass = ( (ActivityManager) context.getSystemService( Context.ACTIVITY_SERVICE ) ).getMemoryClass();
-			memoryCacheSize = (memClass / 8) * 1024 * 1024; // 1/8 of app memory limit 
-		} else {
-			memoryCacheSize = 2 * 1024 * 1024;
-		}
 
+		File cacheDir = new File( context.getCacheDir(), "images" );
+		if( !cacheDir.exists() ) {
+			cacheDir.mkdir();
+		}
+				
 		// This configuration tuning is custom. You can tune every option, you may tune some of them, 
 		// or you can create default configuration by
 		//  ImageLoaderConfiguration.createDefault(this);
 		// method.
 		ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder( context )
-			.threadPriority( Thread.NORM_PRIORITY - 2 )
-			.memoryCacheSize( memoryCacheSize )
+			.threadPoolSize( 5 )
+			.threadPriority( Thread.MIN_PRIORITY + 3 )
 			.denyCacheImageMultipleSizesInMemory()
-			.discCacheFileNameGenerator( new Md5FileNameGenerator() )
-			.tasksProcessingOrder( QueueProcessingType.LIFO )
+			.memoryCache( new UsingFreqLimitedMemoryCache( 2000000 ) )
+			.discCache( new UnlimitedDiscCache( cacheDir ) )
 			.build();
 		
 		// Initialize ImageLoader with configuration.
@@ -175,119 +165,13 @@ public class MainApplication extends Application {
 	 * @return the mObjectMapper
 	 */
 	public ObjectMapper getObjectMapper() {
-		Log.v( TAG, "getObjectMapper : enter" );
-		
-		Log.v( TAG, "getObjectMapper : exit" );
 		return mObjectMapper;
 	}
-
-	/**
-	 * @return the selectedHomeLocationProfile
-	 */
-	public LocationProfile getSelectedHomeLocationProfile() {
-		Log.v( TAG, "getSelectedHomeLocationProfile : enter" );
-		
-		LocationProfile profile = mLocationProfileDaoHelper.findSelectedHomeProfile(); 
-		if( null != profile ) {
-			Log.v( TAG, "getSelectedHomeLocationProfile : profile=" + profile.toString() );
-		}
-		
-		Log.v( TAG, "getSelectedHomeLocationProfile : exit" );
-		return profile;
-	}
-
-	/**
-	 * 
-	 */
-	public void connectSelectedHomeLocationProfile() {
-		Log.v( TAG, "connectSelectedHomeLocationProfile : enter" );
-		
-		LocationProfile profile = mLocationProfileDaoHelper.findSelectedHomeProfile(); 
-		if( null != profile ) {
-			mLocationProfileDaoHelper.setConnectedLocationProfile( (long) profile.getId() );
-		}
-
-		Log.v( TAG, "connectSelectedHomeLocationProfile : exit" );
-	}
 	
-	/**
-	 * @return the selectedAwayLocationProfile
-	 */
-	public LocationProfile getSelectedAwayLocationProfile() {
-		Log.v( TAG, "getSelectedAwayLocationProfile : enter" );
-		
-		LocationProfile profile = mLocationProfileDaoHelper.findSelectedAwayProfile(); 
-		if( null != profile ) {
-			Log.v( TAG, "getSelectedAwayLocationProfile : profile=" + profile.toString() );
-		}
-		
-		Log.v( TAG, "getSelectedAwayLocationProfile : exit" );
-		return profile;
-	}
-
-	/**
-	 * 
-	 */
-	public void connectSelectedAwayLocationProfile() {
-		Log.v( TAG, "connectSelectedAwayLocationProfile : enter" );
-		
-		LocationProfile profile = mLocationProfileDaoHelper.findSelectedAwayProfile(); 
-		if( null != profile ) {
-			mLocationProfileDaoHelper.setConnectedLocationProfile( (long) profile.getId() );
-		}
-		
-		Log.v( TAG, "connectSelectedAwayLocationProfile : exit" );
-	}
-	
-	/**
-	 * @return the selectedHomePlaybackProfile
-	 */
-	public PlaybackProfile getSelectedHomePlaybackProfile() {
-		Log.v( TAG, "getSelectedHomePlaybackProfile : enter" );
-
-		PlaybackProfile profile = mPlaybackProfileDaoHelper.findSelectedHomeProfile(); 
-		Log.v( TAG, "getSelectedHomePlaybackProfile : profile=" + profile.toString() );
-		
-		Log.v( TAG, "getSelectedHomePlaybackProfile : exit" );
-		return profile;
-	}
-
-	/**
-	 * @return the selectedAwayPlaybackProfile
-	 */
-	public PlaybackProfile getSelectedAwayPlaybackProfile() {
-		Log.v( TAG, "getSelectedAwayPlaybackProfile : enter" );
-
-		PlaybackProfile profile = mPlaybackProfileDaoHelper.findSelectedAwayProfile(); 
-		Log.v( TAG, "getSelectedAwayPlaybackProfile : profile=" + profile.toString() );
-		
-		Log.v( TAG, "getSelectedAwayPlaybackProfile : exit" );
-		return profile;
-	}
-
-	public LocationProfile getConnectedLocationProfile() {
-		LocationProfile profile = mLocationProfileDaoHelper.findConnectedProfile();
-
-		return profile;
-	}
-
-	/**
-	 * @return the masterBackend
-	 */
-	public String getMasterBackend() {
-		Log.v( TAG, "getMasterBackend : enter" );
-
-		Log.v( TAG, "getMasterBackend : exit" );
-		return getConnectedLocationProfile().getUrl();
-	}
-
     /**
      * @return the current clockType
      */
     public String getClockType() {
-		Log.v( TAG, "getClockType : enter" );
-		
-		Log.v( TAG, "getClockType : exit" );
         return clockType;
     }
 
@@ -295,26 +179,15 @@ public class MainApplication extends Application {
      * @param clockType the current clockType to set
      */
     public void setClockType( String clockType ) {
-		Log.v( TAG, "setClockType : enter" );
-
 		this.clockType = clockType;
-
-		Log.v( TAG, "setClockType : exit" );
     }
 
     public String getDateFormat() {
-		Log.v( TAG, "getDateFormat : enter" );
-
-		Log.v( TAG, "getDateFormat : exit" );
         return dateFormat;
     }
 
     public void setDateFormat( String dateFormat ) {
-		Log.v( TAG, "setDateFormat : enter" );
-		
         this.dateFormat = dateFormat;
-
-        Log.v( TAG, "setDateFormat : exit" );
     }
 
 }

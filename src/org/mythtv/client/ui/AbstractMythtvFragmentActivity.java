@@ -18,14 +18,25 @@
  */
 package org.mythtv.client.ui;
 
+import org.mythtv.R;
 import org.mythtv.client.MainApplication;
 import org.mythtv.client.ui.util.MenuHelper;
+import org.mythtv.db.content.LiveStreamDaoHelper;
+import org.mythtv.db.dvr.RecordedDaoHelper;
+import org.mythtv.db.dvr.programGroup.ProgramGroupDaoHelper;
+import org.mythtv.db.http.EtagDaoHelper;
+import org.mythtv.db.preferences.LocationProfileDaoHelper;
+import org.mythtv.service.util.MythtvServiceHelper;
+import org.mythtv.service.util.RunningServiceHelper;
 
 import android.annotation.TargetApi;
 import android.app.ActionBar;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -38,7 +49,15 @@ public abstract class AbstractMythtvFragmentActivity extends FragmentActivity im
 
 	protected static final String TAG = AbstractMythtvFragmentActivity.class.getSimpleName();
 
-	private MenuHelper mMenuHelper;
+	protected SharedPreferences preferences = null;
+	protected EtagDaoHelper mEtagDaoHelper = EtagDaoHelper.getInstance();
+	protected LiveStreamDaoHelper mLiveStreamDaoHelper = LiveStreamDaoHelper.getInstance();
+	protected MythtvServiceHelper mMythtvServiceHelper = MythtvServiceHelper.getInstance();
+	protected LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
+	protected MenuHelper mMenuHelper = MenuHelper.getInstance();
+	protected ProgramGroupDaoHelper mProgramGroupDaoHelper = ProgramGroupDaoHelper.getInstance();
+	protected RecordedDaoHelper mRecordedDaoHelper = RecordedDaoHelper.getInstance();
+	protected RunningServiceHelper mRunningServiceHelper = RunningServiceHelper.getInstance();
 	
 	//***************************************
     // MythActivity methods
@@ -52,9 +71,6 @@ public abstract class AbstractMythtvFragmentActivity extends FragmentActivity im
     // FragmentActivity methods
     //***************************************
 	/* (non-Javadoc)
-	 * @see android.app.Activity#onCreateOptionsMenu(android.view.Menu)
-	 */
-	/* (non-Javadoc)
 	 * @see android.support.v4.app.FragmentActivity#onCreate(android.os.Bundle)
 	 */
 	@Override
@@ -62,18 +78,31 @@ public abstract class AbstractMythtvFragmentActivity extends FragmentActivity im
 		Log.v( TAG, "onCreate : enter" );
 		super.onCreate( savedInstanceState );
 
-		mMenuHelper = MenuHelper.newInstance( this );
+		setupActionBar();
+
+		preferences = getSharedPreferences( getString( R.string.app_name ), Context.MODE_PRIVATE );
+		
+		// Fetch screen height and width, to use as our max size when loading images as this activity runs full screen
+        final DisplayMetrics displayMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics( displayMetrics );
+        
+        final int height = displayMetrics.heightPixels;
+        final int width = displayMetrics.widthPixels;
+        Log.v( TAG, "onCreate : device hxw - " + height + " x " + width );
 		
 		Log.v( TAG, "onCreate : exit" );
 	}
 
+	/* (non-Javadoc)
+	 * @see android.app.Activity#onCreateOptionsMenu(android.view.Menu)
+	 */
 	@TargetApi( 11 )
 	@Override
 	public boolean onCreateOptionsMenu( Menu menu ) {
 		Log.v( TAG, "onCreateOptionsMenu : enter" );
 
-	    mMenuHelper.aboutMenuItem( menu );
-	    mMenuHelper.helpSubMenu( menu );
+	    mMenuHelper.aboutMenuItem( this, menu );
+	    mMenuHelper.helpSubMenu( this, menu );
 	    
 		Log.v( TAG, "onCreateOptionsMenu : exit" );
 		return super.onCreateOptionsMenu( menu );
@@ -86,29 +115,29 @@ public abstract class AbstractMythtvFragmentActivity extends FragmentActivity im
 	public boolean onOptionsItemSelected( MenuItem item ) {
 		Log.d( TAG, "onOptionsItemSelected : enter" );
 
-		switch( item.getItemId() ) {
+		switch( item.getItemId() ) {			
 		case MenuHelper.ABOUT_ID:
 			Log.d( TAG, "onOptionsItemSelected : about selected" );
 
-			mMenuHelper.handleAboutMenu();
+			mMenuHelper.handleAboutMenu( this );
 		    
 	        return true;
 	    
 		case MenuHelper.FAQ_ID:
 			
-			mMenuHelper.handleFaqMenu();
+			mMenuHelper.handleFaqMenu( this );
 			
 			return true;
 
 		case MenuHelper.TROUBLESHOOT_ID:
 			
-			mMenuHelper.handleTroubleshootMenu();
+			mMenuHelper.handleTroubleshootMenu( this );
 			
 			return true;
 		
 		case MenuHelper.ISSUES_ID:
 
-			mMenuHelper.handleIssuesMenu();
+			mMenuHelper.handleIssuesMenu( this );
 			
 			return true;
 		
@@ -117,6 +146,7 @@ public abstract class AbstractMythtvFragmentActivity extends FragmentActivity im
 		Log.d( TAG, "onOptionsItemSelected : exit" );
 		return super.onOptionsItemSelected( item );
 	}
+	
 
 	// internal helpers
 	
@@ -127,9 +157,12 @@ public abstract class AbstractMythtvFragmentActivity extends FragmentActivity im
 		if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
 			ActionBar actionBar = getActionBar();
 			actionBar.setDisplayHomeAsUpEnabled( true );
+			
+			actionBar.setTitle( getResources().getString( R.string.app_name ) );
 		}
 		
 		Log.v( TAG, "setupActionBar : exit" );
 	}
+
 
 }

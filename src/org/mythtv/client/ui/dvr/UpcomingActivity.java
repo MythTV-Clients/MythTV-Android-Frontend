@@ -23,11 +23,11 @@ import java.util.List;
 
 import org.joda.time.DateTime;
 import org.mythtv.R;
+import org.mythtv.client.ui.AbstractMythtvFragmentActivity;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.util.MenuHelper;
 import org.mythtv.db.dvr.UpcomingDaoHelper;
 import org.mythtv.db.http.EtagDaoHelper;
-import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.dvr.UpcomingDownloadService;
 import org.mythtv.service.util.DateUtils;
 import org.mythtv.service.util.RunningServiceHelper;
@@ -52,19 +52,20 @@ import android.widget.Toast;
  * @author Daniel Frey
  *
  */
-public class UpcomingActivity extends AbstractDvrActivity {
+public class UpcomingActivity extends AbstractMythtvFragmentActivity {
 
 	private static final String TAG = UpcomingActivity.class.getSimpleName();
 
-	private RunningServiceHelper mRunningServiceHelper;
 
 	private UpcomingDownloadReceiver upcomingDownloadReceiver = new UpcomingDownloadReceiver();
 
-	private EtagDaoHelper mEtagDaoHelper;
-	private LocationProfileDaoHelper mLocationProfileDaoHelper; 
-	private UpcomingDaoHelper mUpcomingDaoHelper;
+	private EtagDaoHelper mEtagDaoHelper = EtagDaoHelper.getInstance();
+	private RunningServiceHelper mRunningServiceHelper = RunningServiceHelper.getInstance();
+	private UpcomingDaoHelper mUpcomingDaoHelper = UpcomingDaoHelper.getInstance();
 			
 	private MythtvUpcomingPagerAdapter mAdapter;
+	
+	private LocationProfile mLocationProfile;
 	
 	/* (non-Javadoc)
 	 * @see android.support.v4.app.FragmentActivity#onCreate(android.os.Bundle)
@@ -74,15 +75,12 @@ public class UpcomingActivity extends AbstractDvrActivity {
 		Log.v( TAG, "onCreate : enter" );
 		super.onCreate( savedInstanceState );
 
-		mEtagDaoHelper = new EtagDaoHelper( this );
-		mLocationProfileDaoHelper = new LocationProfileDaoHelper( this );
-		mRunningServiceHelper = RunningServiceHelper.newInstance( this );
-		mUpcomingDaoHelper = new UpcomingDaoHelper( this );
-		
 		setContentView( R.layout.activity_dvr_upcoming );
 
 		setupActionBar();
 
+		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( this );
+		
 		mAdapter = new MythtvUpcomingPagerAdapter( getSupportFragmentManager() );
 		ViewPager mPager = (ViewPager) findViewById( R.id.dvr_upcoming_pager );
 		mPager.setAdapter( mAdapter );
@@ -115,10 +113,10 @@ public class UpcomingActivity extends AbstractDvrActivity {
 		Log.v( TAG, "onResume : enter" );
 		super.onResume();
 
-		DateTime etag = mEtagDaoHelper.findDateByEndpointAndDataId( Endpoint.GET_UPCOMING_LIST.name(), "" );
+		DateTime etag = mEtagDaoHelper.findDateByEndpointAndDataId( this, mLocationProfile, Endpoint.GET_UPCOMING_LIST.name(), "" );
 		if( null != etag ) {
 			
-			DateTime now = new DateTime();
+			DateTime now = DateUtils.convertUtc( new DateTime( System.currentTimeMillis() ) );
 			if( now.getMillis() - etag.getMillis() > ( 2 * 3600000 ) ) {
 				loadData();
 			}
@@ -157,7 +155,7 @@ public class UpcomingActivity extends AbstractDvrActivity {
 	public boolean onCreateOptionsMenu( Menu menu ) {
 		Log.v( TAG, "onCreateOptionsMenu : enter" );
 
-		mMenuHelper.refreshMenuItem( menu );
+		mMenuHelper.refreshMenuItem( this, menu );
 
 		Log.v( TAG, "onCreateOptionsMenu : exit" );
 	    return super.onCreateOptionsMenu( menu );
@@ -195,7 +193,7 @@ public class UpcomingActivity extends AbstractDvrActivity {
 	private void loadData() {
 		Log.v( TAG, "loadData : enter" );
 		
-		if( !mRunningServiceHelper.isServiceRunning( "org.mythtv.service.dvr.UpcomingDownloadService" ) ) {
+		if( !mRunningServiceHelper.isServiceRunning( this, "org.mythtv.service.dvr.UpcomingDownloadService" ) ) {
 			startService( new Intent( UpcomingDownloadService.ACTION_DOWNLOAD ) );
 		}
 		

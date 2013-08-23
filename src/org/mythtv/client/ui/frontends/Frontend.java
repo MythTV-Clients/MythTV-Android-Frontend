@@ -18,14 +18,20 @@
  */
 package org.mythtv.client.ui.frontends;
 
+import org.joda.time.DateTime;
+
 /**
  * @author Daniel Frey
  *
  */
 public class Frontend {
 
+	private long id;
 	private String name;
 	private String url;
+	private boolean available;
+	private String masterHostname;
+	private DateTime lastModifiedDate;
 	
 	public Frontend() { }
 
@@ -33,6 +39,20 @@ public class Frontend {
 		super();
 		this.name = name;
 		this.url = url;
+	}
+
+	/**
+	 * @return
+	 */
+	public long getId() {
+		return id;
+	}
+
+	/**
+	 * @param id
+	 */
+	public void setId( long id ) {
+		this.id = id;
 	}
 
 	/**
@@ -63,28 +83,80 @@ public class Frontend {
 		this.url = url;
 	}
 
+	/**
+	 * @return
+	 */
+	public boolean isAvailable() {
+		return available;
+	}
+
+	/**
+	 * @param available
+	 */
+	public void setAvailable( boolean available ) {
+		this.available = available;
+	}
+
+	/**
+	 * @return
+	 */
+	public String getMasterHostname() {
+		return masterHostname;
+	}
+
+	/**
+	 * @param masterHostname
+	 */
+	public void setMasterHostname(String masterHostname) {
+		this.masterHostname = masterHostname;
+	}
+
+	/**
+	 * @return
+	 */
+	public DateTime getLastModifiedDate() {
+		return lastModifiedDate;
+	}
+
+	/**
+	 * @param lastModifiedDate
+	 */
+	public void setLastModifiedDate(DateTime lastModifiedDate) {
+		this.lastModifiedDate = lastModifiedDate;
+	}
+
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		
-		builder.append( "Frontend [" );
-		
-		if( name != null ) {
-			builder.append( "name=" );
-			builder.append( name );
-			builder.append( ", " );
+		builder.append("Frontend [id=");
+		builder.append(id);
+		builder.append(", ");
+		if (name != null) {
+			builder.append("name=");
+			builder.append(name);
+			builder.append(", ");
 		}
-		
-		if( url != null ) {
-			builder.append( "url=" );
-			builder.append( url );
+		if (url != null) {
+			builder.append("url=");
+			builder.append(url);
+			builder.append(", ");
 		}
-		
-		builder.append( "]" );
-	
+		builder.append("available=");
+		builder.append(available);
+		builder.append(", ");
+		if (masterHostname != null) {
+			builder.append("masterHostname=");
+			builder.append(masterHostname);
+			builder.append(", ");
+		}
+		if (lastModifiedDate != null) {
+			builder.append("lastModifiedDate=");
+			builder.append(lastModifiedDate);
+		}
+		builder.append("]");
 		return builder.toString();
 	}
 	

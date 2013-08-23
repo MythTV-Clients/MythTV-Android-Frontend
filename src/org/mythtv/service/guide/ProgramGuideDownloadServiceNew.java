@@ -18,35 +18,35 @@
  */
 package org.mythtv.service.guide;
 
-import java.text.DecimalFormat;
+import java.io.IOException;
+import java.util.List;
 
 import org.joda.time.DateTime;
-import org.mythtv.R;
+import org.joda.time.DateTimeZone;
+import org.joda.time.Interval;
+import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.dvr.ProgramGuideDaoHelper;
-import org.mythtv.db.http.EtagConstants;
+import org.mythtv.db.dvr.UpcomingDaoHelper;
+import org.mythtv.db.http.model.EtagInfoDelegate;
 import org.mythtv.service.MythtvService;
 import org.mythtv.service.util.DateUtils;
-import org.mythtv.services.api.ETagInfo;
-import org.mythtv.services.api.channel.ChannelInfo;
+import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.dvr.Program;
 import org.mythtv.services.api.guide.ProgramGuide;
 import org.mythtv.services.api.guide.ProgramGuideWrapper;
-import org.mythtv.services.api.guide.impl.GuideTemplate.Endpoint;
+import org.mythtv.services.api.guide.impl.GuideTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.ContentUris;
-import android.content.ContentValues;
-import android.content.Context;
 import android.content.Intent;
 import android.content.OperationApplicationException;
-import android.database.Cursor;
-import android.net.Uri;
+import android.content.SharedPreferences;
 import android.os.RemoteException;
+import android.preference.PreferenceManager;
 import android.util.Log;
+
+import com.fasterxml.jackson.core.JsonGenerationException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 
 /**
  * @author Daniel Frey
@@ -55,10 +55,7 @@ import android.util.Log;
 public class ProgramGuideDownloadServiceNew extends MythtvService {
 
 	private static final String TAG = ProgramGuideDownloadServiceNew.class.getSimpleName();
-	private static final DecimalFormat formatter = new DecimalFormat( "###" );
 	
-	public static final Integer MAX_HOURS = 288; //288
-
     public static final String ACTION_DOWNLOAD = "org.mythtv.background.programGuideDownloadNew.ACTION_DOWNLOAD";
     public static final String ACTION_PROGRESS = "org.mythtv.background.programGuideDownloadNew.ACTION_PROGRESS";
     public static final String ACTION_COMPLETE = "org.mythtv.background.programGuideDownloadNew.ACTION_COMPLETE";
@@ -67,15 +64,11 @@ public class ProgramGuideDownloadServiceNew extends MythtvService {
     public static final String EXTRA_PROGRESS_DATE = "PROGRESS_DATE";
     public static final String EXTRA_PROGRESS_ERROR = "PROGRESS_ERROR";
     public static final String EXTRA_COMPLETE = "COMPLETE";
-    public static final String EXTRA_COMPLETE_DOWNLOADED = "COMPLETE_DOWNLOADED";
+    public static final String EXTRA_COMPLETE_UPTODATE = "COMPLETE_UPTODATE";
     public static final String EXTRA_COMPLETE_OFFLINE = "COMPLETE_OFFLINE";
 
-	private NotificationManager mNotificationManager;
-	private Notification mNotification = null;
-	private PendingIntent mContentIntent = null;
-	private int notificationId = 1001;
-
-	private ProgramGuideDaoHelper mProgramGuideDaoHelper; 
+	private ProgramGuideDaoHelper mProgramGuideDaoHelper = ProgramGuideDaoHelper.getInstance(); 
+	private UpcomingDaoHelper mUpcomingDaoHelper = UpcomingDaoHelper.getInstance(); 
 	
 	public ProgramGuideDownloadServiceNew() {
 		super( "ProgamGuideDownloadServiceNew" );
@@ -89,11 +82,10 @@ public class ProgramGuideDownloadServiceNew extends MythtvService {
 		Log.v( TAG, "onHandleIntent : enter" );
 		super.onHandleIntent( intent );
 
-		mProgramGuideDaoHelper = new ProgramGuideDaoHelper( this );
-
-		mNotificationManager = (NotificationManager) getSystemService( Context.NOTIFICATION_SERVICE );
+		boolean passed = true;
 		
-		if( !mNetworkHelper.isMasterBackendConnected() ) {
+		LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile( this );
+		if( !NetworkHelper.getInstance().isMasterBackendConnected( this, locationProfile ) ) {
 			Intent completeIntent = new Intent( ACTION_COMPLETE );
 			completeIntent.putExtra( EXTRA_COMPLETE, "Master Backend unreachable" );
 			completeIntent.putExtra( EXTRA_COMPLETE_OFFLINE, Boolean.TRUE );
@@ -105,30 +97,20 @@ public class ProgramGuideDownloadServiceNew extends MythtvService {
 
 		if ( intent.getAction().equals( ACTION_DOWNLOAD ) ) {
 			
-			sendNotification();
-			
-			boolean newDataDownloaded = false;
-			
-			DateTime start = new DateTime().withTimeAtStartOfDay();
-
 			try {
-				for( int i = 1; i <= MAX_HOURS; i++ ) {
 
-					newDataDownloaded = download( start );
-
-					start = start.plusHours( 1 );
-
-					double percentage = ( (float) i / (float) MAX_HOURS ) * 100;
-					progressUpdate( percentage );
-
-				}
+				download( locationProfile );
+				updateUpcoming( locationProfile );
+				
+			} catch( Exception e ) {
+				Log.e( TAG, "onHandleIntent : error", e );
+				
+				passed = false;
 			} finally {
-			
-				completed();
 
 				Intent completeIntent = new Intent( ACTION_COMPLETE );
 				completeIntent.putExtra( EXTRA_COMPLETE, "Program Guide Download Service Finished" );
-				completeIntent.putExtra( EXTRA_COMPLETE_DOWNLOADED, newDataDownloaded );
+				completeIntent.putExtra( EXTRA_COMPLETE_UPTODATE, passed );
 				sendBroadcast( completeIntent );
 			
 			}
@@ -140,142 +122,116 @@ public class ProgramGuideDownloadServiceNew extends MythtvService {
 
 	// internal helpers
 	
-	private boolean download( DateTime start ) {
+	private void download( final LocationProfile locationProfile ) throws Exception {
 		Log.v( TAG, "download : enter" );
 		
-		boolean newDataDownloaded = false;
+		DateTime startDownloading = new DateTime();
 		
-		DateTime end = new DateTime( start );
-		end = end.withTime( start.getHourOfDay(), 59, 59, 999 );
-		Log.i( TAG, "download : starting download for " + DateUtils.dateTimeFormatter.print( start ) + ", end time=" + DateUtils.dateTimeFormatter.print( end ) );
+		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences( this );
+		int downloadDays = Integer.parseInt( sp.getString( "preference_program_guide_days", "14" ) );
+		Log.v( TAG, "download : downloadDays=" + downloadDays );
+		
+		DateTime start = new DateTime( DateTimeZone.getDefault() ).withTimeAtStartOfDay();
+		DateTime end = start.plusHours( 3 );
+		for( int i = 0; i < ( ( downloadDays * 24 ) / 3 ); i++ ) {
+			Log.i( TAG, "download : starting download for [" + i + " of " + ( ( downloadDays * 24 ) / 3 ) + "] " + DateUtils.getDateTimeUsingLocaleFormattingPretty( start, mMainApplication.getDateFormat(), mMainApplication.getClockType() ) + ", end time=" + DateUtils.getDateTimeUsingLocaleFormattingPretty( end, mMainApplication.getDateFormat(), mMainApplication.getClockType() ) );
 
-		String endpoint = Endpoint.GET_PROGRAM_GUIDE.name() + "_" + DateUtils.dateFormatter.print( start );
-		
-		Long id = null;
-		ETagInfo etag = ETagInfo.createEmptyETag();
-		Cursor etagCursor = getContentResolver().query( Uri.withAppendedPath( EtagConstants.CONTENT_URI, "endpoint" ), null, EtagConstants.FIELD_ENDPOINT + " = ?" ,new String[] { endpoint }, null );
-		if( etagCursor.moveToFirst() ) {
-			id = etagCursor.getLong( etagCursor.getColumnIndexOrThrow( EtagConstants._ID ) );
-			String value = etagCursor.getString( etagCursor.getColumnIndexOrThrow( EtagConstants.FIELD_VALUE ) );
+			EtagInfoDelegate etag = mEtagDaoHelper.findByEndpointAndDataId( this, locationProfile, GuideTemplate.Endpoint.GET_PROGRAM_GUIDE.name(), String.valueOf( i ) );
+			Log.v( TAG, "download : etag=" + etag.toString() );
 			
-			etag.setETag( value );
-			Log.v( TAG, "download : etag=" + etag.getETag() );
-		}
-		etagCursor.close();
-
-		ResponseEntity<ProgramGuideWrapper> responseEntity = mMainApplication.getMythServicesApi().guideOperations().getProgramGuide( start, end, 1, -1, false, etag );
-
-		try {
-
-			if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
-				ProgramGuideWrapper programGuide = responseEntity.getBody();
+			if( null == etag.getDate() || start.isAfter( etag.getDate() ) ) {
+				Log.v( TAG, "download : next mythfilldatabase has passed" );
 				
-				if( null != programGuide ) {
+				ResponseEntity<ProgramGuideWrapper> responseEntity = mMythtvServiceHelper.getMythServicesApi( locationProfile ).guideOperations().getProgramGuide( start, end, 1, -1, false, etag );
 
-					if( null != programGuide.getProgramGuide() ) {
-						newDataDownloaded = process( programGuide.getProgramGuide() );
+				if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
+					Log.i( TAG, "download : " + GuideTemplate.Endpoint.GET_PROGRAM_GUIDE.name() + " returned 200 OK" );
+					ProgramGuideWrapper programGuide = responseEntity.getBody();
+
+					if( null != programGuide ) {
+
+						if( null != programGuide.getProgramGuide() ) {
+							process( programGuide.getProgramGuide(), locationProfile );
+						}
+
+					}
+
+					if( null != etag.getValue() ) {
+						Log.i( TAG, "download : saving etag: " + etag.getValue() );
+
+						etag.setEndpoint( GuideTemplate.Endpoint.GET_PROGRAM_GUIDE.name() );
+						etag.setDataId( i );
+						etag.setDate( locationProfile.getNextMythFillDatabase() );
+						etag.setMasterHostname( locationProfile.getHostname() );
+						etag.setLastModified( DateUtils.convertUtc( new DateTime( DateTimeZone.getDefault() ) ) );
+						mEtagDaoHelper.save( this, locationProfile, etag );
+					}
+
+				}
+
+				if( responseEntity.getStatusCode().equals( HttpStatus.NOT_MODIFIED ) ) {
+					Log.i( TAG, "download : " + GuideTemplate.Endpoint.GET_PROGRAM_GUIDE.name() + " returned 304 Not Modified" );
+
+					if( null != etag.getValue() ) {
+						Log.i( TAG, "download : saving etag: " + etag.getValue() );
+
+						etag.setLastModified( DateUtils.convertUtc( new DateTime( DateTimeZone.getDefault() ) ) );
+						mEtagDaoHelper.save( this, locationProfile, etag );
+					}
+
+				}
+
+				start = end;
+				end = end.plusHours( 3 );
+
+			} else {
+				Log.v( TAG, "download : next mythfilldatabase has NOT passed!" );
+			}
+			
+		}
+
+		Log.i( TAG, "download : interval=" + new Interval( startDownloading, new DateTime() ).toString() );
+		
+		Log.v( TAG, "download : exit" );
+	}
+
+	private void process( ProgramGuide programGuide, final LocationProfile locationProfile ) throws JsonGenerationException, JsonMappingException, IOException, RemoteException, OperationApplicationException {
+		Log.v( TAG, "process : enter" );
+
+		Log.v( TAG, "process : saving program guide for host [" + locationProfile.getHostname() + ":" + locationProfile.getUrl() + "]" );
+		
+		int programsAdded = mProgramGuideDaoHelper.loadProgramGuide( this, locationProfile, programGuide.getChannels() );
+		Log.v( TAG, "process : programsAdded=" + programsAdded );
+	
+		Log.v( TAG, "process : exit" );
+	}
+
+	private void updateUpcoming( final LocationProfile locationProfile ) {
+		Log.v( TAG, "updateUpcoming : enter" );
+		
+		List<Program> upcomings = mUpcomingDaoHelper.findAll( this, locationProfile );
+		if( null != upcomings && !upcomings.isEmpty() ) {
+			
+			for( Program upcoming : upcomings ) {
+//				Log.v( TAG, "updateUpcoming : upcoming=" + upcomings.toString() );
+			
+				Program program = mProgramGuideDaoHelper.findOne( this, locationProfile, upcoming.getChannelInfo().getChannelId(), upcoming.getStartTime() );
+				if( null != program ) {
+					
+					if( null == program.getRecording() || ( null != program.getRecording() && program.getRecording().getStatus() > -2 ) ) {
+						program.setRecording( upcoming.getRecording() );
+						mProgramGuideDaoHelper.save( this, locationProfile, program );
+					
+						Log.v( TAG, "updateUpcoming : program updated!" );
 					}
 					
 				}
-
-				if( null != etag.getETag() ) {
-					ContentValues values = new ContentValues();
-					values.put( EtagConstants.FIELD_ENDPOINT, endpoint );
-					values.put( EtagConstants.FIELD_VALUE, etag.getETag() );
-					values.put( EtagConstants.FIELD_DATE, ( new DateTime() ).getMillis() );
-
-					if( null == id ) {
-						Log.v( TAG, "download : adding new etag" );
-
-						getContentResolver().insert( EtagConstants.CONTENT_URI, values );
-					} else {
-						Log.v( TAG, "download : updating existing etag" );
-
-						getContentResolver().update( ContentUris.withAppendedId( EtagConstants.CONTENT_URI, id ), values, null, null );
-					}
-				}
-
-				Log.v( TAG, "download : exit" );
-				return newDataDownloaded;
-			}
-			
-			if( responseEntity.getStatusCode().equals( HttpStatus.NOT_MODIFIED ) ) {
 				
-				if( null != etag.getETag() ) {
-					ContentValues values = new ContentValues();
-					values.put( EtagConstants.FIELD_ENDPOINT, endpoint );
-					values.put( EtagConstants.FIELD_VALUE, etag.getETag() );
-					values.put( EtagConstants.FIELD_DATE, ( new DateTime() ).getMillis() );
-
-					Log.v( TAG, "download : updating existing etag" );
-
-					getContentResolver().update( ContentUris.withAppendedId( EtagConstants.CONTENT_URI, id ), values, null, null );
-				}
-
-			}
-			
-		} catch( Exception e ) {
-			Log.e( TAG, "download : error downloading program guide" );
-		}
-			
-		Log.v( TAG, "download : exit" );
-		return newDataDownloaded;
-	}
-
-	private boolean process( ProgramGuide programGuide ) throws RemoteException, OperationApplicationException {
-		Log.v( TAG, "process : enter" );
-
-		for( ChannelInfo channel : programGuide.getChannels() ) {
-
-			if( null != channel.getPrograms() && !channel.getPrograms().isEmpty() ) {
-				
-				for( Program program : channel.getPrograms() ) {
-					program.setChannelInfo( channel );
-				}
-				
-				mProgramGuideDaoHelper.load( channel.getPrograms() );
-
 			}
 			
 		}
-	
-		Log.v( TAG, "process : exit" );
-		return true;
-	}
-
-	@SuppressWarnings( "deprecation" )
-	private void sendNotification() {
-
-		long when = System.currentTimeMillis();
 		
-        mNotification = new Notification( android.R.drawable.stat_notify_sync, getResources().getString( R.string.notification_sync_program_guide ), when );
-
-        Intent notificationIntent = new Intent();
-        mContentIntent = PendingIntent.getActivity( this, 0, notificationIntent, 0 );
-
-        mNotification.setLatestEventInfo( this, getResources().getString( R.string.app_name ), getResources().getString( R.string.notification_sync_program_guide ), mContentIntent );
-
-        mNotification.flags = Notification.FLAG_ONGOING_EVENT;
-
-        mNotificationManager.notify( notificationId, mNotification );
-	
+		Log.v( TAG, "updateUpcoming : exit" );
 	}
-	
-    @SuppressWarnings( "deprecation" )
-	private void progressUpdate( double percentageComplete ) {
-
-    	CharSequence contentText = formatter.format( percentageComplete ) + "% complete";
-
-    	mNotification.setLatestEventInfo( this, getResources().getString( R.string.notification_sync_program_guide ), contentText, mContentIntent );
-    	mNotificationManager.notify( notificationId, mNotification );
-    }
-
-    private void completed()    {
-
-    	if( null != mNotificationManager ) {
-    		mNotificationManager.cancel( notificationId );
-    	}
-    	
-    }
 	
 }

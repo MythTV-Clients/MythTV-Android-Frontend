@@ -22,90 +22,80 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
+import org.joda.time.DateTimeZone;
 import org.mythtv.R;
-import org.mythtv.client.MainApplication;
 import org.mythtv.client.ui.AbstractMythFragment;
 import org.mythtv.client.ui.preferences.LocationProfile;
-import org.mythtv.db.preferences.LocationProfileDaoHelper;
-import org.mythtv.service.guide.ProgramGuideDownloadService;
-import org.mythtv.service.guide.cache.ProgramGuideLruMemoryCache;
+import org.mythtv.client.ui.util.MenuHelper;
+import org.mythtv.db.channel.ChannelDaoHelper;
+import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.service.util.DateUtils;
-import org.mythtv.services.api.guide.ProgramGuide;
+import org.mythtv.services.api.channel.ChannelInfo;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
+import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 
 /**
  * @author Daniel Frey
  *
  */
-public class GuideFragment extends AbstractMythFragment implements OnClickListener {
+public class GuideFragment extends AbstractMythFragment 
+	implements 
+		GuideChannelFragment.OnChannelScrollListener,
+		GuideTimeslotsFragment.OnTimeslotScrollListener,
+		GuideDatePickerFragment.OnDialogResultListener {
 
 	private static final String TAG = GuideFragment.class.getSimpleName();
-
-	private Button mPreviousButton, mNextButton;
-	private TextView mDateTextView;
 	
-	private DateTime date;
-	private String startDate;
-
-    private MainApplication mainApplication;
-
-	private ProgramGuideDownloadReceiver programGuideDownloaderReceiver = new ProgramGuideDownloadReceiver();
-
-	private ProgramGuideLruMemoryCache cache;
-
-	private LocationProfileDaoHelper mLocationProfileDaoHelper;
+	private FragmentManager mFragmentManager;
+	
+	private ChannelDaoHelper mChannelDaoHelper = ChannelDaoHelper.getInstance();
+	private MenuHelper mMenuHelper = MenuHelper.getInstance();
+	
+	private TextView mProgramGuideDate;
+	private GuideChannelFragment mGuideChannelFragment;
+	private GuideTimeslotsFragment mGuideTimeslotsFragment;
+	private GuideDataFragment mGuideDataFragment;
+	
+	private List<ChannelInfo> channels = new ArrayList<ChannelInfo>();
+	
+	private DateTime today;
+	private List<DateTime> dateRange = new ArrayList<DateTime>();
+	
 	private LocationProfile mLocationProfile;
 	
-	/* (non-Javadoc)
-	 * @see android.support.v4.app.Fragment#onStart()
-	 */
-	@Override
-	public void onStart() {
-		Log.v( TAG, "onStart : enter" );
-		super.onStart();
-
-		IntentFilter programGuideDownloadFilter = new IntentFilter();
-		programGuideDownloadFilter.addAction( ProgramGuideDownloadService.ACTION_PROGRESS );
-	    getActivity().registerReceiver( programGuideDownloaderReceiver, programGuideDownloadFilter );
-	    
-		Log.v( TAG, "onStart : exit" );
-	}
+	private int downloadDays;
+	private int selectedChannelId;
+	private DateTime selectedDate;
 
 	/* (non-Javadoc)
-	 * @see android.support.v4.app.Fragment#onStop()
+	 * @see org.mythtv.client.ui.dvr.GuideDatePickerFragment.OnDialogResultListener#onDateChanged(org.joda.time.DateTime)
 	 */
 	@Override
-	public void onStop() {
-		Log.v( TAG, "onStop : enter" );
-		super.onStop();
+	public void onDateChanged( DateTime date ) {
+		Log.v( TAG, "onDateChanged : enter" );
 
-		// Unregister for broadcast
-		if( null != programGuideDownloaderReceiver ) {
-			try {
-				getActivity().unregisterReceiver( programGuideDownloaderReceiver );
-			} catch( IllegalArgumentException e ) {
-				Log.e( TAG, "onStop : error", e );
-			}
-		}
+		Log.v( TAG, "onDateChanged : date=" + date.toString() );
 
-		Log.v( TAG, "onStop : exit" );
+		selectedDate = date.withTimeAtStartOfDay();
+		Log.v( TAG, "onDateChanged : selectedDate=" + selectedDate.toString() );
+		
+		updateView();
+		
+		timeslotSelect( date.getHourOfDay() + ":00:00" );
+		
+		Log.v( TAG, "onDateChanged : enter" );
 	}
 
 	/* (non-Javadoc)
@@ -117,14 +107,6 @@ public class GuideFragment extends AbstractMythFragment implements OnClickListen
 
 		//inflate fragment layout
 		View view = inflater.inflate( R.layout.fragment_dvr_guide, container, false );
-
-		mPreviousButton = (Button) view.findViewById( R.id.guide_previous );
-		mPreviousButton.setOnClickListener( this );
-		
-		mDateTextView = (TextView) view.findViewById( R.id.guide_date );
-		
-		mNextButton = (Button) view.findViewById( R.id.guide_next );
-		mNextButton.setOnClickListener( this );
 
 		Log.v( TAG, "onCreateView : exit" );
 		return view;
@@ -138,202 +120,221 @@ public class GuideFragment extends AbstractMythFragment implements OnClickListen
 		Log.v( TAG, "onActivityCreated : enter" );
 		super.onActivityCreated( savedInstanceState );
 		
-        mainApplication = (MainApplication) getActivity().getApplicationContext();
-        mLocationProfileDaoHelper = new LocationProfileDaoHelper( getActivity() );        
-        mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile();
-        
-		cache = new ProgramGuideLruMemoryCache( getActivity() );
+		setHasOptionsMenu( true );
 
-		date = DateUtils.getEndOfDay( new DateTime() );
-		updateDateHeader();
+		View view = getView();
 		
+		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences( getActivity() );
+		downloadDays = Integer.parseInt( sp.getString( "preference_program_guide_days", "14" ) );
+
+		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
+		
+		channels = mChannelDaoHelper.findAll( getActivity(), mLocationProfile );
+		selectedChannelId = channels.get( 0 ).getChannelId();
+		
+		today = new DateTime( DateTimeZone.getDefault() ).withTimeAtStartOfDay();
+		selectedDate = today;
+		Log.v( TAG, "onActivityCreated : selectedDate=" + selectedDate.toString() );
+		
+		dateRange.add( today );
+		for( int i = 1; i < downloadDays; i++ ) {
+			dateRange.add( today.plusDays( i ) );
+		}
+		
+		mProgramGuideDate = (TextView) getActivity().findViewById( R.id.program_guide_date );
+		mProgramGuideDate.setText( DateUtils.getDateTimeUsingLocaleFormattingPrettyDateOnly( today, getMainApplication().getDateFormat() ) );
+		
+		// get child fragment manager
+		mFragmentManager = getChildFragmentManager();
+
+		// look for program guide channels list placeholder frame layout
+		FrameLayout channelsLayout = (FrameLayout) view.findViewById( R.id.frame_layout_program_guide_channels );
+		if( null != channelsLayout ) {
+			Log.v( TAG, "onActivityCreated : loading channels fragment" );
+			
+			mGuideChannelFragment = (GuideChannelFragment) mFragmentManager.findFragmentByTag( GuideChannelFragment.class.getName() );
+			if( null == mGuideChannelFragment ) {
+				mGuideChannelFragment = (GuideChannelFragment) GuideChannelFragment.instantiate( getActivity(), GuideChannelFragment.class.getName() );
+				mGuideChannelFragment.setOnChannelScrollListener( this );
+			}
+
+			mFragmentManager.beginTransaction()
+				.replace( R.id.frame_layout_program_guide_channels, mGuideChannelFragment, GuideChannelFragment.class.getName() )
+				.commit();
+		
+		}
+
+		FrameLayout timeslotsLayout = (FrameLayout) view.findViewById( R.id.frame_layout_program_guide_timeslots );
+		if( null != timeslotsLayout ) {
+			Log.v( TAG, "onActivityCreated : loading timeslots fragment" );
+			
+			mGuideTimeslotsFragment = (GuideTimeslotsFragment) mFragmentManager.findFragmentByTag( GuideTimeslotsFragment.class.getName() );
+			if( null == mGuideTimeslotsFragment ) {
+				mGuideTimeslotsFragment = (GuideTimeslotsFragment) GuideTimeslotsFragment.instantiate( getActivity(), GuideTimeslotsFragment.class.getName() );
+				mGuideTimeslotsFragment.setOnTimeslotScrollListener( this );
+			}
+
+			mFragmentManager.beginTransaction()
+				.replace( R.id.frame_layout_program_guide_timeslots, mGuideTimeslotsFragment, GuideTimeslotsFragment.class.getName() )
+				.commit();
+		
+		}
+
+		FrameLayout dataLayout = (FrameLayout) view.findViewById( R.id.frame_layout_program_guide_data );
+		if( null != dataLayout ) {
+			Log.v( TAG, "onActivityCreated : loading data fragment" );
+			
+			mGuideDataFragment = (GuideDataFragment) mFragmentManager.findFragmentByTag( GuideDataFragment.class.getName() );
+			if( null == mGuideDataFragment ) {
+				mGuideDataFragment = (GuideDataFragment) GuideDataFragment.instantiate( getActivity(), GuideDataFragment.class.getName() );
+				//mGuideTimeslotsFragment.setOnDataScrollListener( this );
+
+				Bundle args = new Bundle();
+				args.putInt( ProgramConstants.FIELD_CHANNEL_ID, selectedChannelId );
+				args.putLong( ProgramConstants.FIELD_END_TIME, selectedDate.getMillis() );
+				mGuideDataFragment.setArguments( args );
+
+			}
+			
+			mFragmentManager.beginTransaction()
+				.replace( R.id.frame_layout_program_guide_data, mGuideDataFragment, GuideDataFragment.class.getName() )
+				.commit();
+		
+		}
+
 		Log.v( TAG, "onActivityCreated : exit" );
 	}
 
 	/* (non-Javadoc)
-	 * @see android.view.View.OnClickListener#onClick(android.view.View)
+	 * @see android.support.v4.app.Fragment#onResume()
 	 */
 	@Override
-	public void onClick( View v ) {
-		Log.v( TAG, "onClick : enter" );
-		
-		switch( v.getId() ) {
-			case R.id.guide_previous :
-				Log.v( TAG, "onClick : selected previous button" );
+	public void onResume() {
+		Log.v( TAG, "onResume : enter" );
+		super.onResume();
 
-				date = DateUtils.getPreviousDay( date );
-				
-				break;
-			case R.id.guide_next :
-				Log.v( TAG, "onClick : selected next button" );
+		timeslotSelect( new DateTime().getHourOfDay() + ":00:00" );
 
-				date = DateUtils.getNextDay( date );
-				
-				break;
+		Log.v( TAG, "onResume : exit" );
+	}
+
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.Fragment#onCreateOptionsMenu(android.view.Menu, android.view.MenuInflater)
+	 */
+	@Override
+	public void onCreateOptionsMenu( Menu menu, MenuInflater inflater ) {
+		Log.v( TAG, "onCreateOptionsMenu : enter" );
+		super.onCreateOptionsMenu( menu, inflater );
+
+		if( downloadDays > 1 ) {
+			mMenuHelper.guideDayMenuItem( getActivity(), menu );
 		}
-
-		updateDateHeader();
 		
-		Log.v( TAG, "onClick : enter" );
+		Log.v( TAG, "onCreateOptionsMenu : exit" );
+	}
+
+
+	/* (non-Javadoc)
+	 * @see org.mythtv.client.ui.dvr.AbstractRecordingsActivity#onOptionsItemSelected(android.view.MenuItem)
+	 */
+	@Override
+	public boolean onOptionsItemSelected( MenuItem item ) {
+		Log.v( TAG, "onOptionsItemSelected : enter" );
+		
+		switch( item.getItemId() ) {
+		case MenuHelper.GUIDE_ID:
+			Log.d( TAG, "onOptionsItemSelected : guide day selected" );
+
+			showDatePickerFragment();
+			
+	        return true;
+		}
+		
+		Log.v( TAG, "onOptionsItemSelected : exit" );
+		return super.onOptionsItemSelected( item );
+	}
+
+	// GuideChannelFragment interface
+	
+	/* (non-Javadoc)
+	 * @see org.mythtv.client.ui.dvr.GuideChannelFragment.OnChannelScrollListener#channelScroll(int, int, int)
+	 */
+	@Override
+	public void channelScroll( int first, int last, int screenCount, int totalCount ) {
+		Log.v( TAG, "channelScroll : enter" );
+		
+		Log.v( TAG, "channelScroll : first=" + first + ", last=" + last + ", screenCount=" + screenCount + ", totalCount=" + totalCount );
+
+		ChannelInfo start = mGuideChannelFragment.getChannel( first );
+		Log.v( TAG, "channelScroll : start=" + start.toString() );
+
+		ChannelInfo end = mGuideChannelFragment.getChannel( last );
+		Log.v( TAG, "channelScroll : end=" + end.toString() );
+		
+		Log.v( TAG, "channelScroll : exit" );
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mythtv.client.ui.dvr.GuideChannelFragment.OnChannelScrollListener#channelSelect(int)
+	 */
+	@Override
+	public void channelSelect( int channelId ) {
+		Log.v( TAG, "channelSelect : enter" );
+		
+		Log.v( TAG, "channelSelect : channelId=" + channelId );
+		selectedChannelId = channelId;
+		
+		updateView();
+		timeslotSelect( new DateTime().getHourOfDay() + ":00:00" );
+
+		Log.v( TAG, "channelSelect : exit" );
+	}
+
+	// GuideTimeslotsFragment interface
+	
+	/* (non-Javadoc)
+	 * @see org.mythtv.client.ui.dvr.GuideTimeslotsFragment.OnTimeslotScrollListener#timeslotSelect(java.lang.String)
+	 */
+	@Override
+	public void timeslotSelect( String time ) {
+		Log.v( TAG, "timeslotSelect : enter" );
+		
+		Log.v( TAG, "timeslotSelect : time=" + time );
+		
+		String[] values = time.split( ":" );
+		DateTime scrollDate = selectedDate.withTime( Integer.parseInt( values[ 0 ] ), Integer.parseInt( values[ 1 ] ), Integer.parseInt( values[ 2 ] ), 0 );
+		Log.v( TAG, "timeslotSelect : scrollDate=" + scrollDate );
+		
+		mGuideDataFragment.scroll( selectedChannelId, scrollDate );
+		
+		Log.v( TAG, "timeslotSelect : exit" );
 	}
 
 	// internal helpers
 	
-	private void updateDateHeader() {
-		Log.v( TAG, "updateDateHeader : enter" );
+	private void updateView() {
+		Log.v( TAG, "updateView : enter" );
 		
-        mDateTextView.setText( DateTimeFormat.forPattern(mainApplication.getDateFormat()).print(date) );
-		startDate = DateUtils.dateFormatter.print(date);
-
-		DateTime today = new DateTime();
-		Log.v( TAG, "updateDateHeader : today=" + DateUtils.dateTimeFormatter.print( today ) );
-		if( today.dayOfYear().equals( date.dayOfYear() ) ) {
-			mPreviousButton.setEnabled( false );
-		} else {
-			mPreviousButton.setEnabled( true );
-		}
-
-		DateTime end = DateUtils.getDaysFromToday( 12 );
-		Log.v( TAG, "updateDateHeader : end=" + DateUtils.dateTimeFormatter.print( end ) );
-		if( end.dayOfYear().equals( date.dayOfYear() ) ) {
-			mNextButton.setEnabled( false );
-		} else {
-			mNextButton.setEnabled( true );
-		}
-
-		DateTime now = new DateTime();
-		MythtvGuidePagerAdapter mAdapter = new MythtvGuidePagerAdapter( getActivity().getSupportFragmentManager() );
-		ViewPager mPager = (ViewPager) getActivity().findViewById( R.id.guide_pager );
-		mPager.setAdapter( mAdapter );
-		mPager.setCurrentItem( now.getHourOfDay() );
-
-		Log.v( TAG, "updateDateHeader : exit" );
+		mGuideDataFragment.updateView( selectedChannelId, selectedDate );
+		mProgramGuideDate.setText( DateUtils.getDateTimeUsingLocaleFormattingPrettyDateOnly( selectedDate, getMainApplication().getDateFormat() ) );
+		
+		Log.v( TAG, "updateView : exit" );
 	}
 	
-	private class MythtvGuidePagerAdapter extends FragmentStatePagerAdapter {
+	private void showDatePickerFragment() {
+		Log.v( TAG, "showDatePickerFragment : enter" );
 
-		private List<String> fragmentHeadings, fragmentLabels;
+		Bundle args = new Bundle();
+		args.putLong( "selectedDate", selectedDate.getMillis() );
+		args.putInt( "downloadDays", downloadDays );
 		
-		public MythtvGuidePagerAdapter( FragmentManager fm ) {
-			super( fm );
-			Log.v( TAG, "initialize : exit" );
-
-			fragmentHeadings = new ArrayList<String>();
-			fragmentHeadings.add( "0" );
-			fragmentHeadings.add( "1" );
-			fragmentHeadings.add( "2" );
-			fragmentHeadings.add( "3" );
-			fragmentHeadings.add( "4" );
-			fragmentHeadings.add( "5" );
-			fragmentHeadings.add( "6" );
-			fragmentHeadings.add( "7" );
-			fragmentHeadings.add( "8" );
-			fragmentHeadings.add( "9" );
-			fragmentHeadings.add( "10" );
-			fragmentHeadings.add( "11" );
-			fragmentHeadings.add( "12" );
-			fragmentHeadings.add( "13" );
-			fragmentHeadings.add( "14" );
-			fragmentHeadings.add( "15" );
-			fragmentHeadings.add( "16" );
-			fragmentHeadings.add( "17" );
-			fragmentHeadings.add( "18" );
-			fragmentHeadings.add( "19" );
-			fragmentHeadings.add( "20" );
-			fragmentHeadings.add( "21" );
-			fragmentHeadings.add( "22" );
-			fragmentHeadings.add( "23" );
-
-            fragmentLabels = new ArrayList<String>();
-
-            if (mainApplication.getClockType() != null && mainApplication.getClockType().equals("24")) {
-
-                fragmentLabels = fragmentHeadings;
-            } else {
-
-                fragmentLabels.add( "12 AM" );
-                fragmentLabels.add( "1 AM" );
-                fragmentLabels.add( "2 AM" );
-                fragmentLabels.add( "3 AM" );
-                fragmentLabels.add( "4 AM" );
-                fragmentLabels.add( "5 AM" );
-                fragmentLabels.add( "6 AM" );
-                fragmentLabels.add( "7 AM" );
-                fragmentLabels.add( "8 AM" );
-                fragmentLabels.add( "9 AM" );
-                fragmentLabels.add( "10 AM" );
-                fragmentLabels.add( "11 AM" );
-                fragmentLabels.add( "12 PM" );
-                fragmentLabels.add( "1 PM" );
-                fragmentLabels.add( "2 PM" );
-                fragmentLabels.add( "3 PM" );
-                fragmentLabels.add( "4 PM" );
-                fragmentLabels.add( "5 PM" );
-                fragmentLabels.add( "6 PM" );
-                fragmentLabels.add( "7 PM" );
-                fragmentLabels.add( "8 PM" );
-                fragmentLabels.add( "9 PM" );
-                fragmentLabels.add( "10 PM" );
-                fragmentLabels.add( "11 PM" );
-            }
-
-            Log.v( TAG, "initialize : exit" );
-		}
-
-		/* (non-Javadoc)
-		 * @see android.support.v4.app.FragmentStatePagerAdapter#getItem(int)
-		 */
-		@Override
-		public Fragment getItem( int position ) {
-//			Log.v( TAG, "getItem : enter" );
-			
-			DateTime programGuideDate = date.withTime( Integer.parseInt( fragmentHeadings.get( position ) ), 0, 0, 0 );
-			ProgramGuide programGuide = cache.get( mLocationProfile.getHostname() + "_" + DateUtils.fileDateTimeFormatter.print( programGuideDate ) );
-            Log.v( TAG, "ProgramGuide for " + mLocationProfile.getHostname() + "_" + DateUtils.fileDateTimeFormatter.print( programGuideDate ) + " loaded" );
-
-//			Log.v( TAG, "getItem : exit" );
-			return GuidePagerFragment.newInstance( startDate, fragmentHeadings.get( position ), programGuide );
-		}
-
-		/* (non-Javadoc)
-		 * @see android.support.v4.view.PagerAdapter#getCount()
-		 */
-		public int getCount() {
-			return fragmentHeadings.size();
-		}
-
-		/* (non-Javadoc)
-		 * @see android.support.v4.view.PagerAdapter#getPageTitle(int)
-		 */
-		@Override
-		public CharSequence getPageTitle( int position ) {
-			return fragmentLabels.get( position );
-		}
+		GuideDatePickerFragment datePickerFragment = new GuideDatePickerFragment();
+		datePickerFragment.setOnDialogResultListener( this );
+		datePickerFragment.setArguments( args );
 		
+		datePickerFragment.show( getChildFragmentManager(), "datePickerFragment" );
+
+		Log.v( TAG, "showDatePickerFragment : exit" );
 	}
-
-	private class ProgramGuideDownloadReceiver extends BroadcastReceiver {
-
-		@Override
-		public void onReceive( Context context, Intent intent ) {
-			
-	        if ( intent.getAction().equals( ProgramGuideDownloadService.ACTION_PROGRESS ) ) {
-
-	        	if( intent.hasExtra( ProgramGuideDownloadService.EXTRA_PROGRESS ) ) {
-		        	Log.d( TAG, "ProgramGuideDownloadReceiver.onReceive : progress=" + intent.getStringExtra( ProgramGuideDownloadService.EXTRA_PROGRESS ) );
-		        	
-		        	DateTime updated = new DateTime( intent.getStringExtra( ProgramGuideDownloadService.EXTRA_PROGRESS_DATE ) );
-		        	cache.remove( mLocationProfile.getHostname() + "_" + DateUtils.fileDateTimeFormatter.print( updated ) );
-	        	}
-	        	
-	        	if( intent.hasExtra( ProgramGuideDownloadService.EXTRA_PROGRESS_ERROR ) ) {
-		        	Log.e( TAG, "ProgramGuideDownloadReceiver.onReceive : progress error=" + intent.getStringExtra( ProgramGuideDownloadService.EXTRA_PROGRESS_ERROR ) );
-	        	}
-	        	
-	        }
-	        
-		}
-		
-	}
-
+	
 }

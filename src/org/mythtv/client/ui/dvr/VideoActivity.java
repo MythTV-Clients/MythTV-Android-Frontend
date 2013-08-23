@@ -20,10 +20,14 @@ package org.mythtv.client.ui.dvr;
 	
 import org.joda.time.DateTime;
 import org.mythtv.R;
+import org.mythtv.client.ui.AbstractMythtvFragmentActivity;
+import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.content.LiveStreamDaoHelper;
 import org.mythtv.db.dvr.RecordedDaoHelper;
+import org.mythtv.db.http.model.EtagInfoDelegate;
+import org.mythtv.db.preferences.LocationProfileDaoHelper;
+import org.mythtv.service.util.MythtvServiceHelper;
 import org.mythtv.service.util.NetworkHelper;
-import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.content.LiveStreamInfo;
 import org.mythtv.services.api.content.LiveStreamInfoWrapper;
 import org.mythtv.services.api.dvr.Program;
@@ -48,7 +52,7 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
  * @author John Baab
  * 
  */
-public class VideoActivity extends AbstractDvrActivity {
+public class VideoActivity extends AbstractMythtvFragmentActivity {
 
 	private static final String TAG = VideoActivity.class.getSimpleName();
 	private static final String DISMISS = "org.mythtv.videoActivity.dismissDialog";
@@ -59,12 +63,15 @@ public class VideoActivity extends AbstractDvrActivity {
 	
 	private ProgressDialog progressDialog;
 
-	private LiveStreamDaoHelper mLiveStreamDaoHelper;
-	private NetworkHelper mNetworkHelper;
-	private RecordedDaoHelper mRecordedDaoHelper;
+	private LiveStreamDaoHelper mLiveStreamDaoHelper = LiveStreamDaoHelper.getInstance();
+	private LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
+	private MythtvServiceHelper mMythtvServiceHelper = MythtvServiceHelper.getInstance();
+	private RecordedDaoHelper mRecordedDaoHelper = RecordedDaoHelper.getInstance();
 	
 	private Program program = null;
 	private LiveStreamInfo liveStreamInfo = null;
+	
+	private LocationProfile mLocationProfile;
 	
 	// ***************************************
 	// Activity methods
@@ -80,18 +87,16 @@ public class VideoActivity extends AbstractDvrActivity {
 		Log.v( TAG, "onCreate : enter" );
 		super.onCreate( savedInstanceState );
 
-		mLiveStreamDaoHelper = new LiveStreamDaoHelper( this );
-		mNetworkHelper = NetworkHelper.newInstance( this );
-		mRecordedDaoHelper = new RecordedDaoHelper( this );
-		
 	    setContentView( R.layout.activity_video );
 	    
 	    int channelId = getIntent().getIntExtra( EXTRA_CHANNEL_ID, -1 );
 	    Long startTime = getIntent().getLongExtra( EXTRA_START_TIME, -1 );
 	    boolean raw = getIntent().getBooleanExtra( EXTRA_RAW, false );
 	    
-	    program = mRecordedDaoHelper.findOne( channelId, new DateTime( startTime ) );
-	    liveStreamInfo = mLiveStreamDaoHelper.findByProgram( program );
+	    mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( this );
+	    
+	    program = mRecordedDaoHelper.findOne( this, mLocationProfile, channelId, new DateTime( startTime ) );
+	    liveStreamInfo = mLiveStreamDaoHelper.findByProgram( this, mLocationProfile, program );
 	    
 	    if( null != program ) {
 
@@ -194,7 +199,7 @@ public class VideoActivity extends AbstractDvrActivity {
 		
 		Log.v( TAG, "startVideo : program=" + program.toString() );
 		
-		String temp = getMainApplication().getMasterBackend();
+		String temp = mLocationProfile.getUrl();
 		temp = temp.replaceAll( "/$", "" );
 		String url = "";
 		if( raw ) {
@@ -313,7 +318,7 @@ public class VideoActivity extends AbstractDvrActivity {
 		protected ResponseEntity<LiveStreamInfoWrapper> doInBackground( Void... params ) {
 			Log.v( TAG, "UpdateStreamInfoTask : enter" );
 
-			if( !mNetworkHelper.isNetworkConnected() ) {
+			if( !NetworkHelper.getInstance().isNetworkConnected( VideoActivity.this ) ) {
 				Log.v( TAG, "UpdateStreamInfoTask : exit, not connected" );
 				
 				return null;
@@ -331,10 +336,10 @@ public class VideoActivity extends AbstractDvrActivity {
 				if( liveStreamInfo.getStatusInt() < 2 || liveStreamInfo.getCurrentSegment() <= 2 ) {
 					Thread.sleep( 5000 );
 					
-					ETagInfo eTag = ETagInfo.createEmptyETag();
+					EtagInfoDelegate eTag = EtagInfoDelegate.createEmptyETag();
 
 					Log.v( TAG, "UpdateStreamInfoTask : exit" );
-					return getMainApplication().getMythServicesApi().contentOperations().getLiveStream( liveStreamInfo.getId(), eTag );
+					return mMythtvServiceHelper.getMythServicesApi( mLocationProfile ).contentOperations().getLiveStream( liveStreamInfo.getId(), eTag );
 				}
 			} catch( Exception e ) {
 				Log.v( TAG, "UpdateStreamInfoTask : error" );
@@ -356,7 +361,7 @@ public class VideoActivity extends AbstractDvrActivity {
 
 						// save updated live stream info to database
 						liveStreamInfo = result.getBody().getLiveStreamInfo();
-						mLiveStreamDaoHelper.save( liveStreamInfo, program );
+						mLiveStreamDaoHelper.save( VideoActivity.this, mLocationProfile, liveStreamInfo, program );
 
 						if( liveStreamInfo.getStatusInt() < 2 || liveStreamInfo.getCurrentSegment() <= 2 ) {
 							new UpdateStreamInfoTask().execute();

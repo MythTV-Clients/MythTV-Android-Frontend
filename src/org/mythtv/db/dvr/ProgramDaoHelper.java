@@ -19,18 +19,19 @@
 package org.mythtv.db.dvr;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.joda.time.DateTime;
-import org.mythtv.client.MainApplication;
+import org.joda.time.DateTimeZone;
+import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.AbstractDaoHelper;
+import org.mythtv.db.channel.ChannelConstants;
 import org.mythtv.db.channel.ChannelDaoHelper;
 import org.mythtv.db.content.LiveStreamConstants;
 import org.mythtv.db.content.LiveStreamDaoHelper;
 import org.mythtv.provider.MythtvProvider;
 import org.mythtv.service.util.DateUtils;
+import org.mythtv.service.util.MythtvServiceHelper;
 import org.mythtv.services.api.Bool;
 import org.mythtv.services.api.channel.ChannelInfo;
 import org.mythtv.services.api.content.LiveStreamInfo;
@@ -58,51 +59,48 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 
 	protected static final String TAG = ProgramDaoHelper.class.getSimpleName();
 	
-	protected MainApplication mMainApplication;
+	protected MythtvServiceHelper mMythtvServiceHelper = MythtvServiceHelper.getInstance();
+	protected ChannelDaoHelper mChannelDaoHelper = ChannelDaoHelper.getInstance();
+	protected LiveStreamDaoHelper mLiveStreamDaoHelper = LiveStreamDaoHelper.getInstance();
+	protected RecordingDaoHelper mRecordingDaoHelper = RecordingDaoHelper.getInstance();
 	
-	protected ChannelDaoHelper mChannelDaoHelper;
-	protected LiveStreamDaoHelper mLiveStreamDaoHelper;
-	protected RecordingDaoHelper mRecordingDaoHelper;
-	
-	protected ProgramDaoHelper( Context context ) {
-		super( context );
-		
-		mMainApplication = (MainApplication) context.getApplicationContext();
-		
-		mChannelDaoHelper = new ChannelDaoHelper( context );
-		mLiveStreamDaoHelper = new LiveStreamDaoHelper( context );
-		mRecordingDaoHelper = new RecordingDaoHelper( context );
-		
+	protected ProgramDaoHelper() {
+		super();
 	}
 	
 	/**
+	 * @param context
 	 * @param uri
 	 * @param projection
 	 * @param selection
 	 * @param selectionArgs
 	 * @param sortOrder
+	 * @param table
 	 * @return
 	 */
-	protected List<Program> findAll( Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder ) {
-		Log.v( TAG, "findAll : enter" );
+	protected List<Program> findAll( final Context context, final Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder, final String table ) {
+//		Log.v( TAG, "findAll : enter" );
+		
+		if( null == context ) 
+			throw new RuntimeException( "ProgramDaoHelper is not initialized" );
 		
 		List<Program> programs = new ArrayList<Program>();
 		
-		Cursor cursor = mContext.getContentResolver().query( uri, projection, selection, selectionArgs, sortOrder );
+		Cursor cursor = context.getContentResolver().query( uri, projection, selection, selectionArgs, sortOrder );
 		while( cursor.moveToNext() ) {
-			Program program = convertCursorToProgram( cursor );
+			Program program = convertCursorToProgram( cursor, table );
 			programs.add( program );
 		}
 		cursor.close();
 
-		Log.v( TAG, "findAll : exit" );
+//		Log.v( TAG, "findAll : exit" );
 		return programs;
 	}
 	
 	/**
 	 * @return
 	 */
-	public abstract List<Program> findAll();
+	public abstract List<Program> findAll( final Context context, final LocationProfile locationProfile );
 	
 	/**
 	 * @param uri
@@ -112,69 +110,86 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 	 * @param sortOrder
 	 * @return
 	 */
-	protected Program findOne( Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder ) {
-		Log.v( TAG, "findOne : enter" );
+	protected Program findOne( final Context context, final Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder, final String table ) {
+//		Log.v( TAG, "findOne : enter" );
 		
-		Log.v( TAG, "findOne : selection=" + selection );
-		if( null != selectionArgs ) {
-			for( String selectionArg : selectionArgs ) {
-				Log.v( TAG, "findOne : selectionArg=" + selectionArg );
-			}
-		}
+		if( null == context ) 
+			throw new RuntimeException( "ProgramDaoHelper is not initialized" );
+		
+//		Log.v( TAG, "findOne : selection=" + selection );
+//		if( null != selectionArgs ) {
+//			for( String selectionArg : selectionArgs ) {
+//				Log.v( TAG, "findOne : selectionArg=" + selectionArg );
+//			}
+//		}
 		
 		Program program = null;
 		
-		Cursor cursor = mContext.getContentResolver().query( uri, projection, selection, selectionArgs, sortOrder );
+		Cursor cursor = context.getContentResolver().query( uri, projection, selection, selectionArgs, sortOrder );
 		if( cursor.moveToFirst() ) {
-			program = convertCursorToProgram( cursor );
+			program = convertCursorToProgram( cursor, table );
 		}
 		cursor.close();
 		
-		Log.v( TAG, "findOne : exit" );
+//		Log.v( TAG, "findOne : exit" );
 		return program;
 	}
 	
 	/**
+	 * @param context
+	 * @param locationProfile
 	 * @param channelId
 	 * @param startTime
 	 * @return
 	 */
-	public abstract Program findOne( int channelId, DateTime startTime );
+	public abstract Program findOne( final Context context, final LocationProfile locationProfile, final int channelId, final DateTime startTime );
 
 	/**
 	 * @param uri
 	 * @param program
 	 * @return
 	 */
-	protected int save( Uri uri, Program program ) {
-		Log.v( TAG, "save : enter" );
+	protected int save( final Context context, final Uri uri, final LocationProfile locationProfile, Program program, final String table ) {
+//		Log.v( TAG, "save : enter" );
 
-		ContentValues values = convertProgramToContentValues( program );
+		if( null == context ) 
+			throw new RuntimeException( "ProgramDaoHelper is not initialized" );
+		
+		ContentValues values = convertProgramToContentValues( locationProfile, new DateTime( DateTimeZone.UTC ), program );
 
 		String[] projection = new String[] { ProgramConstants._ID };
-		String selection = ProgramConstants.FIELD_CHANNEL_ID + " = ? AND " + ProgramConstants.FIELD_START_TIME + " = ?";
+		String selection = table + "." + ProgramConstants.FIELD_CHANNEL_ID + " = ? AND " + table + "." + ProgramConstants.FIELD_START_TIME + " = ?";
 		String[] selectionArgs = new String[] { String.valueOf( program.getChannelInfo().getChannelId() ), String.valueOf( program.getStartTime().getMillis() ) };
 		
-		selection = appendLocationHostname( selection, null );
+		selection = appendLocationHostname( context, locationProfile, selection, table );
 
 		int updated = -1;
-		Cursor cursor = mContext.getContentResolver().query( uri, projection, selection, selectionArgs, null );
+		Cursor cursor = context.getContentResolver().query( uri, projection, selection, selectionArgs, null );
 		if( cursor.moveToFirst() ) {
-			Log.v( TAG, "save : updating existing program" );
+//			Log.v( TAG, "save : updating existing program" );
 
 			Long id = cursor.getLong( cursor.getColumnIndexOrThrow( ProgramConstants._ID ) );
 			
-			updated = mContext.getContentResolver().update( ContentUris.withAppendedId( uri, id ), values, null, null );
+			updated = context.getContentResolver().update( ContentUris.withAppendedId( uri, id ), values, null, null );
 		} else {
-			Uri inserted = mContext.getContentResolver().insert( uri, values );
+			Uri inserted = context.getContentResolver().insert( uri, values );
 			if( null != inserted ) {
 				updated = 1;
 			}
 		}
 		cursor.close();
-		Log.v( TAG, "save : updated=" + updated );
 
-		Log.v( TAG, "save : exit" );
+		if( null != program.getRecording() ) {
+			if( program.getRecording().getRecordId() != 0 ) {
+
+				mRecordingDaoHelper.save( context, RecordingConstants.ContentDetails.getValueFromParent( table ).getContentUri(), locationProfile, program.getStartTime(), program.getRecording(), RecordingConstants.ContentDetails.getValueFromParent( table ).getTableName() );
+
+			}
+		}
+		
+//		Log.v( TAG, "save : updated=" + updated );
+
+//		Log.v( TAG, "save : exit" );
 		return updated;
 	}
 
@@ -182,43 +197,49 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 	 * @param program
 	 * @return
 	 */
-	public abstract int save( Program program );
+	public abstract int save( final Context context, final LocationProfile locationProfile, Program program );
 	
 	/**
 	 * @return
 	 */
-	public int deleteAll( Uri uri ) {
-		Log.v( TAG, "deleteAll : enter" );
+	public int deleteAll( final Context context, final Uri uri ) {
+//		Log.v( TAG, "deleteAll : enter" );
 		
-		int deleted = mContext.getContentResolver().delete( uri, null, null );
-		Log.v( TAG, "deleteAll : deleted=" + deleted );
+		if( null == context ) 
+			throw new RuntimeException( "ProgramDaoHelper is not initialized" );
 		
-		Log.v( TAG, "deleteAll : exit" );
+		int deleted = context.getContentResolver().delete( uri, null, null );
+//		Log.v( TAG, "deleteAll : deleted=" + deleted );
+		
+//		Log.v( TAG, "deleteAll : exit" );
 		return deleted;
 	}
 
 	/**
 	 * @return
 	 */
-	public abstract int deleteAll();
+	public abstract int deleteAll( final Context context );
 	
 	/**
 	 * @param uri
 	 * @param program
 	 * @return
 	 */
-	public int delete( Uri uri, Program program ) {
-		Log.v( TAG, "delete : enter" );
+	public int delete( final Context context, final Uri uri, final LocationProfile locationProfile, Program program, final String table ) {
+//		Log.v( TAG, "delete : enter" );
+		
+		if( null == context ) 
+			throw new RuntimeException( "ProgramDaoHelper is not initialized" );
 		
 		String selection = ProgramConstants.FIELD_CHANNEL_ID + " = ? AND " + ProgramConstants.FIELD_START_TIME + " = ?";
 		String[] selectionArgs = new String[] { String.valueOf( program.getChannelInfo().getChannelId() ), String.valueOf( program.getStartTime().getMillis() ) };
 
-		selection = appendLocationHostname( selection, null );
+		selection = appendLocationHostname( context, locationProfile, selection, null );
 
-		int deleted = mContext.getContentResolver().delete( uri, selection, selectionArgs );
-		Log.v( TAG, "delete : deleted=" + deleted );
+		int deleted = context.getContentResolver().delete( uri, selection, selectionArgs );
+//		Log.v( TAG, "delete : deleted=" + deleted );
 		
-		Log.v( TAG, "delete : exit" );
+//		Log.v( TAG, "delete : exit" );
 		return deleted;
 	}
 
@@ -226,7 +247,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 	 * @param program
 	 * @return
 	 */
-	public abstract int delete( Program program );
+	public abstract int delete( final Context context, final LocationProfile locationProfile, Program program );
 	
 	/**
 	 * @param uri
@@ -236,19 +257,20 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 	 * @throws RemoteException
 	 * @throws OperationApplicationException
 	 */
-	protected int load( Uri uri, List<Program> programs, String table ) throws RemoteException, OperationApplicationException {
-		Log.v( TAG, "load : enter" );
+	protected int load( final Context context, final Uri uri, final LocationProfile locationProfile, List<Program> programs, String table ) throws RemoteException, OperationApplicationException {
+//		Log.v( TAG, "load : enter" );
 		
-		Log.v( TAG, "load : find all existing recordings, table=" + table );
+		if( null == context ) 
+			throw new RuntimeException( "ProgramDaoHelper is not initialized" );
+		
+		DateTime today = new DateTime( DateTimeZone.UTC ).withTimeAtStartOfDay();
+		DateTime lastModified = new DateTime( DateTimeZone.UTC );
+		
+//		Log.v( TAG, "load : find all existing recordings, table=" + table );
 		String recordedSelection = "";
 		
-		recordedSelection = appendLocationHostname( recordedSelection, table );
-		Log.v( TAG, "load : recordedSelection=" + recordedSelection );
-		
-		Map<String, Program> recorded = new HashMap<String, Program>();
-		for( Program program : findAll( uri, null, recordedSelection, null, null ) ) {
-			recorded.put( program.getFilename(), program );
-		}
+		recordedSelection = appendLocationHostname( context, locationProfile, recordedSelection, table );
+//		Log.v( TAG, "load : recordedSelection=" + recordedSelection );
 		
 		int loaded = -1;
 		int count = 0;
@@ -258,14 +280,19 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		String[] programProjection = new String[] { ProgramConstants._ID };
 		String programSelection = table + "." + ProgramConstants.FIELD_CHANNEL_ID + " = ? AND " + table + "." + ProgramConstants.FIELD_START_TIME + " = ?";
 
-		programSelection = appendLocationHostname( programSelection, table );
+		programSelection = appendLocationHostname( context, locationProfile, programSelection, table );
 		
 		boolean inError;
+
+		RecordingConstants.ContentDetails details = RecordingConstants.ContentDetails.getValueFromParent( table );
+//		Log.w(TAG, "load : details - parent=" + details.getParent() + ", tableName=" + details.getTableName() + ", contentUri=" + details.getContentUri().toString() );
+
+		List<Integer> channelsChecked = new ArrayList<Integer>();
 		
 		for( Program program : programs ) {
 
 			if( null == program.getStartTime() || null == program.getEndTime() ) {
-				Log.w(TAG, "convertProgramToContentValues : null starttime and or endtime" );
+//				Log.w(TAG, "load : null starttime and or endtime" );
 			
 				inError = true;
 			} else {
@@ -274,21 +301,20 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 
 			DateTime startTime = new DateTime( program.getStartTime() );
 			
-			ContentValues programValues = convertProgramToContentValues( program );
-			Cursor programCursor = mContext.getContentResolver().query( uri, programProjection, programSelection, new String[] { String.valueOf( program.getChannelInfo().getChannelId() ), String.valueOf( startTime.getMillis() ) }, null );
+			ContentValues programValues = convertProgramToContentValues( locationProfile, lastModified, program );
+			Cursor programCursor = context.getContentResolver().query( uri, programProjection, programSelection, new String[] { String.valueOf( program.getChannelInfo().getChannelId() ), String.valueOf( startTime.getMillis() ) }, null );
 			if( programCursor.moveToFirst() ) {
-				//Log.v( TAG, "load : UPDATE PROGRAM channel=" + program.getChannelInfo().getChannelNumber() + ", startTime=" + DateUtils.dateTimeFormatterPretty.print( startTime ) + "(" + startTime + ")" );
+//				Log.v( TAG, "load : UPDATE PROGRAM " + count + ":" + program.getChannelInfo().getChannelId() + ":" + program.getStartTime() + ":" + program.getHostname() );
 
 				Long id = programCursor.getLong( programCursor.getColumnIndexOrThrow( ProgramConstants._ID ) );
 				ops.add( 
-						ContentProviderOperation.newUpdate( ContentUris.withAppendedId( ProgramConstants.CONTENT_URI_PROGRAM, id ) )
+						ContentProviderOperation.newUpdate( ContentUris.withAppendedId( uri, id ) )
 							.withValues( programValues )
 							.withYieldAllowed( true )
 							.build()
 					);
-				
 			} else {
-				//Log.v( TAG, "load : INSERT PROGRAM channel=" + program.getChannelInfo().getChannelNumber() + ", startTime=" + DateUtils.dateTimeFormatterPretty.print( startTime ) + "(" + startTime + ")" );
+//				Log.v( TAG, "load : INSERT PROGRAM " + count + ":" + program.getChannelInfo().getChannelId() + ":" + program.getStartTime() + ":" + program.getHostname() );
 
 				ops.add(  
 						ContentProviderOperation.newInsert( uri )
@@ -301,144 +327,169 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 			count++;
 			
 			if( null != program.getChannelInfo() ) {
-				
-				if( null == mChannelDaoHelper.findByChannelId( (long) program.getChannelInfo().getChannelId() ) ) {
-					Log.v( TAG, "load : adding non-existent channel" );
 
-					mChannelDaoHelper.save( program.getChannelInfo() );
+				if( !channelsChecked.contains( program.getChannelInfo().getChannelId() ) ) {
+					
+					String[] channelProjection = new String[] { ChannelConstants._ID };
+					String channelSelection = ChannelConstants.FIELD_CHAN_ID + " = ?";
+
+					channelSelection = appendLocationHostname( context, locationProfile, channelSelection, null );
+
+					ContentValues channelValues = ChannelDaoHelper.convertChannelInfoToContentValues( locationProfile, lastModified, program.getChannelInfo() );
+					Cursor channelCursor = context.getContentResolver().query( ChannelConstants.CONTENT_URI, channelProjection, channelSelection, new String[] { String.valueOf( program.getChannelInfo().getChannelId() ) }, null );
+					if( !channelCursor.moveToFirst() ) {
+//						Log.v( TAG, "load : adding channel " + program.getChannelInfo().getChannelId() );
+						
+						// catch all for channels not in regular linups (i.e. added as a result of integrating miro bridge)
+						ops.add(  
+							ContentProviderOperation.newInsert( ChannelConstants.CONTENT_URI )
+								.withValues( channelValues )
+								.withYieldAllowed( true )
+								.build()
+						);
+						count++;
+					}
+					channelCursor.close();
+					
+					channelsChecked.add( program.getChannelInfo().getChannelId() );
+			
 				}
-				
+
 			}
 			
 			if( !inError && null != program.getRecording() ) {
 				
-				String[] recordingProjection = new String[] { RecordingConstants.TABLE_NAME + "_" + RecordingConstants._ID };
-				String recordingSelection = RecordingConstants.FIELD_RECORD_ID + " = ? AND " + RecordingConstants.FIELD_START_TIME + " = ? AND " + RecordingConstants.FIELD_HOSTNAME + " = ?";
-				String[] recordingSelectionArgs = new String[] { String.valueOf( program.getRecording().getRecordId() ), String.valueOf( program.getStartTime().getMillis() ), mLocationProfile.getHostname() };
+				if( program.getRecording().getRecordId() > 0 ) {
 				
-				Log.v( TAG, "load : recording=" + program.getRecording().toString() );
-				
-				ContentValues recordingValues = mRecordingDaoHelper.convertRecordingToContentValues( program.getRecording(), program.getStartTime() );
-				Cursor recordingCursor = mContext.getContentResolver().query( RecordingConstants.CONTENT_URI, recordingProjection, recordingSelection, recordingSelectionArgs, null );
-				if( recordingCursor.moveToFirst() ) {
-					Log.v( TAG, "load : UPDATE RECORDING program=" + program.getTitle() + ", recording=" + program.getRecording().getRecordId() );
+					String[] recordingProjection = new String[] { details.getTableName() + "_" + RecordingConstants._ID };
+					String recordingSelection = RecordingConstants.FIELD_RECORD_ID + " = ? AND " + RecordingConstants.FIELD_START_TIME + " = ? AND " + RecordingConstants.FIELD_MASTER_HOSTNAME + " = ?";
+					String[] recordingSelectionArgs = new String[] { String.valueOf( program.getRecording().getRecordId() ), String.valueOf( program.getStartTime().getMillis() ), locationProfile.getHostname() };
 
-					Long id = recordingCursor.getLong( recordingCursor.getColumnIndexOrThrow( RecordingConstants.TABLE_NAME + "_" + RecordingConstants._ID ) );					
-					ops.add( 
-						ContentProviderOperation.newUpdate( ContentUris.withAppendedId( RecordingConstants.CONTENT_URI, id ) )
-						.withValues( recordingValues )
-						.withYieldAllowed( true )
-						.build()
-					);
-				} else {
-					Log.v( TAG, "load : INSERT RECORDING program=" + program.getTitle() + ", recording=" + program.getRecording().getRecordId() );
+					//Log.v( TAG, "load : recording=" + program.getRecording().toString() );
 
-					ops.add(  
-						ContentProviderOperation.newInsert( RecordingConstants.CONTENT_URI )
-						.withValues( recordingValues )
-						.withYieldAllowed( true )
-						.build()
-					);
+					ContentValues recordingValues = RecordingDaoHelper.convertRecordingToContentValues( locationProfile, lastModified, program.getStartTime(), program.getRecording() );
+					Cursor recordingCursor = context.getContentResolver().query( details.getContentUri(), recordingProjection, recordingSelection, recordingSelectionArgs, null );
+					if( recordingCursor.moveToFirst() ) {
+						//Log.v( TAG, "load : UPDATE RECORDING " + count + ":" + program.getTitle() + ", recording=" + program.getRecording().getRecordId() );
+
+						Long id = recordingCursor.getLong( recordingCursor.getColumnIndexOrThrow( details.getTableName() + "_" + RecordingConstants._ID ) );					
+						ops.add( 
+							ContentProviderOperation.newUpdate( ContentUris.withAppendedId( details.getContentUri(), id ) )
+								.withValues( recordingValues )
+								.withYieldAllowed( true )
+								.build()
+							);
+					} else {
+						//Log.v( TAG, "load : INSERT RECORDING " + count + ":" + program.getTitle() + ", recording=" + program.getRecording().getRecordId() );
+
+						ops.add(  
+							ContentProviderOperation.newInsert( details.getContentUri() )
+								.withValues( recordingValues )
+								.withYieldAllowed( true )
+								.build()
+							);
+					}
+					recordingCursor.close();
+					count++;
+
 				}
-				recordingCursor.close();
-				count++;
+				
 			}
 			
-			if( recorded.containsKey( program.getFilename() ) ) {
-				recorded.remove( program.getFilename() );
-			}
-
 			if( count > 100 ) {
-				Log.v( TAG, "process : applying batch for '" + count + "' transactions" );
+//				Log.i( TAG, "load : applying batch for '" + count + "' transactions, processing programs" );
 				
 				if( !ops.isEmpty() ) {
-					//Log.v( TAG, "process : applying batch '" + channel.getCallSign() + "'" );
+//					Log.v( TAG, "load : applying batch" );
 					
-					ContentProviderResult[] results = mContext.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
+					ContentProviderResult[] results = context.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
 					loaded += results.length;
 					
 					if( results.length > 0 ) {
 						ops.clear();
+
+//						for( ContentProviderResult result : results ) {
+//							Log.i( TAG, "load : batch result=" + result.toString() );
+//						}
 					}
 				}
 
-				count = -1;
+				count = 0;
 			}
 			
 		}
 
 		if( !ops.isEmpty() ) {
-			Log.v( TAG, "process : applying final batch for '" + count + "' transactions" );
+//			Log.i( TAG, "load : applying final batch for '" + count + "' transactions, after processing programs" );
 
-			ContentProviderResult[] results = mContext.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
+			ContentProviderResult[] results = context.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
 			loaded += results.length;
 
 			if( results.length > 0 ) {
 				ops.clear();
+
+//				for( ContentProviderResult result : results ) {
+//					Log.i( TAG, "load : batch result=" + result.toString() );
+//				}
 			}
+			
+			count = 0;
 		}
 
-		Log.v( TAG, "load : remove deleted recordings" );
-		for( Program program : recorded.values() ) {
-			Log.v( TAG, "load : remove deleted recording - " + program.getTitle() + " [" + program.getSubTitle() + "]" );
-			
-			// Delete any live stream details
-			LiveStreamInfo liveStreamInfo = mLiveStreamDaoHelper.findByProgram( program );
-			if( null != liveStreamInfo ) {
-				Log.v( TAG, "load : remove live stream" );
-				
-				new RemoveStreamTask().execute( liveStreamInfo );
-				
-				mLiveStreamDaoHelper.delete( liveStreamInfo );
-			}
-			
-			if( null != program.getRecording() ) {
-				Log.v( TAG, "load : remove recording" );
-				
-				ops.add(  
-					ContentProviderOperation.newDelete( RecordingConstants.CONTENT_URI )
-					.withSelection( RecordingConstants.FIELD_RECORD_ID + " = ? AND " + RecordingConstants.FIELD_START_TIME + " = ? AND " + RecordingConstants.FIELD_HOSTNAME + " = ?", new String[] { String.valueOf( program.getRecording().getRecordId() ), String.valueOf( program.getStartTime().getMillis() ), mLocationProfile.getHostname() } )
-					.withYieldAllowed( true )
-					.build()
-				);
+//		Log.v( TAG, "load : remove deleted recordings" );
+		if( table.equals( ProgramConstants.TABLE_NAME_RECORDED ) ) {
+			String deletedSelection = table + "." + ProgramConstants.FIELD_LAST_MODIFIED + " < ?";
+			String[] deletedSelectionArgs = new String[] { String.valueOf( today.getMillis() ) };
+			List<Program> deleted = findAll( context, uri, null, deletedSelection, deletedSelectionArgs, null, table );
+			for( Program program : deleted ) {
+				//			Log.v( TAG, "load : remove deleted recording - " + program.getTitle() + " [" + program.getSubTitle() + "]" );
 
-			}
-			
-			Log.v( TAG, "load : remove program" );
-			ops.add(  
-				ContentProviderOperation.newDelete( uri )
-				.withSelection( ProgramConstants.FIELD_FILENAME + " = ?", new String[] { program.getFilename() } )
-				.withYieldAllowed( true )
-				.build()
-			);
+				// Delete any live stream details
+				LiveStreamInfo liveStreamInfo = mLiveStreamDaoHelper.findByProgram( context, locationProfile, program );
+				if( null != liveStreamInfo ) {
+					//				Log.v( TAG, "load : remove live stream" );
 
-			if( count > 100 ) {
-				Log.v( TAG, "process : applying batch for '" + count + "' transactions" );
-				
-				if( !ops.isEmpty() ) {
-					
-					ContentProviderResult[] results = mContext.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
-					loaded += results.length;
-					
-					if( results.length > 0 ) {
-						ops.clear();
-					}
-
+					RemoveStreamTask removeStreamTask = new RemoveStreamTask();
+					removeStreamTask.setContext( context );
+					removeStreamTask.setLocationProfile( locationProfile );
+					removeStreamTask.execute( liveStreamInfo );
 				}
 
-				count = -1;
 			}
-
 		}
-		
+
+//		Log.v( TAG, "load : DELETE PROGRAMS" );
+		ops.add(  
+			ContentProviderOperation.newDelete( uri )
+				.withSelection( table + "." + ProgramConstants.FIELD_LAST_MODIFIED_DATE + " < ?", new String[] { String.valueOf( today.getMillis() ) } )
+				.withYieldAllowed( true )
+				.build()
+		);
+
+//		Log.v( TAG, "load : DELETE RECORDINGS" );
+		ops.add(  
+			ContentProviderOperation.newDelete( details.getContentUri() )
+				.withSelection( details.getTableName() + "." + RecordingConstants.FIELD_LAST_MODIFIED_DATE + " < ?", new String[] { String.valueOf( today.getMillis() ) } )
+				.withYieldAllowed( true )
+				.build()
+		);
+
 		if( !ops.isEmpty() ) {
-			Log.v( TAG, "process : applying final batch for '" + count + "' transactions" );
+//			Log.i( TAG, "load : applying final batch for '" + count + "' transactions, final batch" );
 			
-			ContentProviderResult[] results = mContext.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
+			ContentProviderResult[] results = context.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
 			loaded += results.length;
+
+			if( results.length > 0 ) {
+				ops.clear();
+
+//				for( ContentProviderResult result : results ) {
+//					Log.i( TAG, "load : batch result=" + result.toString() );
+//				}
+			}
 		}
 
-		Log.v( TAG, "load : exit" );
+//		Log.v( TAG, "load : exit" );
 		return loaded;
 	}
 	
@@ -446,18 +497,18 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 	 * @param programs
 	 * @return
 	 */
-	public abstract int load( List<Program> programs ) throws RemoteException, OperationApplicationException;
+	public abstract int load( final Context context, final LocationProfile locationProfile, List<Program> programs ) throws RemoteException, OperationApplicationException;
 	
 	/**
 	 * @param cursor
 	 * @return
 	 */
-	public Program convertCursorToProgram( Cursor cursor ) {
+	public static Program convertCursorToProgram( Cursor cursor, final String table ) {
 //		Log.v( TAG, "convertCursorToProgram : enter" );
 
 //		Long id = null;
 		DateTime startTime = null, endTime = null, lastModified = null, airDate = null;
-		String title = "", subTitle = "", category = "", categoryType = "", seriesId = "", programId = "", fileSize = "", programFlags = "", hostname = "", filename = "", description = "", inetref = "", season = "", episode = "";
+		String title = "", subTitle = "", category = "", categoryType = "", seriesId = "", programId = "", fileSize = "", programFlags = "", hostname = "", filename = "", description = "", inetref = "", season = "", episode = "", masterHostname = "";
 		int repeat = -1, videoProps = -1, audioProps = -1, subProps = -1;
 		float stars = 0.0f;
 		
@@ -561,22 +612,22 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 			episode = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_EPISODE ) );
 		}
 		
-		if( cursor.getColumnIndex( ProgramConstants.FIELD_CHANNEL_ID ) != -1 ) {
-			channelInfo = mChannelDaoHelper.convertCursorToChannelInfo( cursor );
+		if( cursor.getColumnIndex( ProgramConstants.FIELD_MASTER_HOSTNAME ) != -1 ) {
+			masterHostname = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_MASTER_HOSTNAME ) );
 		}
 		
-		if( cursor.getColumnIndex( ProgramConstants.FIELD_RECORD_ID ) != -1 ) {
-			recording = mRecordingDaoHelper.convertCursorToRecording( cursor );
+		if( cursor.getColumnIndex( ProgramConstants.FIELD_CHANNEL_ID ) != -1 ) {
+			channelInfo = ChannelDaoHelper.convertCursorToChannelInfo( cursor );
+		}
+
+		if( cursor.getColumnIndex( RecordingConstants.ContentDetails.getValueFromParent( table ).getTableName() + "_" + RecordingConstants.FIELD_RECORD_ID ) != -1 ) {
+			recording = RecordingDaoHelper.convertCursorToRecording( cursor, table );
 		}
 		
 		if( cursor.getColumnIndex( LiveStreamConstants.TABLE_NAME + "_" + LiveStreamConstants.FIELD_ID ) != -1 ) {
-			liveStreamInfo = mLiveStreamDaoHelper.convertCursorToLiveStreamInfo( cursor );
+			liveStreamInfo = LiveStreamDaoHelper.convertCursorToLiveStreamInfo( cursor );
 		}
 		
-//		if( cursor.getColumnIndex( ProgramConstants.FIELD_ ) != -1 ) {
-//			defaultAuth = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_ ) );
-//		}
-
 		Program program = new Program();
 		program.setStartTime( startTime );
 		program.setEndTime( endTime );
@@ -612,7 +663,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		return program;
 	}
 
-	protected ContentValues[] convertProgramsToContentValuesArray( final List<Program> programs ) {
+	protected static ContentValues[] convertProgramsToContentValuesArray( final LocationProfile locationProfile, final DateTime lastModified, final List<Program> programs ) {
 //		Log.v( TAG, "convertProgramsToContentValuesArray : enter" );
 		
 		if( null != programs && !programs.isEmpty() ) {
@@ -622,7 +673,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 
 			for( Program program : programs ) {
 
-				contentValues = convertProgramToContentValues( program );
+				contentValues = convertProgramToContentValues( locationProfile, lastModified, program );
 				contentValuesArray.add( contentValues );
 				
 			}			
@@ -639,21 +690,21 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		return null;
 	}
 
-	protected ContentValues convertProgramToContentValues( final Program program ) {
+	protected static ContentValues convertProgramToContentValues( final LocationProfile locationProfile, final DateTime lastModified, final Program program ) {
 		
 		boolean inError;
 		
-		DateTime startTime = new DateTime( 0 );
-		DateTime endTime = new DateTime( 0 );
+		DateTime startTime = DateUtils.convertUtc( new DateTime( System.currentTimeMillis() ) );
+		DateTime endTime = DateUtils.convertUtc( new DateTime( System.currentTimeMillis() ) );
 
 		// If one timestamp is bad, leave them both set to 0.
 		if( null == program.getStartTime() || null == program.getEndTime() ) {
-			Log.w(TAG, "convertProgramToContentValues : null starttime and or endtime" );
+//			Log.w(TAG, "convertProgramToContentValues : null starttime and or endtime" );
 		
 			inError = true;
 		} else {
-			startTime = new DateTime( program.getStartTime().getMillis() );
-			endTime = new DateTime( program.getEndTime().getMillis() );
+			startTime = program.getStartTime();
+			endTime = program.getEndTime();
 			
 			inError = false;
 		}
@@ -685,57 +736,74 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		values.put( ProgramConstants.FIELD_CHANNEL_ID, null != program.getChannelInfo() ? program.getChannelInfo().getChannelId() : -1 );
 		values.put( ProgramConstants.FIELD_RECORD_ID, null != program.getRecording() ? program.getRecording().getRecordId() : -1 );
 		values.put( ProgramConstants.FIELD_IN_ERROR, inError ? 1 : 0 );
+		values.put( ProgramConstants.FIELD_MASTER_HOSTNAME, locationProfile.getHostname() );
+		values.put( ProgramConstants.FIELD_LAST_MODIFIED_DATE, lastModified.getMillis() );
 		
 		return values;
 	}
 
 	private class RemoveStreamTask extends AsyncTask<LiveStreamInfo, Void, ResponseEntity<Bool>> {
 
+		private Context mContext;
+		private LocationProfile mLocationProfile;
+		
 		private Exception e = null;
 
 		@Override
 		protected ResponseEntity<Bool> doInBackground( LiveStreamInfo... params ) {
-			Log.v( TAG, "RemoveStreamTask : enter" );
+//			Log.v( TAG, "RemoveStreamTask : enter" );
 
+			if( null == mContext ) 
+				throw new RuntimeException( "RemoveStreamTask not initalized!" );
+			
 			try {
-				Log.v( TAG, "RemoveStreamTask : api" );
+//				Log.v( TAG, "RemoveStreamTask : api" );
 				
 				LiveStreamInfo liveStreamInfo = params[ 0 ];
 				
 				if( null != liveStreamInfo ) {
-					return mMainApplication.getMythServicesApi().contentOperations().removeLiveStream( liveStreamInfo.getId() );
+					return mMythtvServiceHelper.getMythServicesApi( mLocationProfile ).contentOperations().removeLiveStream( liveStreamInfo.getId() );
 				}
 				
 			} catch( Exception e ) {
-				Log.v( TAG, "RemoveStreamTask : error" );
+//				Log.v( TAG, "RemoveStreamTask : error" );
 
 				this.e = e;
 			}
 
-			Log.v( TAG, "RemoveStreamTask : exit" );
+//			Log.v( TAG, "RemoveStreamTask : exit" );
 			return null;
 		}
 
 		@Override
 		protected void onPostExecute( ResponseEntity<Bool> result ) {
-			Log.v( TAG, "RemoveStreamTask onPostExecute : enter" );
+//			Log.v( TAG, "RemoveStreamTask onPostExecute : enter" );
 
 			if( null == e ) {
-				Log.v( TAG, "RemoveStreamTask onPostExecute : no error occurred" );
+//				Log.v( TAG, "RemoveStreamTask onPostExecute : no error occurred" );
 				
 				if( null != result ) {
 					
-					if( result.getBody().getBool().booleanValue() ) {
-						Log.v( TAG, "RemoveStreamTask onPostExecute : live stream removed" );
-					}
+//					if( result.getBody().getBool().booleanValue() ) {
+//						Log.v( TAG, "RemoveStreamTask onPostExecute : live stream removed" );
+//					}
 					
 				}
-			} else {
-				Log.e( TAG, "error removing live stream", e );
+//			} else {
+//				Log.e( TAG, "error removing live stream", e );
 			}
 
-			Log.v( TAG, "RemoveStreamTask onPostExecute : exit" );
+//			Log.v( TAG, "RemoveStreamTask onPostExecute : exit" );
 		}
+		
+		public void setContext( Context context ) {
+			this.mContext = context;
+		}
+		
+		public void setLocationProfile( LocationProfile locationProfile ) {
+			this.mLocationProfile = locationProfile;
+		}
+		
 	}
 
 }

@@ -18,28 +18,26 @@
  */
 package org.mythtv.service.dvr;
 
-import java.io.File;
 import java.io.IOException;
-import java.text.DecimalFormat;
+import java.util.List;
 
-import org.apache.commons.io.FileUtils;
-import org.mythtv.R;
+import org.joda.time.DateTime;
 import org.mythtv.client.ui.preferences.LocationProfile;
+import org.mythtv.db.dvr.ProgramGuideDaoHelper;
 import org.mythtv.db.dvr.UpcomingDaoHelper;
 import org.mythtv.db.http.EtagDaoHelper;
+import org.mythtv.db.http.model.EtagInfoDelegate;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.MythtvService;
-import org.mythtv.services.api.ETagInfo;
+import org.mythtv.service.util.DateUtils;
+import org.mythtv.service.util.NetworkHelper;
+import org.mythtv.services.api.dvr.Program;
 import org.mythtv.services.api.dvr.ProgramList;
 import org.mythtv.services.api.dvr.Programs;
 import org.mythtv.services.api.dvr.impl.DvrTemplate.Endpoint;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
 import android.content.OperationApplicationException;
 import android.os.RemoteException;
@@ -55,11 +53,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 public class UpcomingDownloadService extends MythtvService {
 
 	private static final String TAG = UpcomingDownloadService.class.getSimpleName();
-	private static final DecimalFormat formatter = new DecimalFormat( "###" );
 
-	private static final String UPCOMING_FILE_PREFIX = "upcoming_";
-	private static final String UPCOMING_FILE_EXT = ".json";
-	
     public static final String ACTION_DOWNLOAD = "org.mythtv.background.upcomingDownload.ACTION_DOWNLOAD";
     public static final String ACTION_PROGRESS = "org.mythtv.background.upcomingDownload.ACTION_PROGRESS";
     public static final String ACTION_COMPLETE = "org.mythtv.background.upcomingDownload.ACTION_COMPLETE";
@@ -71,16 +65,10 @@ public class UpcomingDownloadService extends MythtvService {
     public static final String EXTRA_COMPLETE_UPTODATE = "COMPLETE_UPTODATE";
     public static final String EXTRA_COMPLETE_OFFLINE = "COMPLETE_OFFLINE";
     
-	private NotificationManager mNotificationManager;
-	private Notification mNotification = null;
-	private PendingIntent mContentIntent = null;
-	private int notificationId;
-	
-	private File upcomingDirectory = null;
-
-	private UpcomingDaoHelper mUpcomingDaoHelper;
-	private EtagDaoHelper mEtagDaoHelper;
-	private LocationProfileDaoHelper mLocationProfileDaoHelper;
+	private UpcomingDaoHelper mUpcomingDaoHelper = UpcomingDaoHelper.getInstance();
+	private EtagDaoHelper mEtagDaoHelper = EtagDaoHelper.getInstance();
+	private LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
+	private ProgramGuideDaoHelper mProgramGuideDaoHelper = ProgramGuideDaoHelper.getInstance();
 
 	public UpcomingDownloadService() {
 		super( "UpcomingDownloadService" );
@@ -94,21 +82,8 @@ public class UpcomingDownloadService extends MythtvService {
 		Log.d( TAG, "onHandleIntent : enter" );
 		super.onHandleIntent( intent );
 		
-		mUpcomingDaoHelper = new UpcomingDaoHelper( this );
-		mEtagDaoHelper = new EtagDaoHelper( this );
-		mLocationProfileDaoHelper = new LocationProfileDaoHelper( this );
-		
-		upcomingDirectory = mFileHelper.getProgramUpcomingDataDirectory();
-		if( null == upcomingDirectory || !upcomingDirectory.exists() ) {
-			Intent completeIntent = new Intent( ACTION_COMPLETE );
-			completeIntent.putExtra( EXTRA_COMPLETE, "Program Upcoming location can not be found" );
-			sendBroadcast( completeIntent );
-
-			Log.d( TAG, "onHandleIntent : exit, upcomingDirectory does not exist" );
-			return;
-		}
-
-		if( !mNetworkHelper.isMasterBackendConnected() ) {
+		LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile( this );
+		if( !NetworkHelper.getInstance().isMasterBackendConnected( this, locationProfile ) ) {
 			Intent completeIntent = new Intent( ACTION_COMPLETE );
 			completeIntent.putExtra( EXTRA_COMPLETE, "Master Backend unreachable" );
 			completeIntent.putExtra( EXTRA_COMPLETE_OFFLINE, Boolean.TRUE );
@@ -118,24 +93,21 @@ public class UpcomingDownloadService extends MythtvService {
 			return;
 		}
 		
-		mNotificationManager = (NotificationManager) getSystemService( Context.NOTIFICATION_SERVICE );
-
 		if ( intent.getAction().equals( ACTION_DOWNLOAD ) ) {
     		Log.i( TAG, "onHandleIntent : DOWNLOAD action selected" );
 
     		boolean passed = true;
     		
     		try {
-    			sendNotification();
 
-    			download();
-
+    			download( locationProfile );
+    			updateUpcoming( locationProfile );
+    			
 			} catch( Exception e ) {
 				Log.e( TAG, "onHandleIntent : error loading upcoming data", e );
 				
 				passed = false;
 			} finally {
-    			completed();
 
     			Intent completeIntent = new Intent( ACTION_COMPLETE );
     			completeIntent.putExtra( EXTRA_COMPLETE, "Upcoming Programs Download Service Finished" );
@@ -152,16 +124,13 @@ public class UpcomingDownloadService extends MythtvService {
 
 	// internal helpers
 	
-	private void download() throws Exception {
+	private void download( final LocationProfile locationProfile ) throws Exception {
 		Log.v( TAG, "download : enter" );
 		
-		LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile();
-		Log.v( TAG, "download : get upcoming for host [" + locationProfile.getHostname() + ":" + locationProfile.getUrl() + "]" );
-
-		ETagInfo etag = mEtagDaoHelper.findByEndpointAndDataId( Endpoint.GET_UPCOMING_LIST.name(), "" );
-		etag = ETagInfo.createEmptyETag();
+		EtagInfoDelegate etag = mEtagDaoHelper.findByEndpointAndDataId( this, locationProfile, Endpoint.GET_UPCOMING_LIST.name(), "" );
 		
-		ResponseEntity<ProgramList> responseEntity = mMainApplication.getMythServicesApi().dvrOperations().getUpcomingList( -1, -1, false, etag );
+		DateTime date = DateUtils.convertUtc( new DateTime( System.currentTimeMillis() ) );
+		ResponseEntity<ProgramList> responseEntity = mMythtvServiceHelper.getMythServicesApi( locationProfile ).dvrOperations().getUpcomingList( -1, -1, false, etag );
 		if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
 			Log.i( TAG, "download : " + Endpoint.GET_UPCOMING_LIST.getEndpoint() + " returned 200 OK" );
 	
@@ -170,12 +139,16 @@ public class UpcomingDownloadService extends MythtvService {
 				
 				if( null != programList.getPrograms() ) {
 					
-//					cleanup();
+					process( programList.getPrograms(), locationProfile );
 				
-					process( programList.getPrograms() );
-				
-					if( null != etag.getETag() ) {
-						mEtagDaoHelper.save( etag, Endpoint.GET_UPCOMING_LIST.name(), "" );
+					if( null != etag.getValue() ) {
+						Log.i( TAG, "download : saving etag: " + etag.getValue() );
+
+						etag.setEndpoint( Endpoint.GET_UPCOMING_LIST.name() );
+						etag.setDate( date );
+						etag.setMasterHostname( locationProfile.getHostname() );
+						etag.setLastModified( date );
+						mEtagDaoHelper.save( this, locationProfile, etag );
 					}
 						
 				}
@@ -187,8 +160,11 @@ public class UpcomingDownloadService extends MythtvService {
 		if( responseEntity.getStatusCode().equals( HttpStatus.NOT_MODIFIED ) ) {
 			Log.i( TAG, "download : " + Endpoint.GET_UPCOMING_LIST.getEndpoint() + " returned 304 Not Modified" );
 			
-			if( null != etag.getETag() ) {
-				mEtagDaoHelper.save( etag, Endpoint.GET_UPCOMING_LIST.name(), "" );
+			if( null != etag.getValue() ) {
+				Log.i( TAG, "download : saving etag: " + etag.getValue() );
+
+				etag.setLastModified( date );
+				mEtagDaoHelper.save( this, locationProfile, etag );
 			}
 			
 		}
@@ -196,65 +172,43 @@ public class UpcomingDownloadService extends MythtvService {
 		Log.v( TAG, "download : exit" );
 	}
 
-	private void cleanup() throws IOException {
-		Log.v( TAG, "cleanup : enter" );
-		
-		FileUtils.cleanDirectory( upcomingDirectory );
-
-		Log.v( TAG, "cleanup : exit" );
-	}
-	
-	private void process( Programs programs ) throws JsonGenerationException, JsonMappingException, IOException, RemoteException, OperationApplicationException {
+	private void process( Programs programs, final LocationProfile locationProfile ) throws JsonGenerationException, JsonMappingException, IOException, RemoteException, OperationApplicationException {
 		Log.v( TAG, "process : enter" );
 		
-		LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile();
 		Log.v( TAG, "process : saving upcoming for host [" + locationProfile.getHostname() + ":" + locationProfile.getUrl() + "]" );
 
-		mMainApplication.getObjectMapper().writeValue( new File( upcomingDirectory, UPCOMING_FILE_PREFIX + locationProfile.getHostname() + UPCOMING_FILE_EXT ), programs );
-		Log.v( TAG, "process : saved upcoming to " + upcomingDirectory.getAbsolutePath() );
-		
-		int programsAdded = mUpcomingDaoHelper.load( programs.getPrograms() );
+		int programsAdded = mUpcomingDaoHelper.load( this, locationProfile, programs.getPrograms() );
 		Log.v( TAG, "process : programsAdded=" + programsAdded );
 
 		Log.v( TAG, "process : exit" );
 	}
 
-	// internal helpers
-	
-	@SuppressWarnings( "deprecation" )
-	private void sendNotification() {
-
-		long when = System.currentTimeMillis();
-		notificationId = (int) when;
+	private void updateUpcoming( final LocationProfile locationProfile ) {
+		Log.v( TAG, "updateUpcoming : enter" );
 		
-        mNotification = new Notification( android.R.drawable.stat_notify_sync, getResources().getString( R.string.notification_sync_upcoming ), when );
-
-        Intent notificationIntent = new Intent();
-        mContentIntent = PendingIntent.getActivity( this, 0, notificationIntent, 0 );
-
-        mNotification.setLatestEventInfo( this, getResources().getString( R.string.app_name ), getResources().getString( R.string.notification_sync_upcoming ), mContentIntent );
-
-        mNotification.flags = Notification.FLAG_ONGOING_EVENT;
-
-        mNotificationManager.notify( notificationId, mNotification );
-	
+		List<Program> upcomings = mUpcomingDaoHelper.findAll( this, locationProfile );
+		if( null != upcomings && !upcomings.isEmpty() ) {
+			
+			for( Program upcoming : upcomings ) {
+//				Log.v( TAG, "updateUpcoming : upcoming=" + upcomings.toString() );
+			
+				Program program = mProgramGuideDaoHelper.findOne( this, locationProfile, upcoming.getChannelInfo().getChannelId(), upcoming.getStartTime() );
+				if( null != program ) {
+					
+					if( null == program.getRecording() || ( null != program.getRecording() && program.getRecording().getStatus() > -2 ) ) {
+						program.setRecording( upcoming.getRecording() );
+						mProgramGuideDaoHelper.save( this, locationProfile, program );
+					
+						Log.v( TAG, "updateUpcoming : program updated!" );
+					}
+					
+				}
+				
+			}
+			
+		}
+		
+		Log.v( TAG, "updateUpcoming : exit" );
 	}
 	
-    @SuppressWarnings( "deprecation" )
-	public void progressUpdate( double percentageComplete ) {
-
-    	CharSequence contentText = formatter.format( percentageComplete ) + "% complete";
-
-    	mNotification.setLatestEventInfo( this, getResources().getString( R.string.notification_sync_upcoming ), contentText, mContentIntent );
-    	mNotificationManager.notify( notificationId, mNotification );
-    }
-
-    public void completed()    {
-    	
-    	if( null != mNotificationManager ) {
-    		mNotificationManager.cancel( notificationId );
-    	}
-    	
-    }
-
 }

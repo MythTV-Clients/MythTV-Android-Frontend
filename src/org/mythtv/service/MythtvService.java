@@ -19,7 +19,10 @@
 package org.mythtv.service;
 
 import org.mythtv.client.MainApplication;
-import org.mythtv.service.util.FileHelper;
+import org.mythtv.client.ui.preferences.LocationProfile;
+import org.mythtv.db.http.EtagDaoHelper;
+import org.mythtv.db.preferences.LocationProfileDaoHelper;
+import org.mythtv.service.util.MythtvServiceHelper;
 import org.mythtv.service.util.NetworkHelper;
 
 import android.app.IntentService;
@@ -36,24 +39,24 @@ public class MythtvService extends IntentService {
 	
 	public static final String FILENAME_EXT = ".json";
     
-	protected FileHelper mFileHelper;
     protected MainApplication mMainApplication;
-    protected NetworkHelper mNetworkHelper;
-	
+    protected MythtvServiceHelper mMythtvServiceHelper = MythtvServiceHelper.getInstance();
+    
     public static final String ACTION_CONNECT = "org.mythtv.background.ACTION_CONNECT";
     public static final String ACTION_COMPLETE = "org.mythtv.background.ACTION_COMPLETE";
 
     public static final String EXTRA_COMPLETE = "COMPLETE";
     public static final String EXTRA_COMPLETE_ONLINE = "COMPLETE_ONLINE";
 
+	protected EtagDaoHelper mEtagDaoHelper = EtagDaoHelper.getInstance();
+    protected LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
+    
 	public MythtvService() {
 		super( "MythtvService" );
 	}
 
 	public MythtvService( String name ) {
 		super( name );
-		
-		mFileHelper = FileHelper.newInstance( this );
 
 	}
 
@@ -64,12 +67,13 @@ public class MythtvService extends IntentService {
 	protected void onHandleIntent( Intent intent ) {
 
 		mMainApplication = (MainApplication) MythtvService.this.getApplicationContext();
-		mNetworkHelper = NetworkHelper.newInstance( this );
-
+		
 		if ( intent.getAction().equals( ACTION_CONNECT ) ) {
 			Log.v( TAG, "onHandleIntent : checking master backend connection" );
 
-			Boolean connected = mNetworkHelper.isMasterBackendConnected();
+			LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile( this );
+			
+			Boolean connected = NetworkHelper.getInstance().isMasterBackendConnected( this, locationProfile );
 			Log.v( TAG, "onHandleIntent : connected=" + connected );
 
 			Intent completeIntent = new Intent( ACTION_COMPLETE );

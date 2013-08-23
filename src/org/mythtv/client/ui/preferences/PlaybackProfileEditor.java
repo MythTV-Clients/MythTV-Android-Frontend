@@ -41,7 +41,7 @@ public class PlaybackProfileEditor extends AbstractMythtvFragmentActivity {
 
 	private static final String TAG = PlaybackProfileEditor.class.getSimpleName();
 
-	private PlaybackProfileDaoHelper mPlaybackProfileDaoHelper;
+	private PlaybackProfileDaoHelper mPlaybackProfileDaoHelper = PlaybackProfileDaoHelper.getInstance();
 	
 	private PlaybackProfile profile;
 
@@ -50,8 +50,6 @@ public class PlaybackProfileEditor extends AbstractMythtvFragmentActivity {
 		Log.v( TAG, "onCreate : enter" );
 		super.onCreate( savedInstanceState );
 
-		mPlaybackProfileDaoHelper = new PlaybackProfileDaoHelper( this );
-		
 		setContentView( this.getLayoutInflater().inflate( R.layout.preference_playback_profile_editor, null ) );
 
 		setupSaveButtonEvent( R.id.btnPreferencePlaybackProfileSave );
@@ -59,7 +57,7 @@ public class PlaybackProfileEditor extends AbstractMythtvFragmentActivity {
 
 		int id = getIntent().getIntExtra( PlaybackProfileConstants._ID, -1 );
 
-		profile = mPlaybackProfileDaoHelper.findOne( (long) id );
+		profile = mPlaybackProfileDaoHelper.findOne( this, (long) id );
 		if( null == profile ) {
 			profile = new PlaybackProfile();
 			
@@ -264,7 +262,7 @@ public class PlaybackProfileEditor extends AbstractMythtvFragmentActivity {
 			if( profile.getId() != -1 ) {
 				Log.v( TAG, "save : updating existing playback profile" );
 
-				retVal = mPlaybackProfileDaoHelper.save( profile );
+				retVal = mPlaybackProfileDaoHelper.save( this, profile );
 			}
 		}
 

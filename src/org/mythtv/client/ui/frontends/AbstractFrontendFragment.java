@@ -20,24 +20,24 @@ package org.mythtv.client.ui.frontends;
 
 import java.util.Timer;
 
-import org.mythtv.R;
 import org.mythtv.client.MainApplication;
-import org.mythtv.services.api.ETagInfo;
+import org.mythtv.client.ui.AbstractMythFragment;
+import org.mythtv.client.ui.MainMenuFragment;
+import org.mythtv.client.ui.preferences.LocationProfile;
+import org.mythtv.db.http.model.EtagInfoDelegate;
 import org.mythtv.services.api.frontend.FrontendStatus;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import android.app.AlertDialog;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.util.Log;
 
 /**
  * @author pot8oe
  * 
  */
-public class AbstractFrontendFragment extends Fragment {
+public class AbstractFrontendFragment extends AbstractMythFragment {
 
 	private final static String TAG = "AbstractFrontendFragment";
 	private final static int STATUS_CHECK_INTERVAL_MS = 10000;
@@ -45,17 +45,19 @@ public class AbstractFrontendFragment extends Fragment {
 	protected static GetStatusTask sGetStatusTask;
 	protected static Timer sStatusTimer;
 
+	private LocationProfile mLocationProfile;
+	
 	@Override
 	public void onCreate( Bundle savedInstanceState ) {
 
+		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
+		
 		// create only one get status task
 		if( null == sGetStatusTask ) {
 			sGetStatusTask = new GetStatusTask();
 
 			// kick it off with a status request
-			final FrontendsFragment frontends = (FrontendsFragment) getFragmentManager().findFragmentById(
-					R.id.frontends_fragment );
-			final Frontend fe = frontends.getSelectedFrontend();
+			final Frontend fe = MainMenuFragment.getSelectedFrontend();
 			// sGetStatusTask.execute(fe.getUrl());
 		}
 
@@ -82,19 +84,7 @@ public class AbstractFrontendFragment extends Fragment {
 		return (MainApplication) getActivity().getApplicationContext();
 	}
 
-	protected void showAlertDialog( final CharSequence title, final CharSequence message ) {
-		this.getActivity().runOnUiThread( new Runnable() {
-
-			@Override
-			public void run() {
-				AlertDialog.Builder builder = new AlertDialog.Builder( getActivity() );
-				builder.setTitle( title );
-				builder.setMessage( message );
-				builder.show();
-			}
-
-		} );
-	}
+	
 
 	/**
 	 * When calling execute there must be 1 paramter: Frontend URL
@@ -108,8 +98,8 @@ public class AbstractFrontendFragment extends Fragment {
 		protected ResponseEntity<FrontendStatus> doInBackground( String... params ) {
 
 			try {
-				ETagInfo eTag = ETagInfo.createEmptyETag();
-				return getApplicationContext().getMythServicesApi().frontendOperations()
+				EtagInfoDelegate eTag = EtagInfoDelegate.createEmptyETag();
+				return mMythtvServiceHelper.getMythServicesApi( mLocationProfile ).frontendOperations()
 						.getStatus( params[ 0 ], eTag );
 			} catch( Exception e ) {
 				Log.e( TAG, e.getMessage() );
@@ -145,10 +135,10 @@ public class AbstractFrontendFragment extends Fragment {
 		protected Void doInBackground( String... params ) {
 
 			try {
-				getApplicationContext().getMythServicesApi().frontendOperations()
+				mMythtvServiceHelper.getMythServicesApi( mLocationProfile ).frontendOperations()
 						.sendMessage( params[ 0 ], params[ 1 ] );
 			} catch( Exception e ) {
-				Log.e( TAG, e.getMessage() );
+				Log.e( TAG, "Error sending message: " +e.getMessage() );
 				showAlertDialog( "Send Message Error", e.getMessage() );
 			}
 			return null;
@@ -168,10 +158,10 @@ public class AbstractFrontendFragment extends Fragment {
 		protected Void doInBackground( String... params ) {
 
 			try {
-				getApplicationContext().getMythServicesApi().frontendOperations()
+				mMythtvServiceHelper.getMythServicesApi( mLocationProfile ).frontendOperations()
 						.sendAction( params[ 0 ], params[ 1 ], null, 0, 0 );
 			} catch( Exception e ) {
-				Log.e( TAG, e.getMessage() );
+				Log.e( TAG, "Error sending action: " + e.getMessage() );
 				showAlertDialog( "Send Action Error", e.getMessage() );
 			}
 

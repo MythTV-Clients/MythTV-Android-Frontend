@@ -16,45 +16,8 @@
  *
  * This software can be found at <https://github.com/MythTV-Clients/MythTV-Android-Frontend/>
  */
-
-/**
- * This file is part of MythTV Android Frontend
- *
- * MythTV Android Frontend is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * MythTV Android Frontend is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with MythTV Android Frontend.  If not, see <http://www.gnu.org/licenses/>.
- *
- * This software can be found at <https://github.com/MythTV-Clients/MythTV-Android-Frontend/>
- */
 package org.mythtv.client.ui.dvr;
 
-import android.annotation.TargetApi;
-import android.content.*;
-import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.net.Uri;
-import android.os.Bundle;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
-import android.support.v4.widget.CursorAdapter;
-import android.util.Log;
-import android.view.*;
-import android.widget.*;
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.assist.FailReason;
-import com.nostra13.universalimageloader.core.assist.PauseOnScrollListener;
-import com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener;
 import org.joda.time.DateTime;
 import org.mythtv.R;
 import org.mythtv.client.ui.preferences.LocationProfile;
@@ -68,9 +31,41 @@ import org.mythtv.db.dvr.programGroup.ProgramGroupDaoHelper;
 import org.mythtv.db.http.EtagConstants;
 import org.mythtv.db.http.EtagDaoHelper;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
-import org.mythtv.service.dvr.RecordedDownloadService;
+import org.mythtv.service.dvr.RecordedService;
+import org.mythtv.service.util.DateUtils;
 import org.mythtv.service.util.RunningServiceHelper;
 import org.mythtv.services.api.dvr.impl.DvrTemplate.Endpoint;
+
+import android.content.BroadcastReceiver;
+import android.content.ContentUris;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.net.Uri;
+import android.os.Bundle;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.CursorAdapter;
+import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.TextView;
+//import android.widget.Toast;
+
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.FailReason;
+import com.nostra13.universalimageloader.core.assist.PauseOnScrollListener;
+import com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener;
 
 /**
  * @author Daniel Frey
@@ -85,16 +80,20 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 	
 	private RecordedDownloadReceiver recordedDownloadReceiver = new RecordedDownloadReceiver();
 
-	private static ProgramHelper mProgramHelper;
-	private EtagDaoHelper mEtagDaoHelper;
-	private LocationProfileDaoHelper mLocationProfileDaoHelper;
-	private MenuHelper mMenuHelper;
-	private ProgramGroupDaoHelper mProgramGroupDaoHelper;
-	private RunningServiceHelper mRunningServiceHelper;
+	private static ProgramHelper mProgramHelper = ProgramHelper.getInstance();
+	private EtagDaoHelper mEtagDaoHelper = EtagDaoHelper.getInstance();
+	private LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
+	private MenuHelper mMenuHelper = MenuHelper.getInstance();
+	private ProgramGroupDaoHelper mProgramGroupDaoHelper = ProgramGroupDaoHelper.getInstance();
+	private RunningServiceHelper mRunningServiceHelper = RunningServiceHelper.getInstance();
 
+	private LocationProfile mLocationProfile;
+	
 	private ImageLoader imageLoader = ImageLoader.getInstance();
 	private DisplayImageOptions options;
 
+	public RecordingsFragment() { }
+	
 	/* (non-Javadoc)
 	 * @see android.support.v4.app.LoaderManager.LoaderCallbacks#onCreateLoader(int, android.os.Bundle)
 	 */
@@ -102,14 +101,10 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 	public Loader<Cursor> onCreateLoader( int id, Bundle args ) {
 		Log.v( TAG, "onCreateLoader : enter" );
 		
-		mLocationProfileDaoHelper = ( (AbstractDvrActivity) getActivity() ).getLocationProfileDaoHelper();
-		LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile();
-		Log.v( TAG, "onCreateLoader : loading recorded for profile " + locationProfile.getHostname() + " [" + locationProfile.getUrl() + "]" );
-		
 		String[] projection = null;
-		String selection = ProgramGroupConstants.FIELD_HOSTNAME + " = ?";
-		String[] selectionArgs = new String[] { locationProfile.getHostname() };
-		String sortOrder = ProgramGroupConstants.FIELD_PROGRAM_GROUP;
+		String selection = ProgramGroupConstants.FIELD_MASTER_HOSTNAME + " = ?";
+		String[] selectionArgs = new String[] { mLocationProfile.getHostname() };
+		String sortOrder = ProgramGroupConstants.FIELD_SORT + " DESC, " + ProgramGroupConstants.FIELD_PROGRAM_GROUP;
 		
 	    CursorLoader cursorLoader = new CursorLoader( getActivity(), ProgramGroupConstants.CONTENT_URI, projection, selection, selectionArgs, sortOrder );
 		
@@ -151,34 +146,22 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 		Log.v( TAG, "onActivityCreated : enter" );
 		super.onActivityCreated( savedInstanceState );
 
+		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
+		
 		options = new DisplayImageOptions.Builder()
-//			.showStubImage( R.drawable.ic_stub )
-//			.showImageForEmptyUri( R.drawable.ic_empty )
-//			.showImageOnFail( R.drawable.ic_error )
-			.cacheInMemory()
-			.cacheOnDisc()
-//			.displayer( new RoundedBitmapDisplayer( 20 ) )
+			.cacheInMemory( true )
+			.cacheOnDisc( true )
 			.build();
 		
-		mProgramHelper = ProgramHelper.createInstance( getActivity().getApplicationContext() );
-
-		mEtagDaoHelper = new EtagDaoHelper( getActivity() );
-	
-		mProgramGroupDaoHelper = ( (AbstractDvrActivity) getActivity() ).getProgramGroupDaoHelper();
-
-		mMenuHelper = ( (AbstractDvrActivity) getActivity() ).getMenuHelper();
-		mRunningServiceHelper = ( (AbstractDvrActivity) getActivity() ).getRunningServiceHelper();
-
 		setHasOptionsMenu( true );
-		setRetainInstance( true );
 
 	    adapter = new ProgramGroupCursorAdapter( getActivity().getApplicationContext() );
 	    
 	    setListAdapter( adapter );
 
-		getLoaderManager().initLoader( 0, null, this );
+		getListView().setOnScrollListener( new PauseOnScrollListener( imageLoader, false, true ) );
 		
-		getListView().setOnScrollListener( new PauseOnScrollListener(imageLoader, false, true ) );
+		getLoaderManager().initLoader( 0, null, this );
 		
 		Log.v( TAG, "onActivityCreated : exit" );
 	}
@@ -191,9 +174,9 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 		Log.v( TAG, "onStart : enter" );
 		super.onStart();
 
-		IntentFilter recordedDownloadFilter = new IntentFilter( RecordedDownloadService.ACTION_DOWNLOAD );
-		recordedDownloadFilter.addAction( RecordedDownloadService.ACTION_PROGRESS );
-		recordedDownloadFilter.addAction( RecordedDownloadService.ACTION_COMPLETE );
+		IntentFilter recordedDownloadFilter = new IntentFilter( RecordedService.ACTION_DOWNLOAD );
+		recordedDownloadFilter.addAction( RecordedService.ACTION_PROGRESS );
+		recordedDownloadFilter.addAction( RecordedService.ACTION_COMPLETE );
         getActivity().registerReceiver( recordedDownloadReceiver, recordedDownloadFilter );
 
 		Log.v( TAG, "onStart : enter" );
@@ -205,21 +188,25 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 	@Override
 	public void onResume() {
 		Log.v( TAG, "onResume : enter" );
-		super.onStart();
-	    
-		DateTime etag = mEtagDaoHelper.findDateByEndpointAndDataId( Endpoint.GET_RECORDED_LIST.name(), "" );
+		super.onResume();
+
+		if( null == mLocationProfile ) {
+			mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
+		}
+		
+		DateTime etag = mEtagDaoHelper.findDateByEndpointAndDataId( getActivity(), mLocationProfile, Endpoint.GET_RECORDED_LIST.name(), "" );
 		if( null != etag ) {
 			
-			DateTime now = new DateTime();
+			DateTime now = DateUtils.convertUtc( new DateTime( System.currentTimeMillis() ) );
 			if( now.getMillis() - etag.getMillis() > 3600000 ) {
-				if( !mRunningServiceHelper.isServiceRunning( "org.mythtv.service.dvr.RecordedDownloadService" ) ) {
-					getActivity().startService( new Intent( RecordedDownloadService.ACTION_DOWNLOAD ) );
+				if( !mRunningServiceHelper.isServiceRunning( getActivity(), "org.mythtv.service.dvr.RecordedDownloadService" ) ) {
+					getActivity().startService( new Intent( RecordedService.ACTION_DOWNLOAD ) );
 				}
 			}
 			
 		} else {
-			if( !mRunningServiceHelper.isServiceRunning( "org.mythtv.service.dvr.RecordedDownloadService" ) ) {
-				getActivity().startService( new Intent( RecordedDownloadService.ACTION_DOWNLOAD ) );
+			if( !mRunningServiceHelper.isServiceRunning( getActivity(), "org.mythtv.service.dvr.RecordedDownloadService" ) ) {
+				getActivity().startService( new Intent( RecordedService.ACTION_DOWNLOAD ) );
 			}
 		}
 
@@ -249,13 +236,12 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 	/* (non-Javadoc)
 	 * @see android.support.v4.app.Fragment#onCreateOptionsMenu(android.view.Menu, android.view.MenuInflater)
 	 */
-	@TargetApi( 11 )
 	@Override
 	public void onCreateOptionsMenu( Menu menu, MenuInflater inflater ) {
 		Log.v( TAG, "onCreateOptionsMenu : enter" );
 		super.onCreateOptionsMenu( menu, inflater );
 
-		mMenuHelper.refreshMenuItem( menu );
+		mMenuHelper.refreshMenuItem( getActivity(), menu );
 		
 		Log.v( TAG, "onCreateOptionsMenu : exit" );
 	}
@@ -279,8 +265,8 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 			}
 			cursor.close();
 
-			if( !mRunningServiceHelper.isServiceRunning( "org.mythtv.service.dvr.RecordedDownloadService" ) ) {
-				getActivity().startService( new Intent( RecordedDownloadService.ACTION_DOWNLOAD ) );
+			if( !mRunningServiceHelper.isServiceRunning( getActivity(), "org.mythtv.service.dvr.RecordedDownloadService" ) ) {
+				getActivity().startService( new Intent( RecordedService.ACTION_DOWNLOAD ) );
 			}
 		    
 	        return true;
@@ -300,11 +286,12 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 
 		Log.v( TAG, "onListItemClick : position=" + position + ", id=" + id );
 
-		ProgramGroup programGroup = mProgramGroupDaoHelper.findOne( id );		
+		ProgramGroup programGroup = mProgramGroupDaoHelper.findOne( getActivity(), id );		
 		if( null != programGroup ) {
 			Log.v( TAG, "onListItemClick : selecting program group, programGroup=" + programGroup.toString() );
 
-			listener.onProgramGroupSelected( programGroup );
+			if(null != listener)
+				listener.onProgramGroupSelected( programGroup );
 		}
 		
 		Log.v( TAG, "onListItemClick : exit" );
@@ -354,7 +341,6 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 	        View view = mInflater.inflate( R.layout.program_group_row, parent, false );
 			
 			ViewHolder refHolder = new ViewHolder();
-			refHolder.programGroupDetail = (LinearLayout) view.findViewById( R.id.program_group_detail );
 			refHolder.category = (View) view.findViewById( R.id.program_group_category );
 			refHolder.programGroup = (TextView) view.findViewById( R.id.program_group_row );
 			refHolder.programGroupBanner = (ImageView) view.findViewById( R.id.program_group_row_banner );
@@ -378,14 +364,14 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 			mHolder.programGroup.setText( programGroup.getTitle() );
 			mHolder.category.setBackgroundColor( mProgramHelper.getCategoryColor( programGroup.getCategory() ) );
 
-			String imageUri = mLocationProfileDaoHelper.findConnectedProfile().getUrl() + "Content/GetRecordingArtwork?Type=Banner&Inetref=" + programGroup.getInetref();
+			String imageUri = mLocationProfileDaoHelper.findConnectedProfile( getActivity() ).getUrl() + "Content/GetRecordingArtwork?Type=Banner&Inetref=" + programGroup.getInetref();
 			imageLoader.displayImage( imageUri, mHolder.programGroupBanner, options, new SimpleImageLoadingListener() {
 
 				/* (non-Javadoc)
 				 * @see com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener#onLoadingComplete(android.graphics.Bitmap)
 				 */
 				@Override
-				public void onLoadingComplete(String imageUri, View view,  Bitmap loadedImage ) {
+				public void onLoadingComplete( String imageUri, View view, Bitmap loadedImage ) {
 			        mHolder.programGroup.setVisibility( View.GONE );
 			        mHolder.programGroupBanner.setVisibility( View.VISIBLE );
 				}
@@ -394,7 +380,7 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 				 * @see com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener#onLoadingFailed(com.nostra13.universalimageloader.core.assist.FailReason)
 				 */
 				@Override
-				public void onLoadingFailed(String imageUri, View view,  FailReason failReason ) {
+				public void onLoadingFailed( String imageUri, View view, FailReason failReason ) {
 			        mHolder.programGroup.setVisibility( View.VISIBLE );
 			        mHolder.programGroupBanner.setVisibility( View.GONE );
 				}
@@ -407,7 +393,6 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 
 	private static class ViewHolder {
 		
-		LinearLayout programGroupDetail;
 		View category;
 		TextView programGroup;
 		ImageView programGroupBanner;
@@ -422,26 +407,28 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 		public void onReceive( Context context, Intent intent ) {
         	Log.i( TAG, "RecordedDownloadReceiver.onReceive : enter" );
 			
-	        if ( intent.getAction().equals( RecordedDownloadService.ACTION_PROGRESS ) ) {
-	        	Log.i( TAG, "RecordedDownloadReceiver.onReceive : progress=" + intent.getStringExtra( RecordedDownloadService.EXTRA_PROGRESS ) );
+	        if ( intent.getAction().equals( RecordedService.ACTION_PROGRESS ) ) {
+	        	Log.i( TAG, "RecordedDownloadReceiver.onReceive : progress=" + intent.getStringExtra( RecordedService.EXTRA_PROGRESS ) );
 	        }
 	        
-	        if ( intent.getAction().equals( RecordedDownloadService.ACTION_COMPLETE ) ) {
-	        	Log.i( TAG, "RecordedDownloadReceiver.onReceive : complete=" + intent.getStringExtra( RecordedDownloadService.EXTRA_COMPLETE ) );
+	        if ( intent.getAction().equals( RecordedService.ACTION_COMPLETE ) ) {
+	        	Log.i( TAG, "RecordedDownloadReceiver.onReceive : complete=" + intent.getStringExtra( RecordedService.EXTRA_COMPLETE ) );
+	        	
+	        	LocationProfile profile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
 	        	
 	        	boolean inError = false;
-	        	Cursor errorCursor = getActivity().getContentResolver().query( ProgramConstants.CONTENT_URI_RECORDED, new String[] { ProgramConstants._ID }, ProgramConstants.FIELD_IN_ERROR + " = ?", new String[] { "1" }, null );
+	        	Cursor errorCursor = getActivity().getContentResolver().query( ProgramConstants.CONTENT_URI_RECORDED, new String[] { ProgramConstants._ID }, ProgramConstants.TABLE_NAME_RECORDED + "." + ProgramConstants.FIELD_IN_ERROR + " = ? AND " + ProgramConstants.TABLE_NAME_RECORDED + "." + ProgramConstants.FIELD_MASTER_HOSTNAME + " = ?", new String[] { "1", profile.getHostname() }, null );
 	        	if( errorCursor.moveToFirst() ) {
 	        		inError = true;
 	        	}
 	        	errorCursor.close();
 
-	        	if( intent.getExtras().containsKey( RecordedDownloadService.EXTRA_COMPLETE_UPTODATE ) ) {
-	        		Toast.makeText( getActivity(), "Recorded Program are up to date!" + ( inError ? " (Backend error(s) detected)" : "" ), Toast.LENGTH_SHORT ).show();
-	        	} else if( intent.getExtras().containsKey( RecordedDownloadService.EXTRA_COMPLETE_OFFLINE ) ) {
-	        		Toast.makeText( getActivity(), "Recorded Programs Update failed because Master Backend is not connected!", Toast.LENGTH_SHORT ).show();
+	        	if( intent.getExtras().containsKey( RecordedService.EXTRA_COMPLETE_UPTODATE ) ) {
+//	        		Toast.makeText( getActivity(), "Recorded Programs are up to date!" + ( inError ? " (Backend error(s) detected)" : "" ), Toast.LENGTH_SHORT ).show();
+	        	} else if( intent.getExtras().containsKey( RecordedService.EXTRA_COMPLETE_OFFLINE ) ) {
+//	        		Toast.makeText( getActivity(), "Recorded Programs update failed because Master Backend is not connected!", Toast.LENGTH_SHORT ).show();
 	        	} else {
-	        		Toast.makeText( getActivity(), "Recorded Programs updated!" + ( inError ? " (Backend error(s) detected)" : "" ), Toast.LENGTH_SHORT ).show();
+//	        		Toast.makeText( getActivity(), "Recorded Programs updated!" + ( inError ? " (Backend error(s) detected)" : "" ), Toast.LENGTH_SHORT ).show();
 
 	        		adapter.notifyDataSetChanged();
 	        	}

@@ -1,24 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ This file is part of MythTV Android Frontend
-  ~
-  ~ MythTV Android Frontend is free software: you can redistribute it and/or modify
-  ~ it under the terms of the GNU General Public License as published by
-  ~ the Free Software Foundation, either version 3 of the License, or
-  ~ (at your option) any later version.
-  ~
-  ~ MythTV Android Frontend is distributed in the hope that it will be useful,
-  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
-  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  ~ GNU General Public License for more details.
-  ~
-  ~ You should have received a copy of the GNU General Public License
-  ~ along with MythTV Android Frontend.  If not, see <http://www.gnu.org/licenses/>.
-  ~
-  ~ This software can be found at <https://github.com/MythTV-Clients/MythTV-Android-Frontend/>
-  -->
-
-<!--
 
     This file is part of MythTV Android Frontend
 
@@ -40,15 +21,19 @@
 -->
 
 <resources>
+    
+    <string name="app_version">1.20.0</string>
 
     <string name="hello">Hello World!</string>
     <string name="app_name">MythTV Android Frontend</string>
-
+    <string name="app_short_name">MAF</string>
+    
     <string name="item_network_title">Searching network for MythTV&#8230;</string>
 	<string name="item_network_caption">Make sure you are on the same network as your MythTV Master Backend</string>
     
     <string name="exception">Exception</string>
-	<string name="close">Close</string>
+	<string name="open">Open</string>
+    <string name="close">Close</string>
 	
 	<string name="please_wait">Please wait&#8230;</string>
 	
@@ -70,7 +55,8 @@
 	<string name="menu_help_troubleshoot">Troubleshoot</string>
 	<string name="menu_help_issues">Issues</string>
 	<string name="menu_help_not_connected">The internet is not currently available on your device.  Please check your connections and try again.</string>
-				
+	<string name="menu_guide_day">Select Day</string>
+	
 	<!-- Preferences -->
 	<string name="preferences_title">Preferences</string>
 	<string name="preferences_unset">No value selected</string>
@@ -152,6 +138,15 @@
 	<string name="preference_playback_profile_edit_text_sample_rate_hint">Audio Sample Rate</string>
 	<string name="preference_playback_profile_text_view_sample_rate_error_invalid">Invalid Sample Rate</string>
 		
+	<string name="preference_program_guide">Program Guide</string>
+	<string name="preference_program_guide_summary">Specify preferences for managing the program guide.</string>
+	<string name="preference_program_guide_modify">Modify Program Guide Preferences</string>
+	<string name="preference_program_guide_modify_summary">Edit Program Guide Preferences</string>
+	<string name="preference_program_guide_days_title">Specify Program Guide Download Days</string>
+	<string name="preference_program_guide_days_default">3</string>
+	<string name="preference_program_guide_channel_icon_download_title">Download Channel Icons?</string>
+	<string name="preference_program_guide_channel_icon_download_summary">Download Channel Icons?</string>
+		
 	<string name="preference_edit_error_dialog_title">Error</string>
 	
 	<string name="btn_ok">OK</string>
@@ -214,6 +209,105 @@
     <string name="episode_watch_button_hls">Play with HLS</string>
     <string name="episode_watch_button_raw">Play Recoding</string>
     
+    <!-- Guide -->
+    <string name="program_guide_icon_content_disposition">icon</string>
+    <string name="program_guide_timeslots_00_00_12">12:00 AM</string>
+    <string name="program_guide_timeslots_00_00_24">00:00</string>
+    <string name="program_guide_timeslots_00_30_12">12:30 AM</string>
+    <string name="program_guide_timeslots_00_30_24">00:30</string>
+    <string name="program_guide_timeslots_01_00_12">1:00 AM</string>
+    <string name="program_guide_timeslots_01_00_24">01:00</string>
+    <string name="program_guide_timeslots_01_30_12">1:30 AM</string>
+    <string name="program_guide_timeslots_01_30_24">01:30</string>
+    <string name="program_guide_timeslots_02_00_12">2:00 AM</string>
+    <string name="program_guide_timeslots_02_00_24">02:00</string>
+    <string name="program_guide_timeslots_02_30_12">2:30 AM</string>
+    <string name="program_guide_timeslots_02_30_24">02:30</string>
+    <string name="program_guide_timeslots_03_00_12">3:00 AM</string>
+    <string name="program_guide_timeslots_03_00_24">03:00</string>
+    <string name="program_guide_timeslots_03_30_12">3:30 AM</string>
+    <string name="program_guide_timeslots_03_30_24">03:30</string>
+    <string name="program_guide_timeslots_04_00_12">4:00 AM</string>
+    <string name="program_guide_timeslots_04_00_24">04:00</string>
+    <string name="program_guide_timeslots_04_30_12">4:30 AM</string>
+    <string name="program_guide_timeslots_04_30_24">04:30</string>
+    <string name="program_guide_timeslots_05_00_12">5:00 AM</string>
+    <string name="program_guide_timeslots_05_00_24">05:00</string>
+    <string name="program_guide_timeslots_05_30_12">5:30 AM</string>
+    <string name="program_guide_timeslots_05_30_24">05:30</string>
+    <string name="program_guide_timeslots_06_00_12">6:00 AM</string>
+    <string name="program_guide_timeslots_06_00_24">06:00</string>
+    <string name="program_guide_timeslots_06_30_12">6:30 AM</string>
+    <string name="program_guide_timeslots_06_30_24">06:30</string>
+    <string name="program_guide_timeslots_07_00_12">7:00 AM</string>
+    <string name="program_guide_timeslots_07_00_24">07:00</string>
+    <string name="program_guide_timeslots_07_30_12">7:30 AM</string>
+    <string name="program_guide_timeslots_07_30_24">07:30</string>
+    <string name="program_guide_timeslots_08_00_12">8:00 AM</string>
+    <string name="program_guide_timeslots_08_00_24">08:00</string>
+    <string name="program_guide_timeslots_08_30_12">8:30 AM</string>
+    <string name="program_guide_timeslots_08_30_24">08:30</string>
+    <string name="program_guide_timeslots_09_00_12">9:00 AM</string>
+    <string name="program_guide_timeslots_09_00_24">09:00</string>
+    <string name="program_guide_timeslots_09_30_12">9:30 AM</string>
+    <string name="program_guide_timeslots_09_30_24">09:30</string>
+    <string name="program_guide_timeslots_10_00_12">10:00 AM</string>
+    <string name="program_guide_timeslots_10_00_24">10:00</string>
+    <string name="program_guide_timeslots_10_30_12">10:30 AM</string>
+    <string name="program_guide_timeslots_10_30_24">10:30</string>
+    <string name="program_guide_timeslots_11_00_12">11:00 AM</string>
+    <string name="program_guide_timeslots_11_00_24">11:00</string>
+    <string name="program_guide_timeslots_11_30_12">11:30 AM</string>
+    <string name="program_guide_timeslots_11_30_24">11:30</string>
+    <string name="program_guide_timeslots_12_00_12">12:00 PM</string>
+    <string name="program_guide_timeslots_12_00_24">12:00</string>
+    <string name="program_guide_timeslots_12_30_12">12:30 PM</string>
+    <string name="program_guide_timeslots_12_30_24">12:30</string>
+    <string name="program_guide_timeslots_13_00_12">1:00 PM</string>
+    <string name="program_guide_timeslots_13_00_24">13:00</string>
+    <string name="program_guide_timeslots_13_30_12">1:30 PM</string>
+    <string name="program_guide_timeslots_13_30_24">13:30</string>
+    <string name="program_guide_timeslots_14_00_12">2:00 PM</string>
+    <string name="program_guide_timeslots_14_00_24">14:00</string>
+    <string name="program_guide_timeslots_14_30_12">2:30 PM</string>
+    <string name="program_guide_timeslots_14_30_24">14:30</string>
+    <string name="program_guide_timeslots_15_00_12">3:00 PM</string>
+    <string name="program_guide_timeslots_15_00_24">15:00</string>
+    <string name="program_guide_timeslots_15_30_12">3:30 PM</string>
+    <string name="program_guide_timeslots_15_30_24">15:30</string>
+    <string name="program_guide_timeslots_16_00_12">4:00 PM</string>
+    <string name="program_guide_timeslots_16_00_24">16:00</string>
+    <string name="program_guide_timeslots_16_30_12">4:30 PM</string>
+    <string name="program_guide_timeslots_16_30_24">16:30</string>
+    <string name="program_guide_timeslots_17_00_12">5:00 PM</string>
+    <string name="program_guide_timeslots_17_00_24">17:00</string>
+    <string name="program_guide_timeslots_17_30_12">5:30 PM</string>
+    <string name="program_guide_timeslots_17_30_24">17:30</string>
+    <string name="program_guide_timeslots_18_00_12">6:00 PM</string>
+    <string name="program_guide_timeslots_18_00_24">18:00</string>
+    <string name="program_guide_timeslots_18_30_12">6:30 PM</string>
+    <string name="program_guide_timeslots_18_30_24">18:30</string>
+    <string name="program_guide_timeslots_19_00_12">7:00 PM</string>
+    <string name="program_guide_timeslots_19_00_24">19:00</string>
+    <string name="program_guide_timeslots_19_30_12">7:30 PM</string>
+    <string name="program_guide_timeslots_19_30_24">19:30</string>
+    <string name="program_guide_timeslots_20_00_12">8:00 PM</string>
+    <string name="program_guide_timeslots_20_00_24">20:00</string>
+    <string name="program_guide_timeslots_20_30_12">8:30 PM</string>
+    <string name="program_guide_timeslots_20_30_24">20:30</string>
+    <string name="program_guide_timeslots_21_00_12">9:00 PM</string>
+    <string name="program_guide_timeslots_21_00_24">21:00</string>
+    <string name="program_guide_timeslots_21_30_12">9:30 PM</string>
+    <string name="program_guide_timeslots_21_30_24">21:30</string>
+    <string name="program_guide_timeslots_22_00_12">10:00 PM</string>
+    <string name="program_guide_timeslots_22_00_24">22:00</string>
+    <string name="program_guide_timeslots_22_30_12">10:30 PM</string>
+    <string name="program_guide_timeslots_22_30_24">22:30</string>
+    <string name="program_guide_timeslots_23_00_12">11:00 PM</string>
+    <string name="program_guide_timeslots_23_00_24">23:00</string>
+    <string name="program_guide_timeslots_23_30_12">11:30 PM</string>
+    <string name="program_guide_timeslots_23_30_24">23:30</string>
+    
     <!-- Recording Rule -->
     <string name="chkbox_rec_rule_active">Recording Rule Active</string>
     <string name="chkbox_rec_rule_auto_comm_flag">Auto Commercial Flag</string>
@@ -265,7 +359,8 @@
     <string name="notification_sync_upcoming">Syncing Upcoming Programs</string>
 	<string name="notification_sync_channels">Syncing Channels</string>
 	<string name="notification_not_connected">MythTV Master Backend is not connected!</string>
-	
+    <string name="notification_sync_recording_rules">Syncing Recording Rules</string>
+		
 	<string name="test_title">Test Title</string>
 
     <!-- Gallery Dialog -->
@@ -281,4 +376,35 @@
     <string name="gallery_sg_failed">Creating StorageGroups \'Gallery\' failed. Please create manually via mythtv-setup on the Master backend.</string>
     <string name="gallery_descr_image">Image</string>
 
+	
+	<!-- Backend Status -->
+	<string name="encoder">Encoder:</string>
+	<string name="backend_host">Backend Host:</string>
+	<string name="recording">Recording:</string>
+	<string name="connection_status">Connection Status</string>
+	<string name="encoders">Encoders</string>
+	<string name="job_queue">Job Queue</string>
+	<string name="upcoming_recordings">Upcoming Recordings</string>
+	
+	<!-- Backend Status - Job Queue  -->
+	<string name="job_queue_status">Status:</string>
+	<string name="job_queue_status_aborted">Aborted</string>
+	<string name="job_queue_status_aborting">Aborting</string>
+	<string name="job_queue_status_cancelled">Cancelled</string>
+	<string name="job_queue_status_done">Done</string>
+	<string name="job_queue_status_errored">Errored</string>
+	<string name="job_queue_status_erroring">Erroring</string>
+	<string name="job_queue_status_finished">Finished</string>
+	<string name="job_queue_status_no_flags">No Flags</string>
+	<string name="job_queue_status_paused">Paused</string>
+	<string name="job_queue_status_pending">Pending</string>
+	<string name="job_queue_status_queued">Queued</string>
+	<string name="job_queue_status_retry">Retry</string>
+	<string name="job_queue_status_running">Running</string>
+	<string name="job_queue_status_starting">Starting</string>
+	<string name="job_queue_status_stopping">Stopping</string>
+	<string name="job_queue_status_unknown">Unknown</string>
+	<string name="job_queue_title">Title:</string>
+	<string name="job_queue_type">Type:</string>
+	
 </resources>

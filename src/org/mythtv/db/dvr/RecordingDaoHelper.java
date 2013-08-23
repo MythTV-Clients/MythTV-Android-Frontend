@@ -22,7 +22,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.AbstractDaoHelper;
+import org.mythtv.service.util.DateUtils;
 import org.mythtv.services.api.dvr.Recording;
 
 import android.content.ContentUris;
@@ -41,12 +44,37 @@ public class RecordingDaoHelper extends AbstractDaoHelper {
 
 	private static final String TAG = RecordingDaoHelper.class.getSimpleName();
 	
+	private static RecordingDaoHelper singleton = null;
+
 	/**
-	 * @param context
+	 * Returns the one and only ChannelDaoHelper. init() must be called before 
+	 * any 
+	 * 
+	 * @return
 	 */
-	public RecordingDaoHelper( Context context ) {
-		super( context );
+	public static RecordingDaoHelper getInstance() {
+		if( null == singleton ) {
+
+			synchronized( RecordingDaoHelper.class ) {
+
+				if( null == singleton ) {
+					singleton = new RecordingDaoHelper();
+				}
+			
+			}
+
+		}
+		
+		return singleton;
 	}
+	
+	/**
+	 * Constructor. No one but getInstance() can do this.
+	 */
+	private RecordingDaoHelper() {
+		super();
+	}
+	
 
 	/**
 	 * @param projection
@@ -55,31 +83,36 @@ public class RecordingDaoHelper extends AbstractDaoHelper {
 	 * @param sortOrder
 	 * @return
 	 */
-	public List<Recording> findAll( String[] projection, String selection, String[] selectionArgs, String sortOrder ) {
-		Log.d( TAG, "findAll : enter" );
+	public List<Recording> findAll( final Context context, String[] projection, String selection, String[] selectionArgs, String sortOrder, final String table ) {
+//		Log.d( TAG, "findAll : enter" );
 		
+		if( null == context ) 
+			throw new RuntimeException( "RecordingDaoHelper is not initialized" );
+
+		RecordingConstants.ContentDetails details = RecordingConstants.ContentDetails.getValueFromParent( table );
+
 		List<Recording> recordings = new ArrayList<Recording>();
 		
-		Cursor cursor = mContext.getContentResolver().query( RecordingConstants.CONTENT_URI, projection, selection, selectionArgs, sortOrder );
+		Cursor cursor = context.getContentResolver().query( details.getContentUri(), projection, selection, selectionArgs, sortOrder );
 		while( cursor.moveToNext() ) {
-			Recording recording = convertCursorToRecording( cursor );
+			Recording recording = convertCursorToRecording( cursor, table );
 			recordings.add( recording );
 		}
 		cursor.close();
 
-		Log.d( TAG, "findAll : exit" );
+//		Log.d( TAG, "findAll : exit" );
 		return recordings;
 	}
 	
 	/**
 	 * @return
 	 */
-	public List<Recording> finalAll() {
-		Log.d( TAG, "findAll : enter" );
+	public List<Recording> finalAll( final Context context, final String table ) {
+//		Log.d( TAG, "findAll : enter" );
 		
-		List<Recording> recordings = findAll( null, null, null, null );
+		List<Recording> recordings = findAll( context, null, null, null, null, table );
 		
-		Log.d( TAG, "findAll : exit" );
+//		Log.d( TAG, "findAll : exit" );
 		return recordings;
 	}
 	
@@ -91,23 +124,28 @@ public class RecordingDaoHelper extends AbstractDaoHelper {
 	 * @param sortOrder
 	 * @return
 	 */
-	public Recording findOne( Long id, String[] projection, String selection, String[] selectionArgs, String sortOrder ) {
-		Log.d( TAG, "findOne : enter" );
+	public Recording findOne( final Context context, final Long id, String[] projection, String selection, String[] selectionArgs, String sortOrder, final String table ) {
+//		Log.d( TAG, "findOne : enter" );
 		
+		if( null == context ) 
+			throw new RuntimeException( "RecordingDaoHelper is not initialized" );
+		
+		RecordingConstants.ContentDetails details = RecordingConstants.ContentDetails.getValueFromParent( table );
+
 		Recording recording = null;
 		
-		Uri uri = RecordingConstants.CONTENT_URI;
+		Uri uri = details.getContentUri();
 		if( null != id && id > 0 ) {
-			uri = ContentUris.withAppendedId( RecordingConstants.CONTENT_URI, id );
+			uri = ContentUris.withAppendedId( uri, id );
 		}
 		
-		Cursor cursor = mContext.getContentResolver().query( uri, projection, selection, selectionArgs, sortOrder );
+		Cursor cursor = context.getContentResolver().query( uri, projection, selection, selectionArgs, sortOrder );
 		if( cursor.moveToFirst() ) {
-			recording = convertCursorToRecording( cursor );
+			recording = convertCursorToRecording( cursor, table );
 		}
 		cursor.close();
 		
-		Log.d( TAG, "findOne : exit" );
+//		Log.d( TAG, "findOne : exit" );
 		return recording;
 	}
 	
@@ -115,153 +153,176 @@ public class RecordingDaoHelper extends AbstractDaoHelper {
 	 * @param id
 	 * @return
 	 */
-	public Recording findOne( Long id ) {
-		Log.d( TAG, "findOne : enter" );
+	public Recording findOne( final Context context, final Long id, final String table ) {
+//		Log.d( TAG, "findOne : enter" );
 		
-		Recording recording = findOne( id, null, null, null, null );
+		Recording recording = findOne( context, id, null, null, null, null, table );
 		
-		Log.d( TAG, "findOne : exit" );
+//		Log.d( TAG, "findOne : exit" );
 		return recording;
 	}
 
 	/**
-	 * @param recording
+	 * @param uri
+	 * @param program
 	 * @return
 	 */
-//	public int save( Recording recording ) {
-//		Log.d( TAG, "save : enter" );
-//
-//		ContentValues values = convertRecordingToContentValues( recording );
-//
-//		int updated = -1;
-//		Cursor cursor = mContext.getContentResolver().query( ContentUris.withAppendedId( RecordingConstants.CONTENT_URI, recording.getRecordId() ), null, null, null, null );
-//		if( cursor.moveToFirst() ) {
-//			Log.v( TAG, "save : updating existing channel info" );
-//
-//			updated = mContext.getContentResolver().update( ContentUris.withAppendedId( RecordingConstants.CONTENT_URI, recording.getRecordId() ), values, null, null );
-//		} else {
-//			Uri inserted = mContext.getContentResolver().insert( ContentUris.withAppendedId( RecordingConstants.CONTENT_URI, recording.getRecordId() ), values );
-//			if( null != inserted ) {
-//				updated = 1;
-//			}
-//		}
-//		cursor.close();
-//		Log.v( TAG, "save : updated=" + updated );
-//
-//		Log.d( TAG, "save : exit" );
-//		return updated;
-//	}
+	protected int save( final Context context, final Uri uri, final LocationProfile locationProfile, final DateTime startTime, Recording recording, final String table ) {
+		Log.v( TAG, "save : enter" );
+
+		if( null == context ) 
+			throw new RuntimeException( "RecordingDaoHelper is not initialized" );
+		
+		ContentValues values = convertRecordingToContentValues( locationProfile, new DateTime( DateTimeZone.UTC ), startTime, recording );
+
+		String[] projection = new String[] { table + "_" + RecordingConstants._ID };
+		String selection = RecordingConstants.FIELD_RECORD_ID + " = ? AND " + RecordingConstants.FIELD_START_TIME + " = ? AND " + RecordingConstants.FIELD_MASTER_HOSTNAME + " = ?";
+		String[] selectionArgs = new String[] { String.valueOf( recording.getRecordId() ), String.valueOf( startTime.getMillis() ), locationProfile.getHostname() };
+
+		selection = appendLocationHostname( context, locationProfile, selection, table );
+
+		int updated = -1;
+		Cursor cursor = context.getContentResolver().query( uri, projection, selection, selectionArgs, null );
+		if( cursor.moveToFirst() ) {
+			//Log.v( TAG, "load : UPDATE RECORDING " + count + ":" + program.getTitle() + ", recording=" + program.getRecording().getRecordId() );
+
+			Long id = cursor.getLong( cursor.getColumnIndexOrThrow( table + "_" + RecordingConstants._ID ) );
+			
+			updated = context.getContentResolver().update( ContentUris.withAppendedId( uri, id ), values, null, null );
+		} else {
+			//Log.v( TAG, "load : INSERT RECORDING " + count + ":" + program.getTitle() + ", recording=" + program.getRecording().getRecordId() );
+
+			Uri inserted = context.getContentResolver().insert( uri, values );
+			if( null != inserted ) {
+				updated = 1;
+			}
+		}
+		cursor.close();
+		Log.v( TAG, "save : updated=" + updated );
+
+		Log.v( TAG, "save : exit" );
+		return updated;
+	}
 
 	/**
 	 * @return
 	 */
-	public int deleteAll() {
-		Log.d( TAG, "deleteAll : enter" );
+	public int deleteAll( final Context context, final String table ) {
+//		Log.d( TAG, "deleteAll : enter" );
 		
-		int deleted = mContext.getContentResolver().delete( RecordingConstants.CONTENT_URI, null, null );
-		Log.v( TAG, "deleteAll : deleted=" + deleted );
+		if( null == context ) 
+			throw new RuntimeException( "RecordingDaoHelper is not initialized" );
 		
-		Log.d( TAG, "deleteAll : exit" );
+		RecordingConstants.ContentDetails details = RecordingConstants.ContentDetails.getValueFromParent( table );
+
+		int deleted = context.getContentResolver().delete( details.getContentUri(), null, null );
+//		Log.v( TAG, "deleteAll : deleted=" + deleted );
+		
+//		Log.d( TAG, "deleteAll : exit" );
+		return deleted;
+	}
+
+	public int delete( final Context context, final Long id, final String where, final String[] selectionArgs, final String table ) {
+//		Log.d( TAG, "delete : enter" );
+		
+		if( null == context ) 
+			throw new RuntimeException( "RecordingDaoHelper is not initialized" );
+		
+		RecordingConstants.ContentDetails details = RecordingConstants.ContentDetails.getValueFromParent( table );
+
+		Uri uri = details.getContentUri();
+		if( null != id && id > 0 ) {
+			uri = ContentUris.withAppendedId( uri, id );
+		}
+		
+		int deleted = context.getContentResolver().delete( uri, where, selectionArgs );
+//		Log.v( TAG, "delete : deleted=" + deleted );
+		
+//		Log.d( TAG, "delete : exit" );
 		return deleted;
 	}
 
 	/**
+	 * @param context
 	 * @param id
 	 * @return
 	 */
-	public int delete( Long id ) {
-		Log.d( TAG, "delete : enter" );
+	public int delete( final Context context, final Long id, final String table ) {
+//		Log.d( TAG, "delete : enter" );
 		
-		int deleted = mContext.getContentResolver().delete( ContentUris.withAppendedId( RecordingConstants.CONTENT_URI, id ), null, null );
-		Log.v( TAG, "delete : deleted=" + deleted );
+		if( null == context ) 
+			throw new RuntimeException( "RecordingDaoHelper is not initialized" );
 		
-		Log.d( TAG, "delete : exit" );
+		int deleted = delete( context, id, null, null, table );
+//		Log.v( TAG, "delete : deleted=" + deleted );
+		
+//		Log.d( TAG, "delete : exit" );
 		return deleted;
 	}
 
-	/**
-	 * @param recordings
-	 * @return
-	 */
-//	public int load( List<Recording> recordings ) {
-//		Log.d( TAG, "load : enter" );
-//		
-//		int loaded = -1;
-//		
-//		ContentValues[] contentValuesArray = convertRecordingsToContentValuesArray( recordings );
-//		if( null != contentValuesArray ) {
-//			Log.v( TAG, "load : channels=" + contentValuesArray.length );
-//
-//			loaded = mContext.getContentResolver().bulkInsert( RecordingConstants.CONTENT_URI, contentValuesArray );
-//			Log.v( TAG, "load : loaded=" + loaded );
-//		}
-//		
-//		
-//		Log.d( TAG, "load : exit" );
-//		return loaded;
-//	}
-	
 	/**
 	 * @param cursor
 	 * @return
 	 */
-	public Recording convertCursorToRecording( Cursor cursor ) {
+	public static Recording convertCursorToRecording( final Cursor cursor, final String table ) {
 //		Log.v( TAG, "convertCursorToRecording : enter" );
+
+		RecordingConstants.ContentDetails details = RecordingConstants.ContentDetails.getValueFromParent( table );
 
 		int recordId = -1, status = -1, priority = -1, recordingType = -1, duplicateInType = -1, duplicateMethod = -1, encoderId = -1;
 		String recordingGroup = "", playGroup = "", storageGroup = "", profile = "";
 		DateTime startTimestamp = null, endTimestamp = null;
 		
-		if( cursor.getColumnIndex( RecordingConstants.TABLE_NAME + "_" + RecordingConstants.FIELD_STATUS ) != -1 ) {
-			status = cursor.getInt( cursor.getColumnIndex( RecordingConstants.TABLE_NAME + "_" + RecordingConstants.FIELD_STATUS ) );
+		if( cursor.getColumnIndex( details.getTableName() + "_" + RecordingConstants.FIELD_STATUS ) != -1 ) {
+			status = cursor.getInt( cursor.getColumnIndex( details.getTableName() + "_" + RecordingConstants.FIELD_STATUS ) );
 		}
 		
-		if( cursor.getColumnIndex( RecordingConstants.TABLE_NAME + "_" + RecordingConstants.FIELD_PRIORITY ) != -1 ) {
-			priority = cursor.getInt( cursor.getColumnIndex( RecordingConstants.TABLE_NAME + "_" + RecordingConstants.FIELD_PRIORITY ) );
+		if( cursor.getColumnIndex( details.getTableName() + "_" + RecordingConstants.FIELD_PRIORITY ) != -1 ) {
+			priority = cursor.getInt( cursor.getColumnIndex( details.getTableName() + "_" + RecordingConstants.FIELD_PRIORITY ) );
 		}
 		
-		if( cursor.getColumnIndex( RecordingConstants.TABLE_NAME + "_" + RecordingConstants.FIELD_START_TS ) != -1 ) {
-			startTimestamp = new DateTime( cursor.getLong( cursor.getColumnIndex( RecordingConstants.TABLE_NAME + "_" + RecordingConstants.FIELD_START_TS ) ) );
+		if( cursor.getColumnIndex( details.getTableName() + "_" + RecordingConstants.FIELD_START_TS ) != -1 ) {
+			startTimestamp = new DateTime( cursor.getLong( cursor.getColumnIndex( details.getTableName() + "_" + RecordingConstants.FIELD_START_TS ) ) );
 		}
 		
-		if( cursor.getColumnIndex( RecordingConstants.TABLE_NAME + "_" + RecordingConstants.FIELD_END_TS ) != -1 ) {
-			endTimestamp = new DateTime( cursor.getLong( cursor.getColumnIndex( RecordingConstants.TABLE_NAME + "_" + RecordingConstants.FIELD_END_TS ) ) );
+		if( cursor.getColumnIndex( details.getTableName() + "_" + RecordingConstants.FIELD_END_TS ) != -1 ) {
+			endTimestamp = new DateTime( cursor.getLong( cursor.getColumnIndex( details.getTableName() + "_" + RecordingConstants.FIELD_END_TS ) ) );
 		}
 		
-		if( cursor.getColumnIndex( RecordingConstants.TABLE_NAME + "_" + RecordingConstants.FIELD_RECORD_ID ) != -1 ) {
-			recordId = cursor.getInt( cursor.getColumnIndex( RecordingConstants.TABLE_NAME + "_" + RecordingConstants.FIELD_RECORD_ID ) );
+		if( cursor.getColumnIndex( details.getTableName() + "_" + RecordingConstants.FIELD_RECORD_ID ) != -1 ) {
+			recordId = cursor.getInt( cursor.getColumnIndex( details.getTableName() + "_" + RecordingConstants.FIELD_RECORD_ID ) );
 		}
 		
-		if( cursor.getColumnIndex( RecordingConstants.TABLE_NAME + "_" + RecordingConstants.FIELD_REC_GROUP ) != -1 ) {
-			recordingGroup = cursor.getString( cursor.getColumnIndex( RecordingConstants.TABLE_NAME + "_" + RecordingConstants.FIELD_REC_GROUP ) );
+		if( cursor.getColumnIndex( details.getTableName() + "_" + RecordingConstants.FIELD_REC_GROUP ) != -1 ) {
+			recordingGroup = cursor.getString( cursor.getColumnIndex( details.getTableName() + "_" + RecordingConstants.FIELD_REC_GROUP ) );
 		}
 		
-		if( cursor.getColumnIndex( RecordingConstants.TABLE_NAME + "_" + RecordingConstants.FIELD_PLAY_GROUP ) != -1 ) {
-			playGroup = cursor.getString( cursor.getColumnIndex( RecordingConstants.TABLE_NAME + "_" + RecordingConstants.FIELD_PLAY_GROUP ) );
+		if( cursor.getColumnIndex( details.getTableName() + "_" + RecordingConstants.FIELD_PLAY_GROUP ) != -1 ) {
+			playGroup = cursor.getString( cursor.getColumnIndex( details.getTableName() + "_" + RecordingConstants.FIELD_PLAY_GROUP ) );
 		}
 		
-		if( cursor.getColumnIndex( RecordingConstants.TABLE_NAME + "_" + RecordingConstants.FIELD_STORAGE_GROUP ) != -1 ) {
-			storageGroup = cursor.getString( cursor.getColumnIndex( RecordingConstants.TABLE_NAME + "_" + RecordingConstants.FIELD_STORAGE_GROUP ) );
+		if( cursor.getColumnIndex( details.getTableName() + "_" + RecordingConstants.FIELD_STORAGE_GROUP ) != -1 ) {
+			storageGroup = cursor.getString( cursor.getColumnIndex( details.getTableName() + "_" + RecordingConstants.FIELD_STORAGE_GROUP ) );
 		}
 		
-		if( cursor.getColumnIndex( RecordingConstants.TABLE_NAME + "_" + RecordingConstants.FIELD_REC_TYPE ) != -1 ) {
-			recordingType = cursor.getInt( cursor.getColumnIndex( RecordingConstants.TABLE_NAME + "_" + RecordingConstants.FIELD_REC_TYPE ) );
+		if( cursor.getColumnIndex( details.getTableName() + "_" + RecordingConstants.FIELD_REC_TYPE ) != -1 ) {
+			recordingType = cursor.getInt( cursor.getColumnIndex( details.getTableName() + "_" + RecordingConstants.FIELD_REC_TYPE ) );
 		}
 		
-		if( cursor.getColumnIndex( RecordingConstants.TABLE_NAME + "_" + RecordingConstants.FIELD_DUP_IN_TYPE ) != -1 ) {
-			duplicateInType = cursor.getInt( cursor.getColumnIndex( RecordingConstants.TABLE_NAME + "_" + RecordingConstants.FIELD_DUP_IN_TYPE ) );
+		if( cursor.getColumnIndex( details.getTableName() + "_" + RecordingConstants.FIELD_DUP_IN_TYPE ) != -1 ) {
+			duplicateInType = cursor.getInt( cursor.getColumnIndex( details.getTableName() + "_" + RecordingConstants.FIELD_DUP_IN_TYPE ) );
 		}
 		
-		if( cursor.getColumnIndex( RecordingConstants.TABLE_NAME + "_" + RecordingConstants.FIELD_DUP_METHOD ) != -1 ) {
-			duplicateMethod = cursor.getInt( cursor.getColumnIndex( RecordingConstants.TABLE_NAME + "_" + RecordingConstants.FIELD_DUP_METHOD ) );
+		if( cursor.getColumnIndex( details.getTableName() + "_" + RecordingConstants.FIELD_DUP_METHOD ) != -1 ) {
+			duplicateMethod = cursor.getInt( cursor.getColumnIndex( details.getTableName() + "_" + RecordingConstants.FIELD_DUP_METHOD ) );
 		}
 		
-		if( cursor.getColumnIndex( RecordingConstants.TABLE_NAME + "_" + RecordingConstants.FIELD_ENCODER_ID ) != -1 ) {
-			encoderId = cursor.getInt( cursor.getColumnIndex( RecordingConstants.TABLE_NAME + "_" + RecordingConstants.FIELD_ENCODER_ID ) );
+		if( cursor.getColumnIndex( details.getTableName() + "_" + RecordingConstants.FIELD_ENCODER_ID ) != -1 ) {
+			encoderId = cursor.getInt( cursor.getColumnIndex( details.getTableName() + "_" + RecordingConstants.FIELD_ENCODER_ID ) );
 		}
 		
-		if( cursor.getColumnIndex( RecordingConstants.TABLE_NAME + "_" + RecordingConstants.FIELD_PROFILE ) != -1 ) {
-			profile = cursor.getString( cursor.getColumnIndex( RecordingConstants.TABLE_NAME + "_" + RecordingConstants.FIELD_PROFILE ) );
+		if( cursor.getColumnIndex( details.getTableName() + "_" + RecordingConstants.FIELD_PROFILE ) != -1 ) {
+			profile = cursor.getString( cursor.getColumnIndex( details.getTableName() + "_" + RecordingConstants.FIELD_PROFILE ) );
 		}
 		
 
@@ -288,25 +349,25 @@ public class RecordingDaoHelper extends AbstractDaoHelper {
 	 * @param recording
 	 * @return
 	 */
-	public ContentValues convertRecordingToContentValues( final Recording recording, final DateTime startTime ) {
+	public static ContentValues convertRecordingToContentValues( final LocationProfile locationProfile, final DateTime lastModified, final DateTime startTime, final Recording recording ) {
 //		Log.v( TAG, "convertRecordingToContentValues : enter" );
 		
-		DateTime startTimestamp = null;
+		DateTime startTimestamp = DateUtils.convertUtc( new DateTime( System.currentTimeMillis() ) );
 		if( null != recording.getStartTimestamp() ) {
-			startTimestamp = new DateTime( recording.getStartTimestamp().getMillis() );
+			startTimestamp = recording.getStartTimestamp();
 		}
-		Log.v( TAG, "convertRecordingToContentValues : startTimestamp = " + startTimestamp.toString() );
+//		Log.v( TAG, "convertRecordingToContentValues : startTimestamp = " + startTimestamp.toString() );
 		
-		DateTime endTimestamp = null;
+		DateTime endTimestamp = DateUtils.convertUtc( new DateTime( System.currentTimeMillis() ) );
 		if( null != recording.getStartTimestamp() ) {
-			endTimestamp = new DateTime( recording.getEndTimestamp().getMillis() );
+			endTimestamp = recording.getEndTimestamp();
 		}
 		
 		ContentValues values = new ContentValues();
 		values.put( RecordingConstants.FIELD_STATUS, recording.getStatus() );
 		values.put( RecordingConstants.FIELD_PRIORITY, recording.getPriority() );
-		values.put( RecordingConstants.FIELD_START_TS, null != startTimestamp ? startTimestamp.getMillis() : -1 );
-		values.put( RecordingConstants.FIELD_END_TS, null != endTimestamp ? endTimestamp.getMillis() : -1 );
+		values.put( RecordingConstants.FIELD_START_TS, startTimestamp.getMillis() );
+		values.put( RecordingConstants.FIELD_END_TS, endTimestamp.getMillis() );
 		values.put( RecordingConstants.FIELD_RECORD_ID, recording.getRecordId() );
 		values.put( RecordingConstants.FIELD_REC_GROUP, null != recording.getRecordingGroup() ? recording.getRecordingGroup() : "" );
 		values.put( RecordingConstants.FIELD_PLAY_GROUP, null != recording.getPlayGroup() ? recording.getPlayGroup() : "" );
@@ -317,39 +378,11 @@ public class RecordingDaoHelper extends AbstractDaoHelper {
 		values.put( RecordingConstants.FIELD_ENCODER_ID, recording.getEncoderId() );
 		values.put( RecordingConstants.FIELD_PROFILE, null != recording.getProfile() ? recording.getProfile() : "" );
 		values.put( RecordingConstants.FIELD_START_TIME, startTime.getMillis() );
-		values.put( RecordingConstants.FIELD_HOSTNAME, mLocationProfile.getHostname() );
+		values.put( RecordingConstants.FIELD_MASTER_HOSTNAME, locationProfile.getHostname() );
+		values.put( RecordingConstants.FIELD_LAST_MODIFIED_DATE, lastModified.getMillis() );
 		
 //		Log.v( TAG, "convertRecordingToContentValues : exit" );
 		return values;
 	}
-
-	// internal helpers
-
-//	private ContentValues[] convertRecordingsToContentValuesArray( final List<Recording> recordings ) {
-//		Log.v( TAG, "convertRecordingsToContentValuesArray : enter" );
-//		
-//		if( null != recordings && !recordings.isEmpty() ) {
-//			
-//			ContentValues contentValues;
-//			List<ContentValues> contentValuesArray = new ArrayList<ContentValues>();
-//
-//			for( Recording recording : recordings ) {
-//
-//				contentValues = convertRecordingToContentValues( recording );
-//				contentValuesArray.add( contentValues );
-//
-//			}			
-//			
-//			if( !contentValuesArray.isEmpty() ) {
-//				
-//				Log.v( TAG, "convertRecordingsToContentValuesArray : exit" );
-//				return contentValuesArray.toArray( new ContentValues[ contentValuesArray.size() ] );
-//			}
-//			
-//		}
-//		
-//		Log.v( TAG, "convertRecordingsToContentValuesArray : exit, no recordings to convert" );
-//		return null;
-//	}
 
 }

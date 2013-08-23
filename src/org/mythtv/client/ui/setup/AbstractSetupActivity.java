@@ -19,13 +19,9 @@
 package org.mythtv.client.ui.setup;
 
 import org.mythtv.client.ui.AbstractMythtvFragmentActivity;
-import org.mythtv.client.ui.AwayActivity;
-import org.mythtv.client.ui.HomeActivity;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.MenuItem;
 
 /**
  * @author Daniel Frey
@@ -45,33 +41,6 @@ public abstract class AbstractSetupActivity extends AbstractMythtvFragmentActivi
 		setupActionBar();
 		
 		Log.i( TAG, "onCreate : exit" );
-	}
-
-	/* (non-Javadoc)
-	 * @see android.app.Activity#onOptionsItemSelected(android.view.MenuItem)
-	 */
-	@Override
-	public boolean onOptionsItemSelected( MenuItem item ) {
-		Log.v( TAG, "onOptionsItemSelected : enter" );
-
-		switch( item.getItemId() ) {
-			case android.R.id.home:
-				// app icon in action bar clicked; go home
-				if( getMainApplication().getConnectedLocationProfile().equals( "HOME" ) ) {
-					Intent intent = new Intent( this, HomeActivity.class );
-					intent.addFlags( Intent.FLAG_ACTIVITY_CLEAR_TOP );
-					startActivity( intent );
-				} else {
-					Intent intent = new Intent( this, AwayActivity.class );
-					intent.addFlags( Intent.FLAG_ACTIVITY_CLEAR_TOP );
-					startActivity( intent );
-				}
-
-				return true;
-		}
-
-		Log.v( TAG, "onOptionsItemSelected : exit" );
-		return super.onOptionsItemSelected( item );
 	}
 
 }

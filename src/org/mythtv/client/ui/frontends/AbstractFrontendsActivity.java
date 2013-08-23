@@ -22,7 +22,6 @@ import org.mythtv.client.ui.AbstractMythtvFragmentActivity;
 
 import android.os.Bundle;
 import android.util.Log;
-import android.view.MenuItem;
 
 /**
  * @author Daniel Frey
@@ -43,23 +42,5 @@ public abstract class AbstractFrontendsActivity extends AbstractMythtvFragmentAc
 		
 		Log.i( TAG, "onCreate : exit" );
 	}
-
-	/* (non-Javadoc)
-	 * @see android.app.Activity#onOptionsItemSelected(android.view.MenuItem)
-	 */
-	@Override
-	public boolean onOptionsItemSelected( MenuItem item ) {
-		Log.v( TAG, "onOptionsItemSelected : enter" );
-
-		switch( item.getItemId() ) {
-			case android.R.id.home:
-				this.finish();
-				return true;
-		}
-
-		Log.v( TAG, "onOptionsItemSelected : exit" );
-		return super.onOptionsItemSelected( item );
-	}
-
 
 }

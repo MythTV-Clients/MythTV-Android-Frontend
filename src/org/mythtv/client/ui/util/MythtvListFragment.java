@@ -19,7 +19,9 @@
 package org.mythtv.client.ui.util;
 
 import org.mythtv.client.MainApplication;
-import org.mythtv.service.util.NetworkHelper;
+import org.mythtv.client.ui.preferences.LocationProfile;
+import org.mythtv.db.preferences.LocationProfileDaoHelper;
+import org.mythtv.service.util.MythtvServiceHelper;
 
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
@@ -30,10 +32,13 @@ import android.widget.ListView;
  * @author Daniel Frey
  *
  */
-public class MythtvListFragment extends ListFragment {
+public abstract class MythtvListFragment extends ListFragment {
 
-	protected NetworkHelper mNetworkHelper;
-
+	protected MythtvServiceHelper mMythtvServiceHelper = MythtvServiceHelper.getInstance();
+	protected LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
+	protected ProgramHelper mProgramHelper = ProgramHelper.getInstance();
+	
+	protected LocationProfile mLocationProfile;
 	
 	/* (non-Javadoc)
 	 * @see android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
@@ -42,7 +47,7 @@ public class MythtvListFragment extends ListFragment {
 	public void onActivityCreated( Bundle savedInstanceState ) {
 		super.onActivityCreated( savedInstanceState );
 
-		mNetworkHelper = NetworkHelper.newInstance( getActivity() );
+		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
 	}
 
 	/* (non-Javadoc)

@@ -58,9 +58,8 @@ public class LocationProfileEditor extends AbstractMythtvFragmentActivity {
 
     private ProgressDialog mProgressDialog;
     
-	private LocationProfileDaoHelper mLocationProfileDaoHelper;
-	private NetworkHelper mNetworkHelper;
-	private RunningServiceHelper mRunningServiceHelper;
+	private LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
+	private RunningServiceHelper mRunningServiceHelper = RunningServiceHelper.getInstance();
 	
 	private boolean isNew = false;
 	private LocationProfile profile;
@@ -88,10 +87,6 @@ public class LocationProfileEditor extends AbstractMythtvFragmentActivity {
 		Log.v( TAG, "onCreate : enter" );
 		super.onCreate( savedInstanceState );
 
-		mLocationProfileDaoHelper = new LocationProfileDaoHelper( this );
-		mNetworkHelper = NetworkHelper.newInstance( this );
-		mRunningServiceHelper = RunningServiceHelper.newInstance( this );
-		
 		setContentView( this.getLayoutInflater().inflate( R.layout.preference_location_profile_editor, null ) );
 
 		setupSaveButtonEvent( R.id.btnPreferenceLocationProfileSave );
@@ -99,7 +94,7 @@ public class LocationProfileEditor extends AbstractMythtvFragmentActivity {
 
 		long id = getIntent().getLongExtra( LocationProfileConstants._ID, -1 );
 
-		profile = mLocationProfileDaoHelper.findOne( id );
+		profile = mLocationProfileDaoHelper.findOne( this, id );
 		if( null == profile ) {
 			isNew = true;
 			profile = new LocationProfile();
@@ -246,7 +241,7 @@ public class LocationProfileEditor extends AbstractMythtvFragmentActivity {
 		if( save() ) {
 			Log.v( TAG, "saveAndExit : save completed successfully" );
 
-			if( !mRunningServiceHelper.isServiceRunning( "org.mythtv.service.preferences.PreferencesRecordedDownloadService" ) ) {
+			if( !mRunningServiceHelper.isServiceRunning( this, "org.mythtv.service.preferences.PreferencesRecordedDownloadService" ) ) {
 				
 				mProgressDialog = ProgressDialog.show( LocationProfileEditor.this, getResources().getString( R.string.please_wait ), getResources().getString( R.string.preferences_profile_loading ), true, false );
 				
@@ -279,7 +274,7 @@ public class LocationProfileEditor extends AbstractMythtvFragmentActivity {
 		
 		LocationProfile existing = null;
 		if( isNew ) {
-			existing = mLocationProfileDaoHelper.findByLocationTypeAndUrl( profile.getType(), profile.getUrl() );
+			existing = mLocationProfileDaoHelper.findByLocationTypeAndUrl( this, profile.getType(), profile.getUrl() );
 		}
 		
 		AlertDialog.Builder builder = new AlertDialog.Builder( this );
@@ -340,11 +335,11 @@ public class LocationProfileEditor extends AbstractMythtvFragmentActivity {
 		@Override
 		protected ResponseEntity<StringWrapper> doInBackground( Void... params ) {
 			
-			if( !mNetworkHelper.isMasterBackendConnected( profile ) ) {
+			if( !NetworkHelper.getInstance().isMasterBackendConnected( LocationProfileEditor.this, profile ) ) {
 				return null;
 			}
 
-			return getMainApplication().getMythServicesApi( profile ).mythOperations().getHostName();
+			return mMythtvServiceHelper.getMythServicesApi( profile ).mythOperations().getHostName();
 		}
 
 		/* (non-Javadoc)
@@ -360,7 +355,7 @@ public class LocationProfileEditor extends AbstractMythtvFragmentActivity {
 					
 					profile.setHostname( result.getBody().getString() );
 					
-					mLocationProfileDaoHelper.save( profile );
+					mLocationProfileDaoHelper.save( LocationProfileEditor.this, profile );
 					Log.v( TAG, "profile=" + profile.toString() );
 					
 				    finish();

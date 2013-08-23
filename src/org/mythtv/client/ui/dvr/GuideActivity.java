@@ -19,6 +19,7 @@
 package org.mythtv.client.ui.dvr;
 
 import org.mythtv.R;
+import org.mythtv.client.ui.AbstractMythtvFragmentActivity;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -27,7 +28,7 @@ import android.util.Log;
  * @author Daniel Frey
  *
  */
-public class GuideActivity extends AbstractDvrActivity {
+public class GuideActivity extends AbstractMythtvFragmentActivity {
 
 	private static final String TAG = GuideActivity.class.getSimpleName();
 

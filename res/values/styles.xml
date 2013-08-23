@@ -41,4 +41,72 @@
         <item name="android:background">@null</item>
     </style>
     
+    <style name="ProgramGuideTimeSlotHeader">
+        <item name="android:layout_width">90dp</item>
+        <item name="android:layout_height">30dp</item>
+        <item name="android:gravity">center</item>
+		<item name="android:padding">4sp</item>
+		<item name="android:background">@drawable/program_guide_timeslot_header_back</item>
+	</style>
+	
+    <style name="ProgramGuideChannelHeader">
+        <item name="android:layout_width">100dp</item>
+        <item name="android:layout_height">75dp</item>
+        <item name="android:gravity">center_horizontal</item>
+		<item name="android:padding">4sp</item>
+		<item name="android:background">@drawable/program_guide_channel_header_back</item>
+	</style>
+	
+    <style name="ProgramGuideChannelHeaderSelected" parent="ProgramGuideChannelHeader">
+		<item name="android:background">@drawable/program_guide_channel_header_back_selected</item>
+	</style>
+    
+    <style name="NavigationDrawerHeader">
+		<item name="android:textColor">@color/text_header_main_menu</item>
+		<item name="android:textSize">16sp</item>
+	</style>
+	
+    <style name="BackendStatusHeader">
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">@color/backend_status_header</item>
+    </style>
+    
+    <style name="BackendStatusHorizontalLine">
+        <item name="android:layout_gravity">center</item>
+		<item name="android:layout_width">fill_parent</item>
+		<item name="android:layout_height">2dp</item>
+        <item name="android:paddingBottom">10dp</item>
+        <item name="android:background">@color/backend_status_header</item>
+    </style>
+    
+    <style name="BackendStatusItemSeparator">
+        <item name="android:layout_gravity">center</item>
+		<item name="android:layout_width">match_parent</item>
+		<item name="android:layout_height">1dp</item>
+        <item name="android:layout_marginLeft">20dp</item>
+ 	    <item name="android:layout_marginRight">20dp</item>
+	    <item name="android:layout_marginTop">2dp</item>
+	    <item name="android:layout_marginBottom">2dp</item>
+        <item name="android:background">@color/backend_status_item_separator</item>
+    </style>
+    
+    <style name="BackendStatusCardLinearLayout">
+        <item name="android:layout_marginTop">5dp</item>
+        <item name="android:layout_marginBottom">5dp</item>
+        <item name="android:layout_marginLeft">10dp</item>
+        <item name="android:layout_marginRight">10dp</item>
+        <item name="android:paddingTop">10dp</item>
+        <item name="android:paddingBottom">20dp</item>
+        <item name="android:paddingLeft">20dp</item>
+        <item name="android:paddingRight">20dp</item>
+    </style>
+    
+    <style name="ProgramGuideDataItem">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:gravity">center_horizontal</item>
+		<item name="android:padding">4sp</item>
+		<item name="android:background">@drawable/program_guide_timeslot_header_back</item>
+	</style>
+	
  </resources>

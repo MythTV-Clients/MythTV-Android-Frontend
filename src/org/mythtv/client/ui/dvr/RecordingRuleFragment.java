@@ -23,19 +23,15 @@ package org.mythtv.client.ui.dvr;
 
 import org.mythtv.R;
 import org.mythtv.client.ui.AbstractMythFragment;
+import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.util.MenuHelper;
 import org.mythtv.client.ui.util.ProgramHelper;
 import org.mythtv.db.channel.ChannelDaoHelper;
-import org.mythtv.service.util.NetworkHelper;
-import org.mythtv.services.api.ETagInfo;
+import org.mythtv.db.dvr.RecordingRuleDaoHelper;
 import org.mythtv.services.api.channel.ChannelInfo;
 import org.mythtv.services.api.dvr.RecRule;
-import org.mythtv.services.api.dvr.RecRuleWrapper;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -55,11 +51,12 @@ public class RecordingRuleFragment extends AbstractMythFragment {
 
 	private static final String TAG = RecordingRuleFragment.class.getSimpleName();
 	
-	private ChannelDaoHelper mChannelDaoHelper;
-	private MenuHelper mMenuHelper;
-	private NetworkHelper mNetworkHelper;
-	private ProgramHelper mProgramHelper;
-	private Integer mRecordingRuleId;
+	private RecordingRuleDaoHelper mRecordingnRuleDaoHelper = RecordingRuleDaoHelper.getInstance();
+	private ChannelDaoHelper mChannelDaoHelper = ChannelDaoHelper.getInstance();
+	private MenuHelper mMenuHelper = MenuHelper.getInstance();
+	private ProgramHelper mProgramHelper = ProgramHelper.getInstance();
+	
+	private LocationProfile mLocationProfile;
 	
 	public static RecordingRuleFragment newInstance( Bundle args ) {
 		RecordingRuleFragment fragment = new RecordingRuleFragment();
@@ -83,7 +80,7 @@ public class RecordingRuleFragment extends AbstractMythFragment {
 
 		Bundle args = getArguments();
 		if( null != args ){
-			int recordingRuleId = args.getInt( "RECORDING_RULE_ID" );
+			long recordingRuleId = args.getLong( "RECORDING_RULE_ID" );
 			loadRecordingRule( recordingRuleId );
 		}
 		
@@ -99,6 +96,8 @@ public class RecordingRuleFragment extends AbstractMythFragment {
 
 		View v = inflater.inflate( R.layout.recording_rule, container, false );
 		
+		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
+
 		Log.v( TAG, "onCreateView : exit" );
 		return v;
 	}
@@ -109,28 +108,21 @@ public class RecordingRuleFragment extends AbstractMythFragment {
 	@Override
 	public void onActivityCreated( Bundle savedInstanceState ) {
 		Log.v( TAG, "onActivityCreated : enter" );
+		
 		super.onActivityCreated( savedInstanceState );
 
-		mChannelDaoHelper = new ChannelDaoHelper( getActivity() );
-		mProgramHelper = ProgramHelper.createInstance( getActivity() );
-		
+		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
+
 		Log.v( TAG, "onActivityCreated : exit" );
 	}
 
-	public void loadRecordingRule( Integer recordingRuleId ) {
+	public void loadRecordingRule( Long recordingRuleId ) {
 		Log.v( TAG, "loadRecordingRule : enter" );
 		
-		mRecordingRuleId = recordingRuleId;
+		Log.v( TAG, "loadRecordingRule : recordingRuleId=" + recordingRuleId );
 
-		if( null != getActivity() ) {
-
-			if( null == mNetworkHelper ) {
-				mNetworkHelper = ( (AbstractDvrActivity) getActivity() ).getNetworkHelper();
-			}
-
-			new DownloadRecordingRuleTask().execute( mRecordingRuleId );
-		
-		}
+		RecRule recRule = mRecordingnRuleDaoHelper.findByRecordingRuleId( getActivity(), mLocationProfile, recordingRuleId );
+		setup( recRule );
 		
 		Log.v( TAG, "loadRecordingRule : exit" );
 	}
@@ -142,10 +134,8 @@ public class RecordingRuleFragment extends AbstractMythFragment {
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		Log.v( TAG, "onCreateOptionsMenu : enter" );
 
-		mMenuHelper = ( (AbstractDvrActivity) getActivity() ).getMenuHelper();
-
-		mMenuHelper.editMenuItem( menu );
-		mMenuHelper.deleteMenuItem( menu );
+		mMenuHelper.editMenuItem( getActivity(), menu );
+		mMenuHelper.deleteMenuItem( getActivity(), menu );
 
 		Log.v( TAG, "onCreateOptionsMenu : exit" );
 		
@@ -163,11 +153,8 @@ public class RecordingRuleFragment extends AbstractMythFragment {
 		
 		switch( item.getItemId() ) {
 			case android.R.id.home:
-				// app icon in action bar clicked; go home
-				intent = new Intent( this.getActivity(), RecordingRulesActivity.class );
-				intent.addFlags( Intent.FLAG_ACTIVITY_CLEAR_TOP );
-				startActivity( intent );
-
+			    	// app icon in action bar clicked; go home
+			    	this.getActivity().finish();
 				return true;
 			
 			case MenuHelper.EDIT_ID:
@@ -196,6 +183,8 @@ public class RecordingRuleFragment extends AbstractMythFragment {
 	private void setup( RecRule rule ) {
 		Log.v( TAG, "setup : enter" );
 		
+		Log.v( TAG, "setup : rule=" + rule.toString() );
+
 		View view;
 		TextView tView;
 		
@@ -225,7 +214,7 @@ public class RecordingRuleFragment extends AbstractMythFragment {
 		// - slow
 		String channel = "[Any]";
 		if( rule.getChanId() > 0 ) {
-			ChannelInfo channelInfo = mChannelDaoHelper.findByChannelId( (long) rule.getChanId() );
+			ChannelInfo channelInfo = mChannelDaoHelper.findByChannelId( getActivity(), mLocationProfile, (long) rule.getChanId() );
 			if( null != channelInfo && channelInfo.getChannelId() > -1 ) {
 				channel = channelInfo.getChannelNumber();
 			}
@@ -235,42 +224,6 @@ public class RecordingRuleFragment extends AbstractMythFragment {
 		tView.setText( channel );
 		
 		Log.v( TAG, "setup : exit" );
-	}
-	
-	private class DownloadRecordingRuleTask extends AsyncTask<Integer, Void, ResponseEntity<RecRuleWrapper>> {
-
-		/* (non-Javadoc)
-		 * @see android.os.AsyncTask#doInBackground(Params[])
-		 */
-		@Override
-		protected ResponseEntity<RecRuleWrapper> doInBackground( Integer... params ) {
-			
-			if( !mNetworkHelper.isMasterBackendConnected() ) {
-				return null;
-			}
-			
-			Integer id = params[ 0 ];
-			
-			ETagInfo etag = ETagInfo.createEmptyETag();
-			return getMainApplication().getMythServicesApi().dvrOperations().getRecordSchedule( id, etag );
-		}
-
-		/* (non-Javadoc)
-		 * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
-		 */
-		@Override
-		protected void onPostExecute( ResponseEntity<RecRuleWrapper> result ) {
-			
-			if( null != result ) {
-				
-				if( result.getStatusCode().equals( HttpStatus.OK ) ) {
-					setup( result.getBody().getRecRule() );
-				}
-				
-			}
-			
-		}
-		
 	}
 	
 }
