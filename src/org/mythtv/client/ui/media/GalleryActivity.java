@@ -16,6 +16,25 @@
  *
  * This software can be found at <https://github.com/MythTV-Clients/MythTV-Android-Frontend/>
  */
+
+/**
+ * This file is part of MythTV Android Frontend
+ *
+ * MythTV Android Frontend is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * MythTV Android Frontend is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with MythTV Android Frontend.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * This software can be found at <https://github.com/MythTV-Clients/MythTV-Android-Frontend/>
+ */
 package org.mythtv.client.ui.media;
 
 import android.app.Activity;
@@ -27,11 +46,11 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.EditText;
 import android.widget.GridView;
-
 import org.mythtv.R;
 import org.mythtv.client.MainApplication;
 import org.mythtv.client.ui.MythtvApplicationContext;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
+import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.Bool;
 import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.StringList;
@@ -50,10 +69,13 @@ import java.util.List;
 public class GalleryActivity extends Activity implements MythtvApplicationContext {
 
     private static final String TAG = GalleryActivity.class.getSimpleName();
+    protected static ArrayList<GalleryImageItem> images = new ArrayList<GalleryImageItem>();
 
+    protected NetworkHelper mNetworkHelper;
     private LocationProfileDaoHelper mLocationProfileDaoHelper;
 
     private boolean hasBackendGallerySG = false;
+
 
     @Override
     public MainApplication getMainApplication() {
@@ -76,7 +98,7 @@ public class GalleryActivity extends Activity implements MythtvApplicationContex
         Log.v(TAG, "onCreate : exit");
     }
 
-    private class LoadFileListTask extends AsyncTask<Void, Void, List<GalleryImageItem>> {
+    private class LoadFileListTask extends AsyncTask<Void, Void, Void> {
 
         GalleryActivity activity;
         boolean backendAndFrontendShareHostname = false;
@@ -95,9 +117,11 @@ public class GalleryActivity extends Activity implements MythtvApplicationContex
         }
 
         @Override
-        protected List<GalleryImageItem> doInBackground(Void... params) {
+        protected Void doInBackground(Void... params) {
 
-            List<GalleryImageItem> images = new ArrayList<GalleryImageItem>();
+//            if( !mNetworkHelper.isMasterBackendConnected() ) {
+//          			return null;
+//            }
 
             try {
                 ETagInfo eTag = ETagInfo.createEmptyETag();
@@ -138,8 +162,8 @@ public class GalleryActivity extends Activity implements MythtvApplicationContex
                 Log.e(TAG, "download : error getting file list", e);
 
             }
-
-            return images;
+              return null;
+            //return images;
         }
 
         private boolean isConnectedProfileInHostsList() {
@@ -164,23 +188,24 @@ public class GalleryActivity extends Activity implements MythtvApplicationContex
             if (responseEntity.getStatusCode().equals(HttpStatus.OK)) {
                 StringList filesOnStorageGroup = responseEntity.getBody();
                 // TODO: Add different types of sorting, and filtering
-                String imageUri = mLocationProfileDaoHelper.findConnectedProfile().getUrl() + "Content/GetImageFile?StorageGroup="+gallerySGName+"&Width="+previewWidth+"&FileName=";
+                //String imageUri = mLocationProfileDaoHelper.findConnectedProfile().getUrl() + "Content/GetImageFile?StorageGroup="+gallerySGName+"&Width="+previewWidth+"&FileName=";
 
                 for(String file: filesOnStorageGroup.getStringList()){
 
                     // First look for image suffixes, then skip files with reoccurring WxH suffixes made by MythTVs getImageFile scalar.
                     if(file.matches(".+(?i)(jpg|png|gif|bmp)$") && !file.matches(".+(?i)(jpg|png|gif|bmp).\\d+x\\d.(?i)(jpg|png|gif|bmp)$")){
-                        images.add(new GalleryImageItem(0, "", imageUri+file, true));
+                        images.add(new GalleryImageItem(0, "", file));
+                        //images.add(new GalleryImageItem(0, "", imageUri+file, true));
                     }
                 }
             }
         }
 
         @Override
-        protected void onPostExecute(List<GalleryImageItem> imageItems) {
+        protected void onPostExecute(Void aVoid) {
 
             if(hasBackendGallerySG){
-                GalleryGridAdapter adapter = new GalleryGridAdapter(GalleryActivity.this, imageItems);
+                GalleryGridAdapter adapter = new GalleryGridAdapter(GalleryActivity.this);
                 gridView.setAdapter(adapter);
 
             } else {
@@ -245,6 +270,10 @@ public class GalleryActivity extends Activity implements MythtvApplicationContex
 
         @Override
         protected Bool doInBackground(String... params) {
+
+//            if( !mNetworkHelper.isMasterBackendConnected() ) {
+//          			return null;
+//            }
 
             Bool bool = new Bool();
             bool.setBool(false);
