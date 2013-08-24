@@ -8,6 +8,10 @@ buildscript {
 }
 apply plugin: 'android'
 
+repositories {
+    mavenCentral()
+}
+
 dependencies {
 	// compile files('lib/com/google/android/support-v4/r18/support-v4-18.jar')
 	compile 'com.android.support:support-v4:18.0.0'
@@ -22,7 +26,7 @@ dependencies {
 
 android {
     compileSdkVersion 18
-    buildToolsVersion "18.0.0"
+    buildToolsVersion "18.0.1"
 
     defaultConfig {
         minSdkVersion 14
