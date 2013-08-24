@@ -57,8 +57,7 @@ public class ProgramGroupFragment extends MythtvListFragment implements LoaderMa
 
 	private static final String TAG = ProgramGroupFragment.class.getSimpleName();
 	
-	public interface OnEpisodeSelectedListener
-	{
+	public interface OnEpisodeSelectedListener {
 		void onEpisodeSelected( int channelId, DateTime startTime );
 	}
 	
@@ -71,6 +70,8 @@ public class ProgramGroupFragment extends MythtvListFragment implements LoaderMa
 	private static RecordedDaoHelper mRecordedDaoHelper = RecordedDaoHelper.getInstance();
 	private LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
 	
+	private LocationProfile mLocationProfile;
+	
 	private ProgramGroup programGroup;
 	
 	public ProgramGroupFragment() { }
@@ -82,10 +83,8 @@ public class ProgramGroupFragment extends MythtvListFragment implements LoaderMa
 	public Loader<Cursor> onCreateLoader( int id, Bundle args ) {
 		Log.v( TAG, "onCreateLoader : enter" );
 
-		LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
-		
 		if( null == programGroup ) {
-			programGroup = mProgramGroupDaoHelper.findByTitle( getActivity(), locationProfile, "All" );
+			programGroup = mProgramGroupDaoHelper.findByTitle( getActivity(), mLocationProfile, "All" );
 		}
 		
 		String[] projection = { ProgramConstants._ID, ProgramConstants.FIELD_TITLE, ProgramConstants.FIELD_SUB_TITLE, ProgramConstants.FIELD_CATEGORY, ProgramConstants.FIELD_START_TIME };
@@ -95,15 +94,12 @@ public class ProgramGroupFragment extends MythtvListFragment implements LoaderMa
 			selection = ProgramConstants.FIELD_TITLE + " = ? AND " + selection;
 		}
 		
-		String[] selectionArgs = { locationProfile.getHostname(), "0" };
+		String[] selectionArgs = { mLocationProfile.getHostname(), "0" };
 		if( !"All".equals( programGroup.getTitle() ) ) {
-			selectionArgs = new String[] { ( null != programGroup && null != programGroup.getTitle() ? programGroup.getTitle() : "" ), locationProfile.getHostname(), "0" };
+			selectionArgs = new String[] { ( null != programGroup && null != programGroup.getTitle() ? programGroup.getTitle() : "" ), mLocationProfile.getHostname(), "0" };
 		}
 		
 		String sort = ( ProgramConstants.TABLE_NAME_RECORDED + "." + ProgramConstants.FIELD_END_TIME ) + " DESC";
-		if( !"All".equals( programGroup.getTitle() ) ) {
-			sort = ( ProgramConstants.TABLE_NAME_RECORDED + "." + ProgramConstants.FIELD_PROGRAM_ID ) + " DESC, " + ( ProgramConstants.TABLE_NAME_RECORDED + "." + ProgramConstants.FIELD_SEASON ) + " DESC ," + ( ProgramConstants.TABLE_NAME_RECORDED + "." + ProgramConstants.FIELD_EPISODE ) + " DESC, " + ( ProgramConstants.TABLE_NAME_RECORDED + "." + ProgramConstants.FIELD_START_TIME ) + " DESC";
-		}
 		
 	    CursorLoader cursorLoader = new CursorLoader( getActivity(), ProgramConstants.CONTENT_URI_RECORDED, projection, selection, selectionArgs, sort );
 	    
@@ -136,17 +132,6 @@ public class ProgramGroupFragment extends MythtvListFragment implements LoaderMa
 	}
 
 	/* (non-Javadoc)
-	 * @see android.support.v4.app.ListFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle)
-	 */
-	@Override
-	public View onCreateView( LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState ) {
-		Log.i( TAG, "onCreateView : enter" );
-
-		Log.i( TAG, "onCreateView : exit" );
-		return super.onCreateView( inflater, container, savedInstanceState );
-	}
-
-	/* (non-Javadoc)
 	 * @see org.mythtv.client.ui.util.MythtvListFragment#onActivityCreated(android.os.Bundle)
 	 */
 	@Override
@@ -154,13 +139,38 @@ public class ProgramGroupFragment extends MythtvListFragment implements LoaderMa
 		Log.i( TAG, "onActivityCreated : enter" );
 		super.onActivityCreated( savedInstanceState );
 	    
+		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
+		
 		mAdapter = new ProgramCursorAdapter( getActivity() );
 
+		if( null != savedInstanceState ) {
+			Long id = savedInstanceState.getLong( "PROGRAM_GROUP_ID" );
+			
+			programGroup = mProgramGroupDaoHelper.findOne( getActivity(), id );
+		} else {
+			programGroup = mProgramGroupDaoHelper.findByTitle( getActivity(), mLocationProfile, "All" );
+		}
+		
 	    setListAdapter( mAdapter );
 
 	    getLoaderManager().initLoader( 0, null, this );
 
 	    Log.i( TAG, "onActivityCreated : exit" );
+	}
+
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.Fragment#onResume()
+	 */
+	@Override
+	public void onResume() {
+		Log.v( TAG, "onResume : enter" );
+		super.onResume();
+
+		if( null == mLocationProfile ) {
+			mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
+		}
+
+		Log.v( TAG, "onResume : exit" );
 	}
 
 	/* (non-Javadoc)
@@ -171,9 +181,14 @@ public class ProgramGroupFragment extends MythtvListFragment implements LoaderMa
 		Log.i( TAG, "onSaveInstanceState : enter" );
 		super.onSaveInstanceState(outState);
         
+		outState.putLong( "PROGRAM_GROUP_ID", programGroup.getId() );
+		
 		Log.i( TAG, "onSaveInstanceState : exit" );
     }
 	
+	/* (non-Javadoc)
+	 * @see org.mythtv.client.ui.util.MythtvListFragment#onListItemClick(android.widget.ListView, android.view.View, int, long)
+	 */
 	@Override
 	public void onListItemClick( ListView l, View v, int position, long id ) {
 		Log.v( TAG, "onListItemClick : enter" );
@@ -209,6 +224,9 @@ public class ProgramGroupFragment extends MythtvListFragment implements LoaderMa
 		Log.v( TAG, "loadProgramGroup : exit" );
 	}
 	
+	/**
+	 * @param listener
+	 */
 	public void setOnEpisodeSelectedListener( OnEpisodeSelectedListener listener ) {
 		this.mEpisodeListener = listener;
 	}
@@ -259,9 +277,9 @@ public class ProgramGroupFragment extends MythtvListFragment implements LoaderMa
 			Log.v( TAG, "bindView : enter" );
 
 			Program program = ProgramDaoHelper.convertCursorToProgram( cursor, ProgramConstants.TABLE_NAME_RECORDED );
-			if( null != program ) {
-				Log.v( TAG, "bindView : program=" + program.toString() );
-			}
+//			if( null != program ) {
+//				Log.v( TAG, "bindView : program=" + program.toString() );
+//			}
 			
 			String title = "";
 			if( "All".equals( programGroup.getProgramGroup() ) ) {

@@ -79,7 +79,7 @@ public class RecordedDaoHelper extends ProgramDaoHelper {
 		String selection = appendLocationHostname( context, locationProfile, "", ProgramConstants.TABLE_NAME_RECORDED );
 //		Log.d( TAG, "findAll : selection=" + selection );
 		
-		List<Program> programs = findAll( context, ProgramConstants.CONTENT_URI_RECORDED, null, selection, null, null, ProgramConstants.TABLE_NAME_RECORDED );
+		List<Program> programs = findAll( context, ProgramConstants.CONTENT_URI_RECORDED, null, selection, null, ProgramConstants.FIELD_END_TIME + " DESC", ProgramConstants.TABLE_NAME_RECORDED );
 		
 //		Log.d( TAG, "findAll : exit" );
 		return programs;

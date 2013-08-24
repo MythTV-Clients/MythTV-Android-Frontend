@@ -52,10 +52,14 @@ public class RecordingsParentFragment extends AbstractMythFragment implements Re
 	private FragmentManager mFragmentManager;
 	
 	private boolean mUseMultiplePanes;
+	
+//	private ProgramGroupDaoHelper mProgramGroupDaoHelper = ProgramGroupDaoHelper.getInstance();
 	private RecordedDaoHelper mRecordedDaoHelper = RecordedDaoHelper.getInstance();
 	private RecordingsFragment mRecordingsFragment;
+	
 	private ProgramGroupFragment mProgramGroupFragment;
 	private EpisodeFragment mEpisodeFragment;
+	
 	private ProgramGroup selectedProgramGroup;
 	private Program selectedProgram;
 	private LocationProfile mLocationProfile;
@@ -138,10 +142,14 @@ public class RecordingsParentFragment extends AbstractMythFragment implements Re
 		
 		
 //		if( mUseMultiplePanes ) {
+//
 //			List<ProgramGroup> programGroups = mProgramGroupDaoHelper.findAll( getActivity(),  mLocationProfile );
 //			if( null != programGroups && !programGroups.isEmpty() ) {
-//				onProgramGroupSelected(programGroups.get(0));
+//		
+//				onProgramGroupSelected( programGroups.get( 0 ) );
+//			
 //			}
+//		
 //		}
 		
 
@@ -154,7 +162,7 @@ public class RecordingsParentFragment extends AbstractMythFragment implements Re
 	 * @see org.mythtv.client.ui.dvr.RecordingsFragment.OnProgramGroupListener#
 	 * onProgramGroupSelected(org.mythtv.db.dvr.programGroup.ProgramGroup)
 	 */
-	public void onProgramGroupSelected(ProgramGroup programGroup) {
+	public void onProgramGroupSelected( ProgramGroup programGroup ) {
 		Log.d(TAG, "onProgramGroupSelected : enter");
 
 		if (null == programGroup) {
@@ -175,16 +183,16 @@ public class RecordingsParentFragment extends AbstractMythFragment implements Re
 			programs = mRecordedDaoHelper.findAllByTitle( getActivity(), mLocationProfile, programGroup.getTitle() );
 		}
 		
-		if (null == programs || programs.isEmpty()) {
+		if( null == programs || programs.isEmpty()) {
 			Log.d(TAG, "onProgramGroupSelected : no programs in programGroup");
-			mRecordedDaoHelper.findAll(getActivity(), mLocationProfile);
+			mRecordedDaoHelper.findAll( getActivity(), mLocationProfile );
 		}
 
-		if (null != programs && !programs.isEmpty()) {
-			selectedProgram = programs.get(0);
+		if( null != programs && !programs.isEmpty() ) {
+			selectedProgram = programs.get( 0 );
 		}
 
-		if (this.mUseMultiplePanes && null != mProgramGroupFragment) {
+		if( this.mUseMultiplePanes && null != mProgramGroupFragment ) {
 			FragmentManager manager = getActivity().getSupportFragmentManager();
 
 			final boolean programGroupAdded = (mProgramGroupFragment != null);
