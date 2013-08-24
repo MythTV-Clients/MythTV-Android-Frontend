@@ -54,8 +54,6 @@ public class UpcomingFragment extends MythtvListFragment implements LoaderManage
 	
 	private UpcomingCursorAdapter adapter;
 
-    private MainApplication mainApplication;
-
     private LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
 	private ProgramHelper mProgramHelper = ProgramHelper.getInstance();
 	private UpcomingDaoHelper mUpcomingDaoHelper = UpcomingDaoHelper.getInstance();
@@ -87,7 +85,7 @@ public class UpcomingFragment extends MythtvListFragment implements LoaderManage
 		DateTime endDay = startDay.plusDays( 1 );
 		DateTime now = new DateTime( System.currentTimeMillis() );
 
-        mainApplication = getMainApplication();
+        //mainApplication = getMainApplication();
 
 		LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
 		Log.v( TAG, "onCreateLoader : loading upcoming for profile " + locationProfile.getHostname() + " [" + locationProfile.getUrl() + "]" );
@@ -207,7 +205,7 @@ public class UpcomingFragment extends MythtvListFragment implements LoaderManage
 			mHolder.subTitle.setText( program.getSubTitle() );
 			mHolder.channel.setText( null != program.getChannelInfo() ? program.getChannelInfo().getChannelNumber() : "" );
             mHolder.duration.setText( program.getDurationInMinutes() + " minutes" );
-            mHolder.startTime.setText(DateUtils.getTimeWithLocaleFormatting(program.getStartTime(), mainApplication.getClockType()));
+            mHolder.startTime.setText(DateUtils.getTimeWithLocaleFormatting(program.getStartTime(), getMainApplication().getClockType()));
 
 			//Log.v( TAG, "UpcomingCursorAdapter.bindView : exit" );
 		}
