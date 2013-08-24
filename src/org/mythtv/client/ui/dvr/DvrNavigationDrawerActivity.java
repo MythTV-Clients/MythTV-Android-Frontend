@@ -57,6 +57,8 @@ public class DvrNavigationDrawerActivity extends AbstractMythtvFragmentActivity 
 
 	private static final String TAG = DvrNavigationDrawerActivity.class.getSimpleName();
 	
+	private static final String SELECTION_ID = "SELECTION";
+	
 	private DrawerLayout drawer = null;
 	private ActionBarDrawerToggle drawerToggle = null;
 	private ListView navList = null;
@@ -77,6 +79,12 @@ public class DvrNavigationDrawerActivity extends AbstractMythtvFragmentActivity 
 	protected void onCreate( Bundle savedInstanceState ) {
 		super.onCreate( savedInstanceState );
 		Log.v( TAG, "onCreate : enter" );
+		
+		// Read saved state if available
+		if(null != savedInstanceState){
+			if(savedInstanceState.containsKey(SELECTION_ID))
+				selection = savedInstanceState.getInt(SELECTION_ID);
+		}
 
 		setContentView( R.layout.activity_navigation_drawer );
 
@@ -335,6 +343,14 @@ public class DvrNavigationDrawerActivity extends AbstractMythtvFragmentActivity 
 		}
 		
 		Log.v( TAG, "refresh : exit" );
+	}
+	
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		
+		outState.putInt(SELECTION_ID, selection);
+		
+		super.onSaveInstanceState(outState);
 	}
 
 	private class DvrNavigationDrawerAdapter extends BaseAdapter {
