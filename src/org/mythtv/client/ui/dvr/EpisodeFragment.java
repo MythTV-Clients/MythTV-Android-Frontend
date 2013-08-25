@@ -36,7 +36,6 @@ import org.mythtv.services.api.content.LiveStreamInfo;
 import org.mythtv.services.api.dvr.Program;
 import org.springframework.http.ResponseEntity;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
@@ -181,7 +180,6 @@ public class EpisodeFragment extends AbstractMythFragment {
 	/* (non-Javadoc)
 	 * @see android.support.v4.app.Fragment#onCreateOptionsMenu(android.view.Menu, android.view.MenuInflater)
 	 */
-	@TargetApi( 11 )
 	@Override
 	public void onCreateOptionsMenu( Menu menu, MenuInflater inflater ) {
 		Log.v( TAG, "onCreateOptionsMenu : enter" );

@@ -29,6 +29,7 @@ import org.mythtv.db.channel.ChannelConstants;
 import org.mythtv.db.channel.ChannelDaoHelper;
 import org.mythtv.db.content.LiveStreamConstants;
 import org.mythtv.db.content.LiveStreamDaoHelper;
+import org.mythtv.db.dvr.RecordingConstants.ContentDetails;
 import org.mythtv.provider.MythtvProvider;
 import org.mythtv.service.util.DateUtils;
 import org.mythtv.service.util.MythtvServiceHelper;
@@ -284,13 +285,19 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		
 		boolean inError;
 
-		RecordingConstants.ContentDetails details = RecordingConstants.ContentDetails.getValueFromParent( table );
+		ContentDetails details = RecordingConstants.ContentDetails.getValueFromParent( table );
 //		Log.w(TAG, "load : details - parent=" + details.getParent() + ", tableName=" + details.getTableName() + ", contentUri=" + details.getContentUri().toString() );
 
 		List<Integer> channelsChecked = new ArrayList<Integer>();
 		
 		for( Program program : programs ) {
 
+			if( details.equals( ContentDetails.RECORDED ) ) {
+				if( null != program.getRecording() && "livetv".equalsIgnoreCase( program.getRecording().getRecordingGroup() )  && !"deleted".equalsIgnoreCase( program.getRecording().getRecordingGroup() ) ) {
+					continue;
+				}
+			}
+			
 			if( null == program.getStartTime() || null == program.getEndTime() ) {
 //				Log.w(TAG, "load : null starttime and or endtime" );
 			
