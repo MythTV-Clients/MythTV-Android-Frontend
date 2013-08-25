@@ -16,25 +16,6 @@
  *
  * This software can be found at <https://github.com/MythTV-Clients/MythTV-Android-Frontend/>
  */
-
-/**
- * This file is part of MythTV Android Frontend
- *
- * MythTV Android Frontend is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * MythTV Android Frontend is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with MythTV Android Frontend.  If not, see <http://www.gnu.org/licenses/>.
- *
- * This software can be found at <https://github.com/MythTV-Clients/MythTV-Android-Frontend/>
- */
 package org.mythtv.client.ui.media;
 
 import android.app.Activity;
@@ -46,11 +27,13 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.EditText;
 import android.widget.GridView;
+
 import org.mythtv.R;
 import org.mythtv.client.MainApplication;
 import org.mythtv.client.ui.MythtvApplicationContext;
+import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
-import org.mythtv.service.util.NetworkHelper;
+import org.mythtv.service.util.MythtvServiceHelper;
 import org.mythtv.services.api.Bool;
 import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.StringList;
@@ -69,12 +52,13 @@ import java.util.List;
 public class GalleryActivity extends Activity implements MythtvApplicationContext {
 
     private static final String TAG = GalleryActivity.class.getSimpleName();
-    protected static ArrayList<GalleryImageItem> images = new ArrayList<GalleryImageItem>();
+    public static ArrayList<GalleryImageItem> images = new ArrayList<GalleryImageItem>();
 
-    protected NetworkHelper mNetworkHelper;
-    private LocationProfileDaoHelper mLocationProfileDaoHelper;
+    private LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
+    private MythtvServiceHelper mMythtvServiceHelper = MythtvServiceHelper.getInstance();
 
     private boolean hasBackendGallerySG = false;
+    private LocationProfile mLocationProfile;
 
 
     @Override
@@ -89,8 +73,9 @@ public class GalleryActivity extends Activity implements MythtvApplicationContex
         Log.v(TAG, "onCreate : enter");
         super.onCreate(savedInstanceState);
 
+        mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile(getApplicationContext());
+
         setContentView(R.layout.activity_gallery);
-        mLocationProfileDaoHelper = new LocationProfileDaoHelper(this);
 
         gridView = (GridView) findViewById(R.id.gallery_gridview);
         new LoadFileListTask(this).execute();
@@ -119,9 +104,6 @@ public class GalleryActivity extends Activity implements MythtvApplicationContex
         @Override
         protected Void doInBackground(Void... params) {
 
-//            if( !mNetworkHelper.isMasterBackendConnected() ) {
-//          			return null;
-//            }
 
             try {
                 ETagInfo eTag = ETagInfo.createEmptyETag();
@@ -131,7 +113,7 @@ public class GalleryActivity extends Activity implements MythtvApplicationContex
                 String previewWidth = "256";
 
                 // Check if StorageGroup Gallery actually exists, doing an GetFileList will return Default SG if Gallery SG is not present.,
-                ResponseEntity<StorageGroupDirectoryList> responseEntity = getMainApplication().getMythServicesApi().mythOperations().getStorageGroupDirectories(gallerySGName, mLocationProfileDaoHelper.findConnectedProfile().getHostname(), eTag);
+                ResponseEntity<StorageGroupDirectoryList> responseEntity = mMythtvServiceHelper.getMythServicesApi(getApplicationContext()).mythOperations().getStorageGroupDirectories(gallerySGName, mLocationProfile.getHostname(), eTag);
                 if (responseEntity.getStatusCode().equals(HttpStatus.OK)) {
                     StorageGroupDirectoryList storageGroups = responseEntity.getBody();
                     for(StorageGroupDirectory sg: storageGroups.getStorageGroupDirectories().getStorageGroupDirectories()){
@@ -147,7 +129,7 @@ public class GalleryActivity extends Activity implements MythtvApplicationContex
                     backendAndFrontendShareHostname = isConnectedProfileInHostsList();
 
                     if(backendAndFrontendShareHostname){
-                        ResponseEntity<SettingList> responseEntity2 = getMainApplication().getMythServicesApi().mythOperations().getSetting(mLocationProfileDaoHelper.findConnectedProfile().getHostname(), gallerySetting, "", eTag);
+                        ResponseEntity<SettingList> responseEntity2 = mMythtvServiceHelper.getMythServicesApi(getApplicationContext()).mythOperations().getSetting(mLocationProfile.getHostname(), gallerySetting, "", eTag);
                         if(responseEntity2.getStatusCode().equals(HttpStatus.OK)){
                             SettingList settingList = responseEntity2.getBody();
                             galleryDir = settingList.getSetting().getSettings().get(gallerySetting);
@@ -169,11 +151,11 @@ public class GalleryActivity extends Activity implements MythtvApplicationContex
         private boolean isConnectedProfileInHostsList() {
             ETagInfo eTag = ETagInfo.createEmptyETag();
 
-            ResponseEntity<StringList> responseEntity = getMainApplication().getMythServicesApi().mythOperations().getHosts(eTag);
+            ResponseEntity<StringList> responseEntity = mMythtvServiceHelper.getMythServicesApi(getApplicationContext()).mythOperations().getHosts(eTag);
             if (responseEntity.getStatusCode().equals(HttpStatus.OK)) {
                 StringList hosts = responseEntity.getBody();
                 for (String host : hosts.getStringList()) {
-                    if (host.equals(mLocationProfileDaoHelper.findConnectedProfile().getHostname())) {
+                    if (host.equals(mLocationProfile.getHostname())) {
                         return true;
                     }
                 }
@@ -184,7 +166,7 @@ public class GalleryActivity extends Activity implements MythtvApplicationContex
         private void getImageList(List<GalleryImageItem> images, String gallerySGName, String previewWidth) {
             ETagInfo eTag = ETagInfo.createEmptyETag();
 
-            ResponseEntity<StringList> responseEntity = getMainApplication().getMythServicesApi().contentOperations().getFileList(gallerySGName, eTag);
+            ResponseEntity<StringList> responseEntity = mMythtvServiceHelper.getMythServicesApi(getApplicationContext()).contentOperations().getFileList(gallerySGName, eTag);
             if (responseEntity.getStatusCode().equals(HttpStatus.OK)) {
                 StringList filesOnStorageGroup = responseEntity.getBody();
                 // TODO: Add different types of sorting, and filtering
@@ -217,7 +199,7 @@ public class GalleryActivity extends Activity implements MythtvApplicationContex
                     EditText input = null;
 
                     if(galleryDirPresentInSettings){
-                        builder.setMessage(getResources().getString(R.string.gallery_sg_exist_create)+mLocationProfileDaoHelper.findConnectedProfile().getHostname()+getResources().getString(R.string.gallery_sg_exist_create2));
+                        builder.setMessage(getResources().getString(R.string.gallery_sg_exist_create)+mLocationProfile.getHostname()+getResources().getString(R.string.gallery_sg_exist_create2));
                     } else {
                         builder.setMessage(R.string.gallery_sg_create);
 
@@ -271,16 +253,12 @@ public class GalleryActivity extends Activity implements MythtvApplicationContex
         @Override
         protected Bool doInBackground(String... params) {
 
-//            if( !mNetworkHelper.isMasterBackendConnected() ) {
-//          			return null;
-//            }
-
             Bool bool = new Bool();
             bool.setBool(false);
             if(params[1] != null && !"".equalsIgnoreCase(params[1])){
 
                 // AddStorageGroupDir
-                ResponseEntity<Bool> responseEntity = getMainApplication().getMythServicesApi().mythOperations().addStorageGroupDir(params[0], params[1], mLocationProfileDaoHelper.findConnectedProfile().getHostname());
+                ResponseEntity<Bool> responseEntity = mMythtvServiceHelper.getMythServicesApi(getApplicationContext()).mythOperations().addStorageGroupDir(params[0], params[1], mLocationProfile.getHostname());
                 if (responseEntity.getStatusCode().equals(HttpStatus.OK)) {
                     bool = responseEntity.getBody();
                     return bool;

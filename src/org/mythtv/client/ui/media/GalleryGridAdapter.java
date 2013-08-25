@@ -16,25 +16,6 @@
  *
  * This software can be found at <https://github.com/MythTV-Clients/MythTV-Android-Frontend/>
  */
-
-/**
- * This file is part of MythTV Android Frontend
- *
- * MythTV Android Frontend is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * MythTV Android Frontend is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with MythTV Android Frontend.  If not, see <http://www.gnu.org/licenses/>.
- *
- * This software can be found at <https://github.com/MythTV-Clients/MythTV-Android-Frontend/>
- */
 package org.mythtv.client.ui.media;
 
 import android.content.Context;
@@ -46,11 +27,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.*;
+import android.widget.BaseAdapter;
+import android.widget.GridView;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener;
+
 import org.mythtv.R;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
 
@@ -65,7 +52,6 @@ public class GalleryGridAdapter extends BaseAdapter {
     private ImageLoader imageLoader;
     private final Context mContext;
     private String baseUrl;
-    private LocationProfileDaoHelper mLocationProfileDaoHelper;
     private String gallerySGName = "Gallery";
     private String previewWidth = "256";
 
@@ -84,8 +70,8 @@ public class GalleryGridAdapter extends BaseAdapter {
         this.imageItems = GalleryActivity.images;
         imageLoader = ImageLoader.getInstance();
         imageLoader.init(ImageLoaderConfiguration.createDefault(c));
-        mLocationProfileDaoHelper = new LocationProfileDaoHelper(mContext);
-        baseUrl = mLocationProfileDaoHelper.findConnectedProfile().getUrl() + "Content/GetImageFile?StorageGroup="+gallerySGName+"&FileName=";
+        LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
+        baseUrl = mLocationProfileDaoHelper.findConnectedProfile(mContext).getUrl() + "Content/GetImageFile?StorageGroup="+gallerySGName+"&FileName=";
     }
 
     public int getCount() {
