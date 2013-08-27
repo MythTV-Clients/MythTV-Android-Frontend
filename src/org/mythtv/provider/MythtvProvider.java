@@ -2066,8 +2066,27 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				columnMap.put( qualifiedCol, qualifiedCol + " as " + ChannelConstants.TABLE_NAME + "_" + col );
 			} else {
 				String qualifiedCol = ChannelConstants.TABLE_NAME + "." + col;
-				columnMap.put( qualifiedCol, qualifiedCol + " as " + ChannelConstants.TABLE_NAME + col );
+				columnMap.put( qualifiedCol, qualifiedCol + " as " + col );
 			}
+		}
+		
+		return columnMap;
+	}
+
+	private static final Map<String, String> mChannelColumnMapJoin = buildChannelColumnMap( new HashMap<String, String>() );
+	private static Map<String, String> buildChannelColumnMapJoin( Map<String, String> columnMap ) {
+		if( null == columnMap ) {
+			columnMap = new HashMap<String, String>();
+		}
+		
+		String channelProjection[] = ChannelConstants.COLUMN_MAP;
+		for( String col : channelProjection ) {
+
+			if( !"_id".equals( col ) ) {
+				String qualifiedCol = ChannelConstants.TABLE_NAME + "." + col;
+				columnMap.put( qualifiedCol, qualifiedCol + " as " + ChannelConstants.TABLE_NAME + "_" + col );
+			}
+			
 		}
 		
 		return columnMap;
@@ -2159,7 +2178,7 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 			}
 		}
 		
-		columnMap = buildChannelColumnMap( columnMap );
+		columnMap = buildChannelColumnMapJoin( columnMap );
 		
 		return columnMap;
 	}
