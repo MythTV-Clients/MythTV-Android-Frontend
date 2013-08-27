@@ -169,7 +169,7 @@ public class BackendStatusFragment extends AbstractMythFragment {
 		if( null == mLocationProfile ) {
 			Log.v( TAG, "getStatusText : exit, no connected profiles found" );
 
-			return "Backend profile is not selected";
+			return "The selected Backend profile's host isn't responding";
 		}
 		
 		BackendStatusTask backendTask = new BackendStatusTask();
