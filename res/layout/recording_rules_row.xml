@@ -71,14 +71,13 @@
                 android:layout_centerInParent="false"
                 android:textColor="@color/body_text_1" />
             
-            <CheckBox
+            <TextView
                 android:id="@+id/recording_rules_checkbox_active"
                 android:focusable="false"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
-                android:layout_alignRight="@+id/recording_rules_last"
-                android:enabled="false" />
+                android:layout_alignRight="@+id/recording_rules_last" />
 
             <TextView
                 android:id="@+id/recording_rules_last"

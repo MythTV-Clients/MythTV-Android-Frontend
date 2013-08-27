@@ -1171,7 +1171,7 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				return cursor;
 				
 			case RECORDING_RULE_ID:
-				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
+				selection = RecordingRuleConstants.TABLE_NAME + "." + appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
 
 				sb.append( RecordingRuleConstants.TABLE_NAME );
 				sb.append( " LEFT OUTER JOIN " );
@@ -2066,7 +2066,7 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				columnMap.put( qualifiedCol, qualifiedCol + " as " + ChannelConstants.TABLE_NAME + "_" + col );
 			} else {
 				String qualifiedCol = ChannelConstants.TABLE_NAME + "." + col;
-				columnMap.put( qualifiedCol, qualifiedCol + " as " + col );
+				columnMap.put( qualifiedCol, qualifiedCol + " as " + ChannelConstants.TABLE_NAME + col );
 			}
 		}
 		

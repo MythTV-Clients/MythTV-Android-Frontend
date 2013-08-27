@@ -293,13 +293,32 @@ public class RecordingRuleDaoHelper extends AbstractDaoHelper {
 		int totalInserts = 0;
 		int totalDeletes = 0;
 		
+		ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
+		
+		Log.v( TAG, "load : deleting recRules" );
+		ops.add(  
+			ContentProviderOperation.newDelete( RecordingRuleConstants.CONTENT_URI )
+				.withSelection( RecordingRuleConstants.TABLE_NAME + "." + RecordingRuleConstants.FIELD_MASTER_HOSTNAME + " = ?", new String[] { locationProfile.getHostname() } )
+				.build()
+		);
+
+		if( !ops.isEmpty() ) {
+			Log.v( TAG, "process : final batch deletes " + count + "/" + deletecount);
+
+			ContentProviderResult[] results = context.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
+			totalDeletes += results.length;
+
+			if( results.length > 0 ) {
+				ops.clear();
+			}
+		
+		}
+		
 		String[] recRuleProjection = new String[] { RecordingRuleConstants._ID };
 		String recRuleSelection = RecordingRuleConstants.FIELD_REC_RULE_ID + " = ?";
 
 		recRuleSelection = appendLocationHostname( context, locationProfile, recRuleSelection, RecordingRuleConstants.TABLE_NAME );
 
-		ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
-		
 		for( RecRule recRule : allRecordingRulesList ) {
 			Log.d( TAG, "load : recRule=" + recRule.getId() + ":" + recRule.getTitle() );
 			
@@ -312,7 +331,6 @@ public class RecordingRuleDaoHelper extends AbstractDaoHelper {
 				ops.add( 
 					ContentProviderOperation.newUpdate( ContentUris.withAppendedId( RecordingRuleConstants.CONTENT_URI, id ) )
 						.withValues( recRuleValues )
-						.withYieldAllowed( true )
 						.build()
 				);
 				totalUpdates++;
@@ -323,7 +341,6 @@ public class RecordingRuleDaoHelper extends AbstractDaoHelper {
 				ops.add(  
 					ContentProviderOperation.newInsert( RecordingRuleConstants.CONTENT_URI )
 						.withValues( recRuleValues )
-						.withYieldAllowed( true )
 						.build()
 				);
 				totalInserts++;
@@ -362,27 +379,6 @@ public class RecordingRuleDaoHelper extends AbstractDaoHelper {
 			count = 0;
 		}
 
-		// Done with the updates/inserts, remove any 'stale' recRules
-		Log.v( TAG, "load : deleting recRules no longer present on mythtv backend" );
-		ops.add(  
-			ContentProviderOperation.newDelete( RecordingRuleConstants.CONTENT_URI )
-				.withSelection( RecordingRuleConstants.FIELD_LAST_MODIFIED_DATE + " < ?", new String[] { String.valueOf( lastModified.getMillis() ) } )
-				.withYieldAllowed( true )
-				.build()
-		);
-
-		if( !ops.isEmpty() ) {
-			Log.v( TAG, "process : final batch deletes " + count + "/" + deletecount);
-
-			ContentProviderResult[] results = context.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
-			processed += results.length;
-
-			if( results.length > 0 ) {
-				ops.clear();
-			}
-		
-		}
-		
 		Log.d( TAG, "load : totalUpdates: " + totalUpdates );
 		Log.d( TAG, "load : totalInserts: " + totalInserts );
 		Log.d( TAG, "load : totalDeletes: " + totalDeletes );

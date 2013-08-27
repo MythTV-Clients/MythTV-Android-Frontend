@@ -32,11 +32,9 @@ import org.mythtv.db.http.EtagDaoHelper;
 import org.mythtv.service.dvr.RecordingRuleDownloadService;
 import org.mythtv.service.util.DateUtils;
 import org.mythtv.service.util.RunningServiceHelper;
-import org.mythtv.services.api.Bool;
 import org.mythtv.services.api.channel.ChannelInfo;
 import org.mythtv.services.api.dvr.RecRule;
 import org.mythtv.services.api.dvr.impl.DvrTemplate.Endpoint;
-import org.springframework.http.ResponseEntity;
 
 import android.annotation.TargetApi;
 import android.content.BroadcastReceiver;
@@ -44,7 +42,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -58,8 +55,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CompoundButton;
-import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.CursorAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -80,7 +75,6 @@ public class RecordingRulesFragment extends MythtvListFragment implements Loader
 	private OnRecordingRuleListener listener = null;
 	private RecordingRuleAdapter adapter;
 	private EtagDaoHelper mEtagDaoHelper = EtagDaoHelper.getInstance();
-	private ChannelDaoHelper mChannelDaoHelper = ChannelDaoHelper.getInstance();
 	private RecordingRuleDaoHelper mRecordingRuleDaoHelper = RecordingRuleDaoHelper.getInstance();
 	private RunningServiceHelper mRunningServiceHelper = RunningServiceHelper.getInstance();
 	private MenuHelper mMenuHelper = MenuHelper.getInstance();
@@ -340,52 +334,6 @@ public class RecordingRulesFragment extends MythtvListFragment implements Loader
 		boolean onRecordingRuleSelected( RecRule recordingRule );
 	}
 	
-	private class SetRuleActiveStateTask extends AsyncTask<Object, Void, Bool> {
-		
-		private RecRule recRule = null;
-		
-		@Override
-		protected Bool doInBackground( Object... params ) {
-			
-			int updated = (Integer) params[ 0 ];
-			recRule = (RecRule) params[ 1 ];
-			
-			ResponseEntity<Bool> ret = null;
-			if( updated > 0 ) {
-				ret = mMythtvServiceHelper.getMythServicesApi( mLocationProfile ).dvrOperations().enableRecordingSchedule( recRule.getId() );
-			}else{
-				ret = mMythtvServiceHelper.getMythServicesApi( mLocationProfile ).dvrOperations().disableRecordingSchedule(  recRule.getId() );
-			}
-			
-			return ret.getBody();
-		}
-
-		/* (non-Javadoc)
-		 * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
-		 */
-		@Override
-		protected void onPostExecute( Bool result ) {
-
-			if( result.getBool() ) {
-				if( null != recRule ) {
-					recRule.setInactive( result.getBool() );
-					
-					mRecordingRuleDaoHelper.save( getActivity(), mLocationProfile, recRule );
-				
-					adapter.notifyDataSetChanged();
-					
-//        			Toast.makeText( getActivity(), "Recording Rule '" + recRule.getTitle() + "' updated!", Toast.LENGTH_SHORT ).show();
-//				} else {
-//        			Toast.makeText( getActivity(), "Recording Rule NOT updated!", Toast.LENGTH_SHORT ).show();
-				}
-//			} else {
-//    			Toast.makeText( getActivity(), "Recording Rule NOT updated!", Toast.LENGTH_SHORT ).show();
-			}
-			
-		}
-		
-	}
-
 	// internal helpers
 	
 	private class RecordingRuleAdapter extends CursorAdapter {
@@ -413,7 +361,7 @@ public class RecordingRulesFragment extends MythtvListFragment implements Loader
 			refHolder.channel = (TextView) view.findViewById( R.id.recording_rules_channel );
 			refHolder.type = (TextView) view.findViewById( R.id.recording_rules_type );
 			refHolder.last = (TextView) view.findViewById( R.id.recording_rules_last );
-			refHolder.active = (CompoundButton) view.findViewById(R.id.recording_rules_switch_active);
+			refHolder.active = (TextView) view.findViewById(R.id.recording_rules_switch_active);
 
 			view.setTag( refHolder );
 			
@@ -447,26 +395,7 @@ public class RecordingRulesFragment extends MythtvListFragment implements Loader
 			mHolder.channel.setText( channel );
 			mHolder.type.setText( recRule.getType() );
 			mHolder.last.setText( DateUtils.getDateWithLocaleFormatting( recRule.getLastRecorded(), mainApplication.getDateFormat() ) );
-			mHolder.active.setChecked( !recRule.isInactive() );
-//			mHolder.active.setOnCheckedChangeListener( new OnCheckedChangeListener() {
-
-				/* (non-Javadoc)
-				 * @see android.widget.CompoundButton.OnCheckedChangeListener#onCheckedChanged(android.widget.CompoundButton, boolean)
-				 */
-//				@Override
-//				public void onCheckedChanged( CompoundButton buttonView, boolean isChecked ) {
-//					Log.d( TAG, "onCheckedChanged : enter" );
-					
-//					if( null != recRule ) {
-//						Log.i( TAG, "onCheckedChanged : recRule=" + rule.toString() );
-						
-//						new SetRuleActiveStateTask().execute( isChecked ? 1 : 0, recRule );
-//					}
-					
-//					Log.d( TAG, "onCheckedChanged : exit" );
-//				}
-				
-//			});
+			mHolder.active.setText( !recRule.isInactive() ? "Active" : "Inactive" );
 			
 		}
 		
@@ -480,7 +409,7 @@ public class RecordingRulesFragment extends MythtvListFragment implements Loader
 		TextView channel;
 		TextView type;
 		TextView last;
-		CompoundButton active;
+		TextView active;
 		
 		ViewHolder() { }
 

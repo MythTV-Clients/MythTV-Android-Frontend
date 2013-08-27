@@ -21,6 +21,7 @@ package org.mythtv.service.dvr;
 import java.io.IOException;
 
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.dvr.RecordingRuleDaoHelper;
 import org.mythtv.db.http.EtagDaoHelper;
@@ -125,10 +126,11 @@ public class RecordingRuleDownloadService extends MythtvService {
 		Log.v( TAG, "download : enter" );
 
 		EtagInfoDelegate etag = mEtagDaoHelper.findByEndpointAndDataId( this, locationProfile, Endpoint.GET_RECORD_SCHEDULE_LIST.name(), "" );
+//		etag = EtagInfoDelegate.createEmptyETag();
 		
 		ResponseEntity<RecRuleList> responseEntity = mMythtvServiceHelper.getMythServicesApi( locationProfile ).dvrOperations().getRecordScheduleList( -1, -1, etag );
 
-		DateTime date = DateUtils.convertUtc( new DateTime( System.currentTimeMillis() ) );
+		DateTime date = new DateTime( DateTimeZone.UTC );
 		if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
 			Log.i( TAG, "download : " + Endpoint.GET_RECORD_SCHEDULE_LIST.getEndpoint() + " returned 200 OK" );
 			RecRuleList recRuleList = responseEntity.getBody();
