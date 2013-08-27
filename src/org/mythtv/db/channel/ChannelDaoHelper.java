@@ -586,24 +586,12 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 	public static ContentValues convertChannelInfoToContentValues( final LocationProfile locationProfile, final DateTime lastModified, final ChannelInfo channelInfo ) {
 //		Log.v( TAG, "convertChannelToContentValues : enter" );
 		
-		String formattedChannelNumber = channelInfo.getChannelNumber();
-		if( null == formattedChannelNumber || formattedChannelNumber.length() == 0 ) {
-			formattedChannelNumber = "0";
-		}
-		if( formattedChannelNumber.length() == 1 ) {
-			formattedChannelNumber = "0" + formattedChannelNumber;
-		}
-		if( formattedChannelNumber.length() == 2 ) {
-			formattedChannelNumber = "0" + formattedChannelNumber;
-		}
-		if( formattedChannelNumber.length() == 3 ) {
-			formattedChannelNumber = "0" + formattedChannelNumber;
-		}
+		String formattedChannelNumber = formatChannelNumber( channelInfo.getChannelNumber() );
 
 		ContentValues values = new ContentValues();
 		values.put( ChannelConstants.FIELD_CHAN_ID, channelInfo.getChannelId() );
 		values.put( ChannelConstants.FIELD_CHAN_NUM, channelInfo.getChannelNumber() );
-		values.put( ChannelConstants.FIELD_CHAN_NUM_FORMATTED, formattedChannelNumber );
+		values.put( ChannelConstants.FIELD_CHAN_NUM_FORMATTED, ( null == formattedChannelNumber || formattedChannelNumber.length() == 0 ) ? 0.0 : Float.parseFloat( formattedChannelNumber ) );
 		values.put( ChannelConstants.FIELD_CALLSIGN, channelInfo.getCallSign() );
 		values.put( ChannelConstants.FIELD_ICON_URL, channelInfo.getIconUrl() );
 		values.put( ChannelConstants.FIELD_CHANNEL_NAME, channelInfo.getChannelName() );
@@ -635,4 +623,23 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 		return values;
 	}
 
+	private static String formatChannelNumber( String value ) {
+	
+		if( null == value || "".equals( value ) ) {
+			return null;
+		}
+		
+		char delimiter = '_';
+		for( char c : value.toCharArray() ) {
+			String test = String.valueOf( c ); 
+			if( !test.matches( "\\d" ) ) {
+				delimiter = c;
+			}
+		}
+		
+		value = value.replace( delimiter, '.' );
+		
+		return value;
+	}
+	
 }
