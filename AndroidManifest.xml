@@ -43,7 +43,8 @@
         android:anyDensity="true"
 		android:largeScreens="true"
 		android:normalScreens="true"
-		android:smallScreens="true" />
+		android:smallScreens="true"
+		android:largeHeap="true" />
     
     <uses-sdk
         android:minSdkVersion="14"

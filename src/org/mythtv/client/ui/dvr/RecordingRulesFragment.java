@@ -97,9 +97,9 @@ public class RecordingRulesFragment extends MythtvListFragment implements Loader
 		Log.v( TAG, "onCreateLoader : enter" );
 		
 		String[] projection = null;
-		String selection = RecordingRuleConstants.FIELD_MASTER_HOSTNAME + " = ?";
+		String selection = RecordingRuleConstants.TABLE_NAME + "." + RecordingRuleConstants.FIELD_MASTER_HOSTNAME + " = ?";
 		String[] selectionArgs = new String[] { mLocationProfile.getHostname() };
-		String sortOrder = null;
+		String sortOrder = RecordingRuleConstants.FIELD_TITLE;
 		
 	    CursorLoader cursorLoader = new CursorLoader( getActivity(), RecordingRuleConstants.CONTENT_URI, projection, selection, selectionArgs, sortOrder );
 		
@@ -368,8 +368,12 @@ public class RecordingRulesFragment extends MythtvListFragment implements Loader
 
 			if( result.getBool() ) {
 				if( null != recRule ) {
+					recRule.setInactive( result.getBool() );
+					
 					mRecordingRuleDaoHelper.save( getActivity(), mLocationProfile, recRule );
 				
+					adapter.notifyDataSetChanged();
+					
 //        			Toast.makeText( getActivity(), "Recording Rule '" + recRule.getTitle() + "' updated!", Toast.LENGTH_SHORT ).show();
 //				} else {
 //        			Toast.makeText( getActivity(), "Recording Rule NOT updated!", Toast.LENGTH_SHORT ).show();
@@ -409,12 +413,7 @@ public class RecordingRulesFragment extends MythtvListFragment implements Loader
 			refHolder.channel = (TextView) view.findViewById( R.id.recording_rules_channel );
 			refHolder.type = (TextView) view.findViewById( R.id.recording_rules_type );
 			refHolder.last = (TextView) view.findViewById( R.id.recording_rules_last );
-			
-			if(android.os.Build.VERSION.SDK_INT >= 14 ){
-				refHolder.active = (CompoundButton) view.findViewById(R.id.recording_rules_switch_active);
-			} else {
-				refHolder.active = (CompoundButton) view.findViewById(R.id.recording_rules_checkbox_active);
-			}
+			refHolder.active = (CompoundButton) view.findViewById(R.id.recording_rules_switch_active);
 
 			view.setTag( refHolder );
 			
@@ -428,14 +427,16 @@ public class RecordingRulesFragment extends MythtvListFragment implements Loader
 		@Override
 		public void bindView( View view, Context context, Cursor cursor ) {
 
-			RecRule recRule = mRecordingRuleDaoHelper.convertCursorToRecRule( cursor );
+			final RecRule recRule = mRecordingRuleDaoHelper.convertCursorToRecRule( cursor );
+			final ChannelInfo channelInfo = ChannelDaoHelper.convertCursorToChannelInfo( cursor );
+			
 //			Log.i( TAG, "recRule=" + recRule.toString() );
 			
 			final ViewHolder mHolder = (ViewHolder) view.getTag();
 
 			String channel = "[Any]";
 			if( recRule.getChanId() > 0 ) {
-				ChannelInfo channelInfo = mChannelDaoHelper.findByChannelId( getActivity(), mLocationProfile, (long) recRule.getChanId() );
+				//ChannelInfo channelInfo = mChannelDaoHelper.findByChannelId( getActivity(), mLocationProfile, (long) recRule.getChanId() );
 				if( null != channelInfo && channelInfo.getChannelId() > -1 ) {
 					channel = channelInfo.getChannelNumber();
 				}
@@ -447,25 +448,25 @@ public class RecordingRulesFragment extends MythtvListFragment implements Loader
 			mHolder.type.setText( recRule.getType() );
 			mHolder.last.setText( DateUtils.getDateWithLocaleFormatting( recRule.getLastRecorded(), mainApplication.getDateFormat() ) );
 			mHolder.active.setChecked( !recRule.isInactive() );
-			mHolder.active.setTag( recRule );
-			mHolder.active.setOnCheckedChangeListener( new OnCheckedChangeListener() {
+//			mHolder.active.setOnCheckedChangeListener( new OnCheckedChangeListener() {
 
-				@Override
-				public void onCheckedChanged( CompoundButton buttonView, boolean isChecked ) {
+				/* (non-Javadoc)
+				 * @see android.widget.CompoundButton.OnCheckedChangeListener#onCheckedChanged(android.widget.CompoundButton, boolean)
+				 */
+//				@Override
+//				public void onCheckedChanged( CompoundButton buttonView, boolean isChecked ) {
 //					Log.d( TAG, "onCheckedChanged : enter" );
 					
-					RecRule rule = (RecRule) mHolder.active.getTag();
-					if( null != rule ) {
-						rule.setInactive( !isChecked );
+//					if( null != recRule ) {
 //						Log.i( TAG, "onCheckedChanged : recRule=" + rule.toString() );
 						
-						new SetRuleActiveStateTask().execute( isChecked ? 1 : 0, rule );
-					}
+//						new SetRuleActiveStateTask().execute( isChecked ? 1 : 0, recRule );
+//					}
 					
 //					Log.d( TAG, "onCheckedChanged : exit" );
-				}
+//				}
 				
-			});
+//			});
 			
 		}
 		

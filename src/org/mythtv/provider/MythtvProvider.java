@@ -1147,6 +1147,17 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 			case RECORDING_RULE:
 				
 				sb.append( RecordingRuleConstants.TABLE_NAME );
+				sb.append( " LEFT OUTER JOIN " );
+				sb.append( ChannelConstants.TABLE_NAME );
+				sb.append( " ON (" );
+				sb.append( ChannelConstants.TABLE_NAME ).append( "." ).append( ChannelConstants.FIELD_CHAN_ID );
+				sb.append( " = ");
+				sb.append( RecordingRuleConstants.TABLE_NAME ).append( "." ).append( RecordingRuleConstants.FIELD_CHAN_ID );
+				sb.append( " AND " );
+				sb.append( ChannelConstants.TABLE_NAME ).append( "." ).append( ChannelConstants.FIELD_MASTER_HOSTNAME );
+				sb.append( " = ");
+				sb.append( RecordingRuleConstants.TABLE_NAME ).append( "." ).append( RecordingRuleConstants.FIELD_MASTER_HOSTNAME );
+				sb.append( ")" );
 				
 				queryBuilder.setTables( sb.toString() );
 				queryBuilder.setProjectionMap( mRecordingRuleColumnMap );
@@ -1163,6 +1174,17 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
 
 				sb.append( RecordingRuleConstants.TABLE_NAME );
+				sb.append( " LEFT OUTER JOIN " );
+				sb.append( ChannelConstants.TABLE_NAME );
+				sb.append( " ON (" );
+				sb.append( ChannelConstants.TABLE_NAME ).append( "." ).append( ChannelConstants.FIELD_CHAN_ID );
+				sb.append( " = ");
+				sb.append( RecordingRuleConstants.TABLE_NAME ).append( "." ).append( RecordingRuleConstants.FIELD_CHAN_ID );
+				sb.append( " AND " );
+				sb.append( ChannelConstants.TABLE_NAME ).append( "." ).append( ChannelConstants.FIELD_MASTER_HOSTNAME );
+				sb.append( " = ");
+				sb.append( RecordingRuleConstants.TABLE_NAME ).append( "." ).append( RecordingRuleConstants.FIELD_MASTER_HOSTNAME );
+				sb.append( ")" );
 				
 				queryBuilder.setTables( sb.toString() );
 				queryBuilder.setProjectionMap( mRecordingRuleColumnMap );
@@ -2136,6 +2158,8 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				columnMap.put( qualifiedCol, qualifiedCol + " as " + col );
 			}
 		}
+		
+		columnMap = buildChannelColumnMap( columnMap );
 		
 		return columnMap;
 	}

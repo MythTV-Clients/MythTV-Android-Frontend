@@ -50,7 +50,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.RemoteException;
-import android.util.Log;
 
 /**
  * @author Daniel Frey
