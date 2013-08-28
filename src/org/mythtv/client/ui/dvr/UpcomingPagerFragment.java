@@ -26,6 +26,7 @@ import org.mythtv.R;
 import org.mythtv.client.ui.AbstractMythFragment;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.util.MenuHelper;
+import org.mythtv.client.ui.util.MenuItemRefreshAnimated;
 import org.mythtv.db.http.EtagDaoHelper;
 import org.mythtv.service.dvr.UpcomingDownloadService;
 import org.mythtv.service.util.DateUtils;
@@ -69,6 +70,7 @@ public class UpcomingPagerFragment extends AbstractMythFragment {
 	private View mView;
 	private ViewPager mViewPager;
 	private MythtvUpcomingPagerAdapter mAdapter;
+	private MenuItemRefreshAnimated mMenuItemRefresh;
 
 	/* (non-Javadoc)
 	 * @see android.support.v4.app.Fragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle)
@@ -76,6 +78,8 @@ public class UpcomingPagerFragment extends AbstractMythFragment {
 	@Override
 	public View onCreateView( LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState ) {
 		Log.v( TAG, "onCreateView : enter" );
+		
+		mMenuItemRefresh = new MenuItemRefreshAnimated(this.getActivity());
 		
 		mView = inflater.inflate( R.layout.activity_dvr_upcoming, container, false );
 		mViewPager = (ViewPager) mView.findViewById( R.id.dvr_upcoming_pager );
@@ -157,7 +161,7 @@ public class UpcomingPagerFragment extends AbstractMythFragment {
 	public void onCreateOptionsMenu( Menu menu, MenuInflater inflater ) {
 		Log.v( TAG, "onCreateOptionsMenu : enter" );
 
-		mMenuHelper.refreshMenuItem( getActivity(), menu );
+		mMenuHelper.refreshMenuItem( getActivity(), menu, this.mMenuItemRefresh );
 
 		Log.v( TAG, "onCreateOptionsMenu : exit" );
 	}
@@ -189,6 +193,7 @@ public class UpcomingPagerFragment extends AbstractMythFragment {
 		
 		if( !mRunningServiceHelper.isServiceRunning( getActivity(), "org.mythtv.service.dvr.UpcomingDownloadService" ) ) {
 			getActivity().startService( new Intent( UpcomingDownloadService.ACTION_DOWNLOAD ) );
+			this.mMenuItemRefresh.startRefreshAnimation();
 		}
 		
 		Log.v( TAG, "loadData : exit" );
@@ -279,6 +284,8 @@ public class UpcomingPagerFragment extends AbstractMythFragment {
 	        
 	        if ( intent.getAction().equals( UpcomingDownloadService.ACTION_COMPLETE ) ) {
 	        	Log.i( TAG, "UpcomingDownloadReceiver.onReceive : " + intent.getStringExtra( UpcomingDownloadService.EXTRA_COMPLETE ) );
+	        	
+	        	mMenuItemRefresh.stopRefreshAnimation();
 	        	
 	        	if( intent.getExtras().containsKey( UpcomingDownloadService.EXTRA_COMPLETE_UPTODATE ) ) {
 	        		Toast.makeText( getActivity(), "Upcoming Programs are up to date!", Toast.LENGTH_SHORT ).show();
