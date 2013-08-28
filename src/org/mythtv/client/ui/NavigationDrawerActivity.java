@@ -3,29 +3,6 @@
  */
 package org.mythtv.client.ui;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.mythtv.R;
-import org.mythtv.client.ui.dvr.DvrNavigationDrawerActivity;
-import org.mythtv.client.ui.navigationDrawer.ActionRow;
-import org.mythtv.client.ui.navigationDrawer.ActionsHeaderRow;
-import org.mythtv.client.ui.navigationDrawer.DvrActionRow;
-import org.mythtv.client.ui.navigationDrawer.FrontendsHeaderRow;
-import org.mythtv.client.ui.navigationDrawer.FrontendsRow;
-import org.mythtv.client.ui.navigationDrawer.ManageProfilesActionRow;
-import org.mythtv.client.ui.navigationDrawer.MultimediaActionRow;
-import org.mythtv.client.ui.navigationDrawer.ProfileRow;
-import org.mythtv.client.ui.navigationDrawer.ProfileRow.ProfileChangedListener;
-import org.mythtv.client.ui.navigationDrawer.Row;
-import org.mythtv.client.ui.navigationDrawer.SetupActionRow;
-import org.mythtv.client.ui.navigationDrawer.TopLevelRowType;
-import org.mythtv.client.ui.navigationDrawer.VersionRow;
-import org.mythtv.client.ui.preferences.LocationProfile;
-import org.mythtv.client.ui.preferences.LocationProfile.LocationType;
-import org.mythtv.client.ui.preferences.MythtvPreferenceActivity;
-import org.mythtv.client.ui.util.MenuHelper;
-
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
@@ -47,6 +24,30 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
+
+import org.mythtv.R;
+import org.mythtv.client.ui.dvr.DvrNavigationDrawerActivity;
+import org.mythtv.client.ui.media.GalleryActivity;
+import org.mythtv.client.ui.navigationDrawer.ActionRow;
+import org.mythtv.client.ui.navigationDrawer.ActionsHeaderRow;
+import org.mythtv.client.ui.navigationDrawer.DvrActionRow;
+import org.mythtv.client.ui.navigationDrawer.FrontendsHeaderRow;
+import org.mythtv.client.ui.navigationDrawer.FrontendsRow;
+import org.mythtv.client.ui.navigationDrawer.ManageProfilesActionRow;
+import org.mythtv.client.ui.navigationDrawer.MultimediaActionRow;
+import org.mythtv.client.ui.navigationDrawer.ProfileRow;
+import org.mythtv.client.ui.navigationDrawer.ProfileRow.ProfileChangedListener;
+import org.mythtv.client.ui.navigationDrawer.Row;
+import org.mythtv.client.ui.navigationDrawer.SetupActionRow;
+import org.mythtv.client.ui.navigationDrawer.TopLevelRowType;
+import org.mythtv.client.ui.navigationDrawer.VersionRow;
+import org.mythtv.client.ui.preferences.LocationProfile;
+import org.mythtv.client.ui.preferences.LocationProfile.LocationType;
+import org.mythtv.client.ui.preferences.MythtvPreferenceActivity;
+import org.mythtv.client.ui.util.MenuHelper;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author dmfrey
@@ -215,7 +216,7 @@ public class NavigationDrawerActivity extends AbstractMythtvFragmentActivity {
 					if( row instanceof MultimediaActionRow ) {
 						Log.v( TAG, "onCreate : starting multimedia activity" );
 						
-						Toast.makeText( NavigationDrawerActivity.this, "Multimedia - Coming Soon!", Toast.LENGTH_SHORT ).show();
+                        startActivity( new Intent( NavigationDrawerActivity.this, GalleryActivity.class ) );
 					}
 
 					if( row instanceof SetupActionRow ) {
