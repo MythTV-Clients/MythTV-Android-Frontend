@@ -910,7 +910,7 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				return cursor;
 	
 			case UPCOMING_ID:
-				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
+				selection = ProgramConstants.TABLE_NAME_UPCOMING + "." + appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
 
 				sb.append( ProgramConstants.TABLE_NAME_UPCOMING );
 				sb.append( " LEFT OUTER JOIN " );
@@ -993,7 +993,7 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				return cursor;
 	
 			case GUIDE_ID:
-				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
+				selection = ProgramConstants.TABLE_NAME_GUIDE + "." + appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
 
 				sb.append( ProgramConstants.TABLE_NAME_GUIDE );
 				sb.append( " LEFT OUTER JOIN " );
@@ -1044,7 +1044,7 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				return cursor;
 	
 			case PROGRAM_GROUP_ID:
-				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
+				selection = ProgramGroupConstants.TABLE_NAME + "." + appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
 
 				cursor = db.query( ProgramGroupConstants.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder );
 				cursor.setNotificationUri( getContext().getContentResolver(), uri );
@@ -1067,7 +1067,7 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				return cursor;
 	
 			case RECORDING_GUIDE_ID:
-				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
+				selection = RecordingConstants.ContentDetails.GUIDE.getTableName() + "." + appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
 
 				sb.append( RecordingConstants.ContentDetails.GUIDE.getTableName() );
 				
@@ -1098,7 +1098,7 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				return cursor;
 	
 			case RECORDING_RECORDED_ID:
-				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
+				selection = RecordingConstants.ContentDetails.RECORDED.getTableName() + "." + appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
 
 				sb.append( RecordingConstants.ContentDetails.RECORDED.getTableName() );
 				
@@ -1129,7 +1129,7 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				return cursor;
 	
 			case RECORDING_UPCOMING_ID:
-				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
+				selection = RecordingConstants.ContentDetails.UPCOMING.getTableName() + "." + appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
 
 				sb.append( RecordingConstants.ContentDetails.UPCOMING.getTableName() );
 				
@@ -1147,6 +1147,17 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 			case RECORDING_RULE:
 				
 				sb.append( RecordingRuleConstants.TABLE_NAME );
+				sb.append( " LEFT OUTER JOIN " );
+				sb.append( ChannelConstants.TABLE_NAME );
+				sb.append( " ON (" );
+				sb.append( ChannelConstants.TABLE_NAME ).append( "." ).append( ChannelConstants.FIELD_CHAN_ID );
+				sb.append( " = ");
+				sb.append( RecordingRuleConstants.TABLE_NAME ).append( "." ).append( RecordingRuleConstants.FIELD_CHAN_ID );
+				sb.append( " AND " );
+				sb.append( ChannelConstants.TABLE_NAME ).append( "." ).append( ChannelConstants.FIELD_MASTER_HOSTNAME );
+				sb.append( " = ");
+				sb.append( RecordingRuleConstants.TABLE_NAME ).append( "." ).append( RecordingRuleConstants.FIELD_MASTER_HOSTNAME );
+				sb.append( ")" );
 				
 				queryBuilder.setTables( sb.toString() );
 				queryBuilder.setProjectionMap( mRecordingRuleColumnMap );
@@ -1160,9 +1171,20 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				return cursor;
 				
 			case RECORDING_RULE_ID:
-				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
+				selection = RecordingRuleConstants.TABLE_NAME + "." + appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
 
 				sb.append( RecordingRuleConstants.TABLE_NAME );
+				sb.append( " LEFT OUTER JOIN " );
+				sb.append( ChannelConstants.TABLE_NAME );
+				sb.append( " ON (" );
+				sb.append( ChannelConstants.TABLE_NAME ).append( "." ).append( ChannelConstants.FIELD_CHAN_ID );
+				sb.append( " = ");
+				sb.append( RecordingRuleConstants.TABLE_NAME ).append( "." ).append( RecordingRuleConstants.FIELD_CHAN_ID );
+				sb.append( " AND " );
+				sb.append( ChannelConstants.TABLE_NAME ).append( "." ).append( ChannelConstants.FIELD_MASTER_HOSTNAME );
+				sb.append( " = ");
+				sb.append( RecordingRuleConstants.TABLE_NAME ).append( "." ).append( RecordingRuleConstants.FIELD_MASTER_HOSTNAME );
+				sb.append( ")" );
 				
 				queryBuilder.setTables( sb.toString() );
 				queryBuilder.setProjectionMap( mRecordingRuleColumnMap );
@@ -1191,7 +1213,7 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				return cursor;
 	
 			case LIVE_STREAM_ID:
-				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
+				selection = LiveStreamConstants.TABLE_NAME + "." + appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
 
 				sb.append( LiveStreamConstants.TABLE_NAME );
 				
@@ -1222,7 +1244,7 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				return cursor;
 	
 			case CHANNEL_ID:
-				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
+				selection = ChannelConstants.TABLE_NAME + "." + appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
 
 				sb.append( ChannelConstants.TABLE_NAME );
 				
@@ -1253,7 +1275,7 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				return cursor;
 	
 			case FRONTEND_ID:
-				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
+				selection = FrontendConstants.TABLE_NAME + "." + appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
 
 				sb.append( FrontendConstants.TABLE_NAME );
 				
@@ -1276,7 +1298,7 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				return cursor;
 	
 			case ETAG_ID:
-				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
+				selection = EtagConstants.TABLE_NAME + "." + appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
 
 				cursor = db.query( EtagConstants.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder );
 				cursor.setNotificationUri( getContext().getContentResolver(), uri );
@@ -1297,7 +1319,7 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				return cursor;
 	
 			case STATUS_ID:
-				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
+				selection = StatusConstants.TABLE_NAME + "." + appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
 
 				cursor = db.query( StatusConstants.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder );
 				cursor.setNotificationUri( getContext().getContentResolver(), uri );
@@ -1312,7 +1334,7 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				return cursor;
 	
 			case LOCATION_PROFILE_ID:
-				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
+				selection = LocationProfileConstants.TABLE_NAME + "." + appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
 
 				cursor = db.query( LocationProfileConstants.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder );
 				cursor.setNotificationUri( getContext().getContentResolver(), uri );
@@ -1327,7 +1349,7 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				return cursor;
 	
 			case PLAYBACK_PROFILE_ID:
-				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
+				selection = PlaybackProfileConstants.TABLE_NAME + "." + appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
 
 				cursor = db.query( PlaybackProfileConstants.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder );
 				cursor.setNotificationUri( getContext().getContentResolver(), uri );
@@ -2051,6 +2073,25 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 		return columnMap;
 	}
 
+	private static final Map<String, String> mChannelColumnMapJoin = buildChannelColumnMap( new HashMap<String, String>() );
+	private static Map<String, String> buildChannelColumnMapJoin( Map<String, String> columnMap ) {
+		if( null == columnMap ) {
+			columnMap = new HashMap<String, String>();
+		}
+		
+		String channelProjection[] = ChannelConstants.COLUMN_MAP;
+		for( String col : channelProjection ) {
+
+			if( !"_id".equals( col ) ) {
+				String qualifiedCol = ChannelConstants.TABLE_NAME + "." + col;
+				columnMap.put( qualifiedCol, qualifiedCol + " as " + ChannelConstants.TABLE_NAME + "_" + col );
+			}
+			
+		}
+		
+		return columnMap;
+	}
+
 	private static final Map<String, String> mFrontendColumnMap = buildFrontendColumnMap( new HashMap<String, String>() );
 	private static Map<String, String> buildFrontendColumnMap( Map<String, String> columnMap ) {
 		if( null == columnMap ) {
@@ -2136,6 +2177,8 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				columnMap.put( qualifiedCol, qualifiedCol + " as " + col );
 			}
 		}
+		
+		columnMap = buildChannelColumnMapJoin( columnMap );
 		
 		return columnMap;
 	}

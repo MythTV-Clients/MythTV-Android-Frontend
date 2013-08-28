@@ -29,6 +29,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
+import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.Toast;
 
 /**
@@ -295,9 +297,10 @@ public class MenuHelper {
 	 * Build Refresh MenuItem
 	 * 
 	 * @param menu
+	 * @param actionView Optional actionview
 	 * @return
 	 */
-	public MenuItem refreshMenuItem( Context context, Menu menu ) {
+	public MenuItem refreshMenuItem( Context context, final Menu menu, View actionView ) {
 		
 		if( null == context ) 
 			throw new RuntimeException( "MenuHelper is not initialized" );
@@ -306,13 +309,26 @@ public class MenuHelper {
 
 		if( NetworkHelper.getInstance().isNetworkConnected( context ) ) {
 			MenuItem menuItem = menu.add( Menu.NONE, REFRESH_ID, Menu.NONE, resources.getString( R.string.menu_refresh ) );
-			menuItem.setIcon( R.drawable.ic_menu_refresh );
-			menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_IF_ROOM );
+			if(null == actionView){
+				menuItem.setIcon( R.drawable.ic_menu_refresh );
+			}else{
+				menuItem.setActionView(actionView);
+				actionView.setOnClickListener(new OnClickListener(){
 
+					@Override
+					public void onClick(View v) {
+						menu.performIdentifierAction(REFRESH_ID, 0);
+					}});
+			}
+			menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_ALWAYS );
 			return menuItem;
 		}
 		
 		return null;
+	}
+	
+	public MenuItem refreshMenuItem( Context context, final Menu menu ) {
+		return refreshMenuItem(context, menu, null);
 	}
 
 	/**

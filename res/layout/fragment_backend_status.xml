@@ -45,12 +45,14 @@
 			    style="@style/BackendStatusHeader"
 			    android:text="@string/connection_status"/>
 		    <View style="@style/BackendStatusHorizontalLine"/>
+
 			<TextView
 			    android:id="@+id/textview_status"
 			    android:layout_width="match_parent"
 			    android:layout_height="wrap_content"
+			    android:layout_margin="5dp"
 			    android:paddingLeft="5dp"
-			    android:text="unknown status"/>
+			    android:text="unknown status" />
 		
 		</LinearLayout>
 		

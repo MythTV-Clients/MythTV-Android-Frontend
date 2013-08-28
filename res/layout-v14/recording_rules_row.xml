@@ -71,7 +71,7 @@
                 android:layout_centerInParent="false"
                 android:textColor="@color/body_text_1" />
             
-            <Switch
+            <TextView
                 android:id="@+id/recording_rules_switch_active"
                 android:focusable="false"
                 android:layout_width="wrap_content"

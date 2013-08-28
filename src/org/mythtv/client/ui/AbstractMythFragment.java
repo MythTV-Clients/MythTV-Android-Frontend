@@ -436,9 +436,9 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
 		if( null != recordingRuleEtag ) {
 			
 			DateTime now = DateUtils.convertUtc( new DateTime( System.currentTimeMillis() ) );
-			if( now.getMillis() - recordingRuleEtag.getMillis() > 3600000 ) {
+//			if( now.getMillis() - recordingRuleEtag.getMillis() > 3600000 ) {
 				startRecordingRulesDownloadService();
-			}
+//			}
 			
 		} else {
 		

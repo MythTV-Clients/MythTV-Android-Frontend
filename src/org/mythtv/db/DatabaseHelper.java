@@ -49,7 +49,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	private static final String TAG = DatabaseHelper.class.getSimpleName();
 	
 	private static final String DATABASE_NAME = "mythtvdb";
-	private static final int DATABASE_VERSION = 124;
+	private static final int DATABASE_VERSION = 126;
 
 	public DatabaseHelper( Context context ) {
 		super( context, DATABASE_NAME, null, DATABASE_VERSION );
@@ -137,8 +137,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	public void onUpgrade( SQLiteDatabase db, int oldVersion, int newVersion ) {
 		Log.v( TAG, "onUpgrade : enter" );
 
-		if( oldVersion < 124 ) {
-			Log.v( TAG, "onUpgrade : upgrading to db version 124" );
+		if( oldVersion < 126 ) {
+			Log.v( TAG, "onUpgrade : upgrading to db version 126" );
 
 			onCreate( db );
 
@@ -778,7 +778,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		sqlBuilder.append( RecordingRuleConstants.FIELD_AVERAGE_DELAY ).append( " " ).append( RecordingRuleConstants.FIELD_AVERAGE_DELAY_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( RecordingRuleConstants.FIELD_MASTER_HOSTNAME ).append( " " ).append( RecordingRuleConstants.FIELD_MASTER_HOSTNAME_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( RecordingRuleConstants.FIELD_LAST_MODIFIED_DATE ).append( " " ).append( RecordingRuleConstants.FIELD_LAST_MODIFIED_DATE_DATA_TYPE ).append( ", " );
-		sqlBuilder.append( "UNIQUE(" ).append( RecordingRuleConstants.FIELD_REC_RULE_ID ).append( ", " ).append( RecordingRuleConstants.FIELD_MASTER_HOSTNAME ).append( ")" );
+		sqlBuilder.append( "UNIQUE(" ).append( RecordingRuleConstants.FIELD_REC_RULE_ID ).append( ", " ).append( RecordingRuleConstants.FIELD_MASTER_HOSTNAME ).append( ") ON CONFLICT REPLACE " );
 		sqlBuilder.append( ");" );
 		String sql = sqlBuilder.toString();
 		if( Log.isLoggable( TAG, Log.VERBOSE ) ) {

@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.AbstractDaoHelper;
 import org.mythtv.provider.MythtvProvider;
@@ -22,7 +23,7 @@ import android.content.OperationApplicationException;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.RemoteException;
-//import android.util.Log;
+import android.util.Log;
 
 /**
  * @author Daniel Frey
@@ -30,7 +31,7 @@ import android.os.RemoteException;
  */
 public class RecordingRuleDaoHelper extends AbstractDaoHelper {
 
-//	private static final String TAG = RecordingRuleDaoHelper.class.getSimpleName();
+	private static final String TAG = RecordingRuleDaoHelper.class.getSimpleName();
 	
 	private static RecordingRuleDaoHelper singleton = null;
 
@@ -278,12 +279,12 @@ public class RecordingRuleDaoHelper extends AbstractDaoHelper {
 	}
 
 	public int load( final Context context, final LocationProfile locationProfile, List<RecRule> allRecordingRulesList ) throws RemoteException, OperationApplicationException {
-//		Log.d( TAG, "load : enter" );
+		Log.d( TAG, "load : enter" );
 		
 		if( null == context ) 
 			throw new RuntimeException( "RecordingRuleDaoHelper is not initialized" );
 		
-		DateTime lastModified = DateUtils.convertUtc( new DateTime( System.currentTimeMillis() ) );
+		DateTime lastModified = new DateTime( DateTimeZone.UTC );
 		
 		int count = 0;
 		int deletecount = 0;
@@ -292,38 +293,56 @@ public class RecordingRuleDaoHelper extends AbstractDaoHelper {
 		int totalInserts = 0;
 		int totalDeletes = 0;
 		
+		ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
+		
+		Log.v( TAG, "load : deleting recRules" );
+		ops.add(  
+			ContentProviderOperation.newDelete( RecordingRuleConstants.CONTENT_URI )
+				.withSelection( RecordingRuleConstants.TABLE_NAME + "." + RecordingRuleConstants.FIELD_MASTER_HOSTNAME + " = ?", new String[] { locationProfile.getHostname() } )
+				.build()
+		);
+
+		if( !ops.isEmpty() ) {
+			Log.v( TAG, "process : final batch deletes " + count + "/" + deletecount);
+
+			ContentProviderResult[] results = context.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
+			totalDeletes += results.length;
+
+			if( results.length > 0 ) {
+				ops.clear();
+			}
+		
+		}
+		
 		String[] recRuleProjection = new String[] { RecordingRuleConstants._ID };
 		String recRuleSelection = RecordingRuleConstants.FIELD_REC_RULE_ID + " = ?";
 
-		recRuleSelection = appendLocationHostname( context, locationProfile, recRuleSelection, null );
+		recRuleSelection = appendLocationHostname( context, locationProfile, recRuleSelection, RecordingRuleConstants.TABLE_NAME );
 
-		ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
-		
 		for( RecRule recRule : allRecordingRulesList ) {
-
+			Log.d( TAG, "load : recRule=" + recRule.getId() + ":" + recRule.getTitle() );
+			
 			ContentValues recRuleValues = convertRecRuleToContentValues( locationProfile, lastModified, recRule );
 			Cursor recRuleCursor = context.getContentResolver().query( RecordingRuleConstants.CONTENT_URI, recRuleProjection, recRuleSelection, new String[] { String.valueOf( recRule.getId() ) }, null );
 			if( recRuleCursor.moveToFirst() ) {
-//				Log.v( TAG, "load : updating recRule " + recRule.toString() );
-
 				Long id = recRuleCursor.getLong( recRuleCursor.getColumnIndexOrThrow( RecordingRuleConstants._ID ) );
+				Log.v( TAG, "load : updating recRule " + id + ":" + recRule.getId() + ":" + recRule.getTitle() );
+
 				ops.add( 
-						ContentProviderOperation.newUpdate( ContentUris.withAppendedId( RecordingRuleConstants.CONTENT_URI, id ) )
+					ContentProviderOperation.newUpdate( ContentUris.withAppendedId( RecordingRuleConstants.CONTENT_URI, id ) )
 						.withValues( recRuleValues )
-						.withYieldAllowed( true )
 						.build()
-						);
+				);
 				totalUpdates++;
 
 			} else {
-//				Log.v( TAG, "load : adding recRule " + recRule.getId() );
+				Log.v( TAG, "load : adding recRule " + recRule.getId() + ":" + recRule.getTitle() );
 
 				ops.add(  
-						ContentProviderOperation.newInsert( RecordingRuleConstants.CONTENT_URI )
+					ContentProviderOperation.newInsert( RecordingRuleConstants.CONTENT_URI )
 						.withValues( recRuleValues )
-						.withYieldAllowed( true )
 						.build()
-						);
+				);
 				totalInserts++;
 
 			}
@@ -331,7 +350,7 @@ public class RecordingRuleDaoHelper extends AbstractDaoHelper {
 			count++;
 
 			if( count > BATCH_COUNT_LIMIT ) {
-//				Log.v( TAG, "process : batch update/insert" );
+				Log.v( TAG, "process : batch update/insert" );
 
 				if( !ops.isEmpty() ) {
 
@@ -349,7 +368,7 @@ public class RecordingRuleDaoHelper extends AbstractDaoHelper {
 		}
 
 		if( !ops.isEmpty() ) {
-//			Log.v( TAG, "process : final batch update|insert " + count );
+			Log.v( TAG, "process : final batch update|insert " + count );
 
 			ContentProviderResult[] results = context.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
 			processed += results.length;
@@ -360,31 +379,10 @@ public class RecordingRuleDaoHelper extends AbstractDaoHelper {
 			count = 0;
 		}
 
-		// Done with the updates/inserts, remove any 'stale' recRules
-//		Log.v( TAG, "load : deleting recRules no longer present on mythtv backend" );
-		ops.add(  
-			ContentProviderOperation.newDelete( RecordingRuleConstants.CONTENT_URI )
-				.withSelection( RecordingRuleConstants.FIELD_LAST_MODIFIED_DATE + " < ?", new String[] { String.valueOf( lastModified.getMillis() ) } )
-				.withYieldAllowed( true )
-				.build()
-		);
-
-		if( !ops.isEmpty() ) {
-//			Log.v( TAG, "process : final batch deletes " + count + "/" + deletecount);
-
-			ContentProviderResult[] results = context.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
-			processed += results.length;
-
-			if( results.length > 0 ) {
-				ops.clear();
-			}
-		
-		}
-		
-//		Log.d( TAG, "load : totalUpdates: " + totalUpdates );
-//		Log.d( TAG, "load : totalInserts: " + totalInserts );
-//		Log.d( TAG, "load : totalDeletes: " + totalDeletes );
-//		Log.d( TAG, "load : exit" );
+		Log.d( TAG, "load : totalUpdates: " + totalUpdates );
+		Log.d( TAG, "load : totalInserts: " + totalInserts );
+		Log.d( TAG, "load : totalDeletes: " + totalDeletes );
+		Log.d( TAG, "load : exit" );
 		return processed;
 	}
 	
@@ -674,12 +672,12 @@ public class RecordingRuleDaoHelper extends AbstractDaoHelper {
 	private ContentValues convertRecRuleToContentValues( final LocationProfile locationProfile, final DateTime lastModified, final RecRule recRule ) {
 //		Log.v( TAG, "convertRecRuleToContentValues : enter" );
 		
-		DateTime startTimestamp = DateUtils.convertUtc( new DateTime( System.currentTimeMillis() ) );
+		DateTime startTimestamp = new DateTime( DateTimeZone.UTC );
 		if( null != recRule.getStartTime() ) {
 			startTimestamp = recRule.getStartTime();
 		}
 
-		DateTime endTimestamp = DateUtils.convertUtc( new DateTime( System.currentTimeMillis() ) );
+		DateTime endTimestamp = new DateTime( DateTimeZone.UTC );
 		if( null != recRule.getEndTime() ) {
 			endTimestamp = recRule.getEndTime();
 		}
