@@ -87,6 +87,7 @@ public class GalleryGridAdapter extends BaseAdapter {
 
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
+
         final ViewHolder holder;
 
         if (convertView == null) {
@@ -106,25 +107,25 @@ public class GalleryGridAdapter extends BaseAdapter {
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
                     LinearLayout.LayoutParams.MATCH_PARENT);
             convertView.setLayoutParams(new GridView.LayoutParams(params));
-
-            holder.image.setOnClickListener(new View.OnClickListener() {
-
-                @Override
-                public void onClick(View view) {
-                    Intent galleryImageIntent = new Intent(mContext, GalleryPagerActivity.class);
-                    Bundle bundle = new Bundle();
-                    bundle.putInt("position", position);
-                    bundle.putString("baseUrl", baseUrl);
-                    galleryImageIntent.putExtras(bundle);
-                    mContext.startActivity(galleryImageIntent);
-                }
-            });
             convertView.setTag(holder);
         } else {
 
             holder = (ViewHolder) convertView.getTag();
 
         }
+
+        holder.image.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View view) {
+                Intent galleryImageIntent = new Intent(mContext, GalleryPagerActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putInt("position", position);
+                bundle.putString("baseUrl", baseUrl);
+                galleryImageIntent.putExtras(bundle);
+                mContext.startActivity(galleryImageIntent);
+            }
+        });
 
         imageLoader.displayImage(baseUrl + imageItems.get(position).getUrl() + "&Width=" + previewWidth, holder.image,
                 options, new SimpleImageLoadingListener() {
