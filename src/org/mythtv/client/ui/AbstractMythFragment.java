@@ -18,6 +18,18 @@
  */
 package org.mythtv.client.ui;
 
+import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.util.Log;
+
 import org.joda.time.DateTime;
 import org.mythtv.R;
 import org.mythtv.client.MainApplication;
@@ -45,18 +57,6 @@ import org.mythtv.services.api.dvr.impl.DvrTemplate.Endpoint;
 import org.mythtv.services.api.status.Status;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-
-import android.app.AlertDialog;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.SharedPreferences;
-import android.database.Cursor;
-import android.os.AsyncTask;
-import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.util.Log;
 //import android.widget.Toast;
 
 /**
@@ -349,6 +349,7 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
         				}
         			}
         			
+                    onBackendStatusUpdated( result );
         		} else {
 
         			Log.d( TAG, "BackendStatusTask.onPostExecute : unsetting connected profile" );
@@ -356,9 +357,7 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
         			mLocationProfileDaoHelper.save( getActivity(), mLocationProfile );
         			
         		}
-        		
-        		onBackendStatusUpdated( result );
-    		}   
+    		}
     		
     		Log.i( TAG, "BackendStatusTask.onPostExecute : exit" );
     	}
