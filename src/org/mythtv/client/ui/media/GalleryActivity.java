@@ -18,7 +18,6 @@
  */
 package org.mythtv.client.ui.media;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -30,10 +29,8 @@ import android.widget.GridView;
 
 import org.mythtv.R;
 import org.mythtv.client.MainApplication;
-import org.mythtv.client.ui.MythtvApplicationContext;
+import org.mythtv.client.ui.AbstractMythtvFragmentActivity;
 import org.mythtv.client.ui.preferences.LocationProfile;
-import org.mythtv.db.preferences.LocationProfileDaoHelper;
-import org.mythtv.service.util.MythtvServiceHelper;
 import org.mythtv.services.api.Bool;
 import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.StringList;
@@ -49,13 +46,12 @@ import java.util.List;
 /**
  * @author Espen A. Fossen
  */
-public class GalleryActivity extends Activity implements MythtvApplicationContext {
+public class GalleryActivity extends AbstractMythtvFragmentActivity {
 
     private static final String TAG = GalleryActivity.class.getSimpleName();
     public static ArrayList<GalleryImageItem> images = new ArrayList<GalleryImageItem>();
 
-    private LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
-    private MythtvServiceHelper mMythtvServiceHelper = MythtvServiceHelper.getInstance();
+    public static boolean IMAGE_LIST_DOWNLOADED = false;
 
     private boolean hasBackendGallerySG = false;
     private LocationProfile mLocationProfile;
@@ -73,12 +69,20 @@ public class GalleryActivity extends Activity implements MythtvApplicationContex
         Log.v(TAG, "onCreate : enter");
         super.onCreate(savedInstanceState);
 
-        mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile(this);
+        // todo: Temp fix for unpredictable .findConnectedProfile() method
+        List<LocationProfile> profiles = mLocationProfileDaoHelper.findAll(GalleryActivity.this);
+        mLocationProfile = profiles.get(0);
 
         setContentView(R.layout.activity_gallery);
 
         gridView = (GridView) findViewById(R.id.gallery_gridview);
-        new LoadFileListTask(this).execute();
+
+        if(IMAGE_LIST_DOWNLOADED){
+            GalleryGridAdapter adapter = new GalleryGridAdapter(GalleryActivity.this, mLocationProfile);
+            gridView.setAdapter(adapter);
+        } else {
+            new LoadFileListTask(this).execute();
+        }
 
         Log.v(TAG, "onCreate : exit");
     }
@@ -145,7 +149,6 @@ public class GalleryActivity extends Activity implements MythtvApplicationContex
 
             }
               return null;
-            //return images;
         }
 
         private boolean isConnectedProfileInHostsList() {
@@ -180,6 +183,7 @@ public class GalleryActivity extends Activity implements MythtvApplicationContex
                         //images.add(new GalleryImageItem(0, "", imageUri+file, true));
                     }
                 }
+                IMAGE_LIST_DOWNLOADED = true;
             }
         }
 

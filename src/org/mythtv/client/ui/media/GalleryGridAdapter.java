@@ -56,13 +56,9 @@ public class GalleryGridAdapter extends BaseAdapter {
     private String previewWidth = "256";
 
     final DisplayImageOptions options = new DisplayImageOptions.Builder()
-    //			.showStubImage( R.drawable.ic_stub )
-    //			.showImageForEmptyUri( R.drawable.ic_empty )
-    //			.showImageOnFail( R.drawable.ic_error )
-    			.cacheInMemory(true)
-    			.cacheOnDisc(true)
-    //			.displayer( new RoundedBitmapDisplayer( 20 ) )
-    			.build();
+            .cacheInMemory(true)
+            .cacheOnDisc(true)
+            .build();
 
 
     public GalleryGridAdapter(Context c, LocationProfile profile) {

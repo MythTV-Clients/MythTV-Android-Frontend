@@ -18,7 +18,6 @@
  */
 package org.mythtv.client.ui.media;
 
-import android.app.Activity;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -39,14 +38,14 @@ import com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener;
 
 import org.mythtv.R;
 import org.mythtv.client.MainApplication;
-import org.mythtv.client.ui.MythtvApplicationContext;
+import org.mythtv.client.ui.AbstractMythtvFragmentActivity;
 
 import java.util.ArrayList;
 
 /**
  * @author Espen A. Fossen.
  */
-public class GalleryPagerActivity extends Activity implements MythtvApplicationContext {
+public class GalleryPagerActivity extends AbstractMythtvFragmentActivity{
 
     protected ImageLoader imageLoader = ImageLoader.getInstance();
 
@@ -54,7 +53,10 @@ public class GalleryPagerActivity extends Activity implements MythtvApplicationC
     private static final String STATE_POSITION = "STATE_POSITION";
     private String baseUrl;
 
-    DisplayImageOptions options;
+    final DisplayImageOptions options = new DisplayImageOptions.Builder()
+            .cacheInMemory(true)
+            .cacheOnDisc(true)
+            .build();
 
     ViewPager pager;
 
@@ -90,9 +92,16 @@ public class GalleryPagerActivity extends Activity implements MythtvApplicationC
 
     }
 
-        public void onSaveInstanceState(Bundle outState) {
-            outState.putInt(STATE_POSITION, pager.getCurrentItem());
-        }
+  	/* (non-Javadoc)
+	 * @see android.support.v4.app.FragmentActivity#onSaveInstanceState(android.os.Bundle)
+	 */
+	@Override
+	protected void onSaveInstanceState( Bundle outState ) {
+		Log.v( TAG, "onSaveInstanceState : enter" );
+        outState.putInt(STATE_POSITION, pager.getCurrentItem());
+
+		Log.v( TAG, "onSaveInstanceState : exit" );
+	}
 
     private class ImagePagerAdapter extends PagerAdapter {
 
