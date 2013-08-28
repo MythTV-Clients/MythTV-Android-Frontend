@@ -53,6 +53,7 @@ import android.widget.Toast;
 
 /**
  * @author Daniel Frey
+ * @author Thomas G. Kenny Jr
  *
  */
 public class UpcomingPagerFragment extends AbstractMythFragment {

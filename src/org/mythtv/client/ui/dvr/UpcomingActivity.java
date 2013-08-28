@@ -26,6 +26,7 @@ import org.mythtv.R;
 import org.mythtv.client.ui.AbstractMythtvFragmentActivity;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.util.MenuHelper;
+import org.mythtv.client.ui.util.MenuItemRefreshAnimated;
 import org.mythtv.db.dvr.UpcomingDaoHelper;
 import org.mythtv.db.http.EtagDaoHelper;
 import org.mythtv.service.dvr.UpcomingDownloadService;
@@ -50,6 +51,7 @@ import android.widget.Toast;
 
 /**
  * @author Daniel Frey
+ * @author Thomas G. Kenny Jr
  *
  */
 public class UpcomingActivity extends AbstractMythtvFragmentActivity {
@@ -66,6 +68,7 @@ public class UpcomingActivity extends AbstractMythtvFragmentActivity {
 	private MythtvUpcomingPagerAdapter mAdapter;
 	
 	private LocationProfile mLocationProfile;
+	private MenuItemRefreshAnimated mMenuItemRefresh;
 	
 	/* (non-Javadoc)
 	 * @see android.support.v4.app.FragmentActivity#onCreate(android.os.Bundle)
@@ -76,6 +79,8 @@ public class UpcomingActivity extends AbstractMythtvFragmentActivity {
 		super.onCreate( savedInstanceState );
 
 		setContentView( R.layout.activity_dvr_upcoming );
+		
+		mMenuItemRefresh = new MenuItemRefreshAnimated(this);
 
 		setupActionBar();
 
@@ -155,7 +160,7 @@ public class UpcomingActivity extends AbstractMythtvFragmentActivity {
 	public boolean onCreateOptionsMenu( Menu menu ) {
 		Log.v( TAG, "onCreateOptionsMenu : enter" );
 
-		mMenuHelper.refreshMenuItem( this, menu );
+		mMenuHelper.refreshMenuItem( this, menu, this.mMenuItemRefresh );
 
 		Log.v( TAG, "onCreateOptionsMenu : exit" );
 	    return super.onCreateOptionsMenu( menu );
@@ -195,6 +200,7 @@ public class UpcomingActivity extends AbstractMythtvFragmentActivity {
 		
 		if( !mRunningServiceHelper.isServiceRunning( this, "org.mythtv.service.dvr.UpcomingDownloadService" ) ) {
 			startService( new Intent( UpcomingDownloadService.ACTION_DOWNLOAD ) );
+			this.mMenuItemRefresh.startRefreshAnimation();
 		}
 		
 		Log.v( TAG, "loadData : exit" );
@@ -285,6 +291,8 @@ public class UpcomingActivity extends AbstractMythtvFragmentActivity {
 	        
 	        if ( intent.getAction().equals( UpcomingDownloadService.ACTION_COMPLETE ) ) {
 	        	Log.i( TAG, "UpcomingDownloadReceiver.onReceive : " + intent.getStringExtra( UpcomingDownloadService.EXTRA_COMPLETE ) );
+	        	
+	        	mMenuItemRefresh.stopRefreshAnimation();
 	        	
 	        	if( intent.getExtras().containsKey( UpcomingDownloadService.EXTRA_COMPLETE_UPTODATE ) ) {
 	        		Toast.makeText( UpcomingActivity.this, "Upcoming Programs are up to date!", Toast.LENGTH_SHORT ).show();

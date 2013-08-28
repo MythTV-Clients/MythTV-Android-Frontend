@@ -23,6 +23,7 @@ import org.mythtv.R;
 import org.mythtv.client.MainApplication;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.util.MenuHelper;
+import org.mythtv.client.ui.util.MenuItemRefreshAnimated;
 import org.mythtv.client.ui.util.MythtvListFragment;
 import org.mythtv.client.ui.util.ProgramHelper;
 import org.mythtv.db.channel.ChannelDaoHelper;
@@ -62,6 +63,7 @@ import android.widget.TextView;
 
 /**
  * @author Daniel Frey
+ * @author Thomas G. Kenny Jr
  *
  */
 public class RecordingRulesFragment extends MythtvListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -82,6 +84,21 @@ public class RecordingRulesFragment extends MythtvListFragment implements Loader
 	private MainApplication mainApplication;
 	
 	private LocationProfile mLocationProfile;
+	private MenuItemRefreshAnimated mMenuItemRefresh;
+	
+	
+	/*
+	 * (non-Javadoc)
+	 * @see android.support.v4.app.ListFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle)
+	 */
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+			Bundle savedInstanceState) {
+		
+		mMenuItemRefresh = new MenuItemRefreshAnimated(this.getActivity());
+		
+		return super.onCreateView(inflater, container, savedInstanceState);
+	}
 	
 	/* (non-Javadoc)
 	 * @see android.support.v4.app.LoaderManager.LoaderCallbacks#onCreateLoader(int, android.os.Bundle)
@@ -224,7 +241,7 @@ public class RecordingRulesFragment extends MythtvListFragment implements Loader
 		Log.v( TAG, "onCreateOptionsMenu : enter" );
 		super.onCreateOptionsMenu( menu, inflater );
 
-		mMenuHelper.refreshMenuItem( getActivity(), menu );
+		mMenuHelper.refreshMenuItem( getActivity(), menu, this.mMenuItemRefresh );
 		
 		Log.v( TAG, "onCreateOptionsMenu : exit" );
 	}
@@ -243,6 +260,7 @@ public class RecordingRulesFragment extends MythtvListFragment implements Loader
 //			adapter.refresh();
 			if( !mRunningServiceHelper.isServiceRunning( getActivity(), "org.mythtv.service.dvr.RecordingRuleDownloadService" ) ) {
 				getActivity().startService( new Intent( RecordingRuleDownloadService.ACTION_DOWNLOAD ) );
+				this.mMenuItemRefresh.startRefreshAnimation();
 			}
 			
 	        return true;
@@ -427,6 +445,8 @@ public class RecordingRulesFragment extends MythtvListFragment implements Loader
 	        
 	        if ( intent.getAction().equals( RecordingRuleDownloadService.ACTION_COMPLETE ) ) {
 	        	Log.i( TAG, "RecordingRuleDownloadReceiver.onReceive : complete=" + intent.getStringExtra( RecordingRuleDownloadService.EXTRA_COMPLETE ) );
+	        	
+	        	mMenuItemRefresh.stopRefreshAnimation();
 	        	
 	        	if( intent.getExtras().containsKey( RecordingRuleDownloadService.EXTRA_COMPLETE_UPTODATE ) ) {
 //	        		Toast.makeText( getActivity(), "Recording Rules are up to date!", Toast.LENGTH_SHORT ).show();

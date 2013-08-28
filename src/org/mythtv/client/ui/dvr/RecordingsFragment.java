@@ -22,6 +22,7 @@ import org.joda.time.DateTime;
 import org.mythtv.R;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.util.MenuHelper;
+import org.mythtv.client.ui.util.MenuItemRefreshAnimated;
 import org.mythtv.client.ui.util.MythtvListFragment;
 import org.mythtv.client.ui.util.ProgramHelper;
 import org.mythtv.db.dvr.ProgramConstants;
@@ -69,6 +70,7 @@ import com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener;
 
 /**
  * @author Daniel Frey
+ * @author Thomas G. Kenny Jr
  * 
  */
 public class RecordingsFragment extends MythtvListFragment implements LoaderManager.LoaderCallbacks<Cursor>  {
@@ -91,8 +93,23 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 	
 	private ImageLoader imageLoader = ImageLoader.getInstance();
 	private DisplayImageOptions options;
+	private MenuItemRefreshAnimated mMenuItemRefresh;
 
 	public RecordingsFragment() { }
+	
+	
+	/*
+	 * (non-Javadoc)
+	 * @see android.support.v4.app.ListFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle)
+	 */
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+			Bundle savedInstanceState) {
+		
+		mMenuItemRefresh = new MenuItemRefreshAnimated(this.getActivity());
+		
+		return super.onCreateView(inflater, container, savedInstanceState);
+	}
 	
 	/* (non-Javadoc)
 	 * @see android.support.v4.app.LoaderManager.LoaderCallbacks#onCreateLoader(int, android.os.Bundle)
@@ -241,7 +258,7 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 		Log.v( TAG, "onCreateOptionsMenu : enter" );
 		super.onCreateOptionsMenu( menu, inflater );
 
-		mMenuHelper.refreshMenuItem( getActivity(), menu );
+		mMenuHelper.refreshMenuItem( getActivity(), menu, this.mMenuItemRefresh );
 		
 		Log.v( TAG, "onCreateOptionsMenu : exit" );
 	}
@@ -267,6 +284,7 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 
 			if( !mRunningServiceHelper.isServiceRunning( getActivity(), "org.mythtv.service.dvr.RecordedDownloadService" ) ) {
 				getActivity().startService( new Intent( RecordedService.ACTION_DOWNLOAD ) );
+				this.mMenuItemRefresh.startRefreshAnimation();
 			}
 		    
 	        return true;
@@ -413,6 +431,8 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 	        
 	        if ( intent.getAction().equals( RecordedService.ACTION_COMPLETE ) ) {
 	        	Log.i( TAG, "RecordedDownloadReceiver.onReceive : complete=" + intent.getStringExtra( RecordedService.EXTRA_COMPLETE ) );
+	        	
+	        	mMenuItemRefresh.stopRefreshAnimation();
 	        	
 	        	LocationProfile profile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
 	        	

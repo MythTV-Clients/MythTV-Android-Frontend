@@ -35,7 +35,8 @@ import android.widget.Toast;
 
 /**
  * @author Daniel Frey
- *
+ * @author Thomas G. Kenny Jr
+ * 
  */
 public class MenuHelper {
 
@@ -297,7 +298,7 @@ public class MenuHelper {
 	 * Build Refresh MenuItem
 	 * 
 	 * @param menu
-	 * @param actionView Optional actionview
+	 * @param actionView Optional actionview. MenuItemRefreshAnimated objects are a good choice
 	 * @return
 	 */
 	public MenuItem refreshMenuItem( Context context, final Menu menu, View actionView ) {
@@ -327,9 +328,6 @@ public class MenuHelper {
 		return null;
 	}
 	
-	public MenuItem refreshMenuItem( Context context, final Menu menu ) {
-		return refreshMenuItem(context, menu, null);
-	}
 
 	/**
 	 * Build Edit MenuItem
