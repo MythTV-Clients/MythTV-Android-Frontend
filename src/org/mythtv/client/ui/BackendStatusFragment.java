@@ -24,6 +24,7 @@ import org.joda.time.DateTimeZone;
 import org.mythtv.R;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.util.MenuHelper;
+import org.mythtv.client.ui.util.MenuItemRefreshAnimated;
 import org.mythtv.client.ui.util.ProgramHelper;
 import org.mythtv.service.util.DateUtils;
 import org.mythtv.services.api.dvr.Encoder;
@@ -64,8 +65,7 @@ public class BackendStatusFragment extends AbstractMythFragment {
 	private ProgramHelper mProgramHelper = ProgramHelper.getInstance();
 	private int mPanelStartY;
 	private View mView;
-	private ImageButton imageViewRefresh;
-	private ObjectAnimator refreshAnimator;
+	private MenuItemRefreshAnimated mMenuItemRefresh;
 	private LocationProfile mLocationProfile;
 	private LinearLayout mLinearLayoutEncodersList;
 	private LinearLayout mLinearLayoutUpcomingRecsList;
@@ -87,17 +87,9 @@ public class BackendStatusFragment extends AbstractMythFragment {
 	public View onCreateView( LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState ) {
 		Log.d( TAG, "onCreateView : enter" );
 		
-		imageViewRefresh = new ImageButton(this.getActivity());
-		imageViewRefresh.setBackgroundColor(0x00ffffff);
-		imageViewRefresh.setImageResource(R.drawable.ic_menu_refresh);
-		
-		refreshAnimator = ObjectAnimator.ofFloat(imageViewRefresh, "rotation", 0f, 180f);
-		refreshAnimator.setDuration(500);
-		refreshAnimator.setInterpolator(new LinearInterpolator());
-		refreshAnimator.setRepeatMode(ValueAnimator.RESTART);
-		refreshAnimator.setRepeatCount(ValueAnimator.INFINITE);
-		
 		this.setHasOptionsMenu(true);
+		
+		mMenuItemRefresh = new MenuItemRefreshAnimated(this.getActivity());
 		
 		mPanelStartY = container.getHeight()+1;
 		
@@ -136,7 +128,7 @@ public class BackendStatusFragment extends AbstractMythFragment {
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 
 		MenuHelper.getInstance().refreshMenuItem(
-				this.getActivity(), menu, imageViewRefresh);
+				this.getActivity(), menu, this.mMenuItemRefresh);
 
 		super.onCreateOptionsMenu(menu, inflater);
 	}
@@ -220,20 +212,6 @@ public class BackendStatusFragment extends AbstractMythFragment {
 		mLinearLayoutJobQueueCard.setTranslationY(mPanelStartY);
 	}
 	
-	private void startRefreshMenuItemAnimation(){
-		if(null != this.refreshAnimator){
-			this.refreshAnimator.setRepeatCount(ObjectAnimator.INFINITE);
-			this.refreshAnimator.start();
-		}
-		
-	}
-	
-	private void stopRefreshMenuItemAnimation(){
-		if(null != this.refreshAnimator){
-			this.refreshAnimator.end();
-		}
-	}
-	
 	/**
 	 * 
 	 */
@@ -274,7 +252,7 @@ public class BackendStatusFragment extends AbstractMythFragment {
 		BackendStatusTask backendTask = new BackendStatusTask();
 		backendTask.execute();
 		
-		this.startRefreshMenuItemAnimation();
+		this.mMenuItemRefresh.startRefreshAnimation();
 		
 		Log.v( TAG, "getStatusText : exit" );
 		return ( mLocationProfile.isConnected() ? "Connected to " : "NOT Connected to " ) + mLocationProfile.getName();
@@ -288,7 +266,7 @@ public class BackendStatusFragment extends AbstractMythFragment {
 	@Override
     protected void onBackendStatusUpdated(org.mythtv.services.api.status.Status result){
 		
-		this.stopRefreshMenuItemAnimation();
+		this.mMenuItemRefresh.stopRefreshAnimation();
 		
 		LayoutInflater inflater = LayoutInflater.from(this.getActivity());
 		
