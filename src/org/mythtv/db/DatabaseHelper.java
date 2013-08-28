@@ -49,7 +49,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	private static final String TAG = DatabaseHelper.class.getSimpleName();
 	
 	private static final String DATABASE_NAME = "mythtvdb";
-	private static final int DATABASE_VERSION = 126;
+	private static final int DATABASE_VERSION = 127;
 
 	public DatabaseHelper( Context context ) {
 		super( context, DATABASE_NAME, null, DATABASE_VERSION );
@@ -137,8 +137,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	public void onUpgrade( SQLiteDatabase db, int oldVersion, int newVersion ) {
 		Log.v( TAG, "onUpgrade : enter" );
 
-		if( oldVersion < 126 ) {
-			Log.v( TAG, "onUpgrade : upgrading to db version 126" );
+		if( oldVersion < 127 ) {
+			Log.v( TAG, "onUpgrade : upgrading to db version 127" );
 
 			onCreate( db );
 
@@ -499,8 +499,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		}
 		db.execSQL( sql );
 	
-//		db.execSQL( "CREATE INDEX program_group_idx ON " + tableName + " (" + ProgramConstants.FIELD_PROGRAM_GROUP + "," + ProgramConstants.FIELD_PROGRAM_TYPE + ")" );
-		
 		Log.v( TAG, "createProgram : exit" );
 	}
 	
@@ -702,8 +700,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		sqlBuilder.append( LiveStreamConstants.FIELD_START_TIME ).append( " " ).append( LiveStreamConstants.FIELD_START_TIME_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( LiveStreamConstants.FIELD_CHAN_ID ).append( " " ).append( LiveStreamConstants.FIELD_CHAN_ID_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( LiveStreamConstants.FIELD_MASTER_HOSTNAME ).append( " " ).append( LiveStreamConstants.FIELD_MASTER_HOSTNAME_DATA_TYPE ).append( ", " );
-		sqlBuilder.append( "UNIQUE(" ).append( LiveStreamConstants.FIELD_START_TIME ).append( ", " ).append( LiveStreamConstants.FIELD_CHAN_ID ).append( ", " ).append( LiveStreamConstants.FIELD_MASTER_HOSTNAME ).append( ")" ).append( ", " );
-		sqlBuilder.append( "FOREIGN KEY (" + LiveStreamConstants.FIELD_START_TIME + "," + LiveStreamConstants.FIELD_CHAN_ID + "," + LiveStreamConstants.FIELD_MASTER_HOSTNAME + ") REFERENCES " + ProgramConstants.TABLE_NAME_RECORDED + " (" + ProgramConstants.FIELD_START_TIME + "," + ProgramConstants.FIELD_CHANNEL_ID + "," + ProgramConstants.FIELD_MASTER_HOSTNAME + ") ON DELETE CASCADE " );
+		sqlBuilder.append( "UNIQUE(" ).append( LiveStreamConstants.FIELD_START_TIME ).append( ", " ).append( LiveStreamConstants.FIELD_CHAN_ID ).append( ", " ).append( LiveStreamConstants.FIELD_MASTER_HOSTNAME ).append( ")" ); //.append( ", " );
+//		sqlBuilder.append( "FOREIGN KEY (" + LiveStreamConstants.FIELD_START_TIME + "," + LiveStreamConstants.FIELD_CHAN_ID + "," + LiveStreamConstants.FIELD_MASTER_HOSTNAME + ") REFERENCES " + ProgramConstants.TABLE_NAME_RECORDED + " (" + ProgramConstants.FIELD_START_TIME + "," + ProgramConstants.FIELD_CHANNEL_ID + "," + ProgramConstants.FIELD_MASTER_HOSTNAME + ") ON DELETE CASCADE " );
 		sqlBuilder.append( ");" );
 		String sql = sqlBuilder.toString();
 		if( Log.isLoggable( TAG, Log.VERBOSE ) ) {

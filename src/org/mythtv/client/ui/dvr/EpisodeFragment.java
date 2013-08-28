@@ -123,7 +123,22 @@ public class EpisodeFragment extends AbstractMythFragment {
 
 		setHasOptionsMenu( true );
 
-		Log.v( TAG, "onActivityCreated : exit" );
+        hlsView = (TextView) getActivity().findViewById( R.id.textView_episode_hls );
+
+        Log.v( TAG, "onActivityCreated : exit" );
+	}
+
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.Fragment#onResume()
+	 */
+	@Override
+	public void onResume() {
+		Log.v( TAG, "onResume : enter" );
+		super.onResume();
+
+        hlsView = (TextView) getActivity().findViewById( R.id.textView_episode_hls );
+
+        Log.v( TAG, "onResume : exit" );
 	}
 
 	/* (non-Javadoc)
@@ -230,12 +245,18 @@ public class EpisodeFragment extends AbstractMythFragment {
 
 						LiveStreamInfo liveStreamInfo = mLiveStreamDaoHelper.findByProgram( getActivity(), mLocationProfile, program );
 						if( null == liveStreamInfo ) {
-
+							Log.v( TAG, "onOptionsItemSelected : WATCH - starting stream service" );
+							
 							startCreateStreamService();
 
 						} else {
+							Log.v( TAG, "onOptionsItemSelected : WATCH - starting play service" );
 
-							startPlayStreamService();
+							if( liveStreamInfo.getPercentComplete() > 2 ) {
+								startPlayer( false );
+							} else {
+								Toast.makeText( getActivity(), "Please wait, you can start watching HLS after your program is 2% processed", Toast.LENGTH_SHORT ).show();
+							}
 
 						}
 
@@ -247,7 +268,7 @@ public class EpisodeFragment extends AbstractMythFragment {
 					@Override
 					public void onClick( DialogInterface dialog, int which ) {
 
-						startPlayStreamService();
+						startPlayer( true );
 
 					}
 
@@ -263,7 +284,11 @@ public class EpisodeFragment extends AbstractMythFragment {
 
 				} else {
 
-					startPlayStreamService();
+					if( liveStreamInfo.getPercentComplete() > 2 ) {
+						startPlayer( false );
+					} else {
+						Toast.makeText( getActivity(), "Please wait, you can start watching HLS after your program is 2% processed", Toast.LENGTH_SHORT ).show();
+					}
 
 				}
 
@@ -443,7 +468,10 @@ public class EpisodeFragment extends AbstractMythFragment {
 			tView = (TextView) activity.findViewById( R.id.textView_episode_airdate );
             tView.setText( DateUtils.getDateTimeUsingLocaleFormattingPretty(program.getStartTime(), getMainApplication().getDateFormat(), getMainApplication().getClockType() ) );
 
-            hlsView = (TextView) activity.findViewById( R.id.textView_episode_hls );
+            if( null == hlsView ) {
+            	hlsView = (TextView) activity.findViewById( R.id.textView_episode_hls );
+            }
+            
             updateHlsDetails();
 		}
 
@@ -542,23 +570,25 @@ public class EpisodeFragment extends AbstractMythFragment {
 	private void updateHlsDetails() {
 		Log.v( TAG, "updateHlsDetails : enter" );
 		
-        LiveStreamInfo liveStreamInfo = mLiveStreamDaoHelper.findByProgram( getActivity(), mLocationProfile, program );
-        if( null != liveStreamInfo ) {
-    		Log.v( TAG, "updateHlsDetails : live stream found, liveStreamInfo=" + liveStreamInfo.toString() );
+		if( null != hlsView ) {
+			LiveStreamInfo liveStreamInfo = mLiveStreamDaoHelper.findByProgram( getActivity(), mLocationProfile, program );
+			if( null != liveStreamInfo ) {
+				Log.v( TAG, "updateHlsDetails : live stream found, liveStreamInfo=" + liveStreamInfo.toString() );
 
-        	if( liveStreamInfo.getPercentComplete() == 100 ) {
-        		hlsView.setText( "WATCH IT NOW!" );
-        	} else if( liveStreamInfo.getPercentComplete() >= 0 ) {
-        		hlsView.setText( "Processing " + liveStreamInfo.getPercentComplete() + "%" );
-        		
-        	} else {
-        		hlsView.setText( "" );
-        	}
-        	
-        } else {
-    		hlsView.setText( "" );
-        }
+				if( liveStreamInfo.getPercentComplete() == 100 ) {
+					hlsView.setText( "WATCH IT NOW!" );
+				} else if( liveStreamInfo.getPercentComplete() >= 0 ) {
+					hlsView.setText( "Processing " + liveStreamInfo.getPercentComplete() + "%" );
 
+				} else {
+					hlsView.setText( "" );
+				}
+
+			} else {
+				hlsView.setText( "" );
+			}
+		}
+		
         updateHlsMenuButtons();
         
 		Log.v( TAG, "updateHlsDetails : exit" );
