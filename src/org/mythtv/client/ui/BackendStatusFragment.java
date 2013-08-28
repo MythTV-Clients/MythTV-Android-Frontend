@@ -23,12 +23,14 @@ import java.util.List;
 import org.joda.time.DateTimeZone;
 import org.mythtv.R;
 import org.mythtv.client.ui.preferences.LocationProfile;
+import org.mythtv.client.ui.util.MenuHelper;
 import org.mythtv.client.ui.util.ProgramHelper;
 import org.mythtv.service.util.DateUtils;
 import org.mythtv.services.api.dvr.Encoder;
 import org.mythtv.services.api.dvr.Program;
 import org.mythtv.services.api.status.Job;
 
+import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.animation.ValueAnimator.AnimatorUpdateListener;
 import android.content.res.Configuration;
@@ -37,8 +39,13 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.LinearInterpolator;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -49,11 +56,16 @@ import android.widget.TextView;
  */
 public class BackendStatusFragment extends AbstractMythFragment {
 
+
+
 	private static final String TAG = BackendStatusFragment.class.getSimpleName();
 	public static final String BACKEND_STATUS_FRAGMENT_NAME = "org.mythtv.client.ui.BackendStatusFragment";
 	
 	private ProgramHelper mProgramHelper = ProgramHelper.getInstance();
+	private int mPanelStartY;
 	private View mView;
+	private ImageButton imageViewRefresh;
+	private ObjectAnimator refreshAnimator;
 	private LocationProfile mLocationProfile;
 	private LinearLayout mLinearLayoutEncodersList;
 	private LinearLayout mLinearLayoutUpcomingRecsList;
@@ -65,13 +77,29 @@ public class BackendStatusFragment extends AbstractMythFragment {
 	private TextView mTextViewEncodersEmpty;
 	private TextView mTextViewJobQueueEmpty;
 	private TextView mTextViewUpcomingRecEmpty;
+	
 
+	
 	/* (non-Javadoc)
 	 * @see android.support.v4.app.Fragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle)
 	 */
 	@Override
 	public View onCreateView( LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState ) {
 		Log.d( TAG, "onCreateView : enter" );
+		
+		imageViewRefresh = new ImageButton(this.getActivity());
+		imageViewRefresh.setBackgroundColor(0x00ffffff);
+		imageViewRefresh.setImageResource(R.drawable.ic_menu_refresh);
+		
+		refreshAnimator = ObjectAnimator.ofFloat(imageViewRefresh, "rotation", 0f, 180f);
+		refreshAnimator.setDuration(500);
+		refreshAnimator.setInterpolator(new LinearInterpolator());
+		refreshAnimator.setRepeatMode(ValueAnimator.RESTART);
+		refreshAnimator.setRepeatCount(ValueAnimator.INFINITE);
+		
+		this.setHasOptionsMenu(true);
+		
+		mPanelStartY = container.getHeight()+1;
 		
 		mView = inflater.inflate( R.layout.fragment_backend_status, null, false );
 		
@@ -81,16 +109,16 @@ public class BackendStatusFragment extends AbstractMythFragment {
 		
 		mLinearLayoutStatusCard = (LinearLayout)mView.findViewById(R.id.linearlayout_backendstatus_status_card);
 		mLinearLayoutStatusCard.setAlpha(0);
-		mLinearLayoutStatusCard.setTranslationY(container.getHeight()+1);
+		mLinearLayoutStatusCard.setTranslationY(mPanelStartY);
 		mLinearLayoutEncodersCard = (LinearLayout)mView.findViewById(R.id.linearlayout_backendstatus_encoders_card);
 		mLinearLayoutEncodersCard.setAlpha(0);
-		mLinearLayoutEncodersCard.setTranslationY(container.getHeight()+1);
+		mLinearLayoutEncodersCard.setTranslationY(mPanelStartY);
 		mLinearLayoutUpcomingRecsCard = (LinearLayout)mView.findViewById(R.id.linearlayout_backendstatus_upcoming_recordings_card);
 		mLinearLayoutUpcomingRecsCard.setAlpha(0);
-		mLinearLayoutUpcomingRecsCard.setTranslationY(container.getHeight()+1);
+		mLinearLayoutUpcomingRecsCard.setTranslationY(mPanelStartY);
 		mLinearLayoutJobQueueCard = (LinearLayout)mView.findViewById(R.id.linearlayout_backendstatus_job_queue_card);
 		mLinearLayoutJobQueueCard.setAlpha(0);
-		mLinearLayoutJobQueueCard.setTranslationY(container.getHeight()+1);
+		mLinearLayoutJobQueueCard.setTranslationY(mPanelStartY);
 		
 		mTextViewEncodersEmpty = (TextView)mView.findViewById(R.id.textview_encoders_list_empty);
 		mTextViewJobQueueEmpty = (TextView)mView.findViewById(R.id.textview_job_queue_empty);
@@ -99,27 +127,47 @@ public class BackendStatusFragment extends AbstractMythFragment {
 		Log.d( TAG, "onCreateView : exit" );
 		return mView;
 	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see android.support.v4.app.Fragment#onCreateOptionsMenu(android.view.Menu, android.view.MenuInflater)
+	 */
+	@Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 
+		MenuHelper.getInstance().refreshMenuItem(
+				this.getActivity(), menu, imageViewRefresh);
+
+		super.onCreateOptionsMenu(menu, inflater);
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see android.support.v4.app.Fragment#onOptionsItemSelected(android.view.MenuItem)
+	 */
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		
+		switch(item.getItemId()){
+		case MenuHelper.REFRESH_ID:
+			this.getStatus();
+			return true;
+		
+		default:
+			return super.onOptionsItemSelected(item);
+		}
+	}
+	
 	/* (non-Javadoc)
 	 * @see android.support.v4.app.Fragment#onResume()
 	 */
 	@Override
 	public void onResume() {
 		Log.d( TAG, "onResume : enter" );
-		super.onResume();
-
-		if( null != mView ) {
-			
-			TextView tView = (TextView) mView.findViewById( R.id.textview_status );
-			if( null != tView ) {
-				tView.setText( this.getStatusText() );
-			}
-		}
 		
-		if(null != mLinearLayoutStatusCard){
-			animateCardLinearLayout(mLinearLayoutStatusCard, 0);
-		}
-	
+		this.getStatus();
+		
+		super.onResume();
 		Log.d( TAG, "onResume : exit" );
 	}
 	
@@ -161,6 +209,57 @@ public class BackendStatusFragment extends AbstractMythFragment {
 		scaleAnimator.start();
 	}
 	
+	private void resetStatusUi(){
+		mLinearLayoutStatusCard.setAlpha(0);
+		mLinearLayoutStatusCard.setTranslationY(mPanelStartY);
+		mLinearLayoutEncodersCard.setAlpha(0);
+		mLinearLayoutEncodersCard.setTranslationY(mPanelStartY);
+		mLinearLayoutUpcomingRecsCard.setAlpha(0);
+		mLinearLayoutUpcomingRecsCard.setTranslationY(mPanelStartY);
+		mLinearLayoutJobQueueCard.setAlpha(0);
+		mLinearLayoutJobQueueCard.setTranslationY(mPanelStartY);
+	}
+	
+	private void startRefreshMenuItemAnimation(){
+		if(null != this.refreshAnimator){
+			this.refreshAnimator.setRepeatCount(ObjectAnimator.INFINITE);
+			this.refreshAnimator.start();
+		}
+		
+	}
+	
+	private void stopRefreshMenuItemAnimation(){
+		if(null != this.refreshAnimator){
+			this.refreshAnimator.end();
+		}
+	}
+	
+	/**
+	 * 
+	 */
+	private void getStatus() {
+		
+		this.resetStatusUi();
+		
+		if (null != mView) {
+
+			TextView tView = (TextView) mView
+					.findViewById(R.id.textview_status);
+			if (null != tView) {
+				tView.setText(this.getStatusText());
+			}
+		}
+
+		if (null != mLinearLayoutStatusCard) {
+			animateCardLinearLayout(mLinearLayoutStatusCard, 0);
+		}
+	}
+	
+	/**
+	 * Returns the current backend connection status text and starts
+	 * a BackendStatusTask to get more details.
+	 * @return
+	 */
 	private String getStatusText() {
 		Log.v( TAG, "getStatusText : enter" );
 
@@ -175,6 +274,8 @@ public class BackendStatusFragment extends AbstractMythFragment {
 		BackendStatusTask backendTask = new BackendStatusTask();
 		backendTask.execute();
 		
+		this.startRefreshMenuItemAnimation();
+		
 		Log.v( TAG, "getStatusText : exit" );
 		return ( mLocationProfile.isConnected() ? "Connected to " : "NOT Connected to " ) + mLocationProfile.getName();
 	}
@@ -186,7 +287,9 @@ public class BackendStatusFragment extends AbstractMythFragment {
      */
 	@Override
     protected void onBackendStatusUpdated(org.mythtv.services.api.status.Status result){
-    	
+		
+		this.stopRefreshMenuItemAnimation();
+		
 		LayoutInflater inflater = LayoutInflater.from(this.getActivity());
 		
 		//clear lists
@@ -246,7 +349,6 @@ public class BackendStatusFragment extends AbstractMythFragment {
 		if(null != mLinearLayoutUpcomingRecsCard){
 			animateCardLinearLayout(mLinearLayoutUpcomingRecsCard, 500);
 		}
-
     }
 	
 	
