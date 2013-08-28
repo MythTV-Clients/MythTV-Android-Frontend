@@ -39,7 +39,7 @@ import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener;
 
 import org.mythtv.R;
-import org.mythtv.db.preferences.LocationProfileDaoHelper;
+import org.mythtv.client.ui.preferences.LocationProfile;
 
 import java.util.ArrayList;
 
@@ -65,13 +65,12 @@ public class GalleryGridAdapter extends BaseAdapter {
     			.build();
 
 
-    public GalleryGridAdapter(Context c) {
+    public GalleryGridAdapter(Context c, LocationProfile profile) {
         this.mContext = c;
         this.imageItems = GalleryActivity.images;
         imageLoader = ImageLoader.getInstance();
         imageLoader.init(ImageLoaderConfiguration.createDefault(c));
-        LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
-        baseUrl = mLocationProfileDaoHelper.findConnectedProfile(mContext).getUrl() + "Content/GetImageFile?StorageGroup="+gallerySGName+"&FileName=";
+        baseUrl = profile.getUrl() + "Content/GetImageFile?StorageGroup="+gallerySGName+"&FileName=";
     }
 
     public int getCount() {

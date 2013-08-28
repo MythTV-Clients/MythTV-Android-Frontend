@@ -73,7 +73,7 @@ public class GalleryActivity extends Activity implements MythtvApplicationContex
         Log.v(TAG, "onCreate : enter");
         super.onCreate(savedInstanceState);
 
-        mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile(getApplicationContext());
+        mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile(this);
 
         setContentView(R.layout.activity_gallery);
 
@@ -113,7 +113,7 @@ public class GalleryActivity extends Activity implements MythtvApplicationContex
                 String previewWidth = "256";
 
                 // Check if StorageGroup Gallery actually exists, doing an GetFileList will return Default SG if Gallery SG is not present.,
-                ResponseEntity<StorageGroupDirectoryList> responseEntity = mMythtvServiceHelper.getMythServicesApi(getApplicationContext()).mythOperations().getStorageGroupDirectories(gallerySGName, mLocationProfile.getHostname(), eTag);
+                ResponseEntity<StorageGroupDirectoryList> responseEntity = mMythtvServiceHelper.getMythServicesApi(mLocationProfile).mythOperations().getStorageGroupDirectories(gallerySGName, mLocationProfile.getHostname(), eTag);
                 if (responseEntity.getStatusCode().equals(HttpStatus.OK)) {
                     StorageGroupDirectoryList storageGroups = responseEntity.getBody();
                     for(StorageGroupDirectory sg: storageGroups.getStorageGroupDirectories().getStorageGroupDirectories()){
@@ -129,7 +129,7 @@ public class GalleryActivity extends Activity implements MythtvApplicationContex
                     backendAndFrontendShareHostname = isConnectedProfileInHostsList();
 
                     if(backendAndFrontendShareHostname){
-                        ResponseEntity<SettingList> responseEntity2 = mMythtvServiceHelper.getMythServicesApi(getApplicationContext()).mythOperations().getSetting(mLocationProfile.getHostname(), gallerySetting, "", eTag);
+                        ResponseEntity<SettingList> responseEntity2 = mMythtvServiceHelper.getMythServicesApi(mLocationProfile).mythOperations().getSetting(mLocationProfile.getHostname(), gallerySetting, "", eTag);
                         if(responseEntity2.getStatusCode().equals(HttpStatus.OK)){
                             SettingList settingList = responseEntity2.getBody();
                             galleryDir = settingList.getSetting().getSettings().get(gallerySetting);
@@ -151,7 +151,7 @@ public class GalleryActivity extends Activity implements MythtvApplicationContex
         private boolean isConnectedProfileInHostsList() {
             ETagInfo eTag = ETagInfo.createEmptyETag();
 
-            ResponseEntity<StringList> responseEntity = mMythtvServiceHelper.getMythServicesApi(getApplicationContext()).mythOperations().getHosts(eTag);
+            ResponseEntity<StringList> responseEntity = mMythtvServiceHelper.getMythServicesApi(mLocationProfile).mythOperations().getHosts(eTag);
             if (responseEntity.getStatusCode().equals(HttpStatus.OK)) {
                 StringList hosts = responseEntity.getBody();
                 for (String host : hosts.getStringList()) {
@@ -166,7 +166,7 @@ public class GalleryActivity extends Activity implements MythtvApplicationContex
         private void getImageList(List<GalleryImageItem> images, String gallerySGName, String previewWidth) {
             ETagInfo eTag = ETagInfo.createEmptyETag();
 
-            ResponseEntity<StringList> responseEntity = mMythtvServiceHelper.getMythServicesApi(getApplicationContext()).contentOperations().getFileList(gallerySGName, eTag);
+            ResponseEntity<StringList> responseEntity = mMythtvServiceHelper.getMythServicesApi(mLocationProfile).contentOperations().getFileList(gallerySGName, eTag);
             if (responseEntity.getStatusCode().equals(HttpStatus.OK)) {
                 StringList filesOnStorageGroup = responseEntity.getBody();
                 // TODO: Add different types of sorting, and filtering
@@ -187,7 +187,7 @@ public class GalleryActivity extends Activity implements MythtvApplicationContex
         protected void onPostExecute(Void aVoid) {
 
             if(hasBackendGallerySG){
-                GalleryGridAdapter adapter = new GalleryGridAdapter(GalleryActivity.this);
+                GalleryGridAdapter adapter = new GalleryGridAdapter(GalleryActivity.this, mLocationProfile);
                 gridView.setAdapter(adapter);
 
             } else {
@@ -258,7 +258,7 @@ public class GalleryActivity extends Activity implements MythtvApplicationContex
             if(params[1] != null && !"".equalsIgnoreCase(params[1])){
 
                 // AddStorageGroupDir
-                ResponseEntity<Bool> responseEntity = mMythtvServiceHelper.getMythServicesApi(getApplicationContext()).mythOperations().addStorageGroupDir(params[0], params[1], mLocationProfile.getHostname());
+                ResponseEntity<Bool> responseEntity = mMythtvServiceHelper.getMythServicesApi(mLocationProfile).mythOperations().addStorageGroupDir(params[0], params[1], mLocationProfile.getHostname());
                 if (responseEntity.getStatusCode().equals(HttpStatus.OK)) {
                     bool = responseEntity.getBody();
                     return bool;
@@ -273,7 +273,7 @@ public class GalleryActivity extends Activity implements MythtvApplicationContex
 
             if (bool.getBool()) {
                 // TODO: Check if there is better way to "jump" back to Activity.
-                Intent gallery = new Intent(getApplicationContext(), GalleryActivity.class);
+                Intent gallery = new Intent(getMainApplication().getApplicationContext(), GalleryActivity.class);
                 startActivity(gallery);
                 finish();
             } else {
