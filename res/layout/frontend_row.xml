@@ -24,7 +24,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical" >
+    android:orientation="vertical"
+    android:padding="5dp" >
 
     <TextView
         android:id="@+id/frontend_name"
@@ -32,7 +33,6 @@
         android:layout_height="wrap_content"
         android:textColor="@color/text_main_menu"
         android:textAppearance="?android:attr/textAppearanceSmallInverse"
-        android:padding="5dp"
         android:singleLine="true" >
     </TextView>
 
@@ -42,9 +42,6 @@
         android:layout_height="wrap_content"
         android:textColor="@color/text_main_menu"
         android:textAppearance="?android:attr/textAppearanceSmallInverse"
-        android:paddingLeft="5dp"
-        android:paddingRight="5dp"
-        android:paddingBottom="5dp"
         android:singleLine="true"  >
     </TextView>
     
