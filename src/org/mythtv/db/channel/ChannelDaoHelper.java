@@ -314,50 +314,54 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 //			Log.v( TAG, "load : channelInfos iteration, channels in this source: " + channelInfos.getTotalAvailable() );
 			
 			for( ChannelInfo channel : channelInfos.getChannelInfos() ) {
+				
+				if( channel.isVisable() ) {
+				
+					ContentValues channelValues = convertChannelInfoToContentValues( locationProfile, lastModified, channel );
+					Cursor channelCursor = context.getContentResolver().query( ChannelConstants.CONTENT_URI, channelProjection, channelSelection, new String[] { String.valueOf( channel.getChannelId() ) }, null );
+					if( channelCursor.moveToFirst() ) {
+//						Log.v( TAG, "load : updating channel " + channel.getChannelId() );
 
-				ContentValues channelValues = convertChannelInfoToContentValues( locationProfile, lastModified, channel );
-				Cursor channelCursor = context.getContentResolver().query( ChannelConstants.CONTENT_URI, channelProjection, channelSelection, new String[] { String.valueOf( channel.getChannelId() ) }, null );
-				if( channelCursor.moveToFirst() ) {
-//					Log.v( TAG, "load : updating channel " + channel.getChannelId() );
+						Long id = channelCursor.getLong( channelCursor.getColumnIndexOrThrow( ChannelConstants._ID ) );
+						ops.add( 
+							ContentProviderOperation.newUpdate( ContentUris.withAppendedId( ChannelConstants.CONTENT_URI, id ) )
+								.withValues( channelValues )
+								.withYieldAllowed( true )
+								.build()
+						);
+						totalUpdates++;
 
-					Long id = channelCursor.getLong( channelCursor.getColumnIndexOrThrow( ChannelConstants._ID ) );
-					ops.add( 
-						ContentProviderOperation.newUpdate( ContentUris.withAppendedId( ChannelConstants.CONTENT_URI, id ) )
-							.withValues( channelValues )
-							.withYieldAllowed( true )
-							.build()
-					);
-					totalUpdates++;
+					} else {
+//						Log.v( TAG, "load : adding channel " + channel.getChannelId() );
 
-				} else {
-//					Log.v( TAG, "load : adding channel " + channel.getChannelId() );
+						ops.add(  
+							ContentProviderOperation.newInsert( ChannelConstants.CONTENT_URI )
+								.withValues( channelValues )
+								.withYieldAllowed( true )
+								.build()
+						);
+						totalInserts++;
 
-					ops.add(  
-						ContentProviderOperation.newInsert( ChannelConstants.CONTENT_URI )
-							.withValues( channelValues )
-							.withYieldAllowed( true )
-							.build()
-					);
-					totalInserts++;
-
-				}
-				channelCursor.close();
-				count++;
-
-				if( count > BATCH_COUNT_LIMIT ) {
-//					Log.v( TAG, "process : batch update/insert" );
-
-					if( !ops.isEmpty() ) {
-
-						ContentProviderResult[] results = context.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
-						processed += results.length;
-
-						if( results.length > 0 ) {
-							ops.clear();
-						}
 					}
+					channelCursor.close();
+					count++;
 
-					count = 0;
+					if( count > BATCH_COUNT_LIMIT ) {
+//						Log.v( TAG, "process : batch update/insert" );
+
+						if( !ops.isEmpty() ) {
+
+							ContentProviderResult[] results = context.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
+							processed += results.length;
+
+							if( results.length > 0 ) {
+								ops.clear();
+							}
+						}
+
+						count = 0;
+					}
+				
 				}
 
 			}
@@ -587,6 +591,9 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 //		Log.v( TAG, "convertChannelToContentValues : enter" );
 		
 		String formattedChannelNumber = formatChannelNumber( channelInfo.getChannelNumber() );
+		if( formattedChannelNumber.startsWith( "." ) ) {
+			formattedChannelNumber = formattedChannelNumber.substring( 1 );
+		}
 
 		ContentValues values = new ContentValues();
 		values.put( ChannelConstants.FIELD_CHAN_ID, channelInfo.getChannelId() );
