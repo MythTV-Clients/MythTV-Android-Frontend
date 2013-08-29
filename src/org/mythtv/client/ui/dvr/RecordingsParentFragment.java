@@ -27,6 +27,7 @@ import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.dvr.RecordedDaoHelper;
 import org.mythtv.db.dvr.programGroup.ProgramGroup;
 import org.mythtv.db.dvr.programGroup.ProgramGroupConstants;
+import org.mythtv.db.dvr.programGroup.ProgramGroupDaoHelper;
 import org.mythtv.services.api.dvr.Program;
 
 import android.content.Intent;
@@ -53,7 +54,7 @@ public class RecordingsParentFragment extends AbstractMythFragment implements Re
 	
 	private boolean mUseMultiplePanes;
 	
-//	private ProgramGroupDaoHelper mProgramGroupDaoHelper = ProgramGroupDaoHelper.getInstance();
+	private ProgramGroupDaoHelper mProgramGroupDaoHelper = ProgramGroupDaoHelper.getInstance();
 	private RecordedDaoHelper mRecordedDaoHelper = RecordedDaoHelper.getInstance();
 	private RecordingsFragment mRecordingsFragment;
 	
@@ -272,11 +273,15 @@ public class RecordingsParentFragment extends AbstractMythFragment implements Re
 	 * onEpisodeDeleted(java.lang.String)
 	 */
 	@Override
-	public void onEpisodeDeleted(ProgramGroup programGroup) {
+	public void onEpisodeDeleted( ProgramGroup programGroup ) {
 		Log.v(TAG, "onEpisodeDeleted : enter");
 
 		mRecordingsFragment.notifyDeleted();
 
+		if( null == programGroup ) {
+			programGroup = mProgramGroupDaoHelper.findByTitle( getActivity(), mLocationProfile, "All" );
+		}
+		
 		selectedProgramGroup = programGroup;
 		selectedProgram = null;
 
