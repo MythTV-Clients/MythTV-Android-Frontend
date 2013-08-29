@@ -90,12 +90,12 @@ public class ProgramGroupFragment extends MythtvListFragment implements LoaderMa
 		String[] projection = { ProgramConstants._ID, ProgramConstants.FIELD_TITLE, ProgramConstants.FIELD_SUB_TITLE, ProgramConstants.FIELD_CATEGORY, ProgramConstants.FIELD_START_TIME };
 		
 		String selection = ProgramConstants.TABLE_NAME_RECORDED + "." + ProgramConstants.FIELD_MASTER_HOSTNAME + " = ? AND " + ProgramConstants.TABLE_NAME_RECORDED + "." + ProgramConstants.FIELD_IN_ERROR + " = ?";
-		if( !"All".equals( programGroup.getTitle() ) ) {
+		if( null != programGroup && !"All".equals( programGroup.getTitle() ) ) {
 			selection = ProgramConstants.FIELD_TITLE + " = ? AND " + selection;
 		}
 		
 		String[] selectionArgs = { mLocationProfile.getHostname(), "0" };
-		if( !"All".equals( programGroup.getTitle() ) ) {
+		if( null != programGroup && !"All".equals( programGroup.getTitle() ) ) {
 			selectionArgs = new String[] { ( null != programGroup && null != programGroup.getTitle() ? programGroup.getTitle() : "" ), mLocationProfile.getHostname(), "0" };
 		}
 		
@@ -282,7 +282,7 @@ public class ProgramGroupFragment extends MythtvListFragment implements LoaderMa
 //			}
 			
 			String title = "";
-			if( "All".equals( programGroup.getProgramGroup() ) ) {
+			if( null != programGroup && "All".equals( programGroup.getProgramGroup() ) ) {
 				
 				if( null != program.getSubTitle() && !"".equals( program.getSubTitle() ) ) {
 					title = program.getTitle() + " : " + program.getSubTitle();
