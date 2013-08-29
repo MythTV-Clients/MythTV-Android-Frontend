@@ -16,4 +16,6 @@ public interface Row {
     
     public String getFragment();
 
+    public boolean isImplemented();
+    
 }

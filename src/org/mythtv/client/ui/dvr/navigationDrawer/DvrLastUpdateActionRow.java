@@ -31,6 +31,8 @@ public abstract class DvrLastUpdateActionRow implements Row {
 
 	protected OnRefreshListener listener;
 	
+	private boolean mImplemented;
+
 	public interface OnRefreshListener {
 		
 		void refresh( Row row );
@@ -41,13 +43,15 @@ public abstract class DvrLastUpdateActionRow implements Row {
 	 * @param context
 	 * @param action
 	 */
-	public DvrLastUpdateActionRow( Context context, EtagInfoDelegate etag ) {
+	public DvrLastUpdateActionRow( Context context, EtagInfoDelegate etag, boolean implemented ) {
 		this.mContext = context;
 		this.mLayoutInflater = (LayoutInflater) mContext.getSystemService( Context.LAYOUT_INFLATER_SERVICE );
 		
 		this.mMainApplication = (MainApplication) mContext.getApplicationContext();
 		
 		this.mEtag = etag;
+		
+		this.mImplemented = implemented;
 	}
 
 	/* (non-Javadoc)
@@ -108,6 +112,14 @@ public abstract class DvrLastUpdateActionRow implements Row {
 	@Override
 	public String getFragment() {
 		return null;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mythtv.client.ui.navigationDrawer.Row#isImplemented()
+	 */
+	@Override
+	public boolean isImplemented() {
+		return mImplemented;
 	}
 
 	public void setOnRefreshListener( OnRefreshListener listener ) {

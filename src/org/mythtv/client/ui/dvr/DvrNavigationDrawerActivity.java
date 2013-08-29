@@ -28,11 +28,9 @@ import org.mythtv.db.http.model.EtagInfoDelegate;
 import org.mythtv.services.api.dvr.impl.DvrTemplate;
 import org.mythtv.services.api.guide.impl.GuideTemplate;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.Fragment;
@@ -47,12 +45,12 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 /**
  * @author dmfrey
  *
  */
-@TargetApi( Build.VERSION_CODES.ICE_CREAM_SANDWICH )
 public class DvrNavigationDrawerActivity extends AbstractMythtvFragmentActivity implements OnRefreshListener {
 
 	private static final String TAG = DvrNavigationDrawerActivity.class.getSimpleName();
@@ -81,9 +79,12 @@ public class DvrNavigationDrawerActivity extends AbstractMythtvFragmentActivity 
 		Log.v( TAG, "onCreate : enter" );
 		
 		// Read saved state if available
-		if(null != savedInstanceState){
-			if(savedInstanceState.containsKey(SELECTION_ID))
-				selection = savedInstanceState.getInt(SELECTION_ID);
+		if( null != savedInstanceState ) {
+			
+			if( savedInstanceState.containsKey( SELECTION_ID ) ) {
+				selection = savedInstanceState.getInt( SELECTION_ID );
+			}
+			
 		}
 
 		setContentView( R.layout.activity_navigation_drawer );
@@ -282,6 +283,17 @@ public class DvrNavigationDrawerActivity extends AbstractMythtvFragmentActivity 
     	return super.onPrepareOptionsMenu( menu );
     }
 
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.FragmentActivity#onSaveInstanceState(android.os.Bundle)
+	 */
+	@Override
+	protected void onSaveInstanceState( Bundle outState ) {
+		
+		outState.putInt( SELECTION_ID, selection );
+		
+		super.onSaveInstanceState( outState );
+	}
+
     // internal helpers
 	
 	private void updateContent() {
@@ -290,22 +302,28 @@ public class DvrNavigationDrawerActivity extends AbstractMythtvFragmentActivity 
 		Row row = mAdapter.getItem( selection );
 		if( row instanceof DvrActionRow ) {
 		
-			getActionBar().setTitle( row.getTitle() );
+			if( row.isImplemented() ) {
+				getActionBar().setTitle( row.getTitle() );
+				
+				if( selection != oldSelection ) {
+				
+					FragmentTransaction tx = getSupportFragmentManager().beginTransaction();
+					tx.replace( R.id.main, Fragment.instantiate( DvrNavigationDrawerActivity.this, row.getFragment() ) );
+					tx.commit();
+					
+					oldSelection = selection;
+				}
 
-			if( selection != oldSelection ) {
-				FragmentTransaction tx = getSupportFragmentManager().beginTransaction();
-				tx.replace( R.id.main, Fragment.instantiate( DvrNavigationDrawerActivity.this, row.getFragment() ) );
-				tx.commit();
-			
-				oldSelection = selection;
-			}
+				selectedRow = row;
 
-            selectedRow = row;
-
-			drawer.closeDrawer( navList );
-			invalidateOptionsMenu();
-			mAdapter.resetNavigationDrawer();
+				drawer.closeDrawer( navList );
+				invalidateOptionsMenu();
+				mAdapter.resetNavigationDrawer();
             
+			} else {
+				Toast.makeText( DvrNavigationDrawerActivity.this, row.getTitle() + " comming soon!", Toast.LENGTH_SHORT ).show();
+			}
+		
 		}
 		
 		Log.v( TAG, "updateContent : exit" );
@@ -345,14 +363,6 @@ public class DvrNavigationDrawerActivity extends AbstractMythtvFragmentActivity 
 		Log.v( TAG, "refresh : exit" );
 	}
 	
-	@Override
-	protected void onSaveInstanceState(Bundle outState) {
-		
-		outState.putInt(SELECTION_ID, selection);
-		
-		super.onSaveInstanceState(outState);
-	}
-
 	private class DvrNavigationDrawerAdapter extends BaseAdapter {
 
 		private Context mContext;

@@ -20,12 +20,14 @@ public class ActionRow implements Row {
 	private LayoutInflater mLayoutInflater;
 	
 	private String mAction;
+	private boolean mImplemented;
 	
-	public ActionRow( Context context, String action ) {
+	public ActionRow( Context context, String action, boolean implemented ) {
 		this.mContext = context;
 		this.mLayoutInflater = (LayoutInflater) mContext.getSystemService( Context.LAYOUT_INFLATER_SERVICE );
 		
 		this.mAction = action;
+		this.mImplemented = implemented;
 	}
 	
 	/* (non-Javadoc)
@@ -77,6 +79,14 @@ public class ActionRow implements Row {
 	@Override
 	public String getFragment() {
 		return null;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mythtv.client.ui.navigationDrawer.Row#isImplemented()
+	 */
+	@Override
+	public boolean isImplemented() {
+		return mImplemented;
 	}
 
 	private static class ViewHolder {

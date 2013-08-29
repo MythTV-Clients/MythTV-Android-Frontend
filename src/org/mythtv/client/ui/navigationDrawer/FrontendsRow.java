@@ -3,11 +3,9 @@
  */
 package org.mythtv.client.ui.navigationDrawer;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.mythtv.R;
-import org.mythtv.client.ui.MainMenuFragment;
 import org.mythtv.client.ui.frontends.Frontend;
 import org.mythtv.client.ui.frontends.MythmoteActivity;
 import org.mythtv.client.ui.preferences.LocationProfile;
@@ -21,8 +19,8 @@ import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
@@ -127,6 +125,14 @@ public class FrontendsRow implements Row, OnItemSelectedListener {
 	@Override
 	public String getFragment() {
 		return null;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mythtv.client.ui.navigationDrawer.Row#isImplemented()
+	 */
+	@Override
+	public boolean isImplemented() {
+		return true;
 	}
 
 	private static class ViewHolder {

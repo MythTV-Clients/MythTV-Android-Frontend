@@ -13,8 +13,8 @@ import android.content.Context;
  */
 public abstract class DvrActionRow extends ActionRow {
 
-	public DvrActionRow( Context context, String action ) {
-		super( context, action );
+	public DvrActionRow( Context context, String action, boolean implemented ) {
+		super( context, action, implemented );
 	}
 
 }

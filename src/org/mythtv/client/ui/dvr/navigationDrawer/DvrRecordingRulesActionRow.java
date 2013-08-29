@@ -19,7 +19,7 @@ public class DvrRecordingRulesActionRow extends DvrActionRow {
 	private static final String FRAGMENT = "org.mythtv.client.ui.dvr.RecordingRulesFragment";
 	
 	public DvrRecordingRulesActionRow( Context context, String action ) {
-		super( context, action );
+		super( context, action, true );
 	}
 	
 	@Override

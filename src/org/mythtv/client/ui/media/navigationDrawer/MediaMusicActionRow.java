@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.mythtv.client.ui.dvr.navigationDrawer;
+package org.mythtv.client.ui.media.navigationDrawer;
 
 import org.mythtv.R;
 
@@ -13,21 +13,21 @@ import android.widget.ImageView;
  * @author dmfrey
  *
  */
-public class DvrRecordingsActionRow extends DvrActionRow {
+public class MediaMusicActionRow extends MediaActionRow {
 
-	private static final String TITLE = "Recordings";
-	private static final String FRAGMENT = "org.mythtv.client.ui.dvr.RecordingsParentFragment";
+	private static final String TITLE = "Music";
+	private static final String FRAGMENT = "org.mythtv.client.ui.media.MusicParentFragment";
 	
-	public DvrRecordingsActionRow( Context context, String action ) {
-		super( context, action, true );
+	public MediaMusicActionRow( Context context, String action ) {
+		super( context, action, false );
 	}
 	
 	@Override
 	public View getView(View convertView) {
 		View view = super.getView(convertView);
 		
-		ImageView imgView = (ImageView)view.findViewById(R.id.navigation_drawer_action_icon);
-		imgView.setImageResource(R.drawable.ic_recordings_default);
+		ImageView imgView = (ImageView)view.findViewById( R.id.navigation_drawer_action_icon );
+		imgView.setImageResource( R.drawable.ic_music_default );
 		
 		return view;
 	}
@@ -37,7 +37,7 @@ public class DvrRecordingsActionRow extends DvrActionRow {
 	 */
 	@Override
 	public int getViewType() {
-		return DvrRowType.RECORDINGS_ROW.ordinal();
+		return MediaRowType.MUSIC_ROW.ordinal();
 	}
 	
 	/* (non-Javadoc)

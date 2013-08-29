@@ -79,6 +79,14 @@ public class ActionsHeaderRow implements Row {
 		return null;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.mythtv.client.ui.navigationDrawer.Row#isImplemented()
+	 */
+	@Override
+	public boolean isImplemented() {
+		return true;
+	}
+
 	private static class ViewHolder {
 		
 		TextView header;

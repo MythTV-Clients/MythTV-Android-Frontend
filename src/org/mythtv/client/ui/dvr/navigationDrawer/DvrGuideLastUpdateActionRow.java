@@ -18,7 +18,7 @@ public class DvrGuideLastUpdateActionRow extends DvrLastUpdateActionRow {
 	 * @param etag
 	 */
 	public DvrGuideLastUpdateActionRow( Context context, EtagInfoDelegate etag ) {
-		super( context, etag );
+		super( context, etag, true );
 	}
 
 	/* (non-Javadoc)
