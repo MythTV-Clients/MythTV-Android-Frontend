@@ -2,6 +2,7 @@ package org.mythtv.client.ui.util;
 
 import org.mythtv.R;
 
+import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.content.Context;
@@ -16,7 +17,7 @@ import android.widget.ImageButton;
  */
 public class MenuItemRefreshAnimated extends ImageButton {
 
-	private ObjectAnimator refreshAnimator;
+	private AnimatorSet mRotateAnimatorSet;
 	
 	public MenuItemRefreshAnimated(Context context) {
 		super(context);
@@ -39,27 +40,39 @@ public class MenuItemRefreshAnimated extends ImageButton {
 		setBackgroundColor(0x00ffffff);
 		setImageResource(R.drawable.ic_menu_refresh);
 		
-		refreshAnimator = ObjectAnimator.ofFloat(this, "rotation", 0f, 180f);
-		refreshAnimator.setDuration(500);
-		refreshAnimator.setInterpolator(new LinearInterpolator());
-		refreshAnimator.setRepeatMode(ValueAnimator.RESTART);
-		refreshAnimator.setRepeatCount(ValueAnimator.INFINITE);
+		ObjectAnimator rotateAnimator = ObjectAnimator.ofFloat(this, "rotation", 0f, 360f);
+		rotateAnimator.setDuration(500);
+		rotateAnimator.setInterpolator(new LinearInterpolator());
+		rotateAnimator.setRepeatMode(ValueAnimator.RESTART);
+		rotateAnimator.setRepeatCount(ValueAnimator.INFINITE);
+		
+		ObjectAnimator alphaAnimator = ObjectAnimator.ofFloat(this, "alpha", 1f, 0.30f);
+		alphaAnimator.setDuration(500);
+		alphaAnimator.setInterpolator(new LinearInterpolator());
+		alphaAnimator.setRepeatMode(ValueAnimator.REVERSE);
+		alphaAnimator.setRepeatCount(ValueAnimator.INFINITE);
+		
+		mRotateAnimatorSet = new AnimatorSet();
+		mRotateAnimatorSet.play(rotateAnimator).with(alphaAnimator);
 	}
 	
 	
 	
 	public void startRefreshAnimation(){
-		if(null != this.refreshAnimator){
-			this.refreshAnimator.setRepeatCount(ObjectAnimator.INFINITE);
-			this.refreshAnimator.start();
+		this.setImageResource(R.drawable.ic_menu_refresh_default);
+		if(null != this.mRotateAnimatorSet){
+			this.mRotateAnimatorSet.start();
 		}
 		
 	}
 	
 	public void stopRefreshAnimation(){
-		if(null != this.refreshAnimator){
-			this.refreshAnimator.end();
+		if(null != this.mRotateAnimatorSet){
+			this.mRotateAnimatorSet.cancel();
 		}
+		this.setRotation(0f);
+		this.setImageResource(R.drawable.ic_menu_refresh);
+		this.setAlpha(1f);
 	}
 
 
