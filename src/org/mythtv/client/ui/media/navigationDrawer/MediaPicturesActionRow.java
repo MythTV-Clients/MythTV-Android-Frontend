@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.mythtv.client.ui.dvr.navigationDrawer;
+package org.mythtv.client.ui.media.navigationDrawer;
 
 import org.mythtv.R;
 
@@ -13,12 +13,12 @@ import android.widget.ImageView;
  * @author dmfrey
  *
  */
-public class DvrRecordingsActionRow extends DvrActionRow {
+public class MediaPicturesActionRow extends MediaActionRow {
 
-	private static final String TITLE = "Recordings";
-	private static final String FRAGMENT = "org.mythtv.client.ui.dvr.RecordingsParentFragment";
+	private static final String TITLE = "Pictures";
+	private static final String FRAGMENT = "org.mythtv.client.ui.media.PicturesParentFragment";
 	
-	public DvrRecordingsActionRow( Context context, String action ) {
+	public MediaPicturesActionRow( Context context, String action ) {
 		super( context, action, true );
 	}
 	
@@ -26,8 +26,8 @@ public class DvrRecordingsActionRow extends DvrActionRow {
 	public View getView(View convertView) {
 		View view = super.getView(convertView);
 		
-		ImageView imgView = (ImageView)view.findViewById(R.id.navigation_drawer_action_icon);
-		imgView.setImageResource(R.drawable.ic_recordings_default);
+		ImageView imgView = (ImageView)view.findViewById( R.id.navigation_drawer_action_icon );
+		imgView.setImageResource( R.drawable.ic_pictures_default );
 		
 		return view;
 	}
@@ -37,7 +37,7 @@ public class DvrRecordingsActionRow extends DvrActionRow {
 	 */
 	@Override
 	public int getViewType() {
-		return DvrRowType.RECORDINGS_ROW.ordinal();
+		return MediaRowType.PICTURES_ROW.ordinal();
 	}
 	
 	/* (non-Javadoc)

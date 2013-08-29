@@ -19,7 +19,7 @@ public class DvrGuideActionRow extends DvrActionRow {
 	private static final String FRAGMENT = "org.mythtv.client.ui.dvr.GuideFragment";
 	
 	public DvrGuideActionRow( Context context, String action ) {
-		super( context, action );
+		super( context, action, true );
 	}
 
 	@Override

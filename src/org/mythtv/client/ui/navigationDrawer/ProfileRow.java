@@ -36,12 +36,9 @@ public class ProfileRow implements Row {
 
 	private LocationProfile mLocationProfile;
 	
-	
-	
-	
 	//mProfileToggleCheckChangedListener
-	private class ProfileToggleCheckChangedListener implements CompoundButton.OnCheckedChangeListener
-	{
+	private class ProfileToggleCheckChangedListener implements CompoundButton.OnCheckedChangeListener {
+		
 		/* This is the view returned in getView() */
 		public View convertView = null;
 		
@@ -225,6 +222,14 @@ public class ProfileRow implements Row {
 	@Override
 	public String getFragment() {
 		return null;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mythtv.client.ui.navigationDrawer.Row#isImplemented()
+	 */
+	@Override
+	public boolean isImplemented() {
+		return true;
 	}
 
 	private static class ViewHolder {

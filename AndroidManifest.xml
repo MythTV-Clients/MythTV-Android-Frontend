@@ -117,6 +117,9 @@
 			android:configChanges="keyboard|keyboardHidden|orientation|screenSize" />
 
         <!-- Media Activities -->
+		<activity 
+			android:name=".client.ui.media.MediaNavigationDrawerActivity"
+			android:uiOptions="splitActionBarWhenNarrow" />
         <activity
       			android:name=".client.ui.media.GalleryActivity" />
         <activity

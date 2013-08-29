@@ -1,34 +1,25 @@
 /**
  * 
  */
-package org.mythtv.client.ui;
+package org.mythtv.client.ui.media;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.mythtv.R;
-import org.mythtv.client.ui.dvr.DvrNavigationDrawerActivity;
-import org.mythtv.client.ui.media.MediaNavigationDrawerActivity;
-import org.mythtv.client.ui.navigationDrawer.ActionRow;
-import org.mythtv.client.ui.navigationDrawer.ActionsHeaderRow;
-import org.mythtv.client.ui.navigationDrawer.DvrActionRow;
-import org.mythtv.client.ui.navigationDrawer.FrontendsHeaderRow;
-import org.mythtv.client.ui.navigationDrawer.FrontendsRow;
-import org.mythtv.client.ui.navigationDrawer.ManageProfilesActionRow;
-import org.mythtv.client.ui.navigationDrawer.MultimediaActionRow;
-import org.mythtv.client.ui.navigationDrawer.ProfileRow;
-import org.mythtv.client.ui.navigationDrawer.ProfileRow.ProfileChangedListener;
+import org.mythtv.client.ui.AbstractMythtvFragmentActivity;
+import org.mythtv.client.ui.media.navigationDrawer.MediaActionRow;
+import org.mythtv.client.ui.media.navigationDrawer.MediaActionsHeaderRow;
+import org.mythtv.client.ui.media.navigationDrawer.MediaMusicActionRow;
+import org.mythtv.client.ui.media.navigationDrawer.MediaPicturesActionRow;
+import org.mythtv.client.ui.media.navigationDrawer.MediaRowType;
+import org.mythtv.client.ui.media.navigationDrawer.MediaVersionRow;
+import org.mythtv.client.ui.media.navigationDrawer.MediaVideosActionRow;
 import org.mythtv.client.ui.navigationDrawer.Row;
-import org.mythtv.client.ui.navigationDrawer.SetupActionRow;
-import org.mythtv.client.ui.navigationDrawer.TopLevelRowType;
-import org.mythtv.client.ui.navigationDrawer.VersionRow;
 import org.mythtv.client.ui.preferences.LocationProfile;
-import org.mythtv.client.ui.preferences.LocationProfile.LocationType;
-import org.mythtv.client.ui.preferences.MythtvPreferenceActivity;
 import org.mythtv.client.ui.util.MenuHelper;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
@@ -51,44 +42,25 @@ import android.widget.Toast;
  * @author dmfrey
  *
  */
-public class NavigationDrawerActivity extends AbstractMythtvFragmentActivity {
+public class MediaNavigationDrawerActivity extends AbstractMythtvFragmentActivity {
 
-	private static final String TAG = NavigationDrawerActivity.class.getSimpleName();
+	private static final String TAG = MediaNavigationDrawerActivity.class.getSimpleName();
 	
-	private NavigationDrawerAdapter mAdapter;
-	private ActionBarDrawerToggle drawerToggle = null;
+	private static final String SELECTION_ID = "SELECTION";
+	
 	private DrawerLayout drawer = null;
+	private ActionBarDrawerToggle drawerToggle = null;
 	private ListView navList = null;
 
-	private int selection = 0, oldSelection = -1;
-	private String appName;
+	private MediaNavigationDrawerAdapter mAdapter;
 	
-    private static final String OPENED_KEY = "OPENED_KEY";
+	private int selection = 2, oldSelection = -1;
+	private Row selectedRow = null;
+
+    private static final String OPENED_MEDIA_KEY = "OPENED_MEDIA_KEY";
     private SharedPreferences prefs = null;
     private Boolean opened = null;
 
-    private ProfileChangedListener mProfileChangedListener = new ProfileChangedListener() {
-		
-		/* (non-Javadoc)
-		 * @see org.mythtv.client.ui.navigationDrawer.ProfileRow.ProfileChangedListener#onProfileChanged()
-		 */
-		@Override
-		public void onProfileChanged() {
-			Log.v( TAG, "onProfileChanged : enter" );
-
-			getActionBar().setTitle( appName + " Status" );
-			updateContent( BackendStatusFragment.BACKEND_STATUS_FRAGMENT_NAME );
-            
-			LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile( NavigationDrawerActivity.this );
-			mAdapter.resetConnectedLocationProfile( locationProfile );
-
-			drawer.closeDrawer( navList );
-			
-			Log.v( TAG, "onProfileChanged : exit" );
-		}
-		
-	};
-	
 	/* (non-Javadoc)
 	 * @see android.support.v4.app.FragmentActivity#onCreate(android.os.Bundle)
 	 */
@@ -96,12 +68,19 @@ public class NavigationDrawerActivity extends AbstractMythtvFragmentActivity {
 	protected void onCreate( Bundle savedInstanceState ) {
 		super.onCreate( savedInstanceState );
 		Log.v( TAG, "onCreate : enter" );
+		
+		// Read saved state if available
+		if( null != savedInstanceState){
+			
+			if( savedInstanceState.containsKey( SELECTION_ID ) ) {
+				selection = savedInstanceState.getInt( SELECTION_ID );
+			}
+			
+		}
 
 		setContentView( R.layout.activity_navigation_drawer );
 
-		appName = getResources().getString( R.string.app_name );
-		
-		mAdapter = new NavigationDrawerAdapter( getActionBar().getThemedContext() );
+        mAdapter = new MediaNavigationDrawerAdapter( getActionBar().getThemedContext() );
 
 		drawer = (DrawerLayout) findViewById( R.id.drawer_layout );
 
@@ -125,7 +104,7 @@ public class NavigationDrawerActivity extends AbstractMythtvFragmentActivity {
                     
                 	if( null != prefs ) {
                         Editor editor = prefs.edit();
-                        editor.putBoolean( OPENED_KEY, true );
+                        editor.putBoolean( OPENED_MEDIA_KEY, true );
                         editor.apply();
                     }
                 	
@@ -142,7 +121,7 @@ public class NavigationDrawerActivity extends AbstractMythtvFragmentActivity {
 				Log.d( TAG, "onDrawerOpened : enter" );
 	            super.onDrawerOpened( drawerView );
 	            
-	            getActionBar().setTitle( R.string.app_name );
+	            getActionBar().setTitle( R.string.tab_multimedia );
 	            invalidateOptionsMenu();
 
 	            Log.d( TAG, "onDrawerOpened : exit" );
@@ -164,73 +143,14 @@ public class NavigationDrawerActivity extends AbstractMythtvFragmentActivity {
 				
 				selection = position;
 				
-				Row row = (Row) mAdapter.getItem( position );
-
-				if( row instanceof VersionRow ) {
-					Log.v( TAG, "onItemClick : version row selected" );
-					// NO-OP, nothing to see here
-				}
+				updateContent(); 
 				
-				if( row instanceof ProfileRow ) {
-					Log.v( TAG, "onItemClick : profile row selected" );
-					// NO-OP, nothing to see here
-				}
-				
-				if( row instanceof FrontendsHeaderRow ) {
-					Log.v( TAG, "onItemClick : frontends header row selected" );
-					// NO-OP, nothing to see here
-				}
-				
-				if( row instanceof FrontendsRow ) {
-					Log.v( TAG, "onItemClick : frontends row selected" );
-					// NO-OP, nothing to see here
-				}
-				
-				if( row instanceof ActionsHeaderRow ) {
-					Log.v( TAG, "onItemClick : actions header row selected" );
-					// NO-OP, nothing to see here
-				}
-				
-				if( row instanceof ActionRow ) {
-					
-					drawer.closeDrawer( navList );
-
-					if( row instanceof ManageProfilesActionRow ) {
-						Log.v( TAG, "onCreate : starting preferences activity" );
-						
-				    	startActivity( new Intent( NavigationDrawerActivity.this, MythtvPreferenceActivity.class ) );
-						
-					}
-
-					if( row instanceof DvrActionRow ) {
-						Log.v( TAG, "onCreate : starting dvr activity" );
-												
-						startActivity( new Intent( NavigationDrawerActivity.this, DvrNavigationDrawerActivity.class ) );
-					}
-
-					if( row instanceof MultimediaActionRow ) {
-						Log.v( TAG, "onCreate : starting multimedia activity" );
-						
-                        startActivity( new Intent( NavigationDrawerActivity.this, MediaNavigationDrawerActivity.class ) );
-					}
-
-					if( row instanceof SetupActionRow ) {
-						Log.v( TAG, "onCreate : starting setup activity" );
-						
-						Toast.makeText( NavigationDrawerActivity.this, "Setup - Coming Soon!", Toast.LENGTH_SHORT ).show();
-					}
-
-				}
-				
-				oldSelection = selection;
-
 				Log.v( TAG, "onItemClick : exit" );
 			}
 
 		});
 
-		getActionBar().setTitle( appName + " Status" );
-		updateContent( BackendStatusFragment.BACKEND_STATUS_FRAGMENT_NAME ); 
+		updateContent(); 
 		getActionBar().setDisplayHomeAsUpEnabled( true );
 		getActionBar().setHomeButtonEnabled( true );
 
@@ -243,7 +163,7 @@ public class NavigationDrawerActivity extends AbstractMythtvFragmentActivity {
 			public void run() {
 				
 				prefs = getPreferences( MODE_PRIVATE );
-				opened = prefs.getBoolean( OPENED_KEY, false );
+				opened = prefs.getBoolean( OPENED_MEDIA_KEY, false );
 				
 				if( opened == false ) {
 					
@@ -257,7 +177,7 @@ public class NavigationDrawerActivity extends AbstractMythtvFragmentActivity {
 
         Log.v( TAG, "onCreate : exit" );
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see android.app.Activity#onPostCreate(android.os.Bundle)
 	 */
@@ -269,20 +189,6 @@ public class NavigationDrawerActivity extends AbstractMythtvFragmentActivity {
 		drawerToggle.syncState();
 
 		Log.v( TAG, "onPostCreate : exit" );
-	}
-	
-	/* (non-Javadoc)
-	 * @see android.app.Activity#onResume()
-	 */
-	@Override
-	protected void onResume() {
-		
-		ProfileRow pRow = (ProfileRow)mAdapter.getItem(1);
-		if(null != pRow){
-			pRow.backendConnectionUpdate();
-		}
-		
-		super.onResume();
 	}
 
 	/* (non-Javadoc)
@@ -298,8 +204,8 @@ public class NavigationDrawerActivity extends AbstractMythtvFragmentActivity {
 			return true;
 		}
 
-		Log.v( TAG, "onOptionsItemSelected : exit" );
-		return super.onOptionsItemSelected( item );
+   		Log.v( TAG, "onOptionsItemSelected : exit" );
+   		return super.onOptionsItemSelected( item );
 	}
 
     /* (non-Javadoc)
@@ -307,65 +213,137 @@ public class NavigationDrawerActivity extends AbstractMythtvFragmentActivity {
      */
     @Override
     public boolean onPrepareOptionsMenu( Menu menu ) {
+		Log.v( TAG, "onPrepareOptionsMenu : enter" );
 
     	if( null != drawer && null != navList ) {
     		
     		MenuItem about = menu.findItem( MenuHelper.ABOUT_ID );
-    		if( about != null ) {
+    		if( null != about ) {
     			about.setVisible( !drawer.isDrawerOpen( navList ) );
     		}
-    		
+
     		MenuItem help = menu.findItem( MenuHelper.HELP_ID );
-    		if( help != null ) {
+    		if( null != help ) {
     			help.setVisible( !drawer.isDrawerOpen( navList ) );
     		}
-    		
-    		MenuItem troubleshoot = menu.findItem( MenuHelper.TROUBLESHOOT_ID );
-    		if( troubleshoot != null ) {
-    			troubleshoot.setVisible( !drawer.isDrawerOpen( navList ) );
+
+    		MenuItem refresh = menu.findItem( MenuHelper.REFRESH_ID );
+    		if( null != refresh ) {
+    			refresh.setVisible( !drawer.isDrawerOpen( navList ) );
+    		}
+
+    		MenuItem watch = menu.findItem( MenuHelper.WATCH_ID );
+    		if( null != watch ) {
+    			watch.setVisible( !drawer.isDrawerOpen( navList ) );
+    		}
+
+    		MenuItem watchOnTv = menu.findItem( MenuHelper.WATCH_ON_TV_ID );
+    		if( null != watchOnTv ) {
+    			watchOnTv.setVisible( !drawer.isDrawerOpen( navList ) );
+    		}
+
+    		MenuItem add = menu.findItem( MenuHelper.ADD_ID );
+    		if( null != add ) {
+    			add.setVisible( !drawer.isDrawerOpen( navList ) );
+    		}
+
+    		MenuItem edit = menu.findItem( MenuHelper.EDIT_ID );
+    		if( null != edit ) {
+    			edit.setVisible( !drawer.isDrawerOpen( navList ) );
+    		}
+
+    		MenuItem save = menu.findItem( MenuHelper.SAVE_ID );
+    		if( null != save ) {
+    			save.setVisible( !drawer.isDrawerOpen( navList ) );
+    		}
+
+
+    		MenuItem delete = menu.findItem( MenuHelper.DELETE_ID );
+    		if( null != delete ) {
+    			delete.setVisible( !drawer.isDrawerOpen( navList ) );
+    		}
+
+    		MenuItem guideDay = menu.findItem( MenuHelper.GUIDE_ID );
+    		if( null != guideDay ) {
+    			guideDay.setVisible( !drawer.isDrawerOpen( navList ) );
     		}
     		
     	}
     	
+		Log.v( TAG, "onPrepareOptionsMenu : exit" );
     	return super.onPrepareOptionsMenu( menu );
     }
 
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.FragmentActivity#onSaveInstanceState(android.os.Bundle)
+	 */
+	@Override
+	protected void onSaveInstanceState( Bundle outState ) {
+		
+		outState.putInt( SELECTION_ID, selection );
+		
+		super.onSaveInstanceState( outState );
+	}
+
     // internal helpers
 	
-	private void updateContent( String fragment ) {
+	private void updateContent() {
 		Log.v( TAG, "updateContent : enter" );
 		
-		Log.v( TAG, "updateContent : fragment=" + fragment );
+		Row row = mAdapter.getItem( selection );
+		if( row instanceof MediaActionRow ) {
+			Log.v( TAG, "updateContent : row is MediaActionRow" );
+			
+			if( row.isImplemented() ) {
+				Log.v( TAG, "updateContent : row is implemented" );
 
-        FragmentTransaction tx = getSupportFragmentManager().beginTransaction();
-        tx.replace( R.id.main, Fragment.instantiate( NavigationDrawerActivity.this, fragment ), fragment );
-        tx.commit();
+				getActionBar().setTitle( row.getTitle() );
 
-		drawer.closeDrawer( navList );
+				if( selection != oldSelection ) {
+					Log.v( TAG, "updateContent : selection is not last selected" );
 
+					FragmentTransaction tx = getSupportFragmentManager().beginTransaction();
+					tx.replace( R.id.main, Fragment.instantiate( MediaNavigationDrawerActivity.this, row.getFragment() ) );
+					tx.commit();
+				
+					oldSelection = selection;
+				}
+
+				selectedRow = row;
+
+				drawer.closeDrawer( navList );
+				invalidateOptionsMenu();
+				mAdapter.resetNavigationDrawer();
+            
+			} else {
+				Toast.makeText( MediaNavigationDrawerActivity.this, row.getTitle() + " comming soon!", Toast.LENGTH_SHORT ).show();
+			}
+
+		}
+		
 		Log.v( TAG, "updateContent : exit" );
 	}
 	
-	private class NavigationDrawerAdapter extends BaseAdapter {
+	private class MediaNavigationDrawerAdapter extends BaseAdapter {
 
 		private Context mContext;
-		
+
         private LocationProfile mLocationProfile;
 
-        private List<Row> rows = new ArrayList<Row>();
-        
-		public NavigationDrawerAdapter( Context context ) { 
-			Log.v( TAG, "NavigationDrawerAdapter : enter" );
-			
+		private List<Row> rows = new ArrayList<Row>();
+
+        public MediaNavigationDrawerAdapter( Context context ) {
 			this.mContext = context;
 			
 			this.mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( mContext );
+
+			if( null == selectedRow ) {
+				selectedRow = new MediaPicturesActionRow( mContext, "Pictures" );
+			}
 			
 			setupRowsList();
-			
-			Log.v( TAG, "NavigationDrawerAdapter : exit" );
-		}
-		
+        }
+
         /* (non-Javadoc)
          * @see android.widget.BaseAdapter#getItemViewType(int)
          */
@@ -379,7 +357,7 @@ public class NavigationDrawerActivity extends AbstractMythtvFragmentActivity {
          */
         @Override
         public int getViewTypeCount() {
-            return TopLevelRowType.values().length;
+            return MediaRowType.values().length;
         }
 
         /* (non-Javadoc)
@@ -414,13 +392,13 @@ public class NavigationDrawerActivity extends AbstractMythtvFragmentActivity {
 			return rows.get( position ).getView( convertView );
 		}
 		
-		public void resetConnectedLocationProfile( LocationProfile locationProfile ) {
-			this.mLocationProfile = locationProfile;
-			
+		public void resetNavigationDrawer() {
+		
 			setupRowsList();
 			
 			notifyDataSetChanged();
 			navList.invalidateViews();
+
 		}
 		
 		// internal helpers
@@ -429,26 +407,16 @@ public class NavigationDrawerActivity extends AbstractMythtvFragmentActivity {
 
 			rows = new ArrayList<Row>();
 			
-			rows.add( new VersionRow( mContext, "MAF", "x" ) );
-			rows.add( new ProfileRow( mContext, mProfileChangedListener ) );
-			rows.add( new ManageProfilesActionRow( mContext, "Manage Profiles" ) );
+			rows.add( new MediaVersionRow( mContext, "MAF", "x" ) );
+
+			rows.add( new MediaActionsHeaderRow( mContext, "Media Actions" ) );
 			
-			if( null != mLocationProfile && mLocationProfile.getType().equals( LocationType.HOME ) ) {
-				rows.add( new FrontendsHeaderRow( mContext, "Frontends" ) );
-
-				rows.add( new FrontendsRow( mContext ) );
-			}
-
-			if( null != mLocationProfile ) {
-				rows.add( new ActionsHeaderRow( mContext, "Actions" ) );
-
-				rows.add( new DvrActionRow( mContext, "Dvr" ) );
-				rows.add( new MultimediaActionRow( mContext, "Multimedia" ) );
-				rows.add( new SetupActionRow( mContext, "Setup" ) );
-			}
-
+			rows.add( new MediaPicturesActionRow( mContext, "Pictures" ) );
+			rows.add( new MediaVideosActionRow( mContext, "Videos" ) );
+			rows.add( new MediaMusicActionRow( mContext, "Music" ) );
+			
 		}
 		
 	}
-
+	
 }

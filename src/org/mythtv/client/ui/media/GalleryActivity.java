@@ -18,14 +18,8 @@
  */
 package org.mythtv.client.ui.media;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.os.AsyncTask;
-import android.os.Bundle;
-import android.util.Log;
-import android.widget.EditText;
-import android.widget.GridView;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.mythtv.R;
 import org.mythtv.client.MainApplication;
@@ -40,8 +34,14 @@ import org.mythtv.services.api.myth.StorageGroupDirectoryList;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import java.util.ArrayList;
-import java.util.List;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.util.Log;
+import android.widget.EditText;
+import android.widget.GridView;
 
 /**
  * @author Espen A. Fossen
@@ -49,7 +49,7 @@ import java.util.List;
 public class GalleryActivity extends AbstractMythtvFragmentActivity {
 
     private static final String TAG = GalleryActivity.class.getSimpleName();
-    public static ArrayList<GalleryImageItem> images = new ArrayList<GalleryImageItem>();
+    public static List<GalleryImageItem> images = new ArrayList<GalleryImageItem>();
 
     public static boolean IMAGE_LIST_DOWNLOADED = false;
 
@@ -64,6 +64,9 @@ public class GalleryActivity extends AbstractMythtvFragmentActivity {
 
     private GridView gridView;
 
+    /* (non-Javadoc)
+     * @see org.mythtv.client.ui.AbstractMythtvFragmentActivity#onCreate(android.os.Bundle)
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         Log.v(TAG, "onCreate : enter");
