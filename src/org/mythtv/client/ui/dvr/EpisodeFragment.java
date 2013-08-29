@@ -91,6 +91,8 @@ public class EpisodeFragment extends AbstractMythFragment {
 	private ImageLoader imageLoader = ImageLoader.getInstance();
 	private DisplayImageOptions options;
 
+	private Intent runningIntent;
+	
 	/* (non-Javadoc)
 	 * @see android.support.v4.app.Fragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle)
 	 */
@@ -171,6 +173,10 @@ public class EpisodeFragment extends AbstractMythFragment {
 	public void onStop() {
 		Log.v( TAG, "onStop : enter" );
 		super.onStop();
+
+		if( null != runningIntent && mRunningServiceHelper.isServiceRunning( getActivity(), "org.mythtv.service.dvr.LiveStreamService" ) ) {
+			getActivity().stopService( runningIntent );
+		}
 
 		// Unregister for broadcast
 		if( null != recordedRemovedReceiver ) {
@@ -253,7 +259,7 @@ public class EpisodeFragment extends AbstractMythFragment {
 							Log.v( TAG, "onOptionsItemSelected : WATCH - starting play service" );
 
 							if( liveStreamInfo.getPercentComplete() > 2 ) {
-								startPlayer( false );
+								startPlayStreamService();
 							} else {
 								Toast.makeText( getActivity(), "Please wait, you can start watching HLS after your program is 2% processed", Toast.LENGTH_SHORT ).show();
 							}
@@ -285,7 +291,7 @@ public class EpisodeFragment extends AbstractMythFragment {
 				} else {
 
 					if( liveStreamInfo.getPercentComplete() > 2 ) {
-						startPlayer( false );
+						startPlayStreamService();
 					} else {
 						Toast.makeText( getActivity(), "Please wait, you can start watching HLS after your program is 2% processed", Toast.LENGTH_SHORT ).show();
 					}
@@ -495,11 +501,17 @@ public class EpisodeFragment extends AbstractMythFragment {
 	private void startPlayer( boolean raw ) {
 		Log.i( TAG, "startPlayer : enter" );
 		
+		if( null != runningIntent && mRunningServiceHelper.isServiceRunning( getActivity(), "org.mythtv.service.dvr.LiveStreamService" ) ) {
+			getActivity().stopService( runningIntent );
+		}
+
 		Intent playerIntent = new Intent( getActivity(), VideoActivity.class );
 		playerIntent.putExtra( VideoActivity.EXTRA_CHANNEL_ID, program.getChannelInfo().getChannelId() );
 		playerIntent.putExtra( VideoActivity.EXTRA_START_TIME, program.getStartTime().getMillis() );
 		playerIntent.putExtra( VideoActivity.EXTRA_RAW, raw );
 		startActivity( playerIntent );
+
+		runningIntent = null;
 
 		Log.i( TAG, "startPlayer : exit" );
 	}
@@ -507,10 +519,16 @@ public class EpisodeFragment extends AbstractMythFragment {
 	private void startPlayStreamService() {
 		Log.i( TAG, "startPlayStreamService : enter" );
 		
+		if( null != runningIntent && mRunningServiceHelper.isServiceRunning( getActivity(), "org.mythtv.service.dvr.LiveStreamService" ) ) {
+			getActivity().stopService( runningIntent );
+		}
+		
 		Intent intent = new Intent( LiveStreamService.ACTION_PLAY );
 		intent.putExtra( LiveStreamService.KEY_CHANNEL_ID, program.getChannelInfo().getChannelId() );
 		intent.putExtra( LiveStreamService.KEY_START_TIMESTAMP, program.getRecording().getStartTimestamp().getMillis() );
 		getActivity().startService( intent );
+
+		runningIntent = intent;
 
 		Log.i( TAG, "startPlayStreamService : exit" );
 	}
@@ -518,10 +536,16 @@ public class EpisodeFragment extends AbstractMythFragment {
 	private void startCreateStreamService() {
 		Log.i( TAG, "startCreateStreamService : enter" );
 		
+		if( null != runningIntent && mRunningServiceHelper.isServiceRunning( getActivity(), "org.mythtv.service.dvr.LiveStreamService" ) ) {
+			getActivity().stopService( runningIntent );
+		}
+		
 		Intent intent = new Intent( LiveStreamService.ACTION_CREATE );
 		intent.putExtra( LiveStreamService.KEY_CHANNEL_ID, program.getChannelInfo().getChannelId() );
 		intent.putExtra( LiveStreamService.KEY_START_TIMESTAMP, program.getRecording().getStartTimestamp().getMillis() );
 		getActivity().startService( intent );
+
+		runningIntent = intent;
 
 		Log.i( TAG, "startCreateStreamService : exit" );
 	}
@@ -529,10 +553,16 @@ public class EpisodeFragment extends AbstractMythFragment {
 	private void startUpdateStreamService() {
 		Log.i( TAG, "startUpdateStreamService : enter" );
 		
+		if( null != runningIntent && mRunningServiceHelper.isServiceRunning( getActivity(), "org.mythtv.service.dvr.LiveStreamService" ) ) {
+			getActivity().stopService( runningIntent );
+		}
+		
 		Intent intent = new Intent( LiveStreamService.ACTION_UPDATE );
 		intent.putExtra( LiveStreamService.KEY_CHANNEL_ID, program.getChannelInfo().getChannelId() );
 		intent.putExtra( LiveStreamService.KEY_START_TIMESTAMP, program.getRecording().getStartTimestamp().getMillis() );
 		getActivity().startService( intent );
+
+		runningIntent = intent;
 
 		Log.i( TAG, "startUpdateStreamService : exit" );
 	}
@@ -540,16 +570,28 @@ public class EpisodeFragment extends AbstractMythFragment {
 	private void startRemoveStreamService() {
 		Log.i( TAG, "startRemoveStreamService : enter" );
 		
+		if( null != runningIntent && mRunningServiceHelper.isServiceRunning( getActivity(), "org.mythtv.service.dvr.LiveStreamService" ) ) {
+			getActivity().stopService( runningIntent );
+		}
+		
 		Intent intent = new Intent( LiveStreamService.ACTION_REMOVE );
 		intent.putExtra( LiveStreamService.KEY_CHANNEL_ID, program.getChannelInfo().getChannelId() );
 		intent.putExtra( LiveStreamService.KEY_START_TIMESTAMP, program.getRecording().getStartTimestamp().getMillis() );
 		getActivity().startService( intent );
 
+		runningIntent = intent;
+		
 		Log.i( TAG, "startRemoveStreamService : exit" );
 	}
 	
 	private void startRemoveProgramService() {
 		Log.i( TAG, "startRemoveProgramService : enter" );
+		
+		if( null != runningIntent && mRunningServiceHelper.isServiceRunning( getActivity(), "org.mythtv.service.dvr.LiveStreamService" ) ) {
+			getActivity().stopService( runningIntent );
+		}
+
+		startRemoveStreamService();
 		
 		Intent intent = new Intent( RecordedService.ACTION_REMOVE );
 		intent.putExtra( RecordedService.KEY_CHANNEL_ID, program.getChannelInfo().getChannelId() );
@@ -571,6 +613,7 @@ public class EpisodeFragment extends AbstractMythFragment {
 		Log.v( TAG, "updateHlsDetails : enter" );
 		
 		if( null != hlsView ) {
+		
 			LiveStreamInfo liveStreamInfo = mLiveStreamDaoHelper.findByProgram( getActivity(), mLocationProfile, program );
 			if( null != liveStreamInfo ) {
 				Log.v( TAG, "updateHlsDetails : live stream found, liveStreamInfo=" + liveStreamInfo.toString() );
@@ -587,6 +630,12 @@ public class EpisodeFragment extends AbstractMythFragment {
 			} else {
 				hlsView.setText( "" );
 			}
+		
+		} else {
+			
+	        hlsView = (TextView) getActivity().findViewById( R.id.textView_episode_hls );
+			hlsView.setText( "" );
+
 		}
 		
         updateHlsMenuButtons();
@@ -680,6 +729,10 @@ public class EpisodeFragment extends AbstractMythFragment {
 	        if ( intent.getAction().equals( LiveStreamService.ACTION_PROGRESS ) ) {
 	        	Log.i( TAG, "LiveStreamReceiver.onReceive : progress=" + intent.getIntExtra( LiveStreamService.EXTRA_PROGRESS_ID, -1 ) + ":" + intent.getIntExtra( LiveStreamService.EXTRA_PROGRESS_DATA, -1 ) );
 	        	
+	        	if( intent.getIntExtra( LiveStreamService.EXTRA_PROGRESS_DATA, -1 ) < 100 ) {
+	        		startUpdateStreamService();
+	        	}
+	        	
 	        	updateHlsDetails();
 	        }
 	        
@@ -705,7 +758,10 @@ public class EpisodeFragment extends AbstractMythFragment {
 	        		ProgramGroup programGroup = mProgramGroupDaoHelper.findByTitle( getActivity(), mLocationProfile, program.getTitle() );
 	        		listener.onEpisodeDeleted( programGroup );
        			
-		        	Toast.makeText( getActivity(), intent.getStringExtra( LiveStreamService.EXTRA_COMPLETE ), Toast.LENGTH_SHORT ).show();
+	        		if( intent.getExtras().containsKey( LiveStreamService.EXTRA_COMPLETE ) && !"".equals( intent.getStringExtra( LiveStreamService.EXTRA_COMPLETE ) ) ) {
+	        			Toast.makeText( getActivity(), intent.getStringExtra( LiveStreamService.EXTRA_COMPLETE ), Toast.LENGTH_SHORT ).show();
+	        		}
+	        		
 	        	}
 	        	
 	        	updateHlsDetails();

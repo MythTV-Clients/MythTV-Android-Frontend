@@ -133,6 +133,17 @@ public class LiveStreamService extends MythtvService {
 		
 	}
 
+	/* (non-Javadoc)
+	 * @see android.app.IntentService#onDestroy()
+	 */
+	@Override
+	public void onDestroy() {
+		Log.d( TAG, "onDestroy : enter" );
+		super.onDestroy();
+
+		Log.d( TAG, "onDestroy : exit" );
+	}
+
 	// internal helpers
 
 	private void sendProgress( final LiveStreamInfo liveStreamInfo ) {
@@ -213,6 +224,7 @@ public class LiveStreamService extends MythtvService {
 		
 		Intent completeIntent = new Intent( ACTION_COMPLETE );
 		completeIntent.putExtra( EXTRA_COMPLETE_REMOVE, Boolean.TRUE );
+		completeIntent.putExtra( EXTRA_COMPLETE, "Program HLS Removed!" );
 		
 		sendBroadcast( completeIntent );
 		
@@ -294,10 +306,15 @@ public class LiveStreamService extends MythtvService {
 
 					// save updated live stream info to database
 					LiveStreamInfo liveStreamStatus = wrapper.getBody().getLiveStreamInfo();
-					saveLiveStreamLocal( locationProfile, liveStreamStatus, program );
+					Log.v( TAG, "updateLiveStream : liveStreamInfo=" + liveStreamInfo.toString() );
+					if( !"Unknown status value".equalsIgnoreCase( liveStreamInfo.getStatusStr() ) ) {
+						saveLiveStreamLocal( locationProfile, liveStreamStatus, program );
 
-					if( liveStreamInfo.getPercentComplete() < 100 ) {
-						updateLiveStream( locationProfile, program );
+/*						if( liveStreamInfo.getPercentComplete() < 100 ) {
+							updateLiveStream( locationProfile, program );
+						}
+*/					} else {
+						removeLiveStreamLocal( locationProfile, liveStreamInfo );
 					}
 
 				}
@@ -307,6 +324,8 @@ public class LiveStreamService extends MythtvService {
 			
 		}
 		
+		stopSelf();
+
 		Log.v( TAG, "updateLiveStream : exit" );
 	}
 
@@ -318,16 +337,18 @@ public class LiveStreamService extends MythtvService {
 		if( liveStreamInfo.getPercentComplete() < 100 ) {
 			sendProgress( liveStreamInfo );
 			
-			try {
-				updateLiveStream( locationProfile, program );
-			} catch( InterruptedException e ) {
-				Log.e( TAG, "saveLiveStreamLocal : error", e );
-			}
+//			try {
+//				updateLiveStream( locationProfile, program );
+//			} catch( InterruptedException e ) {
+//				Log.e( TAG, "saveLiveStreamLocal : error", e );
+//			}
 			
 		} else {
 			sendComplete( liveStreamInfo );
 		}
 		
+		stopSelf();
+
 		Log.v( TAG, "saveLiveStreamLocal : exit" );
 	}
 	
@@ -340,30 +361,36 @@ public class LiveStreamService extends MythtvService {
 			
 			try {
 				ResponseEntity<Bool> wrapper = mMythtvServiceHelper.getMythServicesApi( locationProfile ).contentOperations().removeLiveStream( liveStreamInfo.getId() );
-
+				Log.v( TAG, "removeLiveStream : wrapper=" + wrapper.getStatusCode() );
+				
 				if( wrapper.getStatusCode().equals( HttpStatus.OK ) ) {
 					if( wrapper.getBody().getBool().booleanValue() ) {
 
 						removeLiveStreamLocal( locationProfile, liveStreamInfo );
 
 						Log.v( TAG, "removeLive Stream : live stream removed" );
+
+						sendCompleteRemove();
+						
 					}
+					
 				}
 			} catch( Exception e ) {
 				Log.e( TAG, "removeLiveStream : error", e );
 			}
 
 		}
-		
+
+		stopSelf();
+
 		Log.v( TAG, "removeLiveStream : exit" );
 	}
 
 	private void removeLiveStreamLocal( final LocationProfile locationProfile, final LiveStreamInfo liveStreamInfo ) {
 		Log.v( TAG, "removeLiveStreamLocal : enter" );
 		
-		mLiveStreamDaoHelper.delete( this, locationProfile, liveStreamInfo );
-		
-		sendCompleteRemove();
+		int deleted = mLiveStreamDaoHelper.delete( this, locationProfile, liveStreamInfo );
+		Log.v( TAG, "removeLiveStreamLocal : deleted=" + deleted );
 		
 		Log.v( TAG, "removeLiveStreamLocal : exit" );
 	}

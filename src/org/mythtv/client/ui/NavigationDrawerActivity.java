@@ -3,27 +3,8 @@
  */
 package org.mythtv.client.ui;
 
-import android.annotation.TargetApi;
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
-import android.os.Build;
-import android.os.Bundle;
-import android.support.v4.app.ActionBarDrawerToggle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.widget.DrawerLayout;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.BaseAdapter;
-import android.widget.ListView;
-import android.widget.Toast;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.mythtv.R;
 import org.mythtv.client.ui.dvr.DvrNavigationDrawerActivity;
@@ -46,19 +27,33 @@ import org.mythtv.client.ui.preferences.LocationProfile.LocationType;
 import org.mythtv.client.ui.preferences.MythtvPreferenceActivity;
 import org.mythtv.client.ui.util.MenuHelper;
 
-import java.util.ArrayList;
-import java.util.List;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+import android.os.Bundle;
+import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.widget.DrawerLayout;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.BaseAdapter;
+import android.widget.ListView;
+import android.widget.Toast;
 
 /**
  * @author dmfrey
  *
  */
-@TargetApi( Build.VERSION_CODES.ICE_CREAM_SANDWICH )
 public class NavigationDrawerActivity extends AbstractMythtvFragmentActivity {
 
 	private static final String TAG = NavigationDrawerActivity.class.getSimpleName();
-
-	
 	
 	private NavigationDrawerAdapter mAdapter;
 	private ActionBarDrawerToggle drawerToggle = null;
