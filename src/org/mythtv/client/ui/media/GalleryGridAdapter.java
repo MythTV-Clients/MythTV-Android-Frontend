@@ -438,6 +438,19 @@ public class GalleryGridAdapter extends BaseAdapter {
 			Log.v( TAG, "LoadFileListTask.onPostExecute : exit" );
 		}
 
+		/* (non-Javadoc)
+		 * @see android.os.AsyncTask#onCancelled()
+		 */
+		@Override
+		protected void onCancelled() {
+			Log.v( TAG, "LoadFileListTask.onCancelled : enter" );
+			super.onCancelled();
+			
+			notifyParentEnd();
+			
+			Log.v( TAG, "LoadFileListTask.onCancelled : exit" );
+		}
+
 		private void clickedPosButton( int result, EditText directoryName ) {
 
 			if( directoryName != null ) {
