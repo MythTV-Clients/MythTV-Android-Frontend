@@ -46,7 +46,7 @@ import android.widget.GridView;
 /**
  * @author Espen A. Fossen
  */
-public class GalleryActivity extends AbstractMythtvFragmentActivity {
+public class GalleryActivity extends AbstractMythtvFragmentActivity implements GalleryGridAdapter.OnLoadingImagesListener {
 
     private static final String TAG = GalleryActivity.class.getSimpleName();
     public static List<GalleryImageItem> images = new ArrayList<GalleryImageItem>();
@@ -81,7 +81,7 @@ public class GalleryActivity extends AbstractMythtvFragmentActivity {
         gridView = (GridView) findViewById(R.id.gallery_gridview);
 
         if(IMAGE_LIST_DOWNLOADED){
-            GalleryGridAdapter adapter = new GalleryGridAdapter(GalleryActivity.this, mLocationProfile);
+            GalleryGridAdapter adapter = new GalleryGridAdapter(GalleryActivity.this, mLocationProfile, this);
             gridView.setAdapter(adapter);
         } else {
             new LoadFileListTask(this).execute();
@@ -90,7 +90,25 @@ public class GalleryActivity extends AbstractMythtvFragmentActivity {
         Log.v(TAG, "onCreate : exit");
     }
 
-    private class LoadFileListTask extends AsyncTask<Void, Void, Void> {
+    /* (non-Javadoc)
+	 * @see org.mythtv.client.ui.media.GalleryGridAdapter.OnLoadingImagesListener#notifyStart()
+	 */
+	@Override
+	public void notifyStart() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mythtv.client.ui.media.GalleryGridAdapter.OnLoadingImagesListener#notifyEnd()
+	 */
+	@Override
+	public void notifyEnd() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private class LoadFileListTask extends AsyncTask<Void, Void, Void> {
 
         GalleryActivity activity;
         boolean backendAndFrontendShareHostname = false;
@@ -194,7 +212,7 @@ public class GalleryActivity extends AbstractMythtvFragmentActivity {
         protected void onPostExecute(Void aVoid) {
 
             if(hasBackendGallerySG){
-                GalleryGridAdapter adapter = new GalleryGridAdapter(GalleryActivity.this, mLocationProfile);
+                GalleryGridAdapter adapter = new GalleryGridAdapter(GalleryActivity.this, mLocationProfile, GalleryActivity.this );
                 gridView.setAdapter(adapter);
 
             } else {
