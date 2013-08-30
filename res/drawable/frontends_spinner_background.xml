@@ -25,15 +25,15 @@
     
     <!-- pressed -->
     <item android:state_pressed="true"
-          android:drawable="@drawable/frontends_spinner_background_normal" /> 
+          android:drawable="@drawable/frontends_spinner_background_selected" /> 
     
     <!-- focused -->
     <item android:state_focused="true"
-          android:drawable="@drawable/frontends_spinner_background_normal" /> 
+          android:drawable="@drawable/frontends_spinner_background_selected" /> 
     
     <!-- hovered -->
     <item android:state_hovered="true"
-          android:drawable="@drawable/frontends_spinner_background_normal" /> 
+          android:drawable="@drawable/frontends_spinner_background_selected" /> 
           
     <!-- default -->
     <item android:drawable="@drawable/frontends_spinner_background_normal" /> 
