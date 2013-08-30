@@ -444,7 +444,7 @@ public class NavigationDrawerActivity extends AbstractMythtvFragmentActivity {
 
 				rows.add( new DvrActionRow( mContext, "Dvr" ) );
 				rows.add( new MultimediaActionRow( mContext, "Multimedia" ) );
-				rows.add( new SetupActionRow( mContext, "Setup" ) );
+//				rows.add( new SetupActionRow( mContext, "Setup" ) );
 			}
 
 		}

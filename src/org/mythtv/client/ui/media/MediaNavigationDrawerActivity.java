@@ -10,13 +10,10 @@ import org.mythtv.R;
 import org.mythtv.client.ui.AbstractMythtvFragmentActivity;
 import org.mythtv.client.ui.media.navigationDrawer.MediaActionRow;
 import org.mythtv.client.ui.media.navigationDrawer.MediaActionsHeaderRow;
-import org.mythtv.client.ui.media.navigationDrawer.MediaMusicActionRow;
 import org.mythtv.client.ui.media.navigationDrawer.MediaPicturesActionRow;
 import org.mythtv.client.ui.media.navigationDrawer.MediaRowType;
 import org.mythtv.client.ui.media.navigationDrawer.MediaVersionRow;
-import org.mythtv.client.ui.media.navigationDrawer.MediaVideosActionRow;
 import org.mythtv.client.ui.navigationDrawer.Row;
-import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.util.MenuHelper;
 
 import android.content.Context;
@@ -328,15 +325,11 @@ public class MediaNavigationDrawerActivity extends AbstractMythtvFragmentActivit
 
 		private Context mContext;
 
-        private LocationProfile mLocationProfile;
-
 		private List<Row> rows = new ArrayList<Row>();
 
         public MediaNavigationDrawerAdapter( Context context ) {
 			this.mContext = context;
 			
-			this.mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( mContext );
-
 			if( null == selectedRow ) {
 				selectedRow = new MediaPicturesActionRow( mContext, "Pictures" );
 			}
@@ -412,8 +405,8 @@ public class MediaNavigationDrawerActivity extends AbstractMythtvFragmentActivit
 			rows.add( new MediaActionsHeaderRow( mContext, "Media Actions" ) );
 			
 			rows.add( new MediaPicturesActionRow( mContext, "Pictures" ) );
-			rows.add( new MediaVideosActionRow( mContext, "Videos" ) );
-			rows.add( new MediaMusicActionRow( mContext, "Music" ) );
+			//rows.add( new MediaVideosActionRow( mContext, "Videos" ) );
+			//rows.add( new MediaMusicActionRow( mContext, "Music" ) );
 			
 		}
 		

@@ -84,10 +84,21 @@ public class GalleryGridAdapter extends BaseAdapter {
 			.cacheOnDisc( true )
 			.build();
 
-	public GalleryGridAdapter( Context context, LocationProfile locationProfile ) {
+	private OnLoadingImagesListener listener;
+	
+	public interface OnLoadingImagesListener {
+		
+		void notifyStart();
+		
+		void notifyEnd();
+		
+	}
+	
+	public GalleryGridAdapter( Context context, LocationProfile locationProfile, OnLoadingImagesListener listener ) {
 		
 		this.mContext = context;
 		this.mLocationProfile = locationProfile;
+		this.listener = listener;
 		
 		imageLoader = ImageLoader.getInstance();
 		imageLoader.init( ImageLoaderConfiguration.createDefault( context ) );
@@ -96,12 +107,20 @@ public class GalleryGridAdapter extends BaseAdapter {
 		
 		if( mImageItems.isEmpty() ) {
 			
-			new LoadFileListTask().execute();
+			refresh();
 			
 		}
 		
 	}
 
+	public void refresh() {
+		Log.v( TAG, "refresh : enter" );
+
+		new LoadFileListTask().execute();
+		
+		Log.v( TAG, "refresh : exit" );
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -210,6 +229,18 @@ public class GalleryGridAdapter extends BaseAdapter {
 
 	// internal helpers
 	
+	private void notifyParentStart() {
+
+		listener.notifyStart();
+
+	}
+	
+	private void notifyParentEnd() {
+
+		listener.notifyEnd();
+
+	}
+	
 	private class LoadFileListTask extends AsyncTask<Void, Void, Void> {
 
 		final String gallerySGName = "Gallery";
@@ -312,12 +343,14 @@ public class GalleryGridAdapter extends BaseAdapter {
 			ResponseEntity<StringList> responseEntity = mMythtvServiceHelper.getMythServicesApi( mLocationProfile ).contentOperations().getFileList( gallerySGName, eTag );
 			if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
 				
+				mImageItems = new ArrayList<GalleryImageItem>();
+				
 				StringList filesOnStorageGroup = responseEntity.getBody();
 				// TODO: Add different types of sorting, and filtering
 				// String imageUri =
 				// mLocationProfileDaoHelper.findConnectedProfile().getUrl() +
 				// "Content/GetImageFile?StorageGroup="+gallerySGName+"&Width="+previewWidth+"&FileName=";
-
+				
 				for( String file : filesOnStorageGroup.getStringList() ) {
 
 					// First look for image suffixes, then skip files with
@@ -344,7 +377,8 @@ public class GalleryGridAdapter extends BaseAdapter {
 		protected void onPostExecute( Void aVoid ) {
 			Log.v( TAG, "LoadFileListTask.onPostExecute : enter" );
 
-			Log.v( TAG, "LoadFileListTask.onPostExecute : hasBackendGallerySG=" + hasBackendGallerySG );
+			notifyParentEnd();
+			
 			if( hasBackendGallerySG ) {
 			
 				notifyDataSetChanged();
@@ -402,6 +436,19 @@ public class GalleryGridAdapter extends BaseAdapter {
 			}
 
 			Log.v( TAG, "LoadFileListTask.onPostExecute : exit" );
+		}
+
+		/* (non-Javadoc)
+		 * @see android.os.AsyncTask#onCancelled()
+		 */
+		@Override
+		protected void onCancelled() {
+			Log.v( TAG, "LoadFileListTask.onCancelled : enter" );
+			super.onCancelled();
+			
+			notifyParentEnd();
+			
+			Log.v( TAG, "LoadFileListTask.onCancelled : exit" );
 		}
 
 		private void clickedPosButton( int result, EditText directoryName ) {
