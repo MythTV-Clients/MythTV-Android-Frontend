@@ -438,7 +438,6 @@ public class MythtvPreferenceActivity extends PreferenceActivity {
 		private static final String PREFERENCE_HOME_DELETE_KEY = "preference_home_profiles_delete";
 		private static final String PREFERENCE_CATEGORY_HOME_SAVED_KEY = "preference_home_profiles_saved";
 		
-		private static final String MYTHTV_MASTER_BACKEND_TYPE = "_mythbackend-master._tcp.local.";
 		private static final String HOSTNAME = "mythandroid";
 
 		private static JmDNS zeroConf = null;
@@ -612,7 +611,8 @@ public class MythtvPreferenceActivity extends PreferenceActivity {
 			mLock.acquire();
 
 			zeroConf = JmDNS.create( addr, HOSTNAME );
-			zeroConf.addServiceListener( MYTHTV_MASTER_BACKEND_TYPE, this );
+			zeroConf.addServiceListener( ZeroConf.VERSION_26.getType(), this );
+			zeroConf.addServiceListener( ZeroConf.VERSION_27.getType(), this );
 
 			Log.v( TAG, "startProbe : exit" );
 		}
@@ -628,7 +628,8 @@ public class MythtvPreferenceActivity extends PreferenceActivity {
 				mProgressDialog = null;
 			}
 
-			zeroConf.removeServiceListener( MYTHTV_MASTER_BACKEND_TYPE, this );
+			zeroConf.removeServiceListener( ZeroConf.VERSION_26.getType(), this );
+			zeroConf.removeServiceListener( ZeroConf.VERSION_27.getType(), this );
 			zeroConf.close();
 			zeroConf = null;
 
