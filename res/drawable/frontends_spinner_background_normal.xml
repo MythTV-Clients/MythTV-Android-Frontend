@@ -19,28 +19,21 @@
     This software can be found at <https://github.com/MythTV-Clients/MythTV-Android-Frontend/>
 
 -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="10dp" >
 
-    <TextView
-        android:id="@+id/frontend_name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="@color/text_main_menu"
-        android:textAppearance="?android:attr/textAppearanceSmallInverse"
-        android:singleLine="true" >
-    </TextView>
-
-    <TextView
-        android:id="@+id/frontend_url"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="@color/text_main_menu"
-        android:textAppearance="?android:attr/textAppearanceSmallInverse"
-        android:singleLine="true"  >
-    </TextView>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     
-</LinearLayout>
+    <item >
+        <shape android:shape="rectangle">
+            <stroke android:width="1dip" android:color="@color/text_main_menu" />
+            <corners android:radius="0dip" />
+        </shape>
+	</item>
+    
+    <item>
+        <bitmap
+            android:src="@drawable/spinner_triangle"
+            android:tileMode="disabled"
+            android:gravity="bottom|right"/>
+    </item>
+
+</layer-list>
