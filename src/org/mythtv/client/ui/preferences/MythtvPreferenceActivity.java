@@ -20,6 +20,7 @@ package org.mythtv.client.ui.preferences;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.util.Enumeration;
 import java.util.EventListener;
 import java.util.List;
 
@@ -507,7 +508,11 @@ public class MythtvPreferenceActivity extends PreferenceActivity {
 		 */
 		@SuppressWarnings( "deprecation" )
 		public void serviceAdded( ServiceEvent event ) {
+			
 			Log.v( TAG, "serviceAdded : enter" );
+
+			byte[] txtRecord;
+			boolean isMasterRole = false;
 
 			if( null != mProgressDialog ) {
 				mProgressDialog.dismiss();
@@ -517,11 +522,26 @@ public class MythtvPreferenceActivity extends PreferenceActivity {
 			Log.v( TAG, "serviceAdded : " + event.getDNS().getServiceInfo( event.getType(), event.getName() ).toString() );
 
 			ServiceInfo info = event.getDNS().getServiceInfo( event.getType(), event.getName() );
+
+			// 0.26 and 0.25 have an empty TXT Record. 0.27+ have a 6 followed by "master" or 5/"slave".
+			// Crude hack because Enumeration<String> txtRecords = info.getPropertyNames(); doesn't
+			// seem to handle the case of records with (legal) entries with no =. E.g. role=master vs.
+			// just master.
+
+			txtRecord = info.getTextBytes();
+
+			Log.v( TAG, "serviceAdded : backend role = " + txtRecord[0] + " ( 0 or 6 = master, 5 = slave)");
+			
+			if( txtRecord[0] == 0 || txtRecord[0] == 6 )
+			{
+				isMasterRole = true;
+			}
+
 			final String hostname = info.getInet4Address().getHostAddress();
 			final int port = info.getPort();
 			Log.v( TAG, "serviceAdded : masterbackend=" + ( "http://" + hostname + ":" + port + "/" ) );
 
-			if( null != hostname && !hostname.isEmpty() ) {
+			if( null != hostname && !hostname.isEmpty() && isMasterRole ) {
 			
 				LocationProfile profile = new LocationProfile();
 				profile.setId( -1 );
