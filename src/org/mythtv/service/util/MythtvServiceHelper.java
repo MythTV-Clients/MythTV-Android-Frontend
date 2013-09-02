@@ -22,8 +22,6 @@ import java.util.logging.Level;
 
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
-import org.mythtv.services.api.MythServices;
-import org.mythtv.services.connect.MythServicesServiceProvider;
 
 import android.content.Context;
 import android.util.Log;

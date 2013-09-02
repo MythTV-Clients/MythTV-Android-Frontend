@@ -11,7 +11,7 @@ import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.util.MythtvListFragment;
 import org.mythtv.db.channel.ChannelConstants;
 import org.mythtv.db.channel.ChannelDaoHelper;
-import org.mythtv.services.api.channel.ChannelInfo;
+import org.mythtv.db.channel.model.ChannelInfo;
 
 import android.content.Context;
 import android.content.SharedPreferences;

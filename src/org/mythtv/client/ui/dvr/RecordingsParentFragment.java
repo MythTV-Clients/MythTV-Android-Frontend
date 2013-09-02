@@ -28,7 +28,7 @@ import org.mythtv.db.dvr.RecordedDaoHelper;
 import org.mythtv.db.dvr.programGroup.ProgramGroup;
 import org.mythtv.db.dvr.programGroup.ProgramGroupConstants;
 import org.mythtv.db.dvr.programGroup.ProgramGroupDaoHelper;
-import org.mythtv.services.api.dvr.Program;
+import org.mythtv.db.dvr.model.Program;
 
 import android.content.Intent;
 import android.os.Bundle;

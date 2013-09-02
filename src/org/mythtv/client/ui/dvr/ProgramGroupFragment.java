@@ -31,7 +31,7 @@ import org.mythtv.db.dvr.programGroup.ProgramGroup;
 import org.mythtv.db.dvr.programGroup.ProgramGroupDaoHelper;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.util.DateUtils;
-import org.mythtv.services.api.dvr.Program;
+import org.mythtv.db.dvr.model.Program;
 
 import android.content.Context;
 import android.database.Cursor;

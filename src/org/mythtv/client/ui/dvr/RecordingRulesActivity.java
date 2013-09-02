@@ -20,7 +20,7 @@ package org.mythtv.client.ui.dvr;
 
 import org.mythtv.R;
 import org.mythtv.client.ui.AbstractMythtvFragmentActivity;
-import org.mythtv.services.api.dvr.RecRule;
+import org.mythtv.db.dvr.model.RecRule;
 
 import android.content.Intent;
 import android.os.Bundle;

@@ -26,10 +26,10 @@ import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.service.util.MythtvServiceHelper;
 import org.mythtv.services.api.Bool;
 import org.mythtv.services.api.ETagInfo;
-import org.mythtv.services.api.StringList;
-import org.mythtv.services.api.myth.SettingList;
-import org.mythtv.services.api.myth.StorageGroupDirectory;
-import org.mythtv.services.api.myth.StorageGroupDirectoryList;
+import org.mythtv.db.myth.model.StringList;
+import org.mythtv.db.myth.model.SettingList;
+import org.mythtv.db.myth.model.StorageGroupDirectory;
+import org.mythtv.db.myth.model.StorageGroupDirectoryList;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 

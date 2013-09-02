@@ -41,20 +41,20 @@ import org.mythtv.db.dvr.UpcomingDaoHelper;
 import org.mythtv.db.http.EtagDaoHelper;
 import org.mythtv.db.http.model.EtagInfoDelegate;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
+import org.mythtv.db.status.model.BackendStatus;
+import org.mythtv.db.status.model.Encoder;
 import org.mythtv.service.channel.ChannelDownloadService;
 import org.mythtv.service.dvr.RecordedService;
 import org.mythtv.service.dvr.RecordingRuleDownloadService;
 import org.mythtv.service.dvr.UpcomingDownloadService;
 import org.mythtv.service.frontends.FrontendsDiscoveryService;
-import org.mythtv.service.guide.ProgramGuideDownloadServiceNew;
+import org.mythtv.service.guide.ProgramGuideDownloadService;
 import org.mythtv.service.util.DateUtils;
 import org.mythtv.service.util.MythtvServiceHelper;
 import org.mythtv.service.util.RunningServiceHelper;
-import org.mythtv.services.api.dvr.Encoder;
-import org.mythtv.services.api.dvr.Program;
-import org.mythtv.services.api.dvr.impl.DvrTemplate;
-import org.mythtv.services.api.dvr.impl.DvrTemplate.Endpoint;
-import org.mythtv.services.api.status.Status;
+import org.mythtv.db.dvr.model.Program;
+import org.mythtv.db.frontends.model.Status;
+import org.mythtv.db.dvr.DvrEndpoint;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 //import android.widget.Toast;
@@ -82,7 +82,7 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
 	private RecordingRuleDownloadReceiver recordingRuleDownloadReceiver = new RecordingRuleDownloadReceiver();
 	private UpcomingDownloadReceiver upcomingDownloadReceiver = new UpcomingDownloadReceiver();
 	
-	protected Status mStatus;
+	protected BackendStatus mStatus;
 	
     // ***************************************
     // MythActivity methods
@@ -181,9 +181,9 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
 		channelDownloadFilter.addAction( ChannelDownloadService.ACTION_COMPLETE );
 	    getActivity().registerReceiver( channelDownloadReceiver, channelDownloadFilter );
 
-		IntentFilter programGuideDownloadFilter = new IntentFilter( ProgramGuideDownloadServiceNew.ACTION_DOWNLOAD );
-		programGuideDownloadFilter.addAction( ProgramGuideDownloadServiceNew.ACTION_PROGRESS );
-		programGuideDownloadFilter.addAction( ProgramGuideDownloadServiceNew.ACTION_COMPLETE );
+		IntentFilter programGuideDownloadFilter = new IntentFilter( ProgramGuideDownloadService.ACTION_DOWNLOAD );
+		programGuideDownloadFilter.addAction( ProgramGuideDownloadService.ACTION_PROGRESS );
+		programGuideDownloadFilter.addAction( ProgramGuideDownloadService.ACTION_COMPLETE );
         getActivity().registerReceiver( programGuideDownloadReceiver, programGuideDownloadFilter );
 
 		IntentFilter recordedDownloadFilter = new IntentFilter( RecordedService.ACTION_DOWNLOAD );
@@ -227,7 +227,7 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
     	});
     }
 	
-    protected class BackendStatusTask extends AsyncTask<Void, Void, Status> {
+    protected class BackendStatusTask extends AsyncTask<Void, Void, BackendStatus> {
 
     	private LocationProfile mLocationProfile;
     	
@@ -235,7 +235,7 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
     	 * @see android.os.AsyncTask#doInBackground(Params[])
     	 */
     	@Override
-    	protected org.mythtv.services.api.status.Status doInBackground( Void... params ) {
+    	protected BackendStatus doInBackground( Void... params ) {
     		Log.i( TAG, "BackendStatusTask.doInBackground : enter" );
 
     		//leave if fragment is not added to activity
@@ -245,7 +245,7 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
     			mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
     			
     			EtagInfoDelegate etag = EtagInfoDelegate.createEmptyETag();
-    			ResponseEntity<org.mythtv.services.api.status.Status> status = mMythtvServiceHelper.getMythServicesApi( mLocationProfile ).statusOperations().getStatus( etag );
+    			ResponseEntity<BackendStatus> status = mMythtvServiceHelper.getMythServicesApi( mLocationProfile ).statusOperations().getStatus( etag );
 
     			if( status.getStatusCode() == HttpStatus.OK ) {
     				Log.i( TAG, "BackendStatusTask.doInBackground : exit" );
@@ -266,7 +266,7 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
     	 * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
     	 */
     	@Override
-    	protected void onPostExecute( 	org.mythtv.services.api.status.Status result ) {
+    	protected void onPostExecute( BackendStatus result ) {
     		Log.i( TAG, "BackendStatusTask.onPostExecute : enter" );
     		
     		//leave if fragment is not added to activity
@@ -369,7 +369,7 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
      *  
      *  Called at the end of BackendStatusTask.onPostExecute() when result is not null.
      */
-    protected void onBackendStatusUpdated(org.mythtv.services.api.status.Status result){
+    protected void onBackendStatusUpdated( BackendStatus result ) {
     	
     }
 
@@ -395,8 +395,8 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
     
     private void startProgramGuideDownloadService() {
     	
-		if( !mRunningServiceHelper.isServiceRunning( getActivity(), "org.mythtv.service.guide.ProgramGuideDownloadServiceNew" ) ) {
-			getActivity().startService( new Intent( ProgramGuideDownloadServiceNew.ACTION_DOWNLOAD ) );
+		if( !mRunningServiceHelper.isServiceRunning( getActivity(), "org.mythtv.service.guide.ProgramGuideDownloadService" ) ) {
+			getActivity().startService( new Intent( ProgramGuideDownloadService.ACTION_DOWNLOAD ) );
 		}
 
     }
@@ -404,7 +404,7 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
     private void checkRecordedDownloadService() {
 
 		LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
-		DateTime recordedEtag = mEtagDaoHelper.findDateByEndpointAndDataId( getActivity(), locationProfile, DvrTemplate.Endpoint.GET_RECORDED_LIST.name(), "" );
+		DateTime recordedEtag = mEtagDaoHelper.findDateByEndpointAndDataId( getActivity(), locationProfile, DvrEndpoint.GET_RECORDED_LIST.name(), "" );
 		if( null != recordedEtag ) {
 			
 			DateTime now = DateUtils.convertUtc( new DateTime( System.currentTimeMillis() ) );
@@ -431,7 +431,7 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
     private void checkRecordingRulesDownloadService() {
 
 		LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
-		DateTime recordingRuleEtag = mEtagDaoHelper.findDateByEndpointAndDataId( getActivity(), locationProfile, DvrTemplate.Endpoint.GET_RECORD_SCHEDULE_LIST.name(), "" );
+		DateTime recordingRuleEtag = mEtagDaoHelper.findDateByEndpointAndDataId( getActivity(), locationProfile, DvrEndpoint.GET_RECORD_SCHEDULE_LIST.name(), "" );
 		if( null != recordingRuleEtag ) {
 			
 			DateTime now = DateUtils.convertUtc( new DateTime( System.currentTimeMillis() ) );
@@ -458,7 +458,7 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
     private void checkUpcomingDownloadService() {
 
 		LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
-		DateTime upcomingEtag = mEtagDaoHelper.findDateByEndpointAndDataId( getActivity(), locationProfile, Endpoint.GET_UPCOMING_LIST.name(), "" );
+		DateTime upcomingEtag = mEtagDaoHelper.findDateByEndpointAndDataId( getActivity(), locationProfile, DvrEndpoint.GET_UPCOMING_LIST.name(), "" );
 		if( null != upcomingEtag ) {
 			
 			DateTime now = DateUtils.convertUtc( new DateTime( System.currentTimeMillis() ) );
@@ -626,17 +626,17 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
 		@Override
 		public void onReceive( Context context, Intent intent ) {
 			
-	        if ( intent.getAction().equals( ProgramGuideDownloadServiceNew.ACTION_PROGRESS ) ) {
-	        	Log.i( TAG, "ProgramGuideDownloadReceiver.onReceive : " + intent.getStringExtra( ProgramGuideDownloadServiceNew.EXTRA_PROGRESS ) );
+	        if ( intent.getAction().equals( ProgramGuideDownloadService.ACTION_PROGRESS ) ) {
+	        	Log.i( TAG, "ProgramGuideDownloadReceiver.onReceive : " + intent.getStringExtra( ProgramGuideDownloadService.EXTRA_PROGRESS ) );
 	        	
 	        }
 	        
-	        if ( intent.getAction().equals( ProgramGuideDownloadServiceNew.ACTION_COMPLETE ) ) {
-	        	Log.i( TAG, "ProgramGuideDownloadReceiver.onReceive : " + intent.getStringExtra( ProgramGuideDownloadServiceNew.EXTRA_COMPLETE ) );
+	        if ( intent.getAction().equals( ProgramGuideDownloadService.ACTION_COMPLETE ) ) {
+	        	Log.i( TAG, "ProgramGuideDownloadReceiver.onReceive : " + intent.getStringExtra( ProgramGuideDownloadService.EXTRA_COMPLETE ) );
 	        	
-//	        	if( intent.getExtras().containsKey( ProgramGuideDownloadServiceNew.EXTRA_COMPLETE_UPTODATE ) ) {
+//	        	if( intent.getExtras().containsKey( ProgramGuideDownloadService.EXTRA_COMPLETE_UPTODATE ) ) {
 //	        		Toast.makeText( getActivity(), "Program Guide is up to date!", Toast.LENGTH_SHORT ).show();
-//	        	} else if( intent.getExtras().containsKey( ProgramGuideDownloadServiceNew.EXTRA_COMPLETE_OFFLINE ) ) {
+//	        	} else if( intent.getExtras().containsKey( ProgramGuideDownloadService.EXTRA_COMPLETE_OFFLINE ) ) {
 //	        		Toast.makeText( getActivity(), "Program Guide Update failed because Master Backend is not connected!", Toast.LENGTH_SHORT ).show();
 //	        	} else {
 //	        		Toast.makeText( getActivity(), "Program Guide updated!", Toast.LENGTH_SHORT ).show();

@@ -26,7 +26,9 @@ import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.preferences.PreferencesRecordedDownloadService;
 import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.service.util.RunningServiceHelper;
-import org.mythtv.services.api.StringWrapper;
+import org.mythtv.services.api.ApiVersion;
+import org.mythtv.services.api.connect.MythAccessFactory;
+import org.mythtv.services.api.v026.StringWrapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -335,10 +337,13 @@ public class LocationProfileEditor extends AbstractMythtvFragmentActivity {
 		@Override
 		protected ResponseEntity<StringWrapper> doInBackground( Void... params ) {
 			
-			if( !NetworkHelper.getInstance().isMasterBackendConnected( LocationProfileEditor.this, profile ) ) {
+			if( !MythAccessFactory.isServerReachable( profile.getUrl() ) ) {
 				return null;
 			}
 
+			ApiVersion apiVersion = MythAccessFactory.getMythVersion( profile.getUrl() );
+			
+			MythAccessFactory.getServiceTemplateApiByVersion( apiVersion, profile.getUrl() );
 			return mMythtvServiceHelper.getMythServicesApi( profile ).mythOperations().getHostName();
 		}
 

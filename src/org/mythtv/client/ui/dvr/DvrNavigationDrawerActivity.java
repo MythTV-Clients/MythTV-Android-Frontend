@@ -25,8 +25,8 @@ import org.mythtv.client.ui.navigationDrawer.Row;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.util.MenuHelper;
 import org.mythtv.db.http.model.EtagInfoDelegate;
-import org.mythtv.services.api.dvr.impl.DvrTemplate;
-import org.mythtv.services.api.guide.impl.GuideTemplate;
+import org.mythtv.db.dvr.DvrEndpoint;
+import org.mythtv.db.guide.GuideEndpoint;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -452,7 +452,7 @@ public class DvrNavigationDrawerActivity extends AbstractMythtvFragmentActivity 
 			
 			rows.add( new DvrRecordingsActionRow( mContext, "Recordings" ) );
 			if( null != selectedRow && selectedRow instanceof DvrRecordingsActionRow ) {
-				EtagInfoDelegate recordingsEtag = mEtagDaoHelper.findByEndpointAndDataId( mContext, mLocationProfile, DvrTemplate.Endpoint.GET_RECORDED_LIST.name(), "" );
+				EtagInfoDelegate recordingsEtag = mEtagDaoHelper.findByEndpointAndDataId( mContext, mLocationProfile, DvrEndpoint.GET_RECORDED_LIST.name(), "" );
 				if( null != recordingsEtag && recordingsEtag.getId() > 0 ) {
 					DvrRecordingsLastUpdateActionRow recordingsLastUpdateRow = new DvrRecordingsLastUpdateActionRow( mContext, recordingsEtag );
 					recordingsLastUpdateRow.setOnRefreshListener( DvrNavigationDrawerActivity.this );
@@ -462,7 +462,7 @@ public class DvrNavigationDrawerActivity extends AbstractMythtvFragmentActivity 
 			
 			rows.add( new DvrUpcomingActionRow( mContext, "Upcoming" ) );
 			if( null != selectedRow && selectedRow instanceof DvrUpcomingActionRow ) {
-				EtagInfoDelegate upcomingEtag = mEtagDaoHelper.findByEndpointAndDataId( mContext, mLocationProfile, DvrTemplate.Endpoint.GET_UPCOMING_LIST.name(), "" );
+				EtagInfoDelegate upcomingEtag = mEtagDaoHelper.findByEndpointAndDataId( mContext, mLocationProfile, DvrEndpoint.GET_UPCOMING_LIST.name(), "" );
 				if( null != upcomingEtag && upcomingEtag.getId() > 0 ) {
 					DvrUpcomingLastUpdateActionRow upcomingLastUpdateRow = new DvrUpcomingLastUpdateActionRow( mContext, upcomingEtag );
 					upcomingLastUpdateRow.setOnRefreshListener( DvrNavigationDrawerActivity.this );
@@ -472,7 +472,7 @@ public class DvrNavigationDrawerActivity extends AbstractMythtvFragmentActivity 
 			
 			rows.add( new DvrGuideActionRow( mContext, "Guide" ) );
 			if( null != selectedRow && selectedRow instanceof DvrGuideActionRow ) {
-				EtagInfoDelegate guideEtag = mEtagDaoHelper.findByEndpointAndDataId( mContext, mLocationProfile, GuideTemplate.Endpoint.GET_PROGRAM_GUIDE.name(), "" );
+				EtagInfoDelegate guideEtag = mEtagDaoHelper.findByEndpointAndDataId( mContext, mLocationProfile, GuideEndpoint.GET_PROGRAM_GUIDE.name(), "" );
 				if( null != guideEtag && guideEtag.getId() > 0 ) {
 					DvrGuideLastUpdateActionRow guideLastUpdateRow = new DvrGuideLastUpdateActionRow( mContext, guideEtag );
 					guideLastUpdateRow.setOnRefreshListener( DvrNavigationDrawerActivity.this );
@@ -482,7 +482,7 @@ public class DvrNavigationDrawerActivity extends AbstractMythtvFragmentActivity 
 			
 			rows.add( new DvrRecordingRulesActionRow( mContext, "Recording Rules" ) );
 			if( null != selectedRow && selectedRow instanceof DvrRecordingRulesActionRow ) {
-				EtagInfoDelegate recordingRulesEtag = mEtagDaoHelper.findByEndpointAndDataId( mContext, mLocationProfile, DvrTemplate.Endpoint.GET_RECORD_SCHEDULE_LIST.name(), "" );
+				EtagInfoDelegate recordingRulesEtag = mEtagDaoHelper.findByEndpointAndDataId( mContext, mLocationProfile, DvrEndpoint.GET_RECORD_SCHEDULE_LIST.name(), "" );
 				if( null != recordingRulesEtag && recordingRulesEtag.getId() > 0 ) {
 					DvrRecordingRulesLastUpdateActionRow recordingRulesLastUpdateRow = new DvrRecordingRulesLastUpdateActionRow( mContext, recordingRulesEtag );
 					recordingRulesLastUpdateRow.setOnRefreshListener( DvrNavigationDrawerActivity.this );

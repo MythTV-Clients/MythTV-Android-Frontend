@@ -25,7 +25,7 @@ import org.mythtv.client.ui.AbstractMythFragment;
 import org.mythtv.client.ui.MainMenuFragment;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.http.model.EtagInfoDelegate;
-import org.mythtv.services.api.frontend.FrontendStatus;
+import org.mythtv.db.frontends.model.Status;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -92,10 +92,10 @@ public class AbstractFrontendFragment extends AbstractMythFragment {
 	 * @author pot8oe
 	 * 
 	 */
-	protected class GetStatusTask extends AsyncTask<String, Void, ResponseEntity<FrontendStatus>> {
+	protected class GetStatusTask extends AsyncTask<String, Void, ResponseEntity<Status>> {
 
 		@Override
-		protected ResponseEntity<FrontendStatus> doInBackground( String... params ) {
+		protected ResponseEntity<Status> doInBackground( String... params ) {
 
 			try {
 				EtagInfoDelegate eTag = EtagInfoDelegate.createEmptyETag();
@@ -112,7 +112,7 @@ public class AbstractFrontendFragment extends AbstractMythFragment {
 		 * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
 		 */
 		@Override
-		protected void onPostExecute( ResponseEntity<FrontendStatus> result ) {
+		protected void onPostExecute( ResponseEntity<Status> result ) {
 			super.onPostExecute( result );
 			
 			if( result.getStatusCode().equals( HttpStatus.OK ) ) {

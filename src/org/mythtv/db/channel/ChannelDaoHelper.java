@@ -24,20 +24,14 @@ import java.util.List;
 import org.joda.time.DateTime;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.AbstractDaoHelper;
-import org.mythtv.provider.MythtvProvider;
+import org.mythtv.db.channel.model.ChannelInfo;
 import org.mythtv.service.util.DateUtils;
-import org.mythtv.services.api.channel.ChannelInfo;
-import org.mythtv.services.api.channel.ChannelInfos;
 
-import android.content.ContentProviderOperation;
-import android.content.ContentProviderResult;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.OperationApplicationException;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.RemoteException;
 import android.util.Log;
 
 
@@ -288,126 +282,6 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 		return deleted;
 	}
 
-	public int load( final Context context, final LocationProfile locationProfile, List<ChannelInfos> allChannelsList ) throws RemoteException, OperationApplicationException {
-//		Log.d( TAG, "load : enter" );
-		
-		if( null == context ) 
-			throw new RuntimeException( "ChannelDaoHelper is not initialized" );
-		
-		DateTime lastModified = DateUtils.convertUtc( new DateTime( System.currentTimeMillis() ) );
-		
-		int count = 0;
-		int deletecount = 0;
-		int processed = 0;
-		int totalUpdates = 0;
-		int totalInserts = 0;
-		int totalDeletes = 0;
-		
-		String[] channelProjection = new String[] { ChannelConstants._ID };
-		String channelSelection = ChannelConstants.FIELD_CHAN_ID + " = ?";
-
-		channelSelection = appendLocationHostname( context, locationProfile, channelSelection, null );
-
-		ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
-		
-		for( ChannelInfos channelInfos : allChannelsList ) {
-//			Log.v( TAG, "load : channelInfos iteration, channels in this source: " + channelInfos.getTotalAvailable() );
-			
-			for( ChannelInfo channel : channelInfos.getChannelInfos() ) {
-				
-				if( channel.isVisable() ) {
-				
-					ContentValues channelValues = convertChannelInfoToContentValues( locationProfile, lastModified, channel );
-					Cursor channelCursor = context.getContentResolver().query( ChannelConstants.CONTENT_URI, channelProjection, channelSelection, new String[] { String.valueOf( channel.getChannelId() ) }, null );
-					if( channelCursor.moveToFirst() ) {
-//						Log.v( TAG, "load : updating channel " + channel.getChannelId() );
-
-						Long id = channelCursor.getLong( channelCursor.getColumnIndexOrThrow( ChannelConstants._ID ) );
-						ops.add( 
-							ContentProviderOperation.newUpdate( ContentUris.withAppendedId( ChannelConstants.CONTENT_URI, id ) )
-								.withValues( channelValues )
-								.withYieldAllowed( true )
-								.build()
-						);
-						totalUpdates++;
-
-					} else {
-//						Log.v( TAG, "load : adding channel " + channel.getChannelId() );
-
-						ops.add(  
-							ContentProviderOperation.newInsert( ChannelConstants.CONTENT_URI )
-								.withValues( channelValues )
-								.withYieldAllowed( true )
-								.build()
-						);
-						totalInserts++;
-
-					}
-					channelCursor.close();
-					count++;
-
-					if( count > BATCH_COUNT_LIMIT ) {
-//						Log.v( TAG, "process : batch update/insert" );
-
-						if( !ops.isEmpty() ) {
-
-							ContentProviderResult[] results = context.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
-							processed += results.length;
-
-							if( results.length > 0 ) {
-								ops.clear();
-							}
-						}
-
-						count = 0;
-					}
-				
-				}
-
-			}
-
-			if( !ops.isEmpty() ) {
-//				Log.v( TAG, "process : final batch update|insert " + count );
-
-				ContentProviderResult[] results = context.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
-				processed += results.length;
-
-				if( results.length > 0 ) {
-					ops.clear();
-				}
-				count = 0;
-			}
-
-		}
-
-		// Done with the updates/inserts, remove any 'stale' channels
-//		Log.v( TAG, "load : deleting channels no longer present on mythtv backend" );
-		ops.add(  
-			ContentProviderOperation.newDelete( ChannelConstants.CONTENT_URI )
-				.withSelection( ChannelConstants.FIELD_LAST_MODIFIED_DATE + " < ?", new String[] { String.valueOf( lastModified.getMillis() ) } )
-				.withYieldAllowed( true )
-				.build()
-		);
-
-		if( !ops.isEmpty() ) {
-//			Log.v( TAG, "process : final batch deletes " + count + "/" + deletecount);
-
-			ContentProviderResult[] results = context.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
-			processed += results.length;
-
-			if( results.length > 0 ) {
-				ops.clear();
-			}
-		
-		}
-		
-//		Log.d( TAG, "load : totalUpdates: " + totalUpdates );
-//		Log.d( TAG, "load : totalInserts: " + totalInserts );
-//		Log.d( TAG, "load : totalDeletes: " + totalDeletes );
-//		Log.d( TAG, "load : exit" );
-		return processed;
-	}
-	
 	/**
 	 * @param cursor
 	 * @return
@@ -560,7 +434,7 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 
 	// internal helpers
 
-	public static ContentValues[] convertChannelInfosToContentValuesArray( final LocationProfile locationProfile, final DateTime lastModified, final List<ChannelInfo> channelInfos ) {
+	private static ContentValues[] convertChannelInfosToContentValuesArray( final LocationProfile locationProfile, final DateTime lastModified, final List<ChannelInfo> channelInfos ) {
 //		Log.v( TAG, "convertChannelInfosToContentValuesArray : enter" );
 		
 		if( null != channelInfos && !channelInfos.isEmpty() ) {

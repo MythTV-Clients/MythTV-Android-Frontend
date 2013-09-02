@@ -27,11 +27,11 @@ import org.mythtv.client.ui.AbstractMythFragment;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.util.MenuHelper;
 import org.mythtv.client.ui.util.MenuItemRefreshAnimated;
+import org.mythtv.db.dvr.DvrEndpoint;
 import org.mythtv.db.http.EtagDaoHelper;
 import org.mythtv.service.dvr.UpcomingDownloadService;
 import org.mythtv.service.util.DateUtils;
 import org.mythtv.service.util.RunningServiceHelper;
-import org.mythtv.services.api.dvr.impl.DvrTemplate.Endpoint;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -105,7 +105,7 @@ public class UpcomingPagerFragment extends AbstractMythFragment {
 
 		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
 		
-		DateTime etag = mEtagDaoHelper.findDateByEndpointAndDataId( getActivity(), mLocationProfile, Endpoint.GET_UPCOMING_LIST.name(), "" );
+		DateTime etag = mEtagDaoHelper.findDateByEndpointAndDataId( getActivity(), mLocationProfile, DvrEndpoint.GET_UPCOMING_LIST.name(), "" );
 		if( null != etag ) {
 			
 			DateTime now = DateUtils.convertUtc( new DateTime( System.currentTimeMillis() ) );

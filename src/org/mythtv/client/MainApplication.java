@@ -33,15 +33,12 @@ import org.mythtv.db.frontends.FrontendDaoHelper;
 import org.mythtv.db.http.EtagDaoHelper;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.db.preferences.PlaybackProfileDaoHelper;
-import org.mythtv.service.util.FileHelper;
 import org.mythtv.service.util.MythtvServiceHelper;
 import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.service.util.RunningServiceHelper;
 
-import android.app.ActivityManager;
 import android.app.Application;
 import android.content.Context;
-import android.os.Build;
 import android.provider.Settings;
 import android.util.Log;
 
@@ -97,7 +94,6 @@ public class MainApplication extends Application {
 		UpcomingDaoHelper.getInstance();
 		
 		//Initialize Helpers
-		FileHelper.getInstance().init( this.getExternalCacheDir() );
 		NetworkHelper.getInstance();
 		RunningServiceHelper.getInstance();
 		ProgramHelper.getInstance().init( this );

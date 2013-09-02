@@ -23,9 +23,9 @@ import java.util.List;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.mythtv.client.ui.preferences.LocationProfile;
-import org.mythtv.services.api.channel.ChannelInfo;
-import org.mythtv.services.api.dvr.Program;
-import org.mythtv.services.api.guide.ProgramGuide;
+import org.mythtv.db.channel.model.ChannelInfo;
+import org.mythtv.db.dvr.model.Program;
+import org.mythtv.db.guide.model.ProgramGuide;
 
 import android.content.ContentUris;
 import android.content.Context;

@@ -26,12 +26,12 @@ import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.util.MenuHelper;
 import org.mythtv.client.ui.util.MenuItemRefreshAnimated;
 import org.mythtv.client.ui.util.ProgramHelper;
+import org.mythtv.db.dvr.model.Program;
+import org.mythtv.db.status.model.BackendStatus;
+import org.mythtv.db.status.model.Encoder;
+import org.mythtv.db.status.model.Job;
 import org.mythtv.service.util.DateUtils;
-import org.mythtv.services.api.dvr.Encoder;
-import org.mythtv.services.api.dvr.Program;
-import org.mythtv.services.api.status.Job;
 
-import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.animation.ValueAnimator.AnimatorUpdateListener;
 import android.content.res.Configuration;
@@ -45,8 +45,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.LinearInterpolator;
-import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -264,7 +262,7 @@ public class BackendStatusFragment extends AbstractMythFragment {
      *  Called at the end of BackendStatusTask.onPostExecute() when result is not null.
      */
 	@Override
-    protected void onBackendStatusUpdated(org.mythtv.services.api.status.Status result){
+    protected void onBackendStatusUpdated( BackendStatus result ) {
 		
 		this.mMenuItemRefresh.stopRefreshAnimation();
 		

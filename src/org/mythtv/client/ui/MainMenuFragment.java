@@ -37,6 +37,7 @@ import org.mythtv.client.ui.frontends.Frontend;
 import org.mythtv.client.ui.frontends.MythmoteActivity;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.preferences.MythtvPreferenceActivity;
+import org.mythtv.db.channel.ChannelEndpoint;
 import org.mythtv.db.http.EtagDaoHelper;
 import org.mythtv.service.MythtvService;
 import org.mythtv.service.channel.ChannelDownloadService;
@@ -44,7 +45,6 @@ import org.mythtv.service.guide.ProgramGuideDownloadService;
 import org.mythtv.service.util.DateUtils;
 import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.service.util.RunningServiceHelper;
-import org.mythtv.services.api.channel.impl.ChannelTemplate.Endpoint;
 
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
@@ -411,7 +411,7 @@ public class MainMenuFragment extends AbstractMythFragment implements ServiceLis
 		
 		if( isConnected ) {
 
-			DateTime etag = mEtagDaoHelper.findDateByEndpointAndDataId( getActivity(), profile, Endpoint.GET_CHANNEL_INFO_LIST.name(), "" );
+			DateTime etag = mEtagDaoHelper.findDateByEndpointAndDataId( getActivity(), profile, ChannelEndpoint.GET_CHANNEL_INFO_LIST.name(), "" );
 			if( null != etag ) {
 				
 				DateTime now = DateUtils.convertUtc( new DateTime( System.currentTimeMillis() ) );
@@ -791,8 +791,8 @@ public class MainMenuFragment extends AbstractMythFragment implements ServiceLis
 	        	
         		Toast.makeText( getActivity(), "Channels Updated!", Toast.LENGTH_SHORT ).show();
 
-//	        	if( !mRunningServiceHelper.isServiceRunning( "org.mythtv.service.guide.ProgramGuideDownloadServiceNew" ) ) {
-//	    			startService( new Intent( ProgramGuideDownloadServiceNew.ACTION_DOWNLOAD ) );
+//	        	if( !mRunningServiceHelper.isServiceRunning( "org.mythtv.service.guide.ProgramGuideDownloadService" ) ) {
+//	    			startService( new Intent( ProgramGuideDownloadService.ACTION_DOWNLOAD ) );
 //	    		}
 
 	        }

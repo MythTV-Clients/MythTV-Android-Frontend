@@ -25,6 +25,7 @@ import org.mythtv.client.ui.util.MenuHelper;
 import org.mythtv.client.ui.util.MenuItemRefreshAnimated;
 import org.mythtv.client.ui.util.MythtvListFragment;
 import org.mythtv.client.ui.util.ProgramHelper;
+import org.mythtv.db.dvr.DvrEndpoint;
 import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.db.dvr.programGroup.ProgramGroup;
 import org.mythtv.db.dvr.programGroup.ProgramGroupConstants;
@@ -35,7 +36,6 @@ import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.dvr.RecordedService;
 import org.mythtv.service.util.DateUtils;
 import org.mythtv.service.util.RunningServiceHelper;
-import org.mythtv.services.api.dvr.impl.DvrTemplate.Endpoint;
 
 import android.content.BroadcastReceiver;
 import android.content.ContentUris;
@@ -60,13 +60,13 @@ import android.widget.CursorAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-//import android.widget.Toast;
 
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.assist.PauseOnScrollListener;
 import com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener;
+//import android.widget.Toast;
 
 /**
  * @author Daniel Frey
@@ -211,7 +211,7 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 			mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
 		}
 		
-		DateTime etag = mEtagDaoHelper.findDateByEndpointAndDataId( getActivity(), mLocationProfile, Endpoint.GET_RECORDED_LIST.name(), "" );
+		DateTime etag = mEtagDaoHelper.findDateByEndpointAndDataId( getActivity(), mLocationProfile, DvrEndpoint.GET_RECORDED_LIST.name(), "" );
 		if( null != etag ) {
 			
 			DateTime now = DateUtils.convertUtc( new DateTime( System.currentTimeMillis() ) );
@@ -274,7 +274,7 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 		case MenuHelper.REFRESH_ID:
 			Log.d( TAG, "onOptionsItemSelected : refresh selected" );
 
-			Cursor cursor = getActivity().getContentResolver().query( Uri.withAppendedPath( EtagConstants.CONTENT_URI, "endpoint" ), null, EtagConstants.FIELD_ENDPOINT + " = ?" ,new String[] { Endpoint.GET_RECORDED_LIST.name() }, null );
+			Cursor cursor = getActivity().getContentResolver().query( Uri.withAppendedPath( EtagConstants.CONTENT_URI, "endpoint" ), null, EtagConstants.FIELD_ENDPOINT + " = ?" ,new String[] { DvrEndpoint.GET_RECORDED_LIST.name() }, null );
 			if( cursor.moveToFirst() ) {
 				Long id = cursor.getLong( cursor.getColumnIndexOrThrow( EtagConstants._ID ) );
 

@@ -32,8 +32,8 @@ import org.mythtv.service.dvr.LiveStreamService;
 import org.mythtv.service.dvr.RecordedService;
 import org.mythtv.service.util.DateUtils;
 import org.mythtv.services.api.Bool;
-import org.mythtv.services.api.content.LiveStreamInfo;
-import org.mythtv.services.api.dvr.Program;
+import org.mythtv.db.content.model.LiveStreamInfo;
+import org.mythtv.db.dvr.model.Program;
 import org.springframework.http.ResponseEntity;
 
 import android.app.Activity;

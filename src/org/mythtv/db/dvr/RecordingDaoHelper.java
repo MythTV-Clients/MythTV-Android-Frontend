@@ -25,8 +25,8 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.AbstractDaoHelper;
+import org.mythtv.db.dvr.model.Recording;
 import org.mythtv.service.util.DateUtils;
-import org.mythtv.services.api.dvr.Recording;
 
 import android.content.ContentUris;
 import android.content.ContentValues;

@@ -27,8 +27,8 @@ import java.util.TreeMap;
 import org.mythtv.client.MainApplication;
 import org.mythtv.db.http.model.EtagInfoDelegate;
 import org.mythtv.service.util.MythtvServiceHelper;
-import org.mythtv.services.api.capture.CaptureCard;
-import org.mythtv.services.api.capture.CaptureCardList;
+import org.mythtv.db.captureCard.model.CaptureCard;
+import org.mythtv.db.captureCard.model.CaptureCardList;
 import org.springframework.http.ResponseEntity;
 
 import android.content.Intent;

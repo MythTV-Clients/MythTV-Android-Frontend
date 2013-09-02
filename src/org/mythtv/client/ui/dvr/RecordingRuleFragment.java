@@ -28,8 +28,8 @@ import org.mythtv.client.ui.util.MenuHelper;
 import org.mythtv.client.ui.util.ProgramHelper;
 import org.mythtv.db.channel.ChannelDaoHelper;
 import org.mythtv.db.dvr.RecordingRuleDaoHelper;
-import org.mythtv.services.api.channel.ChannelInfo;
-import org.mythtv.services.api.dvr.RecRule;
+import org.mythtv.db.channel.model.ChannelInfo;
+import org.mythtv.db.dvr.model.RecRule;
 
 import android.content.Intent;
 import android.os.Bundle;

@@ -27,15 +27,15 @@ import org.mythtv.client.ui.util.MenuItemRefreshAnimated;
 import org.mythtv.client.ui.util.MythtvListFragment;
 import org.mythtv.client.ui.util.ProgramHelper;
 import org.mythtv.db.channel.ChannelDaoHelper;
+import org.mythtv.db.channel.model.ChannelInfo;
+import org.mythtv.db.dvr.DvrEndpoint;
 import org.mythtv.db.dvr.RecordingRuleConstants;
 import org.mythtv.db.dvr.RecordingRuleDaoHelper;
+import org.mythtv.db.dvr.model.RecRule;
 import org.mythtv.db.http.EtagDaoHelper;
 import org.mythtv.service.dvr.RecordingRuleDownloadService;
 import org.mythtv.service.util.DateUtils;
 import org.mythtv.service.util.RunningServiceHelper;
-import org.mythtv.services.api.channel.ChannelInfo;
-import org.mythtv.services.api.dvr.RecRule;
-import org.mythtv.services.api.dvr.impl.DvrTemplate.Endpoint;
 
 import android.annotation.TargetApi;
 import android.content.BroadcastReceiver;
@@ -193,7 +193,7 @@ public class RecordingRulesFragment extends MythtvListFragment implements Loader
 		Log.v( TAG, "onResume : enter" );
 		super.onStart();
 	    
-		DateTime etag = mEtagDaoHelper.findDateByEndpointAndDataId( getActivity(), mLocationProfile, Endpoint.GET_RECORD_SCHEDULE_LIST.name(), "" );
+		DateTime etag = mEtagDaoHelper.findDateByEndpointAndDataId( getActivity(), mLocationProfile, DvrEndpoint.GET_RECORD_SCHEDULE_LIST.name(), "" );
 		if( null != etag ) {
 			
 			DateTime now = DateUtils.convertUtc( new DateTime( System.currentTimeMillis() ) );

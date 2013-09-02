@@ -28,9 +28,9 @@ import org.mythtv.db.http.model.EtagInfoDelegate;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.util.MythtvServiceHelper;
 import org.mythtv.service.util.NetworkHelper;
-import org.mythtv.services.api.content.LiveStreamInfo;
-import org.mythtv.services.api.content.LiveStreamInfoWrapper;
-import org.mythtv.services.api.dvr.Program;
+import org.mythtv.db.content.model.LiveStreamInfo;
+import org.mythtv.db.content.model.LiveStreamInfoWrapper;
+import org.mythtv.db.dvr.model.Program;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 

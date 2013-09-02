@@ -23,21 +23,25 @@ import java.util.List;
 
 import org.joda.time.DateTime;
 import org.mythtv.client.ui.preferences.LocationProfile;
+import org.mythtv.db.dvr.DvrEndpoint;
 import org.mythtv.db.dvr.RecordedDaoHelper;
+import org.mythtv.db.dvr.model.Program;
+import org.mythtv.db.dvr.model.ProgramList;
+import org.mythtv.db.dvr.model.Programs;
 import org.mythtv.db.dvr.programGroup.ProgramGroup;
 import org.mythtv.db.dvr.programGroup.ProgramGroupDaoHelper;
 import org.mythtv.db.http.EtagDaoHelper;
 import org.mythtv.db.http.model.EtagInfoDelegate;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.MythtvService;
+import org.mythtv.service.channel.v26.ChannelHelperV26;
+import org.mythtv.service.dvr.v26.RecordedHelperV26;
+import org.mythtv.service.dvr.v27.RecordedHelperV27;
 import org.mythtv.service.util.DateUtils;
 import org.mythtv.service.util.NetworkHelper;
+import org.mythtv.services.api.ApiVersion;
 import org.mythtv.services.api.Bool;
 import org.mythtv.services.api.MythServiceApiRuntimeException;
-import org.mythtv.services.api.dvr.Program;
-import org.mythtv.services.api.dvr.ProgramList;
-import org.mythtv.services.api.dvr.Programs;
-import org.mythtv.services.api.dvr.impl.DvrTemplate.Endpoint;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -108,7 +112,25 @@ public class RecordedService extends MythtvService {
 
     		try {
 
-    			download( locationProfile );
+    			ApiVersion apiVersion = ApiVersion.valueOf( locationProfile.getVersion() );
+    			switch( apiVersion ) {
+    				case v026 :
+    					
+    					passed = RecordedHelperV26.process( this, locationProfile );
+    					
+    					break;
+    				case v027 :
+
+    					passed = RecordedHelperV27.process( this, locationProfile );
+
+    					break;
+    					
+    				default :
+    					
+    					passed = RecordedHelperV26.process( this, locationProfile );
+
+    					break;
+    			}
 
 			} catch( Exception e ) {
 				Log.e( TAG, "onHandleIntent : error", e );
@@ -160,62 +182,6 @@ public class RecordedService extends MythtvService {
 
 	// internal helpers
 	
-	private void download( final LocationProfile locationProfile ) throws Exception {
-		Log.v( TAG, "download : enter" );
-
-		EtagInfoDelegate etag = mEtagDaoHelper.findByEndpointAndDataId( this, locationProfile, Endpoint.GET_RECORDED_LIST.name(), "" );
-		
-		ResponseEntity<ProgramList> responseEntity = mMythtvServiceHelper.getMythServicesApi( locationProfile ).dvrOperations().getRecordedList( etag );
-
-		DateTime date = DateUtils.convertUtc( new DateTime( System.currentTimeMillis() ) );
-		if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
-			Log.i( TAG, "download : " + Endpoint.GET_RECORDED_LIST.getEndpoint() + " returned 200 OK" );
-			ProgramList programList = responseEntity.getBody();
-
-			if( null != programList.getPrograms() ) {
-
-				process( programList.getPrograms(), locationProfile );	
-
-				if( null != etag.getValue() ) {
-					Log.i( TAG, "download : saving etag: " + etag.getValue() );
-					
-					etag.setEndpoint( Endpoint.GET_RECORDED_LIST.name() );
-					etag.setDate( date );
-					etag.setMasterHostname( locationProfile.getHostname() );
-					etag.setLastModified( date );
-					mEtagDaoHelper.save( this, locationProfile, etag );
-				}
-
-			}
-
-		}
-
-		if( responseEntity.getStatusCode().equals( HttpStatus.NOT_MODIFIED ) ) {
-			Log.i( TAG, "download : " + Endpoint.GET_RECORDED_LIST.getEndpoint() + " returned 304 Not Modified" );
-
-			if( null != etag.getValue() ) {
-				Log.i( TAG, "download : saving etag: " + etag.getValue() );
-
-				etag.setLastModified( date );
-				mEtagDaoHelper.save( this, locationProfile, etag );
-			}
-
-		}
-			
-		Log.v( TAG, "download : exit" );
-	}
-
-	private void process( Programs programs, final LocationProfile locationProfile ) throws JsonGenerationException, JsonMappingException, IOException, RemoteException, OperationApplicationException {
-		Log.v( TAG, "process : enter" );
-		
-		Log.v( TAG, "process : saving recorded for host [" + locationProfile.getHostname() + ":" + locationProfile.getUrl() + "]" );
-		
-		int programsAdded = mRecordedDaoHelper.load( this, locationProfile, programs.getPrograms() );
-		Log.v( TAG, "process : programsAdded=" + programsAdded );
-		
-		Log.v( TAG, "process : exit" );
-	}
-
 	private Boolean removeRecorded( final LocationProfile locationProfile, int channelId, DateTime startTimestamp ) throws MythServiceApiRuntimeException {
 		Log.v( TAG, "removeRecorded : enter" );
 		
@@ -226,15 +192,25 @@ public class RecordedService extends MythtvService {
 		intent.putExtra( LiveStreamService.KEY_START_TIMESTAMP, startTimestamp.getMillis() );
 		startService( intent );
 
-		ResponseEntity<Bool> responseEntity = mMythtvServiceHelper.getMythServicesApi( locationProfile ).dvrOperations().removeRecorded( channelId, startTimestamp );
-		if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
-			removed = responseEntity.getBody().getBool();
-			
-			if( removed ) {
+		
+		ApiVersion apiVersion = ApiVersion.valueOf( locationProfile.getVersion() );
+		switch( apiVersion ) {
+			case v026 :
 				
-				removeRecordedLocal( locationProfile, channelId, startTimestamp );
-					
-			}
+				removed = RecordedHelperV26.deleteRecorded( this, locationProfile, channelId, startTimestamp );
+				
+				break;
+			case v027 :
+
+				removed = RecordedHelperV27.deleteRecorded( this, locationProfile, channelId, startTimestamp );
+
+				break;
+				
+			default :
+				
+				removed = RecordedHelperV26.deleteRecorded( this, locationProfile, channelId, startTimestamp );
+
+				break;
 		}
 
 		Log.v( TAG, "removeRecorded : exit" );

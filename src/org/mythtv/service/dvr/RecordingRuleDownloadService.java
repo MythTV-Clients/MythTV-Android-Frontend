@@ -23,16 +23,15 @@ import java.io.IOException;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.mythtv.client.ui.preferences.LocationProfile;
+import org.mythtv.db.dvr.DvrEndpoint;
 import org.mythtv.db.dvr.RecordingRuleDaoHelper;
+import org.mythtv.db.dvr.model.RecRuleList;
+import org.mythtv.db.dvr.model.RecRules;
 import org.mythtv.db.http.EtagDaoHelper;
 import org.mythtv.db.http.model.EtagInfoDelegate;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.MythtvService;
-import org.mythtv.service.util.DateUtils;
 import org.mythtv.service.util.NetworkHelper;
-import org.mythtv.services.api.dvr.RecRuleList;
-import org.mythtv.services.api.dvr.RecRules;
-import org.mythtv.services.api.dvr.impl.DvrTemplate.Endpoint;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -125,14 +124,14 @@ public class RecordingRuleDownloadService extends MythtvService {
 	private void download( final LocationProfile locationProfile ) throws Exception {
 		Log.v( TAG, "download : enter" );
 
-		EtagInfoDelegate etag = mEtagDaoHelper.findByEndpointAndDataId( this, locationProfile, Endpoint.GET_RECORD_SCHEDULE_LIST.name(), "" );
+		EtagInfoDelegate etag = mEtagDaoHelper.findByEndpointAndDataId( this, locationProfile, DvrEndpoint.GET_RECORD_SCHEDULE_LIST.name(), "" );
 //		etag = EtagInfoDelegate.createEmptyETag();
 		
 		ResponseEntity<RecRuleList> responseEntity = mMythtvServiceHelper.getMythServicesApi( locationProfile ).dvrOperations().getRecordScheduleList( -1, -1, etag );
 
 		DateTime date = new DateTime( DateTimeZone.UTC );
 		if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
-			Log.i( TAG, "download : " + Endpoint.GET_RECORD_SCHEDULE_LIST.getEndpoint() + " returned 200 OK" );
+			Log.i( TAG, "download : " + DvrEndpoint.GET_RECORD_SCHEDULE_LIST.getEndpoint() + " returned 200 OK" );
 			RecRuleList recRuleList = responseEntity.getBody();
 
 			if( null != recRuleList.getRecRules() ) {
@@ -142,7 +141,7 @@ public class RecordingRuleDownloadService extends MythtvService {
 				if( null != etag.getValue() ) {
 					Log.i( TAG, "download : saving etag: " + etag.getValue() );
 
-					etag.setEndpoint( Endpoint.GET_RECORD_SCHEDULE_LIST.name() );
+					etag.setEndpoint( DvrEndpoint.GET_RECORD_SCHEDULE_LIST.name() );
 					etag.setDate( date );
 					etag.setMasterHostname( locationProfile.getHostname() );
 					etag.setLastModified( date );
@@ -154,7 +153,7 @@ public class RecordingRuleDownloadService extends MythtvService {
 		}
 
 		if( responseEntity.getStatusCode().equals( HttpStatus.NOT_MODIFIED ) ) {
-			Log.i( TAG, "download : " + Endpoint.GET_RECORD_SCHEDULE_LIST.getEndpoint() + " returned 304 Not Modified" );
+			Log.i( TAG, "download : " + DvrEndpoint.GET_RECORD_SCHEDULE_LIST.getEndpoint() + " returned 304 Not Modified" );
 
 			if( null != etag.getValue() ) {
 				Log.i( TAG, "download : saving etag: " + etag.getValue() );

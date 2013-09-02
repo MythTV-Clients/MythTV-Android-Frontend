@@ -30,9 +30,9 @@ import org.mythtv.db.channel.ChannelDaoHelper;
 import org.mythtv.db.http.model.EtagInfoDelegate;
 import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.Int;
-import org.mythtv.services.api.channel.ChannelInfo;
-import org.mythtv.services.api.dvr.RecRule;
-import org.mythtv.services.api.dvr.RecRuleWrapper;
+import org.mythtv.db.channel.model.ChannelInfo;
+import org.mythtv.db.dvr.model.RecRule;
+import org.mythtv.db.dvr.model.RecRuleWrapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 

@@ -26,9 +26,9 @@ import java.util.TreeMap;
 import org.joda.time.DateTime;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.AbstractDaoHelper;
+import org.mythtv.db.dvr.model.Program;
 import org.mythtv.provider.MythtvProvider;
 import org.mythtv.service.util.DateUtils;
-import org.mythtv.services.api.dvr.Program;
 import org.mythtv.services.utils.ArticleCleaner;
 
 import android.content.ContentProviderOperation;

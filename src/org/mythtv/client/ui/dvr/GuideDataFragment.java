@@ -16,8 +16,8 @@ import org.mythtv.db.dvr.ProgramDaoHelper;
 import org.mythtv.db.dvr.ProgramGuideDaoHelper;
 import org.mythtv.db.dvr.RecordingConstants;
 import org.mythtv.service.util.DateUtils;
-import org.mythtv.services.api.dvr.Program;
-import org.mythtv.services.api.dvr.Recording;
+import org.mythtv.db.dvr.model.Program;
+import org.mythtv.db.dvr.model.Recording;
 
 import android.animation.ValueAnimator;
 import android.animation.ValueAnimator.AnimatorUpdateListener;
