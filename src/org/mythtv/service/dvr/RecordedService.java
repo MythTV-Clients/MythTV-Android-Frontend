@@ -18,41 +18,25 @@
  */
 package org.mythtv.service.dvr;
 
-import java.io.IOException;
 import java.util.List;
 
 import org.joda.time.DateTime;
 import org.mythtv.client.ui.preferences.LocationProfile;
-import org.mythtv.db.dvr.DvrEndpoint;
 import org.mythtv.db.dvr.RecordedDaoHelper;
 import org.mythtv.db.dvr.model.Program;
-import org.mythtv.db.dvr.model.ProgramList;
-import org.mythtv.db.dvr.model.Programs;
 import org.mythtv.db.dvr.programGroup.ProgramGroup;
 import org.mythtv.db.dvr.programGroup.ProgramGroupDaoHelper;
-import org.mythtv.db.http.EtagDaoHelper;
-import org.mythtv.db.http.model.EtagInfoDelegate;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.MythtvService;
-import org.mythtv.service.channel.v26.ChannelHelperV26;
+import org.mythtv.service.content.LiveStreamService;
 import org.mythtv.service.dvr.v26.RecordedHelperV26;
 import org.mythtv.service.dvr.v27.RecordedHelperV27;
-import org.mythtv.service.util.DateUtils;
-import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.ApiVersion;
-import org.mythtv.services.api.Bool;
 import org.mythtv.services.api.MythServiceApiRuntimeException;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
 import android.content.Intent;
-import android.content.OperationApplicationException;
 import android.os.Bundle;
-import android.os.RemoteException;
 import android.util.Log;
-
-import com.fasterxml.jackson.core.JsonGenerationException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 
 /**
  * @author Daniel Frey
@@ -69,6 +53,7 @@ public class RecordedService extends MythtvService {
 
     public static final String KEY_CHANNEL_ID = "KEY_CHANNEL_ID";
     public static final String KEY_START_TIMESTAMP = "KEY_START_TIMESTAMP";
+    public static final String KEY_RECORD_ID = "KEY_RECORD_ID";
     
     public static final String EXTRA_PROGRESS = "PROGRESS";
     public static final String EXTRA_PROGRESS_DATA = "PROGRESS_DATA";
@@ -79,7 +64,6 @@ public class RecordedService extends MythtvService {
     
 	private RecordedDaoHelper mRecordedDaoHelper = RecordedDaoHelper.getInstance();
 	private ProgramGroupDaoHelper mProgramGroupDaoHelper = ProgramGroupDaoHelper.getInstance();
-	private EtagDaoHelper mEtagDaoHelper = EtagDaoHelper.getInstance();
 	private LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
 	
 	public RecordedService() {
@@ -97,15 +81,6 @@ public class RecordedService extends MythtvService {
 		boolean passed = true;
 		
 		LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile( this );
-		if( !NetworkHelper.getInstance().isMasterBackendConnected( this, locationProfile ) ) {
-			Intent completeIntent = new Intent( ACTION_COMPLETE );
-			completeIntent.putExtra( EXTRA_COMPLETE, "Master Backend unreachable" );
-			completeIntent.putExtra( EXTRA_COMPLETE_OFFLINE, Boolean.TRUE );
-			sendBroadcast( completeIntent );
-
-			Log.d( TAG, "onHandleIntent : exit, Master Backend unreachable" );
-			return;
-		}
 		
 		if ( intent.getAction().equals( ACTION_DOWNLOAD ) ) {
     		Log.i( TAG, "onHandleIntent : DOWNLOAD action selected" );
@@ -156,11 +131,12 @@ public class RecordedService extends MythtvService {
     			Bundle extras = intent.getExtras();
     			int channelId = extras.getInt( KEY_CHANNEL_ID );
     			long startTimestamp = extras.getLong( KEY_START_TIMESTAMP );
+    			int recordId = extras.getInt( KEY_RECORD_ID );
     			
     			if( channelId == 0 || startTimestamp == 0 ) {
     				passed = false;
     			} else {
-    				deleted = removeRecorded( locationProfile, channelId, new DateTime( startTimestamp ) );
+    				deleted = removeRecorded( locationProfile, channelId, new DateTime( startTimestamp ), recordId );
     			}
     			
 			} catch( Exception e ) {
@@ -182,7 +158,7 @@ public class RecordedService extends MythtvService {
 
 	// internal helpers
 	
-	private Boolean removeRecorded( final LocationProfile locationProfile, int channelId, DateTime startTimestamp ) throws MythServiceApiRuntimeException {
+	private Boolean removeRecorded( final LocationProfile locationProfile, int channelId, DateTime startTimestamp, int recordId ) throws MythServiceApiRuntimeException {
 		Log.v( TAG, "removeRecorded : enter" );
 		
 		boolean removed = false;
@@ -192,23 +168,22 @@ public class RecordedService extends MythtvService {
 		intent.putExtra( LiveStreamService.KEY_START_TIMESTAMP, startTimestamp.getMillis() );
 		startService( intent );
 
-		
 		ApiVersion apiVersion = ApiVersion.valueOf( locationProfile.getVersion() );
 		switch( apiVersion ) {
 			case v026 :
 				
-				removed = RecordedHelperV26.deleteRecorded( this, locationProfile, channelId, startTimestamp );
+				removed = RecordedHelperV26.deleteRecorded( this, locationProfile, channelId, startTimestamp, recordId );
 				
 				break;
 			case v027 :
 
-				removed = RecordedHelperV27.deleteRecorded( this, locationProfile, channelId, startTimestamp );
+				removed = RecordedHelperV27.deleteRecorded( this, locationProfile, channelId, startTimestamp, recordId );
 
 				break;
 				
 			default :
 				
-				removed = RecordedHelperV26.deleteRecorded( this, locationProfile, channelId, startTimestamp );
+				removed = RecordedHelperV26.deleteRecorded( this, locationProfile, channelId, startTimestamp, recordId );
 
 				break;
 		}

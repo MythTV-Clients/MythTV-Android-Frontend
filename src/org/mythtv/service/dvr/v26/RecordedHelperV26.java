@@ -74,10 +74,19 @@ public class RecordedHelperV26 extends AbstractBaseHelper {
 		return passed;
 	}
 	
-	public static boolean deleteRecorded( final Context context, final LocationProfile locationProfile, Integer channelId, DateTime startTime ) {
+	public static Program findRecorded( final Context context, final LocationProfile locationProfile, Integer channelId, DateTime startTime ) {
+		Log.v( TAG, "findRecorded : enter" );
+		
+		Program program = ProgramHelperV26.findProgram( context, locationProfile, ProgramConstants.CONTENT_URI_RECORDED, ProgramConstants.TABLE_NAME_RECORDED, channelId, startTime );
+		
+		Log.v( TAG, "findRecorded : enter" );
+		return program;
+	}
+	
+	public static boolean deleteRecorded( final Context context, final LocationProfile locationProfile, Integer channelId, DateTime startTime, Integer recordId ) {
 		Log.v( TAG, "deleteRecorded : enter" );
 		
-		boolean removed = ProgramHelperV26.deleteProgram( context, locationProfile, ProgramConstants.CONTENT_URI_RECORDED, ProgramConstants.TABLE_NAME_RECORDED, channelId, startTime );
+		boolean removed = ProgramHelperV26.deleteProgram( context, locationProfile, ProgramConstants.CONTENT_URI_RECORDED, ProgramConstants.TABLE_NAME_RECORDED, channelId, startTime, recordId );
 		
 		Log.v( TAG, "deleteRecorded : enter" );
 		return removed;

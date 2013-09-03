@@ -28,7 +28,7 @@ import org.mythtv.db.content.LiveStreamDaoHelper;
 import org.mythtv.db.dvr.RecordedDaoHelper;
 import org.mythtv.db.dvr.programGroup.ProgramGroup;
 import org.mythtv.db.dvr.programGroup.ProgramGroupDaoHelper;
-import org.mythtv.service.dvr.LiveStreamService;
+import org.mythtv.service.content.LiveStreamService;
 import org.mythtv.service.dvr.RecordedService;
 import org.mythtv.service.util.DateUtils;
 import org.mythtv.services.api.Bool;
@@ -596,6 +596,7 @@ public class EpisodeFragment extends AbstractMythFragment {
 		Intent intent = new Intent( RecordedService.ACTION_REMOVE );
 		intent.putExtra( RecordedService.KEY_CHANNEL_ID, program.getChannelInfo().getChannelId() );
 		intent.putExtra( RecordedService.KEY_START_TIMESTAMP, program.getRecording().getStartTimestamp().getMillis() );
+		intent.putExtra( RecordedService.KEY_RECORD_ID, program.getRecording().getRecordId() );
 		getActivity().startService( intent );
 
 		Log.i( TAG, "startRemoveProgramService : exit" );

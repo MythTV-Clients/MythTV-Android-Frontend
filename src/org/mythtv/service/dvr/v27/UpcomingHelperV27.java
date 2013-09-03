@@ -12,7 +12,6 @@ import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.AbstractBaseHelper;
 import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.db.dvr.RecordingConstants;
-import org.mythtv.db.dvr.RecordingConstants.ContentDetails;
 import org.mythtv.db.http.model.EtagInfoDelegate;
 import org.mythtv.service.channel.v27.ChannelHelperV27;
 import org.mythtv.services.api.ApiVersion;
@@ -131,8 +130,6 @@ public class UpcomingHelperV27 extends AbstractBaseHelper {
 		
 		boolean inError;
 
-		ContentDetails details = RecordingConstants.ContentDetails.getValueFromParent( ProgramConstants.TABLE_NAME_UPCOMING );
-
 		List<Integer> channelsChecked = new ArrayList<Integer>();
 		
 		for( Program program : programs ) {
@@ -146,8 +143,11 @@ public class UpcomingHelperV27 extends AbstractBaseHelper {
 			}
 
 			DateTime startTime = program.getStartTime();
-			
+
+			// load upcoming program
 			ProgramHelperV27.processProgram( context, locationProfile, ProgramConstants.CONTENT_URI_UPCOMING, ProgramConstants.TABLE_NAME_UPCOMING, ops, program, lastModified, startTime, count );
+			// update program guide
+			ProgramHelperV27.processProgram( context, locationProfile, ProgramConstants.CONTENT_URI_GUIDE, ProgramConstants.TABLE_NAME_GUIDE, ops, program, lastModified, startTime, count );
 
 			if( null != program.getChannel() ) {
 
@@ -165,7 +165,10 @@ public class UpcomingHelperV27 extends AbstractBaseHelper {
 				
 				if( program.getRecording().getRecordId() > 0 ) {
 				
-					RecordingHelperV27.processRecording( context, locationProfile, ops, details, program, lastModified, startTime, count );
+					// load upcoming recording
+					RecordingHelperV27.processRecording( context, locationProfile, ops, RecordingConstants.ContentDetails.UPCOMING, program, lastModified, startTime, count );
+					// update program guide recording
+					RecordingHelperV27.processRecording( context, locationProfile, ops, RecordingConstants.ContentDetails.GUIDE, program, lastModified, startTime, count );
 
 				}
 				
@@ -186,7 +189,7 @@ public class UpcomingHelperV27 extends AbstractBaseHelper {
 		ProgramHelperV27.deletePrograms( context, locationProfile, ops, ProgramConstants.CONTENT_URI_UPCOMING, ProgramConstants.TABLE_NAME_UPCOMING, today );
 
 //		Log.v( TAG, "load : DELETE RECORDINGS" );
-		RecordingHelperV27.deleteRecordings( ops, details, today );
+		RecordingHelperV27.deleteRecordings( ops, RecordingConstants.ContentDetails.UPCOMING, today );
 
 		processBatch( context, ops, processed, count );
 

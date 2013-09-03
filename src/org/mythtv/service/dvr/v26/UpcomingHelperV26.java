@@ -13,7 +13,6 @@ import org.mythtv.db.AbstractBaseHelper;
 import org.mythtv.db.dvr.DvrEndpoint;
 import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.db.dvr.RecordingConstants;
-import org.mythtv.db.dvr.RecordingConstants.ContentDetails;
 import org.mythtv.db.http.model.EtagInfoDelegate;
 import org.mythtv.service.channel.v26.ChannelHelperV26;
 import org.mythtv.service.util.DateUtils;
@@ -136,8 +135,6 @@ public class UpcomingHelperV26 extends AbstractBaseHelper {
 		
 		boolean inError;
 
-		ContentDetails details = RecordingConstants.ContentDetails.getValueFromParent( ProgramConstants.TABLE_NAME_UPCOMING );
-
 		List<Integer> channelsChecked = new ArrayList<Integer>();
 		
 		for( Program program : programs ) {
@@ -152,7 +149,10 @@ public class UpcomingHelperV26 extends AbstractBaseHelper {
 
 			DateTime startTime = program.getStartTime();
 			
+			// load upcoming program
 			ProgramHelperV26.processProgram( context, locationProfile, ProgramConstants.CONTENT_URI_UPCOMING, ProgramConstants.TABLE_NAME_UPCOMING, ops, program, lastModified, startTime, count );
+			// update program guide
+			ProgramHelperV26.processProgram( context, locationProfile, ProgramConstants.CONTENT_URI_GUIDE, ProgramConstants.TABLE_NAME_GUIDE, ops, program, lastModified, startTime, count );
 
 			if( null != program.getChannelInfo() ) {
 
@@ -170,7 +170,10 @@ public class UpcomingHelperV26 extends AbstractBaseHelper {
 				
 				if( program.getRecording().getRecordId() > 0 ) {
 				
-					RecordingHelperV26.processRecording( context, locationProfile, ops, details, program, lastModified, startTime, count );
+					// load upcoming recording
+					RecordingHelperV26.processRecording( context, locationProfile, ops, RecordingConstants.ContentDetails.UPCOMING, program, lastModified, startTime, count );
+					// update program guide recording
+					RecordingHelperV26.processRecording( context, locationProfile, ops, RecordingConstants.ContentDetails.GUIDE, program, lastModified, startTime, count );
 
 				}
 				
@@ -191,7 +194,7 @@ public class UpcomingHelperV26 extends AbstractBaseHelper {
 		ProgramHelperV26.deletePrograms( context, locationProfile, ops, ProgramConstants.CONTENT_URI_UPCOMING, ProgramConstants.TABLE_NAME_UPCOMING, today );
 
 //		Log.v( TAG, "load : DELETE RECORDINGS" );
-		RecordingHelperV26.deleteRecordings( ops, details, today );
+		RecordingHelperV26.deleteRecordings( ops, RecordingConstants.ContentDetails.UPCOMING, today );
 
 		processBatch( context, ops, processed, count );
 

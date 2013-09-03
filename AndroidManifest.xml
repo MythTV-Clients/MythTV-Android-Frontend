@@ -156,7 +156,7 @@
             </intent-filter>
 		</service>
 		
-				<service android:name=".service.dvr.LiveStreamService" android:process=":liveStream" android:exported="false">
+				<service android:name="org.mythtv.service.content.LiveStreamService" android:process=":liveStream" android:exported="false">
 			<intent-filter>
                 <action android:name="org.mythtv.background.liveStream.ACTION_COMPLETE" />
                 <action android:name="org.mythtv.background.liveStream.ACTION_PROGRESS" />

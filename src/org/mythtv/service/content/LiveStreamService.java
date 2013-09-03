@@ -1,25 +1,19 @@
 /**
  * 
  */
-package org.mythtv.service.dvr;
+package org.mythtv.service.content;
 
 import org.joda.time.DateTime;
 import org.mythtv.client.ui.preferences.LocationProfile;
-import org.mythtv.client.ui.preferences.LocationProfile.LocationType;
-import org.mythtv.client.ui.preferences.PlaybackProfile;
 import org.mythtv.db.content.LiveStreamDaoHelper;
 import org.mythtv.db.content.model.LiveStreamInfo;
-import org.mythtv.db.content.model.LiveStreamInfoWrapper;
 import org.mythtv.db.dvr.RecordedDaoHelper;
 import org.mythtv.db.dvr.model.Program;
-import org.mythtv.db.http.model.EtagInfoDelegate;
-import org.mythtv.db.preferences.LocationProfileDaoHelper;
-import org.mythtv.db.preferences.PlaybackProfileDaoHelper;
 import org.mythtv.service.MythtvService;
+import org.mythtv.service.content.v26.LiveStreamHelperV26;
+import org.mythtv.service.content.v27.LiveStreamHelperV27;
 import org.mythtv.service.util.NetworkHelper;
-import org.mythtv.services.api.Bool;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.mythtv.services.api.ApiVersion;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -57,9 +51,7 @@ public class LiveStreamService extends MythtvService {
     public static final String EXTRA_COMPLETE_RAW = "COMPLETE_RAW";
 
 	private LiveStreamDaoHelper mLiveStreamDaoHelper = LiveStreamDaoHelper.getInstance();
-	private PlaybackProfileDaoHelper mPlaybackProfileDaoHelper = PlaybackProfileDaoHelper.getInstance();
 	private RecordedDaoHelper mRecordedDaoHelper = RecordedDaoHelper.getInstance();
-	private LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
 	
 	public LiveStreamService() {
 		super( "LiveStreamService" );
@@ -253,73 +245,76 @@ public class LiveStreamService extends MythtvService {
 		Log.v( TAG, "playLiveStream : exit" );
 	}
 	
-	private void createLiveStream( final LocationProfile locationProfile, final Program program ) {
+	private boolean createLiveStream( final LocationProfile locationProfile, final Program program ) {
 		Log.v( TAG, "createLiveStream : enter" );
 		
-		PlaybackProfile selectedPlaybackProfile = null;
-		LocationType locationType = locationProfile.getType();
+		boolean created = false;
 		
-		if( locationType.equals( LocationType.HOME ) ) {
-			selectedPlaybackProfile = mPlaybackProfileDaoHelper.findSelectedHomeProfile( this );
-		} else if( locationType.equals( LocationType.AWAY ) ) {
-			selectedPlaybackProfile = mPlaybackProfileDaoHelper.findSelectedAwayProfile( this );
-		} else {
-			Log.e( TAG, "createLiveStream : Unknown Location!" );
+		ApiVersion apiVersion = ApiVersion.valueOf( locationProfile.getVersion() );
+		switch( apiVersion ) {
+			case v026 :
+				
+				created = LiveStreamHelperV26.create( this, locationProfile, program.getChannelInfo().getChannelId(), program.getStartTime() );
+				
+				break;
+			case v027 :
+
+				created = LiveStreamHelperV27.create( this, locationProfile, program.getChannelInfo().getChannelId(), program.getStartTime() );
+
+				break;
+				
+			default :
+				
+				created = LiveStreamHelperV26.create( this, locationProfile, program.getChannelInfo().getChannelId(), program.getStartTime() );
+
+				break;
 		}
 
-		if( null != selectedPlaybackProfile ) {
-			
-			try {
-				Log.v( TAG, "createLiveStream : calling api" );
-				ResponseEntity<LiveStreamInfoWrapper> wrapper = mMythtvServiceHelper.getMythServicesApi( locationProfile ).contentOperations().
-						addLiveStream( null, program.getFilename(), program.getHostname(), -1, -1,
-								selectedPlaybackProfile.getHeight(), selectedPlaybackProfile.getVideoBitrate(), 
-								selectedPlaybackProfile.getAudioBitrate(), selectedPlaybackProfile.getAudioSampleRate() );
-
-				if( wrapper.getStatusCode().equals( HttpStatus.OK ) ) {
-					LiveStreamInfo liveStreamInfo = wrapper.getBody().getLiveStreamInfo();
-
-					saveLiveStreamLocal( locationProfile, liveStreamInfo, program );
-
-					Log.v( TAG, "createLiveStream : live stream created" );
-				}
-			} catch( Exception e ) {
-				Log.e( TAG, "createLiveStream : error", e );
+		if( created ) {
+		
+			LiveStreamInfo liveStreamInfo = mLiveStreamDaoHelper.findByProgram( this, locationProfile, program );
+			if( null != liveStreamInfo ) {
+				sendComplete( liveStreamInfo );
 			}
 		
 		}
 		
+		stopSelf();
+		
 		Log.v( TAG, "createLiveStream : exit" );
+		return created;
 	}
 
 	private void updateLiveStream( final LocationProfile locationProfile, final Program program ) throws InterruptedException {
 		Log.v( TAG, "updateLiveStream : enter" );
 		
-	    LiveStreamInfo liveStreamInfo = mLiveStreamDaoHelper.findByProgram( this, locationProfile, program );
-		if( null != liveStreamInfo && liveStreamInfo.getPercentComplete() < 100 ) {
-			Thread.sleep( 10000 );
-			EtagInfoDelegate eTag = EtagInfoDelegate.createEmptyETag();
+		boolean updated = false;
+		
+		ApiVersion apiVersion = ApiVersion.valueOf( locationProfile.getVersion() );
+		switch( apiVersion ) {
+			case v026 :
+				
+				updated = LiveStreamHelperV26.update( this, locationProfile, program.getChannelInfo().getChannelId(), program.getStartTime() );
+				
+				break;
+			case v027 :
 
-			try {
-				ResponseEntity<LiveStreamInfoWrapper> wrapper = mMythtvServiceHelper.getMythServicesApi( locationProfile ).contentOperations().getLiveStream( liveStreamInfo.getId(), eTag );
-				if( wrapper.getStatusCode().equals( HttpStatus.OK ) ) {
+				updated = LiveStreamHelperV27.update( this, locationProfile, program.getChannelInfo().getChannelId(), program.getStartTime() );
 
-					// save updated live stream info to database
-					LiveStreamInfo liveStreamStatus = wrapper.getBody().getLiveStreamInfo();
-					Log.v( TAG, "updateLiveStream : liveStreamInfo=" + liveStreamInfo.toString() );
-					if( !"Unknown status value".equalsIgnoreCase( liveStreamInfo.getStatusStr() ) ) {
-						saveLiveStreamLocal( locationProfile, liveStreamStatus, program );
+				break;
+				
+			default :
+				
+				updated = LiveStreamHelperV26.update( this, locationProfile, program.getChannelInfo().getChannelId(), program.getStartTime() );
 
-/*						if( liveStreamInfo.getPercentComplete() < 100 ) {
-							updateLiveStream( locationProfile, program );
-						}
-*/					} else {
-						removeLiveStreamLocal( locationProfile, liveStreamInfo );
-					}
+				break;
+		}
 
-				}
-			} catch( Exception e ) {
-				Log.e( TAG, "updateLiveStream : error", e );
+		if( updated ) {
+			
+			LiveStreamInfo liveStreamInfo = mLiveStreamDaoHelper.findByProgram( this, locationProfile, program );
+			if( null != liveStreamInfo && liveStreamInfo.getPercentComplete() < 100 ) {
+				sendProgress( liveStreamInfo );
 			}
 			
 		}
@@ -329,70 +324,43 @@ public class LiveStreamService extends MythtvService {
 		Log.v( TAG, "updateLiveStream : exit" );
 	}
 
-	private void saveLiveStreamLocal( final LocationProfile locationProfile, final LiveStreamInfo liveStreamInfo, final Program program ) {
-		Log.v( TAG, "saveLiveStreamLocal : enter" );
-		
-		mLiveStreamDaoHelper.save( this, locationProfile, liveStreamInfo, program );
-
-		if( liveStreamInfo.getPercentComplete() < 100 ) {
-			sendProgress( liveStreamInfo );
-			
-//			try {
-//				updateLiveStream( locationProfile, program );
-//			} catch( InterruptedException e ) {
-//				Log.e( TAG, "saveLiveStreamLocal : error", e );
-//			}
-			
-		} else {
-			sendComplete( liveStreamInfo );
-		}
-		
-		stopSelf();
-
-		Log.v( TAG, "saveLiveStreamLocal : exit" );
-	}
-	
-
 	private void removeLiveStream( final LocationProfile locationProfile, final Program program ) {
 		Log.v( TAG, "removeLiveStream : enter" );
 		
-        LiveStreamInfo liveStreamInfo = mLiveStreamDaoHelper.findByProgram( this, locationProfile, program );
-		if( null != liveStreamInfo ) {
-			
-			try {
-				ResponseEntity<Bool> wrapper = mMythtvServiceHelper.getMythServicesApi( locationProfile ).contentOperations().removeLiveStream( liveStreamInfo.getId() );
-				Log.v( TAG, "removeLiveStream : wrapper=" + wrapper.getStatusCode() );
+		boolean removed = false;
+		
+		ApiVersion apiVersion = ApiVersion.valueOf( locationProfile.getVersion() );
+		switch( apiVersion ) {
+			case v026 :
 				
-				if( wrapper.getStatusCode().equals( HttpStatus.OK ) ) {
-					if( wrapper.getBody().getBool().booleanValue() ) {
+				removed = LiveStreamHelperV26.remove( this, locationProfile, program.getChannelInfo().getChannelId(), program.getStartTime() );
+				
+				break;
+			case v027 :
 
-						removeLiveStreamLocal( locationProfile, liveStreamInfo );
+				removed = LiveStreamHelperV27.remove( this, locationProfile, program.getChannelInfo().getChannelId(), program.getStartTime() );
 
-						Log.v( TAG, "removeLive Stream : live stream removed" );
+				break;
+				
+			default :
+				
+				removed = LiveStreamHelperV26.remove( this, locationProfile, program.getChannelInfo().getChannelId(), program.getStartTime() );
 
-						sendCompleteRemove();
-						
-					}
-					
-				}
-			} catch( Exception e ) {
-				Log.e( TAG, "removeLiveStream : error", e );
-			}
-
+				break;
 		}
 
+		if( removed ) {
+			
+			LiveStreamInfo liveStreamInfo = mLiveStreamDaoHelper.findByProgram( this, locationProfile, program );
+			if( null == liveStreamInfo ) {
+				sendCompleteRemove();
+			}
+			
+		}
+		
 		stopSelf();
 
 		Log.v( TAG, "removeLiveStream : exit" );
-	}
-
-	private void removeLiveStreamLocal( final LocationProfile locationProfile, final LiveStreamInfo liveStreamInfo ) {
-		Log.v( TAG, "removeLiveStreamLocal : enter" );
-		
-		int deleted = mLiveStreamDaoHelper.delete( this, locationProfile, liveStreamInfo );
-		Log.v( TAG, "removeLiveStreamLocal : deleted=" + deleted );
-		
-		Log.v( TAG, "removeLiveStreamLocal : exit" );
 	}
 
 }
