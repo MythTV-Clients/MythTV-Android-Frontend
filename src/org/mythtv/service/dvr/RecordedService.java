@@ -192,23 +192,6 @@ public class RecordedService extends MythtvService {
 		return removed;
 	}
 	
-	private void removeRecordedLocal( final LocationProfile locationProfile, int channelId, DateTime startTimestamp ) {
-		Log.v( TAG, "removeRecordedLocal : enter" );
-		
-		Program program = mRecordedDaoHelper.findOne( this, locationProfile, channelId, startTimestamp );
-		String title = program.getTitle();
-		
-		Log.v( TAG, "removeRecordedLocal : deleting recorded program in content provider" );
-		int deleted = mRecordedDaoHelper.delete( this, locationProfile, program );
-		if( deleted == 1 ) {
-			Log.v( TAG, "removeRecordedLocal : recorded program deleted, clean up program group if needed" );
-
-			removeProgramGroupLocal( locationProfile, title );
-		}
-		
-		Log.v( TAG, "removeRecordedLocal : exit" );
-	}
-
 	private void removeProgramGroupLocal( final LocationProfile locationProfile, final String title ) {
 		Log.v( TAG, "removeProgramGroupLocal : enter" );
 		

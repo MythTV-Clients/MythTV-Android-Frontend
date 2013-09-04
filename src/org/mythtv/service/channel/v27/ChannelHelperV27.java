@@ -144,6 +144,27 @@ public class ChannelHelperV27 extends AbstractBaseHelper {
 		return passed;
 	}
 	
+	public static ChannelInfo findChannel( final Context context, final LocationProfile locationProfile, Integer channelId ) {
+		Log.d( TAG, "findChannel : enter" );
+		
+		String selection = ChannelConstants.FIELD_CHAN_ID + " = ?";
+		String[] selectionArgs = new String[] { String.valueOf( channelId ) };
+		
+		selection = appendLocationHostname( context, locationProfile, selection, ChannelConstants.TABLE_NAME );
+		
+		ChannelInfo channel = null;
+		
+		Cursor cursor = context.getContentResolver().query( ChannelConstants.CONTENT_URI, null, selection, selectionArgs, null );
+		if( cursor.moveToFirst() ) {
+
+			channel = convertCursorToChannelInfo( cursor );
+		}
+		cursor.close();
+
+		Log.d( TAG, "findChannel : exit" );
+		return channel;
+	}
+	
 	// internal helpers
 	
 	private static ChannelInfo[] downloadChannels( final Context context, final LocationProfile locationProfile, final int sourceId ) {

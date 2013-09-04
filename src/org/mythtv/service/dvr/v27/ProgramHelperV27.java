@@ -9,7 +9,6 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.AbstractBaseHelper;
-import org.mythtv.db.content.LiveStreamConstants;
 import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.db.dvr.RecordingConstants;
 import org.mythtv.db.http.model.EtagInfoDelegate;
@@ -219,19 +218,14 @@ public class ProgramHelperV27 extends AbstractBaseHelper {
 	private static Program convertCursorToProgram( Cursor cursor, final String table ) {
 //		Log.v( TAG, "convertCursorToProgram : enter" );
 
-//		Long id = null;
 		DateTime startTime = null, endTime = null, lastModified = null, airDate = null;
-		String title = "", subTitle = "", category = "", categoryType = "", seriesId = "", programId = "", hostname = "", filename = "", description = "", inetref = "", masterHostname = "";
+		String title = "", subTitle = "", category = "", categoryType = "", seriesId = "", programId = "", hostname = "", filename = "", description = "", inetref = "";
 		int repeat = -1, videoProps = -1, audioProps = -1, subProps = -1, programFlags = -1, season = -1, episode = -1;
 		long fileSize = -1;
 		double stars = 0.0f;
 		
 		ChannelInfo channelInfo = null;
 		RecordingInfo recording = null;
-		
-//		if( cursor.getColumnIndex( ProgramConstants._ID ) != -1 ) {
-//			id = cursor.getLong( cursor.getColumnIndex( ProgramConstants._ID ) );
-//		}
 		
 		if( cursor.getColumnIndex( ProgramConstants.FIELD_START_TIME ) != -1 ) {
 			startTime = new DateTime( cursor.getLong( cursor.getColumnIndex( ProgramConstants.FIELD_START_TIME ) ) );
@@ -323,10 +317,6 @@ public class ProgramHelperV27 extends AbstractBaseHelper {
 		
 		if( cursor.getColumnIndex( ProgramConstants.FIELD_EPISODE ) != -1 ) {
 			episode = cursor.getInt( cursor.getColumnIndex( ProgramConstants.FIELD_EPISODE ) );
-		}
-		
-		if( cursor.getColumnIndex( ProgramConstants.FIELD_MASTER_HOSTNAME ) != -1 ) {
-			masterHostname = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_MASTER_HOSTNAME ) );
 		}
 		
 		if( cursor.getColumnIndex( ProgramConstants.FIELD_CHANNEL_ID ) != -1 ) {

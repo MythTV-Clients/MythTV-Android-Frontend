@@ -217,18 +217,13 @@ public class ProgramHelperV26 extends AbstractBaseHelper {
 	private static Program convertCursorToProgram( Cursor cursor, final String table ) {
 //		Log.v( TAG, "convertCursorToProgram : enter" );
 
-//		Long id = null;
 		DateTime startTime = null, endTime = null, lastModified = null, airDate = null;
-		String title = "", subTitle = "", category = "", categoryType = "", seriesId = "", programId = "", fileSize = "", programFlags = "", hostname = "", filename = "", description = "", inetref = "", season = "", episode = "", masterHostname = "";
+		String title = "", subTitle = "", category = "", categoryType = "", seriesId = "", programId = "", fileSize = "", programFlags = "", hostname = "", filename = "", description = "", inetref = "", season = "", episode = "";
 		int repeat = -1, videoProps = -1, audioProps = -1, subProps = -1;
 		float stars = 0.0f;
 		
 		ChannelInfo channelInfo = null;
 		Recording recording = null;
-		
-//		if( cursor.getColumnIndex( ProgramConstants._ID ) != -1 ) {
-//			id = cursor.getLong( cursor.getColumnIndex( ProgramConstants._ID ) );
-//		}
 		
 		if( cursor.getColumnIndex( ProgramConstants.FIELD_START_TIME ) != -1 ) {
 			startTime = new DateTime( cursor.getLong( cursor.getColumnIndex( ProgramConstants.FIELD_START_TIME ) ) );
@@ -320,10 +315,6 @@ public class ProgramHelperV26 extends AbstractBaseHelper {
 		
 		if( cursor.getColumnIndex( ProgramConstants.FIELD_EPISODE ) != -1 ) {
 			episode = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_EPISODE ) );
-		}
-		
-		if( cursor.getColumnIndex( ProgramConstants.FIELD_MASTER_HOSTNAME ) != -1 ) {
-			masterHostname = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_MASTER_HOSTNAME ) );
 		}
 		
 		if( cursor.getColumnIndex( ProgramConstants.FIELD_CHANNEL_ID ) != -1 ) {

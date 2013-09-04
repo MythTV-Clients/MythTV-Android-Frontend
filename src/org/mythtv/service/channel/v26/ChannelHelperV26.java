@@ -11,7 +11,6 @@ import org.joda.time.DateTimeZone;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.AbstractBaseHelper;
 import org.mythtv.db.channel.ChannelConstants;
-import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.db.http.model.EtagInfoDelegate;
 import org.mythtv.services.api.ApiVersion;
 import org.mythtv.services.api.connect.MythAccessFactory;
@@ -19,7 +18,6 @@ import org.mythtv.services.api.v026.MythServicesTemplate;
 import org.mythtv.services.api.v026.beans.ChannelInfo;
 import org.mythtv.services.api.v026.beans.ChannelInfoList;
 import org.mythtv.services.api.v026.beans.ChannelInfos;
-import org.mythtv.services.api.v026.beans.Program;
 import org.mythtv.services.api.v026.beans.VideoSource;
 import org.mythtv.services.api.v026.beans.VideoSourceList;
 import org.mythtv.services.api.v026.impl.ChannelTemplate;
@@ -32,7 +30,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.OperationApplicationException;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.RemoteException;
 import android.util.Log;
 
@@ -146,6 +143,27 @@ public class ChannelHelperV26 extends AbstractBaseHelper {
 		
 		Log.v( TAG, "process : exit" );
 		return passed;
+	}
+	
+	public static ChannelInfo findChannel( final Context context, final LocationProfile locationProfile, Integer channelId ) {
+		Log.d( TAG, "findChannel : enter" );
+		
+		String selection = ChannelConstants.FIELD_CHAN_ID + " = ?";
+		String[] selectionArgs = new String[] { String.valueOf( channelId ) };
+		
+		selection = appendLocationHostname( context, locationProfile, selection, ChannelConstants.TABLE_NAME );
+		
+		ChannelInfo channel = null;
+		
+		Cursor cursor = context.getContentResolver().query( ChannelConstants.CONTENT_URI, null, selection, selectionArgs, null );
+		if( cursor.moveToFirst() ) {
+
+			channel = convertCursorToChannelInfo( cursor );
+		}
+		cursor.close();
+
+		Log.d( TAG, "findChannel : exit" );
+		return channel;
 	}
 	
 	// internal helpers

@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.AbstractDaoHelper;
 import org.mythtv.db.dvr.model.Program;
@@ -232,7 +233,7 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 		if( null == context ) 
 			throw new RuntimeException( "ProgramGroupDaoHelper is not initialized" );
 		
-		DateTime lastModified = DateUtils.convertUtc( new DateTime( System.currentTimeMillis() ) );
+		DateTime lastModified = new DateTime( DateTimeZone.UTC );
 		
 		Map<String, ProgramGroup> programGroups = new TreeMap<String, ProgramGroup>();
 		for( Program program : programs ) {

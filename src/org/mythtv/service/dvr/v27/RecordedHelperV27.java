@@ -5,6 +5,8 @@ package org.mythtv.service.dvr.v27;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -14,20 +16,23 @@ import org.mythtv.db.channel.ChannelConstants;
 import org.mythtv.db.content.LiveStreamConstants;
 import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.db.dvr.RecordingConstants;
-import org.mythtv.db.dvr.RecordingConstants.ContentDetails;
 import org.mythtv.db.dvr.RemoveStreamTask;
+import org.mythtv.db.dvr.programGroup.ProgramGroup;
+import org.mythtv.db.dvr.programGroup.ProgramGroupConstants;
 import org.mythtv.db.http.model.EtagInfoDelegate;
 import org.mythtv.service.channel.v27.ChannelHelperV27;
-import org.mythtv.service.dvr.v26.ProgramHelperV26;
 import org.mythtv.services.api.ApiVersion;
 import org.mythtv.services.api.connect.MythAccessFactory;
 import org.mythtv.services.api.v027.MythServicesTemplate;
 import org.mythtv.services.api.v027.beans.Program;
 import org.mythtv.services.api.v027.beans.ProgramList;
+import org.mythtv.services.utils.ArticleCleaner;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import android.content.ContentProviderOperation;
+import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.OperationApplicationException;
 import android.database.Cursor;
@@ -85,7 +90,7 @@ public class RecordedHelperV27 extends AbstractBaseHelper {
 	public static boolean deleteRecorded( final Context context, final LocationProfile locationProfile, Integer channelId, DateTime startTime, Integer recordId ) {
 		Log.v( TAG, "deleteRecorded : enter" );
 		
-		boolean removed = ProgramHelperV26.deleteProgram( context, locationProfile, ProgramConstants.CONTENT_URI_RECORDED, ProgramConstants.TABLE_NAME_RECORDED, channelId, startTime, recordId );
+		boolean removed = ProgramHelperV27.deleteProgram( context, locationProfile, ProgramConstants.CONTENT_URI_RECORDED, ProgramConstants.TABLE_NAME_RECORDED, channelId, startTime, recordId );
 		
 		Log.v( TAG, "deleteRecorded : enter" );
 		return removed;
@@ -152,10 +157,9 @@ public class RecordedHelperV27 extends AbstractBaseHelper {
 		
 		ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
 		
-		boolean inError;
+		processProgramGroups( context, locationProfile, ops, programs, lastModified, processed, count );
 
-		ContentDetails details = RecordingConstants.ContentDetails.getValueFromParent( ProgramConstants.TABLE_NAME_RECORDED );
-//		Log.w(TAG, "load : details - parent=" + details.getParent() + ", tableName=" + details.getTableName() + ", contentUri=" + details.getContentUri().toString() );
+		boolean inError;
 
 		List<Integer> channelsChecked = new ArrayList<Integer>();
 		
@@ -193,7 +197,7 @@ public class RecordedHelperV27 extends AbstractBaseHelper {
 				
 				if( program.getRecording().getRecordId() > 0 ) {
 				
-					RecordingHelperV27.processRecording( context, locationProfile, ops, details, program, lastModified, startTime, count );
+					RecordingHelperV27.processRecording( context, locationProfile, ops, RecordingConstants.ContentDetails.RECORDED, program, lastModified, startTime, count );
 				}
 				
 			}
@@ -247,12 +251,125 @@ public class RecordedHelperV27 extends AbstractBaseHelper {
 		ProgramHelperV27.deletePrograms( context, locationProfile, ops, ProgramConstants.CONTENT_URI_RECORDED, ProgramConstants.TABLE_NAME_RECORDED, today );
 
 //		Log.v( TAG, "load : DELETE RECORDINGS" );
-		RecordingHelperV27.deleteRecordings( ops, details, today );
+		RecordingHelperV27.deleteRecordings( ops, RecordingConstants.ContentDetails.RECORDED, today );
 
 		processBatch( context, ops, processed, count );
 
 //		Log.v( TAG, "load : exit" );
 		return processed;
+	}
+
+	private static void processProgramGroups( final Context context, final LocationProfile locationProfile, ArrayList<ContentProviderOperation> ops, Program[] programs, DateTime lastModified, Integer processed, Integer count ) throws RemoteException, OperationApplicationException {
+		Log.v( TAG, "processProgramGroups : enter" );
+		
+		if( null == context ) 
+			throw new RuntimeException( "RecordedHelperV26 is not initialized" );
+		
+		Map<String, ProgramGroup> programGroups = new TreeMap<String, ProgramGroup>();
+		for( Program program : programs ) {
+			
+			if( null != program.getRecording() ) {
+				
+				if( null != program.getRecording().getRecGroup() && !"livetv".equalsIgnoreCase( program.getRecording().getRecGroup() ) && !"deleted".equalsIgnoreCase( program.getRecording().getRecGroup() ) ) {
+					String cleaned = ArticleCleaner.clean( program.getTitle() );
+					if( !programGroups.containsKey( cleaned ) ) {
+						
+						ProgramGroup programGroup = new ProgramGroup();
+						programGroup.setTitle( program.getTitle() );
+						programGroup.setCategory( program.getCategory() );
+						programGroup.setInetref( program.getInetref() );
+						programGroup.setSort( 0 );
+						
+						programGroups.put( cleaned, programGroup );
+					}
+
+				}
+				
+			}
+			
+		}
+		
+		Log.v( TAG, "load : adding 'All' program group in programGroups" );
+		ProgramGroup all = new ProgramGroup( null, "All", "All", "All", "", 1 );
+		programGroups.put( all.getProgramGroup(), all );
+		
+		String[] programGroupProjection = new String[] { ProgramGroupConstants._ID };
+		String programGroupSelection = ProgramGroupConstants.FIELD_PROGRAM_GROUP + " = ?";
+
+		programGroupSelection = appendLocationHostname( context, locationProfile, programGroupSelection, null );
+
+		for( String key : programGroups.keySet() ) {
+			Log.v( TAG, "load : processing programGroup '" + key + "'" );
+			
+			ProgramGroup programGroup = programGroups.get( key );
+			
+			ContentValues programValues = convertProgramGroupToContentValues( locationProfile, lastModified, programGroup );
+			Cursor programGroupCursor = context.getContentResolver().query( ProgramGroupConstants.CONTENT_URI, programGroupProjection, programGroupSelection, new String[] { key }, null );
+			if( programGroupCursor.moveToFirst() ) {
+
+				Long id = programGroupCursor.getLong( programGroupCursor.getColumnIndexOrThrow( ProgramGroupConstants._ID ) );
+				ops.add( 
+					ContentProviderOperation.newUpdate( ContentUris.withAppendedId( ProgramGroupConstants.CONTENT_URI, id ) )
+						.withValues( programValues )
+						.withYieldAllowed( true )
+						.build()
+				);
+				
+			} else {
+
+				ops.add(  
+					ContentProviderOperation.newInsert( ProgramGroupConstants.CONTENT_URI )
+						.withValues( programValues )
+						.withYieldAllowed( true )
+						.build()
+				);
+			}
+			programGroupCursor.close();
+			count++;
+
+			if( count > 100 ) {
+				Log.v( TAG, "process : applying batch for '" + count + "' transactions" );
+
+				processBatch( context, ops, processed, count );
+			}
+
+		}
+
+		if( !ops.isEmpty() ) {
+			Log.v( TAG, "load : applying batch for '" + count + "' transactions" );
+			
+			processBatch( context, ops, processed, count );
+		}
+
+		Log.v( TAG, "load : remove deleted program groups" );
+		ops.add(  
+			ContentProviderOperation.newDelete( ProgramGroupConstants.CONTENT_URI )
+			.withSelection( ProgramGroupConstants.FIELD_LAST_MODIFIED_DATE + " < ?", new String[] { String.valueOf( lastModified.getMillis() ) } )
+			.withYieldAllowed( true )
+			.build()
+		);
+			
+		if( !ops.isEmpty() ) {
+			Log.v( TAG, "load : applying final batch for '" + count + "' transactions" );
+			
+			processBatch( context, ops, processed, count );
+		}
+
+		Log.v( TAG, "processProgramGroups : exit" );
+	}
+
+	private static ContentValues convertProgramGroupToContentValues( final LocationProfile locationProfile, final DateTime lastModified, final ProgramGroup programGroup ) {
+		
+		ContentValues values = new ContentValues();
+		values.put( ProgramGroupConstants.FIELD_PROGRAM_GROUP, null != programGroup.getTitle() ? ArticleCleaner.clean( programGroup.getTitle() ) : "" );
+		values.put( ProgramGroupConstants.FIELD_TITLE, null != programGroup.getTitle() ? programGroup.getTitle() : "" );
+		values.put( ProgramGroupConstants.FIELD_CATEGORY, null != programGroup.getCategory() ? programGroup.getCategory() : "" );
+		values.put( ProgramGroupConstants.FIELD_INETREF, null != programGroup.getInetref() ? programGroup.getInetref() : "" );
+		values.put( ProgramGroupConstants.FIELD_SORT, programGroup.getSort() );
+		values.put( ProgramGroupConstants.FIELD_MASTER_HOSTNAME, locationProfile.getHostname() );
+		values.put( ProgramGroupConstants.FIELD_LAST_MODIFIED_DATE, lastModified.getMillis() );
+		
+		return values;
 	}
 
 }
