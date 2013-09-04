@@ -26,9 +26,7 @@ import org.mythtv.db.dvr.model.Program;
 
 import android.content.ContentUris;
 import android.content.Context;
-import android.content.OperationApplicationException;
 import android.database.Cursor;
-import android.os.RemoteException;
 
 /**
  * @author Daniel Frey
@@ -181,20 +179,6 @@ public class UpcomingDaoHelper extends ProgramDaoHelper {
 		
 //		Log.d( TAG, "delete : exit" );
 		return deleted;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.mythtv.db.dvr.ProgramDaoHelper#load(java.util.List)
-	 */
-	@Override
-	public int load( final Context context, final LocationProfile locationProfile, List<Program> programs ) throws RemoteException, OperationApplicationException {
-//		Log.d( TAG, "load : enter" );
-
-		int loaded = load( context, ProgramConstants.CONTENT_URI_UPCOMING, locationProfile, programs, ProgramConstants.TABLE_NAME_UPCOMING );
-//		Log.d( TAG, "load : loaded=" + loaded );
-		
-//		Log.d( TAG, "load : exit" );
-		return loaded;
 	}
 
 	/**

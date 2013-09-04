@@ -302,27 +302,6 @@ public class LiveStreamDaoHelper extends AbstractDaoHelper {
 		return deleted;
 	}
 
-	public int load( final Context context, final LocationProfile locationProfile, List<LiveStreamInfo> liveStreamInfos ) {
-		Log.d( TAG, "load : enter" );
-		
-		if( null == context ) 
-			throw new RuntimeException( "LiveStreamDaoHelper is not initialized" );
-		
-		int loaded = -1;
-		
-		ContentValues[] contentValuesArray = convertLiveStreamInfosToContentValuesArray( context, locationProfile, liveStreamInfos );
-		if( null != contentValuesArray ) {
-			Log.v( TAG, "processLiveStreams : liveStreams=" + contentValuesArray.length );
-
-			loaded = context.getContentResolver().bulkInsert( LiveStreamConstants.CONTENT_URI, contentValuesArray );
-			Log.v( TAG, "load : loaded=" + loaded );
-		}
-		
-		
-		Log.d( TAG, "load : exit" );
-		return loaded;
-	}
-	
 	/**
 	 * @param cursor
 	 * @return

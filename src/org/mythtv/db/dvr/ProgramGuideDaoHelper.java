@@ -29,8 +29,6 @@ import org.mythtv.db.guide.model.ProgramGuide;
 
 import android.content.ContentUris;
 import android.content.Context;
-import android.content.OperationApplicationException;
-import android.os.RemoteException;
 
 /**
  * @author Daniel Frey
@@ -230,82 +228,4 @@ public class ProgramGuideDaoHelper extends ProgramDaoHelper {
 		return deleted;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.mythtv.db.dvr.ProgramDaoHelper#load(android.content.Context, org.mythtv.client.ui.preferences.LocationProfile, java.util.List)
-	 */
-	@Override
-	public int load( final Context context, final LocationProfile locationProfile, final List<Program> programs ) throws RemoteException, OperationApplicationException {
-//		Log.d( TAG, "load : enter" );
-
-		int loaded = load( context, ProgramConstants.CONTENT_URI_GUIDE, locationProfile, programs, ProgramConstants.TABLE_NAME_GUIDE );
-//		Log.d( TAG, "load : loaded=" + loaded );
-		
-//		Log.d( TAG, "load : exit" );
-		return loaded;
-	}
-
-	/**
-	 * @param context
-	 * @param locationProfile
-	 * @param channelInfos
-	 * @return
-	 * @throws RemoteException
-	 * @throws OperationApplicationException
-	 */
-	public int loadProgramGuide( final Context context, final LocationProfile locationProfile, final List<ChannelInfo> channelInfos ) throws RemoteException, OperationApplicationException {
-//		Log.d( TAG, "load : enter" );
-
-		if( null == context ) 
-			throw new RuntimeException( "ProgramDaoHelper is not initialized" );
-
-		int processed = 0;
-		for( ChannelInfo channel : channelInfos ) {
-
-			ChannelInfo copy = copy( channel );
-			for( Program program : channel.getPrograms() ) {
-
-				program.setChannelInfo( copy );
-			
-			}
-			
-			processed += load( context, locationProfile, channel.getPrograms() );
-			
-		}
-
-//		Log.d( TAG, "load : exit" );
-		return processed;
-	}
-
-	private ChannelInfo copy( ChannelInfo channel ) {
-		
-		ChannelInfo copy = new ChannelInfo();
-		copy.setChannelId( channel.getChannelId() );
-		copy.setChannelNumber( channel.getChannelNumber() );
-		copy.setCallSign( channel.getCallSign() );
-		copy.setIconUrl( channel.getIconUrl() );
-		copy.setChannelName( channel.getChannelName() );
-		copy.setMultiplexId( channel.getMultiplexId() );
-		copy.setTransportId( channel.getTransportId() );
-		copy.setServiceId( channel.getServiceId() );
-		copy.setNetworkId( channel.getNetworkId() );
-		copy.setAtscMajorChannel( channel.getAtscMajorChannel() );
-		copy.setAtscMinorChannel( channel.getAtscMinorChannel() );
-		copy.setFormat( channel.getFormat() );
-		copy.setModulation( channel.getModulation() );
-		copy.setFrequency( channel.getFrequency() );
-		copy.setFrequencyId( channel.getFrequencyId() );
-		copy.setFrequenceTable( channel.getFrequenceTable() );
-		copy.setFineTune( channel.getFineTune() );
-		copy.setSiStandard( channel.getSiStandard() );
-		copy.setChannelFilters( channel.getChannelFilters() );
-		copy.setSourceId( channel.getSourceId() );
-		copy.setInputId( channel.getInputId() );
-		copy.setCommercialFree( channel.getCommercialFree() );
-		copy.setUseEit( channel.isUseEit() );
-		copy.setVisable( channel.isVisable() );
-		copy.setXmltvId( channel.getXmltvId() );
-		copy.setDefaultAuth( channel.getDefaultAuth() );
-
-		return copy;
-	}
 }

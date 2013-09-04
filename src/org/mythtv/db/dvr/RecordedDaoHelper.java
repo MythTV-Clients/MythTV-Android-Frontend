@@ -188,20 +188,4 @@ public class RecordedDaoHelper extends ProgramDaoHelper {
 		return deleted;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.mythtv.db.dvr.ProgramDaoHelper#load(java.util.List)
-	 */
-	@Override
-	public int load( final Context context, final LocationProfile locationProfile, List<Program> programs ) throws RemoteException, OperationApplicationException {
-//		Log.d( TAG, "load : enter" );
-
-		int loaded = load( context, ProgramConstants.CONTENT_URI_RECORDED, locationProfile, programs, ProgramConstants.TABLE_NAME_RECORDED );
-//		Log.d( TAG, "load : loaded=" + loaded );
-		
-		mProgramGroupDaoHelper.load( context, locationProfile, programs );
-		
-//		Log.d( TAG, "load : exit" );
-		return loaded;
-	}
-
 }
