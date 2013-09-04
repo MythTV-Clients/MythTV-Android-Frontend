@@ -18,21 +18,6 @@
  */
 package org.mythtv.client.ui.media;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.mythtv.R;
-import org.mythtv.client.ui.preferences.LocationProfile;
-import org.mythtv.service.util.MythtvServiceHelper;
-import org.mythtv.services.api.Bool;
-import org.mythtv.services.api.ETagInfo;
-import org.mythtv.services.api.StringList;
-import org.mythtv.services.api.myth.SettingList;
-import org.mythtv.services.api.myth.StorageGroupDirectory;
-import org.mythtv.services.api.myth.StorageGroupDirectoryList;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -58,6 +43,21 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener;
 
+import org.mythtv.R;
+import org.mythtv.client.ui.preferences.LocationProfile;
+import org.mythtv.service.util.MythtvServiceHelper;
+import org.mythtv.services.api.Bool;
+import org.mythtv.services.api.ETagInfo;
+import org.mythtv.services.api.StringList;
+import org.mythtv.services.api.myth.SettingList;
+import org.mythtv.services.api.myth.StorageGroupDirectory;
+import org.mythtv.services.api.myth.StorageGroupDirectoryList;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author Espen A. Fossen
  */
@@ -70,12 +70,11 @@ public class GalleryGridAdapter extends BaseAdapter {
 	private final Context mContext;
 	private final LocationProfile mLocationProfile;
 	
-	public static List<GalleryImageItem> mImageItems = new ArrayList<GalleryImageItem>();
-	
+	protected static List<GalleryImageItem> mImageItems = new ArrayList<GalleryImageItem>();
+    protected static String mGallerySGName = "Gallery";
+
 	private ImageLoader imageLoader;
 	private String baseUrl;
-	private String gallerySGName = "Gallery";
-	private String previewWidth = "256";
 
 	private boolean hasBackendGallerySG = false;
 
@@ -103,7 +102,7 @@ public class GalleryGridAdapter extends BaseAdapter {
 		imageLoader = ImageLoader.getInstance();
 		imageLoader.init( ImageLoaderConfiguration.createDefault( context ) );
 		
-		baseUrl = locationProfile.getUrl() + "Content/GetImageFile?StorageGroup=" + gallerySGName + "&FileName=";
+		baseUrl = locationProfile.getUrl() + "Content/GetImageFile?StorageGroup=" + mGallerySGName + "&FileName=";
 		
 		if( mImageItems.isEmpty() ) {
 			
@@ -157,6 +156,10 @@ public class GalleryGridAdapter extends BaseAdapter {
 	@Override
 	public View getView( final int position, View convertView, ViewGroup parent ) {
 		
+        // 800p screen / 3 columns = 266,67 for each
+        // 720p screen / 3 columns = 240 for each
+        String previewWidth = "256";
+
 		final ViewHolder holder;
 
 		if( convertView == null ) {
@@ -243,12 +246,11 @@ public class GalleryGridAdapter extends BaseAdapter {
 	
 	private class LoadFileListTask extends AsyncTask<Void, Void, Void> {
 
-		final String gallerySGName = "Gallery";
-		final String gallerySetting = "GalleryDir";
+		final String mGallerySetting = "GalleryDir";
 
 		boolean backendAndFrontendShareHostname = false;
 		boolean galleryDirPresentInSettings = false;
-		String galleryDir = "";
+		String mGalleryDir = "";
 
 		/* (non-Javadoc)
 		 * @see android.os.AsyncTask#doInBackground(Params[])
@@ -260,19 +262,15 @@ public class GalleryGridAdapter extends BaseAdapter {
 			try {
 				ETagInfo eTag = ETagInfo.createEmptyETag();
 
-				// 800p screen / 3 columns = 266,67 for each
-				// 720p screen / 3 columns = 240 for each
-				String previewWidth = "256";
-
 				// Check if StorageGroup Gallery actually exists, doing an
 				// GetFileList will return Default SG if Gallery SG is not
 				// present.,
-				ResponseEntity<StorageGroupDirectoryList> responseEntity = mMythtvServiceHelper.getMythServicesApi( mLocationProfile ).mythOperations().getStorageGroupDirectories( gallerySGName, mLocationProfile.getHostname(), eTag );
+				ResponseEntity<StorageGroupDirectoryList> responseEntity = mMythtvServiceHelper.getMythServicesApi( mLocationProfile ).mythOperations().getStorageGroupDirectories(mGallerySGName, mLocationProfile.getHostname(), eTag );
 				if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
 					
 					StorageGroupDirectoryList storageGroups = responseEntity.getBody();
 					for( StorageGroupDirectory sg : storageGroups.getStorageGroupDirectories().getStorageGroupDirectories() ) {
-						if( sg.getGroupName().equals( gallerySGName ) )
+						if( sg.getGroupName().equals(mGallerySGName) )
 							hasBackendGallerySG = true;
 					}
 					
@@ -280,19 +278,19 @@ public class GalleryGridAdapter extends BaseAdapter {
 
 				if( hasBackendGallerySG ) {
 					
-					getImageList( previewWidth );
+					getImageList();
 
 				} else {
 
 					backendAndFrontendShareHostname = isConnectedProfileInHostsList();
 
 					if( backendAndFrontendShareHostname ) {
-						ResponseEntity<SettingList> responseEntity2 = mMythtvServiceHelper.getMythServicesApi( mLocationProfile ).mythOperations().getSetting( mLocationProfile.getHostname(), gallerySetting, "", eTag );
+						ResponseEntity<SettingList> responseEntity2 = mMythtvServiceHelper.getMythServicesApi( mLocationProfile ).mythOperations().getSetting( mLocationProfile.getHostname(), mGallerySetting, "", eTag );
 						if( responseEntity2.getStatusCode().equals( HttpStatus.OK ) ) {
 
 							SettingList settingList = responseEntity2.getBody();
-							galleryDir = settingList.getSetting().getSettings().get( gallerySetting );
-							if( galleryDir != null && !"".equalsIgnoreCase( galleryDir ) ) {
+							mGalleryDir = settingList.getSetting().getSettings().get(mGallerySetting);
+							if( mGalleryDir != null && !"".equalsIgnoreCase(mGalleryDir) ) {
 								galleryDirPresentInSettings = true;
 							}
 							
@@ -335,22 +333,18 @@ public class GalleryGridAdapter extends BaseAdapter {
 			return false;
 		}
 
-		private void getImageList( String previewWidth ) {
+		private void getImageList() {
 			Log.v( TAG, "LoadFileListTask.getImageList : enter" );
 
 			ETagInfo eTag = ETagInfo.createEmptyETag();
 
-			ResponseEntity<StringList> responseEntity = mMythtvServiceHelper.getMythServicesApi( mLocationProfile ).contentOperations().getFileList( gallerySGName, eTag );
+			ResponseEntity<StringList> responseEntity = mMythtvServiceHelper.getMythServicesApi( mLocationProfile ).contentOperations().getFileList(mGallerySGName, eTag );
 			if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
 				
 				mImageItems = new ArrayList<GalleryImageItem>();
 				
 				StringList filesOnStorageGroup = responseEntity.getBody();
 				// TODO: Add different types of sorting, and filtering
-				// String imageUri =
-				// mLocationProfileDaoHelper.findConnectedProfile().getUrl() +
-				// "Content/GetImageFile?StorageGroup="+gallerySGName+"&Width="+previewWidth+"&FileName=";
-				
 				for( String file : filesOnStorageGroup.getStringList() ) {
 
 					// First look for image suffixes, then skip files with
@@ -454,9 +448,9 @@ public class GalleryGridAdapter extends BaseAdapter {
 		private void clickedPosButton( int result, EditText directoryName ) {
 
 			if( directoryName != null ) {
-				galleryDir = directoryName.getText().toString();
+				mGalleryDir = directoryName.getText().toString();
 			}
-			new CreateSGTask().execute( gallerySGName, galleryDir );
+			new CreateSGTask().execute(mGallerySGName, mGalleryDir);
 
 		}
 		
