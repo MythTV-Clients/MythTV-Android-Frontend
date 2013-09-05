@@ -93,11 +93,11 @@ public class Program implements Serializable, Comparable<Program> {
 	
 	@JsonProperty( "Stars" )
 	@Attribute( name = "stars", required = false )
-	private float stars;
+	private double stars;
 	
 	@JsonProperty( "FileSize" )
 	@Attribute( name = "fileSize", required = false )
-	private String fileSize;
+	private long fileSize;
 	
 	@JsonProperty( "LastModified" )
 	@JsonSerialize( using = DateTimeSerializer.class )
@@ -106,7 +106,7 @@ public class Program implements Serializable, Comparable<Program> {
 	
 	@JsonProperty( "ProgramFlags" )
 	@Attribute( name = "programFlags" )
-	private String programFlags;
+	private int programFlags;
 	
 	@JsonProperty( "HostName" )
 	@Attribute
@@ -131,11 +131,11 @@ public class Program implements Serializable, Comparable<Program> {
 	
 	@JsonProperty( "Season" )
 	@Attribute( required = false )
-	private String season;
+	private int season;
 	
 	@JsonProperty( "Episode" )
 	@Attribute( required = false )
-	private String episode;
+	private int episode;
 	
 	@JsonProperty( "Channel" )
 	@Element( name = "Channel", required = false )
@@ -336,28 +336,28 @@ public class Program implements Serializable, Comparable<Program> {
 	/**
 	 * @return the stars
 	 */
-	public float getStars() {
+	public double getStars() {
 		return stars;
 	}
 
 	/**
 	 * @param stars the stars to set
 	 */
-	public void setStars( float stars ) {
+	public void setStars( double stars ) {
 		this.stars = stars;
 	}
 
 	/**
 	 * @return the fileSize
 	 */
-	public String getFileSize() {
+	public long getFileSize() {
 		return fileSize;
 	}
 
 	/**
 	 * @param fileSize the fileSize to set
 	 */
-	public void setFileSize( String fileSize ) {
+	public void setFileSize( long fileSize ) {
 		this.fileSize = fileSize;
 	}
 
@@ -378,14 +378,14 @@ public class Program implements Serializable, Comparable<Program> {
 	/**
 	 * @return the programFlags
 	 */
-	public String getProgramFlags() {
+	public int getProgramFlags() {
 		return programFlags;
 	}
 
 	/**
 	 * @param programFlags the programFlags to set
 	 */
-	public void setProgramFlags( String programFlags ) {
+	public void setProgramFlags( int programFlags ) {
 		this.programFlags = programFlags;
 	}
 
@@ -448,28 +448,28 @@ public class Program implements Serializable, Comparable<Program> {
 	/**
 	 * @return the season
 	 */
-	public String getSeason() {
+	public int getSeason() {
 		return season;
 	}
 
 	/**
 	 * @param season the season to set
 	 */
-	public void setSeason( String season ) {
+	public void setSeason( int season ) {
 		this.season = season;
 	}
 
 	/**
 	 * @return the episode
 	 */
-	public String getEpisode() {
+	public int getEpisode() {
 		return episode;
 	}
 
 	/**
 	 * @param episode the episode to set
 	 */
-	public void setEpisode( String episode ) {
+	public void setEpisode( int episode ) {
 		this.episode = episode;
 	}
 
@@ -653,11 +653,9 @@ public class Program implements Serializable, Comparable<Program> {
 		builder.append( stars );
 		builder.append( ", " );
 		
-		if( fileSize != null ) {
-			builder.append( "fileSize=" );
-			builder.append( fileSize );
-			builder.append( ", " );
-		}
+		builder.append( "fileSize=" );
+		builder.append( fileSize );
+		builder.append( ", " );
 		
 		if( lastModified != null ) {
 			builder.append( "lastModified=" );
@@ -665,11 +663,9 @@ public class Program implements Serializable, Comparable<Program> {
 			builder.append( ", " );
 		}
 		
-		if( programFlags != null ) {
-			builder.append( "programFlags=" );
-			builder.append( programFlags );
-			builder.append( ", " );
-		}
+		builder.append( "programFlags=" );
+		builder.append( programFlags );
+		builder.append( ", " );
 		
 		if( hostname != null ) {
 			builder.append( "hostname=" );
@@ -701,17 +697,13 @@ public class Program implements Serializable, Comparable<Program> {
 			builder.append( ", " );
 		}
 		
-		if( season != null ) {
-			builder.append( "season=" );
-			builder.append( season );
-			builder.append( ", " );
-		}
+		builder.append( "season=" );
+		builder.append( season );
+		builder.append( ", " );
 		
-		if( episode != null ) {
-			builder.append( "episode=" );
-			builder.append( episode );
-			builder.append( ", " );
-		}
+		builder.append( "episode=" );
+		builder.append( episode );
+		builder.append( ", " );
 		
 		if( channelInfo != null ) {
 			builder.append( "channelInfo=" );

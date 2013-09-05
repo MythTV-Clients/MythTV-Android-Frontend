@@ -227,142 +227,142 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
     	});
     }
 	
-    protected class BackendStatusTask extends AsyncTask<Void, Void, BackendStatus> {
-
-    	private LocationProfile mLocationProfile;
-    	
-    	/* (non-Javadoc)
-    	 * @see android.os.AsyncTask#doInBackground(Params[])
-    	 */
-    	@Override
-    	protected BackendStatus doInBackground( Void... params ) {
-    		Log.i( TAG, "BackendStatusTask.doInBackground : enter" );
-
-    		//leave if fragment is not added to activity
-    		if(!isAdded()) return null;
-    		
-    		try {
-    			mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
-    			
-    			EtagInfoDelegate etag = EtagInfoDelegate.createEmptyETag();
-    			ResponseEntity<BackendStatus> status = mMythtvServiceHelper.getMythServicesApi( mLocationProfile ).statusOperations().getStatus( etag );
-
-    			if( status.getStatusCode() == HttpStatus.OK ) {
-    				Log.i( TAG, "BackendStatusTask.doInBackground : exit" );
-
-    				return status.getBody();
-    			}
-    		} catch( Exception e ) {
-    			Log.e( TAG, "BackendStatusTask.doInBackground : error", e );
-    		}
-
-    		Log.i( TAG, "BackendStatusTask.doInBackground : exit, status not returned" );
-    		return null;
-    	}
-
-    	/*
-    	 * (non-Javadoc)
-    	 * 
-    	 * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
-    	 */
-    	@Override
-    	protected void onPostExecute( BackendStatus result ) {
-    		Log.i( TAG, "BackendStatusTask.onPostExecute : enter" );
-    		
-    		//leave if fragment is not added to activity
-    		if(!isAdded()) return;
-
-    		if( null != mLocationProfile) {
-    			
-        		if( null != result ) {
-        			mStatus = result;
-
-        			Log.d( TAG, "BackendStatusTask.onPostExecute : setting connected profile" );
-        			mLocationProfile.setConnected( true );
-        			mLocationProfile.setVersion( result.getVersion() );
-        			mLocationProfile.setProtocolVersion( String.valueOf( result.getProtocolVersion() ) );
-        			if( null != result.getMachineInfo() ) {
-        				if( null != result.getMachineInfo().getGuide() ) {
-        					mLocationProfile.setNextMythFillDatabase( result.getMachineInfo().getGuide().getNext() );
-        				}
-        			}
-        			mLocationProfileDaoHelper.save( getActivity(), mLocationProfile );
-        			
-        			checkChannelDownloadService();
-
-        			if( null != result.getScheduled() ) {
-        				
-        				if( null != result.getScheduled().getPrograms() && !result.getScheduled().getPrograms().isEmpty() ) {
-        					
-        					for( Program upcoming : result.getScheduled().getPrograms() ) {
-
-        						Program program = mProgramGuideDaoHelper.findOne( getActivity(), mLocationProfile, upcoming.getChannelInfo().getChannelId(), upcoming.getStartTime() );
-       							if( null != program ) {
-
-       								program.setRecording( upcoming.getRecording() );
-       								mProgramGuideDaoHelper.save( getActivity(), mLocationProfile, program );
-        								
-//       								Log.v( TAG, "BackendStatusTask.onPostExecute : upcoming program updated! program=" + program.toString() );
-       							}
-        							
-       						}
-
-        				}
-        					
-        			}
-        			
-        			if( null != result.getEncoders() ) {
-        				
-        				if( null != result.getEncoders().getEncoders() && !result.getEncoders().getEncoders().isEmpty() ) {
-        					
-        					for( Encoder encoder : result.getEncoders().getEncoders() ) {
-        						
-        						if( null != encoder.getRecording() ) {
-        							
-        							Program programGuide = mProgramGuideDaoHelper.findOne( getActivity(), mLocationProfile, encoder.getRecording().getChannelInfo().getChannelId(), encoder.getRecording().getStartTime() );
-        							if( null != programGuide ) {
-        								programGuide.setRecording( encoder.getRecording().getRecording() );
-        								mProgramGuideDaoHelper.save( getActivity(), mLocationProfile, programGuide );
-        								
-//        								Log.v( TAG, "BackendStatusTask.onPostExecute : current recording in program guide updated!" );
-        							}
-        							
-        							Program upcoming = mUpcomingDaoHelper.findOne( getActivity(), mLocationProfile, encoder.getRecording().getChannelInfo().getChannelId(), encoder.getRecording().getStartTime() );
-        							if( null != upcoming ) {
-        								upcoming.setRecording( encoder.getRecording().getRecording() );
-        								mProgramGuideDaoHelper.save( getActivity(), mLocationProfile, upcoming );
-        								
-//        								Log.v( TAG, "BackendStatusTask.onPostExecute : current recording in upcoming updated!" );
-        							}
-
-        						}
-        				
-        					}
-        					
-        				}
-        				
-        			}
-        			
-        			if( mLocationProfile.getType().equals( LocationType.HOME ) ) {
-        				if( !mRunningServiceHelper.isServiceRunning( getActivity(), "org.mythtv.service.frontends.FrontendsDiscoveryService" ) ) {
-        					getActivity().startService( new Intent( FrontendsDiscoveryService.ACTION_DISCOVER ) );
-        				}
-        			}
-        			
-                    onBackendStatusUpdated( result );
-        		} else {
-
-        			Log.d( TAG, "BackendStatusTask.onPostExecute : unsetting connected profile" );
-        			mLocationProfile.setConnected( false );
-        			mLocationProfileDaoHelper.save( getActivity(), mLocationProfile );
-        			
-        		}
-    		}
-    		
-    		Log.i( TAG, "BackendStatusTask.onPostExecute : exit" );
-    	}
-
-    }
+//    protected class BackendStatusTask extends AsyncTask<Void, Void, BackendStatus> {
+//
+//    	private LocationProfile mLocationProfile;
+//    	
+//    	/* (non-Javadoc)
+//    	 * @see android.os.AsyncTask#doInBackground(Params[])
+//    	 */
+//    	@Override
+//    	protected BackendStatus doInBackground( Void... params ) {
+//    		Log.i( TAG, "BackendStatusTask.doInBackground : enter" );
+//
+//    		//leave if fragment is not added to activity
+//    		if(!isAdded()) return null;
+//    		
+//    		try {
+//    			mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
+//    			
+//    			EtagInfoDelegate etag = EtagInfoDelegate.createEmptyETag();
+//    			ResponseEntity<BackendStatus> status = mMythtvServiceHelper.getMythServicesApi( mLocationProfile ).statusOperations().getStatus( etag );
+//
+//    			if( status.getStatusCode() == HttpStatus.OK ) {
+//    				Log.i( TAG, "BackendStatusTask.doInBackground : exit" );
+//
+//    				return status.getBody();
+//    			}
+//    		} catch( Exception e ) {
+//    			Log.e( TAG, "BackendStatusTask.doInBackground : error", e );
+//    		}
+//
+//    		Log.i( TAG, "BackendStatusTask.doInBackground : exit, status not returned" );
+//    		return null;
+//    	}
+//
+//    	/*
+//    	 * (non-Javadoc)
+//    	 * 
+//    	 * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
+//    	 */
+//    	@Override
+//    	protected void onPostExecute( BackendStatus result ) {
+//    		Log.i( TAG, "BackendStatusTask.onPostExecute : enter" );
+//    		
+//    		//leave if fragment is not added to activity
+//    		if(!isAdded()) return;
+//
+//    		if( null != mLocationProfile) {
+//    			
+//        		if( null != result ) {
+//        			mStatus = result;
+//
+//        			Log.d( TAG, "BackendStatusTask.onPostExecute : setting connected profile" );
+//        			mLocationProfile.setConnected( true );
+//        			mLocationProfile.setVersion( result.getVersion() );
+//        			mLocationProfile.setProtocolVersion( String.valueOf( result.getProtocolVersion() ) );
+//        			if( null != result.getMachineInfo() ) {
+//        				if( null != result.getMachineInfo().getGuide() ) {
+//        					mLocationProfile.setNextMythFillDatabase( result.getMachineInfo().getGuide().getNext() );
+//        				}
+//        			}
+//        			mLocationProfileDaoHelper.save( getActivity(), mLocationProfile );
+//        			
+//        			checkChannelDownloadService();
+//
+//        			if( null != result.getScheduled() ) {
+//        				
+//        				if( null != result.getScheduled().getPrograms() && !result.getScheduled().getPrograms().isEmpty() ) {
+//        					
+//        					for( Program upcoming : result.getScheduled().getPrograms() ) {
+//
+//        						Program program = mProgramGuideDaoHelper.findOne( getActivity(), mLocationProfile, upcoming.getChannelInfo().getChannelId(), upcoming.getStartTime() );
+//       							if( null != program ) {
+//
+//       								program.setRecording( upcoming.getRecording() );
+//       								mProgramGuideDaoHelper.save( getActivity(), mLocationProfile, program );
+//        								
+////       								Log.v( TAG, "BackendStatusTask.onPostExecute : upcoming program updated! program=" + program.toString() );
+//       							}
+//        							
+//       						}
+//
+//        				}
+//        					
+//        			}
+//        			
+//        			if( null != result.getEncoders() ) {
+//        				
+//        				if( null != result.getEncoders().getEncoders() && !result.getEncoders().getEncoders().isEmpty() ) {
+//        					
+//        					for( Encoder encoder : result.getEncoders().getEncoders() ) {
+//        						
+//        						if( null != encoder.getRecording() ) {
+//        							
+//        							Program programGuide = mProgramGuideDaoHelper.findOne( getActivity(), mLocationProfile, encoder.getRecording().getChannelInfo().getChannelId(), encoder.getRecording().getStartTime() );
+//        							if( null != programGuide ) {
+//        								programGuide.setRecording( encoder.getRecording().getRecording() );
+//        								mProgramGuideDaoHelper.save( getActivity(), mLocationProfile, programGuide );
+//        								
+////        								Log.v( TAG, "BackendStatusTask.onPostExecute : current recording in program guide updated!" );
+//        							}
+//        							
+//        							Program upcoming = mUpcomingDaoHelper.findOne( getActivity(), mLocationProfile, encoder.getRecording().getChannelInfo().getChannelId(), encoder.getRecording().getStartTime() );
+//        							if( null != upcoming ) {
+//        								upcoming.setRecording( encoder.getRecording().getRecording() );
+//        								mProgramGuideDaoHelper.save( getActivity(), mLocationProfile, upcoming );
+//        								
+////        								Log.v( TAG, "BackendStatusTask.onPostExecute : current recording in upcoming updated!" );
+//        							}
+//
+//        						}
+//        				
+//        					}
+//        					
+//        				}
+//        				
+//        			}
+//        			
+//        			if( mLocationProfile.getType().equals( LocationType.HOME ) ) {
+//        				if( !mRunningServiceHelper.isServiceRunning( getActivity(), "org.mythtv.service.frontends.FrontendsDiscoveryService" ) ) {
+//        					getActivity().startService( new Intent( FrontendsDiscoveryService.ACTION_DISCOVER ) );
+//        				}
+//        			}
+//        			
+//                    onBackendStatusUpdated( result );
+//        		} else {
+//
+//        			Log.d( TAG, "BackendStatusTask.onPostExecute : unsetting connected profile" );
+//        			mLocationProfile.setConnected( false );
+//        			mLocationProfileDaoHelper.save( getActivity(), mLocationProfile );
+//        			
+//        		}
+//    		}
+//    		
+//    		Log.i( TAG, "BackendStatusTask.onPostExecute : exit" );
+//    	}
+//
+//    }
     
     /*
      *  (non-Javadoc)

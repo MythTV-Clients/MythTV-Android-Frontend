@@ -424,7 +424,7 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 		channelInfo.setInputId( inputId );
 		channelInfo.setCommercialFree( commercialFree );
 		channelInfo.setUseEit( useEit == 1 ? true : false );
-		channelInfo.setVisable( visible == 1 ? true : false );
+		channelInfo.setVisible( visible == 1 ? true : false );
 		channelInfo.setXmltvId( xmltvId );
 		channelInfo.setDefaultAuth( defaultAuth );
 		
@@ -494,7 +494,7 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 		values.put( ChannelConstants.FIELD_INPUT_ID, channelInfo.getInputId() );
 		values.put( ChannelConstants.FIELD_COMM_FREE, channelInfo.getCommercialFree() );
 		values.put( ChannelConstants.FIELD_USE_EIT, ( channelInfo.isUseEit() ? 1 : 0 ) );
-		values.put( ChannelConstants.FIELD_VISIBLE, ( channelInfo.isVisable() ? 1 : 0 ) );
+		values.put( ChannelConstants.FIELD_VISIBLE, ( channelInfo.isVisible() ? 1 : 0 ) );
 		values.put( ChannelConstants.FIELD_XMLTV_ID, channelInfo.getXmltvId() );
 		values.put( ChannelConstants.FIELD_DEFAULT_AUTH, channelInfo.getDefaultAuth() );
 		values.put( ChannelConstants.FIELD_MASTER_HOSTNAME, locationProfile.getHostname() );

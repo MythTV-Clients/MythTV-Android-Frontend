@@ -90,7 +90,7 @@ public class ChannelInfo implements Serializable, Comparable<ChannelInfo> {
 	private String modulation;
 	
 	@JsonProperty( "Frequency" )
-	private int frequency;
+	private long frequency;
 	
 	@JsonProperty( "FrequencyId" )
 	private String frequencyId;
@@ -124,7 +124,7 @@ public class ChannelInfo implements Serializable, Comparable<ChannelInfo> {
 	private boolean useEit;
 	
 	@JsonProperty( "Visible" )
-	private boolean visable;
+	private boolean visible;
 	
 	@JsonProperty( "XMLTVID" )
 	private String xmltvId;
@@ -336,14 +336,14 @@ public class ChannelInfo implements Serializable, Comparable<ChannelInfo> {
 	/**
 	 * @return the frequency
 	 */
-	public int getFrequency() {
+	public long getFrequency() {
 		return frequency;
 	}
 
 	/**
 	 * @param frequency the frequency to set
 	 */
-	public void setFrequency( int frequency ) {
+	public void setFrequency( long frequency ) {
 		this.frequency = frequency;
 	}
 
@@ -474,17 +474,17 @@ public class ChannelInfo implements Serializable, Comparable<ChannelInfo> {
 	}
 
 	/**
-	 * @return the visable
+	 * @return the visible
 	 */
-	public boolean isVisable() {
-		return visable;
+	public boolean isVisible() {
+		return visible;
 	}
 
 	/**
-	 * @param visable the visable to set
+	 * @param visible the visible to set
 	 */
-	public void setVisable( boolean visable ) {
-		this.visable = visable;
+	public void setVisible( boolean visible ) {
+		this.visible = visible;
 	}
 
 	/**
@@ -735,7 +735,7 @@ public class ChannelInfo implements Serializable, Comparable<ChannelInfo> {
 		builder.append( ", useEit=" );
 		builder.append( useEit );
 		builder.append( ", visable=" );
-		builder.append( visable );
+		builder.append( visible );
 		builder.append( ", " );
 		
 		if( xmltvId != null ) {

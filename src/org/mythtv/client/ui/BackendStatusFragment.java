@@ -30,6 +30,7 @@ import org.mythtv.db.dvr.model.Program;
 import org.mythtv.db.status.model.BackendStatus;
 import org.mythtv.db.status.model.Encoder;
 import org.mythtv.db.status.model.Job;
+import org.mythtv.service.status.BackendStatusTask;
 import org.mythtv.service.util.DateUtils;
 
 import android.animation.ValueAnimator;
@@ -247,7 +248,7 @@ public class BackendStatusFragment extends AbstractMythFragment {
 			return "The selected Backend profile's host isn't responding";
 		}
 		
-		BackendStatusTask backendTask = new BackendStatusTask();
+		BackendStatusTask backendTask = new BackendStatusTask( getActivity(), mLocationProfile );
 		backendTask.execute();
 		
 		this.mMenuItemRefresh.startRefreshAnimation();

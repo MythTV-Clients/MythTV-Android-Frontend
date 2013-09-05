@@ -154,7 +154,7 @@ public class CaptureCardsListFragment extends ListFragment {
 	private void downloadCaptureCards() {
 		Log.v( TAG, "downloadCaptureCards : enter" );
 
-		new DownloadCaptureCardsTask().execute();
+//		new DownloadCaptureCardsTask().execute();
 
 		Log.v( TAG, "downloadCaptureCards : exit" );
 	}
@@ -163,59 +163,59 @@ public class CaptureCardsListFragment extends ListFragment {
 	// ***************************************
 	// Private classes
 	// ***************************************
-	private class DownloadCaptureCardsTask extends AsyncTask<Void, Void, ResponseEntity<CaptureCardList>> {
-
-		@Override
-		protected ResponseEntity<CaptureCardList> doInBackground( Void... params ) {
-			Log.v( TAG, "DownloadCaptureCardsTask.doInBackground : enter" );
-
-			try {
-				Log.v( TAG, "DownloadCaptureCardsTask.doInBackground : exit" );
-
-				MainApplication mainApplication = (MainApplication) getActivity().getApplicationContext();
-				EtagInfoDelegate eTag = EtagInfoDelegate.createEmptyETag();
-				return mMythtvServiceHelper.getMythServicesApi( getActivity() ).captureOperations().getCaptureCardList( eTag );
-			} catch( Exception e ) {
-				Log.e( TAG, "DownloadCaptureCardsTask.doInBackground : error", e );
-			}
-
-			Log.v( TAG, "DownloadCaptureCardsTask.doInBackground : exit, failed" );
-			return null;
-		}
-
-		@Override
-		protected void onPostExecute( ResponseEntity<CaptureCardList> result ) {
-			Log.v( TAG, "DownloadCaptureCardsTask.onPostExecute : enter" );
-
-			List<String> sortedCaptureCards = new ArrayList<String>();
-			Map<String,List<CaptureCard>> sortedResult = new TreeMap<String, List<CaptureCard>>();
-			for( CaptureCard captureCard : result.getBody().getCaptureCards().getCaptureCards() ) {
-				String device = captureCard.getVideoDevice();
-				
-				if( sortedResult.containsKey( device ) ) {
-					List<CaptureCard> groupPrograms = new ArrayList<CaptureCard>();
-					groupPrograms.add( captureCard );
-					sortedResult.put( device, groupPrograms );
-				} else {
-					sortedResult.get( device ).add( captureCard );
-				}
-				
-				if( !sortedCaptureCards.contains( device ) ) {
-					sortedCaptureCards.add( device );
-				}
-			}
-			
-			if( !sortedCaptureCards.isEmpty() ) {
-				Collections.sort( sortedCaptureCards, String.CASE_INSENSITIVE_ORDER );
-			}
-			
-//			mainApplication.setCaptureCards( sortedCaptureCards );
-//			mainApplication.setCurrentCaptureCards( sortedResult );
-			
-			refreshCaptureCards();
-
-			Log.v( TAG, "DownloadCaptureCardsTask.onPostExecute : exit" );
-		}
-	}
+//	private class DownloadCaptureCardsTask extends AsyncTask<Void, Void, ResponseEntity<CaptureCardList>> {
+//
+//		@Override
+//		protected ResponseEntity<CaptureCardList> doInBackground( Void... params ) {
+//			Log.v( TAG, "DownloadCaptureCardsTask.doInBackground : enter" );
+//
+//			try {
+//				Log.v( TAG, "DownloadCaptureCardsTask.doInBackground : exit" );
+//
+//				MainApplication mainApplication = (MainApplication) getActivity().getApplicationContext();
+//				EtagInfoDelegate eTag = EtagInfoDelegate.createEmptyETag();
+//				return mMythtvServiceHelper.getMythServicesApi( getActivity() ).captureOperations().getCaptureCardList( eTag );
+//			} catch( Exception e ) {
+//				Log.e( TAG, "DownloadCaptureCardsTask.doInBackground : error", e );
+//			}
+//
+//			Log.v( TAG, "DownloadCaptureCardsTask.doInBackground : exit, failed" );
+//			return null;
+//		}
+//
+//		@Override
+//		protected void onPostExecute( ResponseEntity<CaptureCardList> result ) {
+//			Log.v( TAG, "DownloadCaptureCardsTask.onPostExecute : enter" );
+//
+//			List<String> sortedCaptureCards = new ArrayList<String>();
+//			Map<String,List<CaptureCard>> sortedResult = new TreeMap<String, List<CaptureCard>>();
+//			for( CaptureCard captureCard : result.getBody().getCaptureCards().getCaptureCards() ) {
+//				String device = captureCard.getVideoDevice();
+//				
+//				if( sortedResult.containsKey( device ) ) {
+//					List<CaptureCard> groupPrograms = new ArrayList<CaptureCard>();
+//					groupPrograms.add( captureCard );
+//					sortedResult.put( device, groupPrograms );
+//				} else {
+//					sortedResult.get( device ).add( captureCard );
+//				}
+//				
+//				if( !sortedCaptureCards.contains( device ) ) {
+//					sortedCaptureCards.add( device );
+//				}
+//			}
+//			
+//			if( !sortedCaptureCards.isEmpty() ) {
+//				Collections.sort( sortedCaptureCards, String.CASE_INSENSITIVE_ORDER );
+//			}
+//			
+////			mainApplication.setCaptureCards( sortedCaptureCards );
+////			mainApplication.setCurrentCaptureCards( sortedResult );
+//			
+//			refreshCaptureCards();
+//
+//			Log.v( TAG, "DownloadCaptureCardsTask.onPostExecute : exit" );
+//		}
+//	}
 
 }

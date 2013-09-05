@@ -81,13 +81,13 @@ public class ProgramConstants extends AbstractBaseConstants {
 	public static final String FIELD_STARS_DATA_TYPE = "REAL";
 	
 	public static final String FIELD_FILE_SIZE = "FILE_SIZE";
-	public static final String FIELD_FILE_SIZE_DATA_TYPE = "TEXT";
+	public static final String FIELD_FILE_SIZE_DATA_TYPE = "INTEGER";
 	
 	public static final String FIELD_LAST_MODIFIED = "LAST_MODIFIED";
 	public static final String FIELD_LAST_MODIFIED_DATA_TYPE = "TEXT";
 	
 	public static final String FIELD_PROGRAM_FLAGS = "PROGRAM_FLAGS";
-	public static final String FIELD_PROGRAM_FLAGS_DATA_TYPE = "TEXT";
+	public static final String FIELD_PROGRAM_FLAGS_DATA_TYPE = "INTEGER";
 	
 	public static final String FIELD_HOSTNAME = "HOSTNAME";
 	public static final String FIELD_HOSTNAME_DATA_TYPE = "TEXT";
@@ -105,10 +105,10 @@ public class ProgramConstants extends AbstractBaseConstants {
 	public static final String FIELD_INETREF_DATA_TYPE = "TEXT";
 	
 	public static final String FIELD_SEASON = "SEASON";
-	public static final String FIELD_SEASON_DATA_TYPE = "TEXT";
+	public static final String FIELD_SEASON_DATA_TYPE = "INTEGER";
 	
 	public static final String FIELD_EPISODE = "EPISODE";
-	public static final String FIELD_EPISODE_DATA_TYPE = "TEXT";
+	public static final String FIELD_EPISODE_DATA_TYPE = "INTEGER";
 
 	public static final String FIELD_CHANNEL_ID = "CHANNEL_ID";
 	public static final String FIELD_CHANNEL_ID_DATA_TYPE = "INTEGER";

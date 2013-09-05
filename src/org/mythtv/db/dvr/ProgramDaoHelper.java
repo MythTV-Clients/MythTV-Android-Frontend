@@ -248,8 +248,9 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 
 //		Long id = null;
 		DateTime startTime = null, endTime = null, lastModified = null, airDate = null;
-		String title = "", subTitle = "", category = "", categoryType = "", seriesId = "", programId = "", fileSize = "", programFlags = "", hostname = "", filename = "", description = "", inetref = "", season = "", episode = "", masterHostname = "";
-		int repeat = -1, videoProps = -1, audioProps = -1, subProps = -1;
+		String title = "", subTitle = "", category = "", categoryType = "", seriesId = "", programId = "", hostname = "", filename = "", description = "", inetref = "", masterHostname = "";
+		int repeat = -1, videoProps = -1, audioProps = -1, subProps = -1, programFlags = -1, season = -1, episode = -1;
+		long fileSize = -1;
 		float stars = 0.0f;
 		
 		ChannelInfo channelInfo = null;
@@ -313,7 +314,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		}
 		
 		if( cursor.getColumnIndex( ProgramConstants.FIELD_FILE_SIZE ) != -1 ) {
-			fileSize = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_FILE_SIZE ) );
+			fileSize = cursor.getLong( cursor.getColumnIndex( ProgramConstants.FIELD_FILE_SIZE ) );
 		}
 		
 		if( cursor.getColumnIndex( ProgramConstants.FIELD_LAST_MODIFIED ) != -1 ) {
@@ -321,7 +322,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		}
 		
 		if( cursor.getColumnIndex( ProgramConstants.FIELD_PROGRAM_FLAGS ) != -1 ) {
-			programFlags = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_PROGRAM_FLAGS ) );
+			programFlags = cursor.getInt( cursor.getColumnIndex( ProgramConstants.FIELD_PROGRAM_FLAGS ) );
 		}
 		
 		if( cursor.getColumnIndex( ProgramConstants.FIELD_HOSTNAME ) != -1 ) {
@@ -345,11 +346,11 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		}
 		
 		if( cursor.getColumnIndex( ProgramConstants.FIELD_SEASON ) != -1 ) {
-			season = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_SEASON ) );
+			season = cursor.getInt( cursor.getColumnIndex( ProgramConstants.FIELD_SEASON ) );
 		}
 		
 		if( cursor.getColumnIndex( ProgramConstants.FIELD_EPISODE ) != -1 ) {
-			episode = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_EPISODE ) );
+			episode = cursor.getInt( cursor.getColumnIndex( ProgramConstants.FIELD_EPISODE ) );
 		}
 		
 		if( cursor.getColumnIndex( ProgramConstants.FIELD_MASTER_HOSTNAME ) != -1 ) {
@@ -463,16 +464,16 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		values.put( ProgramConstants.FIELD_SERIES_ID, null != program.getSeriesId() ? program.getSeriesId() : "" );
 		values.put( ProgramConstants.FIELD_PROGRAM_ID, null != program.getProgramId() ? program.getProgramId() : "" );
 		values.put( ProgramConstants.FIELD_STARS, program.getStars() );
-		values.put( ProgramConstants.FIELD_FILE_SIZE, null != program.getFileSize() ? program.getFileSize() : "" );
+		values.put( ProgramConstants.FIELD_FILE_SIZE, program.getFileSize() );
 		values.put( ProgramConstants.FIELD_LAST_MODIFIED, null != program.getLastModified() ? DateUtils.dateTimeFormatter.print( program.getLastModified() ) : "" );
-		values.put( ProgramConstants.FIELD_PROGRAM_FLAGS, null != program.getProgramFlags() ? program.getProgramFlags() : "" );
+		values.put( ProgramConstants.FIELD_PROGRAM_FLAGS, program.getProgramFlags() );
 		values.put( ProgramConstants.FIELD_HOSTNAME, null != program.getHostname() ? program.getHostname() : "" );
 		values.put( ProgramConstants.FIELD_FILENAME, null != program.getFilename() ? program.getFilename() : "" );
 		values.put( ProgramConstants.FIELD_AIR_DATE, null != program.getAirDate() ? DateUtils.dateTimeFormatter.print( program.getAirDate() ) : "" );
 		values.put( ProgramConstants.FIELD_DESCRIPTION, null != program.getDescription() ? program.getDescription() : "" );
 		values.put( ProgramConstants.FIELD_INETREF, null != program.getInetref() ? program.getInetref() : "" );
-		values.put( ProgramConstants.FIELD_SEASON, null != program.getSeason() ? program.getSeason() : "" );
-		values.put( ProgramConstants.FIELD_EPISODE, null != program.getEpisode() ? program.getEpisode() : "" );
+		values.put( ProgramConstants.FIELD_SEASON, program.getSeason() );
+		values.put( ProgramConstants.FIELD_EPISODE, program.getEpisode() );
 		values.put( ProgramConstants.FIELD_CHANNEL_ID, null != program.getChannelInfo() ? program.getChannelInfo().getChannelId() : -1 );
 		values.put( ProgramConstants.FIELD_RECORD_ID, null != program.getRecording() ? program.getRecording().getRecordId() : -1 );
 		values.put( ProgramConstants.FIELD_IN_ERROR, inError ? 1 : 0 );
