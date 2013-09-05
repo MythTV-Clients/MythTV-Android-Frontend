@@ -20,15 +20,14 @@ package org.mythtv.client.ui.dvr;
 
 import org.joda.time.DateTime;
 import org.mythtv.R;
-import org.mythtv.client.MainApplication;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.util.MythtvListFragment;
 import org.mythtv.client.ui.util.ProgramHelper;
 import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.db.dvr.UpcomingDaoHelper;
+import org.mythtv.db.dvr.model.Program;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.util.DateUtils;
-import org.mythtv.db.dvr.model.Program;
 
 import android.content.Context;
 import android.database.Cursor;

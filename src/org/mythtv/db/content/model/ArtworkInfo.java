@@ -19,27 +19,37 @@
  */
 package org.mythtv.db.content.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import java.io.Serializable;
 
 /**
  * @author Daniel Frey
  *
  */
-public class ArtworkInfo {
+public class ArtworkInfo implements Serializable {
 
-	@JsonProperty( "URL" )
+	private static final long serialVersionUID = 3848873347031400915L;
+
+	private Long id;
 	private String url;
-	
-	@JsonProperty( "FileName" )
 	private String filename;
-	
-	@JsonProperty( "StorageGroup" )
 	private String storageGroup;
-	
-	@JsonProperty( "Type" )
 	private String type;
 	
 	public ArtworkInfo() { }
+
+	/**
+	 * @return the id
+	 */
+	public Long getId() {
+		return id;
+	}
+
+	/**
+	 * @param id the id to set
+	 */
+	public void setId( Long id ) {
+		this.id = id;
+	}
 
 	/**
 	 * @return the url
@@ -105,6 +115,12 @@ public class ArtworkInfo {
 		StringBuilder builder = new StringBuilder();
 		
 		builder.append( "ArtworkInfo [" );
+		
+		if( null != id ) {
+			builder.append( "id=" );
+			builder.append( id );
+			builder.append( ", " );
+		}
 		
 		if( url != null ) {
 			builder.append( "url=" );

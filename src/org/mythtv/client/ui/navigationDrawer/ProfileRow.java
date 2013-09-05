@@ -173,7 +173,6 @@ public class ProfileRow implements Row {
     		holder = (ViewHolder) convertView.getTag();
         }
         
-        final View view = convertView;
         mProfileToggleCheckChangedListener.convertView = convertView;
         holder.toggle.setOnCheckedChangeListener(mProfileToggleCheckChangedListener);
         

@@ -19,134 +19,49 @@
  */
 package org.mythtv.db.dvr.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import java.io.Serializable;
+
 import org.joda.time.DateTime;
 import org.mythtv.db.channel.model.ChannelInfo;
 import org.mythtv.db.content.model.ArtworkInfos;
-import org.mythtv.services.api.DateTimeSerializer;
 import org.mythtv.services.utils.ArticleCleaner;
-import org.simpleframework.xml.Attribute;
-import org.simpleframework.xml.Element;
-import org.simpleframework.xml.Root;
 
-import java.io.Serializable;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * @author Daniel Frey
  *
  */
-@Root( name = "Program" )
 public class Program implements Serializable, Comparable<Program> {
 
 	private static final long serialVersionUID = 4144422404144517653L;
 
 	private long id;	
-	
-	@JsonProperty( "StartTime" )
-	@JsonSerialize( using = DateTimeSerializer.class )
-	@Attribute
 	private DateTime startTime;
-	
-	@JsonProperty( "EndTime" )
-	@JsonSerialize( using = DateTimeSerializer.class )
-	@Attribute
 	private DateTime endTime;
-	
-	@JsonProperty( "Title" )
-	@Attribute
 	private String title;
-	
-	@JsonProperty( "SubTitle" )
-	@Attribute
 	private String subTitle;
-	
-	@JsonProperty( "Category" )
-	@Attribute
 	private String category;
-	
-	@JsonProperty( "CatType" )
-	@Attribute( name = "catType" )
 	private String categoryType;
-	
-	@JsonProperty( "Repeat" )
-	@Attribute
 	private boolean repeat;
-	
-	@JsonProperty( "VideoProps" )
 	private int videoProps;
-	
-	@JsonProperty( "AudioProps" )
 	private int audioProps;
-	
-	@JsonProperty( "SubProps" )
 	private int subProps;
-	
-	@JsonProperty( "SeriesId" )
-	@Attribute
 	private String seriesId;
-	
-	@JsonProperty( "ProgramId" )
-	@Attribute
 	private String programId;
-	
-	@JsonProperty( "Stars" )
-	@Attribute( name = "stars", required = false )
 	private double stars;
-	
-	@JsonProperty( "FileSize" )
-	@Attribute( name = "fileSize", required = false )
 	private long fileSize;
-	
-	@JsonProperty( "LastModified" )
-	@JsonSerialize( using = DateTimeSerializer.class )
-	@Attribute
 	private DateTime lastModified;
-	
-	@JsonProperty( "ProgramFlags" )
-	@Attribute( name = "programFlags" )
 	private int programFlags;
-	
-	@JsonProperty( "HostName" )
-	@Attribute
 	private String hostname;
-	
-	@JsonProperty( "FileName" )
-	@Attribute( required = false )
 	private String filename;
-	
-	@JsonProperty( "Airdate" )
-	@JsonSerialize( using = DateTimeSerializer.class )
-	@Attribute( name = "airdate", required = false )
 	private DateTime airDate;
-	
-	@JsonProperty( "Description" )
-	//@Text(  required = false )
 	private String description;
-	
-	@JsonProperty( "Inetref" )
-	@Attribute( required = false )
 	private String inetref;
-	
-	@JsonProperty( "Season" )
-	@Attribute( required = false )
 	private int season;
-	
-	@JsonProperty( "Episode" )
-	@Attribute( required = false )
 	private int episode;
-	
-	@JsonProperty( "Channel" )
-	@Element( name = "Channel", required = false )
 	private ChannelInfo channelInfo;
-	
-	@JsonProperty( "Recording" )
-	@Element( name = "Recording", required = false )
 	private Recording recording;
-	
-	@JsonProperty( "Artwork" )
-	@Element( name = "Artwork", required = false )
 	private ArtworkInfos artwork;
 	
 	public Program() { }

@@ -19,7 +19,6 @@
 package org.mythtv.client.ui.frontends;
 
 import org.mythtv.R;
-import org.mythtv.client.ui.MainMenuFragment;
 import org.mythtv.client.ui.navigationDrawer.FrontendsRow;
 
 import android.os.Bundle;

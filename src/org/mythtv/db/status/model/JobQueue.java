@@ -3,23 +3,19 @@
  */
 package org.mythtv.db.status.model;
 
-import org.simpleframework.xml.Attribute;
-import org.simpleframework.xml.ElementList;
-import org.simpleframework.xml.Root;
-
+import java.io.Serializable;
 import java.util.List;
 
 /**
  * @author Daniel Frey
  *
  */
-@Root( name = "JobQueue" )
-public class JobQueue {
+public class JobQueue implements Serializable {
 
-	@Attribute( required = false )
+	private static final long serialVersionUID = -1427226129356973913L;
+
 	private int count;
 	
-	@ElementList( inline = true, required = false )
 	private List<Job> jobs;
 	
 	public JobQueue() { }

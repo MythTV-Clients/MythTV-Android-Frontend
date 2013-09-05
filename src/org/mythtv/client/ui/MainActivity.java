@@ -58,7 +58,7 @@ public class MainActivity extends AbstractMythtvFragmentActivity implements Cont
 		this.setContentView(R.layout.activity_main);
 		
 		//get main menu framelayout
-		FrameLayout menu = (FrameLayout) findViewById(R.id.frame_layout_main_menu);
+//		FrameLayout menu = (FrameLayout) findViewById(R.id.frame_layout_main_menu);
 		
 		//get framgment manager and start a transaction
 		FragmentManager fragMgr = getSupportFragmentManager();

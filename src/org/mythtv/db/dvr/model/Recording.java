@@ -19,77 +19,31 @@
  */
 package org.mythtv.db.dvr.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import org.joda.time.DateTime;
-import org.mythtv.services.api.DateTimeSerializer;
-import org.simpleframework.xml.Attribute;
-import org.simpleframework.xml.Root;
-
 import java.io.Serializable;
+
+import org.joda.time.DateTime;
 
 /**
  * @author Daniel Frey
  *
  */
-@Root( name = "Recording" )
 public class Recording implements Serializable {
 
 	private static final long serialVersionUID = 3815054457896074557L;
 
 	private long id;
-
-	@JsonProperty( "Status" )
-	@Attribute( name = "recStatus" )
 	private int status;
-	
-	@JsonProperty( "Priority" )
-	@Attribute( name = "recPriority" )
 	private int priority;
-	
-	@JsonProperty( "StartTs" )
-	@JsonSerialize( using = DateTimeSerializer.class )
-	@Attribute( name = "recStartTs" )
 	private DateTime startTimestamp;
-	
-	@JsonProperty( "EndTs" )
-	@JsonSerialize( using = DateTimeSerializer.class )
-	@Attribute( name = "recEndTs" )
 	private DateTime endTimestamp;
-	
-	@JsonProperty( "RecordId" )
-	@Attribute( name = "recordId" )
 	private int recordId;
-	
-	@JsonProperty( "RecGroup" )
-	@Attribute( name = "recGroup" )
 	private String recordingGroup;
-	
-	@JsonProperty( "StorageGroup" )
 	private String storageGroup;
-	
-	@JsonProperty( "PlayGroup" )
-	@Attribute( name = "playGroup" )
 	private String playGroup;
-	
-	@JsonProperty( "RecType" )
-	@Attribute( name = "recType" )
 	private int recordingType;
-	
-	@JsonProperty( "DupInType" )
-	@Attribute( name = "dupInType" )
 	private int duplicateInType;
-	
-	@JsonProperty( "DupMethod" )
-	@Attribute( name = "dupMethod" )
 	private int duplicateMethod;
-	
-	@JsonProperty( "EncoderId" )
-	@Attribute( name = "encoderId" )
 	private int encoderId;
-	
-	@JsonProperty( "Profile" )
-	@Attribute( name = "recProfile" )
 	private String profile;
 	
 	public Recording() { }

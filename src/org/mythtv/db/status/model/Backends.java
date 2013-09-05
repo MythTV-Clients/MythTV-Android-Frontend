@@ -3,17 +3,16 @@
  */
 package org.mythtv.db.status.model;
 
-import org.simpleframework.xml.Attribute;
-import org.simpleframework.xml.Root;
+import java.io.Serializable;
 
 /**
  * @author Daniel Frey
  *
  */
-@Root
-public class Backends {
+public class Backends implements Serializable {
 
-	@Attribute( required = false )
+	private static final long serialVersionUID = -8545685619798771436L;
+
 	private int count;
 	
 	public Backends() { }

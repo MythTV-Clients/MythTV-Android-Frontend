@@ -143,7 +143,7 @@ public class MainMenuFragment extends AbstractMythFragment implements ServiceLis
 					builder.show();
 
 				} else {
-					LocationProfile profile = mLocationProfileDaoHelper.findSelectedHomeProfile( getActivity() ); 
+//					LocationProfile profile = mLocationProfileDaoHelper.findSelectedHomeProfile( getActivity() ); 
 //					mLocationProfileDaoHelper.setConnectedLocationProfile( getActivity(), (long) profile.getId() );
 					
 					//here i think we need to re-start ourself and do not need to fire this intent
@@ -166,7 +166,7 @@ public class MainMenuFragment extends AbstractMythFragment implements ServiceLis
 					builder.show();
 
 				} else {
-					LocationProfile profile = mLocationProfileDaoHelper.findSelectedAwayProfile( getActivity() ); 
+//					LocationProfile profile = mLocationProfileDaoHelper.findSelectedAwayProfile( getActivity() ); 
 //					mLocationProfileDaoHelper.setConnectedLocationProfile( getActivity(), (long) profile.getId() );
 					
 					//here i think we need to re-start ourself and do not need to fire this intent

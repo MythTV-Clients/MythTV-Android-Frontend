@@ -26,7 +26,6 @@ import org.mythtv.client.ui.util.MenuItemRefreshAnimated;
 import org.mythtv.client.ui.util.MythtvListFragment;
 import org.mythtv.client.ui.util.ProgramHelper;
 import org.mythtv.db.dvr.DvrEndpoint;
-import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.db.dvr.programGroup.ProgramGroup;
 import org.mythtv.db.dvr.programGroup.ProgramGroupConstants;
 import org.mythtv.db.dvr.programGroup.ProgramGroupDaoHelper;
@@ -434,14 +433,14 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 	        	
 	        	mMenuItemRefresh.stopRefreshAnimation();
 	        	
-	        	LocationProfile profile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
+//	        	LocationProfile profile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
 	        	
-	        	boolean inError = false;
-	        	Cursor errorCursor = getActivity().getContentResolver().query( ProgramConstants.CONTENT_URI_RECORDED, new String[] { ProgramConstants._ID }, ProgramConstants.TABLE_NAME_RECORDED + "." + ProgramConstants.FIELD_IN_ERROR + " = ? AND " + ProgramConstants.TABLE_NAME_RECORDED + "." + ProgramConstants.FIELD_MASTER_HOSTNAME + " = ?", new String[] { "1", profile.getHostname() }, null );
-	        	if( errorCursor.moveToFirst() ) {
-	        		inError = true;
-	        	}
-	        	errorCursor.close();
+//	        	boolean inError = false;
+//	        	Cursor errorCursor = getActivity().getContentResolver().query( ProgramConstants.CONTENT_URI_RECORDED, new String[] { ProgramConstants._ID }, ProgramConstants.TABLE_NAME_RECORDED + "." + ProgramConstants.FIELD_IN_ERROR + " = ? AND " + ProgramConstants.TABLE_NAME_RECORDED + "." + ProgramConstants.FIELD_MASTER_HOSTNAME + " = ?", new String[] { "1", profile.getHostname() }, null );
+//	        	if( errorCursor.moveToFirst() ) {
+//	        		inError = true;
+//	        	}
+//	        	errorCursor.close();
 
 	        	if( intent.getExtras().containsKey( RecordedService.EXTRA_COMPLETE_UPTODATE ) ) {
 //	        		Toast.makeText( getActivity(), "Recorded Programs are up to date!" + ( inError ? " (Backend error(s) detected)" : "" ), Toast.LENGTH_SHORT ).show();

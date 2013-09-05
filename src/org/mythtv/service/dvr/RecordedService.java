@@ -26,7 +26,6 @@ import org.mythtv.db.dvr.RecordedDaoHelper;
 import org.mythtv.db.dvr.model.Program;
 import org.mythtv.db.dvr.programGroup.ProgramGroup;
 import org.mythtv.db.dvr.programGroup.ProgramGroupDaoHelper;
-import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.MythtvService;
 import org.mythtv.service.content.LiveStreamService;
 import org.mythtv.service.dvr.v26.RecordedHelperV26;
@@ -64,7 +63,6 @@ public class RecordedService extends MythtvService {
     
 	private RecordedDaoHelper mRecordedDaoHelper = RecordedDaoHelper.getInstance();
 	private ProgramGroupDaoHelper mProgramGroupDaoHelper = ProgramGroupDaoHelper.getInstance();
-	private LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
 	
 	public RecordedService() {
 		super( "RecordedDownloadService" );

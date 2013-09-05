@@ -525,7 +525,7 @@ public class LocationProfileDaoHelper {
 		
 		ContentValues values = new ContentValues();
 		values.put( LocationProfileConstants.FIELD_SELECTED, 0 );
-		int updated = context.getContentResolver().update( LocationProfileConstants.CONTENT_URI, values, LocationProfileConstants.FIELD_TYPE + " = ?", new String[] { type.name() } );
+//		int updated = context.getContentResolver().update( LocationProfileConstants.CONTENT_URI, values, LocationProfileConstants.FIELD_TYPE + " = ?", new String[] { type.name() } );
 //		if( updated > 0 ) {
 //			Log.v( TAG, "resetSelectedProfiles : reset all selected location profiles by type" );
 //		}
@@ -544,7 +544,7 @@ public class LocationProfileDaoHelper {
 		
 		ContentValues values = new ContentValues();
 		values.put( LocationProfileConstants.FIELD_CONNECTED, 0 );
-		int updated = context.getContentResolver().update( LocationProfileConstants.CONTENT_URI, values, null, null );
+//		int updated = context.getContentResolver().update( LocationProfileConstants.CONTENT_URI, values, null, null );
 //		if( updated > 0 ) {
 //			Log.v( TAG, "resetConnectedProfiles : reset all connected location profiles" );
 //		}

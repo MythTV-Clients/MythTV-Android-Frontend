@@ -27,8 +27,6 @@ import org.mythtv.db.dvr.programGroup.ProgramGroupDaoHelper;
 
 import android.content.ContentUris;
 import android.content.Context;
-import android.content.OperationApplicationException;
-import android.os.RemoteException;
 //import android.util.Log;
 
 /**

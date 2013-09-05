@@ -3,38 +3,23 @@
  */
 package org.mythtv.db.myth.model;
 
-import org.simpleframework.xml.Attribute;
-import org.simpleframework.xml.Root;
+import java.io.Serializable;
 
 /**
  * @author Daniel Frey
  *
  */
-@Root( name = "Group" )
-public class Group {
+public class Group implements Serializable {
 
-	@Attribute( name = "dir" )
+	private static final long serialVersionUID = -4406002520575977346L;
+
 	private String directory;
-	
-	@Attribute
 	private String id;
-	
-	@Attribute
 	private int free;
-	
-	@Attribute( required = false )
 	private boolean deleted;
-	
-	@Attribute
 	private int total;
-	
-	@Attribute
 	private int used;
-	
-	@Attribute( required = false )
 	private int expirable;
-	
-	@Attribute( name = "livetv", required = false )
 	private boolean liveTv;
 
 	public Group() { }

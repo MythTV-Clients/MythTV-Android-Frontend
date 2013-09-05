@@ -3,19 +3,17 @@
  */
 package org.mythtv.db.myth.model;
 
-import org.simpleframework.xml.ElementList;
-import org.simpleframework.xml.Root;
-
+import java.io.Serializable;
 import java.util.List;
 
 /**
  * @author Daniel Frey
  *
  */
-@Root( name = "Storage" )
-public class Storage {
+public class Storage implements Serializable {
 
-	@ElementList( inline = true )
+	private static final long serialVersionUID = -7532056565096729661L;
+
 	private List<Group> groups;
 	
 	public Storage() { }

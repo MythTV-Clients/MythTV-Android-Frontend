@@ -19,30 +19,28 @@
  */
 package org.mythtv.db.status.model;
 
+import java.io.Serializable;
 import java.util.List;
-
-import org.simpleframework.xml.Attribute;
-import org.simpleframework.xml.ElementList;
-import org.simpleframework.xml.Root;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * @author Daniel Frey
  *
  */
-@Root( name = "Encoders" )
-public class Encoders {
+public class Encoders implements Serializable {
 
-	@JsonProperty
-	@Attribute( name = "count" )
+	private static final long serialVersionUID = 5159257234976125609L;
+
 	private int count;
-	
-	@JsonProperty( "Encoders" )
-	@ElementList( inline = true )
 	private List<Encoder> encoders;
 	
 	public Encoders() { }
+
+	/**
+	 * @return the count
+	 */
+	public int getCount() {
+		return count;
+	}
 
 	/**
 	 * @return the encoders
@@ -66,6 +64,9 @@ public class Encoders {
 		StringBuilder builder = new StringBuilder();
 		
 		builder.append( "Encoders [" );
+		
+		builder.append( "count=" );
+		builder.append( count );
 		
 		if( encoders != null ) {
 			builder.append( "encoders=" );

@@ -27,11 +27,10 @@ import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.util.MenuHelper;
 import org.mythtv.client.ui.util.ProgramHelper;
 import org.mythtv.db.channel.ChannelDaoHelper;
-import org.mythtv.db.dvr.RecordingRuleDaoHelper;
 import org.mythtv.db.channel.model.ChannelInfo;
+import org.mythtv.db.dvr.RecordingRuleDaoHelper;
 import org.mythtv.db.dvr.model.RecRule;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -149,13 +148,13 @@ public class RecordingRuleFragment extends AbstractMythFragment {
 	public boolean onOptionsItemSelected( MenuItem item ) {
 		Log.v( TAG, "onOptionsItemSelected : enter" );
 
-		Intent intent = null;
-		
 		switch( item.getItemId() ) {
+
 			case android.R.id.home:
-			    	// app icon in action bar clicked; go home
-			    	this.getActivity().finish();
-				return true;
+			    // app icon in action bar clicked; go home
+			    getActivity().finish();
+				
+			    return true;
 			
 			case MenuHelper.EDIT_ID:
 
@@ -172,6 +171,7 @@ public class RecordingRuleFragment extends AbstractMythFragment {
 				Toast.makeText( getActivity(), "Delete Recording Rule - Coming Soon!", Toast.LENGTH_SHORT ).show();
 				
 				return true;
+		
 		}
 
 		Log.v( TAG, "onOptionsItemSelected : exit" );

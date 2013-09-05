@@ -90,11 +90,11 @@ public class FrontendsRow implements Row, OnItemSelectedListener {
 
 		LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile( mContext );
 
-		String[] projection = new String[] { FrontendConstants.TABLE_NAME + "." + FrontendConstants._ID, FrontendConstants.TABLE_NAME + "." + FrontendConstants.FIELD_NAME };
+		String[] projection = null; //new String[] { FrontendConstants.TABLE_NAME + "." + FrontendConstants._ID, FrontendConstants.TABLE_NAME + "." + FrontendConstants.FIELD_NAME };
         String selection = FrontendConstants.TABLE_NAME + "." + FrontendConstants.FIELD_AVAILABLE + " = ?";
         String[] selectionArgs = new String[] { "1" };
 		
-        mFrontends = mFrontendDaoHelper.findAll( mContext, locationProfile, null, selection, selectionArgs, FrontendConstants.TABLE_NAME + "." + FrontendConstants.FIELD_NAME );
+        mFrontends = mFrontendDaoHelper.findAll( mContext, locationProfile, projection, selection, selectionArgs, FrontendConstants.TABLE_NAME + "." + FrontendConstants.FIELD_NAME );
 		if( null != mFrontends && !mFrontends.isEmpty() ) {
 			FrontendAdapter adapter = new FrontendAdapter(mContext, R.layout.frontend_row, mFrontends);
 			holder.spinner.setAdapter( adapter );

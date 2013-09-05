@@ -19,55 +19,26 @@
  */
 package org.mythtv.db.status.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import java.io.Serializable;
 
 import org.mythtv.db.dvr.model.Program;
-import org.simpleframework.xml.Attribute;
-import org.simpleframework.xml.Element;
-import org.simpleframework.xml.Root;
 
 /**
  * @author Daniel Frey
  *
  */
-@Root( name = "Encoder" )
-public class Encoder {
+public class Encoder implements Serializable {
 
-	@JsonProperty( "Id" )
-	@Attribute
+	private static final long serialVersionUID = 6721297376060143090L;
+
 	private int id;
-	
-	@JsonProperty( "HostName" )
-	@Attribute
 	private String hostname;
-	
-	@JsonProperty( "Local" )
-	@Attribute
 	private boolean local;
-	
-	@JsonProperty( "Connected" )
-	@Attribute
 	private boolean connected;
-	
-	@JsonProperty( "State" )
-	@Attribute
 	private int state;
-	
-	@JsonProperty( "SleepStatus" )
-	@Attribute( name = "sleepstatus" )
 	private int sleepStatus;
-	
-	@JsonIgnore
-	@Attribute( name = "devlabel" )
 	private String deviceLabel;
-	
-	@JsonProperty( "LowOnFreeSpace" )
-	@Attribute( required = false )
 	private boolean lowOnFreeSpace;
-	
-	@JsonProperty( "Recording" )
-	@Element( name = "Program", required = false )
 	private Program recording;
 	
 	public Encoder() { }

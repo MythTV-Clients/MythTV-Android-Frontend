@@ -3,37 +3,24 @@
  */
 package org.mythtv.db.status.model;
 
+import java.io.Serializable;
+
 import org.joda.time.DateTime;
-import org.simpleframework.xml.Attribute;
-import org.simpleframework.xml.Root;
-import org.simpleframework.xml.Text;
 
 /**
  * @author Daniel Frey
  *
  */
-@Root( name = "Guide" )
-public class Guide {
+public class Guide implements Serializable {
 
-	@Attribute
+	private static final long serialVersionUID = 1077881628105945136L;
+
 	private DateTime guideThru;
-	
-	@Attribute
 	private String status;
-	
-	@Attribute
 	private DateTime next;
-	
-	@Attribute
 	private String end;
-	
-	@Attribute
 	private int guideDays;
-	
-	@Attribute
 	private String start;
-	
-	@Text
 	private String comment;
 	
 	public Guide() { }

@@ -19,8 +19,6 @@
  */
 package org.mythtv.db.content.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.io.Serializable;
 import java.util.List;
 
@@ -32,7 +30,6 @@ public class ArtworkInfos implements Serializable {
 
 	private static final long serialVersionUID = 223919846162208999L;
 
-	@JsonProperty( "ArtworkInfos" )
 	private List<ArtworkInfo> artworkInfos;
 	
 	public ArtworkInfos() { }

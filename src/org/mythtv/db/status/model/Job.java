@@ -3,21 +3,20 @@
  */
 package org.mythtv.db.status.model;
 
+import java.io.Serializable;
+
 import org.joda.time.DateTime;
 import org.mythtv.db.dvr.model.Program;
-import org.simpleframework.xml.Attribute;
-import org.simpleframework.xml.Element;
-import org.simpleframework.xml.Root;
 
-import java.util.HashMap;
-import java.util.Map;
+import android.util.SparseArray;
 
 /**
  * @author Daniel Frey
  *
  */
-@Root( name = "Job" )
-public class Job {
+public class Job implements Serializable {
+
+	private static final long serialVersionUID = -2608035524304413292L;
 
 	public enum Flag {
 		NO_FLAGS( 0 ),
@@ -35,13 +34,13 @@ public class Job {
 			return code;
 		}
 	
-		private static Map<Integer, Flag> valueMap;
+		private static SparseArray<Flag> valueMap;
 		
 		public static Flag getValue( int code ) {
 			
 			if( null == valueMap ) {
 				
-				valueMap = new HashMap<Integer, Flag>();
+				valueMap = new SparseArray<Flag>();
 				for( Flag flag : values() ) {
 					valueMap.put( flag.getCode(), flag );
 				}
@@ -71,13 +70,13 @@ public class Job {
 			return code;
 		}
 	
-		private static Map<Integer, Type> valueMap;
+		private static SparseArray<Type> valueMap;
 		
 		public static Type getValue( int code ) {
 			
 			if( null == valueMap ) {
 				
-				valueMap = new HashMap<Integer, Type>();
+				valueMap = new SparseArray<Type>();
 				for( Type type : values() ) {
 					valueMap.put( type.getCode(), type );
 				}
@@ -105,13 +104,13 @@ public class Job {
 			return code;
 		}
 	
-		private static Map<Integer, Command> valueMap;
+		private static SparseArray<Command> valueMap;
 		
 		public static Command getValue( int code ) {
 			
 			if( null == valueMap ) {
 				
-				valueMap = new HashMap<Integer, Command>();
+				valueMap = new SparseArray<Command>();
 				for( Command command : values() ) {
 					valueMap.put( command.getCode(), command );
 				}
@@ -149,13 +148,13 @@ public class Job {
 			return code;
 		}
 	
-		private static Map<Integer, Status> valueMap;
+		private static SparseArray<Status> valueMap;
 		
 		public static Status getValue( int code ) {
 			
 			if( null == valueMap ) {
 				
-				valueMap = new HashMap<Integer, Status>();
+				valueMap = new SparseArray<Status>();
 				for( Status status : values() ) {
 					valueMap.put( status.getCode(), status );
 				}
@@ -166,48 +165,20 @@ public class Job {
 		
 	};
 	
-	@Attribute
 	private int id;
-	
-	@Attribute( name = "chanId" )
 	private int channelId;
-	
-	@Attribute( name = "startTs" )
 	private DateTime startTs;
-	
-	@Attribute( name = "startTime" )
 	private DateTime startTime;
-	
-	@Attribute
 	private DateTime insertTime;
-	
-	@Attribute( name = "type", required = false )
 	private Type type;
-	
-	@Attribute( name = "cmds", required = false )
 	private Command command;
-	
-	@Attribute( name = "flags", required = false )
 	private Flag flag;
-	
-	@Attribute( name = "status", required = false )
 	private Status status;
-	
-	@Attribute
 	private DateTime statusTime;
-	
-	@Attribute( name = "schedTime" )
 	private DateTime scheduledTime;
-	
-	@Attribute
 	private String hostname;
-	
-	@Attribute
 	private String args;
-	
 	private String comment;
-	
-	@Element( name = "Program" )
 	private Program program;
 	
 	public Job() { }

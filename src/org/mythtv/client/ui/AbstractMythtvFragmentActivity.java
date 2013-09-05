@@ -150,7 +150,6 @@ public abstract class AbstractMythtvFragmentActivity extends FragmentActivity im
 
 	// internal helpers
 	
-	@TargetApi( 11 )
 	protected void setupActionBar() {
 		Log.v( TAG, "setupActionBar : enter" );
 

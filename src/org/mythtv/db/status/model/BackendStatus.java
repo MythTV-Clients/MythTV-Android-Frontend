@@ -1,52 +1,29 @@
 package org.mythtv.db.status.model;
 
+import java.io.Serializable;
+
 import org.joda.time.DateTime;
 import org.mythtv.db.frontends.model.Frontends;
-import org.simpleframework.xml.Attribute;
-import org.simpleframework.xml.Element;
-import org.simpleframework.xml.Root;
 
 /**
  * @author Daniel Frey
  *
  */
-@Root( name = "Status" )
-public class BackendStatus {
+public class BackendStatus implements Serializable {
 
-	@Attribute
+	private static final long serialVersionUID = -5827686268837625642L;
+
 	private String version;
-	
-	@Attribute( name = "ISODate" )
 	private DateTime isoDate;
-	
-	@Attribute( name = "protoVer" )
 	private int protocolVersion;
-	
-	@Attribute
 	private String time;
-	
-	@Attribute
 	private String date;
-	
-	@Element( name = "Encoders" )
 	private Encoders encoders;
-	
-	@Element( name = "Scheduled" )
 	private Scheduled scheduled;
-	
-	@Element( name = "Frontends" )
 	private Frontends frontends;
-	
-	@Element( name = "Backends" )
 	private Backends backends;
-	
-	@Element( name = "JobQueue" )
 	private JobQueue jobQueue;
-	
-	@Element( name = "MachineInfo" )
 	private MachineInfo machineInfo;
-	
-	@Element( name = "Miscellaneous", required = false )
 	private Miscellaneous miscellaneous;
 	
 	public BackendStatus() { }

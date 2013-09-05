@@ -7,9 +7,7 @@ import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.services.api.ApiVersion;
 import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.connect.MythAccessFactory;
-import org.mythtv.services.api.v026.MythServicesTemplate;
 
-import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 

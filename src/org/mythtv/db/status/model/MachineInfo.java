@@ -3,24 +3,20 @@
  */
 package org.mythtv.db.status.model;
 
+import java.io.Serializable;
+
 import org.mythtv.db.myth.model.Storage;
-import org.simpleframework.xml.Element;
-import org.simpleframework.xml.Root;
 
 /**
  * @author Daniel Frey
  *
  */
-@Root( name = "MachineInfo" )
-public class MachineInfo {
+public class MachineInfo implements Serializable {
 
-	@Element( name = "Storage" )
+	private static final long serialVersionUID = -9032423198741844863L;
+
 	private Storage storage;
-	
-	@Element( name = "Load" )
 	private Load load;
-	
-	@Element( name = "Guide" )
 	private Guide guide;
 
 	public MachineInfo() { }

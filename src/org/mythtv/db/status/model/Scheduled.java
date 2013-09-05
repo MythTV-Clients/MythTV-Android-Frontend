@@ -3,24 +3,20 @@
  */
 package org.mythtv.db.status.model;
 
-import org.mythtv.db.dvr.model.Program;
-import org.simpleframework.xml.Attribute;
-import org.simpleframework.xml.ElementList;
-import org.simpleframework.xml.Root;
-
+import java.io.Serializable;
 import java.util.List;
+
+import org.mythtv.db.dvr.model.Program;
 
 /**
  * @author Daniel Frey
  *
  */
-@Root( name = "Scheduled" )
-public class Scheduled {
+public class Scheduled implements Serializable {
 
-	@Attribute
+	private static final long serialVersionUID = -6223204927145260424L;
+
 	private int count = 0;
-
-	@ElementList( inline = true )
 	private List<Program> programs;
 	
 	public Scheduled() { }

@@ -3,17 +3,16 @@
  */
 package org.mythtv.db.frontends.model;
 
-import org.simpleframework.xml.Attribute;
-import org.simpleframework.xml.Root;
+import java.io.Serializable;
 
 /**
  * @author Daniel Frey
  *
  */
-@Root
-public class Frontends {
+public class Frontends implements Serializable {
 
-	@Attribute( required = false )
+	private static final long serialVersionUID = -3141516546562897095L;
+
 	private int count;
 
 	public Frontends() { }

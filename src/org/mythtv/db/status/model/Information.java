@@ -3,23 +3,18 @@
  */
 package org.mythtv.db.status.model;
 
-import org.simpleframework.xml.Attribute;
-import org.simpleframework.xml.Root;
+import java.io.Serializable;
 
 /**
  * @author Daniel Frey
  *
  */
-@Root( name = "Information" )
-public class Information {
+public class Information implements Serializable {
 
-	@Attribute( name = "display", required = false )
+	private static final long serialVersionUID = 3108320000769166596L;
+
 	private String display;
-	
-	@Attribute( name = "name", required = false )
 	private String name;
-	
-	@Attribute( name = "value", required = false )
 	private String value;
 	
 	public Information() { }

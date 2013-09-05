@@ -142,6 +142,13 @@
             </intent-filter>
         </service>
 
+		<service android:name=".service.status.BackendStatusService" android:process=":status" android:exported="false">
+			<intent-filter>
+                <action android:name="org.mythtv.background.status.ACTION_DOWNLOAD" />
+                <action android:name="org.mythtv.background.status.ACTION_COMPLETE" />
+            </intent-filter>
+		</service>
+		
 		<service android:name=".service.channel.ChannelDownloadService" android:process=":channel" android:exported="false">
 			<intent-filter>
                 <action android:name="org.mythtv.background.channelDownload.ACTION_DOWNLOAD" />

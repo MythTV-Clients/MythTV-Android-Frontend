@@ -57,7 +57,7 @@ public class AbstractFrontendFragment extends AbstractMythFragment {
 			sGetStatusTask = new GetStatusTask();
 
 			// kick it off with a status request
-			final Frontend fe = MainMenuFragment.getSelectedFrontend();
+//			final Frontend fe = MainMenuFragment.getSelectedFrontend();
 			// sGetStatusTask.execute(fe.getUrl());
 		}
 

@@ -18,21 +18,9 @@
  */
 package org.mythtv.client.ui.setup.capture;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-
-import org.mythtv.client.MainApplication;
-import org.mythtv.db.http.model.EtagInfoDelegate;
 import org.mythtv.service.util.MythtvServiceHelper;
-import org.mythtv.db.captureCard.model.CaptureCard;
-import org.mythtv.db.captureCard.model.CaptureCardList;
-import org.springframework.http.ResponseEntity;
 
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.util.Log;

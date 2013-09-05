@@ -3,19 +3,17 @@
  */
 package org.mythtv.db.status.model;
 
-import org.simpleframework.xml.ElementList;
-import org.simpleframework.xml.Root;
-
+import java.io.Serializable;
 import java.util.List;
 
 /**
  * @author Daniel Frey
  *
  */
-@Root( name = "Miscellaneous" )
-public class Miscellaneous {
+public class Miscellaneous implements Serializable {
 
-	@ElementList( inline = true, required = false )
+	private static final long serialVersionUID = 8218429930300162709L;
+
 	private List<Information> informations;
 	
 	public Miscellaneous() { }
