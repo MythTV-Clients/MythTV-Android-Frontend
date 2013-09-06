@@ -744,7 +744,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		sqlBuilder.append( RecordingRuleConstants.FIELD_CHAN_ID ).append( " " ).append( RecordingRuleConstants.FIELD_CHAN_ID_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( RecordingRuleConstants.FIELD_CALLSIGN ).append( " " ).append( RecordingRuleConstants.FIELD_CALLSIGN_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( RecordingRuleConstants.FIELD_DAY ).append( " " ).append( RecordingRuleConstants.FIELD_DAY_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_FIND_DAY ).append( " " ).append( RecordingRuleConstants.FIELD_FIND_DAY_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( RecordingRuleConstants.FIELD_TIME ).append( " " ).append( RecordingRuleConstants.FIELD_TIME_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( RecordingRuleConstants.FIELD_FIND_TIME ).append( " " ).append( RecordingRuleConstants.FIELD_FIND_TIME_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( RecordingRuleConstants.FIELD_FIND_ID ).append( " " ).append( RecordingRuleConstants.FIELD_FIND_ID_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( RecordingRuleConstants.FIELD_TYPE ).append( " " ).append( RecordingRuleConstants.FIELD_TYPE_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( RecordingRuleConstants.FIELD_SEARCH_TYPE ).append( " " ).append( RecordingRuleConstants.FIELD_SEARCH_TYPE_DATA_TYPE ).append( ", " );

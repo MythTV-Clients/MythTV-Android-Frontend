@@ -36,9 +36,9 @@ public class ProgramGuideDownloadService extends MythtvService {
 
 	private static final String TAG = ProgramGuideDownloadService.class.getSimpleName();
 	
-    public static final String ACTION_DOWNLOAD = "org.mythtv.background.programGuideDownloadNew.ACTION_DOWNLOAD";
-    public static final String ACTION_PROGRESS = "org.mythtv.background.programGuideDownloadNew.ACTION_PROGRESS";
-    public static final String ACTION_COMPLETE = "org.mythtv.background.programGuideDownloadNew.ACTION_COMPLETE";
+    public static final String ACTION_DOWNLOAD = "org.mythtv.background.programGuideDownload.ACTION_DOWNLOAD";
+    public static final String ACTION_PROGRESS = "org.mythtv.background.programGuideDownload.ACTION_PROGRESS";
+    public static final String ACTION_COMPLETE = "org.mythtv.background.programGuideDownload.ACTION_COMPLETE";
 
     public static final String EXTRA_PROGRESS = "PROGRESS";
     public static final String EXTRA_PROGRESS_DATE = "PROGRESS_DATE";

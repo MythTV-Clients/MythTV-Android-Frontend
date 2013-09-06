@@ -27,16 +27,15 @@ import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.util.MenuHelper;
 import org.mythtv.client.ui.util.ProgramHelper;
 import org.mythtv.db.channel.ChannelDaoHelper;
-import org.mythtv.db.http.model.EtagInfoDelegate;
-import org.mythtv.service.util.NetworkHelper;
-import org.mythtv.services.api.Int;
 import org.mythtv.db.channel.model.ChannelInfo;
+import org.mythtv.db.dvr.RecordingRuleDaoHelper;
 import org.mythtv.db.dvr.model.RecRule;
-import org.mythtv.db.dvr.model.RecRuleWrapper;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.mythtv.service.dvr.RecordingRuleService;
 
-import android.os.AsyncTask;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -53,38 +52,44 @@ import android.widget.Toast;
 
 /**
  * @author Daniel Frey
- *
+ * 
  */
 public class RecordingRuleEditFragment extends AbstractMythFragment implements OnCheckedChangeListener {
 
 	private static final String TAG = RecordingRuleEditFragment.class.getSimpleName();
-	
+
+	private RecordingRuleReceiver recordingRuleReceiver = new RecordingRuleReceiver();
+
 	private ChannelDaoHelper mChannelDaoHelper = ChannelDaoHelper.getInstance();
 	private MenuHelper mMenuHelper = MenuHelper.getInstance();
 	private ProgramHelper mProgramHelper = ProgramHelper.getInstance();
-	
+	private RecordingRuleDaoHelper mRecordingRuleDaoHelper = RecordingRuleDaoHelper.getInstance();
+
 	private LocationProfile mLocationProfile;
-	
+
 	private boolean mEdited = false;
 	private RecRule mRule;
-	
+
 	public static RecordingRuleEditFragment newInstance( Bundle args ) {
 		RecordingRuleEditFragment fragment = new RecordingRuleEditFragment();
 		fragment.setArguments( args );
-		
+
 		return fragment;
 	}
 
-	public RecordingRuleEditFragment() { }
-	
-	/* (non-Javadoc)
+	public RecordingRuleEditFragment() {
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see android.support.v4.app.Fragment#onCreate(android.os.Bundle)
 	 */
 	@Override
 	public void onCreate( Bundle savedInstanceState ) {
 		Log.v( TAG, "onCreate : enter" );
 		super.onCreate( savedInstanceState );
-		
+
 		setHasOptionsMenu( true );
 
 		Bundle args = getArguments();
@@ -92,11 +97,29 @@ public class RecordingRuleEditFragment extends AbstractMythFragment implements O
 			int recordingRuleId = args.getInt( "RECORDING_RULE_ID" );
 			loadRecordingRule( recordingRuleId );
 		}
-		
+
 		Log.v( TAG, "onCreate : exit" );
 	}
 
 	/* (non-Javadoc)
+	 * @see org.mythtv.client.ui.AbstractMythFragment#onStart()
+	 */
+	@Override
+	public void onStart() {
+		Log.v( TAG, "onStart : enter" );
+		super.onStart();
+
+		IntentFilter recordingRuleFilter = new IntentFilter( RecordingRuleService.ACTION_UPDATE );
+		recordingRuleFilter.addAction( RecordingRuleService.ACTION_PROGRESS );
+		recordingRuleFilter.addAction( RecordingRuleService.ACTION_COMPLETE );
+		getActivity().registerReceiver( recordingRuleReceiver, recordingRuleFilter );
+
+		Log.v( TAG, "onStart : enter" );
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
 	 */
 	@Override
@@ -106,112 +129,144 @@ public class RecordingRuleEditFragment extends AbstractMythFragment implements O
 		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
 	}
 
-	/* (non-Javadoc)
-	 * @see android.support.v4.app.Fragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * android.support.v4.app.Fragment#onCreateView(android.view.LayoutInflater,
+	 * android.view.ViewGroup, android.os.Bundle)
 	 */
 	@Override
 	public View onCreateView( LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState ) {
 		Log.v( TAG, "onCreateView : enter" );
 
 		View v = inflater.inflate( R.layout.recording_rule_edit, container, false );
-		
+
 		Log.v( TAG, "onCreateView : exit" );
 		return v;
 	}
 
 	/* (non-Javadoc)
-	 * @see android.support.v4.app.Fragment#onCreateOptionsMenu(android.view.Menu, android.view.MenuInflater)
+	 * @see org.mythtv.client.ui.AbstractMythFragment#onStop()
 	 */
 	@Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+	public void onStop() {
+		Log.v( TAG, "onStop : enter" );
+		super.onStop();
+
+		// Unregister for broadcast
+		if( null != recordingRuleReceiver ) {
+			try {
+				getActivity().unregisterReceiver( recordingRuleReceiver );
+			} catch( IllegalArgumentException e ) {
+				Log.e( TAG, e.getLocalizedMessage(), e );
+			}
+		}
+
+		Log.v( TAG, "onStop : exit" );
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * android.support.v4.app.Fragment#onCreateOptionsMenu(android.view.Menu,
+	 * android.view.MenuInflater)
+	 */
+	@Override
+	public void onCreateOptionsMenu( Menu menu, MenuInflater inflater ) {
 		Log.v( TAG, "onCreateOptionsMenu : enter" );
 
 		mMenuHelper.saveMenuItem( getActivity(), menu );
 		mMenuHelper.resetMenuItem( getActivity(), menu );
-		
+
 		Log.v( TAG, "onCreateOptionsMenu : exit" );
-		
-		super.onCreateOptionsMenu(menu, inflater);
+
+		super.onCreateOptionsMenu( menu, inflater );
 	}
 
-
-	/* (non-Javadoc)
-	 * @see android.support.v4.app.Fragment#onOptionsItemSelected(android.view.MenuItem)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * android.support.v4.app.Fragment#onOptionsItemSelected(android.view.MenuItem
+	 * )
 	 */
 	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
+	public boolean onOptionsItemSelected( MenuItem item ) {
 		Log.v( TAG, "onOptionsItemSelected : enter" );
 
 		switch( item.getItemId() ) {
-			case android.R.id.home:
-				
-				this.getActivity().finish();
-				
-				return true;
-				
-			case MenuHelper.RESET_ID:
-				
-				this.setupForm( this.mRule );
-				
-				return true;
-				
-			case MenuHelper.SAVE_ID:
-				
-				this.saveRecordingRule();
-				
-				return true;
+		case android.R.id.home:
+
+			getActivity().finish();
+
+			return true;
+
+		case MenuHelper.RESET_ID:
+
+			setupForm( mRule );
+
+			return true;
+
+		case MenuHelper.SAVE_ID:
+
+			saveRecordingRule();
+
+			return true;
 		}
 
 		Log.v( TAG, "onOptionsItemSelected : exit" );
 		return super.onOptionsItemSelected( item );
 	}
-	
+
 	/**
 	 * Called when the rule is edited
 	 */
 	@Override
-	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+	public void onCheckedChanged( CompoundButton buttonView, boolean isChecked ) {
 		this.mEdited = true;
 	}
 
 	public void loadRecordingRule( Integer recordingRuleId ) {
 		Log.v( TAG, "loadRecordingRule : enter" );
 
-		new DownloadRecordingRuleTask().execute( recordingRuleId );
+		mRule = mRecordingRuleDaoHelper.findByRecordingRuleId( getActivity(), mLocationProfile, recordingRuleId.longValue() );
+		setupForm( mRule );
 		
 		Log.v( TAG, "loadRecordingRule : exit" );
 	}
-	
+
 	// internal helpers
 
 	private void setupForm( RecRule rule ) {
 		Log.v( TAG, "setupForm : enter" );
-		
+
 		View view;
 		CheckBox cBox;
 		TextView tView;
-		
-		this.mRule = rule;
-		
+
+		mRule = rule;
+
 		view = getActivity().findViewById( R.id.recording_rule_category_color );
 		view.setBackgroundColor( mProgramHelper.getCategoryColor( rule.getCategory() ) );
-		
+
 		tView = (TextView) getActivity().findViewById( R.id.recording_rule_title );
 		tView.setText( rule.getTitle() );
-		
+
 		if( null != rule.getSubTitle() && rule.getSubTitle() != "" ) {
 			tView = (TextView) getActivity().findViewById( R.id.recording_rule_sub_title );
 			tView.setText( rule.getSubTitle() );
 			tView.setVisibility( View.VISIBLE );
 		}
-		
+
 		tView = (TextView) getActivity().findViewById( R.id.recording_rule_category );
 		tView.setText( rule.getCategory() );
-		
+
 		tView = (TextView) getActivity().findViewById( R.id.recording_rule_type );
 		tView.setText( rule.getType() );
-		
-		//grabbed channel resolving code from RecordingRulesFragment.java
+
+		// grabbed channel resolving code from RecordingRulesFragment.java
 		// - should we move this to a utility?
 		// - slow
 		String channel = "[Any]";
@@ -221,187 +276,119 @@ public class RecordingRuleEditFragment extends AbstractMythFragment implements O
 				channel = channelInfo.getChannelNumber();
 			}
 		}
-		
+
 		tView = (TextView) getActivity().findViewById( R.id.recording_rule_channel );
 		tView.setText( channel );
-		
+
 		cBox = (CheckBox) getActivity().findViewById( R.id.recording_rule_checkBox_active );
 		cBox.setChecked( !rule.isInactive() );
-		cBox.setOnCheckedChangeListener(this);
-		
+		cBox.setOnCheckedChangeListener( this );
+
 		cBox = (CheckBox) getActivity().findViewById( R.id.recording_rule_checkBox_auto_comm_flag );
 		cBox.setChecked( rule.isAutoCommflag() );
-		cBox.setOnCheckedChangeListener(this);
-		
+		cBox.setOnCheckedChangeListener( this );
+
 		cBox = (CheckBox) getActivity().findViewById( R.id.recording_rule_checkBox_auto_transcode );
 		cBox.setChecked( rule.isAutoTranscode() );
-		cBox.setOnCheckedChangeListener(this);
-		
+		cBox.setOnCheckedChangeListener( this );
+
 		cBox = (CheckBox) getActivity().findViewById( R.id.recording_rule_checkBox_auto_meta_lookup );
 		cBox.setChecked( rule.isAutoMetaLookup() );
-		cBox.setOnCheckedChangeListener(this);
-		
+		cBox.setOnCheckedChangeListener( this );
+
 		cBox = (CheckBox) getActivity().findViewById( R.id.recording_rule_checkBox_auto_usr_job1 );
 		cBox.setChecked( rule.isAutoUserJob1() );
-		cBox.setOnCheckedChangeListener(this);
-		
+		cBox.setOnCheckedChangeListener( this );
+
 		cBox = (CheckBox) getActivity().findViewById( R.id.recording_rule_checkBox_auto_usr_job2 );
 		cBox.setChecked( rule.isAutoUserJob2() );
-		cBox.setOnCheckedChangeListener(this);
-		
+		cBox.setOnCheckedChangeListener( this );
+
 		cBox = (CheckBox) getActivity().findViewById( R.id.recording_rule_checkBox_auto_usr_job3 );
 		cBox.setChecked( rule.isAutoUserJob3() );
-		cBox.setOnCheckedChangeListener(this);
-		
+		cBox.setOnCheckedChangeListener( this );
+
 		cBox = (CheckBox) getActivity().findViewById( R.id.recording_rule_checkBox_auto_usr_job4 );
 		cBox.setChecked( rule.isAutoUserJob4() );
-		cBox.setOnCheckedChangeListener(this);
-		
+		cBox.setOnCheckedChangeListener( this );
+
 		Log.v( TAG, "setupForm : exit" );
 	}
-	
-	
+
 	/**
 	 * Reads the rule state from the UI and saves it back to the master backend
+	 * 
 	 * @return
 	 */
-	private void saveRecordingRule(){
-		
+	private void saveRecordingRule() {
+
 		Log.v( TAG, "saveRecordingRule : enter" );
-		
-		//nothing to do
-		if(!this.mEdited) 
-		{
+
+		// nothing to do
+		if( !this.mEdited ) {
 			Log.v( TAG, "saveRecordingRule : do nothing : exit" );
 			return;
 		}
-		
-		RecRule rule = this.mRule;
+
+		RecRule rule = mRule;
 		CheckBox cBox;
-		
+
 		cBox = (CheckBox) getActivity().findViewById( R.id.recording_rule_checkBox_active );
-		rule.setInactive(cBox.isChecked());
-		
+		rule.setInactive( cBox.isChecked() );
+
 		cBox = (CheckBox) getActivity().findViewById( R.id.recording_rule_checkBox_auto_comm_flag );
-		rule.setAutoCommflag(cBox.isChecked());
-		
+		rule.setAutoCommflag( cBox.isChecked() );
+
 		cBox = (CheckBox) getActivity().findViewById( R.id.recording_rule_checkBox_auto_transcode );
-		rule.setAutoTranscode(cBox.isChecked());
-		
+		rule.setAutoTranscode( cBox.isChecked() );
+
 		cBox = (CheckBox) getActivity().findViewById( R.id.recording_rule_checkBox_auto_meta_lookup );
-		rule.setAutoMetaLookup(cBox.isChecked());
-		
+		rule.setAutoMetaLookup( cBox.isChecked() );
+
 		cBox = (CheckBox) getActivity().findViewById( R.id.recording_rule_checkBox_auto_usr_job1 );
-		rule.setAutoUserJob1(cBox.isChecked());
-		
+		rule.setAutoUserJob1( cBox.isChecked() );
+
 		cBox = (CheckBox) getActivity().findViewById( R.id.recording_rule_checkBox_auto_usr_job2 );
-		rule.setAutoUserJob2(cBox.isChecked());
-		
+		rule.setAutoUserJob2( cBox.isChecked() );
+
 		cBox = (CheckBox) getActivity().findViewById( R.id.recording_rule_checkBox_auto_usr_job3 );
-		rule.setAutoUserJob3(cBox.isChecked());
-		
+		rule.setAutoUserJob3( cBox.isChecked() );
+
 		cBox = (CheckBox) getActivity().findViewById( R.id.recording_rule_checkBox_auto_usr_job4 );
-		rule.setAutoUserJob4(cBox.isChecked());
-		
-		new SaveRecordingRuleTask().execute(rule);
-		
+		rule.setAutoUserJob4( cBox.isChecked() );
+
+		if( !mRunningServiceHelper.isServiceRunning( getActivity(), "org.mythtv.service.dvr.RecordingRuleService" ) ) {
+			Intent updateIntent = new Intent( RecordingRuleService.ACTION_UPDATE );
+			updateIntent.putExtra( RecordingRuleService.ACTION_DATA, rule );
+			getActivity().startService( updateIntent );
+		}
+
 		Log.v( TAG, "saveRecordingRule : exit" );
 	}
-	
-	private void toast(String msg){
-		Toast t = Toast.makeText(this.getActivity(), msg, Toast.LENGTH_SHORT);
-		t.show();
-	}
-	
-	private class DownloadRecordingRuleTask extends AsyncTask<Integer, Void, ResponseEntity<RecRuleWrapper>> {
 
-		/* (non-Javadoc)
-		 * @see android.os.AsyncTask#doInBackground(Params[])
-		 */
+	private void toast( String msg ) {
+		Toast.makeText( this.getActivity(), msg, Toast.LENGTH_SHORT ).show();
+	}
+
+	private class RecordingRuleReceiver extends BroadcastReceiver {
+
 		@Override
-		protected ResponseEntity<RecRuleWrapper> doInBackground( Integer... params ) {
-			
-			if( !NetworkHelper.getInstance().isMasterBackendConnected( getActivity(), mLocationProfile ) ) {
-				return null;
+		public void onReceive( Context context, Intent intent ) {
+			Log.i( TAG, "RecordingRuleReceiver.onReceive : enter" );
+
+			if( intent.getAction().equals( RecordingRuleService.ACTION_PROGRESS ) ) {
+				Log.i( TAG, "RecordingRuleReceiver.onReceive : progress=" + intent.getStringExtra( RecordingRuleService.EXTRA_PROGRESS ) );
 			}
 
-			Integer id = params[ 0 ];
+			if( intent.getAction().equals( RecordingRuleService.ACTION_COMPLETE ) ) {
+				Log.i( TAG, "RecordingRuleReceiver.onReceive : complete=" + intent.getStringExtra( RecordingRuleService.EXTRA_COMPLETE ) );
 			
-			EtagInfoDelegate etag = EtagInfoDelegate.createEmptyETag();
-			return mMythtvServiceHelper.getMythServicesApi( mLocationProfile ).dvrOperations().getRecordSchedule( id, etag );
-		}
-
-		/* (non-Javadoc)
-		 * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
-		 */
-		@Override
-		protected void onPostExecute( ResponseEntity<RecRuleWrapper> result ) {
-			
-			if( null != result ) {
-				
-				if( result.getStatusCode().equals( HttpStatus.OK ) ) {
-					setupForm( result.getBody().getRecRule() );
-				}
-				
-			}
-			
-		}
-		
-	}
-	
-	private class SaveRecordingRuleTask extends AsyncTask<RecRule, Void, String>{
-
-		@Override
-		protected String doInBackground(RecRule... params) {
-
-			Log.v( TAG, "SaveRecordingRuleTask : doInBackground() : enter" );
-			
-			try {
-				RecRule rule = params[0];
-				ResponseEntity<Int> response = mMythtvServiceHelper.getMythServicesApi( mLocationProfile )
-						.dvrOperations()
-						.addRecordingSchedule(rule.getChanId(),
-								rule.getStartTime(), rule.getParentId(),
-								rule.isInactive(), rule.getSeason(),
-								rule.getEpisode(), rule.getInetref(),
-								rule.getFindId(), rule.getType(),
-								rule.getSearchType(), rule.getRecPriority(),
-								rule.getPreferredInput(),
-								rule.getStartOffset(), rule.getEndOffset(),
-								rule.getDupMethod(), rule.getDupIn(),
-								rule.getFilter(), rule.getRecProfile(),
-								rule.getRecGroup(), rule.getStorageGroup(),
-								rule.getPlayGroup(), rule.isAutoExpire(),
-								rule.getMaxEpisodes(), rule.isMaxNewest(),
-								rule.isAutoCommflag(), rule.isAutoTranscode(),
-								rule.isAutoMetaLookup(), rule.isAutoUserJob1(),
-								rule.isAutoUserJob2(), rule.isAutoUserJob3(),
-								rule.isAutoUserJob4(), rule.getTranscoder());
-
-				// on successful add, delete old recording rule
-				if (response.hasBody() && response.getBody().getInteger() == 1) {
-					mMythtvServiceHelper.getMythServicesApi( mLocationProfile ).dvrOperations().removeRecordingSchedule(rule.getId());
-				}
-
-			} catch (Exception e) {
-				
-				Log.e(TAG, e.getMessage());
-				
-				Log.v( TAG, "SaveRecordingRuleTask : doInBackground() : exit-error" );
-				return "Failed To Save Recording Rule";
+				toast( "Recording Rule Saved" );
 			}
 
-			Log.v( TAG, "SaveRecordingRuleTask : doInBackground() : exit" );
-			return "Recording Rule Saved";
+			Log.i( TAG, "RecordingRuleReceiver.onReceive : exit" );
 		}
-				
-		@Override
-		protected void onPostExecute(String result) {
-			
-			toast(result);
-			
-			super.onPostExecute(result);
-		}
+
 	}
-	
+
 }

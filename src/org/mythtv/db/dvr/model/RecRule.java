@@ -19,163 +19,66 @@
  */
 package org.mythtv.db.dvr.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import java.io.Serializable;
+
 import org.joda.time.DateTime;
-import org.mythtv.services.api.DateTimeSerializer;
 
 /**
  * @author Daniel Frey
  *
  */
-@JsonIgnoreProperties( ignoreUnknown = true )
-public class RecRule {
+public class RecRule implements Serializable {
 
-	@JsonProperty( "Id" )
+	private static final long serialVersionUID = -2245536436650006298L;
+
 	private int id;
-
-	@JsonProperty( "ParentId" )
 	private int parentId;
-
-	@JsonProperty( "Inactive" )
 	private boolean inactive;
-
-	@JsonProperty( "Title" )
 	private String title;
-
-	@JsonProperty( "SubTitle" )
 	private String subTitle;
-
-	@JsonProperty( "Description" )
 	private String description;
-
-	@JsonProperty( "Season" )
 	private int season;
-
-	@JsonProperty( "Episode" )
 	private int episode;
-
-	@JsonProperty( "Category" )
 	private String category;
-
-	@JsonProperty( "StartTime" )
-	@JsonSerialize( using = DateTimeSerializer.class )
 	private DateTime startTime;
-
-	@JsonProperty( "EndTime" )
-	@JsonSerialize( using = DateTimeSerializer.class )
 	private DateTime endTime;
-
-	@JsonProperty( "SeriesId" )
 	private String seriesId;
-
-	@JsonProperty( "ProgramId" )
 	private String programId;
-
-	@JsonProperty( "Inetref" )
 	private String inetref;
-
-	@JsonProperty( "ChanId" )
 	private int chanId;
-
-	@JsonProperty( "CallSign" )
 	private String callSign;
-
-	@JsonProperty( "Day" )
 	private int day;
-
-	@JsonProperty( "Time" )
+    private int findDay;
 	private String time;
-
-	@JsonProperty( "FindId" )
+    private DateTime findTime;
 	private int findId;
-
-	@JsonProperty( "Type" )
 	private String type;
-
-	@JsonProperty( "SearchType" )
 	private String searchType;
-
-	@JsonProperty( "RecPriority" )
 	private int recPriority;
-
-	@JsonProperty( "PreferredInput" )
 	private int preferredInput;
-
-	@JsonProperty( "StartOffset" )
 	private int startOffset;
-
-	@JsonProperty( "EndOffset" )
 	private int endOffset;
-
-	@JsonProperty( "DupMethod" )
 	private String dupMethod;
-
-	@JsonProperty( "DupIn" )
 	private String dupIn;
-
-	@JsonProperty( "Filter" )
 	private int filter;
-
-	@JsonProperty( "RecProfile" )
 	private String recProfile;
-
-	@JsonProperty( "RecGroup" )
 	private String recGroup;
-
-	@JsonProperty( "StorageGroup" )
 	private String storageGroup;
-
-	@JsonProperty( "PlayGroup" )
 	private String playGroup;
-
-	@JsonProperty( "AutoExpire" )
 	private boolean autoExpire;
-
-	@JsonProperty( "MaxEpisodes" )
 	private int maxEpisodes;
-
-	@JsonProperty( "MaxNewest" )
 	private boolean maxNewest;
-
-	@JsonProperty( "AutoCommflag" )
 	private boolean autoCommflag;
-
-	@JsonProperty( "AutoTranscode" )
 	private boolean autoTranscode;
-
-	@JsonProperty( "AutoMetaLookup" )
 	private boolean autoMetaLookup;
-
-	@JsonProperty( "AutoUserJob1" )
 	private boolean autoUserJob1;
-
-	@JsonProperty( "AutoUserJob2" )
 	private boolean autoUserJob2;
-
-	@JsonProperty( "AutoUserJob3" )
 	private boolean autoUserJob3;
-
-	@JsonProperty( "AutoUserJob4" )
 	private boolean autoUserJob4;
-
-	@JsonProperty( "Transcoder" )
 	private int transcoder;
-
-	@JsonProperty( "NextRecording" )
-	@JsonSerialize( using = DateTimeSerializer.class )
 	private DateTime nextRecording;
-
-	@JsonProperty( "LastRecorded" )
-	@JsonSerialize( using = DateTimeSerializer.class )
 	private DateTime lastRecorded;
-
-	@JsonProperty( "LastDeleted" )
-	@JsonSerialize( using = DateTimeSerializer.class )
 	private DateTime lastDeleted;
-
-	@JsonProperty( "AverageDelay" )
 	private int averageDelay;
 
 	public RecRule() { }
@@ -419,6 +322,20 @@ public class RecRule {
 	}
 
 	/**
+	 * @return the findDay
+	 */
+	public int getFindDay() {
+		return findDay;
+	}
+
+	/**
+	 * @param findDay the findDay to set
+	 */
+	public void setFindDay( int findDay ) {
+		this.findDay = findDay;
+	}
+
+	/**
 	 * @return the time
 	 */
 	public String getTime() {
@@ -430,6 +347,20 @@ public class RecRule {
 	 */
 	public void setTime( String time ) {
 		this.time = time;
+	}
+
+	/**
+	 * @return the findTime
+	 */
+	public DateTime getFindTime() {
+		return findTime;
+	}
+
+	/**
+	 * @param findTime the findTime to set
+	 */
+	public void setFindTime( DateTime findTime ) {
+		this.findTime = findTime;
 	}
 
 	/**

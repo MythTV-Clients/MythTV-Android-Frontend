@@ -9,7 +9,7 @@ import org.mythtv.db.status.model.BackendStatus;
 import org.mythtv.service.MythtvService;
 import org.mythtv.service.channel.ChannelDownloadService;
 import org.mythtv.service.dvr.RecordedService;
-import org.mythtv.service.dvr.RecordingRuleDownloadService;
+import org.mythtv.service.dvr.RecordingRuleService;
 import org.mythtv.service.dvr.UpcomingDownloadService;
 import org.mythtv.service.frontends.FrontendsDiscoveryService;
 import org.mythtv.service.guide.ProgramGuideDownloadService;
@@ -85,9 +85,9 @@ public class BackendStatusService extends MythtvService {
 		upcomingDownloadFilter.addAction( UpcomingDownloadService.ACTION_COMPLETE );
 	    registerReceiver( upcomingDownloadReceiver, upcomingDownloadFilter );
 
-		IntentFilter recordingRuleDownloadFilter = new IntentFilter( RecordingRuleDownloadService.ACTION_DOWNLOAD );
-		recordingRuleDownloadFilter.addAction( RecordingRuleDownloadService.ACTION_PROGRESS );
-		recordingRuleDownloadFilter.addAction( RecordingRuleDownloadService.ACTION_COMPLETE );
+		IntentFilter recordingRuleDownloadFilter = new IntentFilter( RecordingRuleService.ACTION_DOWNLOAD );
+		recordingRuleDownloadFilter.addAction( RecordingRuleService.ACTION_PROGRESS );
+		recordingRuleDownloadFilter.addAction( RecordingRuleService.ACTION_COMPLETE );
         registerReceiver( recordingRuleDownloadReceiver, recordingRuleDownloadFilter );
 
 		IntentFilter frontendsDiscoveryFilter = new IntentFilter();
@@ -305,8 +305,8 @@ public class BackendStatusService extends MythtvService {
     
     private void startRecordingRulesDownloadService() {
     	
-		if( !mRunningServiceHelper.isServiceRunning( BackendStatusService.this, "org.mythtv.service.dvr.RecordingRuleDownloadService" ) ) {
-			BackendStatusService.this.startService( new Intent( RecordingRuleDownloadService.ACTION_DOWNLOAD ) );
+		if( !mRunningServiceHelper.isServiceRunning( BackendStatusService.this, "org.mythtv.service.dvr.RecordingRuleService" ) ) {
+			BackendStatusService.this.startService( new Intent( RecordingRuleService.ACTION_DOWNLOAD ) );
 		}
 
     }
@@ -405,16 +405,16 @@ public class BackendStatusService extends MythtvService {
 		public void onReceive( Context context, Intent intent ) {
         	Log.i( TAG, "RecordingRuleDownloadReceiver.onReceive : enter" );
 			
-	        if ( intent.getAction().equals( RecordingRuleDownloadService.ACTION_PROGRESS ) ) {
-	        	Log.i( TAG, "RecordingRuleDownloadReceiver.onReceive : progress=" + intent.getStringExtra( RecordingRuleDownloadService.EXTRA_PROGRESS ) );
+	        if ( intent.getAction().equals( RecordingRuleService.ACTION_PROGRESS ) ) {
+	        	Log.i( TAG, "RecordingRuleDownloadReceiver.onReceive : progress=" + intent.getStringExtra( RecordingRuleService.EXTRA_PROGRESS ) );
 	        }
 	        
-	        if ( intent.getAction().equals( RecordingRuleDownloadService.ACTION_COMPLETE ) ) {
-	        	Log.i( TAG, "RecordingRuleDownloadReceiver.onReceive : complete=" + intent.getStringExtra( RecordingRuleDownloadService.EXTRA_COMPLETE ) );
+	        if ( intent.getAction().equals( RecordingRuleService.ACTION_COMPLETE ) ) {
+	        	Log.i( TAG, "RecordingRuleDownloadReceiver.onReceive : complete=" + intent.getStringExtra( RecordingRuleService.EXTRA_COMPLETE ) );
 	        	
-//	        	if( intent.getExtras().containsKey( RecordingRuleDownloadService.EXTRA_COMPLETE_UPTODATE ) ) {
+//	        	if( intent.getExtras().containsKey( RecordingRuleService.EXTRA_COMPLETE_UPTODATE ) ) {
 //	        		Toast.makeText( getActivity(), "Recording Rules are up to date!", Toast.LENGTH_SHORT ).show();
-//	        	} else if( intent.getExtras().containsKey( RecordingRuleDownloadService.EXTRA_COMPLETE_OFFLINE ) ) {
+//	        	} else if( intent.getExtras().containsKey( RecordingRuleService.EXTRA_COMPLETE_OFFLINE ) ) {
 //	        		Toast.makeText( getActivity(), "Recording Rules Update failed because Master Backend is not connected!", Toast.LENGTH_SHORT ).show();
 //	        	} else {
 //	        		Toast.makeText( getActivity(), "Recording Rules updated!", Toast.LENGTH_SHORT ).show();

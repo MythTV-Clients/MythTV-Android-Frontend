@@ -13,12 +13,11 @@ import org.mythtv.db.AbstractBaseHelper;
 import org.mythtv.db.dvr.DvrEndpoint;
 import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.db.dvr.RecordingRuleConstants;
+import org.mythtv.db.dvr.model.RecRule;
 import org.mythtv.db.http.model.EtagInfoDelegate;
 import org.mythtv.services.api.ApiVersion;
 import org.mythtv.services.api.connect.MythAccessFactory;
 import org.mythtv.services.api.v026.MythServicesTemplate;
-import org.mythtv.services.api.v026.beans.RecRule;
-import org.mythtv.services.api.v026.beans.RecRuleList;
 import org.mythtv.services.api.v026.impl.DvrTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -73,6 +72,87 @@ public class RecordingRuleHelperV26 extends AbstractBaseHelper {
 		return passed;
 	}
 
+	public static boolean add( final Context context, final LocationProfile locationProfile, final RecRule recordingRule ) {
+		Log.v( TAG, "add : enter" );
+		
+		if( !MythAccessFactory.isServerReachable( locationProfile.getUrl() ) ) {
+			Log.w( TAG, "add : Master Backend '" + locationProfile.getHostname() + "' is unreachable" );
+			
+			return false;
+		}
+		
+		mMythServicesTemplate = (MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( mApiVersion, locationProfile.getUrl() );
+		
+		boolean passed = true;
+
+		try {
+
+			addRecordingRule( context, locationProfile, recordingRule );
+			
+		} catch( Exception e ) {
+			Log.e( TAG, "add : error", e );
+		
+			passed = false;
+		}
+
+		Log.v( TAG, "add : exit" );
+		return passed;
+	}
+
+	public static boolean update( final Context context, final LocationProfile locationProfile, final RecRule recordingRule ) {
+		Log.v( TAG, "update : enter" );
+		
+		if( !MythAccessFactory.isServerReachable( locationProfile.getUrl() ) ) {
+			Log.w( TAG, "update : Master Backend '" + locationProfile.getHostname() + "' is unreachable" );
+			
+			return false;
+		}
+		
+		mMythServicesTemplate = (MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( mApiVersion, locationProfile.getUrl() );
+		
+		boolean passed = true;
+
+		try {
+
+			passed = updateRecordingRule( context, locationProfile, recordingRule );
+			
+		} catch( Exception e ) {
+			Log.e( TAG, "update : error", e );
+		
+			passed = false;
+		}
+
+		Log.v( TAG, "update : exit" );
+		return passed;
+	}
+
+	public static boolean remove( final Context context, final LocationProfile locationProfile, final RecRule recordingRule ) {
+		Log.v( TAG, "remove : enter" );
+		
+		if( !MythAccessFactory.isServerReachable( locationProfile.getUrl() ) ) {
+			Log.w( TAG, "remove : Master Backend '" + locationProfile.getHostname() + "' is unreachable" );
+			
+			return false;
+		}
+		
+		mMythServicesTemplate = (MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( mApiVersion, locationProfile.getUrl() );
+		
+		boolean passed = true;
+
+		try {
+
+			passed = removeRecordingRule( context, locationProfile, recordingRule );
+			
+		} catch( Exception e ) {
+			Log.e( TAG, "remove : error", e );
+		
+			passed = false;
+		}
+
+		Log.v( TAG, "remove : exit" );
+		return passed;
+	}
+
 	// internal helpers
 	
 	private static void downloadRecordinRules( final Context context, final LocationProfile locationProfile ) throws RemoteException, OperationApplicationException {
@@ -80,12 +160,12 @@ public class RecordingRuleHelperV26 extends AbstractBaseHelper {
 	
 		EtagInfoDelegate etag = mEtagDaoHelper.findByEndpointAndDataId( context, locationProfile, DvrTemplate.Endpoint.GET_RECORD_SCHEDULE_LIST.name(), "" );
 		
-		ResponseEntity<RecRuleList> responseEntity = mMythServicesTemplate.dvrOperations().getRecordScheduleList( -1, -1, etag );
+		ResponseEntity<org.mythtv.services.api.v026.beans.RecRuleList> responseEntity = mMythServicesTemplate.dvrOperations().getRecordScheduleList( -1, -1, etag );
 
 		DateTime date = new DateTime( DateTimeZone.UTC );
 		if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
 			Log.i( TAG, "downloadRecordinRules : " + DvrEndpoint.GET_RECORD_SCHEDULE_LIST.getEndpoint() + " returned 200 OK" );
-			RecRuleList recRuleList = responseEntity.getBody();
+			org.mythtv.services.api.v026.beans.RecRuleList recRuleList = responseEntity.getBody();
 
 			if( null != recRuleList.getRecRules() ) {
 
@@ -120,7 +200,7 @@ public class RecordingRuleHelperV26 extends AbstractBaseHelper {
 		Log.v( TAG, "downloadRecordinRules : exit" );
 	}
 
-	private static int load( final Context context, final LocationProfile locationProfile, final List<RecRule> recordingRules ) throws RemoteException, OperationApplicationException {
+	private static int load( final Context context, final LocationProfile locationProfile, final List<org.mythtv.services.api.v026.beans.RecRule> recordingRules ) throws RemoteException, OperationApplicationException {
 		Log.d( TAG, "load : enter" );
 		
 		if( null == context ) 
@@ -133,7 +213,7 @@ public class RecordingRuleHelperV26 extends AbstractBaseHelper {
 		
 		ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
 		
-		for( RecRule recordingRule : recordingRules ) {
+		for( org.mythtv.services.api.v026.beans.RecRule recordingRule : recordingRules ) {
 
 			processRecordingRule( context, locationProfile, ops, recordingRule, lastModified, count );
 
@@ -156,7 +236,7 @@ public class RecordingRuleHelperV26 extends AbstractBaseHelper {
 		return processed;
 	}
 
-	private static void processRecordingRule( final Context context, final LocationProfile locationProfile, ArrayList<ContentProviderOperation> ops, RecRule recRule, DateTime lastModified, int count ) {
+	private static void processRecordingRule( final Context context, final LocationProfile locationProfile, ArrayList<ContentProviderOperation> ops, org.mythtv.services.api.v026.beans.RecRule recRule, DateTime lastModified, int count ) {
 		Log.d( TAG, "processRecordingRule : enter" );
 
 		String recRuleSelection = RecordingRuleConstants.FIELD_REC_RULE_ID + " = ?";
@@ -194,7 +274,6 @@ public class RecordingRuleHelperV26 extends AbstractBaseHelper {
 	private static void deleteRecordingRules( final Context context, final LocationProfile locationProfile, ArrayList<ContentProviderOperation> ops, DateTime lastModified ) {
 		Log.d( TAG, "deleteRecordingRules : enter" );
 
-//		Log.v( TAG, "load : remove deleted recordings" );
 		String deletedSelection = RecordingRuleConstants.TABLE_NAME + "." + RecordingRuleConstants.FIELD_LAST_MODIFIED_DATE + " < ?";
 		String[] deletedSelectionArgs = new String[] { String.valueOf( lastModified.getMillis() ) };
 			
@@ -210,7 +289,96 @@ public class RecordingRuleHelperV26 extends AbstractBaseHelper {
 		Log.d( TAG, "deleteRecordingRules : exit" );
 	}
 	
-	private static ContentValues convertRecRuleToContentValues( final LocationProfile locationProfile, final DateTime lastModified, final RecRule recRule ) {
+	private static int addRecordingRule( final Context context, final LocationProfile locationProfile, final RecRule recordingRule ) throws RemoteException, OperationApplicationException {
+		Log.d( TAG, "addRecordingRule : enter" );
+
+		int ret = -1;
+		
+		org.mythtv.services.api.v026.beans.RecRule versionRecRule = convertRecRuleToRecRuleV26( recordingRule );
+		if( null != versionRecRule ) {
+		
+			// update existing rule
+			ResponseEntity<org.mythtv.services.api.v026.Int> add = mMythServicesTemplate.dvrOperations().addRecordingSchedule( 
+				versionRecRule.getChanId(), versionRecRule.getStartTime(), versionRecRule.getParentId(), versionRecRule.isInactive(), versionRecRule.getSeason(), 
+				versionRecRule.getEpisode(), versionRecRule.getInetref(), versionRecRule.getFindId(), versionRecRule.getType(), versionRecRule.getSearchType(), 
+				versionRecRule.getRecPriority(), versionRecRule.getPreferredInput(), versionRecRule.getStartOffset(), versionRecRule.getEndOffset(), 
+				versionRecRule.getDupMethod(), versionRecRule.getDupIn(), versionRecRule.getFilter(), versionRecRule.getRecProfile(), 
+				versionRecRule.getRecGroup(), versionRecRule.getStorageGroup(), versionRecRule.getPlayGroup(), versionRecRule.isAutoExpire(), 
+				versionRecRule.getMaxEpisodes(), versionRecRule.isMaxNewest(), versionRecRule.isAutoCommflag(), versionRecRule.isAutoTranscode(), 
+				versionRecRule.isAutoMetaLookup(), versionRecRule.isAutoUserJob1(), versionRecRule.isAutoUserJob2(), versionRecRule.isAutoUserJob3(), 
+				versionRecRule.isAutoUserJob4(), versionRecRule.getTranscoder() 
+			);
+			if( add.getStatusCode().equals( HttpStatus.OK ) ) {
+				
+				if( add.getBody().getInteger().intValue() > 0 ) {
+					ret = add.getBody().getInteger().intValue();
+					
+					downloadRecordinRules( context, locationProfile );
+				}
+				
+			}
+					
+		}
+		
+		Log.d( TAG, "addRecordingRule : exit" );
+		return ret;
+	}
+
+	private static boolean updateRecordingRule( final Context context, final LocationProfile locationProfile, final RecRule recordingRule ) throws RemoteException, OperationApplicationException {
+		Log.d( TAG, "updateRecordingRule : enter" );
+
+		boolean ret = false;
+		
+		org.mythtv.services.api.v026.beans.RecRule versionRecRule = convertRecRuleToRecRuleV26( recordingRule );
+		if( null != versionRecRule ) {
+		
+			// remove existing rule
+			boolean removed = removeRecordingRule( context, locationProfile, recordingRule );
+			if( removed ) {
+
+				int added = addRecordingRule( context, locationProfile, recordingRule );
+				if( added > 0 ) {
+
+					ret = true;
+							
+					downloadRecordinRules( context, locationProfile );
+					
+				}
+				
+			}
+			
+		}
+		
+		Log.d( TAG, "updateRecordingRule : exit" );
+		return ret;
+	}
+	
+	private static boolean removeRecordingRule( final Context context, final LocationProfile locationProfile, final RecRule recordingRule ) throws RemoteException, OperationApplicationException {
+		Log.d( TAG, "removeRecordingRule : enter" );
+
+		boolean ret = false;
+		
+		org.mythtv.services.api.v026.beans.RecRule versionRecRule = convertRecRuleToRecRuleV26( recordingRule );
+		if( null != versionRecRule ) {
+		
+			// update existing rule
+			ResponseEntity<org.mythtv.services.api.v026.Bool> remove = mMythServicesTemplate.dvrOperations().removeRecordingSchedule( versionRecRule.getId() );
+			if( remove.getStatusCode().equals( HttpStatus.OK ) ) {
+				ret = remove.getBody().getBool();
+				
+				if( ret ) {
+					downloadRecordinRules( context, locationProfile );
+				}
+				
+			}
+					
+		}
+		
+		Log.d( TAG, "removeRecordingRule : exit" );
+		return ret;
+	}
+	
+	private static ContentValues convertRecRuleToContentValues( final LocationProfile locationProfile, final DateTime lastModified, final org.mythtv.services.api.v026.beans.RecRule recRule ) {
 //		Log.v( TAG, "convertRecRuleToContentValues : enter" );
 		
 		DateTime startTimestamp = new DateTime( DateTimeZone.UTC );
@@ -274,10 +442,64 @@ public class RecordingRuleHelperV26 extends AbstractBaseHelper {
 		values.put( RecordingRuleConstants.FIELD_AVERAGE_DELAY, recRule.getAverageDelay() );
 		values.put( RecordingRuleConstants.FIELD_MASTER_HOSTNAME, locationProfile.getHostname() );
 		values.put( RecordingRuleConstants.FIELD_LAST_MODIFIED_DATE, lastModified.getMillis() );
-//		Log.v( TAG, "convertRecRuleToContentValues : values=" + values.toString() );
 		
 //		Log.v( TAG, "convertRecRuleToContentValues : exit" );
 		return values;
 	}
 
+	private static org.mythtv.services.api.v026.beans.RecRule convertRecRuleToRecRuleV26( final RecRule recordingRule ) {
+	
+		org.mythtv.services.api.v026.beans.RecRule versionRecRule = new org.mythtv.services.api.v026.beans.RecRule();
+		versionRecRule.setId( recordingRule.getId() );
+		versionRecRule.setParentId( recordingRule.getParentId() );
+		versionRecRule.setInactive( recordingRule.isInactive() );
+		versionRecRule.setTitle( recordingRule.getTitle() );
+		versionRecRule.setSubTitle( recordingRule.getSubTitle() );
+		versionRecRule.setDescription( recordingRule.getDescription() );
+		versionRecRule.setSeason( recordingRule.getSeason() );
+		versionRecRule.setEpisode( recordingRule.getEpisode() );
+		versionRecRule.setCategory( recordingRule.getCategory() );
+		versionRecRule.setStartTime( recordingRule.getStartTime() );
+		versionRecRule.setEndTime( recordingRule.getEndTime() );
+		versionRecRule.setSeriesId( recordingRule.getSeriesId() );
+		versionRecRule.setProgramId( recordingRule.getProgramId() );
+		versionRecRule.setInetref( recordingRule.getInetref() );
+		versionRecRule.setChanId( recordingRule.getChanId() );
+		versionRecRule.setCallSign( recordingRule.getCallSign() );
+		versionRecRule.setDay( recordingRule.getDay() );
+		versionRecRule.setTime( recordingRule.getTime() );
+		versionRecRule.setFindId( recordingRule.getFindId() );
+		versionRecRule.setType( recordingRule.getType() );
+		versionRecRule.setSearchType( recordingRule.getSearchType() );
+		versionRecRule.setRecPriority( recordingRule.getRecPriority() );
+		versionRecRule.setPreferredInput( recordingRule.getPreferredInput() );
+		versionRecRule.setStartOffset( recordingRule.getStartOffset() );
+		versionRecRule.setEndOffset( recordingRule.getEndOffset() );
+		versionRecRule.setDupMethod( recordingRule.getDupMethod() );
+		versionRecRule.setDupIn( recordingRule.getDupIn() );
+		versionRecRule.setFilter( recordingRule.getFilter() );
+		versionRecRule.setRecProfile( recordingRule.getRecProfile() );
+		versionRecRule.setRecGroup( recordingRule.getRecGroup() );
+		versionRecRule.setStorageGroup( recordingRule.getStorageGroup() );
+		versionRecRule.setPlayGroup( recordingRule.getPlayGroup() );
+		versionRecRule.setAutoExpire( recordingRule.isAutoExpire() );
+		versionRecRule.setMaxEpisodes( recordingRule.getMaxEpisodes() );
+		versionRecRule.setMaxNewest( recordingRule.isMaxNewest() );
+		versionRecRule.setAutoCommflag( recordingRule.isAutoCommflag() );
+		versionRecRule.setAutoTranscode( recordingRule.isAutoTranscode() );
+		versionRecRule.setAutoMetaLookup( recordingRule.isAutoMetaLookup() );
+		versionRecRule.setAutoUserJob1( recordingRule.isAutoUserJob1() );
+		versionRecRule.setAutoUserJob2( recordingRule.isAutoUserJob2() );
+		versionRecRule.setAutoUserJob3( recordingRule.isAutoUserJob3() );
+		versionRecRule.setAutoUserJob4( recordingRule.isAutoUserJob4() );
+		versionRecRule.setTranscoder( recordingRule.getTranscoder() );
+		versionRecRule.setNextRecording( recordingRule.getNextRecording() );
+		versionRecRule.setLastRecorded( recordingRule.getLastRecorded() );
+		versionRecRule.setLastDeleted( recordingRule.getLastDeleted() );
+		versionRecRule.setAverageDelay( recordingRule.getAverageDelay() );
+		
+		
+		return versionRecRule;
+	}
+	
 }

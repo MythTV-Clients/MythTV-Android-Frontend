@@ -72,8 +72,14 @@ public class RecordingRuleConstants extends AbstractBaseConstants {
 	public static final String FIELD_DAY = "DAY";
 	public static final String FIELD_DAY_DATA_TYPE = "INTEGER";
 	
+	public static final String FIELD_FIND_DAY = "FIND_DAY";
+	public static final String FIELD_FIND_DAY_DATA_TYPE = "INTEGER";
+
 	public static final String FIELD_TIME = "TIME";
 	public static final String FIELD_TIME_DATA_TYPE = "TEXT";
+	
+	public static final String FIELD_FIND_TIME = "FIND_TIME";
+	public static final String FIELD_FIND_TIME_DATA_TYPE = "TEXT";
 	
 	public static final String FIELD_FIND_ID = "FIND_ID";
 	public static final String FIELD_FIND_ID_DATA_TYPE = "INTEGER";
@@ -165,7 +171,7 @@ public class RecordingRuleConstants extends AbstractBaseConstants {
 	public static final String[] COLUMN_MAP = { _ID,
 		FIELD_REC_RULE_ID, FIELD_PARENT_ID, FIELD_INACTIVE, FIELD_TITLE, FIELD_SUB_TITLE, FIELD_DESCRIPTION, FIELD_SEASON, FIELD_EPISODE,
 		FIELD_CATEGORY, FIELD_START_TIME, FIELD_END_TIME, FIELD_SERIES_ID, FIELD_PROGRAM_ID, FIELD_INETREF, FIELD_CHAN_ID, FIELD_CALLSIGN,
-		FIELD_DAY, FIELD_TIME, FIELD_FIND_ID, FIELD_TYPE, FIELD_SEARCH_TYPE, FIELD_REC_PRIORITY, FIELD_PREFERRED_INPUT, FIELD_START_OFFSET,
+		FIELD_DAY, FIELD_FIND_DAY, FIELD_TIME, FIELD_FIND_TIME, FIELD_FIND_ID, FIELD_TYPE, FIELD_SEARCH_TYPE, FIELD_REC_PRIORITY, FIELD_PREFERRED_INPUT, FIELD_START_OFFSET,
 		FIELD_END_OFFSET, FIELD_DUP_METHOD, FIELD_DUP_IN, FIELD_FILTER, FIELD_REC_PROFILE, FIELD_REC_GROUP, FIELD_STORAGE_GROUP,
 		FIELD_PLAY_GROUP, FIELD_AUTO_EXPIRE, FIELD_MAX_EPISODES, FIELD_MAX_NEWEST, FIELD_AUTO_COMMFLAG, FIELD_AUTO_TRANSCODE,
 		FIELD_AUTO_METADATA, FIELD_AUTO_USER_JOB_1, FIELD_AUTO_USER_JOB_2, FIELD_AUTO_USER_JOB_3, FIELD_AUTO_USER_JOB_4, FIELD_TRANSCODER,
@@ -194,7 +200,9 @@ public class RecordingRuleConstants extends AbstractBaseConstants {
 		sb.append( FIELD_CHAN_ID ).append( "," );
 		sb.append( FIELD_CALLSIGN ).append( "," );
 		sb.append( FIELD_DAY ).append( "," );
+		sb.append( FIELD_FIND_DAY ).append( "," );
 		sb.append( FIELD_TIME ).append( "," );
+		sb.append( FIELD_FIND_TIME ).append( "," );
 		sb.append( FIELD_FIND_ID ).append( "," );
 		sb.append( FIELD_TYPE ).append( "," );
 		sb.append( FIELD_SEARCH_TYPE ).append( "," );
@@ -227,7 +235,7 @@ public class RecordingRuleConstants extends AbstractBaseConstants {
 		sb.append( FIELD_MASTER_HOSTNAME ).append( "," );
 		sb.append( FIELD_LAST_MODIFIED_DATE );
 		sb.append( " ) " );
-		sb.append( "VALUES( ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? )" );
+		sb.append( "VALUES( ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? )" );
 
 		INSERT_ROW = sb.toString();
 	}

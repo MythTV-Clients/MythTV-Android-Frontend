@@ -103,10 +103,6 @@
 		<activity 
 			android:name=".client.ui.dvr.GuideActivity"
 			android:configChanges="keyboard|keyboardHidden|orientation|screenSize" />
-		<!-- activity 
-			android:name=".client.ui.dvr.RecordingRulesActivity"
-			android:uiOptions="splitActionBarWhenNarrow"
-			android:configChanges="keyboard|keyboardHidden|orientation|screenSize" / -->
 		<activity 
 			android:name=".client.ui.dvr.RecordingRuleActivity"
 			android:uiOptions="splitActionBarWhenNarrow"
@@ -201,14 +197,6 @@
             </intent-filter>
         </service>
 		
-		<service android:name=".service.guide.ProgramGuideDownloadServiceNew" android:process=":programGuideNew" android:exported="false">
-			<intent-filter>
-                <action android:name="org.mythtv.background.programGuideDownloadNew.ACTION_DOWNLOAD" />
-                <action android:name="org.mythtv.background.programGuideDownloadNew.ACTION_PROGRESS" />
-                <action android:name="org.mythtv.background.programGuideDownloadNew.ACTION_COMPLETE" />
-            </intent-filter>
-        </service>
-		
 		<service android:name=".service.guide.ProgramGuideCleanupService" android:process=":programGuideCleanup" android:exported="false">
 			<intent-filter>
                 <action
@@ -216,9 +204,14 @@
             </intent-filter>
 		</service>
 			
-		<service android:name=".service.dvr.RecordingRuleDownloadService" android:process=":recordingRule" android:exported="false">
+		<service android:name=".service.dvr.RecordingRuleService" android:process=":recordingRule" android:exported="false">
 			<intent-filter>
-                <action android:name="org.mythtv.background.recordingRuleDownload.ACTION_DOWNLOAD" />
+                <action android:name="org.mythtv.background.recordingRule.ACTION_DOWNLOAD" />
+                <action android:name="org.mythtv.background.recordingRule.ACTION_ADD" />
+                <action android:name="org.mythtv.background.recordingRule.ACTION_UPDATE" />
+                <action android:name="org.mythtv.background.recordingRule.ACTION_REMOVE" />
+                <action android:name="org.mythtv.background.recordingRule.ACTION_PROGRESS" />
+                <action android:name="org.mythtv.background.recordingRule.ACTION_COMPLETE" />
             </intent-filter>
         </service>
 		
