@@ -1,0 +1,111 @@
+/**
+ * 
+ */
+package org.mythtv.service.myth.v27;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.mythtv.client.ui.preferences.LocationProfile;
+import org.mythtv.db.AbstractBaseHelper;
+import org.mythtv.db.myth.model.StorageGroupDirectory;
+import org.mythtv.services.api.ApiVersion;
+import org.mythtv.services.api.ETagInfo;
+import org.mythtv.services.api.connect.MythAccessFactory;
+import org.mythtv.services.api.v027.MythServicesTemplate;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
+import android.util.Log;
+
+/**
+ * @author Daniel Frey
+ *
+ */
+public class StorageGroupHelperV27 extends AbstractBaseHelper {
+
+	private static final String TAG = StorageGroupHelperV27.class.getSimpleName();
+	
+	private static final ApiVersion mApiVersion = ApiVersion.v027;
+	
+	private static MythServicesTemplate mMythServicesTemplate;
+
+	public static List<StorageGroupDirectory> process( final LocationProfile locationProfile, String storageGroupName ) {
+		Log.v( TAG, "process : enter" );
+		
+		if( !MythAccessFactory.isServerReachable( locationProfile.getUrl() ) ) {
+			Log.w( TAG, "process : Master Backend '" + locationProfile.getHostname() + "' is unreachable" );
+			
+			return null;
+		}
+		
+		mMythServicesTemplate = (MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( mApiVersion, locationProfile.getUrl() );
+		
+		List<StorageGroupDirectory> storageGroupDirectories = null;
+
+		try {
+
+			storageGroupDirectories = downloadStorageGroups( locationProfile, storageGroupName );
+			
+		} catch( Exception e ) {
+			Log.e( TAG, "process : error", e );
+		
+			storageGroupDirectories = null;
+		}
+
+		Log.v( TAG, "process : exit" );
+		return storageGroupDirectories;
+	}
+
+	// internal helpers
+	
+	private static List<StorageGroupDirectory> downloadStorageGroups( final LocationProfile locationProfile, final String storageGroupName ) {
+		Log.v( TAG, "downloadStorageGroups : enter" );
+	
+		List<StorageGroupDirectory> storageGroupDirectories = null;
+
+		ResponseEntity<org.mythtv.services.api.v027.beans.StorageGroupDirList> responseEntity = mMythServicesTemplate.mythOperations().getStorageGroupDirs( storageGroupName, locationProfile.getHostname(), ETagInfo.createEmptyETag() );
+
+		if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
+
+			org.mythtv.services.api.v027.beans.StorageGroupDirList storageGroupDirectoryList = responseEntity.getBody();
+
+			if( null != storageGroupDirectoryList.getStorageGroupDirs() ) {
+			
+				if( null != storageGroupDirectoryList.getStorageGroupDirs() && storageGroupDirectoryList.getStorageGroupDirs().length > 0 ) {
+					storageGroupDirectories = load( storageGroupDirectoryList.getStorageGroupDirs() );	
+				}
+
+			}
+
+		}
+
+		Log.v( TAG, "downloadStorageGroups : exit" );
+		return storageGroupDirectories;
+	}
+	
+	private static List<StorageGroupDirectory> load( org.mythtv.services.api.v027.beans.StorageGroupDir[] versionStorageGroupDirectories ) {
+		Log.v( TAG, "load : enter" );
+		
+		List<StorageGroupDirectory> storageGroupDirectories = new ArrayList<StorageGroupDirectory>();
+		
+		if( null != versionStorageGroupDirectories && versionStorageGroupDirectories.length > 0 ) {
+			
+			for( org.mythtv.services.api.v027.beans.StorageGroupDir versionStorageGroupDirectory : versionStorageGroupDirectories ) {
+				
+				StorageGroupDirectory storageGroupDirectory = new StorageGroupDirectory();
+				storageGroupDirectory.setId( versionStorageGroupDirectory.getId() );
+				storageGroupDirectory.setGroupName( versionStorageGroupDirectory.getGroupName() );
+				storageGroupDirectory.setDirectoryName( versionStorageGroupDirectory.getDirName() );
+				storageGroupDirectory.setHostname( versionStorageGroupDirectory.getHostName() );
+
+				storageGroupDirectories.add( storageGroupDirectory );
+			}
+			
+		}
+		
+		Log.v( TAG, "load : exit" );
+		return storageGroupDirectories;
+	}
+
+}

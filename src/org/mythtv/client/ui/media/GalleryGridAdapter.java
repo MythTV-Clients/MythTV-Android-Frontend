@@ -23,22 +23,18 @@ import java.util.List;
 
 import org.mythtv.R;
 import org.mythtv.client.ui.preferences.LocationProfile;
-import org.mythtv.service.util.MythtvServiceHelper;
-import org.mythtv.services.api.Bool;
-import org.mythtv.services.api.ETagInfo;
-import org.mythtv.db.myth.model.StringList;
-import org.mythtv.db.myth.model.SettingList;
 import org.mythtv.db.myth.model.StorageGroupDirectory;
-import org.mythtv.db.myth.model.StorageGroupDirectoryList;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.mythtv.service.content.GetFileListTask;
+import org.mythtv.service.myth.CreateStorageGroupTask;
+import org.mythtv.service.myth.GetHostsTask;
+import org.mythtv.service.myth.GetSettingTask;
+import org.mythtv.service.myth.GetStorageGroupsTask;
 
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -61,24 +57,32 @@ import com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener;
 /**
  * @author Espen A. Fossen
  */
-public class GalleryGridAdapter extends BaseAdapter {
+public class GalleryGridAdapter extends BaseAdapter implements
+		GetFileListTask.TaskFinishedListener,
+		CreateStorageGroupTask.TaskFinishedListener,
+		GetStorageGroupsTask.TaskFinishedListener,
+		GetHostsTask.TaskFinishedListener,
+		GetSettingTask.TaskFinishedListener {
 
 	private static final String TAG = GalleryGridAdapter.class.getSimpleName();
 	
-	private final MythtvServiceHelper mMythtvServiceHelper = MythtvServiceHelper.getInstance();
-
 	private final Context mContext;
 	private final LocationProfile mLocationProfile;
 	
 	public static List<GalleryImageItem> mImageItems = new ArrayList<GalleryImageItem>();
 	
+	private final String galleryStorageGroupName = "Gallery";
+	private final String gallerySetting = "GalleryDir";
+	private String galleryDir = "";
+
 	private ImageLoader imageLoader;
 	private String baseUrl;
-	private String gallerySGName = "Gallery";
 	private String previewWidth = "256";
 
 	private boolean hasBackendGallerySG = false;
-
+	private boolean backendAndFrontendShareHostname = false;
+	private boolean galleryDirPresentInSettings = false;
+	
 	final DisplayImageOptions options = new DisplayImageOptions.Builder()
 			.cacheInMemory( true )
 			.cacheOnDisc( true )
@@ -103,7 +107,7 @@ public class GalleryGridAdapter extends BaseAdapter {
 		imageLoader = ImageLoader.getInstance();
 		imageLoader.init( ImageLoaderConfiguration.createDefault( context ) );
 		
-		baseUrl = locationProfile.getUrl() + "Content/GetImageFile?StorageGroup=" + gallerySGName + "&FileName=";
+		baseUrl = locationProfile.getUrl() + "Content/GetImageFile?StorageGroup=" + galleryStorageGroupName + "&FileName=";
 		
 		if( mImageItems.isEmpty() ) {
 			
@@ -116,7 +120,7 @@ public class GalleryGridAdapter extends BaseAdapter {
 	public void refresh() {
 		Log.v( TAG, "refresh : enter" );
 
-		new LoadFileListTask().execute();
+		setHasBackendGalleryStorageGroup();
 		
 		Log.v( TAG, "refresh : exit" );
 	}
@@ -240,281 +244,309 @@ public class GalleryGridAdapter extends BaseAdapter {
 		listener.notifyEnd();
 
 	}
+
+	private void getImages() {
+		Log.v( TAG, "getImages : enter" );
+		
+		GetFileListTask fileListTask = new GetFileListTask( mLocationProfile, this );
+		fileListTask.execute( galleryStorageGroupName );
+		
+		Log.v( TAG, "getImages : exit" );
+	}
 	
-	private class LoadFileListTask extends AsyncTask<Void, Void, Void> {
-
-		final String gallerySGName = "Gallery";
-		final String gallerySetting = "GalleryDir";
-
-		boolean backendAndFrontendShareHostname = false;
-		boolean galleryDirPresentInSettings = false;
-		String galleryDir = "";
-
-		/* (non-Javadoc)
-		 * @see android.os.AsyncTask#doInBackground(Params[])
-		 */
-		@Override
-		protected Void doInBackground( Void... params ) {
-			Log.v( TAG, "LoadFileListTask.doInBackground : enter" );
-
-			try {
-				ETagInfo eTag = ETagInfo.createEmptyETag();
-
-				// 800p screen / 3 columns = 266,67 for each
-				// 720p screen / 3 columns = 240 for each
-				String previewWidth = "256";
-
-				// Check if StorageGroup Gallery actually exists, doing an
-				// GetFileList will return Default SG if Gallery SG is not
-				// present.,
-				ResponseEntity<StorageGroupDirectoryList> responseEntity = mMythtvServiceHelper.getMythServicesApi( mLocationProfile ).mythOperations().getStorageGroupDirectories( gallerySGName, mLocationProfile.getHostname(), eTag );
-				if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
-					
-					StorageGroupDirectoryList storageGroups = responseEntity.getBody();
-					for( StorageGroupDirectory sg : storageGroups.getStorageGroupDirectories().getStorageGroupDirectories() ) {
-						if( sg.getGroupName().equals( gallerySGName ) )
-							hasBackendGallerySG = true;
-					}
-					
-				}
-
-				if( hasBackendGallerySG ) {
-					
-					getImageList( previewWidth );
-
-				} else {
-
-					backendAndFrontendShareHostname = isConnectedProfileInHostsList();
-
-					if( backendAndFrontendShareHostname ) {
-						ResponseEntity<SettingList> responseEntity2 = mMythtvServiceHelper.getMythServicesApi( mLocationProfile ).mythOperations().getSetting( mLocationProfile.getHostname(), gallerySetting, "", eTag );
-						if( responseEntity2.getStatusCode().equals( HttpStatus.OK ) ) {
-
-							SettingList settingList = responseEntity2.getBody();
-							galleryDir = settingList.getSetting().getSettings().get( gallerySetting );
-							if( galleryDir != null && !"".equalsIgnoreCase( galleryDir ) ) {
-								galleryDirPresentInSettings = true;
-							}
-							
-						}
-						
-					}
-					
-				}
-
-			} catch( Exception e ) {
-				Log.e( TAG, "LoadFileListTask.doInBackground : error getting file list", e );
-			}
-			
-			Log.v( TAG, "LoadFileListTask.doInBackground : exit" );
-			return null;
-		}
-
-		private boolean isConnectedProfileInHostsList() {
-			Log.v( TAG, "LoadFileListTask.isConnectedProfileInHostsList : enter" );
+	private void setConnectedProfileInHostsList() {
+		Log.v( TAG, "setConnectedProfileInHostsList : enter" );
+	
+		GetHostsTask hostsTask = new GetHostsTask( mLocationProfile, this );
+		hostsTask.execute();
 		
-			ETagInfo eTag = ETagInfo.createEmptyETag();
-
-			ResponseEntity<StringList> responseEntity = mMythtvServiceHelper.getMythServicesApi( mLocationProfile ).mythOperations().getHosts( eTag );
-			if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
-			
-				StringList hosts = responseEntity.getBody();
-				for( String host : hosts.getStringList() ) {
-				
-					if( host.equals( mLocationProfile.getHostname() ) ) {
-						Log.v( TAG, "LoadFileListTask.isConnectedProfileInHostsList : exit, true" );
-
-						return true;
-					}
-			
-				}
-			
-			}
-			
-			Log.v( TAG, "LoadFileListTask.isConnectedProfileInHostsList : exit, false" );
-			return false;
-		}
-
-		private void getImageList( String previewWidth ) {
-			Log.v( TAG, "LoadFileListTask.getImageList : enter" );
-
-			ETagInfo eTag = ETagInfo.createEmptyETag();
-
-			ResponseEntity<StringList> responseEntity = mMythtvServiceHelper.getMythServicesApi( mLocationProfile ).contentOperations().getFileList( gallerySGName, eTag );
-			if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
-				
-				mImageItems = new ArrayList<GalleryImageItem>();
-				
-				StringList filesOnStorageGroup = responseEntity.getBody();
-				// TODO: Add different types of sorting, and filtering
-				// String imageUri =
-				// mLocationProfileDaoHelper.findConnectedProfile().getUrl() +
-				// "Content/GetImageFile?StorageGroup="+gallerySGName+"&Width="+previewWidth+"&FileName=";
-				
-				for( String file : filesOnStorageGroup.getStringList() ) {
-
-					// First look for image suffixes, then skip files with
-					// reoccurring WxH suffixes made by MythTVs getImageFile
-					// scalar.
-					if( file.matches( ".+(?i)(jpg|png|gif|bmp)$" ) && !file.matches( ".+(?i)(jpg|png|gif|bmp).\\d+x\\d.(?i)(jpg|png|gif|bmp)$" ) ) {
-						GalleryImageItem imageItem = new GalleryImageItem( 0, "", file );
-						mImageItems.add( imageItem );
-						// images.add(new GalleryImageItem(0, "", imageUri+file,
-						// true));
-					}
-				
-				}
-			
-			}
-			
-			Log.v( TAG, "LoadFileListTask.getImageList : exit" );
-		}
-
-		/* (non-Javadoc)
-		 * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
-		 */
-		@Override
-		protected void onPostExecute( Void aVoid ) {
-			Log.v( TAG, "LoadFileListTask.onPostExecute : enter" );
-
-			notifyParentEnd();
-			
-			if( hasBackendGallerySG ) {
-			
-				notifyDataSetChanged();
-				
-			} else {
-				
-				AlertDialog.Builder builder = new AlertDialog.Builder( mContext );
-
-				if( backendAndFrontendShareHostname ) {
-
-					EditText input = null;
-
-					if( galleryDirPresentInSettings ) {
-						builder.setMessage( mContext.getResources().getString( R.string.gallery_sg_exist_create )
-								+ mLocationProfile.getHostname()
-								+ mContext.getResources().getString( R.string.gallery_sg_exist_create2 ) );
-					} else {
-						builder.setMessage( R.string.gallery_sg_create );
-
-						input = new EditText( mContext );
-						input.setHint( R.string.gallery_sg_create_hint );
-						builder.setView( input );
-					}
-					
-					final EditText finalInput = input;
-					builder.setPositiveButton( R.string.btn_ok, new DialogInterface.OnClickListener() {
-				
-						/* (non-Javadoc)
-						 * @see android.content.DialogInterface.OnClickListener#onClick(android.content.DialogInterface, int)
-						 */
-						public void onClick( DialogInterface dialog, int id ) {
-							clickedPosButton( id, finalInput );
-						}
-					
-					});
-					
-					builder.setNegativeButton( R.string.btn_cancel, new DialogInterface.OnClickListener() {
-					
-						/* (non-Javadoc)
-						 * @see android.content.DialogInterface.OnClickListener#onClick(android.content.DialogInterface, int)
-						 */
-						public void onClick( DialogInterface dialog, int id ) {
-						}
-						
-					});
-				
-				} else {
-				
-					builder.setMessage( R.string.gallery_sg_error );
-				
-				}
-
-				AlertDialog dialog = builder.create();
-				dialog.show();
-			}
-
-			Log.v( TAG, "LoadFileListTask.onPostExecute : exit" );
-		}
-
-		/* (non-Javadoc)
-		 * @see android.os.AsyncTask#onCancelled()
-		 */
-		@Override
-		protected void onCancelled() {
-			Log.v( TAG, "LoadFileListTask.onCancelled : enter" );
-			super.onCancelled();
-			
-			notifyParentEnd();
-			
-			Log.v( TAG, "LoadFileListTask.onCancelled : exit" );
-		}
-
-		private void clickedPosButton( int result, EditText directoryName ) {
-
-			if( directoryName != null ) {
-				galleryDir = directoryName.getText().toString();
-			}
-			new CreateSGTask().execute( gallerySGName, galleryDir );
-
-		}
-		
+		Log.v( TAG, "setConnectedProfileInHostsList : exit, false" );
 	}
 
-	private class CreateSGTask extends AsyncTask<String, Void, Bool> {
+	private void setHasBackendGalleryStorageGroup() {
+		Log.v( TAG, "setHasBackendGalleryStorageGroup : enter" );
+		
+		GetStorageGroupsTask storageGroupTask = new GetStorageGroupsTask( mLocationProfile, this );
+		storageGroupTask.execute( galleryStorageGroupName );
+		
+		Log.v( TAG, "setHasBackendGalleryStorageGroup : exit" );
+	}
+	
+	private void setGalleryStorageDirectoryPresentInSettings() {
+		Log.v( TAG, "setGalleryStorageDirectoryPresentInSettings : enter" );
+		
+		GetSettingTask settingTask = new GetSettingTask( mLocationProfile, this );
+		settingTask.execute( gallerySetting, "" );
+		
+		Log.v( TAG, "setGalleryStorageDirectoryPresentInSettings : exit" );
+	}
+	
+	private void clickedPosButton( int result, EditText directoryName ) {
 
-		/* (non-Javadoc)
-		 * @see android.os.AsyncTask#doInBackground(Params[])
-		 */
-		@Override
-		protected Bool doInBackground( String... params ) {
+		if( directoryName != null ) {
+			galleryDir = directoryName.getText().toString();
+		}
+		
+		CreateStorageGroupTask createStorageGroupTask = new CreateStorageGroupTask( mLocationProfile, GalleryGridAdapter.this );
+		createStorageGroupTask.execute( galleryStorageGroupName, galleryDir );
 
-			Bool bool = new Bool();
-			bool.setBool( false );
-			if( params[ 1 ] != null && !"".equalsIgnoreCase( params[ 1 ] ) ) {
+	}
 
-				// AddStorageGroupDir
-				ResponseEntity<Bool> responseEntity = mMythtvServiceHelper.getMythServicesApi( mLocationProfile ).mythOperations().addStorageGroupDir( params[ 0 ], params[ 1 ], mLocationProfile.getHostname() );
-				if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
-					bool = responseEntity.getBody();
-					return bool;
+	/* (non-Javadoc)
+	 * @see org.mythtv.service.content.GetFileListTask.TaskFinishedListener#onGetFileListTaskStarted()
+	 */
+	@Override
+	public void onGetFileListTaskStarted() {
+		Log.v( TAG, "onGetFileListTaskStarted : enter" );
+		
+		Log.v( TAG, "onGetFileListTaskStarted : exit" );
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mythtv.service.content.GetFileListTask.TaskFinishedListener#onGetFileListTaskFinished(java.util.List)
+	 */
+	@Override
+	public void onGetFileListTaskFinished( List<String> result ) {
+		Log.v( TAG, "onGetFileListTaskFinished : enter" );
+		
+		if( null != result && !result.isEmpty() ) {
+			
+			mImageItems = new ArrayList<GalleryImageItem>();
+			
+			// TODO: Add different types of sorting, and filtering
+			// String imageUri =
+			// mLocationProfileDaoHelper.findConnectedProfile().getUrl() +
+			// "Content/GetImageFile?StorageGroup="+gallerySGName+"&Width="+previewWidth+"&FileName=";
+			
+			for( String file : result ) {
+
+				// First look for image suffixes, then skip files with
+				// reoccurring WxH suffixes made by MythTVs getImageFile
+				// scalar.
+				if( file.matches( ".+(?i)(jpg|png|gif|bmp)$" ) && !file.matches( ".+(?i)(jpg|png|gif|bmp).\\d+x\\d.(?i)(jpg|png|gif|bmp)$" ) ) {
+					GalleryImageItem imageItem = new GalleryImageItem( 0, "", file );
+					mImageItems.add( imageItem );
 				}
+			
 			}
 			
-			return bool;
+			
 		}
+		
+		if( hasBackendGallerySG ) {
+			
+			notifyDataSetChanged();
+			
+		} else {
+			
+			AlertDialog.Builder builder = new AlertDialog.Builder( mContext );
 
-		/* (non-Javadoc)
-		 * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
-		 */
-		@Override
-		protected void onPostExecute( Bool bool ) {
-			super.onPostExecute( bool );
+			if( backendAndFrontendShareHostname ) {
 
-			if( bool.getBool() ) {
+				EditText input = null;
 
-				new LoadFileListTask().execute();
+				if( galleryDirPresentInSettings ) {
+					builder.setMessage( mContext.getResources().getString( R.string.gallery_sg_exist_create )
+							+ mLocationProfile.getHostname()
+							+ mContext.getResources().getString( R.string.gallery_sg_exist_create2 ) );
+				} else {
+					builder.setMessage( R.string.gallery_sg_create );
+
+					input = new EditText( mContext );
+					input.setHint( R.string.gallery_sg_create_hint );
+					builder.setView( input );
+				}
 				
-			} else {
-				AlertDialog.Builder builder = new AlertDialog.Builder( mContext );
-				builder.setMessage( R.string.gallery_sg_failed );
-				builder.setNeutralButton( R.string.btn_ok, new DialogInterface.OnClickListener() {
-
+				final EditText finalInput = input;
+				builder.setPositiveButton( R.string.btn_ok, new DialogInterface.OnClickListener() {
+			
+					/* (non-Javadoc)
+					 * @see android.content.DialogInterface.OnClickListener#onClick(android.content.DialogInterface, int)
+					 */
+					public void onClick( DialogInterface dialog, int id ) {
+						clickedPosButton( id, finalInput );
+					}
+				
+				});
+				
+				builder.setNegativeButton( R.string.btn_cancel, new DialogInterface.OnClickListener() {
+				
 					/* (non-Javadoc)
 					 * @see android.content.DialogInterface.OnClickListener#onClick(android.content.DialogInterface, int)
 					 */
 					public void onClick( DialogInterface dialog, int id ) {
 					}
-
+					
 				});
-				
-				AlertDialog dialog = builder.create();
-				dialog.show();
+			
+			} else {
+			
+				builder.setMessage( R.string.gallery_sg_error );
+			
 			}
-		
+
+			AlertDialog dialog = builder.create();
+			dialog.show();
 		}
 
+		
+		Log.v( TAG, "onGetFileListTaskFinished : exit" );
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mythtv.service.myth.CreateStorageGroupTask.TaskFinishedListener#onCreateStorageGroupTaskStarted()
+	 */
+	@Override
+	public void onCreateStorageGroupTaskStarted() {
+		Log.v( TAG, "onCreateStorageGroupTaskStarted : enter" );
+		
+		Log.v( TAG, "onCreateStorageGroupTaskStarted : exit" );
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mythtv.service.myth.CreateStorageGroupTask.TaskFinishedListener#onCreateStorageGroupTaskFinished(boolean)
+	 */
+	@Override
+	public void onCreateStorageGroupTaskFinished( boolean result ) {
+		Log.v( TAG, "onCreateStorageGroupTaskFinished : enter" );
+		
+		if( result ) {
+		
+			refresh();
+		
+		} else {
+			
+			AlertDialog.Builder builder = new AlertDialog.Builder( mContext );
+			builder.setMessage( R.string.gallery_sg_failed );
+			builder.setNeutralButton( R.string.btn_ok, new DialogInterface.OnClickListener() {
+
+				/* (non-Javadoc)
+				 * @see android.content.DialogInterface.OnClickListener#onClick(android.content.DialogInterface, int)
+				 */
+				public void onClick( DialogInterface dialog, int id ) { }
+
+			});
+			
+			AlertDialog dialog = builder.create();
+			dialog.show();
+
+		}
+		
+		Log.v( TAG, "onCreateStorageGroupTaskFinished : exit" );
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mythtv.service.myth.GetStorageGroupsTask.TaskFinishedListener#onGetStorageGroupsTaskStarted()
+	 */
+	@Override
+	public void onGetStorageGroupsTaskStarted() {
+		Log.v( TAG, "onGetStorageGroupsTaskStarted : enter" );
+		
+		Log.v( TAG, "onGetStorageGroupsTaskStarted : exit" );
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mythtv.service.myth.GetStorageGroupsTask.TaskFinishedListener#onGetStorageGroupsTaskFinished(java.util.List)
+	 */
+	@Override
+	public void onGetStorageGroupsTaskFinished( List<StorageGroupDirectory> result ) {
+		Log.v( TAG, "onGetStorageGroupsTaskFinished : enter" );
+
+		if( null != result && !result.isEmpty() ) {
+			
+			for( StorageGroupDirectory sg : result ) {
+				
+				if( sg.getGroupName().equals( galleryStorageGroupName ) ) {
+				
+					hasBackendGallerySG = true;
+				
+					break;
+				}
+				
+			}
+
+		}
+
+		if( hasBackendGallerySG ) {
+
+			getImages();
+
+		} else {
+			
+			setConnectedProfileInHostsList();
+
+		}
+		
+		Log.v( TAG, "onGetStorageGroupsTaskFinished : exit" );
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mythtv.service.myth.GetHostsTask.TaskFinishedListener#onGetHostsTaskStarted()
+	 */
+	@Override
+	public void onGetHostsTaskStarted() {
+		Log.v( TAG, "onGetHostsTaskStarted : enter" );
+		
+		Log.v( TAG, "onGetHostsTaskStarted : exit" );
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mythtv.service.myth.GetHostsTask.TaskFinishedListener#onGetHostsTaskFinished(java.util.List)
+	 */
+	@Override
+	public void onGetHostsTaskFinished( List<String> result ) {
+		Log.v( TAG, "onGetHostsTaskFinished : enter" );
+
+		if( null != result && !result.isEmpty() ) {
+			
+			for( String host : result ) {
+			
+				if( host.equals( mLocationProfile.getHostname() ) ) {
+					Log.v( TAG, "onGetHostsTaskFinished : host found!" );
+
+					backendAndFrontendShareHostname = true;
+					
+					break;
+				}
+		
+			}
+
+		}
+
+		if( backendAndFrontendShareHostname ) {
+			
+			
+		} else {
+			
+			setGalleryStorageDirectoryPresentInSettings();
+			
+		}
+		
+		Log.v( TAG, "onGetHostsTaskFinished : exit" );
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mythtv.service.myth.GetSettingTask.TaskFinishedListener#onGetSettingTaskStarted()
+	 */
+	@Override
+	public void onGetSettingTaskStarted() {
+		Log.v( TAG, "onGetSettingTaskStarted : enter" );
+		
+		Log.v( TAG, "onGetSettingTaskStarted : exit" );
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mythtv.service.myth.GetSettingTask.TaskFinishedListener#onGetSettingTaskFinished(java.lang.String)
+	 */
+	@Override
+	public void onGetSettingTaskFinished( String result ) {
+		Log.v( TAG, "onGetSettingTaskFinished : enter" );
+		
+		if( null != result && !"".equals(  result ) ) {
+			galleryDirPresentInSettings = true;
+		}
+		
+		Log.v( TAG, "onGetSettingTaskFinished : exit" );
 	}
 
 }

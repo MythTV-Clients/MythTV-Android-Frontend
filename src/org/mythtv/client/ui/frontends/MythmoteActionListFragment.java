@@ -42,116 +42,120 @@ import android.widget.TextView;
  * Displays the list of all actions reported by the frontend.
  * 
  * @author pot8oe
- *
+ * 
  */
-public class MythmoteActionListFragment extends AbstractFrontendFragment{
+public class MythmoteActionListFragment extends AbstractFrontendFragment {
+
 	private final static String TAG = "MythmoteActionListFragment";
-	
+
 	private ListView mListView;
-	
+
 	private LocationProfile mLocationProfile;
-	
+
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.Fragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle)
+	 */
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
-		
+	public View onCreateView( LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState ) {
+
 		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
-		
-		//inflate fragment layout
-		View mView = inflater.inflate(R.layout.fragment_mythmote_action_list, container, false);
-		
-		mListView = (ListView)mView.findViewById(R.id.listViewMythmoteActionList);
-		
+
+		// inflate fragment layout
+		View mView = inflater.inflate( R.layout.fragment_mythmote_action_list, container, false );
+
+		mListView = (ListView) mView.findViewById( R.id.listViewMythmoteActionList );
+
 		final Frontend fe = MainMenuFragment.getSelectedFrontend();
-		
-		//exit if we don't have a frontend
-		if(null != fe){
-			new GetActionListAsyncTask().execute(fe.getUrl());
+
+		// exit if we don't have a frontend
+		if( null != fe ) {
+			new GetActionListAsyncTask().execute( fe.getUrl() );
 		}
-		
+
 		return mView;
 	}
-	
+
 	/**
 	 * 
 	 * @param list
 	 */
-	private void setActionList(List<Action> list){
-		if(null != mListView && null != list){
-			mListView.setAdapter(new ActionListAdapter(list));
+	private void setActionList( List<Action> list ) {
+		if( null != mListView && null != list ) {
+			mListView.setAdapter( new ActionListAdapter( list ) );
 		}
 	}
-	
+
 	/**
 	 * 
 	 * @author pot8oe
-	 *
+	 * 
 	 */
-	private class GetActionListAsyncTask extends AsyncTask<String,Void,ResponseEntity<FrontendActionList>>{
+	private class GetActionListAsyncTask extends AsyncTask<String, Void, ResponseEntity<FrontendActionList>> {
 
 		@Override
-		protected ResponseEntity<FrontendActionList> doInBackground(String... params) {
+		protected ResponseEntity<FrontendActionList> doInBackground( String... params ) {
+			
 			try {
 				EtagInfoDelegate eTag = EtagInfoDelegate.createEmptyETag();
-				return mMythtvServiceHelper.getMythServicesApi( mLocationProfile ).frontendOperations().getActionList(params[0], eTag);
+				return mMythtvServiceHelper.getMythServicesApi( mLocationProfile ).frontendOperations()	.getActionList( params[ 0 ], eTag );
 			} catch( Exception e ) {
 				Log.e( TAG, e.getMessage() );
+			
 				showAlertDialog( "Get Status Error", e.getMessage() );
 			}
+			
 			return null;
 		}
-		
+
 		@Override
-		protected void onPostExecute(ResponseEntity<FrontendActionList> result) {
-			if(null != mListView && null != result){
-				setActionList(result.getBody().getActions());
+		protected void onPostExecute( ResponseEntity<FrontendActionList> result ) {
+			if( null != mListView && null != result ) {
+				setActionList( result.getBody().getActions() );
 			}
-			super.onPostExecute(result);
+			super.onPostExecute( result );
 		}
-		
+
 	}
-	
-	
-	
+
 	/**
 	 * 
 	 * @author pot8oe
-	 *
+	 * 
 	 */
-	private class ActionListAdapter extends BaseAdapter{
-		
+	private class ActionListAdapter extends BaseAdapter {
+
 		private List<Action> mList;
-		
-		public ActionListAdapter(List<Action> list){
-			mList=list;
+
+		public ActionListAdapter( List<Action> list ) {
+			mList = list;
 		}
 
 		@Override
 		public int getCount() {
-			return null!=mList ? mList.size() : 0;
+			return null != mList ? mList.size() : 0;
 		}
 
 		@Override
-		public Object getItem(int position) {
-			return null!=mList ? mList.get(position) : null;
+		public Object getItem( int position ) {
+			return null != mList ? mList.get( position ) : null;
 		}
 
 		@Override
-		public long getItemId(int position) {
+		public long getItemId( int position ) {
 			return position;
 		}
 
 		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
-			
-			Action action = mList.get(position);
-			
-			TextView tView = new TextView(parent.getContext());
-			tView.setText(action.getKey());
-			
+		public View getView( int position, View convertView, ViewGroup parent ) {
+
+			Action action = mList.get( position );
+
+			TextView tView = new TextView( parent.getContext() );
+			tView.setText( action.getKey() );
+
 			return tView;
 		}
-		
+
 	}
-	
+
 }

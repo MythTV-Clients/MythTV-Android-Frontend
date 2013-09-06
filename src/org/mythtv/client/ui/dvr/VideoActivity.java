@@ -23,30 +23,27 @@ import org.mythtv.R;
 import org.mythtv.client.ui.AbstractMythtvFragmentActivity;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.content.LiveStreamDaoHelper;
-import org.mythtv.db.dvr.RecordedDaoHelper;
-import org.mythtv.db.http.model.EtagInfoDelegate;
-import org.mythtv.db.preferences.LocationProfileDaoHelper;
-import org.mythtv.service.util.MythtvServiceHelper;
-import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.db.content.model.LiveStreamInfo;
-import org.mythtv.db.content.model.LiveStreamInfoWrapper;
+import org.mythtv.db.dvr.RecordedDaoHelper;
 import org.mythtv.db.dvr.model.Program;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.mythtv.service.content.LiveStreamService;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.Toast;
 
 /**
  * @author John Baab
@@ -63,9 +60,9 @@ public class VideoActivity extends AbstractMythtvFragmentActivity {
 	
 	private ProgressDialog progressDialog;
 
+	private LiveStreamReceiver liveStreamReceiver = new LiveStreamReceiver();
+	
 	private LiveStreamDaoHelper mLiveStreamDaoHelper = LiveStreamDaoHelper.getInstance();
-	private LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
-	private MythtvServiceHelper mMythtvServiceHelper = MythtvServiceHelper.getInstance();
 	private RecordedDaoHelper mRecordedDaoHelper = RecordedDaoHelper.getInstance();
 	
 	private Program program = null;
@@ -122,6 +119,22 @@ public class VideoActivity extends AbstractMythtvFragmentActivity {
 	}
 	
 	/* (non-Javadoc)
+	 * @see android.support.v4.app.FragmentActivity#onStart()
+	 */
+	@Override
+	public void onStart() {
+		Log.v( TAG, "onStart : enter" );
+		super.onStart();
+
+		IntentFilter liveStreamFilter = new IntentFilter( LiveStreamService.ACTION_COMPLETE );
+		liveStreamFilter.addAction( LiveStreamService.ACTION_PROGRESS );
+		liveStreamFilter.addAction( LiveStreamService.ACTION_UPDATE );
+        registerReceiver( liveStreamReceiver, liveStreamFilter );
+
+        Log.v( TAG, "onStart : exit" );
+	}
+
+	/* (non-Javadoc)
 	 * @see org.mythtv.client.ui.dvr.AbstractDvrActivity#onResume()
 	 */
 	@Override
@@ -149,6 +162,14 @@ public class VideoActivity extends AbstractMythtvFragmentActivity {
 	protected void onStop() {
 		Log.v( TAG, "onStop : enter" );
 		super.onStop();
+
+		if( null != liveStreamReceiver ) {
+			try {
+				unregisterReceiver( liveStreamReceiver );
+			} catch( IllegalArgumentException e ) {
+				Log.e( TAG, e.getLocalizedMessage(), e );
+			}
+		}
 
 		Log.v( TAG, "onStop : exit" );
 	}
@@ -281,24 +302,14 @@ public class VideoActivity extends AbstractMythtvFragmentActivity {
 		
 	}
 	
-	private void exceptionDialolg( Throwable t ) {
-		AlertDialog.Builder builder = new AlertDialog.Builder( VideoActivity.this );
-
-		builder
-			.setTitle( R.string.exception )
-			.setMessage( t.toString() )
-			.setPositiveButton( R.string.close, null )
-				.show();
-	}
-	
 	public void checkLiveStreamInfo() {
 		Log.v( TAG, "checkLiveStreamInfo : enter" );
 
-		if( liveStreamInfo.getStatusInt() < 2 || liveStreamInfo.getCurrentSegment() <= 2 ) {
+		if( liveStreamInfo.getPercentComplete() < 2 || liveStreamInfo.getPercentComplete() <= 2 ) {
 			Log.v( TAG, "checkLiveStreamInfo : stream not ready" );
 			
-			new UpdateStreamInfoTask().execute();
-		
+			startUpdateStreamService();
+			
 		} else {
 			Log.v( TAG, "checkLiveStreamInfo : starting video playback" );
 
@@ -309,76 +320,52 @@ public class VideoActivity extends AbstractMythtvFragmentActivity {
 		Log.v( TAG, "checkLiveStreamInfo : exit" );
 	}
 	
-	
-	private class UpdateStreamInfoTask extends AsyncTask<Void, Void, ResponseEntity<LiveStreamInfoWrapper>> {
+	private void startUpdateStreamService() {
+		Log.v( TAG, "startUpdateStreamService : enter" );
+		
+		Intent intent = new Intent( LiveStreamService.ACTION_UPDATE );
+		intent.putExtra( LiveStreamService.KEY_CHANNEL_ID, program.getChannelInfo().getChannelId() );
+		intent.putExtra( LiveStreamService.KEY_START_TIMESTAMP, program.getRecording().getStartTimestamp().getMillis() );
+		startService( intent );
 
-		private Exception e = null;
-
-		@Override
-		protected ResponseEntity<LiveStreamInfoWrapper> doInBackground( Void... params ) {
-			Log.v( TAG, "UpdateStreamInfoTask : enter" );
-
-			if( !NetworkHelper.getInstance().isNetworkConnected( VideoActivity.this ) ) {
-				Log.v( TAG, "UpdateStreamInfoTask : exit, not connected" );
-				
-				return null;
-			}
-
-			if( null == liveStreamInfo ) {
-				Log.v( TAG, "UpdateStreamInfoTask : exit, live stream info is null" );
-				
-				return null;
-			}
-
-			try {
-				Log.v( TAG, "UpdateStreamInfoTask : api" );
-				
-				if( liveStreamInfo.getStatusInt() < 2 || liveStreamInfo.getCurrentSegment() <= 2 ) {
-					Thread.sleep( 5000 );
-					
-					EtagInfoDelegate eTag = EtagInfoDelegate.createEmptyETag();
-
-					Log.v( TAG, "UpdateStreamInfoTask : exit" );
-					return mMythtvServiceHelper.getMythServicesApi( mLocationProfile ).contentOperations().getLiveStream( liveStreamInfo.getId(), eTag );
-				}
-			} catch( Exception e ) {
-				Log.v( TAG, "UpdateStreamInfoTask : error" );
-
-				this.e = e;
-			}
-
-			Log.v( TAG, "UpdateStreamInfoTask : exit, stream not updated" );
-			return null;
-		}
-
-		@Override
-		protected void onPostExecute( ResponseEntity<LiveStreamInfoWrapper> result ) {
-			Log.v( TAG, "UpdateStreamInfoTask onPostExecute : enter" );
-
-			if( null == e ) {
-				if( null != result ) {
-					if( result.getStatusCode().equals( HttpStatus.OK ) ) {
-
-						// save updated live stream info to database
-						liveStreamInfo = result.getBody().getLiveStreamInfo();
-						mLiveStreamDaoHelper.save( VideoActivity.this, mLocationProfile, liveStreamInfo, program );
-
-						if( liveStreamInfo.getStatusInt() < 2 || liveStreamInfo.getCurrentSegment() <= 2 ) {
-							new UpdateStreamInfoTask().execute();
-						} else {
-							startVideo( false );
-						}
-
-					}
-				}
-			} else {
-				Log.e( TAG, "error updating live stream", e );
-				exceptionDialolg( e );
-			}
-
-			Log.v( TAG, "UpdateStreamInfoTask onPostExecute : exit" );
-		}
-
+		Log.v( TAG, "startUpdateStreamService : exit" );
 	}
 	
+	private void notConnectedNotify() {
+		
+		Toast.makeText( this, getResources().getString( R.string.notification_not_connected ), Toast.LENGTH_SHORT ).show();
+		
+	}
+
+	private class LiveStreamReceiver extends BroadcastReceiver {
+
+		@Override
+		public void onReceive( Context context, Intent intent ) {
+        	Log.i( TAG, "LiveStreamReceiver.onReceive : enter" );
+			
+	        if ( intent.getAction().equals( LiveStreamService.ACTION_PROGRESS ) ) {
+	        	Log.i( TAG, "LiveStreamReceiver.onReceive : progress=" + intent.getIntExtra( LiveStreamService.EXTRA_PROGRESS_ID, -1 ) + ":" + intent.getIntExtra( LiveStreamService.EXTRA_PROGRESS_DATA, -1 ) );
+	        	
+	        	long id = liveStreamInfo.getId();
+	        	liveStreamInfo = mLiveStreamDaoHelper.findOne( context, mLocationProfile, id );
+	        	
+	        	if( intent.getIntExtra( LiveStreamService.EXTRA_PROGRESS_DATA, -1 ) < 2 ) {
+	        		startUpdateStreamService();
+	        	}
+	        }
+	        
+	        if ( intent.getAction().equals( LiveStreamService.ACTION_COMPLETE ) ) {
+	        	Log.i( TAG, "LiveStreamReceiver.onReceive : complete=" + intent.getStringExtra( LiveStreamService.EXTRA_COMPLETE ) );
+	        	
+	        	if( intent.getExtras().containsKey( LiveStreamService.EXTRA_COMPLETE_OFFLINE ) ) {
+	        		notConnectedNotify();
+	        	}
+	        	
+	        }
+	        
+        	Log.i( TAG, "LiveStreamReceiver.onReceive : exit" );
+		}
+		
+	}
+
 }

@@ -25,16 +25,14 @@ import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.preferences.LocationProfile.LocationType;
 import org.mythtv.client.ui.util.MenuHelper;
 import org.mythtv.db.content.LiveStreamDaoHelper;
+import org.mythtv.db.content.model.LiveStreamInfo;
 import org.mythtv.db.dvr.RecordedDaoHelper;
+import org.mythtv.db.dvr.model.Program;
 import org.mythtv.db.dvr.programGroup.ProgramGroup;
 import org.mythtv.db.dvr.programGroup.ProgramGroupDaoHelper;
 import org.mythtv.service.content.LiveStreamService;
 import org.mythtv.service.dvr.RecordedService;
 import org.mythtv.service.util.DateUtils;
-import org.mythtv.services.api.Bool;
-import org.mythtv.db.content.model.LiveStreamInfo;
-import org.mythtv.db.dvr.model.Program;
-import org.springframework.http.ResponseEntity;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -45,7 +43,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -303,7 +300,8 @@ public class EpisodeFragment extends AbstractMythFragment {
 			return true;
 		case MenuHelper.WATCH_ON_TV_ID:
 			//TODO: Show list of zeroconf frontends and send to selection
-			//new PlayRecordingOnFrontEndTask().execute( "http://192.168.10.200:6547" );
+			//PlayRecordingOnFrontEndTask playTask = new PlayRecordingOnFrontEndTask( mLocationProfile, program );
+			//playTask.execute( "http://192.168.10.200:6547" );
 			
 			Toast.makeText( getActivity(), "Watch on TV - Coming Soon!", Toast.LENGTH_SHORT ).show();
 
@@ -680,20 +678,6 @@ public class EpisodeFragment extends AbstractMythFragment {
 		
 	}
 
-	private class PlayRecordingOnFrontEndTask extends AsyncTask<String, Void, ResponseEntity<Bool>> {
-
-		@Override
-		protected ResponseEntity<Bool> doInBackground( String... params ) {
-			Log.v( TAG, "PlayRecordingOnFrontEndTask.doInBackground : enter" );
-			
-			ResponseEntity<Bool> responseEntity = mMythtvServiceHelper.getMythServicesApi( mLocationProfile ).frontendOperations().playRecording( params[ 0 ], program.getChannelInfo().getChannelId(), program.getStartTime() ); 
-			
-			Log.v( TAG, "PlayRecordingOnFrontEndTask.doInBackground : exit" );
-			return responseEntity;
-		}
-		
-	}
-
 	private class RecordedRemovedReceiver extends BroadcastReceiver {
 
 		@Override
@@ -769,7 +753,7 @@ public class EpisodeFragment extends AbstractMythFragment {
 	        		
 	        }
 
-        	Log.i( TAG, "RecordedRemovedReceiver.onReceive : exit" );
+        	Log.i( TAG, "LiveStreamReceiver.onReceive : exit" );
 		}
 		
 	}

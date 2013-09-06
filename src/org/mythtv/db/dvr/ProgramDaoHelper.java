@@ -33,7 +33,6 @@ import org.mythtv.db.content.model.LiveStreamInfo;
 import org.mythtv.db.dvr.model.Program;
 import org.mythtv.db.dvr.model.Recording;
 import org.mythtv.service.util.DateUtils;
-import org.mythtv.service.util.MythtvServiceHelper;
 
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -49,7 +48,6 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 
 	protected static final String TAG = ProgramDaoHelper.class.getSimpleName();
 	
-	protected MythtvServiceHelper mMythtvServiceHelper = MythtvServiceHelper.getInstance();
 	protected ChannelDaoHelper mChannelDaoHelper = ChannelDaoHelper.getInstance();
 	protected LiveStreamDaoHelper mLiveStreamDaoHelper = LiveStreamDaoHelper.getInstance();
 	protected RecordingDaoHelper mRecordingDaoHelper = RecordingDaoHelper.getInstance();

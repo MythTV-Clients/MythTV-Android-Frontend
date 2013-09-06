@@ -18,8 +18,6 @@
  */
 package org.mythtv.client.ui.setup.capture;
 
-import org.mythtv.service.util.MythtvServiceHelper;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
@@ -34,8 +32,6 @@ import android.widget.ListView;
 public class CaptureCardsListFragment extends ListFragment {
 
 	private static final String TAG = CaptureCardsListFragment.class.getSimpleName();
-	
-	private MythtvServiceHelper mMythtvServiceHelper = MythtvServiceHelper.getInstance();
 	
     private int mCurrentCaptureCard = 0;
     boolean mDualPane;

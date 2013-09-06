@@ -49,7 +49,6 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
 	protected static final String TAG = AbstractMythFragment.class.getSimpleName();
 	
 	protected SharedPreferences preferences = null;
-	protected MythtvServiceHelper mMythtvServiceHelper = MythtvServiceHelper.getInstance();
 	protected EtagDaoHelper mEtagDaoHelper = EtagDaoHelper.getInstance();
 	protected RunningServiceHelper mRunningServiceHelper = RunningServiceHelper.getInstance();
 	protected LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
