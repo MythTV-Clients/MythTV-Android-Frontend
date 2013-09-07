@@ -22,22 +22,16 @@ import java.util.Timer;
 
 import org.mythtv.client.MainApplication;
 import org.mythtv.client.ui.AbstractMythFragment;
-import org.mythtv.client.ui.MainMenuFragment;
 import org.mythtv.client.ui.preferences.LocationProfile;
-import org.mythtv.db.http.model.EtagInfoDelegate;
-import org.mythtv.db.frontends.model.Status;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.mythtv.service.frontends.GetStatusTask;
 
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 
 /**
  * @author pot8oe
  * 
  */
-public class AbstractFrontendFragment extends AbstractMythFragment {
+public class AbstractFrontendFragment extends AbstractMythFragment implements GetStatusTask.TaskFinishedListener {
 
 	private final static String TAG = AbstractFrontendFragment.class.getSimpleName();
 
@@ -53,7 +47,7 @@ public class AbstractFrontendFragment extends AbstractMythFragment {
 		
 		// create only one get status task
 		if( null == sGetStatusTask ) {
-			sGetStatusTask = new GetStatusTask();
+			sGetStatusTask = new GetStatusTask( mLocationProfile, this );
 
 			// kick it off with a status request
 //			final Frontend fe = MainMenuFragment.getSelectedFrontend();
@@ -83,43 +77,20 @@ public class AbstractFrontendFragment extends AbstractMythFragment {
 		return (MainApplication) getActivity().getApplicationContext();
 	}
 
-	
-
-	/**
-	 * When calling execute there must be 1 paramter: Frontend URL
-	 * 
-	 * @author pot8oe
-	 * 
+	/* (non-Javadoc)
+	 * @see org.mythtv.service.frontends.GetStatusTask.TaskFinishedListener#onGetStatusTaskStarted()
 	 */
-	protected class GetStatusTask extends AsyncTask<String, Void, ResponseEntity<Status>> {
+	@Override
+	public void onGetStatusTaskStarted() {
+		
+	}
 
-		@Override
-		protected ResponseEntity<Status> doInBackground( String... params ) {
-
-			try {
-				EtagInfoDelegate eTag = EtagInfoDelegate.createEmptyETag();
-				return mMythtvServiceHelper.getMythServicesApi( mLocationProfile ).frontendOperations()
-						.getStatus( params[ 0 ], eTag );
-			} catch( Exception e ) {
-				Log.e( TAG, e.getMessage() );
-				showAlertDialog( "Get Status Error", e.getMessage() );
-			}
-			return null;
-		}
-
-		/* (non-Javadoc)
-		 * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
-		 */
-		@Override
-		protected void onPostExecute( ResponseEntity<Status> result ) {
-			super.onPostExecute( result );
-			
-			if( result.getStatusCode().equals( HttpStatus.OK ) ) {
-				
-			}
-			
-		}
-
+	/* (non-Javadoc)
+	 * @see org.mythtv.service.frontends.GetStatusTask.TaskFinishedListener#onGetStatusTaskFinished(org.mythtv.db.frontends.model.Status)
+	 */
+	@Override
+	public void onGetStatusTaskFinished( org.mythtv.db.frontends.model.Status result ) {
+		
 	}
 
 }
