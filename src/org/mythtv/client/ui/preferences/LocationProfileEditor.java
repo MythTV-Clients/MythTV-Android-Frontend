@@ -23,14 +23,9 @@ import org.mythtv.client.ui.AbstractMythtvFragmentActivity;
 import org.mythtv.client.ui.preferences.LocationProfile.LocationType;
 import org.mythtv.db.preferences.LocationProfileConstants;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
+import org.mythtv.service.myth.GetHostnameTask;
 import org.mythtv.service.preferences.PreferencesRecordedDownloadService;
-import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.service.util.RunningServiceHelper;
-import org.mythtv.services.api.ApiVersion;
-import org.mythtv.services.api.connect.MythAccessFactory;
-import org.mythtv.services.api.v026.StringWrapper;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -39,7 +34,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -52,7 +46,7 @@ import android.widget.EditText;
  * @author John Baab
  * 
  */
-public class LocationProfileEditor extends AbstractMythtvFragmentActivity {
+public class LocationProfileEditor extends AbstractMythtvFragmentActivity implements GetHostnameTask.TaskFinishedListener {
 
 	private static final String TAG = LocationProfileEditor.class.getSimpleName();
 
@@ -322,71 +316,61 @@ public class LocationProfileEditor extends AbstractMythtvFragmentActivity {
 	        	Log.i( TAG, "PreferencesRecordedDownloadReceiver.onReceive : complete=" + intent.getStringExtra( PreferencesRecordedDownloadService.EXTRA_COMPLETE ) );
 	        }
 
-	        new GetHostnameTask().execute();
+	        new GetHostnameTask( profile, LocationProfileEditor.this ).execute();
 	        
         	Log.i( TAG, "PreferencesRecordedDownloadReceiver.onReceive : exit" );
 		}
 		
 	}
 
-	private class GetHostnameTask extends AsyncTask<Void, Void, ResponseEntity<StringWrapper>> {
+	/* (non-Javadoc)
+	 * @see org.mythtv.service.myth.GetHostnameTask.TaskFinishedListener#onGetHostnameTaskStarted()
+	 */
+	@Override
+	public void onGetHostnameTaskStarted() {
+       	Log.d( TAG, "onGetHostnameTaskStarted : enter" );
+		
+       	Log.d( TAG, "onGetHostnameTaskStarted : exit" );
+	}
 
-		/* (non-Javadoc)
-		 * @see android.os.AsyncTask#doInBackground(Params[])
-		 */
-		@Override
-		protected ResponseEntity<StringWrapper> doInBackground( Void... params ) {
-			
-			if( !MythAccessFactory.isServerReachable( profile.getUrl() ) ) {
-				return null;
-			}
-
-			ApiVersion apiVersion = MythAccessFactory.getMythVersion( profile.getUrl() );
-			
-			MythAccessFactory.getServiceTemplateApiByVersion( apiVersion, profile.getUrl() );
-			return mMythtvServiceHelper.getMythServicesApi( profile ).mythOperations().getHostName();
-		}
-
-		/* (non-Javadoc)
-		 * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
-		 */
-		@Override
-		protected void onPostExecute( ResponseEntity<StringWrapper> result ) {
-			
-			if( null != result ) {
+	/* (non-Javadoc)
+	 * @see org.mythtv.service.myth.GetHostnameTask.TaskFinishedListener#onGetHostnameTaskFinished(java.lang.String)
+	 */
+	@Override
+	public void onGetHostnameTaskFinished( String result ) {
+       	Log.d( TAG, "onGetHostnameTaskFinished : enter" );
+		
+		if( null != result ) {
+			Log.v( TAG, "onGetHostnameTaskFinished : saving hostname '" + result + "'" );
 				
-				if( result.getStatusCode().equals( HttpStatus.OK ) ) {
-					Log.v( TAG, "GetHostnameTask.onPostExecute : saving hostname '" + result.getBody().getString() + "'" );
-					
-					profile.setHostname( result.getBody().getString() );
-					
-					mLocationProfileDaoHelper.save( LocationProfileEditor.this, profile );
-					Log.v( TAG, "profile=" + profile.toString() );
-					
-				    finish();
-			        
-				    return;
-				}
+			profile.setHostname( result );
 				
-			}
-			
-		    if( mProgressDialog != null ) {
-		    	mProgressDialog.dismiss();
-		    	mProgressDialog = null;
-			}
-
-			AlertDialog.Builder builder = new AlertDialog.Builder( LocationProfileEditor.this );
-			builder.setTitle( R.string.preference_edit_error_dialog_title );
-			builder.setNeutralButton( R.string.btn_ok, new DialogInterface.OnClickListener() {
-
-				public void onClick( DialogInterface dialog, int which ) { }
+			mLocationProfileDaoHelper.save( LocationProfileEditor.this, profile );
+			Log.v( TAG, "profile=" + profile.toString() );
 				
-			});
+		    finish();
+		        
+		    return;
 			
-			builder.setMessage( R.string.preference_location_profile_not_connected );
-			builder.show();
 		}
 		
+	    if( mProgressDialog != null ) {
+	    	mProgressDialog.dismiss();
+	    	mProgressDialog = null;
+		}
+
+		AlertDialog.Builder builder = new AlertDialog.Builder( LocationProfileEditor.this );
+		builder.setTitle( R.string.preference_edit_error_dialog_title );
+		builder.setNeutralButton( R.string.btn_ok, new DialogInterface.OnClickListener() {
+
+			public void onClick( DialogInterface dialog, int which ) { }
+			
+		});
+		
+		builder.setMessage( R.string.preference_location_profile_not_connected );
+		builder.show();
+	
+       	Log.d( TAG, "onGetHostnameTaskFinished : exit" );
 	}
 
 }

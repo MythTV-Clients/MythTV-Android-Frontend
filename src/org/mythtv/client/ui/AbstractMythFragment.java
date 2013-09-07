@@ -26,7 +26,6 @@ import org.mythtv.db.http.EtagDaoHelper;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.db.status.model.BackendStatus;
 import org.mythtv.service.status.BackendStatusService;
-import org.mythtv.service.util.MythtvServiceHelper;
 import org.mythtv.service.util.RunningServiceHelper;
 
 import android.app.AlertDialog;

@@ -41,6 +41,7 @@ import org.mythtv.db.channel.ChannelEndpoint;
 import org.mythtv.db.http.EtagDaoHelper;
 import org.mythtv.service.MythtvService;
 import org.mythtv.service.channel.ChannelDownloadService;
+import org.mythtv.service.frontends.SendMessageTask;
 import org.mythtv.service.guide.ProgramGuideDownloadService;
 import org.mythtv.service.util.DateUtils;
 import org.mythtv.service.util.NetworkHelper;
@@ -81,10 +82,10 @@ import android.widget.ToggleButton;
 
 /**
  * 
- * @author  Thomas G. Kenny Jr
- *
+ * @author Thomas G. Kenny Jr
+ * 
  */
-public class MainMenuFragment extends AbstractMythFragment implements ServiceListener, OnItemSelectedListener{
+public class MainMenuFragment extends AbstractMythFragment implements ServiceListener, OnItemSelectedListener {
 
 	private final static String TAG = MainMenuFragment.class.getSimpleName();
 
@@ -93,14 +94,14 @@ public class MainMenuFragment extends AbstractMythFragment implements ServiceLis
 
 	private ChannelDownloadReceiver channelDownloadReceiver = new ChannelDownloadReceiver();
 
-	public interface ContentFragmentRequestedListener
-	{
-		public void OnFragmentRequested(int fragmentId, String fragmentClassName);
-		
-		public void OnFragmentRequested(int fragmentId, Fragment fragment);
+	public interface ContentFragmentRequestedListener {
+	
+		public void OnFragmentRequested( int fragmentId, String fragmentClassName );
+
+		public void OnFragmentRequested( int fragmentId, Fragment fragment );
+	
 	}
-	
-	
+
 	private static TelephonyManager sTelManager;
 	private static List<Frontend> frontends = new ArrayList<Frontend>();
 	private static Frontend selectedFrontend;
@@ -109,188 +110,209 @@ public class MainMenuFragment extends AbstractMythFragment implements ServiceLis
 	private static JmDNS zeroConf = null;
 	private static MulticastLock mLock = null;
 	private static boolean isAway = false;
-	
-	
+
 	private boolean isConnected = false;
 	private FrontendAdapter adapter = null;
 	private ContentFragmentRequestedListener mContentFragmentRequestedListener;
-	
-	
-	
-	
-	
-	private OnCheckedChangeListener homeAwayCheckedChanged = new OnCheckedChangeListener(){
 
+	private LocationProfile mLocationProfile;
+	
+	private OnCheckedChangeListener homeAwayCheckedChanged = new OnCheckedChangeListener() {
+
+		/* (non-Javadoc)
+		 * @see android.widget.CompoundButton.OnCheckedChangeListener#onCheckedChanged(android.widget.CompoundButton, boolean)
+		 */
 		@Override
-		public void onCheckedChanged(CompoundButton buttonView,
-				boolean isChecked) {
-			
-			//set if profile is home/away
+		public void onCheckedChanged( CompoundButton buttonView, boolean isChecked ) {
+
+			// set if profile is home/away
 			isAway = isChecked;
-			
-			if(!isChecked){ //isChecked - false - home
-				
+
+			if( !isChecked ) { // isChecked - false - home
+
 				if( null == mLocationProfileDaoHelper.findSelectedHomeProfile( getActivity() ) ) {
-					
+
 					AlertDialog.Builder builder = new AlertDialog.Builder( getActivity() );
 					builder.setTitle( R.string.location_alert_error_title );
 					builder.setNeutralButton( R.string.btn_ok, new DialogInterface.OnClickListener() {
 
-						public void onClick( DialogInterface dialog, int which ) { }
-						
-					});
+						public void onClick( DialogInterface dialog, int which ) {
+						}
+
+					} );
 					builder.setMessage( R.string.location_alert_error_home_message );
 					builder.show();
 
 				} else {
-//					LocationProfile profile = mLocationProfileDaoHelper.findSelectedHomeProfile( getActivity() ); 
-//					mLocationProfileDaoHelper.setConnectedLocationProfile( getActivity(), (long) profile.getId() );
-					
-					//here i think we need to re-start ourself and do not need to fire this intent
-					//This intent was used in LocationDashboardFragment to start HomeActivity
+					// LocationProfile profile =
+					// mLocationProfileDaoHelper.findSelectedHomeProfile(
+					// getActivity() );
+					// mLocationProfileDaoHelper.setConnectedLocationProfile(
+					// getActivity(), (long) profile.getId() );
+
+					// here i think we need to re-start ourself and do not need
+					// to fire this intent
+					// This intent was used in LocationDashboardFragment to
+					// start HomeActivity
 					getActivity().startService( new Intent( MythtvService.ACTION_CONNECT ) );
 				}
-				
-			}else{ //ischecked - true - away
-				
+
+			} else { // ischecked - true - away
+
 				if( null == mLocationProfileDaoHelper.findSelectedAwayProfile( getActivity() ) ) {
-					
+
 					AlertDialog.Builder builder = new AlertDialog.Builder( getActivity() );
 					builder.setTitle( R.string.location_alert_error_title );
 					builder.setNeutralButton( R.string.btn_ok, new DialogInterface.OnClickListener() {
 
-						public void onClick( DialogInterface dialog, int which ) { }
-						
-					});
+						public void onClick( DialogInterface dialog, int which ) {
+						}
+
+					} );
 					builder.setMessage( R.string.location_alert_error_away_message );
 					builder.show();
 
 				} else {
-//					LocationProfile profile = mLocationProfileDaoHelper.findSelectedAwayProfile( getActivity() ); 
-//					mLocationProfileDaoHelper.setConnectedLocationProfile( getActivity(), (long) profile.getId() );
-					
-					//here i think we need to re-start ourself and do not need to fire this intent
-					//This intent was used in LocationDashboardFragment to start AwayActivity
+					// LocationProfile profile =
+					// mLocationProfileDaoHelper.findSelectedAwayProfile(
+					// getActivity() );
+					// mLocationProfileDaoHelper.setConnectedLocationProfile(
+					// getActivity(), (long) profile.getId() );
+
+					// here i think we need to re-start ourself and do not need
+					// to fire this intent
+					// This intent was used in LocationDashboardFragment to
+					// start AwayActivity
 					getActivity().startService( new Intent( MythtvService.ACTION_CONNECT ) );
 				}
 			}
-			
-			//show/hide frontend selection
-			LinearLayout linearLayoutFrontends = (LinearLayout)getActivity().findViewById(R.id.linear_layout_frontend_spinner);
-			if(null != linearLayoutFrontends){
-				linearLayoutFrontends.setVisibility(isChecked ? View.GONE : View.VISIBLE);
+
+			// show/hide frontend selection
+			LinearLayout linearLayoutFrontends = (LinearLayout) getActivity().findViewById(
+					R.id.linear_layout_frontend_spinner );
+			if( null != linearLayoutFrontends ) {
+				linearLayoutFrontends.setVisibility( isChecked ? View.GONE : View.VISIBLE );
 			}
 		}
-		
+
 	};
-	
-	private OnClickListener preferenceButtonOnClick = new OnClickListener(){
+
+	private OnClickListener preferenceButtonOnClick = new OnClickListener() {
 		@Override
-		public void onClick(View v) {
+		public void onClick( View v ) {
 			if( Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB ) {
 				startActivity( new Intent( getActivity(), MythtvPreferenceActivity.class ) );
-		    } else {
-		    	startActivity( new Intent( getActivity(), MythtvPreferenceActivity.class ) );
-		    }
+			} else {
+				startActivity( new Intent( getActivity(), MythtvPreferenceActivity.class ) );
+			}
 		}
 	};
-	
-	private OnClickListener mythmoteButtonOnClick = new OnClickListener(){
+
+	private OnClickListener mythmoteButtonOnClick = new OnClickListener() {
 		@Override
-		public void onClick(View v) {
-			if( NetworkHelper.getInstance().isNetworkConnected( getActivity() ) && !getActivity().getClass().equals(MythmoteActivity.class) ) {
+		public void onClick( View v ) {
+			if( NetworkHelper.getInstance().isNetworkConnected( getActivity() )
+					&& !getActivity().getClass().equals( MythmoteActivity.class ) ) {
 				startActivity( new Intent( getActivity(), MythmoteActivity.class ) );
 			}
 		}
 	};
-	
-	private OnClickListener activityButtonOnClick = new OnClickListener(){
+
+	private OnClickListener activityButtonOnClick = new OnClickListener() {
 		@Override
-		public void onClick(View v) {
-			
-			//get button text
-			Button btn = (Button)v;
+		public void onClick( View v ) {
+
+			// get button text
+			Button btn = (Button) v;
 			String btnTxt = btn.getText().toString();
-			
-			//check if we're connected to a backend
-			if(!isConnected){
-				Toast.makeText( getActivity(), "No connection to backend or no backend profile is selected.", Toast.LENGTH_SHORT ).show();
+
+			// check if we're connected to a backend
+			if( !isConnected ) {
+				Toast.makeText( getActivity(), "No connection to backend or no backend profile is selected.",
+						Toast.LENGTH_SHORT ).show();
 				return;
 			}
-			
+
 			// find button action based on the display string
-			if (getString(R.string.btn_guide).equals(btnTxt)) {
-				requestContentFragment(R.id.fragment_dvr_guide, GuideFragment.class.getName());
-			} else if (getString(R.string.btn_music).equals(btnTxt)) {
+			if( getString( R.string.btn_guide ).equals( btnTxt ) ) {
+				requestContentFragment( R.id.fragment_dvr_guide, GuideFragment.class.getName() );
+			} else if( getString( R.string.btn_music ).equals( btnTxt ) ) {
 				Toast.makeText( getActivity(), "Music - Coming Soon!", Toast.LENGTH_SHORT ).show();
-			} else if (getString(R.string.btn_pictures).equals(btnTxt)) {
+			} else if( getString( R.string.btn_pictures ).equals( btnTxt ) ) {
 				Toast.makeText( getActivity(), "Pictures - Coming Soon!", Toast.LENGTH_SHORT ).show();
-			} else if (getString(R.string.btn_recording_rules).equals(btnTxt)) {
-				requestContentFragment(R.id.fragment_dvr_recording_rules, RecordingRulesFragment.class.getName());
-			} else if (getString(R.string.btn_recordings).equals(btnTxt)) {
-				requestContentFragment(R.id.fragment_dvr_recordings_parent, RecordingsParentFragment.class.getName());
-			} else if (getString(R.string.btn_upcoming).equals(btnTxt)) {
-				requestContentFragment(R.id.fragment_dvr_upcoming, UpcomingPagerFragment.class.getName());
-			} else if (getString(R.string.btn_videos).equals(btnTxt)) {
+			} else if( getString( R.string.btn_recording_rules ).equals( btnTxt ) ) {
+				requestContentFragment( R.id.fragment_dvr_recording_rules, RecordingRulesFragment.class.getName() );
+			} else if( getString( R.string.btn_recordings ).equals( btnTxt ) ) {
+				requestContentFragment( R.id.fragment_dvr_recordings_parent, RecordingsParentFragment.class.getName() );
+			} else if( getString( R.string.btn_upcoming ).equals( btnTxt ) ) {
+				requestContentFragment( R.id.fragment_dvr_upcoming, UpcomingPagerFragment.class.getName() );
+			} else if( getString( R.string.btn_videos ).equals( btnTxt ) ) {
 				Toast.makeText( getActivity(), "Video - Coming Soon!", Toast.LENGTH_SHORT ).show();
 			}
 		}
 	};
-	
-	
-	
-	
+
 	/**
 	 * Returns the list of known frontends
 	 * 
 	 * @return
 	 */
-	public static List<Frontend> GetFrontends(){
+	public static List<Frontend> GetFrontends() {
 		return frontends;
 	}
-	
+
 	/**
 	 * 
 	 * @return
 	 */
-	public static Frontend getSelectedFrontend(){
+	public static Frontend getSelectedFrontend() {
 		return selectedFrontend;
 	}
-	
+
 	/**
 	 * 
 	 * @return
 	 */
-	public static boolean isAway(){
+	public static boolean isAway() {
 		return isAway;
 	}
-	
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		
-		adapter = new FrontendAdapter(getActivity(), R.layout.frontend_row, MainMenuFragment.GetFrontends());
-		
-		sTelManager = (TelephonyManager)getActivity().getSystemService(Context.TELEPHONY_SERVICE);
-		sTelManager.listen(new PhoneStateListener(){
 
+	@Override
+	public void onCreate( Bundle savedInstanceState ) {
+		super.onCreate( savedInstanceState );
+
+		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
+		
+		adapter = new FrontendAdapter( getActivity(), R.layout.frontend_row, MainMenuFragment.GetFrontends() );
+
+		sTelManager = (TelephonyManager) getActivity().getSystemService( Context.TELEPHONY_SERVICE );
+		sTelManager.listen( new PhoneStateListener() {
+
+			/* (non-Javadoc)
+			 * @see android.telephony.PhoneStateListener#onCallStateChanged(int, java.lang.String)
+			 */
 			@Override
-			public void onCallStateChanged(int state, String incomingNumber) {
-				
-				if(state == TelephonyManager.CALL_STATE_RINGING){
-					
-					final Frontend fe = MainMenuFragment.getSelectedFrontend();
-					
-					if( null==fe ) return;
-					
-					new SendMessageTask().execute(fe.getUrl(), "Incoming Call From: " + incomingNumber);
+			public void onCallStateChanged( int state, String incomingNumber ) {
+
+				if( state == TelephonyManager.CALL_STATE_RINGING ) {
+
+					final Frontend fe = selectedFrontend;
+
+					if( null == fe )
+						return;
+
+					SendMessageTask sendMessageTask = new SendMessageTask( mLocationProfile );
+					sendMessageTask.execute( fe.getUrl(), "Incoming Call From: " + incomingNumber );
 				}
-				
-				super.onCallStateChanged(state, incomingNumber);
-			}}, PhoneStateListener.LISTEN_CALL_STATE);
+
+				super.onCallStateChanged( state, incomingNumber );
+			}
+		}, PhoneStateListener.LISTEN_CALL_STATE );
 	}
-	
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see android.support.v4.app.Fragment#onStart()
 	 */
 	@Override
@@ -300,12 +322,14 @@ public class MainMenuFragment extends AbstractMythFragment implements ServiceLis
 
 		IntentFilter channelDownloadFilter = new IntentFilter();
 		channelDownloadFilter.addAction( ChannelDownloadService.ACTION_COMPLETE );
-	    getActivity().registerReceiver( channelDownloadReceiver, channelDownloadFilter );
+		getActivity().registerReceiver( channelDownloadReceiver, channelDownloadFilter );
 
-	    Log.v( TAG, "onStart : exit" );
+		Log.v( TAG, "onStart : exit" );
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see android.support.v4.app.Fragment#onStop()
 	 */
 	@Override
@@ -317,7 +341,7 @@ public class MainMenuFragment extends AbstractMythFragment implements ServiceLis
 		if( null != channelDownloadReceiver ) {
 			try {
 				getActivity().unregisterReceiver( channelDownloadReceiver );
-				//channelDownloadReceiver = null;
+				// channelDownloadReceiver = null;
 			} catch( IllegalArgumentException e ) {
 				Log.e( TAG, "onStop : error", e );
 			}
@@ -326,142 +350,142 @@ public class MainMenuFragment extends AbstractMythFragment implements ServiceLis
 	}
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
-		
-		View mainMenuView = inflater.inflate(R.layout.fragment_main_menu, container, false);
-		
-		ToggleButton toggleIsAway = (ToggleButton)mainMenuView.findViewById(R.id.toggleButtonIsAway); 
-		toggleIsAway.setOnCheckedChangeListener(this.homeAwayCheckedChanged);
-		
-		//set version string - we only do this to prepend the 'V'
-		TextView tView = (TextView)mainMenuView.findViewById(R.id.textview_mainmenu_version);
-		tView.setText("V" + this.getString(R.string.app_version));
-		
-		//set frontends spinner
-		Spinner spinner = (Spinner)mainMenuView.findViewById(R.id.spinner_frontends);
-		spinner.setAdapter(adapter);
-		spinner.setOnItemSelectedListener(this);
-		
-		//set preference button click listener
-		ImageButton prefButton = (ImageButton)mainMenuView.findViewById(R.id.imagebutton_main_menu_preferences);
-		prefButton.setOnClickListener(this.preferenceButtonOnClick);
-		
-		//set mythmote button click listener
-		ImageButton mmButton = (ImageButton)mainMenuView.findViewById(R.id.imagebutton_main_menu_mythmote);
-		mmButton.setOnClickListener(this.mythmoteButtonOnClick);
-		
-		//set activities button click listeners
-		Button aBtn = (Button)mainMenuView.findViewById(R.id.button_main_menu_guide);
-		aBtn.setOnClickListener(this.activityButtonOnClick);
-		aBtn = (Button)mainMenuView.findViewById(R.id.button_main_menu_music);
-		aBtn.setOnClickListener(this.activityButtonOnClick);
-		aBtn = (Button)mainMenuView.findViewById(R.id.button_main_menu_pictures);
-		aBtn.setOnClickListener(this.activityButtonOnClick);
-		aBtn = (Button)mainMenuView.findViewById(R.id.button_main_menu_recording_rules);
-		aBtn.setOnClickListener(this.activityButtonOnClick);
-		aBtn = (Button)mainMenuView.findViewById(R.id.button_main_menu_recordings);
-		aBtn.setOnClickListener(this.activityButtonOnClick);
-		aBtn = (Button)mainMenuView.findViewById(R.id.button_main_menu_upcoming);
-		aBtn.setOnClickListener(this.activityButtonOnClick);
-		aBtn = (Button)mainMenuView.findViewById(R.id.button_main_menu_videos);
-		aBtn.setOnClickListener(this.activityButtonOnClick);
-		
-		return mainMenuView; 
+	public View onCreateView( LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState ) {
+
+		View mainMenuView = inflater.inflate( R.layout.fragment_main_menu, container, false );
+
+		ToggleButton toggleIsAway = (ToggleButton) mainMenuView.findViewById( R.id.toggleButtonIsAway );
+		toggleIsAway.setOnCheckedChangeListener( this.homeAwayCheckedChanged );
+
+		// set version string - we only do this to prepend the 'V'
+		TextView tView = (TextView) mainMenuView.findViewById( R.id.textview_mainmenu_version );
+		tView.setText( "V" + this.getString( R.string.app_version ) );
+
+		// set frontends spinner
+		Spinner spinner = (Spinner) mainMenuView.findViewById( R.id.spinner_frontends );
+		spinner.setAdapter( adapter );
+		spinner.setOnItemSelectedListener( this );
+
+		// set preference button click listener
+		ImageButton prefButton = (ImageButton) mainMenuView.findViewById( R.id.imagebutton_main_menu_preferences );
+		prefButton.setOnClickListener( this.preferenceButtonOnClick );
+
+		// set mythmote button click listener
+		ImageButton mmButton = (ImageButton) mainMenuView.findViewById( R.id.imagebutton_main_menu_mythmote );
+		mmButton.setOnClickListener( this.mythmoteButtonOnClick );
+
+		// set activities button click listeners
+		Button aBtn = (Button) mainMenuView.findViewById( R.id.button_main_menu_guide );
+		aBtn.setOnClickListener( this.activityButtonOnClick );
+		aBtn = (Button) mainMenuView.findViewById( R.id.button_main_menu_music );
+		aBtn.setOnClickListener( this.activityButtonOnClick );
+		aBtn = (Button) mainMenuView.findViewById( R.id.button_main_menu_pictures );
+		aBtn.setOnClickListener( this.activityButtonOnClick );
+		aBtn = (Button) mainMenuView.findViewById( R.id.button_main_menu_recording_rules );
+		aBtn.setOnClickListener( this.activityButtonOnClick );
+		aBtn = (Button) mainMenuView.findViewById( R.id.button_main_menu_recordings );
+		aBtn.setOnClickListener( this.activityButtonOnClick );
+		aBtn = (Button) mainMenuView.findViewById( R.id.button_main_menu_upcoming );
+		aBtn.setOnClickListener( this.activityButtonOnClick );
+		aBtn = (Button) mainMenuView.findViewById( R.id.button_main_menu_videos );
+		aBtn.setOnClickListener( this.activityButtonOnClick );
+
+		return mainMenuView;
 	}
 
-	
 	@Override
 	public void onResume() {
 		super.onResume();
-		
-		//get connected location profile
-		LocationProfile profile = this.mLocationProfileDaoHelper.findConnectedProfile(this.getActivity());
-		
-		//check if we have a connected profile
+
+		// get connected location profile
+		LocationProfile profile = this.mLocationProfileDaoHelper.findConnectedProfile( this.getActivity() );
+
+		// check if we have a connected profile
 		if( null == profile ) {
-			
-			//auto connected to the first profile found
+
+			// auto connected to the first profile found
 			List<LocationProfile> profiles = mLocationProfileDaoHelper.findAll( getActivity() );
 			if( profiles.size() > 0 ) {
 				profile = profiles.get( 0 );
-				
-//				mLocationProfileDaoHelper.setConnectedLocationProfile( getActivity(), profile.getId() );
+
+				// mLocationProfileDaoHelper.setConnectedLocationProfile(
+				// getActivity(), profile.getId() );
 				isConnected = true;
-			}else{
+			} else {
 				isConnected = false;
 			}
-		}else{
+		} else {
 			isConnected = true;
 		}
-		
-		//get away/home toggle
-		ToggleButton toggleIsAway = (ToggleButton)this.getActivity().findViewById(R.id.toggleButtonIsAway); 
-		toggleIsAway.setOnCheckedChangeListener(this.homeAwayCheckedChanged);
-		
-		//set away/home toggle based on the connected location profile
-		if(null != profile && null != toggleIsAway){
-			toggleIsAway.setChecked(profile.getType() == LocationProfile.LocationType.AWAY);
+
+		// get away/home toggle
+		ToggleButton toggleIsAway = (ToggleButton) this.getActivity().findViewById( R.id.toggleButtonIsAway );
+		toggleIsAway.setOnCheckedChangeListener( this.homeAwayCheckedChanged );
+
+		// set away/home toggle based on the connected location profile
+		if( null != profile && null != toggleIsAway ) {
+			toggleIsAway.setChecked( profile.getType() == LocationProfile.LocationType.AWAY );
 		}
-		
-		//if frontend list is empty start a scan.
-		if (frontends.isEmpty()) {
+
+		// if frontend list is empty start a scan.
+		if( frontends.isEmpty() ) {
 			scanForFrontends();
 		}
-		
+
 		if( isConnected ) {
 
-			DateTime etag = mEtagDaoHelper.findDateByEndpointAndDataId( getActivity(), profile, ChannelEndpoint.GET_CHANNEL_INFO_LIST.name(), "" );
+			DateTime etag = mEtagDaoHelper.findDateByEndpointAndDataId( getActivity(), profile,
+					ChannelEndpoint.GET_CHANNEL_INFO_LIST.name(), "" );
 			if( null != etag ) {
-				
+
 				DateTime now = DateUtils.convertUtc( new DateTime( System.currentTimeMillis() ) );
 				if( now.getMillis() - etag.getMillis() > 86400000 ) {
-					if( !mRunningServiceHelper.isServiceRunning( getActivity(), "org.mythtv.service.channel.ChannelDownloadService" ) ) {
+					if( !mRunningServiceHelper.isServiceRunning( getActivity(),
+							"org.mythtv.service.channel.ChannelDownloadService" ) ) {
 						getActivity().startService( new Intent( ChannelDownloadService.ACTION_DOWNLOAD ) );
 					}
 				}
-				
+
 			} else {
-				if( !mRunningServiceHelper.isServiceRunning( getActivity(), "org.mythtv.service.channel.ChannelDownloadService" ) ) {
+				if( !mRunningServiceHelper.isServiceRunning( getActivity(),
+						"org.mythtv.service.channel.ChannelDownloadService" ) ) {
 					getActivity().startService( new Intent( ChannelDownloadService.ACTION_DOWNLOAD ) );
 				}
 			}
 
 		}
 	}
-	
+
 	@Override
-	public void onItemSelected(AdapterView<?> arg0, View arg1,
-			int arg2, long arg3) {
-		Log.d(TAG, "Frontend Spinner Item Selected");
-		
-		//leave if we don't have frontends, should never happen
-		if(MainMenuFragment.GetFrontends().size() <= 0){
-			Log.e(TAG, "Frontend selected but no frontends in ArrayList");
+	public void onItemSelected( AdapterView<?> arg0, View arg1, int arg2, long arg3 ) {
+		Log.d( TAG, "Frontend Spinner Item Selected" );
+
+		// leave if we don't have frontends, should never happen
+		if( MainMenuFragment.GetFrontends().size() <= 0 ) {
+			Log.e( TAG, "Frontend selected but no frontends in ArrayList" );
 			return;
 		}
-		
-		//set selected frontend
-		if(arg2 >= 0 && arg2 < MainMenuFragment.GetFrontends().size()){
-			selectedFrontend = MainMenuFragment.GetFrontends().get(arg2);
+
+		// set selected frontend
+		if( arg2 >= 0 && arg2 < MainMenuFragment.GetFrontends().size() ) {
+			selectedFrontend = MainMenuFragment.GetFrontends().get( arg2 );
 		}
 	}
 
 	@Override
-	public void onNothingSelected(AdapterView<?> arg0) {
-		Log.d(TAG, "Frontend Spinner Item Nothing Selected");
+	public void onNothingSelected( AdapterView<?> arg0 ) {
+		Log.d( TAG, "Frontend Spinner Item Nothing Selected" );
 	}
-	
-	
+
 	/**
 	 * 
 	 */
 	public void scanForFrontends() {
-		Log.v(TAG, "scanForFrontends : enter");
+		Log.v( TAG, "scanForFrontends : enter" );
 
 		new ScanFrontendsTask().execute();
 
-		Log.v(TAG, "scanForFrontends : exit");
+		Log.v( TAG, "scanForFrontends : exit" );
 	}
 
 	private class ScanFrontendsTask extends AsyncTask<Void, Void, Void> {
@@ -473,7 +497,7 @@ public class MainMenuFragment extends AbstractMythFragment implements ServiceLis
 			Log.v( TAG, "doInBackground : enter" );
 
 			try {
-				Log.v(TAG, "doInBackground : startProbe" );
+				Log.v( TAG, "doInBackground : startProbe" );
 
 				startProbe();
 			} catch( Exception e ) {
@@ -490,110 +514,103 @@ public class MainMenuFragment extends AbstractMythFragment implements ServiceLis
 		protected void onPostExecute( Void result ) {
 			Log.v( TAG, "onPostExecute : enter" );
 
-			if( null != e && null != getActivity()) {
+			if( null != e && null != getActivity() ) {
 				Log.e( TAG, "error getting programs", e );
-				
+
 				AlertDialog.Builder builder = new AlertDialog.Builder( getActivity() );
-				if (null != builder) {
-					builder.setTitle(getString(R.string.frontends_scan_error_title));
-					builder.setNeutralButton(R.string.btn_ok, new DialogInterface.OnClickListener() {
+				if( null != builder ) {
+					builder.setTitle( getString( R.string.frontends_scan_error_title ) );
+					builder.setNeutralButton( R.string.btn_ok, new DialogInterface.OnClickListener() {
 
-								public void onClick(DialogInterface dialog, int which) {
+						public void onClick( DialogInterface dialog, int which ) {
 
-								}
+						}
 
-							});
-					builder.setMessage(getString(R.string.frontends_scan_error_message));
+					} );
+					builder.setMessage( getString( R.string.frontends_scan_error_message ) );
 					builder.show();
 				}
 			}
 
-			Log.v(TAG, "onPostExecute : exit");
+			Log.v( TAG, "onPostExecute : exit" );
 		}
 	}
-	
+
 	/**
 	 * @throws IOException
 	 */
 	private void startProbe() throws IOException {
-		Log.v(TAG, "startProbe : enter");
+		Log.v( TAG, "startProbe : enter" );
 
-		if (zeroConf != null) {
+		if( zeroConf != null ) {
 			stopProbe();
 		}
 
 		// figure out our wifi address, otherwise bail
-		WifiManager wifi = (WifiManager) getActivity().getSystemService(
-				Context.WIFI_SERVICE);
+		WifiManager wifi = (WifiManager) getActivity().getSystemService( Context.WIFI_SERVICE );
 
 		WifiInfo wifiinfo = wifi.getConnectionInfo();
 		int intaddr = wifiinfo.getIpAddress();
 
-		byte[] byteaddr = new byte[] { 
-				(byte) (intaddr & 0xff),
-				(byte) (intaddr >> 8 & 0xff),
-				(byte) (intaddr >> 16 & 0xff),
-				(byte) (intaddr >> 24 & 0xff)};
-		InetAddress addr = InetAddress.getByAddress(byteaddr);
-		Log.d(TAG, "startProbe : wifi address=" + addr.toString());
+		byte[] byteaddr = new byte[] { (byte) ( intaddr & 0xff ), (byte) ( intaddr >> 8 & 0xff ),
+				(byte) ( intaddr >> 16 & 0xff ), (byte) ( intaddr >> 24 & 0xff ) };
+		InetAddress addr = InetAddress.getByAddress( byteaddr );
+		Log.d( TAG, "startProbe : wifi address=" + addr.toString() );
 
 		// start multicast lock
-		mLock = wifi.createMulticastLock("mythtv_lock");
-		mLock.setReferenceCounted(true);
+		mLock = wifi.createMulticastLock( "mythtv_lock" );
+		mLock.setReferenceCounted( true );
 		mLock.acquire();
 
-		zeroConf = JmDNS.create(addr, HOSTNAME);
-		zeroConf.addServiceListener(MYTHTV_FRONTEND_TYPE, this);
+		zeroConf = JmDNS.create( addr, HOSTNAME );
+		zeroConf.addServiceListener( MYTHTV_FRONTEND_TYPE, this );
 
-		Log.v(TAG, "startProbe : exit");
+		Log.v( TAG, "startProbe : exit" );
 	}
 
 	/**
 	 * @throws IOException
 	 */
 	private void stopProbe() throws IOException {
-		Log.v(TAG, "stopProbe : enter");
+		Log.v( TAG, "stopProbe : enter" );
 
-		zeroConf.removeServiceListener(MYTHTV_FRONTEND_TYPE, this);
+		zeroConf.removeServiceListener( MYTHTV_FRONTEND_TYPE, this );
 		zeroConf.close();
 		zeroConf = null;
 
 		mLock.release();
 		mLock = null;
 
-		Log.v(TAG, "stopProbe : exit");
+		Log.v( TAG, "stopProbe : exit" );
 	}
-	
-	
+
 	/**
-	 * Call this to tell the containing activity it's time to close the menu 
+	 * Call this to tell the containing activity it's time to close the menu
 	 * 
 	 * @param fragmentId
 	 * @param fragmentClassName
 	 */
-	private void requestContentFragment(int fragmentId, String fragmentClassName){
-		if( null != mContentFragmentRequestedListener)
-			mContentFragmentRequestedListener.OnFragmentRequested(fragmentId, fragmentClassName);
+	private void requestContentFragment( int fragmentId, String fragmentClassName ) {
+		if( null != mContentFragmentRequestedListener )
+			mContentFragmentRequestedListener.OnFragmentRequested( fragmentId, fragmentClassName );
 	}
-	
+
 	/**
 	 * 
 	 * @param fragment
 	 */
-	private void requestContentFragment(int fragmentId, Fragment fragment){
-		if( null != mContentFragmentRequestedListener)
-			mContentFragmentRequestedListener.OnFragmentRequested(fragmentId, fragment);
+	private void requestContentFragment( int fragmentId, Fragment fragment ) {
+		if( null != mContentFragmentRequestedListener )
+			mContentFragmentRequestedListener.OnFragmentRequested( fragmentId, fragment );
 	}
-	
+
 	/**
 	 * 
 	 * @param listener
 	 */
-	public void setContentFragmentRequestedListener(ContentFragmentRequestedListener listener){
+	public void setContentFragmentRequestedListener( ContentFragmentRequestedListener listener ) {
 		mContentFragmentRequestedListener = listener;
 	}
-
-
 
 	// ***************************************
 	// JMDNS ServiceListener methods
@@ -604,47 +621,38 @@ public class MainMenuFragment extends AbstractMythFragment implements ServiceLis
 	 * 
 	 * @see javax.jmdns.ServiceListener#serviceAdded(javax.jmdns.ServiceEvent)
 	 */
-	@SuppressWarnings("deprecation")
-	public void serviceAdded(ServiceEvent event) {
-		Log.v(TAG, "serviceAdded : enter");
+	@SuppressWarnings( "deprecation" )
+	public void serviceAdded( ServiceEvent event ) {
+		Log.v( TAG, "serviceAdded : enter" );
 
-		Log.v(TAG,
-				"serviceAdded : "
-						+ event.getDNS()
-								.getServiceInfo(event.getType(),
-										event.getName()).toString());
+		Log.v( TAG, "serviceAdded : " + event.getDNS().getServiceInfo( event.getType(), event.getName() ).toString() );
 
-		final String hostname = event.getDNS()
-				.getServiceInfo(event.getType(), event.getName())
-				.getInet4Address().getHostAddress();
-		final int port = event.getDNS()
-				.getServiceInfo(event.getType(), event.getName()).getPort();
-		Log.v(TAG, "serviceAdded : masterbackend="
-				+ ("http://" + hostname + ":" + port + "/"));
+		final String hostname = event.getDNS().getServiceInfo( event.getType(), event.getName() ).getInet4Address()
+				.getHostAddress();
+		final int port = event.getDNS().getServiceInfo( event.getType(), event.getName() ).getPort();
+		Log.v( TAG, "serviceAdded : masterbackend=" + ( "http://" + hostname + ":" + port + "/" ) );
 
 		// Dont' do both adds
-		final Frontend fe = new Frontend(event.getName(), "http://" + hostname + ":"
-				+ port + "/");
-		
-		
-		this.getActivity().runOnUiThread(new Runnable(){
+		final Frontend fe = new Frontend( event.getName(), "http://" + hostname + ":" + port + "/" );
+
+		this.getActivity().runOnUiThread( new Runnable() {
 
 			@Override
 			public void run() {
-				//frontends.add(fe);
-				adapter.add(fe);
-			}});
-		
-		Log.v(TAG, "serviceAdded : exit");
-	}
+				// frontends.add(fe);
+				adapter.add( fe );
+			}
+		} );
 
+		Log.v( TAG, "serviceAdded : exit" );
+	}
 
 	/*
 	 * (non-Javadoc)
 	 * 
 	 * @see javax.jmdns.ServiceListener#serviceRemoved(javax.jmdns.ServiceEvent)
 	 */
-	public void serviceRemoved(ServiceEvent event) {
+	public void serviceRemoved( ServiceEvent event ) {
 		// Log.v( TAG, "serviceRemoved : enter" );
 		//
 		// Log.v( TAG, "serviceRemoved : event=" + event.toString() );
@@ -658,7 +666,7 @@ public class MainMenuFragment extends AbstractMythFragment implements ServiceLis
 	 * @see
 	 * javax.jmdns.ServiceListener#serviceResolved(javax.jmdns.ServiceEvent)
 	 */
-	public void serviceResolved(ServiceEvent event) {
+	public void serviceResolved( ServiceEvent event ) {
 		// Log.v( TAG, "serviceResolved : enter" );
 		//
 		// Log.v( TAG, "serviceResolved : event=" + event.toString() );
@@ -666,8 +674,6 @@ public class MainMenuFragment extends AbstractMythFragment implements ServiceLis
 		// Log.v( TAG, "serviceResolved : exit" );
 	}
 
-	
-	
 	private class FrontendAdapter extends ArrayAdapter<Frontend> {
 
 		private final String TAG = FrontendAdapter.class.getSimpleName();
@@ -675,76 +681,71 @@ public class MainMenuFragment extends AbstractMythFragment implements ServiceLis
 		private int layoutResourceId;
 		private List<Frontend> frontends = null;
 
-		FrontendAdapter(Context context, int layoutResourceId,
-				List<Frontend> frontends) {
-			super(context, layoutResourceId, frontends);
-			Log.v(TAG, "initialize : enter");
+		FrontendAdapter( Context context, int layoutResourceId, List<Frontend> frontends ) {
+			super( context, layoutResourceId, frontends );
+			Log.v( TAG, "initialize : enter" );
 
 			this.layoutResourceId = layoutResourceId;
 			this.frontends = frontends;
 
-			Log.v(TAG, "initialize : exit");
+			Log.v( TAG, "initialize : exit" );
 		}
 
-//			 @Override
-//			 public int getCount() {
-//				 return frontends.size();
-//			 }
-//			
-//			 @Override
-//			 public Frontend getItem( int position ) {
-//				 return frontends.get( position );
-//			 }
-//			
-//			 @Override
-//			 public long getItemId( int position ) {
-//				 return position;
-//			 }
-		
+		// @Override
+		// public int getCount() {
+		// return frontends.size();
+		// }
+		//
+		// @Override
+		// public Frontend getItem( int position ) {
+		// return frontends.get( position );
+		// }
+		//
+		// @Override
+		// public long getItemId( int position ) {
+		// return position;
+		// }
+
 		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
-			return getFrontendView(position, convertView, parent);
+		public View getView( int position, View convertView, ViewGroup parent ) {
+			return getFrontendView( position, convertView, parent );
 		}
 
 		@Override
-		public View getDropDownView(int position, View convertView, ViewGroup parent) {
-			return getFrontendView(position, convertView, parent);
+		public View getDropDownView( int position, View convertView, ViewGroup parent ) {
+			return getFrontendView( position, convertView, parent );
 		}
-		
-		
-		
-		private View getFrontendView(int position, View convertView, ViewGroup parent){
-			Log.v(TAG, "getFrontendView : enter");
-			
+
+		private View getFrontendView( int position, View convertView, ViewGroup parent ) {
+			Log.v( TAG, "getFrontendView : enter" );
+
 			View row = convertView;
 			FrontendHolder holder = null;
 
-			if (row == null) {
-				Log.v(TAG, "getFrontendView : row is null");
+			if( row == null ) {
+				Log.v( TAG, "getFrontendView : row is null" );
 
 				LayoutInflater inflater = getActivity().getLayoutInflater();
 
-				row = inflater.inflate(layoutResourceId, parent, false);
+				row = inflater.inflate( layoutResourceId, parent, false );
 
 				holder = new FrontendHolder();
-				holder.name = (TextView) row.findViewById(R.id.frontend_name);
-				holder.url = (TextView) row.findViewById(R.id.frontend_url);
-				
-				row.setTag(holder);
+				holder.name = (TextView) row.findViewById( R.id.frontend_name );
+				holder.url = (TextView) row.findViewById( R.id.frontend_url );
+
+				row.setTag( holder );
 			} else {
 				holder = (FrontendHolder) row.getTag();
 			}
 
-			Frontend frontend = frontends.get(position);
+			Frontend frontend = frontends.get( position );
 
-			holder.name.setText(frontend.getName());
-			holder.url.setText(frontend.getUrl());
+			holder.name.setText( frontend.getName() );
+			holder.url.setText( frontend.getUrl() );
 
-			Log.v(TAG, "getFrontendView : exit");
+			Log.v( TAG, "getFrontendView : exit" );
 			return row;
 		}
-		
-		
 
 		class FrontendHolder {
 			TextView name;
@@ -752,53 +753,35 @@ public class MainMenuFragment extends AbstractMythFragment implements ServiceLis
 		}
 
 	}
-	
-	
-	
-	/**
-	 * When calling execute there must be 2 paramters. Frontend URL Message
-	 * 
-	 * @author pot8oe
-	 * 
-	 */
-	protected class SendMessageTask extends AsyncTask<String, Void, Void> {
 
-		@Override
-		protected Void doInBackground( String... params ) {
-
-			try {
-				mMythtvServiceHelper.getMythServicesApi( getActivity() ).frontendOperations().sendMessage( params[ 0 ], params[ 1 ] );
-			} catch( Exception e ) {
-				Log.e( TAG, e.getMessage() );
-				showAlertDialog( "Send Message Error", e.getMessage() );
-			}
-			return null;
-		}
-	}
-
-	
 	private class ChannelDownloadReceiver extends BroadcastReceiver {
 
 		@Override
 		public void onReceive( Context context, Intent intent ) {
-			
-	        if ( intent.getAction().equals( ChannelDownloadService.ACTION_PROGRESS ) ) {
-	        	Log.i( TAG, "ProgramGuideDownloadReceiver.onReceive : progress=" + intent.getStringExtra( ProgramGuideDownloadService.EXTRA_PROGRESS ) );
-	        }
-	        
-	        if ( intent.getAction().equals( ChannelDownloadService.ACTION_COMPLETE ) ) {
-	        	Log.i( TAG, "ProgramGuideDownloadReceiver.onReceive : " + intent.getStringExtra( ProgramGuideDownloadService.EXTRA_COMPLETE ) );
-	        	
-        		Toast.makeText( getActivity(), "Channels Updated!", Toast.LENGTH_SHORT ).show();
 
-//	        	if( !mRunningServiceHelper.isServiceRunning( "org.mythtv.service.guide.ProgramGuideDownloadService" ) ) {
-//	    			startService( new Intent( ProgramGuideDownloadService.ACTION_DOWNLOAD ) );
-//	    		}
+			if( intent.getAction().equals( ChannelDownloadService.ACTION_PROGRESS ) ) {
+				Log.i( TAG,
+						"ProgramGuideDownloadReceiver.onReceive : progress="
+								+ intent.getStringExtra( ProgramGuideDownloadService.EXTRA_PROGRESS ) );
+			}
 
-	        }
+			if( intent.getAction().equals( ChannelDownloadService.ACTION_COMPLETE ) ) {
+				Log.i( TAG,
+						"ProgramGuideDownloadReceiver.onReceive : "
+								+ intent.getStringExtra( ProgramGuideDownloadService.EXTRA_COMPLETE ) );
+
+				Toast.makeText( getActivity(), "Channels Updated!", Toast.LENGTH_SHORT ).show();
+
+				// if( !mRunningServiceHelper.isServiceRunning(
+				// "org.mythtv.service.guide.ProgramGuideDownloadService" ) ) {
+				// startService( new Intent(
+				// ProgramGuideDownloadService.ACTION_DOWNLOAD ) );
+				// }
+
+			}
 
 		}
-		
+
 	}
 
 }

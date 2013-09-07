@@ -33,7 +33,6 @@ import org.mythtv.db.frontends.FrontendDaoHelper;
 import org.mythtv.db.http.EtagDaoHelper;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.db.preferences.PlaybackProfileDaoHelper;
-import org.mythtv.service.util.MythtvServiceHelper;
 import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.service.util.RunningServiceHelper;
 
@@ -81,7 +80,6 @@ public class MainApplication extends Application {
 		//Initialize DAO Helpers
 		EtagDaoHelper.getInstance();
 		LocationProfileDaoHelper.getInstance();
-		MythtvServiceHelper.getInstance();
 		ChannelDaoHelper.getInstance();
 		FrontendDaoHelper.getInstance();
 		LiveStreamDaoHelper.getInstance();

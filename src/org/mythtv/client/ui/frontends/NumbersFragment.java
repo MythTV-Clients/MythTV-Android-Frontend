@@ -20,6 +20,8 @@ package org.mythtv.client.ui.frontends;
 
 import org.mythtv.R;
 import org.mythtv.client.ui.navigationDrawer.FrontendsRow;
+import org.mythtv.client.ui.preferences.LocationProfile;
+import org.mythtv.service.frontends.SendActionTask;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -28,94 +30,99 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
 
-public class NumbersFragment extends AbstractFrontendFragment implements OnClickListener  {
+public class NumbersFragment extends AbstractFrontendFragment implements OnClickListener {
 
+	private LocationProfile mLocationProfile;
+
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.Fragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle)
+	 */
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
+	public View onCreateView( LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState ) {
+
+		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
 		
-		//inflate fragment layout
-		View mView = inflater.inflate(R.layout.fragment_mythmote_numbers, container, false);
-		
-		//set onclick listener for each button
-		((Button)mView.findViewById(R.id.numbers_button0)).setOnClickListener(this);
-		((Button)mView.findViewById(R.id.numbers_button1)).setOnClickListener(this);
-		((Button)mView.findViewById(R.id.numbers_button2)).setOnClickListener(this);
-		((Button)mView.findViewById(R.id.numbers_button3)).setOnClickListener(this);
-		((Button)mView.findViewById(R.id.numbers_button4)).setOnClickListener(this);
-		((Button)mView.findViewById(R.id.numbers_button5)).setOnClickListener(this);
-		((Button)mView.findViewById(R.id.numbers_button6)).setOnClickListener(this);
-		((Button)mView.findViewById(R.id.numbers_button7)).setOnClickListener(this);
-		((Button)mView.findViewById(R.id.numbers_button8)).setOnClickListener(this);
-		((Button)mView.findViewById(R.id.numbers_button9)).setOnClickListener(this);
-		((Button)mView.findViewById(R.id.numbers_button_backspace)).setOnClickListener(this);
-		((Button)mView.findViewById(R.id.numbers_button_enter)).setOnClickListener(this);
-		
+		// inflate fragment layout
+		View mView = inflater.inflate( R.layout.fragment_mythmote_numbers, container, false );
+
+		// set onclick listener for each button
+		( (Button) mView.findViewById( R.id.numbers_button0 ) ).setOnClickListener( this );
+		( (Button) mView.findViewById( R.id.numbers_button1 ) ).setOnClickListener( this );
+		( (Button) mView.findViewById( R.id.numbers_button2 ) ).setOnClickListener( this );
+		( (Button) mView.findViewById( R.id.numbers_button3 ) ).setOnClickListener( this );
+		( (Button) mView.findViewById( R.id.numbers_button4 ) ).setOnClickListener( this );
+		( (Button) mView.findViewById( R.id.numbers_button5 ) ).setOnClickListener( this );
+		( (Button) mView.findViewById( R.id.numbers_button6 ) ).setOnClickListener( this );
+		( (Button) mView.findViewById( R.id.numbers_button7 ) ).setOnClickListener( this );
+		( (Button) mView.findViewById( R.id.numbers_button8 ) ).setOnClickListener( this );
+		( (Button) mView.findViewById( R.id.numbers_button9 ) ).setOnClickListener( this );
+		( (Button) mView.findViewById( R.id.numbers_button_backspace ) ).setOnClickListener( this );
+		( (Button) mView.findViewById( R.id.numbers_button_enter ) ).setOnClickListener( this );
+
 		return mView;
 	}
 
 	@Override
-	public void onClick(View v) {
-		
+	public void onClick( View v ) {
+
 		final Frontend fe = FrontendsRow.getSelectedFrontend();
+
+		// exit if we don't have a frontend
+		if( null == fe )
+			return;
+
+		SendActionTask sendActionTask = new SendActionTask( mLocationProfile );
 		
-		//exit if we don't have a frontend
-		if(null == fe) return;
-		
-		switch(v.getId()){
+		switch( v.getId() ) {
 		case R.id.numbers_button0:
-			new SendActionTask().execute(fe.getUrl(), "0");
+			sendActionTask.execute( fe.getUrl(), "0" );
 			break;
-			
+
 		case R.id.numbers_button1:
-			new SendActionTask().execute(fe.getUrl(), "1");
+			sendActionTask.execute( fe.getUrl(), "1" );
 			break;
-			
+
 		case R.id.numbers_button2:
-			new SendActionTask().execute(fe.getUrl(), "2");
+			sendActionTask.execute( fe.getUrl(), "2" );
 			break;
-			
+
 		case R.id.numbers_button3:
-			new SendActionTask().execute(fe.getUrl(), "3");
+			sendActionTask.execute( fe.getUrl(), "3" );
 			break;
-			
+
 		case R.id.numbers_button4:
-			new SendActionTask().execute(fe.getUrl(), "4");
+			sendActionTask.execute( fe.getUrl(), "4" );
 			break;
-			
+
 		case R.id.numbers_button5:
-			new SendActionTask().execute(fe.getUrl(), "5");
+			sendActionTask.execute( fe.getUrl(), "5" );
 			break;
-			
+
 		case R.id.numbers_button6:
-			new SendActionTask().execute(fe.getUrl(), "6");
+			sendActionTask.execute( fe.getUrl(), "6" );
 			break;
-			
+
 		case R.id.numbers_button7:
-			new SendActionTask().execute(fe.getUrl(), "7");
+			sendActionTask.execute( fe.getUrl(), "7" );
 			break;
-			
+
 		case R.id.numbers_button8:
-			new SendActionTask().execute(fe.getUrl(), "8");
+			sendActionTask.execute( fe.getUrl(), "8" );
 			break;
-			
+
 		case R.id.numbers_button9:
-			new SendActionTask().execute(fe.getUrl(), "9");
+			sendActionTask.execute( fe.getUrl(), "9" );
 			break;
-			
+
 		case R.id.numbers_button_backspace:
-			new SendActionTask().execute(fe.getUrl(), "BACKSPACE");
+			sendActionTask.execute( fe.getUrl(), "BACKSPACE" );
 			break;
-			
+
 		case R.id.numbers_button_enter:
-			new SendActionTask().execute(fe.getUrl(), "SELECT");
+			sendActionTask.execute( fe.getUrl(), "SELECT" );
 			break;
-		};
-		
+		}
+
 	}
-	
-	
-	
-	
-	
+
 }

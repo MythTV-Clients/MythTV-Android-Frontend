@@ -39,8 +39,7 @@ import android.util.Log;
  */
 public class AbstractFrontendFragment extends AbstractMythFragment {
 
-	private final static String TAG = "AbstractFrontendFragment";
-	private final static int STATUS_CHECK_INTERVAL_MS = 10000;
+	private final static String TAG = AbstractFrontendFragment.class.getSimpleName();
 
 	protected static GetStatusTask sGetStatusTask;
 	protected static Timer sStatusTimer;
@@ -119,53 +118,6 @@ public class AbstractFrontendFragment extends AbstractMythFragment {
 				
 			}
 			
-		}
-
-	}
-
-	/**
-	 * When calling execute there must be 2 paramters. Frontend URL Message
-	 * 
-	 * @author pot8oe
-	 * 
-	 */
-	protected class SendMessageTask extends AsyncTask<String, Void, Void> {
-
-		@Override
-		protected Void doInBackground( String... params ) {
-
-			try {
-				mMythtvServiceHelper.getMythServicesApi( mLocationProfile ).frontendOperations()
-						.sendMessage( params[ 0 ], params[ 1 ] );
-			} catch( Exception e ) {
-				Log.e( TAG, "Error sending message: " +e.getMessage() );
-				showAlertDialog( "Send Message Error", e.getMessage() );
-			}
-			return null;
-		}
-
-	}
-
-	/**
-	 * When calling execute there must be 2 paramters. Frontend URL Command
-	 * 
-	 * @author pot8oe
-	 * 
-	 */
-	protected class SendActionTask extends AsyncTask<String, Void, Void> {
-
-		@Override
-		protected Void doInBackground( String... params ) {
-
-			try {
-				mMythtvServiceHelper.getMythServicesApi( mLocationProfile ).frontendOperations()
-						.sendAction( params[ 0 ], params[ 1 ], null, 0, 0 );
-			} catch( Exception e ) {
-				Log.e( TAG, "Error sending action: " + e.getMessage() );
-				showAlertDialog( "Send Action Error", e.getMessage() );
-			}
-
-			return null;
 		}
 
 	}

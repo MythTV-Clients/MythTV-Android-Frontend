@@ -23,14 +23,10 @@ import java.util.List;
 import org.mythtv.R;
 import org.mythtv.client.ui.MainMenuFragment;
 import org.mythtv.client.ui.preferences.LocationProfile;
-import org.mythtv.db.http.model.EtagInfoDelegate;
 import org.mythtv.db.frontends.model.Action;
-import org.mythtv.db.frontends.model.FrontendActionList;
-import org.springframework.http.ResponseEntity;
+import org.mythtv.service.frontends.GetFrontendActionListTask;
 
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,9 +40,9 @@ import android.widget.TextView;
  * @author pot8oe
  * 
  */
-public class MythmoteActionListFragment extends AbstractFrontendFragment {
+public class MythmoteActionListFragment extends AbstractFrontendFragment implements GetFrontendActionListTask.TaskFinishedListener {
 
-	private final static String TAG = "MythmoteActionListFragment";
+	private final static String TAG = MythmoteActionListFragment.class.getSimpleName();
 
 	private ListView mListView;
 
@@ -69,7 +65,7 @@ public class MythmoteActionListFragment extends AbstractFrontendFragment {
 
 		// exit if we don't have a frontend
 		if( null != fe ) {
-			new GetActionListAsyncTask().execute( fe.getUrl() );
+			new GetFrontendActionListTask( mLocationProfile, this ).execute( fe.getUrl() );
 		}
 
 		return mView;
@@ -90,38 +86,6 @@ public class MythmoteActionListFragment extends AbstractFrontendFragment {
 	 * @author pot8oe
 	 * 
 	 */
-	private class GetActionListAsyncTask extends AsyncTask<String, Void, ResponseEntity<FrontendActionList>> {
-
-		@Override
-		protected ResponseEntity<FrontendActionList> doInBackground( String... params ) {
-			
-			try {
-				EtagInfoDelegate eTag = EtagInfoDelegate.createEmptyETag();
-				return mMythtvServiceHelper.getMythServicesApi( mLocationProfile ).frontendOperations()	.getActionList( params[ 0 ], eTag );
-			} catch( Exception e ) {
-				Log.e( TAG, e.getMessage() );
-			
-				showAlertDialog( "Get Status Error", e.getMessage() );
-			}
-			
-			return null;
-		}
-
-		@Override
-		protected void onPostExecute( ResponseEntity<FrontendActionList> result ) {
-			if( null != mListView && null != result ) {
-				setActionList( result.getBody().getActions() );
-			}
-			super.onPostExecute( result );
-		}
-
-	}
-
-	/**
-	 * 
-	 * @author pot8oe
-	 * 
-	 */
 	private class ActionListAdapter extends BaseAdapter {
 
 		private List<Action> mList;
@@ -130,16 +94,25 @@ public class MythmoteActionListFragment extends AbstractFrontendFragment {
 			mList = list;
 		}
 
+		/* (non-Javadoc)
+		 * @see android.widget.Adapter#getCount()
+		 */
 		@Override
 		public int getCount() {
 			return null != mList ? mList.size() : 0;
 		}
 
+		/* (non-Javadoc)
+		 * @see android.widget.Adapter#getItem(int)
+		 */
 		@Override
 		public Object getItem( int position ) {
 			return null != mList ? mList.get( position ) : null;
 		}
 
+		/* (non-Javadoc)
+		 * @see android.widget.Adapter#getItemId(int)
+		 */
 		@Override
 		public long getItemId( int position ) {
 			return position;
@@ -154,6 +127,26 @@ public class MythmoteActionListFragment extends AbstractFrontendFragment {
 			tView.setText( action.getKey() );
 
 			return tView;
+		}
+
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mythtv.service.frontends.GetFrontendActionListTask.TaskFinishedListener#onGetFrontendActionListTaskStarted()
+	 */
+	@Override
+	public void onGetFrontendActionListTaskStarted() {
+		
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mythtv.service.frontends.GetFrontendActionListTask.TaskFinishedListener#onGetFrontendActionListTaskFinished(java.util.List)
+	 */
+	@Override
+	public void onGetFrontendActionListTaskFinished( List<Action> result ) {
+
+		if( null != mListView && null != result ) {
+			setActionList( result );
 		}
 
 	}
