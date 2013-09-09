@@ -254,6 +254,9 @@ public class BackendStatusHelperV27 extends AbstractBaseHelper {
 										
 					encoderList.add( encoder );
 				}
+				
+				encoders.setEncoders( encoderList );
+				
 			}
 			
 			bs.setEncoders( encoders );

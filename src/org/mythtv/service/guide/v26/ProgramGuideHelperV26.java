@@ -218,12 +218,14 @@ public class ProgramGuideHelperV26 extends AbstractBaseHelper {
 				DateTime startTime = program.getStartTime();
 
 				ProgramHelperV26.getInstance().processProgram( context, locationProfile, ProgramConstants.CONTENT_URI_GUIDE, ProgramConstants.TABLE_NAME_GUIDE, ops, program, lastModified, startTime, count );
-
+				count++;
+				
 				if( count > BATCH_COUNT_LIMIT ) {
 //					Log.i( TAG, "load : applying batch for '" + count + "' transactions, processing programs" );
 
 					processBatch( context, ops, processed, count );
 
+					count = 0;
 				}
 
 			}

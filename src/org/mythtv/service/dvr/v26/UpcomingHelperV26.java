@@ -179,14 +179,18 @@ public class UpcomingHelperV26 extends AbstractBaseHelper {
 			
 			// load upcoming program
 			ProgramHelperV26.getInstance().processProgram( context, locationProfile, ProgramConstants.CONTENT_URI_UPCOMING, ProgramConstants.TABLE_NAME_UPCOMING, ops, program, lastModified, startTime, count );
+			count++;
+			
 			// update program guide
 			ProgramHelperV26.getInstance().processProgram( context, locationProfile, ProgramConstants.CONTENT_URI_GUIDE, ProgramConstants.TABLE_NAME_GUIDE, ops, program, lastModified, startTime, count );
-
+			count++;
+			
 			if( null != program.getChannelInfo() ) {
 
 				if( !channelsChecked.contains( program.getChannelInfo().getChannelId() ) ) {
 					
 					ChannelHelperV26.getInstance().processChannel( context, locationProfile, ops, program.getChannelInfo(), lastModified, count );
+					count++;
 					
 					channelsChecked.add( program.getChannelInfo().getChannelId() );
 			
@@ -200,9 +204,12 @@ public class UpcomingHelperV26 extends AbstractBaseHelper {
 				
 					// load upcoming recording
 					RecordingHelperV26.getInstance().processRecording( context, locationProfile, ops, RecordingConstants.ContentDetails.UPCOMING, program, lastModified, startTime, count );
+					count++;
+					
 					// update program guide recording
 					RecordingHelperV26.getInstance().processRecording( context, locationProfile, ops, RecordingConstants.ContentDetails.GUIDE, program, lastModified, startTime, count );
-
+					count++;
+					
 				}
 				
 			}
@@ -212,6 +219,7 @@ public class UpcomingHelperV26 extends AbstractBaseHelper {
 				
 				processBatch( context, ops, processed, count );
 
+				count = 0;
 			}
 			
 		}

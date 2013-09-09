@@ -255,18 +255,21 @@ public class ChannelHelperV27 extends AbstractBaseHelper {
 			if( channel.isVisible() ) {
 
 				processChannel( context, locationProfile, ops, channel, lastModified, count );
-
+				count++;
+				
 				if( count > BATCH_COUNT_LIMIT ) {
 //					Log.v( TAG, "process : batch update/insert" );
 
 					processBatch( context, ops, processed, count );
+					
+					count = 0;
 				}
 
 			}
 
-			processBatch( context, ops, processed, count );
-
 		}
+
+		processBatch( context, ops, processed, count );
 
 		// Done with the updates/inserts, remove any 'stale' channels
 //		Log.v( TAG, "load : deleting channels no longer present on mythtv backend" );

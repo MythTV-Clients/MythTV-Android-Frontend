@@ -244,12 +244,15 @@ public class RecordingRuleHelperV26 extends AbstractBaseHelper {
 		for( org.mythtv.services.api.v026.beans.RecRule recordingRule : recordingRules ) {
 
 			processRecordingRule( context, locationProfile, ops, recordingRule, lastModified, count );
-
+			count++;
+			
 			if( count > BATCH_COUNT_LIMIT ) {
 //				Log.i( TAG, "load : applying batch for '" + count + "' transactions, processing programs" );
 				
 				processBatch( context, ops, processed, count );
-
+				
+				count = 0;
+				
 			}
 			
 		}

@@ -212,12 +212,14 @@ public class RecordedHelperV26 extends AbstractBaseHelper {
 			DateTime startTime = program.getStartTime();
 			
 			ProgramHelperV26.getInstance().processProgram( context, locationProfile, ProgramConstants.CONTENT_URI_RECORDED, ProgramConstants.TABLE_NAME_RECORDED, ops, program, lastModified, startTime, count );
-
+			count++;
+			
 			if( null != program.getChannelInfo() ) {
 
 				if( !channelsChecked.contains( program.getChannelInfo().getChannelId() ) ) {
 					
 					ChannelHelperV26.getInstance().processChannel( context, locationProfile, ops, program.getChannelInfo(), lastModified, count );
+					count++;
 					
 					channelsChecked.add( program.getChannelInfo().getChannelId() );
 			
@@ -230,7 +232,8 @@ public class RecordedHelperV26 extends AbstractBaseHelper {
 				if( program.getRecording().getRecordId() > 0 ) {
 				
 					RecordingHelperV26.getInstance().processRecording( context, locationProfile, ops, RecordingConstants.ContentDetails.RECORDED, program, lastModified, startTime, count );
-
+					count++;
+					
 				}
 				
 			}
@@ -240,6 +243,8 @@ public class RecordedHelperV26 extends AbstractBaseHelper {
 				
 				processBatch( context, ops, processed, count );
 
+				count = 0;
+				
 			}
 			
 		}

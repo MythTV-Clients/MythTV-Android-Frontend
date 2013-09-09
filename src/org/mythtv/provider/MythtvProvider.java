@@ -877,21 +877,21 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				sb.append( " = ");
 				sb.append( ProgramConstants.TABLE_NAME_UPCOMING ).append( "." ).append( ProgramConstants.FIELD_MASTER_HOSTNAME );
 				sb.append( ")" );
-				sb.append( " LEFT OUTER JOIN " );
-				sb.append( RecordingConstants.ContentDetails.UPCOMING.getTableName() );
-				sb.append( " ON (" );
-				sb.append( RecordingConstants.ContentDetails.UPCOMING.getTableName() ).append( "." ).append( RecordingConstants.FIELD_START_TIME );
-				sb.append( " = ");
-				sb.append( ProgramConstants.TABLE_NAME_UPCOMING ).append( "." ).append( ProgramConstants.FIELD_START_TIME );
-				sb.append( " AND " );
-				sb.append( RecordingConstants.ContentDetails.UPCOMING.getTableName() ).append( "." ).append( RecordingConstants.FIELD_RECORD_ID );
-				sb.append( " = ");
-				sb.append( ProgramConstants.TABLE_NAME_UPCOMING ).append( "." ).append( ProgramConstants.FIELD_RECORD_ID );
-				sb.append( " AND " );
-				sb.append( RecordingConstants.ContentDetails.UPCOMING.getTableName() ).append( "." ).append( RecordingConstants.FIELD_MASTER_HOSTNAME );
-				sb.append( " = ");
-				sb.append( ProgramConstants.TABLE_NAME_UPCOMING ).append( "." ).append( ProgramConstants.FIELD_MASTER_HOSTNAME );
-				sb.append( ")" );
+//				sb.append( " LEFT OUTER JOIN " );
+//				sb.append( RecordingConstants.ContentDetails.UPCOMING.getTableName() );
+//				sb.append( " ON (" );
+//				sb.append( RecordingConstants.ContentDetails.UPCOMING.getTableName() ).append( "." ).append( RecordingConstants.FIELD_START_TIME );
+//				sb.append( " = ");
+//				sb.append( ProgramConstants.TABLE_NAME_UPCOMING ).append( "." ).append( ProgramConstants.FIELD_START_TIME );
+//				sb.append( " AND " );
+//				sb.append( RecordingConstants.ContentDetails.UPCOMING.getTableName() ).append( "." ).append( RecordingConstants.FIELD_RECORD_ID );
+//				sb.append( " = ");
+//				sb.append( ProgramConstants.TABLE_NAME_UPCOMING ).append( "." ).append( ProgramConstants.FIELD_RECORD_ID );
+//				sb.append( " AND " );
+//				sb.append( RecordingConstants.ContentDetails.UPCOMING.getTableName() ).append( "." ).append( RecordingConstants.FIELD_MASTER_HOSTNAME );
+//				sb.append( " = ");
+//				sb.append( ProgramConstants.TABLE_NAME_UPCOMING ).append( "." ).append( ProgramConstants.FIELD_MASTER_HOSTNAME );
+//				sb.append( ")" );
 				
 				queryBuilder.setTables( sb.toString() );
 				queryBuilder.setProjectionMap( mUpcomingColumnMap );
@@ -1996,7 +1996,7 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 			columnMap.put( qualifiedCol, qualifiedCol );
 		}
 		
-		columnMap = buildRecordingUpcomingColumnMap( columnMap );
+//		columnMap = buildRecordingUpcomingColumnMap( columnMap );
 		columnMap = buildProgramColumnMap( columnMap );
 		
 		return columnMap;
