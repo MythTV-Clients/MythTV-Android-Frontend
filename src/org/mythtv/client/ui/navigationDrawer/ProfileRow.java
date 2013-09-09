@@ -50,6 +50,7 @@ public class ProfileRow implements Row {
 		public void onCheckedChanged( CompoundButton buttonView, boolean isChecked ) {
 			Log.v( TAG, "onCheckedChanged : enter" );
 
+			Log.v( TAG, "onCheckedChanged : isChecked=" + isChecked );
 			if( !isChecked ) { //isChecked - false - home
 				Log.v( TAG, "onCheckedChanged : home selected" );
 
@@ -67,8 +68,10 @@ public class ProfileRow implements Row {
 					builder.show();
 
 				} else {
-					
-					new ConnectBackendTask( convertView ).execute( profile );
+					mLocationProfile = profile;
+					mLocationProfileDaoHelper.setConnectedLocationProfile( mContext, mLocationProfile.getId() );
+
+					new ConnectBackendTask( convertView ).execute( mLocationProfile );
 
 				}
 				
@@ -90,7 +93,10 @@ public class ProfileRow implements Row {
 
 				} else {
 
-					new ConnectBackendTask( convertView ).execute( profile );
+					mLocationProfile = profile;
+					mLocationProfileDaoHelper.setConnectedLocationProfile( mContext, mLocationProfile.getId() );
+
+					new ConnectBackendTask( convertView ).execute( mLocationProfile );
 				}
 				
 			}

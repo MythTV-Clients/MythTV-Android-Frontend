@@ -13,7 +13,6 @@ import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.AbstractBaseHelper;
 import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.db.http.model.EtagInfoDelegate;
-import org.mythtv.service.channel.v26.ChannelHelperV26;
 import org.mythtv.service.dvr.v26.ProgramHelperV26;
 import org.mythtv.service.util.DateUtils;
 import org.mythtv.services.api.ApiVersion;
@@ -213,17 +212,9 @@ public class ProgramGuideHelperV26 extends AbstractBaseHelper {
 		
 		for( ChannelInfo channel : programGuide.getChannels() ) {
 		
-			ChannelHelperV26 channelHelper = ChannelHelperV26.getInstance();
-			ChannelInfo channelInfo = channelHelper.findChannel( context, locationProfile, channel.getChannelId() );
-			if( null == channelInfo ) {
-				channelHelper.processChannel( context, locationProfile, ops, channelInfo, lastModified, count );
-				
-				channelInfo = channelHelper.findChannel( context, locationProfile, channel.getChannelId() );
-			}
-			
 			for( Program program : channel.getPrograms() ) {
-				program.setChannelInfo( channelInfo );
-				
+				program.setChannelInfo( channel );
+
 				DateTime startTime = program.getStartTime();
 
 				ProgramHelperV26.getInstance().processProgram( context, locationProfile, ProgramConstants.CONTENT_URI_GUIDE, ProgramConstants.TABLE_NAME_GUIDE, ops, program, lastModified, startTime, count );

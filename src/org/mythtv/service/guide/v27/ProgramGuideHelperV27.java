@@ -13,7 +13,6 @@ import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.AbstractBaseHelper;
 import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.db.http.model.EtagInfoDelegate;
-import org.mythtv.service.channel.v27.ChannelHelperV27;
 import org.mythtv.service.dvr.v27.ProgramHelperV27;
 import org.mythtv.service.util.DateUtils;
 import org.mythtv.services.api.ApiVersion;
@@ -211,50 +210,26 @@ public class ProgramGuideHelperV27 extends AbstractBaseHelper {
 		
 		for( ChannelInfo channel : programGuide.getChannels() ) {
 		
-			if( null != channel.getChanId() ) {
-			
-				ChannelHelperV27 channelHelper = ChannelHelperV27.getInstance();
-				ChannelInfo channelInfo = channelHelper.findChannel( context, locationProfile, channel.getChanId() );
-				if( null == channelInfo ) {
-					channelHelper.processChannel( context, locationProfile, ops, channelInfo, lastModified, count );
-					count++;
+			for( Program program : channel.getPrograms() ) {
+				Log.i( TAG, "load : count=" + count );
 
-					channelInfo = channelHelper.findChannel( context, locationProfile, channel.getChanId() );
+				program.setChannel( channel );
 
-					if( count > BATCH_COUNT_LIMIT ) {
-//						Log.i( TAG, "load : applying batch for '" + count + "' transactions, processing programs" );
+				DateTime startTime = program.getStartTime();
 
-						processBatch( context, ops, processed, count );
+				ProgramHelperV27.getInstance().processProgram( context, locationProfile, ProgramConstants.CONTENT_URI_GUIDE, ProgramConstants.TABLE_NAME_GUIDE, ops, program, lastModified, startTime, count );
+				count++;
 
-						count = 0;
-					}
-
-				}
-
-				for( Program program : channel.getPrograms() ) {
-					Log.i( TAG, "load : count=" + count );
-					
-					program.setChannel( channelInfo );
-
-					DateTime startTime = program.getStartTime();
-
-					ProgramHelperV27.getInstance().processProgram( context, locationProfile, ProgramConstants.CONTENT_URI_GUIDE, ProgramConstants.TABLE_NAME_GUIDE, ops, program, lastModified, startTime, count );
-					count++;
-					
-					if( count > BATCH_COUNT_LIMIT ) {
+				if( count > BATCH_COUNT_LIMIT ) {
 //					Log.i( TAG, "load : applying batch for '" + count + "' transactions, processing programs" );
 
-						processBatch( context, ops, processed, count );
+					processBatch( context, ops, processed, count );
 
-						count = 0;
-					}
-
+					count = 0;
 				}
 
-			} else {
-				Log.i( TAG, "load : bad channel=" + channel.toString() );
 			}
-			
+
 		}
 		
 		processBatch( context, ops, processed, count );

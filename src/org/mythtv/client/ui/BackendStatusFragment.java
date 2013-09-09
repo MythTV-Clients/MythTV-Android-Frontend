@@ -393,12 +393,14 @@ public class BackendStatusFragment extends AbstractMythFragment {
 		Log.v( TAG, "getStatusText : enter" );
 
 		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
-
+		
 		if( null == mLocationProfile ) {
 			Log.v( TAG, "getStatusText : exit, no connected profiles found" );
 
 			return "The selected Backend profile's host isn't responding";
 		}
+
+		Log.v( TAG, "getStatusText : mLocationProfile=" + mLocationProfile.toString() );
 
 		checkBackendStatusService();
 

@@ -7,10 +7,10 @@ import java.util.ArrayList;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.joda.time.LocalTime;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.AbstractBaseHelper;
 import org.mythtv.db.dvr.DvrEndpoint;
-import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.db.dvr.RecordingRuleConstants;
 import org.mythtv.db.dvr.model.RecRule;
 import org.mythtv.db.http.model.EtagInfoDelegate;
@@ -189,7 +189,7 @@ public class RecordingRuleHelperV27 extends AbstractBaseHelper {
 		EtagInfoDelegate etag = mEtagDaoHelper.findByEndpointAndDataId( context, locationProfile, "GetRecordScheduleList", "" );
 		Log.d( TAG, "downloadRecordinRules : etag=" + etag.getValue() );
 		
-		ResponseEntity<org.mythtv.services.api.v027.beans.RecRuleList> responseEntity = mMythServicesTemplate.dvrOperations().getRecordScheduleList( -1, -1, etag );
+		ResponseEntity<org.mythtv.services.api.v027.beans.RecRuleList> responseEntity = mMythServicesTemplate.dvrOperations().getRecordScheduleList( null, null, etag );
 
 		DateTime date = new DateTime( DateTimeZone.UTC );
 		if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
@@ -307,7 +307,7 @@ public class RecordingRuleHelperV27 extends AbstractBaseHelper {
 		String deletedSelection = RecordingRuleConstants.TABLE_NAME + "." + RecordingRuleConstants.FIELD_LAST_MODIFIED_DATE + " < ?";
 		String[] deletedSelectionArgs = new String[] { String.valueOf( lastModified.getMillis() ) };
 			
-		deletedSelection = appendLocationHostname( context, locationProfile, deletedSelection, ProgramConstants.TABLE_NAME_RECORDED );
+		deletedSelection = appendLocationHostname( context, locationProfile, deletedSelection, RecordingRuleConstants.TABLE_NAME );
 			
 //		Log.v( TAG, "load : deleting recRules" );
 		ops.add(  
@@ -447,9 +447,9 @@ public class RecordingRuleHelperV27 extends AbstractBaseHelper {
 			endTimestamp = recRule.getEndTime();
 		}
 
-		DateTime findTime = new DateTime( DateTimeZone.UTC );
+		LocalTime findTime = new LocalTime( DateTimeZone.UTC );
 		if( null != recRule.getFindTime() ) {
-			findTime = new DateTime( recRule.getFindTime() );
+			findTime = recRule.getFindTime();
 		}
 
 //		Log.v( TAG, "convertRecRuleToContentValues : recRule=" + recRule.toString() );
@@ -471,7 +471,7 @@ public class RecordingRuleHelperV27 extends AbstractBaseHelper {
 		values.put( RecordingRuleConstants.FIELD_CHAN_ID, recRule.getChanId() );
 		values.put( RecordingRuleConstants.FIELD_CALLSIGN, recRule.getCallSign() );
 		values.put( RecordingRuleConstants.FIELD_FIND_DAY, recRule.getFindDay() );
-		values.put( RecordingRuleConstants.FIELD_FIND_TIME, findTime.getMillis() );
+		values.put( RecordingRuleConstants.FIELD_FIND_TIME, findTime.getMillisOfDay() );
 		values.put( RecordingRuleConstants.FIELD_FIND_ID, -1 );
 		values.put( RecordingRuleConstants.FIELD_TYPE, recRule.getType() );
 		values.put( RecordingRuleConstants.FIELD_SEARCH_TYPE, recRule.getSearchType() );

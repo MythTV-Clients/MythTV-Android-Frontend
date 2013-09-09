@@ -236,7 +236,7 @@ public class ProgramHelperV27 extends AbstractBaseHelper {
 		values.put( ProgramConstants.FIELD_SEASON, null != program.getSeason() ? program.getSeason() : -1 );
 		values.put( ProgramConstants.FIELD_EPISODE, null != program.getEpisode() ? program.getEpisode() : -1 );
 		values.put( ProgramConstants.FIELD_CHANNEL_ID, null != program.getChannel() ? program.getChannel().getChanId() : -1 );
-		values.put( ProgramConstants.FIELD_RECORD_ID, null != program.getRecording() ? program.getRecording().getRecordId() : -1 );
+		values.put( ProgramConstants.FIELD_RECORD_ID, null != program.getRecording() && null != program.getRecording().getRecordId() ? program.getRecording().getRecordId() : -1 );
 		values.put( ProgramConstants.FIELD_IN_ERROR, inError ? 1 : 0 );
 		values.put( ProgramConstants.FIELD_MASTER_HOSTNAME, locationProfile.getHostname() );
 		values.put( ProgramConstants.FIELD_LAST_MODIFIED_DATE, lastModified.getMillis() );

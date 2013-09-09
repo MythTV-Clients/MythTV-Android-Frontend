@@ -354,6 +354,8 @@ public class MythtvPreferenceActivity extends PreferenceActivity {
 		protected static void saveSelectedLocationProfile( final Context context, final long id, final LocationType type ) {
 			Log.v( TAG, "saveSelectedLocationProfile : enter" );
 
+			mLocationProfileDaoHelper.resetConnectedProfiles( context );
+			
 			switch( type ) {
 			case HOME :
 				Log.v( TAG, "saveSelectedLocationProfile : setting home selected location profile" );
@@ -366,6 +368,8 @@ public class MythtvPreferenceActivity extends PreferenceActivity {
 				mLocationProfileDaoHelper.setSelectedLocationProfile( context, (long) id );
 				break;
 			} 
+			
+			mLocationProfileDaoHelper.setConnectedLocationProfile( context, (long) id );
 			
 			Log.v( TAG, "saveSelectedLocationProfile : exit" );
 		}

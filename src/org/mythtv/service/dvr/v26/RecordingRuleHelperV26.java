@@ -11,7 +11,6 @@ import org.joda.time.DateTimeZone;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.AbstractBaseHelper;
 import org.mythtv.db.dvr.DvrEndpoint;
-import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.db.dvr.RecordingRuleConstants;
 import org.mythtv.db.dvr.model.RecRule;
 import org.mythtv.db.http.model.EtagInfoDelegate;
@@ -306,7 +305,7 @@ public class RecordingRuleHelperV26 extends AbstractBaseHelper {
 		String deletedSelection = RecordingRuleConstants.TABLE_NAME + "." + RecordingRuleConstants.FIELD_LAST_MODIFIED_DATE + " < ?";
 		String[] deletedSelectionArgs = new String[] { String.valueOf( lastModified.getMillis() ) };
 			
-		deletedSelection = appendLocationHostname( context, locationProfile, deletedSelection, ProgramConstants.TABLE_NAME_RECORDED );
+		deletedSelection = appendLocationHostname( context, locationProfile, deletedSelection, RecordingRuleConstants.TABLE_NAME );
 			
 //		Log.v( TAG, "load : deleting recRules" );
 		ops.add(  

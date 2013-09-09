@@ -29,7 +29,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
-//import android.util.Log;
+import android.util.Log;
 
 /**
  * @author Daniel Frey
@@ -37,7 +37,7 @@ import android.net.Uri;
  */
 public class LocationProfileDaoHelper {
 
-//	private static final String TAG = LocationProfileDaoHelper.class.getSimpleName();
+	private static final String TAG = LocationProfileDaoHelper.class.getSimpleName();
 	
 	private static LocationProfileDaoHelper singleton = null;
 	
@@ -544,10 +544,10 @@ public class LocationProfileDaoHelper {
 		
 		ContentValues values = new ContentValues();
 		values.put( LocationProfileConstants.FIELD_CONNECTED, 0 );
-//		int updated = context.getContentResolver().update( LocationProfileConstants.CONTENT_URI, values, null, null );
-//		if( updated > 0 ) {
-//			Log.v( TAG, "resetConnectedProfiles : reset all connected location profiles" );
-//		}
+		int updated = context.getContentResolver().update( LocationProfileConstants.CONTENT_URI, values, null, null );
+		if( updated > 0 ) {
+			Log.v( TAG, "resetConnectedProfiles : reset all connected location profiles" );
+		}
 
 //		Log.d( TAG, "resetConnectedProfiles : exit" );
 		return ret;
