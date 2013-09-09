@@ -25,18 +25,13 @@ import org.mythtv.db.dvr.UpcomingDaoHelper;
 import org.mythtv.db.http.EtagDaoHelper;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.db.status.model.BackendStatus;
-import org.mythtv.service.status.BackendStatusService;
 import org.mythtv.service.util.RunningServiceHelper;
 
 import android.app.AlertDialog;
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 //import android.widget.Toast;
 
 /**
@@ -53,8 +48,6 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
 	protected LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
 	protected ProgramGuideDaoHelper mProgramGuideDaoHelper = ProgramGuideDaoHelper.getInstance();
 	protected UpcomingDaoHelper mUpcomingDaoHelper = UpcomingDaoHelper.getInstance();
-	
-	private BackendStatusReceiver backendStatusReceiver = new BackendStatusReceiver();
 	
 	protected BackendStatus mStatus;
 	
@@ -82,40 +75,6 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
 
 	}
 
-	/* (non-Javadoc)
-	 * @see android.support.v4.app.Fragment#onStop()
-	 */
-	@Override
-	public void onStop() {
-		Log.v( TAG, "onStop : enter" );
-		super.onStop();
-
-		// Unregister for broadcast
-		if( null != backendStatusReceiver ) {
-			try {
-				getActivity().unregisterReceiver( backendStatusReceiver );
-			} catch( IllegalArgumentException e ) {
-				Log.e( TAG, "onStop : error", e );
-			}
-		}
-
-	}
-
-	/* (non-Javadoc)
-	 * @see android.support.v4.app.Fragment#onStart()
-	 */
-	@Override
-	public void onStart() {
-		Log.v( TAG, "onStart : enter" );
-		super.onStart();
-
-		IntentFilter backendStatusFilter = new IntentFilter();
-		backendStatusFilter.addAction( BackendStatusService.ACTION_COMPLETE );
-	    getActivity().registerReceiver( backendStatusReceiver, backendStatusFilter );
-
-	    Log.v( TAG, "onStart : exit" );
-	}
-
 	protected void showAlertDialog( final CharSequence title, final CharSequence message ) {
 	
     	this.getActivity().runOnUiThread( new Runnable() {
@@ -134,52 +93,4 @@ public abstract class AbstractMythFragment extends Fragment implements MythtvApp
     	});
     }
 	
-    /*
-     *  (non-Javadoc)
-     *  
-     *  Called at the end of BackendStatusTask.onPostExecute() when result is not null.
-     */
-    protected void onBackendStatusUpdated( BackendStatus result ) { }
-
-    protected void checkBackendStatusService() {
-
-    	startBackendStatusService();
-
-    }
-    
-    private void startBackendStatusService() {
-    	
-		if( !mRunningServiceHelper.isServiceRunning( getActivity(), "org.mythtv.service.status.BackendStatusService" ) ) {
-			getActivity().startService( new Intent( BackendStatusService.ACTION_DOWNLOAD ) );
-		}
-
-    }
-    
-	private class BackendStatusReceiver extends BroadcastReceiver {
-
-		/* (non-Javadoc)
-		 * @see android.content.BroadcastReceiver#onReceive(android.content.Context, android.content.Intent)
-		 */
-		@Override
-		public void onReceive( Context context, Intent intent ) {
-			
-	        if ( intent.getAction().equals( BackendStatusService.ACTION_COMPLETE ) ) {
-	        	Log.i( TAG, "BackendStatusReceiver.onReceive : " + intent.getStringExtra( BackendStatusService.EXTRA_COMPLETE ) );
-
-	        	if( !intent.getBooleanExtra( BackendStatusService.EXTRA_COMPLETE_OFFLINE, false ) ) {
-	        		
-	        		if( null != intent.getSerializableExtra( BackendStatusService.EXTRA_COMPLETE_DATA ) ) {
-	        			mStatus = (BackendStatus) intent.getSerializableExtra( BackendStatusService.EXTRA_COMPLETE_DATA );
-	        		
-	        			onBackendStatusUpdated( mStatus );
-	        		}
-	        		
-	        	}
-	        	
-	        }
-
-		}
-		
-	}
-
 }

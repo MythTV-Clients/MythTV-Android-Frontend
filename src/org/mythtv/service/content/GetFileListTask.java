@@ -76,18 +76,18 @@ public class GetFileListTask extends AsyncTask<String, Void, List<String>> {
 		switch( apiVersion ) {
 			case v026 :
 				
-				files = FileListHelperV26.process( mLocationProfile, storageGroupName );
+				files = FileListHelperV26.getInstance().process( mLocationProfile, storageGroupName );
 				
 				break;
 			case v027 :
 
-				files = FileListHelperV27.process( mLocationProfile, storageGroupName );
+				files = FileListHelperV27.getInstance().process( mLocationProfile, storageGroupName );
 				
 				break;
 				
 			default :
 				
-				files = FileListHelperV26.process( mLocationProfile, storageGroupName );
+				files = FileListHelperV26.getInstance().process( mLocationProfile, storageGroupName );
 
 				break;
 		}

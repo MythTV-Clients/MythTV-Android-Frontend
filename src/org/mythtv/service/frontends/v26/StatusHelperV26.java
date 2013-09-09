@@ -35,7 +35,35 @@ public class StatusHelperV26 extends AbstractBaseHelper {
 	
 	private static MythServicesTemplate mMythServicesTemplate;
 
-	public static Status process( final LocationProfile locationProfile, final String url ) {
+	private static StatusHelperV26 singleton;
+	
+	/**
+	 * Returns the one and only StatusHelperV26. init() must be called before 
+	 * any 
+	 * @return
+	 */
+	public static StatusHelperV26 getInstance() {
+		if( null == singleton ) {
+			
+			synchronized( StatusHelperV26.class ) {
+
+				if( null == singleton ) {
+					singleton = new StatusHelperV26();
+				}
+			
+			}
+			
+		}
+		
+		return singleton;
+	}
+	
+	/**
+	 * Constructor. No one but getInstance() can do this.
+	 */
+	private StatusHelperV26() { }
+
+	public Status process( final LocationProfile locationProfile, final String url ) {
 		Log.v( TAG, "process : enter" );
 		
 		if( !MythAccessFactory.isServerReachable( locationProfile.getUrl() ) ) {
@@ -64,7 +92,7 @@ public class StatusHelperV26 extends AbstractBaseHelper {
 
 	// internal helpers
 	
-	private static Status downloadStatus( final LocationProfile locationProfile, final String url ) throws RemoteException, OperationApplicationException {
+	private Status downloadStatus( final LocationProfile locationProfile, final String url ) throws RemoteException, OperationApplicationException {
 		Log.v( TAG, "downloadHosts : enter" );
 	
 		Status status = null;
@@ -85,7 +113,7 @@ public class StatusHelperV26 extends AbstractBaseHelper {
 		return status;
 	}
 	
-	private static Status load( org.mythtv.services.api.v026.beans.Status versionStatus ) {
+	private Status load( org.mythtv.services.api.v026.beans.Status versionStatus ) {
 		Log.v( TAG, "load : enter" );
 		
 		Status status = new Status();

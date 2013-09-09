@@ -41,12 +41,40 @@ public class ProgramGuideHelperV27 extends AbstractBaseHelper {
 
 	private static final String TAG = ProgramGuideHelperV27.class.getSimpleName();
 	
-	private static final ApiVersion mApiVersion = ApiVersion.v026;
+	private static final ApiVersion mApiVersion = ApiVersion.v027;
 	
 	private static MainApplication mMainApplication;
 	private static MythServicesTemplate mMythServicesTemplate;
 	
-	public static boolean process( final Context context, final LocationProfile locationProfile ) {
+	private static ProgramGuideHelperV27 singleton;
+	
+	/**
+	 * Returns the one and only ProgramGuideHelperV27. init() must be called before 
+	 * any 
+	 * @return
+	 */
+	public static ProgramGuideHelperV27 getInstance() {
+		if( null == singleton ) {
+			
+			synchronized( ProgramGuideHelperV27.class ) {
+
+				if( null == singleton ) {
+					singleton = new ProgramGuideHelperV27();
+				}
+			
+			}
+			
+		}
+		
+		return singleton;
+	}
+	
+	/**
+	 * Constructor. No one but getInstance() can do this.
+	 */
+	private ProgramGuideHelperV27() { }
+
+	public boolean process( final Context context, final LocationProfile locationProfile ) {
 		Log.v( TAG, "process : enter" );
 		
 		if( !MythAccessFactory.isServerReachable( locationProfile.getUrl() ) ) {
@@ -77,7 +105,7 @@ public class ProgramGuideHelperV27 extends AbstractBaseHelper {
 	public static Program findProgram( final Context context, final LocationProfile locationProfile, Integer channelId, DateTime startTime ) {
 		Log.v( TAG, "findProgram : enter" );
 		
-		Program program = ProgramHelperV27.findProgram( context, locationProfile, ProgramConstants.CONTENT_URI_GUIDE, ProgramConstants.TABLE_NAME_GUIDE, channelId, startTime );
+		Program program = ProgramHelperV27.getInstance().findProgram( context, locationProfile, ProgramConstants.CONTENT_URI_GUIDE, ProgramConstants.TABLE_NAME_GUIDE, channelId, startTime );
 		
 		Log.v( TAG, "findProgram : enter" );
 		return program;
@@ -86,7 +114,7 @@ public class ProgramGuideHelperV27 extends AbstractBaseHelper {
 	public static boolean deleteProgram( final Context context, final LocationProfile locationProfile, Integer channelId, DateTime startTime, Integer recordId ) {
 		Log.v( TAG, "deleteProgram : enter" );
 		
-		boolean removed = ProgramHelperV27.deleteProgram( context, locationProfile, ProgramConstants.CONTENT_URI_GUIDE, ProgramConstants.TABLE_NAME_GUIDE, channelId, startTime, recordId );
+		boolean removed = ProgramHelperV27.getInstance().deleteProgram( context, locationProfile, ProgramConstants.CONTENT_URI_GUIDE, ProgramConstants.TABLE_NAME_GUIDE, channelId, startTime, recordId );
 		
 		Log.v( TAG, "deleteProgram : enter" );
 		return removed;
@@ -101,23 +129,23 @@ public class ProgramGuideHelperV27 extends AbstractBaseHelper {
 		
 		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences( context );
 		int downloadDays = Integer.parseInt( sp.getString( "preference_program_guide_days", "14" ) );
-		Log.v( TAG, "download : downloadDays=" + downloadDays );
+		Log.v( TAG, "downloadProgramGuide : downloadDays=" + downloadDays );
 		
 		DateTime start = new DateTime( DateTimeZone.getDefault() ).withTimeAtStartOfDay();
 		DateTime end = start.plusHours( 3 );
 		for( int i = 0; i < ( ( downloadDays * 24 ) / 3 ); i++ ) {
-			Log.i( TAG, "download : starting download for [" + i + " of " + ( ( downloadDays * 24 ) / 3 ) + "] " + DateUtils.getDateTimeUsingLocaleFormattingPretty( start, mMainApplication.getDateFormat(), mMainApplication.getClockType() ) + ", end time=" + DateUtils.getDateTimeUsingLocaleFormattingPretty( end, mMainApplication.getDateFormat(), mMainApplication.getClockType() ) );
+			Log.i( TAG, "downloadProgramGuide : starting download for [" + i + " of " + ( ( downloadDays * 24 ) / 3 ) + "] " + DateUtils.getDateTimeUsingLocaleFormattingPretty( start, mMainApplication.getDateFormat(), mMainApplication.getClockType() ) + ", end time=" + DateUtils.getDateTimeUsingLocaleFormattingPretty( end, mMainApplication.getDateFormat(), mMainApplication.getClockType() ) );
 
 			EtagInfoDelegate etag = mEtagDaoHelper.findByEndpointAndDataId( context, locationProfile, "GetProgramGuide", String.valueOf( i ) );
-			Log.v( TAG, "download : etag=" + etag.toString() );
+			Log.d( TAG, "downloadProgramGuide : etag=" + etag.getValue() );
 			
 			if( null == etag.getDate() || start.isAfter( etag.getDate() ) ) {
-				Log.v( TAG, "download : next mythfilldatabase has passed" );
+				Log.v( TAG, "downloadProgramGuide : next mythfilldatabase has passed" );
 				
 				ResponseEntity<ProgramGuide> responseEntity = mMythServicesTemplate.guideOperations().getProgramGuide( start, end, 1, -1, false, etag );
 
 				if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
-					Log.i( TAG, "download : GetProgramGuide returned 200 OK" );
+					Log.i( TAG, "downloadProgramGuide : GetProgramGuide returned 200 OK" );
 					ProgramGuide programGuide = responseEntity.getBody();
 
 					if( null != programGuide ) {
@@ -129,7 +157,7 @@ public class ProgramGuideHelperV27 extends AbstractBaseHelper {
 					}
 
 					if( null != etag.getValue() ) {
-						Log.i( TAG, "download : saving etag: " + etag.getValue() );
+						Log.i( TAG, "downloadProgramGuide : saving etag: " + etag.getValue() );
 
 						etag.setEndpoint( "GetProgramGuide" );
 						etag.setDataId( i );
@@ -183,34 +211,56 @@ public class ProgramGuideHelperV27 extends AbstractBaseHelper {
 		
 		for( ChannelInfo channel : programGuide.getChannels() ) {
 		
-			ChannelInfo channelInfo = ChannelHelperV27.findChannel( context, locationProfile, channel.getChanId() );
-			if( null == channelInfo ) {
-				ChannelHelperV27.processChannel( context, locationProfile, ops, channelInfo, lastModified, count );
-				
-				channelInfo = ChannelHelperV27.findChannel( context, locationProfile, channel.getChanId() );
-			}
+			if( null != channel.getChanId() ) {
 			
-			for( Program program : channel.getPrograms() ) {
-				
-				DateTime startTime = program.getStartTime();
+				ChannelHelperV27 channelHelper = ChannelHelperV27.getInstance();
+				ChannelInfo channelInfo = channelHelper.findChannel( context, locationProfile, channel.getChanId() );
+				if( null == channelInfo ) {
+					channelHelper.processChannel( context, locationProfile, ops, channelInfo, lastModified, count );
+					count++;
 
-				ProgramHelperV27.processProgram( context, locationProfile, ProgramConstants.CONTENT_URI_GUIDE, ProgramConstants.TABLE_NAME_GUIDE, ops, program, lastModified, startTime, count );
+					channelInfo = channelHelper.findChannel( context, locationProfile, channel.getChanId() );
 
-				if( count > BATCH_COUNT_LIMIT ) {
-//					Log.i( TAG, "load : applying batch for '" + count + "' transactions, processing programs" );
+					if( count > BATCH_COUNT_LIMIT ) {
+//						Log.i( TAG, "load : applying batch for '" + count + "' transactions, processing programs" );
 
-					processBatch( context, ops, processed, count );
+						processBatch( context, ops, processed, count );
+
+						count = 0;
+					}
 
 				}
 
-			}
+				for( Program program : channel.getPrograms() ) {
+					Log.i( TAG, "load : count=" + count );
+					
+					program.setChannel( channelInfo );
 
+					DateTime startTime = program.getStartTime();
+
+					ProgramHelperV27.getInstance().processProgram( context, locationProfile, ProgramConstants.CONTENT_URI_GUIDE, ProgramConstants.TABLE_NAME_GUIDE, ops, program, lastModified, startTime, count );
+					count++;
+					
+					if( count > BATCH_COUNT_LIMIT ) {
+//					Log.i( TAG, "load : applying batch for '" + count + "' transactions, processing programs" );
+
+						processBatch( context, ops, processed, count );
+
+						count = 0;
+					}
+
+				}
+
+			} else {
+				Log.i( TAG, "load : bad channel=" + channel.toString() );
+			}
+			
 		}
 		
 		processBatch( context, ops, processed, count );
 
 //		Log.v( TAG, "load : DELETE PROGRAMS" );
-		ProgramHelperV27.deletePrograms( context, locationProfile, ops, ProgramConstants.CONTENT_URI_GUIDE, ProgramConstants.TABLE_NAME_GUIDE, today );
+		ProgramHelperV27.getInstance().deletePrograms( context, locationProfile, ops, ProgramConstants.CONTENT_URI_GUIDE, ProgramConstants.TABLE_NAME_GUIDE, today );
 
 		processBatch( context, ops, processed, count );
 

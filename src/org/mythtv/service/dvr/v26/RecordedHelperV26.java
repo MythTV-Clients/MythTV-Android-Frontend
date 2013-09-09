@@ -53,7 +53,35 @@ public class RecordedHelperV26 extends AbstractBaseHelper {
 	
 	private static MythServicesTemplate mMythServicesTemplate;
 
-	public static boolean process( final Context context, final LocationProfile locationProfile ) {
+	private static RecordedHelperV26 singleton;
+	
+	/**
+	 * Returns the one and only RecordedHelperV26. init() must be called before 
+	 * any 
+	 * @return
+	 */
+	public static RecordedHelperV26 getInstance() {
+		if( null == singleton ) {
+			
+			synchronized( RecordedHelperV26.class ) {
+
+				if( null == singleton ) {
+					singleton = new RecordedHelperV26();
+				}
+			
+			}
+			
+		}
+		
+		return singleton;
+	}
+	
+	/**
+	 * Constructor. No one but getInstance() can do this.
+	 */
+	private RecordedHelperV26() { }
+
+	public boolean process( final Context context, final LocationProfile locationProfile ) {
 		Log.v( TAG, "process : enter" );
 		
 		if( !MythAccessFactory.isServerReachable( locationProfile.getUrl() ) ) {
@@ -80,19 +108,19 @@ public class RecordedHelperV26 extends AbstractBaseHelper {
 		return passed;
 	}
 	
-	public static Program findRecorded( final Context context, final LocationProfile locationProfile, Integer channelId, DateTime startTime ) {
+	public Program findRecorded( final Context context, final LocationProfile locationProfile, Integer channelId, DateTime startTime ) {
 		Log.v( TAG, "findRecorded : enter" );
 		
-		Program program = ProgramHelperV26.findProgram( context, locationProfile, ProgramConstants.CONTENT_URI_RECORDED, ProgramConstants.TABLE_NAME_RECORDED, channelId, startTime );
+		Program program = ProgramHelperV26.getInstance().findProgram( context, locationProfile, ProgramConstants.CONTENT_URI_RECORDED, ProgramConstants.TABLE_NAME_RECORDED, channelId, startTime );
 		
 		Log.v( TAG, "findRecorded : enter" );
 		return program;
 	}
 	
-	public static boolean deleteRecorded( final Context context, final LocationProfile locationProfile, Integer channelId, DateTime startTime, Integer recordId ) {
+	public boolean deleteRecorded( final Context context, final LocationProfile locationProfile, Integer channelId, DateTime startTime, Integer recordId ) {
 		Log.v( TAG, "deleteRecorded : enter" );
 		
-		boolean removed = ProgramHelperV26.deleteProgram( context, locationProfile, ProgramConstants.CONTENT_URI_RECORDED, ProgramConstants.TABLE_NAME_RECORDED, channelId, startTime, recordId );
+		boolean removed = ProgramHelperV26.getInstance().deleteProgram( context, locationProfile, ProgramConstants.CONTENT_URI_RECORDED, ProgramConstants.TABLE_NAME_RECORDED, channelId, startTime, recordId );
 		
 		Log.v( TAG, "deleteRecorded : enter" );
 		return removed;
@@ -100,11 +128,12 @@ public class RecordedHelperV26 extends AbstractBaseHelper {
 	
 	// internal helpers
 	
-	private static void downloadRecorded( final Context context, final LocationProfile locationProfile ) throws RemoteException, OperationApplicationException {
+	private void downloadRecorded( final Context context, final LocationProfile locationProfile ) throws RemoteException, OperationApplicationException {
 		Log.v( TAG, "downloadRecorded : enter" );
 	
 		EtagInfoDelegate etag = mEtagDaoHelper.findByEndpointAndDataId( context, locationProfile, DvrTemplate.Endpoint.GET_RECORDED_LIST.name(), "" );
-		
+		Log.d( TAG, "downloadRecorded : etag=" + etag.getValue() );
+
 		ResponseEntity<ProgramList> responseEntity = mMythServicesTemplate.dvrOperations().getRecordedList( etag );
 
 		DateTime date = new DateTime( DateTimeZone.UTC );
@@ -145,7 +174,7 @@ public class RecordedHelperV26 extends AbstractBaseHelper {
 		Log.v( TAG, "downloadRecorded : exit" );
 	}
 	
-	private static int load( final Context context, final LocationProfile locationProfile, final List<Program> programs ) throws RemoteException, OperationApplicationException {
+	private int load( final Context context, final LocationProfile locationProfile, final List<Program> programs ) throws RemoteException, OperationApplicationException {
 		Log.d( TAG, "load : enter" );
 		
 		if( null == context ) 
@@ -182,13 +211,13 @@ public class RecordedHelperV26 extends AbstractBaseHelper {
 
 			DateTime startTime = program.getStartTime();
 			
-			ProgramHelperV26.processProgram( context, locationProfile, ProgramConstants.CONTENT_URI_RECORDED, ProgramConstants.TABLE_NAME_RECORDED, ops, program, lastModified, startTime, count );
+			ProgramHelperV26.getInstance().processProgram( context, locationProfile, ProgramConstants.CONTENT_URI_RECORDED, ProgramConstants.TABLE_NAME_RECORDED, ops, program, lastModified, startTime, count );
 
 			if( null != program.getChannelInfo() ) {
 
 				if( !channelsChecked.contains( program.getChannelInfo().getChannelId() ) ) {
 					
-					ChannelHelperV26.processChannel( context, locationProfile, ops, program.getChannelInfo(), lastModified, count );
+					ChannelHelperV26.getInstance().processChannel( context, locationProfile, ops, program.getChannelInfo(), lastModified, count );
 					
 					channelsChecked.add( program.getChannelInfo().getChannelId() );
 			
@@ -200,7 +229,7 @@ public class RecordedHelperV26 extends AbstractBaseHelper {
 				
 				if( program.getRecording().getRecordId() > 0 ) {
 				
-					RecordingHelperV26.processRecording( context, locationProfile, ops, RecordingConstants.ContentDetails.RECORDED, program, lastModified, startTime, count );
+					RecordingHelperV26.getInstance().processRecording( context, locationProfile, ops, RecordingConstants.ContentDetails.RECORDED, program, lastModified, startTime, count );
 
 				}
 				
@@ -253,10 +282,10 @@ public class RecordedHelperV26 extends AbstractBaseHelper {
 		deletedCursor.close();
 
 //		Log.v( TAG, "load : DELETE PROGRAMS" );
-		ProgramHelperV26.deletePrograms( context, locationProfile, ops, ProgramConstants.CONTENT_URI_RECORDED, ProgramConstants.TABLE_NAME_RECORDED, today );
+		ProgramHelperV26.getInstance().deletePrograms( context, locationProfile, ops, ProgramConstants.CONTENT_URI_RECORDED, ProgramConstants.TABLE_NAME_RECORDED, today );
 
 //		Log.v( TAG, "load : DELETE RECORDINGS" );
-		RecordingHelperV26.deleteRecordings( ops, RecordingConstants.ContentDetails.RECORDED, today );
+		RecordingHelperV26.getInstance().deleteRecordings( ops, RecordingConstants.ContentDetails.RECORDED, today );
 
 		processBatch( context, ops, processed, count );
 
@@ -264,7 +293,7 @@ public class RecordedHelperV26 extends AbstractBaseHelper {
 		return processed;
 	}
 
-	private static void processProgramGroups( final Context context, final LocationProfile locationProfile, ArrayList<ContentProviderOperation> ops, List<Program> programs, DateTime lastModified, Integer processed, Integer count ) throws RemoteException, OperationApplicationException {
+	private void processProgramGroups( final Context context, final LocationProfile locationProfile, ArrayList<ContentProviderOperation> ops, List<Program> programs, DateTime lastModified, Integer processed, Integer count ) throws RemoteException, OperationApplicationException {
 		Log.v( TAG, "processProgramGroups : enter" );
 		
 		if( null == context ) 
@@ -363,7 +392,7 @@ public class RecordedHelperV26 extends AbstractBaseHelper {
 		Log.v( TAG, "processProgramGroups : exit" );
 	}
 
-	private static ContentValues convertProgramGroupToContentValues( final LocationProfile locationProfile, final DateTime lastModified, final ProgramGroup programGroup ) {
+	private ContentValues convertProgramGroupToContentValues( final LocationProfile locationProfile, final DateTime lastModified, final ProgramGroup programGroup ) {
 		
 		ContentValues values = new ContentValues();
 		values.put( ProgramGroupConstants.FIELD_PROGRAM_GROUP, null != programGroup.getTitle() ? ArticleCleaner.clean( programGroup.getTitle() ) : "" );

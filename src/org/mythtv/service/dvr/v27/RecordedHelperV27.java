@@ -47,11 +47,39 @@ public class RecordedHelperV27 extends AbstractBaseHelper {
 
 	private static final String TAG = RecordedHelperV27.class.getSimpleName();
 	
-	private static final ApiVersion mApiVersion = ApiVersion.v026;
+	private static final ApiVersion mApiVersion = ApiVersion.v027;
 	
 	private static MythServicesTemplate mMythServicesTemplate;
 
-	public static boolean process( final Context context, final LocationProfile locationProfile ) {
+	private static RecordedHelperV27 singleton;
+	
+	/**
+	 * Returns the one and only RecordedHelperV27. init() must be called before 
+	 * any 
+	 * @return
+	 */
+	public static RecordedHelperV27 getInstance() {
+		if( null == singleton ) {
+			
+			synchronized( RecordedHelperV27.class ) {
+
+				if( null == singleton ) {
+					singleton = new RecordedHelperV27();
+				}
+			
+			}
+			
+		}
+		
+		return singleton;
+	}
+	
+	/**
+	 * Constructor. No one but getInstance() can do this.
+	 */
+	private RecordedHelperV27() { }
+
+	public boolean process( final Context context, final LocationProfile locationProfile ) {
 		Log.v( TAG, "process : enter" );
 		
 		if( !MythAccessFactory.isServerReachable( locationProfile.getUrl() ) ) {
@@ -78,19 +106,19 @@ public class RecordedHelperV27 extends AbstractBaseHelper {
 		return passed;
 	}
 	
-	public static Program findRecorded( final Context context, final LocationProfile locationProfile, Integer channelId, DateTime startTime ) {
+	public Program findRecorded( final Context context, final LocationProfile locationProfile, Integer channelId, DateTime startTime ) {
 		Log.v( TAG, "findRecorded : enter" );
 		
-		Program program = ProgramHelperV27.findProgram( context, locationProfile, ProgramConstants.CONTENT_URI_RECORDED, ProgramConstants.TABLE_NAME_RECORDED, channelId, startTime );
+		Program program = ProgramHelperV27.getInstance().findProgram( context, locationProfile, ProgramConstants.CONTENT_URI_RECORDED, ProgramConstants.TABLE_NAME_RECORDED, channelId, startTime );
 		
 		Log.v( TAG, "findRecorded : enter" );
 		return program;
 	}
 	
-	public static boolean deleteRecorded( final Context context, final LocationProfile locationProfile, Integer channelId, DateTime startTime, Integer recordId ) {
+	public boolean deleteRecorded( final Context context, final LocationProfile locationProfile, Integer channelId, DateTime startTime, Integer recordId ) {
 		Log.v( TAG, "deleteRecorded : enter" );
 		
-		boolean removed = ProgramHelperV27.deleteProgram( context, locationProfile, ProgramConstants.CONTENT_URI_RECORDED, ProgramConstants.TABLE_NAME_RECORDED, channelId, startTime, recordId );
+		boolean removed = ProgramHelperV27.getInstance().deleteProgram( context, locationProfile, ProgramConstants.CONTENT_URI_RECORDED, ProgramConstants.TABLE_NAME_RECORDED, channelId, startTime, recordId );
 		
 		Log.v( TAG, "deleteRecorded : enter" );
 		return removed;
@@ -98,10 +126,11 @@ public class RecordedHelperV27 extends AbstractBaseHelper {
 
 	// internal helpers
 	
-	private static void downloadRecorded( final Context context, final LocationProfile locationProfile ) throws RemoteException, OperationApplicationException {
+	private void downloadRecorded( final Context context, final LocationProfile locationProfile ) throws RemoteException, OperationApplicationException {
 		Log.v( TAG, "downloadRecorded : enter" );
 	
 		EtagInfoDelegate etag = mEtagDaoHelper.findByEndpointAndDataId( context, locationProfile, "GetRecordedList", "" );
+		Log.d( TAG, "downloadRecorded : etag=" + etag.getValue() );
 		
 		ResponseEntity<ProgramList> responseEntity = mMythServicesTemplate.dvrOperations().getRecordedList( Boolean.FALSE, null, null, null, null, null, etag );
 
@@ -143,7 +172,7 @@ public class RecordedHelperV27 extends AbstractBaseHelper {
 		Log.v( TAG, "downloadRecorded : exit" );
 	}
 	
-	private static int load( final Context context, final LocationProfile locationProfile, final Program[] programs ) throws RemoteException, OperationApplicationException {
+	private int load( final Context context, final LocationProfile locationProfile, final Program[] programs ) throws RemoteException, OperationApplicationException {
 		Log.d( TAG, "load : enter" );
 		
 		if( null == context ) 
@@ -179,13 +208,13 @@ public class RecordedHelperV27 extends AbstractBaseHelper {
 
 			DateTime startTime = new DateTime( program.getStartTime() );
 			
-			ProgramHelperV27.processProgram( context, locationProfile, ProgramConstants.CONTENT_URI_RECORDED, ProgramConstants.TABLE_NAME_RECORDED, ops, program, lastModified, startTime, count );
+			ProgramHelperV27.getInstance().processProgram( context, locationProfile, ProgramConstants.CONTENT_URI_RECORDED, ProgramConstants.TABLE_NAME_RECORDED, ops, program, lastModified, startTime, count );
 			
 			if( null != program.getChannel() ) {
 
 				if( !channelsChecked.contains( program.getChannel().getChanId() ) ) {
 					
-					ChannelHelperV27.processChannel( context, locationProfile, ops, program.getChannel(), lastModified, count );
+					ChannelHelperV27.getInstance().processChannel( context, locationProfile, ops, program.getChannel(), lastModified, count );
 					
 					channelsChecked.add( program.getChannel().getChanId() );
 			
@@ -197,7 +226,7 @@ public class RecordedHelperV27 extends AbstractBaseHelper {
 				
 				if( program.getRecording().getRecordId() > 0 ) {
 				
-					RecordingHelperV27.processRecording( context, locationProfile, ops, RecordingConstants.ContentDetails.RECORDED, program, lastModified, startTime, count );
+					RecordingHelperV27.getInstance().processRecording( context, locationProfile, ops, RecordingConstants.ContentDetails.RECORDED, program, lastModified, startTime, count );
 				}
 				
 			}
@@ -248,10 +277,10 @@ public class RecordedHelperV27 extends AbstractBaseHelper {
 		deletedCursor.close();
 
 //		Log.v( TAG, "load : DELETE PROGRAMS" );
-		ProgramHelperV27.deletePrograms( context, locationProfile, ops, ProgramConstants.CONTENT_URI_RECORDED, ProgramConstants.TABLE_NAME_RECORDED, today );
+		ProgramHelperV27.getInstance().deletePrograms( context, locationProfile, ops, ProgramConstants.CONTENT_URI_RECORDED, ProgramConstants.TABLE_NAME_RECORDED, today );
 
 //		Log.v( TAG, "load : DELETE RECORDINGS" );
-		RecordingHelperV27.deleteRecordings( ops, RecordingConstants.ContentDetails.RECORDED, today );
+		RecordingHelperV27.getInstance().deleteRecordings( ops, RecordingConstants.ContentDetails.RECORDED, today );
 
 		processBatch( context, ops, processed, count );
 
@@ -259,11 +288,11 @@ public class RecordedHelperV27 extends AbstractBaseHelper {
 		return processed;
 	}
 
-	private static void processProgramGroups( final Context context, final LocationProfile locationProfile, ArrayList<ContentProviderOperation> ops, Program[] programs, DateTime lastModified, Integer processed, Integer count ) throws RemoteException, OperationApplicationException {
+	private void processProgramGroups( final Context context, final LocationProfile locationProfile, ArrayList<ContentProviderOperation> ops, Program[] programs, DateTime lastModified, Integer processed, Integer count ) throws RemoteException, OperationApplicationException {
 		Log.v( TAG, "processProgramGroups : enter" );
 		
 		if( null == context ) 
-			throw new RuntimeException( "RecordedHelperV26 is not initialized" );
+			throw new RuntimeException( "RecordedHelperV27 is not initialized" );
 		
 		Map<String, ProgramGroup> programGroups = new TreeMap<String, ProgramGroup>();
 		for( Program program : programs ) {
@@ -358,7 +387,7 @@ public class RecordedHelperV27 extends AbstractBaseHelper {
 		Log.v( TAG, "processProgramGroups : exit" );
 	}
 
-	private static ContentValues convertProgramGroupToContentValues( final LocationProfile locationProfile, final DateTime lastModified, final ProgramGroup programGroup ) {
+	private ContentValues convertProgramGroupToContentValues( final LocationProfile locationProfile, final DateTime lastModified, final ProgramGroup programGroup ) {
 		
 		ContentValues values = new ContentValues();
 		values.put( ProgramGroupConstants.FIELD_PROGRAM_GROUP, null != programGroup.getTitle() ? ArticleCleaner.clean( programGroup.getTitle() ) : "" );

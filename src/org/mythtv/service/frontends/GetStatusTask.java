@@ -81,18 +81,18 @@ public class GetStatusTask extends AsyncTask<String, Void, org.mythtv.db.fronten
 		switch( apiVersion ) {
 			case v026 :
 				
-				status = StatusHelperV26.process( mLocationProfile, url );
+				status = StatusHelperV26.getInstance().process( mLocationProfile, url );
 				
 				break;
 			case v027 :
 
-				status = StatusHelperV27.process( mLocationProfile, url );
+				status = StatusHelperV27.getInstance().process( mLocationProfile, url );
 				
 				break;
 				
 			default :
 				
-				status = StatusHelperV26.process( mLocationProfile, url );
+				status = StatusHelperV26.getInstance().process( mLocationProfile, url );
 
 				break;
 		}

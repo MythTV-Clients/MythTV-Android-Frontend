@@ -246,8 +246,8 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 
 //		Long id = null;
 		DateTime startTime = null, endTime = null, lastModified = null, airDate = null;
-		String title = "", subTitle = "", category = "", categoryType = "", seriesId = "", programId = "", hostname = "", filename = "", description = "", inetref = "", masterHostname = "";
-		int repeat = -1, videoProps = -1, audioProps = -1, subProps = -1, programFlags = -1, season = -1, episode = -1;
+		String title = "", subTitle = "", category = "", categoryType = "", seriesId = "", programFlags = "", programId = "", hostname = "", filename = "", description = "", inetref = "", masterHostname = "";
+		int repeat = -1, videoProps = -1, audioProps = -1, subProps = -1, season = -1, episode = -1;
 		long fileSize = -1;
 		float stars = 0.0f;
 		
@@ -320,7 +320,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		}
 		
 		if( cursor.getColumnIndex( ProgramConstants.FIELD_PROGRAM_FLAGS ) != -1 ) {
-			programFlags = cursor.getInt( cursor.getColumnIndex( ProgramConstants.FIELD_PROGRAM_FLAGS ) );
+			programFlags = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_PROGRAM_FLAGS ) );
 		}
 		
 		if( cursor.getColumnIndex( ProgramConstants.FIELD_HOSTNAME ) != -1 ) {

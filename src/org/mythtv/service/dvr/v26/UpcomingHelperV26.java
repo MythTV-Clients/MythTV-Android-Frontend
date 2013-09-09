@@ -21,7 +21,6 @@ import org.mythtv.services.api.connect.MythAccessFactory;
 import org.mythtv.services.api.v026.MythServicesTemplate;
 import org.mythtv.services.api.v026.beans.Program;
 import org.mythtv.services.api.v026.beans.ProgramList;
-import org.mythtv.services.api.v026.beans.Recording;
 import org.mythtv.services.api.v026.impl.DvrTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -45,7 +44,35 @@ public class UpcomingHelperV26 extends AbstractBaseHelper {
 	
 	private static MythServicesTemplate mMythServicesTemplate;
 
-	public static boolean process( final Context context, final LocationProfile locationProfile ) {
+	private static UpcomingHelperV26 singleton;
+	
+	/**
+	 * Returns the one and only UpcomingHelperV26. init() must be called before 
+	 * any 
+	 * @return
+	 */
+	public static UpcomingHelperV26 getInstance() {
+		if( null == singleton ) {
+			
+			synchronized( UpcomingHelperV26.class ) {
+
+				if( null == singleton ) {
+					singleton = new UpcomingHelperV26();
+				}
+			
+			}
+			
+		}
+		
+		return singleton;
+	}
+	
+	/**
+	 * Constructor. No one but getInstance() can do this.
+	 */
+	private UpcomingHelperV26() { }
+
+	public boolean process( final Context context, final LocationProfile locationProfile ) {
 		Log.v( TAG, "process : enter" );
 		
 		if( !MythAccessFactory.isServerReachable( locationProfile.getUrl() ) ) {
@@ -74,10 +101,11 @@ public class UpcomingHelperV26 extends AbstractBaseHelper {
 	
 	// internal helpers
 	
-	private static void downloadUpcoming( final Context context, final LocationProfile locationProfile ) throws RemoteException, OperationApplicationException {
+	private void downloadUpcoming( final Context context, final LocationProfile locationProfile ) throws RemoteException, OperationApplicationException {
 		Log.v( TAG, "downloadUpcoming : enter" );
 	
 		EtagInfoDelegate etag = mEtagDaoHelper.findByEndpointAndDataId( context, locationProfile, DvrTemplate.Endpoint.GET_UPCOMING_LIST.name(), "" );
+		Log.d( TAG, "downloadUpcoming : etag=" + etag.getValue() );
 		
 		ResponseEntity<ProgramList> responseEntity = mMythServicesTemplate.dvrOperations().getRecordedList( etag );
 
@@ -119,7 +147,7 @@ public class UpcomingHelperV26 extends AbstractBaseHelper {
 		Log.v( TAG, "downloadUpcoming : exit" );
 	}
 	
-	private static int load( final Context context, final LocationProfile locationProfile, final List<Program> programs ) throws RemoteException, OperationApplicationException {
+	private int load( final Context context, final LocationProfile locationProfile, final List<Program> programs ) throws RemoteException, OperationApplicationException {
 		Log.d( TAG, "load : enter" );
 		
 		if( null == context ) 
@@ -150,15 +178,15 @@ public class UpcomingHelperV26 extends AbstractBaseHelper {
 			DateTime startTime = program.getStartTime();
 			
 			// load upcoming program
-			ProgramHelperV26.processProgram( context, locationProfile, ProgramConstants.CONTENT_URI_UPCOMING, ProgramConstants.TABLE_NAME_UPCOMING, ops, program, lastModified, startTime, count );
+			ProgramHelperV26.getInstance().processProgram( context, locationProfile, ProgramConstants.CONTENT_URI_UPCOMING, ProgramConstants.TABLE_NAME_UPCOMING, ops, program, lastModified, startTime, count );
 			// update program guide
-			ProgramHelperV26.processProgram( context, locationProfile, ProgramConstants.CONTENT_URI_GUIDE, ProgramConstants.TABLE_NAME_GUIDE, ops, program, lastModified, startTime, count );
+			ProgramHelperV26.getInstance().processProgram( context, locationProfile, ProgramConstants.CONTENT_URI_GUIDE, ProgramConstants.TABLE_NAME_GUIDE, ops, program, lastModified, startTime, count );
 
 			if( null != program.getChannelInfo() ) {
 
 				if( !channelsChecked.contains( program.getChannelInfo().getChannelId() ) ) {
 					
-					ChannelHelperV26.processChannel( context, locationProfile, ops, program.getChannelInfo(), lastModified, count );
+					ChannelHelperV26.getInstance().processChannel( context, locationProfile, ops, program.getChannelInfo(), lastModified, count );
 					
 					channelsChecked.add( program.getChannelInfo().getChannelId() );
 			
@@ -171,9 +199,9 @@ public class UpcomingHelperV26 extends AbstractBaseHelper {
 				if( program.getRecording().getRecordId() > 0 ) {
 				
 					// load upcoming recording
-					RecordingHelperV26.processRecording( context, locationProfile, ops, RecordingConstants.ContentDetails.UPCOMING, program, lastModified, startTime, count );
+					RecordingHelperV26.getInstance().processRecording( context, locationProfile, ops, RecordingConstants.ContentDetails.UPCOMING, program, lastModified, startTime, count );
 					// update program guide recording
-					RecordingHelperV26.processRecording( context, locationProfile, ops, RecordingConstants.ContentDetails.GUIDE, program, lastModified, startTime, count );
+					RecordingHelperV26.getInstance().processRecording( context, locationProfile, ops, RecordingConstants.ContentDetails.GUIDE, program, lastModified, startTime, count );
 
 				}
 				
@@ -191,10 +219,10 @@ public class UpcomingHelperV26 extends AbstractBaseHelper {
 		processBatch( context, ops, processed, count );
 
 //		Log.v( TAG, "load : DELETE PROGRAMS" );
-		ProgramHelperV26.deletePrograms( context, locationProfile, ops, ProgramConstants.CONTENT_URI_UPCOMING, ProgramConstants.TABLE_NAME_UPCOMING, today );
+		ProgramHelperV26.getInstance().deletePrograms( context, locationProfile, ops, ProgramConstants.CONTENT_URI_UPCOMING, ProgramConstants.TABLE_NAME_UPCOMING, today );
 
 //		Log.v( TAG, "load : DELETE RECORDINGS" );
-		RecordingHelperV26.deleteRecordings( ops, RecordingConstants.ContentDetails.UPCOMING, today );
+		RecordingHelperV26.getInstance().deleteRecordings( ops, RecordingConstants.ContentDetails.UPCOMING, today );
 
 		processBatch( context, ops, processed, count );
 
@@ -202,7 +230,7 @@ public class UpcomingHelperV26 extends AbstractBaseHelper {
 		return processed;
 	}
 
-	protected static ContentValues convertProgramToContentValues( final LocationProfile locationProfile, final DateTime lastModified, final Program program ) {
+	protected ContentValues convertProgramToContentValues( final LocationProfile locationProfile, final DateTime lastModified, final Program program ) {
 		
 		boolean inError;
 		
@@ -251,42 +279,6 @@ public class UpcomingHelperV26 extends AbstractBaseHelper {
 		values.put( ProgramConstants.FIELD_MASTER_HOSTNAME, locationProfile.getHostname() );
 		values.put( ProgramConstants.FIELD_LAST_MODIFIED_DATE, lastModified.getMillis() );
 		
-		return values;
-	}
-
-	public static ContentValues convertRecordingToContentValues( final LocationProfile locationProfile, final DateTime lastModified, final DateTime startTime, final Recording recording ) {
-//		Log.v( TAG, "convertRecordingToContentValues : enter" );
-		
-		DateTime startTimestamp = new DateTime( DateTimeZone.UTC );
-		if( null != recording.getStartTimestamp() ) {
-			startTimestamp = recording.getStartTimestamp();
-		}
-//		Log.v( TAG, "convertRecordingToContentValues : startTimestamp = " + startTimestamp.toString() );
-		
-		DateTime endTimestamp = new DateTime( DateTimeZone.UTC );
-		if( null != recording.getStartTimestamp() ) {
-			endTimestamp = recording.getEndTimestamp();
-		}
-		
-		ContentValues values = new ContentValues();
-		values.put( RecordingConstants.FIELD_STATUS, recording.getStatus() );
-		values.put( RecordingConstants.FIELD_PRIORITY, recording.getPriority() );
-		values.put( RecordingConstants.FIELD_START_TS, startTimestamp.getMillis() );
-		values.put( RecordingConstants.FIELD_END_TS, endTimestamp.getMillis() );
-		values.put( RecordingConstants.FIELD_RECORD_ID, recording.getRecordId() );
-		values.put( RecordingConstants.FIELD_REC_GROUP, null != recording.getRecordingGroup() ? recording.getRecordingGroup() : "" );
-		values.put( RecordingConstants.FIELD_PLAY_GROUP, null != recording.getPlayGroup() ? recording.getPlayGroup() : "" );
-		values.put( RecordingConstants.FIELD_STORAGE_GROUP, null != recording.getStorageGroup() ? recording.getStorageGroup() : "" );
-		values.put( RecordingConstants.FIELD_REC_TYPE, recording.getRecordingType() );
-		values.put( RecordingConstants.FIELD_DUP_IN_TYPE, recording.getDuplicateInType() );
-		values.put( RecordingConstants.FIELD_DUP_METHOD, recording.getDuplicateMethod() );
-		values.put( RecordingConstants.FIELD_ENCODER_ID, recording.getEncoderId() );
-		values.put( RecordingConstants.FIELD_PROFILE, null != recording.getProfile() ? recording.getProfile() : "" );
-		values.put( RecordingConstants.FIELD_START_TIME, startTime.getMillis() );
-		values.put( RecordingConstants.FIELD_MASTER_HOSTNAME, locationProfile.getHostname() );
-		values.put( RecordingConstants.FIELD_LAST_MODIFIED_DATE, lastModified.getMillis() );
-		
-//		Log.v( TAG, "convertRecordingToContentValues : exit" );
 		return values;
 	}
 

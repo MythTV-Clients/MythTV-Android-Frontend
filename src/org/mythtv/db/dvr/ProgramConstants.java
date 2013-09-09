@@ -87,7 +87,7 @@ public class ProgramConstants extends AbstractBaseConstants {
 	public static final String FIELD_LAST_MODIFIED_DATA_TYPE = "TEXT";
 	
 	public static final String FIELD_PROGRAM_FLAGS = "PROGRAM_FLAGS";
-	public static final String FIELD_PROGRAM_FLAGS_DATA_TYPE = "INTEGER";
+	public static final String FIELD_PROGRAM_FLAGS_DATA_TYPE = "TEXT";
 	
 	public static final String FIELD_HOSTNAME = "HOSTNAME";
 	public static final String FIELD_HOSTNAME_DATA_TYPE = "TEXT";

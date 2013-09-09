@@ -78,18 +78,18 @@ public class ChannelDownloadService extends MythtvService {
     			switch( apiVersion ) {
     				case v026 :
     					
-    					passed = ChannelHelperV26.process( this, locationProfile );
+    					passed = ChannelHelperV26.getInstance().process( this, locationProfile );
     					
     					break;
     				case v027 :
 
-    					passed = ChannelHelperV27.process( this, locationProfile );
+    					passed = ChannelHelperV27.getInstance().process( this, locationProfile );
 
     					break;
     					
     				default :
     					
-    					passed = ChannelHelperV26.process( this, locationProfile );
+    					passed = ChannelHelperV26.getInstance().process( this, locationProfile );
 
     					break;
     			}

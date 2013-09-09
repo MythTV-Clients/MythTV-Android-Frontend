@@ -74,18 +74,18 @@ public class UpcomingDownloadService extends MythtvService {
     			switch( apiVersion ) {
     				case v026 :
     					
-    					passed = UpcomingHelperV26.process( this, locationProfile );
+    					passed = UpcomingHelperV26.getInstance().process( this, locationProfile );
     					
     					break;
     				case v027 :
 
-    					passed = UpcomingHelperV27.process( this, locationProfile );
+    					passed = UpcomingHelperV27.getInstance().process( this, locationProfile );
 
     					break;
     					
     				default :
     					
-    					passed = UpcomingHelperV26.process( this, locationProfile );
+    					passed = UpcomingHelperV26.getInstance().process( this, locationProfile );
 
     					break;
     			}

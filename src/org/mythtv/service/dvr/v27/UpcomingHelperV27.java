@@ -40,7 +40,35 @@ public class UpcomingHelperV27 extends AbstractBaseHelper {
 	
 	private static MythServicesTemplate mMythServicesTemplate;
 
-	public static boolean process( final Context context, final LocationProfile locationProfile ) {
+	private static UpcomingHelperV27 singleton;
+	
+	/**
+	 * Returns the one and only UpcomingHelperV27. init() must be called before 
+	 * any 
+	 * @return
+	 */
+	public static UpcomingHelperV27 getInstance() {
+		if( null == singleton ) {
+			
+			synchronized( UpcomingHelperV27.class ) {
+
+				if( null == singleton ) {
+					singleton = new UpcomingHelperV27();
+				}
+			
+			}
+			
+		}
+		
+		return singleton;
+	}
+	
+	/**
+	 * Constructor. No one but getInstance() can do this.
+	 */
+	private UpcomingHelperV27() { }
+
+	public boolean process( final Context context, final LocationProfile locationProfile ) {
 		Log.v( TAG, "process : enter" );
 		
 		if( !MythAccessFactory.isServerReachable( locationProfile.getUrl() ) ) {
@@ -69,12 +97,13 @@ public class UpcomingHelperV27 extends AbstractBaseHelper {
 	
 	// internal helpers
 	
-	private static void downloadUpcoming( final Context context, final LocationProfile locationProfile ) throws RemoteException, OperationApplicationException {
+	private void downloadUpcoming( final Context context, final LocationProfile locationProfile ) throws RemoteException, OperationApplicationException {
 		Log.v( TAG, "downloadUpcoming : enter" );
 	
 		EtagInfoDelegate etag = mEtagDaoHelper.findByEndpointAndDataId( context, locationProfile, "GetUpcomingList", "" );
+		Log.d( TAG, "downloadUpcoming : etag=" + etag.getValue() );
 		
-		ResponseEntity<ProgramList> responseEntity = mMythServicesTemplate.dvrOperations().getUpcomingList( null, null, Boolean.TRUE, etag );
+		ResponseEntity<ProgramList> responseEntity = mMythServicesTemplate.dvrOperations().getUpcomingList( null, null, Boolean.FALSE, etag );
 
 		DateTime date = new DateTime( DateTimeZone.UTC );
 		if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
@@ -114,7 +143,7 @@ public class UpcomingHelperV27 extends AbstractBaseHelper {
 		Log.v( TAG, "downloadUpcoming : exit" );
 	}
 	
-	private static int load( final Context context, final LocationProfile locationProfile, final Program[] programs ) throws RemoteException, OperationApplicationException {
+	private int load( final Context context, final LocationProfile locationProfile, final Program[] programs ) throws RemoteException, OperationApplicationException {
 		Log.d( TAG, "load : enter" );
 		
 		if( null == context ) 
@@ -133,7 +162,8 @@ public class UpcomingHelperV27 extends AbstractBaseHelper {
 		List<Integer> channelsChecked = new ArrayList<Integer>();
 		
 		for( Program program : programs ) {
-
+			Log.d( TAG, "load : count=" + count );
+			
 			if( null == program.getStartTime() || null == program.getEndTime() ) {
 //				Log.w(TAG, "load : null starttime and or endtime" );
 			
@@ -145,15 +175,19 @@ public class UpcomingHelperV27 extends AbstractBaseHelper {
 			DateTime startTime = program.getStartTime();
 
 			// load upcoming program
-			ProgramHelperV27.processProgram( context, locationProfile, ProgramConstants.CONTENT_URI_UPCOMING, ProgramConstants.TABLE_NAME_UPCOMING, ops, program, lastModified, startTime, count );
+			ProgramHelperV27.getInstance().processProgram( context, locationProfile, ProgramConstants.CONTENT_URI_UPCOMING, ProgramConstants.TABLE_NAME_UPCOMING, ops, program, lastModified, startTime, count );
+			count++;
+			
 			// update program guide
-			ProgramHelperV27.processProgram( context, locationProfile, ProgramConstants.CONTENT_URI_GUIDE, ProgramConstants.TABLE_NAME_GUIDE, ops, program, lastModified, startTime, count );
+			ProgramHelperV27.getInstance().processProgram( context, locationProfile, ProgramConstants.CONTENT_URI_GUIDE, ProgramConstants.TABLE_NAME_GUIDE, ops, program, lastModified, startTime, count );
+			count++;
 
 			if( null != program.getChannel() ) {
 
 				if( !channelsChecked.contains( program.getChannel().getChanId() ) ) {
 					
-					ChannelHelperV27.processChannel( context, locationProfile, ops, program.getChannel(), lastModified, count );
+					ChannelHelperV27.getInstance().processChannel( context, locationProfile, ops, program.getChannel(), lastModified, count );
+					count++;
 					
 					channelsChecked.add( program.getChannel().getChanId() );
 			
@@ -166,9 +200,12 @@ public class UpcomingHelperV27 extends AbstractBaseHelper {
 				if( program.getRecording().getRecordId() > 0 ) {
 				
 					// load upcoming recording
-					RecordingHelperV27.processRecording( context, locationProfile, ops, RecordingConstants.ContentDetails.UPCOMING, program, lastModified, startTime, count );
+					RecordingHelperV27.getInstance().processRecording( context, locationProfile, ops, RecordingConstants.ContentDetails.UPCOMING, program, lastModified, startTime, count );
+					count++;
+
 					// update program guide recording
-					RecordingHelperV27.processRecording( context, locationProfile, ops, RecordingConstants.ContentDetails.GUIDE, program, lastModified, startTime, count );
+					RecordingHelperV27.getInstance().processRecording( context, locationProfile, ops, RecordingConstants.ContentDetails.GUIDE, program, lastModified, startTime, count );
+					count++;
 
 				}
 				
@@ -179,6 +216,7 @@ public class UpcomingHelperV27 extends AbstractBaseHelper {
 				
 				processBatch( context, ops, processed, count );
 
+				count = 0;
 			}
 			
 		}
@@ -186,10 +224,10 @@ public class UpcomingHelperV27 extends AbstractBaseHelper {
 		processBatch( context, ops, processed, count );
 
 //		Log.v( TAG, "load : DELETE PROGRAMS" );
-		ProgramHelperV27.deletePrograms( context, locationProfile, ops, ProgramConstants.CONTENT_URI_UPCOMING, ProgramConstants.TABLE_NAME_UPCOMING, today );
+		ProgramHelperV27.getInstance().deletePrograms( context, locationProfile, ops, ProgramConstants.CONTENT_URI_UPCOMING, ProgramConstants.TABLE_NAME_UPCOMING, today );
 
 //		Log.v( TAG, "load : DELETE RECORDINGS" );
-		RecordingHelperV27.deleteRecordings( ops, RecordingConstants.ContentDetails.UPCOMING, today );
+		RecordingHelperV27.getInstance().deleteRecordings( ops, RecordingConstants.ContentDetails.UPCOMING, today );
 
 		processBatch( context, ops, processed, count );
 

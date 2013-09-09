@@ -41,7 +41,35 @@ public class LiveStreamHelperV26 extends AbstractBaseHelper {
 	
 	private static PlaybackProfileDaoHelper mPlaybackProfileDaoHelper = PlaybackProfileDaoHelper.getInstance();
 
-	public static boolean create( final Context context, final LocationProfile locationProfile, final Integer channelId, final DateTime startTime ) {
+	private static LiveStreamHelperV26 singleton;
+	
+	/**
+	 * Returns the one and only LiveStreamHelperV26. init() must be called before 
+	 * any 
+	 * @return
+	 */
+	public static LiveStreamHelperV26 getInstance() {
+		if( null == singleton ) {
+			
+			synchronized( LiveStreamHelperV26.class ) {
+
+				if( null == singleton ) {
+					singleton = new LiveStreamHelperV26();
+				}
+			
+			}
+			
+		}
+		
+		return singleton;
+	}
+	
+	/**
+	 * Constructor. No one but getInstance() can do this.
+	 */
+	private LiveStreamHelperV26() { }
+
+	public boolean create( final Context context, final LocationProfile locationProfile, final Integer channelId, final DateTime startTime ) {
 		Log.v( TAG, "create : enter" );
 		
 		if( !MythAccessFactory.isServerReachable( locationProfile.getUrl() ) ) {
@@ -64,7 +92,7 @@ public class LiveStreamHelperV26 extends AbstractBaseHelper {
 		if( null != selectedPlaybackProfile ) {
 				
 			try {
-				Program program = RecordedHelperV26.findRecorded( context, locationProfile, channelId, startTime );
+				Program program = RecordedHelperV26.getInstance().findRecorded( context, locationProfile, channelId, startTime );
 				
 				if( null != program ) {
 					ResponseEntity<LiveStreamInfoWrapper> wrapper = mMythServicesTemplate.contentOperations().
@@ -93,7 +121,7 @@ public class LiveStreamHelperV26 extends AbstractBaseHelper {
 		return false;
 	}
 
-	public static boolean update( final Context context, final LocationProfile locationProfile, final Integer channelId, final DateTime startTime ) {
+	public boolean update( final Context context, final LocationProfile locationProfile, final Integer channelId, final DateTime startTime ) {
 		Log.v( TAG, "update : enter" );
 		
 		if( !MythAccessFactory.isServerReachable( locationProfile.getUrl() ) ) {
@@ -105,7 +133,7 @@ public class LiveStreamHelperV26 extends AbstractBaseHelper {
 		MythServicesTemplate mMythServicesTemplate = (MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( mApiVersion, locationProfile.getUrl() );
 		
 		try {
-			Program program = RecordedHelperV26.findRecorded( context, locationProfile, channelId, startTime );
+			Program program = RecordedHelperV26.getInstance().findRecorded( context, locationProfile, channelId, startTime );
 			
 			if( null != program ) {
 				LiveStreamInfo liveStream = findLiveStream( context, locationProfile, channelId, startTime );
@@ -134,7 +162,7 @@ public class LiveStreamHelperV26 extends AbstractBaseHelper {
 		return false;
 	}
 
-	public static boolean remove( final Context context, final LocationProfile locationProfile, final Integer channelId, final DateTime startTime ) {
+	public boolean remove( final Context context, final LocationProfile locationProfile, final Integer channelId, final DateTime startTime ) {
 		Log.v( TAG, "remove : enter" );
 		
 		if( !MythAccessFactory.isServerReachable( locationProfile.getUrl() ) ) {
@@ -146,7 +174,7 @@ public class LiveStreamHelperV26 extends AbstractBaseHelper {
 		MythServicesTemplate mMythServicesTemplate = (MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( mApiVersion, locationProfile.getUrl() );
 		
 		try {
-			Program program = RecordedHelperV26.findRecorded( context, locationProfile, channelId, startTime );
+			Program program = RecordedHelperV26.getInstance().findRecorded( context, locationProfile, channelId, startTime );
 			
 			if( null != program ) {
 				LiveStreamInfo liveStream = findLiveStream( context, locationProfile, channelId, startTime );
@@ -173,7 +201,7 @@ public class LiveStreamHelperV26 extends AbstractBaseHelper {
 		return false;
 	}
 
-	public static LiveStreamInfo findLiveStream( final Context context, final LocationProfile locationProfile, final Long id ) {
+	public LiveStreamInfo findLiveStream( final Context context, final LocationProfile locationProfile, final Long id ) {
 		Log.d( TAG, "findLiveStream : enter" );
 		
 		String projection[] = null;
@@ -199,7 +227,7 @@ public class LiveStreamHelperV26 extends AbstractBaseHelper {
 		return liveStreamInfo;
 	}
 
-	public static LiveStreamInfo findLiveStream( final Context context, final LocationProfile locationProfile, final Integer channelId, final DateTime startTime ) {
+	public LiveStreamInfo findLiveStream( final Context context, final LocationProfile locationProfile, final Integer channelId, final DateTime startTime ) {
 		Log.d( TAG, "findLiveStream : enter" );
 		
 		String projection[] = null;
@@ -220,7 +248,7 @@ public class LiveStreamHelperV26 extends AbstractBaseHelper {
 		return liveStreamInfo;
 	}
 
-	public static boolean deleteLiveStream( final Context context, final Long id ) {
+	public boolean deleteLiveStream( final Context context, final Long id ) {
 		Log.d( TAG, "deleteLiveStream : enter" );
 		
 		if( null == context ) 
@@ -241,7 +269,7 @@ public class LiveStreamHelperV26 extends AbstractBaseHelper {
 	 * @param liveStreamInfo
 	 * @return
 	 */
-	public static boolean deleteLiveStream( final Context context, final LocationProfile locationProfile, final Integer channelId, final DateTime startTime ) {
+	public boolean deleteLiveStream( final Context context, final LocationProfile locationProfile, final Integer channelId, final DateTime startTime ) {
 		Log.d( TAG, "deleteLiveStream : enter" );
 		
 		if( null == context ) 
@@ -265,7 +293,7 @@ public class LiveStreamHelperV26 extends AbstractBaseHelper {
 
 	// internal helpers
 	
-	private static boolean save( final Context context, final LocationProfile locationProfile, LiveStreamInfo liveStreamInfo, final Program program ) {
+	private boolean save( final Context context, final LocationProfile locationProfile, LiveStreamInfo liveStreamInfo, final Program program ) {
 		Log.d( TAG, "save : enter" );
 
 		if( null == context ) 
@@ -303,7 +331,7 @@ public class LiveStreamHelperV26 extends AbstractBaseHelper {
 		return saved;
 	}
 
-	private static LiveStreamInfo convertCursorToLiveStreamInfo( Cursor cursor ) {
+	private LiveStreamInfo convertCursorToLiveStreamInfo( Cursor cursor ) {
 //		Log.v( TAG, "convertCursorToLiveStreamInfo : enter" );
 
 		int  id = -1, width = -1, height = -1, bitrate = -1, audioBitrate = -1, segmentSize = -1, maxSegments = -1, startSegment = -1, currentSegment = -1, segmentCount = -1, percentComplete = -1, statusInt = -1, sourceWidth = -1, sourceHeight = -1, audioOnlyBitrate = -1;
@@ -443,7 +471,7 @@ public class LiveStreamHelperV26 extends AbstractBaseHelper {
 		return liveStreamInfo;
 	}
 
-	private static ContentValues convertLiveStreamInfoToContentValues( final LocationProfile locationProfile, final LiveStreamInfo liveStreamInfo, final Program program ) {
+	private ContentValues convertLiveStreamInfoToContentValues( final LocationProfile locationProfile, final LiveStreamInfo liveStreamInfo, final Program program ) {
 //		Log.v( TAG, "convertLiveStreamToContentValues : enter" );
 		
 		ContentValues values = new ContentValues();

@@ -77,18 +77,18 @@ public class RecordingRuleService extends MythtvService {
     			switch( apiVersion ) {
     				case v026 :
     					
-    					passed = RecordingRuleHelperV26.process( this, locationProfile );
+    					passed = RecordingRuleHelperV26.getInstance().process( this, locationProfile );
     					
     					break;
     				case v027 :
 
-    					passed = RecordingRuleHelperV27.process( this, locationProfile );
+    					passed = RecordingRuleHelperV27.getInstance().process( this, locationProfile );
 
     					break;
     					
     				default :
     					
-    					passed = RecordingRuleHelperV26.process( this, locationProfile );
+    					passed = RecordingRuleHelperV26.getInstance().process( this, locationProfile );
 
     					break;
     			}
@@ -113,18 +113,18 @@ public class RecordingRuleService extends MythtvService {
     			switch( apiVersion ) {
     				case v026 :
     					
-    					passed = RecordingRuleHelperV26.add( this, locationProfile, recRule );
+    					passed = RecordingRuleHelperV26.getInstance().add( this, locationProfile, recRule );
     					
     					break;
     				case v027 :
 
-    					passed = RecordingRuleHelperV27.add( this, locationProfile, recRule );
+    					passed = RecordingRuleHelperV27.getInstance().add( this, locationProfile, recRule );
 
     					break;
     					
     				default :
     					
-    					passed = RecordingRuleHelperV26.add( this, locationProfile, recRule );
+    					passed = RecordingRuleHelperV26.getInstance().add( this, locationProfile, recRule );
 
     					break;
     			}
@@ -149,18 +149,18 @@ public class RecordingRuleService extends MythtvService {
     			switch( apiVersion ) {
     				case v026 :
     					
-    					passed = RecordingRuleHelperV26.update( this, locationProfile, recRule );
+    					passed = RecordingRuleHelperV26.getInstance().update( this, locationProfile, recRule );
     					
     					break;
     				case v027 :
 
-    					passed = RecordingRuleHelperV27.update( this, locationProfile, recRule );
+    					passed = RecordingRuleHelperV27.getInstance().update( this, locationProfile, recRule );
 
     					break;
     					
     				default :
     					
-    					passed = RecordingRuleHelperV26.update( this, locationProfile, recRule );
+    					passed = RecordingRuleHelperV26.getInstance().update( this, locationProfile, recRule );
 
     					break;
     			}
@@ -185,18 +185,18 @@ public class RecordingRuleService extends MythtvService {
     			switch( apiVersion ) {
     				case v026 :
     					
-    					passed = RecordingRuleHelperV26.remove( this, locationProfile, recRule );
+    					passed = RecordingRuleHelperV26.getInstance().remove( this, locationProfile, recRule );
     					
     					break;
     				case v027 :
 
-    					passed = RecordingRuleHelperV27.remove( this, locationProfile, recRule );
+    					passed = RecordingRuleHelperV27.getInstance().remove( this, locationProfile, recRule );
 
     					break;
     					
     				default :
     					
-    					passed = RecordingRuleHelperV26.remove( this, locationProfile, recRule );
+    					passed = RecordingRuleHelperV26.getInstance().remove( this, locationProfile, recRule );
 
     					break;
     			}

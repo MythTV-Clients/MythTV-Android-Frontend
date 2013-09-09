@@ -9,6 +9,7 @@ import java.util.List;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.mythtv.client.ui.preferences.LocationProfile;
+import org.mythtv.db.AbstractBaseHelper;
 import org.mythtv.db.channel.model.ChannelInfo;
 import org.mythtv.db.content.model.ArtworkInfo;
 import org.mythtv.db.content.model.ArtworkInfos;
@@ -43,13 +44,15 @@ import org.springframework.http.ResponseEntity;
 
 import android.content.ContentProviderOperation;
 import android.content.Context;
+import android.content.OperationApplicationException;
+import android.os.RemoteException;
 import android.util.Log;
 
 /**
  * @author Daniel Frey
  *
  */
-public class BackendStatusHelperV27 {
+public class BackendStatusHelperV27 extends AbstractBaseHelper {
 
 	private static final String TAG = BackendStatusHelperV27.class.getSimpleName();
 	
@@ -61,7 +64,35 @@ public class BackendStatusHelperV27 {
 	private static Context mContext;
 	private static LocationProfile mLocationProfile;
 	
-	public static BackendStatus process( final Context context, final LocationProfile locationProfile ) {
+	private static BackendStatusHelperV27 singleton;
+	
+	/**
+	 * Returns the one and only BackendStatusHelperV27. init() must be called before 
+	 * any 
+	 * @return
+	 */
+	public static BackendStatusHelperV27 getInstance() {
+		if( null == singleton ) {
+			
+			synchronized( BackendStatusHelperV27.class ) {
+
+				if( null == singleton ) {
+					singleton = new BackendStatusHelperV27();
+				}
+			
+			}
+			
+		}
+		
+		return singleton;
+	}
+	
+	/**
+	 * Constructor. No one but getInstance() can do this.
+	 */
+	private BackendStatusHelperV27() { }
+
+	public BackendStatus process( final Context context, final LocationProfile locationProfile ) {
 		Log.d( TAG, "process : enter" );
 
 		if( !MythAccessFactory.isServerReachable( locationProfile.getUrl() ) ) {
@@ -75,26 +106,32 @@ public class BackendStatusHelperV27 {
 		
 		mMythServicesTemplate = (MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( mApiVersion, locationProfile.getUrl() );
 
-		BackendStatus backendStatus = downloadBackendStatus();
+		BackendStatus backendStatus = null;
+		try {
+			backendStatus = downloadBackendStatus();
+		} catch( Exception e ) {
+			Log.e( TAG, "process : error", e );
+		}
 		
-		Log.d( TAG, "process : enter" );
+		Log.d( TAG, "process : exit" );
 		return backendStatus;
 	}
 
 	// internal helpers
 	
-	private static BackendStatus downloadBackendStatus() {
+	private BackendStatus downloadBackendStatus() throws RemoteException, OperationApplicationException {
 		Log.v( TAG, "downloadBackendStatus : enter" );
 
 		ResponseEntity<org.mythtv.services.api.v027.status.beans.BackendStatus> status = mMythServicesTemplate.statusOperations().getStatus( ETagInfo.createEmptyETag() );
 
 		if( status.getStatusCode() == HttpStatus.OK ) {
-			Log.i( TAG, "BackendStatusTask.doInBackground : exit" );
 
 			if( null != status.getBody() ) {
        			
+				ApiVersion apiVersion = MythAccessFactory.getMythVersion( mLocationProfile.getUrl() );
+				mLocationProfile.setVersion( apiVersion.name() );
+
 				mLocationProfile.setConnected( true );
-    			mLocationProfile.setVersion( status.getBody().getVersion() );
     			mLocationProfile.setProtocolVersion( String.valueOf( status.getBody().getProtocolVersion() ) );
     			if( null != status.getBody().getMachineInfo() ) {
     				if( null != status.getBody().getMachineInfo().getGuide() ) {
@@ -103,7 +140,7 @@ public class BackendStatusHelperV27 {
     			}
     			mLocationProfileDaoHelper.save( mContext, mLocationProfile );
 
-    			updateProgramGuide( status.getBody() );
+    			updateProgramGuide( mContext, status.getBody() );
 			
 				return convertBackendStatus( status.getBody() );
 			} else {
@@ -119,21 +156,23 @@ public class BackendStatusHelperV27 {
 		return null;
 	}
 
-	private static void updateProgramGuide( org.mythtv.services.api.v027.status.beans.BackendStatus status ) {
+	private void updateProgramGuide( final Context mContext, org.mythtv.services.api.v027.status.beans.BackendStatus status ) throws RemoteException, OperationApplicationException {
 		Log.v( TAG, "updateProgramGuide : enter" );
 		
 		if( null != status.getScheduled() ) {
 		
 			if( null != status.getScheduled().getPrograms() && !status.getScheduled().getPrograms().isEmpty() ) {
 			
+				int processed = -1;
 				int count = 0;
 		
 				ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
 
 				DateTime lastModified = new DateTime( DateTimeZone.UTC );
 				
-				for( org.mythtv.services.api.v027.beans.Program versionProgram : status.getScheduled().getPrograms() ) {
-
+				for( org.mythtv.services.api.v027.status.beans.Program versionProgram : status.getScheduled().getPrograms() ) {
+//					Log.v( TAG, "updateProgramGuide : versionProgram=" + versionProgram.toString() );
+					
 					boolean inError = false;
 					
 					if( null == versionProgram.getStartTime() || null == versionProgram.getEndTime() ) {
@@ -145,23 +184,31 @@ public class BackendStatusHelperV27 {
 					DateTime startTime = versionProgram.getStartTime();
 
 					// load upcoming program
-					ProgramHelperV27.processProgram( mContext, mLocationProfile, ProgramConstants.CONTENT_URI_UPCOMING, ProgramConstants.TABLE_NAME_UPCOMING, ops, versionProgram, lastModified, startTime, count );
+					ProgramHelperV27.getInstance().processProgram( mContext, mLocationProfile, ProgramConstants.CONTENT_URI_UPCOMING, ProgramConstants.TABLE_NAME_UPCOMING, ops, convertV27Program( versionProgram ), lastModified, startTime, count );
 					// update program guide
-					ProgramHelperV27.processProgram( mContext, mLocationProfile, ProgramConstants.CONTENT_URI_GUIDE, ProgramConstants.TABLE_NAME_GUIDE, ops, versionProgram, lastModified, startTime, count );
+					ProgramHelperV27.getInstance().processProgram( mContext, mLocationProfile, ProgramConstants.CONTENT_URI_GUIDE, ProgramConstants.TABLE_NAME_GUIDE, ops, convertV27Program( versionProgram ), lastModified, startTime, count );
 
 					if( !inError && null != versionProgram.getRecording() ) {
 						
 						if( versionProgram.getRecording().getRecordId() > 0 ) {
 						
 							// load upcoming recording
-							RecordingHelperV27.processRecording( mContext, mLocationProfile, ops, RecordingConstants.ContentDetails.UPCOMING, versionProgram, lastModified, startTime, count );
+							RecordingHelperV27.getInstance().processRecording( mContext, mLocationProfile, ops, RecordingConstants.ContentDetails.UPCOMING, convertV27Program( versionProgram ), lastModified, startTime, count );
 							// update program guide recording
-							RecordingHelperV27.processRecording( mContext, mLocationProfile, ops, RecordingConstants.ContentDetails.GUIDE, versionProgram, lastModified, startTime, count );
+							RecordingHelperV27.getInstance().processRecording( mContext, mLocationProfile, ops, RecordingConstants.ContentDetails.GUIDE, convertV27Program( versionProgram ), lastModified, startTime, count );
 
 						}
 						
 					}
 
+					if( count > BATCH_COUNT_LIMIT ) {
+//						Log.i( TAG, "load : applying batch for '" + count + "' transactions, processing programs" );
+						
+						processBatch( mContext, ops, processed, count );
+
+						count = 0;
+					}
+					
 				}
 
 			}
@@ -171,7 +218,7 @@ public class BackendStatusHelperV27 {
 		Log.v( TAG, "updateProgramGuide : exit" );
 	}
 	
-	private static BackendStatus convertBackendStatus( org.mythtv.services.api.v027.status.beans.BackendStatus status ) {
+	private BackendStatus convertBackendStatus( org.mythtv.services.api.v027.status.beans.BackendStatus status ) {
 		Log.v( TAG, "convertBackendStatus : enter" );
 		
 		BackendStatus bs = new BackendStatus();
@@ -190,12 +237,12 @@ public class BackendStatusHelperV27 {
 				
 				List<Encoder> encoderList = new ArrayList<Encoder>();
 				
-				for( org.mythtv.services.api.v027.beans.Encoder versionEncoder : status.getEncoders().getEncoders() ) {
+				for( org.mythtv.services.api.v027.status.beans.Encoder versionEncoder : status.getEncoders().getEncoders() ) {
 					Encoder encoder = new Encoder();
 					encoder.setId( versionEncoder.getId() );
 					encoder.setConnected( versionEncoder.isConnected() );
 					encoder.setDeviceLabel( "" );
-					encoder.setHostname( versionEncoder.getHostName() );
+					encoder.setHostname( versionEncoder.getHostname() );
 					encoder.setLocal( versionEncoder.isLocal() );
 					encoder.setLowOnFreeSpace( versionEncoder.isLowOnFreeSpace() );
 					encoder.setSleepStatus( versionEncoder.getSleepStatus() );
@@ -222,7 +269,7 @@ public class BackendStatusHelperV27 {
 				
 				List<Program> programs = new ArrayList<Program>();
 				
-				for( org.mythtv.services.api.v027.beans.Program versionProgram : status.getScheduled().getPrograms() ) {
+				for( org.mythtv.services.api.v027.status.beans.Program versionProgram : status.getScheduled().getPrograms() ) {
 					programs.add( convertProgram( versionProgram ) );
 				}
 				
@@ -395,24 +442,24 @@ public class BackendStatusHelperV27 {
 		return bs;
 	}
 	
-	private static Program convertProgram( org.mythtv.services.api.v027.beans.Program versionProgram ) {
+	private Program convertProgram( org.mythtv.services.api.v027.status.beans.Program versionProgram ) {
 		
 		Program program = new Program();
-		program.setAirDate( new DateTime( versionProgram.getAirdate() ) );
+		program.setAirDate( versionProgram.getAirDate() );
 		program.setAudioProps( versionProgram.getAudioProps() );
 		program.setCategory( versionProgram.getCategory() );
 		program.setDescription( versionProgram.getDescription() );
 		program.setEndTime( versionProgram.getEndTime() );
-		program.setEpisode( versionProgram.getEpisode() );
-		program.setFilename( versionProgram.getFileName() );
-		program.setFileSize( versionProgram.getFileSize() );
-		program.setHostname( versionProgram.getHostName() );
+		program.setEpisode( null != versionProgram.getEpisode() && !"".equals( versionProgram.getEpisode() ) ? Integer.parseInt( versionProgram.getEpisode() ) : -1 );
+		program.setFilename( versionProgram.getFilename() );
+		program.setFileSize( null != versionProgram.getFileSize() && !"".equals( versionProgram.getFileSize() ) ? Long.parseLong( versionProgram.getFileSize() ) : -1 );
+		program.setHostname( versionProgram.getHostname() );
 		program.setInetref( versionProgram.getInetref() );
 		program.setLastModified( versionProgram.getLastModified() );
 		program.setProgramFlags( versionProgram.getProgramFlags() );
 		program.setProgramId( versionProgram.getProgramId() );
 		program.setRepeat( versionProgram.isRepeat() );
-		program.setSeason( versionProgram.getSeason() );
+		program.setSeason( null != versionProgram.getSeason() && !"".equals( versionProgram.getSeason() ) ? Integer.parseInt( versionProgram.getSeason() ) : -1 );
 		program.setSeriesId( versionProgram.getSeriesId() );
 		program.setStars( versionProgram.getStars() );
 		program.setStartTime( versionProgram.getStartTime() );
@@ -425,19 +472,19 @@ public class BackendStatusHelperV27 {
 			program.setRecording( convertRecording( versionProgram.getRecording() ) );
 		}
 		
-		if( null != versionProgram.getChannel() ) {
-			program.setChannelInfo( convertChannel( versionProgram.getChannel() ) );
+		if( null != versionProgram.getChannelInfo() ) {
+			program.setChannelInfo( convertChannel( versionProgram.getChannelInfo() ) );
 		}
 		
 		if( null != versionProgram.getArtwork() ) {
 			
 			ArtworkInfos artworkInfos = new ArtworkInfos();
 			
-			if( null != versionProgram.getArtwork().getArtworkInfos() && versionProgram.getArtwork().getArtworkInfos().length > 0 ) {
+			if( null != versionProgram.getArtwork().getArtworkInfos() && versionProgram.getArtwork().getArtworkInfos().isEmpty() ) {
 			
 				List<ArtworkInfo> artworkInfoList = new ArrayList<ArtworkInfo>();
 				
-				for( org.mythtv.services.api.v027.beans.ArtworkInfo versionArtwork : versionProgram.getArtwork().getArtworkInfos() ) {
+				for( org.mythtv.services.api.v027.status.beans.ArtworkInfo versionArtwork : versionProgram.getArtwork().getArtworkInfos() ) {
 					artworkInfoList.add( convertArtwork( versionArtwork ) );
 				}
 				
@@ -450,66 +497,185 @@ public class BackendStatusHelperV27 {
 		return program;
 	}
 
-	private static Recording convertRecording( org.mythtv.services.api.v027.beans.RecordingInfo versionRecording ) {
+	private org.mythtv.services.api.v027.beans.Program convertV27Program( org.mythtv.services.api.v027.status.beans.Program versionProgram ) {
+		
+		org.mythtv.services.api.v027.beans.Program program = new org.mythtv.services.api.v027.beans.Program();
+		//program.setAirdate( null != versionProgram ? versionProgram.getAirDate().toLocalDate() : new LocalDate() );
+		program.setAudioProps( versionProgram.getAudioProps() );
+		program.setCategory( versionProgram.getCategory() );
+		program.setDescription( versionProgram.getDescription() );
+		program.setEndTime( versionProgram.getEndTime() );
+		program.setEpisode( null != versionProgram.getEpisode() && !"".equals( versionProgram.getEpisode() ) ? Integer.parseInt( versionProgram.getEpisode() ) : -1 );
+		program.setFileName( versionProgram.getFilename() );
+		program.setFileSize( null != versionProgram.getFileSize() && !"".equals( versionProgram.getFileSize() ) ? Long.parseLong( versionProgram.getFileSize() ) : -1 );
+		program.setHostName( versionProgram.getHostname() );
+		program.setInetref( versionProgram.getInetref() );
+		program.setLastModified( versionProgram.getLastModified() );
+		program.setProgramFlags( null != versionProgram.getProgramFlags() && !"".equals( versionProgram.getProgramFlags() ) ? Integer.parseInt( versionProgram.getProgramFlags() ) : -1 );
+		program.setProgramId( versionProgram.getProgramId() );
+		program.setRepeat( versionProgram.isRepeat() );
+		program.setSeason( null != versionProgram.getSeason() && !"".equals( versionProgram.getSeason() ) ? Integer.parseInt( versionProgram.getSeason() ) : -1 );
+		program.setSeriesId( versionProgram.getSeriesId() );
+		program.setStars( (double) versionProgram.getStars() );
+		program.setStartTime( versionProgram.getStartTime() );
+		program.setSubProps( versionProgram.getSubProps() );
+		program.setSubTitle( versionProgram.getSubTitle() );
+		program.setTitle( versionProgram.getTitle() );
+		program.setVideoProps( versionProgram.getVideoProps() );
+		
+		if( null != versionProgram.getRecording() ) {
+			program.setRecording( convertV27Recording( versionProgram.getRecording() ) );
+		}
+		
+		if( null != versionProgram.getChannelInfo() ) {
+			program.setChannel( convertV27Channel( versionProgram.getChannelInfo() ) );
+		}
+		
+		if( null != versionProgram.getArtwork() ) {
+			
+			org.mythtv.services.api.v027.beans.ArtworkInfoList artworkInfos = new org.mythtv.services.api.v027.beans.ArtworkInfoList();
+			
+			if( null != versionProgram.getArtwork().getArtworkInfos() && versionProgram.getArtwork().getArtworkInfos().isEmpty() ) {
+			
+				List<org.mythtv.services.api.v027.beans.ArtworkInfo> artworkInfoList = new ArrayList<org.mythtv.services.api.v027.beans.ArtworkInfo>();
+				
+				for( org.mythtv.services.api.v027.status.beans.ArtworkInfo versionArtwork : versionProgram.getArtwork().getArtworkInfos() ) {
+					artworkInfoList.add( convertV27Artwork( versionArtwork ) );
+				}
+				
+				artworkInfos.setArtworkInfos( artworkInfoList.toArray( new org.mythtv.services.api.v027.beans.ArtworkInfo[ artworkInfoList.size() ] ) );
+			}
+			
+			program.setArtwork( artworkInfos );
+		}
+		
+		return program;
+	}
+
+	private Recording convertRecording( org.mythtv.services.api.v027.status.beans.Recording versionRecording ) {
 		
 		Recording recording = new Recording();
-		recording.setDuplicateInType( versionRecording.getDupInType() );
-		recording.setDuplicateMethod( versionRecording.getDupMethod() );
+		recording.setDuplicateInType( versionRecording.getDuplicateInType() );
+		recording.setDuplicateMethod( versionRecording.getDuplicateMethod() );
 		recording.setEncoderId( versionRecording.getEncoderId() );
-		recording.setEndTimestamp( versionRecording.getEndTs() );
+		recording.setEndTimestamp( versionRecording.getEndTimestamp() );
 		recording.setPlayGroup( versionRecording.getPlayGroup() );
 		recording.setPriority( versionRecording.getPriority() );
 		recording.setProfile( versionRecording.getProfile() );
 		recording.setRecordId( versionRecording.getRecordId() );
-		recording.setRecordingGroup( versionRecording.getRecGroup() );
-		recording.setRecordingType( versionRecording.getRecType() );
-		recording.setStartTimestamp( versionRecording.getStartTs() );
+		recording.setRecordingGroup( versionRecording.getRecordingGroup() );
+		recording.setRecordingType( versionRecording.getRecordingType() );
+		recording.setStartTimestamp( versionRecording.getStartTimestamp() );
 		recording.setStatus( versionRecording.getStatus() );
 		recording.setStorageGroup( versionRecording.getStorageGroup() );
 		
 		return recording;
 	}
 
-	private static ChannelInfo convertChannel( org.mythtv.services.api.v027.beans.ChannelInfo versionChannel ) {
+	private org.mythtv.services.api.v027.beans.RecordingInfo convertV27Recording( org.mythtv.services.api.v027.status.beans.Recording versionRecording ) {
+		
+		org.mythtv.services.api.v027.beans.RecordingInfo recording = new org.mythtv.services.api.v027.beans.RecordingInfo();
+		recording.setDupInType( versionRecording.getDuplicateInType() );
+		recording.setDupMethod( versionRecording.getDuplicateMethod() );
+		recording.setEncoderId( versionRecording.getEncoderId() );
+		recording.setEndTs( versionRecording.getEndTimestamp() );
+		recording.setPlayGroup( versionRecording.getPlayGroup() );
+		recording.setPriority( versionRecording.getPriority() );
+		recording.setProfile( versionRecording.getProfile() );
+		recording.setRecordId( versionRecording.getRecordId() );
+		recording.setRecGroup( versionRecording.getRecordingGroup() );
+		recording.setRecType( versionRecording.getRecordingType() );
+		recording.setStartTs( versionRecording.getStartTimestamp() );
+		recording.setStatus( versionRecording.getStatus() );
+		recording.setStorageGroup( versionRecording.getStorageGroup() );
+		
+		return recording;
+	}
+
+	private ChannelInfo convertChannel( org.mythtv.services.api.v027.status.beans.ChannelInfo versionChannel ) {
 		
 		ChannelInfo channel = new ChannelInfo();
-		channel.setAtscMajorChannel( versionChannel.getATSCMajorChan() );
-		channel.setAtscMinorChannel( versionChannel.getATSCMinorChan() );
+		channel.setAtscMajorChannel( versionChannel.getAtscMajorChannel() );
+		channel.setAtscMinorChannel( versionChannel.getAtscMinorChannel() );
 		channel.setCallSign( versionChannel.getCallSign() );
-		channel.setChannelFilters( versionChannel.getChanFilters() );
-		channel.setChannelId( versionChannel.getChanId() );
+		channel.setChannelFilters( versionChannel.getChannelFilters() );
+		channel.setChannelId( versionChannel.getChannelId() );
 		channel.setChannelName( versionChannel.getChannelName() );
-		channel.setChannelNumber( versionChannel.getChanNum() );
-		channel.setCommercialFree( versionChannel.getCommFree() );
+		channel.setChannelNumber( versionChannel.getChannelNumber() );
+		channel.setCommercialFree( versionChannel.getCommercialFree() );
 		channel.setDefaultAuth( versionChannel.getDefaultAuth() );
 		channel.setFineTune( versionChannel.getFineTune() );
 		channel.setFormat( versionChannel.getFormat() );
-		channel.setFrequenceTable( versionChannel.getFrequencyTable() );
+		channel.setFrequenceTable( versionChannel.getFrequenceTable() );
 		channel.setFrequency( versionChannel.getFrequency() );
 		channel.setFrequencyId( versionChannel.getFrequencyId() );
-		channel.setIconUrl( versionChannel.getIconURL() );
+		channel.setIconUrl( versionChannel.getIconUrl() );
 		channel.setInputId( versionChannel.getInputId() );
 		channel.setModulation( versionChannel.getModulation() );
-		channel.setMultiplexId( versionChannel.getMplexId() );
+		channel.setMultiplexId( versionChannel.getMultiplexId() );
 		channel.setNetworkId( versionChannel.getNetworkId() );
 		channel.setServiceId( versionChannel.getServiceId() );
-		channel.setSiStandard( versionChannel.getSIStandard() );
+		channel.setSiStandard( versionChannel.getSiStandard() );
 		channel.setSourceId( versionChannel.getSourceId() );
 		channel.setTransportId( versionChannel.getTransportId() );
-		channel.setUseEit( versionChannel.isUseEIT() );
-		channel.setVisible( versionChannel.isVisible() );
-		channel.setXmltvId( versionChannel.getXMLTVID() );
+		channel.setUseEit( versionChannel.isUseEit() );
+		channel.setVisible( versionChannel.isVisable() );
+		channel.setXmltvId( versionChannel.getXmltvId() );
 		
 		return channel;
 	}
 
-	private static ArtworkInfo convertArtwork( org.mythtv.services.api.v027.beans.ArtworkInfo versionArtwork ) {
+	private org.mythtv.services.api.v027.beans.ChannelInfo convertV27Channel( org.mythtv.services.api.v027.status.beans.ChannelInfo versionChannel ) {
+		
+		org.mythtv.services.api.v027.beans.ChannelInfo channel = new org.mythtv.services.api.v027.beans.ChannelInfo();
+		channel.setATSCMajorChan( versionChannel.getAtscMajorChannel() );
+		channel.setATSCMinorChan( versionChannel.getAtscMinorChannel() );
+		channel.setCallSign( versionChannel.getCallSign() );
+		channel.setChanFilters( versionChannel.getChannelFilters() );
+		channel.setChanId( versionChannel.getChannelId() );
+		channel.setChannelName( versionChannel.getChannelName() );
+		channel.setChanNum( versionChannel.getChannelNumber() );
+		channel.setCommFree( versionChannel.getCommercialFree() );
+		channel.setDefaultAuth( versionChannel.getDefaultAuth() );
+		channel.setFineTune( versionChannel.getFineTune() );
+		channel.setFormat( versionChannel.getFormat() );
+		channel.setFrequencyTable( versionChannel.getFrequenceTable() );
+		channel.setFrequency( (long) versionChannel.getFrequency() );
+		channel.setFrequencyId( versionChannel.getFrequencyId() );
+		channel.setIconURL( versionChannel.getIconUrl() );
+		channel.setInputId( versionChannel.getInputId() );
+		channel.setModulation( versionChannel.getModulation() );
+		channel.setMplexId( versionChannel.getMultiplexId() );
+		channel.setNetworkId( versionChannel.getNetworkId() );
+		channel.setServiceId( versionChannel.getServiceId() );
+		channel.setSIStandard( versionChannel.getSiStandard() );
+		channel.setSourceId( versionChannel.getSourceId() );
+		channel.setTransportId( versionChannel.getTransportId() );
+		channel.setUseEIT( versionChannel.isUseEit() );
+		channel.setVisible( versionChannel.isVisable() );
+		channel.setXMLTVID( versionChannel.getXmltvId() );
+		
+		return channel;
+	}
+
+	private ArtworkInfo convertArtwork( org.mythtv.services.api.v027.status.beans.ArtworkInfo versionArtwork ) {
 		
 		ArtworkInfo artworkInfo = new ArtworkInfo();
-		artworkInfo.setFilename( versionArtwork.getFileName() );
+		artworkInfo.setFilename( versionArtwork.getFilename() );
 		artworkInfo.setStorageGroup( versionArtwork.getStorageGroup() );
 		artworkInfo.setType( versionArtwork.getType() );
 		artworkInfo.setUrl( artworkInfo.getUrl() );
+		
+		return artworkInfo;
+	}
+
+	private org.mythtv.services.api.v027.beans.ArtworkInfo convertV27Artwork( org.mythtv.services.api.v027.status.beans.ArtworkInfo versionArtwork ) {
+		
+		org.mythtv.services.api.v027.beans.ArtworkInfo artworkInfo = new org.mythtv.services.api.v027.beans.ArtworkInfo();
+		artworkInfo.setFileName( versionArtwork.getFilename() );
+		artworkInfo.setStorageGroup( versionArtwork.getStorageGroup() );
+		artworkInfo.setType( versionArtwork.getType() );
+		artworkInfo.setURL( versionArtwork.getUrl() );
 		
 		return artworkInfo;
 	}

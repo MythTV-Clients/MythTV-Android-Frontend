@@ -31,7 +31,35 @@ public class HostHelperV26 extends AbstractBaseHelper {
 	
 	private static MythServicesTemplate mMythServicesTemplate;
 
-	public static List<String> process( final LocationProfile locationProfile ) {
+	private static HostHelperV26 singleton;
+	
+	/**
+	 * Returns the one and only HostHelperV26. init() must be called before 
+	 * any 
+	 * @return
+	 */
+	public static HostHelperV26 getInstance() {
+		if( null == singleton ) {
+			
+			synchronized( HostHelperV26.class ) {
+
+				if( null == singleton ) {
+					singleton = new HostHelperV26();
+				}
+			
+			}
+			
+		}
+		
+		return singleton;
+	}
+	
+	/**
+	 * Constructor. No one but getInstance() can do this.
+	 */
+	private HostHelperV26() { }
+
+	public List<String> process( final LocationProfile locationProfile ) {
 		Log.v( TAG, "process : enter" );
 		
 		if( !MythAccessFactory.isServerReachable( locationProfile.getUrl() ) ) {
@@ -60,7 +88,7 @@ public class HostHelperV26 extends AbstractBaseHelper {
 
 	// internal helpers
 	
-	private static List<String> downloadHosts( final LocationProfile locationProfile ) throws RemoteException, OperationApplicationException {
+	private List<String> downloadHosts( final LocationProfile locationProfile ) throws RemoteException, OperationApplicationException {
 		Log.v( TAG, "downloadHosts : enter" );
 	
 		List<String> hosts = null;
@@ -81,7 +109,7 @@ public class HostHelperV26 extends AbstractBaseHelper {
 		return hosts;
 	}
 	
-	private static List<String> load( org.mythtv.services.api.v026.StringList versionHosts ) {
+	private List<String> load( org.mythtv.services.api.v026.StringList versionHosts ) {
 		Log.v( TAG, "load : enter" );
 		
 		List<String> hosts = new ArrayList<String>();

@@ -18,14 +18,8 @@
  */
 package org.mythtv.service.util;
 
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-
 import org.mythtv.client.ui.preferences.LocationProfile;
+import org.mythtv.services.api.connect.MythAccessFactory;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
@@ -105,43 +99,26 @@ public class NetworkHelper {
 		/* Check if we're not initialized */
 		if( null == context ) {
 //			Log.e(TAG, "NetworkHelper not initialized");
-			throw new RuntimeException( "NetworkHelper is not initialized" );
+			throw new IllegalArgumentException( "NetworkHelper is not initialized" );
 		}
 		
-		if( !isNetworkConnected( context ) )
+		if( null == profile ) {
+//			Log.e(TAG, "NetworkHelper not initialized");
+			throw new IllegalArgumentException( "LocationProfile is required" );
+		}
+		
+		if( !isNetworkConnected( context ) ) {
 			return false;
-
-		int attempts = 0;
-		while( attempts++ < 3 ) {
-//			Log.v( TAG, "isMasterBackendConnected : attempt = " + attempts );
-
-			try {
-			
-				URL url = new URL( profile.getUrl() + "Myth/GetHostName" );
-
-				HttpURLConnection urlc = (HttpURLConnection) url.openConnection();
-				urlc.setRequestProperty( "User-Agent", "Android Application:MythTV_Android_Frontent" );
-				urlc.setRequestProperty( "Connection", "close" );
-				urlc.setConnectTimeout( 1000 * 5 ); // mTimeout is in seconds
-				urlc.connect();
-				if( urlc.getResponseCode() == 200 ) {
-					InputStream in = new BufferedInputStream(urlc.getInputStream());
-					byte[] hostname = new byte[ 128 ];
-					while( in.read( hostname , 0, 128 ) > 0 );
-//					Log.v( TAG, "isMasterBackendConnected : exit" );
-					
-					return true;
-				}
-			} catch( MalformedURLException e ) {
-				Log.w( TAG, "isMasterBackendConnected : error, connecting with backend url", e );
-			} catch( IOException e ) {
-				Log.w( TAG, "isMasterBackendConnected : error, connecting to backend", e );
-			}
-
 		}
-		
-		Log.w( TAG, "isMasterBackendConnected : master backend could not be reached" );
-		return false;
+
+		if( !MythAccessFactory.isServerReachable( profile.getUrl() ) ) {
+			Log.w( TAG, "process : Master Backend '" + profile.getHostname() + "' is unreachable" );
+			
+			return false;
+		}
+
+//		Log.w( TAG, "isMasterBackendConnected : exit" );
+		return true;
 	}
 
 	/* (non-Javadoc)

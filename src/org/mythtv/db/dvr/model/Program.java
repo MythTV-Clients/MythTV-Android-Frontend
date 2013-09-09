@@ -52,7 +52,7 @@ public class Program implements Serializable, Comparable<Program> {
 	private double stars;
 	private long fileSize;
 	private DateTime lastModified;
-	private int programFlags;
+	private String programFlags;
 	private String hostname;
 	private String filename;
 	private DateTime airDate;
@@ -293,14 +293,14 @@ public class Program implements Serializable, Comparable<Program> {
 	/**
 	 * @return the programFlags
 	 */
-	public int getProgramFlags() {
+	public String getProgramFlags() {
 		return programFlags;
 	}
 
 	/**
 	 * @param programFlags the programFlags to set
 	 */
-	public void setProgramFlags( int programFlags ) {
+	public void setProgramFlags( String programFlags ) {
 		this.programFlags = programFlags;
 	}
 

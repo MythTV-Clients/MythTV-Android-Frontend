@@ -18,14 +18,8 @@
  */
 package org.mythtv.service.dvr;
 
-import java.util.List;
-
 import org.joda.time.DateTime;
 import org.mythtv.client.ui.preferences.LocationProfile;
-import org.mythtv.db.dvr.RecordedDaoHelper;
-import org.mythtv.db.dvr.model.Program;
-import org.mythtv.db.dvr.programGroup.ProgramGroup;
-import org.mythtv.db.dvr.programGroup.ProgramGroupDaoHelper;
 import org.mythtv.service.MythtvService;
 import org.mythtv.service.content.LiveStreamService;
 import org.mythtv.service.dvr.v26.RecordedHelperV26;
@@ -61,9 +55,6 @@ public class RecordedService extends MythtvService {
     public static final String EXTRA_COMPLETE_UPTODATE = "COMPLETE_UPTODATE";
     public static final String EXTRA_COMPLETE_OFFLINE = "COMPLETE_OFFLINE";
     
-	private RecordedDaoHelper mRecordedDaoHelper = RecordedDaoHelper.getInstance();
-	private ProgramGroupDaoHelper mProgramGroupDaoHelper = ProgramGroupDaoHelper.getInstance();
-	
 	public RecordedService() {
 		super( "RecordedDownloadService" );
 	}
@@ -89,18 +80,18 @@ public class RecordedService extends MythtvService {
     			switch( apiVersion ) {
     				case v026 :
     					
-    					passed = RecordedHelperV26.process( this, locationProfile );
+    					passed = RecordedHelperV26.getInstance().process( this, locationProfile );
     					
     					break;
     				case v027 :
 
-    					passed = RecordedHelperV27.process( this, locationProfile );
+    					passed = RecordedHelperV27.getInstance().process( this, locationProfile );
 
     					break;
     					
     				default :
     					
-    					passed = RecordedHelperV26.process( this, locationProfile );
+    					passed = RecordedHelperV26.getInstance().process( this, locationProfile );
 
     					break;
     			}
@@ -170,41 +161,24 @@ public class RecordedService extends MythtvService {
 		switch( apiVersion ) {
 			case v026 :
 				
-				removed = RecordedHelperV26.deleteRecorded( this, locationProfile, channelId, startTimestamp, recordId );
+				removed = RecordedHelperV26.getInstance().deleteRecorded( this, locationProfile, channelId, startTimestamp, recordId );
 				
 				break;
 			case v027 :
 
-				removed = RecordedHelperV27.deleteRecorded( this, locationProfile, channelId, startTimestamp, recordId );
+				removed = RecordedHelperV27.getInstance().deleteRecorded( this, locationProfile, channelId, startTimestamp, recordId );
 
 				break;
 				
 			default :
 				
-				removed = RecordedHelperV26.deleteRecorded( this, locationProfile, channelId, startTimestamp, recordId );
+				removed = RecordedHelperV26.getInstance().deleteRecorded( this, locationProfile, channelId, startTimestamp, recordId );
 
 				break;
 		}
 
 		Log.v( TAG, "removeRecorded : exit" );
 		return removed;
-	}
-	
-	private void removeProgramGroupLocal( final LocationProfile locationProfile, final String title ) {
-		Log.v( TAG, "removeProgramGroupLocal : enter" );
-		
-		ProgramGroup programGroup = mProgramGroupDaoHelper.findByTitle( this, locationProfile, title );
-
-		List<Program> programs = mRecordedDaoHelper.findAllByTitle( this, locationProfile, title );
-		if( null == programs || programs.isEmpty() ) {
-
-			if( !"All".equals( programGroup.getTitle() ) ) {
-				mProgramGroupDaoHelper.delete( this, programGroup );
-			}
-			
-		}
-
-		Log.v( TAG, "removeProgramGroupLocal : exit" );
 	}
 	
 }

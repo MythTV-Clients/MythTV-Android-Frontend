@@ -254,18 +254,18 @@ public class LiveStreamService extends MythtvService {
 		switch( apiVersion ) {
 			case v026 :
 				
-				created = LiveStreamHelperV26.create( this, locationProfile, program.getChannelInfo().getChannelId(), program.getStartTime() );
+				created = LiveStreamHelperV26.getInstance().create( this, locationProfile, program.getChannelInfo().getChannelId(), program.getStartTime() );
 				
 				break;
 			case v027 :
 
-				created = LiveStreamHelperV27.create( this, locationProfile, program.getChannelInfo().getChannelId(), program.getStartTime() );
+				created = LiveStreamHelperV27.getInstance().create( this, locationProfile, program.getChannelInfo().getChannelId(), program.getStartTime() );
 
 				break;
 				
 			default :
 				
-				created = LiveStreamHelperV26.create( this, locationProfile, program.getChannelInfo().getChannelId(), program.getStartTime() );
+				created = LiveStreamHelperV26.getInstance().create( this, locationProfile, program.getChannelInfo().getChannelId(), program.getStartTime() );
 
 				break;
 		}
@@ -294,18 +294,18 @@ public class LiveStreamService extends MythtvService {
 		switch( apiVersion ) {
 			case v026 :
 				
-				updated = LiveStreamHelperV26.update( this, locationProfile, program.getChannelInfo().getChannelId(), program.getStartTime() );
+				updated = LiveStreamHelperV26.getInstance().update( this, locationProfile, program.getChannelInfo().getChannelId(), program.getStartTime() );
 				
 				break;
 			case v027 :
 
-				updated = LiveStreamHelperV27.update( this, locationProfile, program.getChannelInfo().getChannelId(), program.getStartTime() );
+				updated = LiveStreamHelperV27.getInstance().update( this, locationProfile, program.getChannelInfo().getChannelId(), program.getStartTime() );
 
 				break;
 				
 			default :
 				
-				updated = LiveStreamHelperV26.update( this, locationProfile, program.getChannelInfo().getChannelId(), program.getStartTime() );
+				updated = LiveStreamHelperV26.getInstance().update( this, locationProfile, program.getChannelInfo().getChannelId(), program.getStartTime() );
 
 				break;
 		}
@@ -333,18 +333,18 @@ public class LiveStreamService extends MythtvService {
 		switch( apiVersion ) {
 			case v026 :
 				
-				removed = LiveStreamHelperV26.remove( this, locationProfile, program.getChannelInfo().getChannelId(), program.getStartTime() );
+				removed = LiveStreamHelperV26.getInstance().remove( this, locationProfile, program.getChannelInfo().getChannelId(), program.getStartTime() );
 				
 				break;
 			case v027 :
 
-				removed = LiveStreamHelperV27.remove( this, locationProfile, program.getChannelInfo().getChannelId(), program.getStartTime() );
+				removed = LiveStreamHelperV27.getInstance().remove( this, locationProfile, program.getChannelInfo().getChannelId(), program.getStartTime() );
 
 				break;
 				
 			default :
 				
-				removed = LiveStreamHelperV26.remove( this, locationProfile, program.getChannelInfo().getChannelId(), program.getStartTime() );
+				removed = LiveStreamHelperV26.getInstance().remove( this, locationProfile, program.getChannelInfo().getChannelId(), program.getStartTime() );
 
 				break;
 		}

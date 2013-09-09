@@ -77,18 +77,18 @@ public class GetHostsTask extends AsyncTask<Void, Void, List<String>> {
 		switch( apiVersion ) {
 			case v026 :
 				
-				hosts = HostHelperV26.process( mLocationProfile );
+				hosts = HostHelperV26.getInstance().process( mLocationProfile );
 				
 				break;
 			case v027 :
 
-				hosts = HostHelperV27.process( mLocationProfile );
+				hosts = HostHelperV27.getInstance().process( mLocationProfile );
 				
 				break;
 				
 			default :
 				
-				hosts = HostHelperV26.process( mLocationProfile );
+				hosts = HostHelperV26.getInstance().process( mLocationProfile );
 
 				break;
 		}

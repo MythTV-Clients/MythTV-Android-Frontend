@@ -84,18 +84,18 @@ public class GetStorageGroupsTask extends AsyncTask<String, Void, List<StorageGr
 		switch( apiVersion ) {
 			case v026 :
 				
-				storageGroupDirectoryList = StorageGroupHelperV26.process( mLocationProfile, groupName );
+				storageGroupDirectoryList = StorageGroupHelperV26.getInstance().process( mLocationProfile, groupName );
 				
 				break;
 			case v027 :
 
-				storageGroupDirectoryList = StorageGroupHelperV27.process( mLocationProfile, groupName );
+				storageGroupDirectoryList = StorageGroupHelperV27.getInstance().process( mLocationProfile, groupName );
 				
 				break;
 				
 			default :
 				
-				storageGroupDirectoryList = null;
+				storageGroupDirectoryList = StorageGroupHelperV26.getInstance().process( mLocationProfile, groupName );
 
 				break;
 		}

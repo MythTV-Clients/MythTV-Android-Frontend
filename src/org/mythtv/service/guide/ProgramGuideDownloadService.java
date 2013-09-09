@@ -80,18 +80,18 @@ public class ProgramGuideDownloadService extends MythtvService {
     			switch( apiVersion ) {
     				case v026 :
     					
-    					passed = ProgramGuideHelperV26.process( this, locationProfile );
+    					passed = ProgramGuideHelperV26.getInstance().process( this, locationProfile );
     					
     					break;
     				case v027 :
 
-    					passed = ProgramGuideHelperV27.process( this, locationProfile );
+    					passed = ProgramGuideHelperV27.getInstance().process( this, locationProfile );
 
     					break;
     					
     				default :
     					
-    					passed = ProgramGuideHelperV26.process( this, locationProfile );
+    					passed = ProgramGuideHelperV26.getInstance().process( this, locationProfile );
 
     					break;
     			}

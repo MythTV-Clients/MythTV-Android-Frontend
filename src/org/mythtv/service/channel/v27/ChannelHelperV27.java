@@ -44,7 +44,35 @@ public class ChannelHelperV27 extends AbstractBaseHelper {
 	
 	private static MythServicesTemplate mMythServicesTemplate;
 	
-	public static boolean process( final Context context, final LocationProfile locationProfile ) {
+	private static ChannelHelperV27 singleton;
+	
+	/**
+	 * Returns the one and only ChannelHelperV27. init() must be called before 
+	 * any 
+	 * @return
+	 */
+	public static ChannelHelperV27 getInstance() {
+		if( null == singleton ) {
+			
+			synchronized( ChannelHelperV27.class ) {
+
+				if( null == singleton ) {
+					singleton = new ChannelHelperV27();
+				}
+			
+			}
+			
+		}
+		
+		return singleton;
+	}
+	
+	/**
+	 * Constructor. No one but getInstance() can do this.
+	 */
+	private ChannelHelperV27() { }
+
+	public boolean process( final Context context, final LocationProfile locationProfile ) {
 		Log.v( TAG, "process : enter" );
 		
 		if( !MythAccessFactory.isServerReachable( locationProfile.getUrl() ) ) {
@@ -144,8 +172,8 @@ public class ChannelHelperV27 extends AbstractBaseHelper {
 		return passed;
 	}
 	
-	public static ChannelInfo findChannel( final Context context, final LocationProfile locationProfile, Integer channelId ) {
-		Log.d( TAG, "findChannel : enter" );
+	public ChannelInfo findChannel( final Context context, final LocationProfile locationProfile, Integer channelId ) {
+//		Log.d( TAG, "findChannel : enter" );
 		
 		String selection = ChannelConstants.FIELD_CHAN_ID + " = ?";
 		String[] selectionArgs = new String[] { String.valueOf( channelId ) };
@@ -161,13 +189,13 @@ public class ChannelHelperV27 extends AbstractBaseHelper {
 		}
 		cursor.close();
 
-		Log.d( TAG, "findChannel : exit" );
+//		Log.d( TAG, "findChannel : exit" );
 		return channel;
 	}
 	
 	// internal helpers
 	
-	private static ChannelInfo[] downloadChannels( final Context context, final LocationProfile locationProfile, final int sourceId ) {
+	private ChannelInfo[] downloadChannels( final Context context, final LocationProfile locationProfile, final int sourceId ) {
 		Log.v( TAG, "downloadChannels : enter" );
 		
 		EtagInfoDelegate etag = mEtagDaoHelper.findByEndpointAndDataId( context, locationProfile, "GetChannelInfoList", String.valueOf( sourceId ) );
@@ -209,7 +237,7 @@ public class ChannelHelperV27 extends AbstractBaseHelper {
 		return null;
 	}
 
-	private static int load( final Context context, final LocationProfile locationProfile, final List<ChannelInfo> allChannelsList ) throws RemoteException, OperationApplicationException {
+	private int load( final Context context, final LocationProfile locationProfile, final List<ChannelInfo> allChannelsList ) throws RemoteException, OperationApplicationException {
 		Log.d( TAG, "load : enter" );
 		
 		if( null == context ) 
@@ -250,7 +278,7 @@ public class ChannelHelperV27 extends AbstractBaseHelper {
 		return processed;
 	}
 
-	public static void processChannel( final Context context, final LocationProfile locationProfile, ArrayList<ContentProviderOperation> ops, ChannelInfo channel, DateTime lastModified, int count ) {
+	public void processChannel( final Context context, final LocationProfile locationProfile, ArrayList<ContentProviderOperation> ops, ChannelInfo channel, DateTime lastModified, int count ) {
 		Log.d( TAG, "processProgram : enter" );
 		
 		String[] projection = new String[] { ChannelConstants._ID };
@@ -289,7 +317,7 @@ public class ChannelHelperV27 extends AbstractBaseHelper {
 		Log.d( TAG, "processProgram : exit" );
 	}
 
-	private static void deleteChannels( final Context context, final LocationProfile locationProfile, ArrayList<ContentProviderOperation> ops, DateTime today ) {
+	private void deleteChannels( final Context context, final LocationProfile locationProfile, ArrayList<ContentProviderOperation> ops, DateTime today ) {
 		Log.v( TAG, "deleteChannels : enter" );
 
 		String channelDeleteSelection = ChannelConstants.FIELD_LAST_MODIFIED_DATE + " < ?";
@@ -307,7 +335,7 @@ public class ChannelHelperV27 extends AbstractBaseHelper {
 		Log.v( TAG, "deleteChannels : exit" );
 	}
 	
-	public static ChannelInfo convertCursorToChannelInfo( Cursor cursor ) {
+	public ChannelInfo convertCursorToChannelInfo( Cursor cursor ) {
 //		Log.v( TAG, "convertCursorToChannelInfo : enter" );
 
 		int  channelId = -1, multiplexId = -1, transportId = -1, serviceId = -1, networkId = -1, atscMajorChannel = -1, atscMinorChannel = -1, fineTune = -1, sourceId = -1, inputId = -1, commercialFree = -1, useEit = -1, visible = -1;
@@ -454,7 +482,7 @@ public class ChannelHelperV27 extends AbstractBaseHelper {
 		return channelInfo;
 	}
 
-	public static ContentValues convertChannelInfoToContentValues( final LocationProfile locationProfile, final DateTime lastModified, final ChannelInfo channelInfo ) {
+	public ContentValues convertChannelInfoToContentValues( final LocationProfile locationProfile, final DateTime lastModified, final ChannelInfo channelInfo ) {
 //		Log.v( TAG, "convertChannelToContentValues : enter" );
 		
 		String formattedChannelNumber = formatChannelNumber( channelInfo.getChanNum() );
@@ -497,7 +525,7 @@ public class ChannelHelperV27 extends AbstractBaseHelper {
 		return values;
 	}
 
-	private static String formatChannelNumber( String value ) {
+	private String formatChannelNumber( String value ) {
 		
 		if( null == value || "".equals( value ) ) {
 			return null;

@@ -23,6 +23,7 @@ import java.util.List;
 import org.joda.time.DateTimeZone;
 import org.mythtv.R;
 import org.mythtv.client.ui.preferences.LocationProfile;
+import org.mythtv.client.ui.preferences.LocationProfile.LocationType;
 import org.mythtv.client.ui.util.MenuHelper;
 import org.mythtv.client.ui.util.MenuItemRefreshAnimated;
 import org.mythtv.client.ui.util.ProgramHelper;
@@ -30,10 +31,21 @@ import org.mythtv.db.dvr.model.Program;
 import org.mythtv.db.status.model.BackendStatus;
 import org.mythtv.db.status.model.Encoder;
 import org.mythtv.db.status.model.Job;
+import org.mythtv.service.channel.ChannelDownloadService;
+import org.mythtv.service.dvr.RecordedService;
+import org.mythtv.service.dvr.RecordingRuleService;
+import org.mythtv.service.dvr.UpcomingDownloadService;
+import org.mythtv.service.frontends.FrontendsDiscoveryService;
+import org.mythtv.service.guide.ProgramGuideDownloadService;
+import org.mythtv.service.status.BackendStatusService;
 import org.mythtv.service.util.DateUtils;
 
 import android.animation.ValueAnimator;
 import android.animation.ValueAnimator.AnimatorUpdateListener;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -59,6 +71,15 @@ public class BackendStatusFragment extends AbstractMythFragment {
 	public static final String BACKEND_STATUS_FRAGMENT_NAME = "org.mythtv.client.ui.BackendStatusFragment";
 
 	private ProgramHelper mProgramHelper = ProgramHelper.getInstance();
+	
+	private BackendStatusReceiver backendStatusReceiver = new BackendStatusReceiver();
+	private ChannelDownloadReceiver channelDownloadReceiver = new ChannelDownloadReceiver();
+	private FrontendsDiscoveryReceiver frontendsDiscoveryReceiver = new FrontendsDiscoveryReceiver();
+	private ProgramGuideDownloadReceiver programGuideDownloadReceiver = new ProgramGuideDownloadReceiver();
+	private RecordedDownloadReceiver recordedDownloadReceiver = new RecordedDownloadReceiver();
+	private RecordingRuleDownloadReceiver recordingRuleDownloadReceiver = new RecordingRuleDownloadReceiver();
+	private UpcomingDownloadReceiver upcomingDownloadReceiver = new UpcomingDownloadReceiver();
+
 	private int mPanelStartY;
 	private View mView;
 	private MenuItemRefreshAnimated mMenuItemRefresh;
@@ -73,6 +94,51 @@ public class BackendStatusFragment extends AbstractMythFragment {
 	private TextView mTextViewEncodersEmpty;
 	private TextView mTextViewJobQueueEmpty;
 	private TextView mTextViewUpcomingRecEmpty;
+
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.Fragment#onStart()
+	 */
+	@Override
+	public void onStart() {
+		Log.v( TAG, "onStart : enter" );
+		super.onStart();
+
+		IntentFilter backendStatusFilter = new IntentFilter( BackendStatusService.ACTION_DOWNLOAD );
+		backendStatusFilter.addAction( BackendStatusService.ACTION_COMPLETE );
+	    getActivity().registerReceiver( backendStatusReceiver, backendStatusFilter );
+
+		IntentFilter channelDownloadFilter = new IntentFilter( ChannelDownloadService.ACTION_DOWNLOAD );
+		channelDownloadFilter.addAction( ChannelDownloadService.ACTION_PROGRESS );
+		channelDownloadFilter.addAction( ChannelDownloadService.ACTION_COMPLETE );
+	    getActivity().registerReceiver( channelDownloadReceiver, channelDownloadFilter );
+
+		IntentFilter programGuideDownloadFilter = new IntentFilter( ProgramGuideDownloadService.ACTION_DOWNLOAD );
+		programGuideDownloadFilter.addAction( ProgramGuideDownloadService.ACTION_PROGRESS );
+		programGuideDownloadFilter.addAction( ProgramGuideDownloadService.ACTION_COMPLETE );
+        getActivity().registerReceiver( programGuideDownloadReceiver, programGuideDownloadFilter );
+
+		IntentFilter recordedDownloadFilter = new IntentFilter( RecordedService.ACTION_DOWNLOAD );
+		recordedDownloadFilter.addAction( RecordedService.ACTION_PROGRESS );
+		recordedDownloadFilter.addAction( RecordedService.ACTION_COMPLETE );
+        getActivity().registerReceiver( recordedDownloadReceiver, recordedDownloadFilter );
+
+		IntentFilter upcomingDownloadFilter = new IntentFilter( UpcomingDownloadService.ACTION_DOWNLOAD );
+		upcomingDownloadFilter.addAction( UpcomingDownloadService.ACTION_PROGRESS );
+		upcomingDownloadFilter.addAction( UpcomingDownloadService.ACTION_COMPLETE );
+	    getActivity().registerReceiver( upcomingDownloadReceiver, upcomingDownloadFilter );
+
+		IntentFilter recordingRuleDownloadFilter = new IntentFilter( RecordingRuleService.ACTION_DOWNLOAD );
+		recordingRuleDownloadFilter.addAction( RecordingRuleService.ACTION_PROGRESS );
+		recordingRuleDownloadFilter.addAction( RecordingRuleService.ACTION_COMPLETE );
+        getActivity().registerReceiver( recordingRuleDownloadReceiver, recordingRuleDownloadFilter );
+
+		IntentFilter frontendsDiscoveryFilter = new IntentFilter( FrontendsDiscoveryService.ACTION_DISCOVER );
+		frontendsDiscoveryFilter.addAction( FrontendsDiscoveryService.ACTION_PROGRESS );
+		frontendsDiscoveryFilter.addAction( FrontendsDiscoveryService.ACTION_COMPLETE );
+	    getActivity().registerReceiver( frontendsDiscoveryReceiver, frontendsDiscoveryFilter );
+
+	    Log.v( TAG, "onStart : exit" );
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -116,6 +182,76 @@ public class BackendStatusFragment extends AbstractMythFragment {
 
 		Log.d( TAG, "onCreateView : exit" );
 		return mView;
+	}
+
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.Fragment#onStop()
+	 */
+	@Override
+	public void onStop() {
+		Log.v( TAG, "onStop : enter" );
+		super.onStop();
+
+		// Unregister for broadcast
+		if( null != backendStatusReceiver ) {
+			try {
+				getActivity().unregisterReceiver( backendStatusReceiver );
+			} catch( IllegalArgumentException e ) {
+				Log.e( TAG, "onStop : error", e );
+			}
+		}
+
+		// Unregister for broadcast
+		if( null != channelDownloadReceiver ) {
+			try {
+				getActivity().unregisterReceiver( channelDownloadReceiver );
+			} catch( IllegalArgumentException e ) {
+				Log.e( TAG, "onDestroy : error", e );
+			}
+		}
+
+		if( null != programGuideDownloadReceiver ) {
+			try {
+				getActivity().unregisterReceiver( programGuideDownloadReceiver );
+			} catch( IllegalArgumentException e ) {
+				Log.e( TAG, "onDestroy : error", e );
+			}
+		}
+
+		if( null != recordedDownloadReceiver ) {
+			try {
+				getActivity().unregisterReceiver( recordedDownloadReceiver );
+			} catch( IllegalArgumentException e ) {
+				Log.e( TAG, "onDestroy : error", e );
+			}
+		}
+
+		if( null != recordingRuleDownloadReceiver ) {
+			try {
+				getActivity().unregisterReceiver( recordingRuleDownloadReceiver );
+			} catch( IllegalArgumentException e ) {
+				Log.e( TAG, "onDestroy : error", e );
+			}
+		}
+		
+		if( null != upcomingDownloadReceiver ) {
+			try {
+				getActivity().unregisterReceiver( upcomingDownloadReceiver );
+				upcomingDownloadReceiver = null;
+			} catch( IllegalArgumentException e ) {
+				Log.e( TAG, "onDestroy : error", e );
+			}
+		}
+
+		if( null != frontendsDiscoveryReceiver ) {
+			try {
+				getActivity().unregisterReceiver( frontendsDiscoveryReceiver );
+			} catch( IllegalArgumentException e ) {
+				Log.e( TAG, "onDestroy : error", e );
+			}
+		}
+
+		Log.v( TAG, "onStop : exit" );
 	}
 
 	/*
@@ -170,6 +306,9 @@ public class BackendStatusFragment extends AbstractMythFragment {
 		Log.d( TAG, "onResume : exit" );
 	}
 
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.Fragment#onConfigurationChanged(android.content.res.Configuration)
+	 */
 	@Override
 	public void onConfigurationChanged( Configuration newConfig ) {
 
@@ -275,8 +414,7 @@ public class BackendStatusFragment extends AbstractMythFragment {
 	 * Called at the end of BackendStatusTask.onPostExecute() when result is not
 	 * null.
 	 */
-	@Override
-	protected void onBackendStatusUpdated( BackendStatus result ) {
+	private void onBackendStatusUpdated( BackendStatus result ) {
 
 		this.mMenuItemRefresh.stopRefreshAnimation();
 
@@ -370,7 +508,6 @@ public class BackendStatusFragment extends AbstractMythFragment {
 		}
 
 		return view;
-
 	}
 
 	private View getUpcomingRecView( LayoutInflater inflater, Program program ) {
@@ -478,6 +615,338 @@ public class BackendStatusFragment extends AbstractMythFragment {
 		default:
 			return getString( R.string.job_queue_status_unknown );
 		}
+	}
+
+    protected void checkBackendStatusService() {
+
+    	startBackendStatusService();
+
+    }
+    
+    private void startBackendStatusService() {
+    	
+		if( !mRunningServiceHelper.isServiceRunning( getActivity(), "org.mythtv.service.status.BackendStatusService" ) ) {
+			getActivity().startService( new Intent( BackendStatusService.ACTION_DOWNLOAD ) );
+		}
+
+    }
+    
+    private void checkFrontendDiscoveryService() {
+      	 
+    	startFrontendDiscoveryService();
+
+    }
+    
+    private void startFrontendDiscoveryService() {
+
+		if( mLocationProfile.getType().equals( LocationType.HOME ) ) {
+			
+			if( !mRunningServiceHelper.isServiceRunning( getActivity(), "org.mythtv.service.frontends.FrontendsDiscoveryService" ) ) {
+				getActivity().startService( new Intent( FrontendsDiscoveryService.ACTION_DISCOVER ) );
+			}
+			
+		}
+   	
+    }
+    
+    private void checkChannelDownloadService() {
+    	 
+		startChannelDownloadService();
+
+    }
+    
+    private void startChannelDownloadService() {
+
+    	if( !mRunningServiceHelper.isServiceRunning( getActivity(), "org.mythtv.service.channel.ChannelDownloadService" ) ) {
+    		getActivity().startService( new Intent( ChannelDownloadService.ACTION_DOWNLOAD ) );
+		}
+   	
+    }
+    
+    private void checkProgramGuideDownloadService() {
+
+		startProgramGuideDownloadService();
+
+    }
+    
+    private void startProgramGuideDownloadService() {
+    	
+		if( !mRunningServiceHelper.isServiceRunning( getActivity(), "org.mythtv.service.guide.ProgramGuideDownloadService" ) ) {
+			getActivity().startService( new Intent( ProgramGuideDownloadService.ACTION_DOWNLOAD ) );
+		}
+
+    }
+    
+    private void checkRecordedDownloadService() {
+
+		startRecordedDownloadService();
+		
+    }
+    
+    private void startRecordedDownloadService() {
+    	
+		if( !mRunningServiceHelper.isServiceRunning( getActivity(), "org.mythtv.service.dvr.RecordedDownloadService" ) ) {
+			getActivity().startService( new Intent( RecordedService.ACTION_DOWNLOAD ) );
+		}
+
+    }
+    
+    private void checkRecordingRulesDownloadService() {
+
+		startRecordingRulesDownloadService();
+		
+    }
+    
+    private void startRecordingRulesDownloadService() {
+    	
+		if( !mRunningServiceHelper.isServiceRunning( getActivity(), "org.mythtv.service.dvr.RecordingRuleService" ) ) {
+			getActivity().startService( new Intent( RecordingRuleService.ACTION_DOWNLOAD ) );
+		}
+
+    }
+    
+    private void checkUpcomingDownloadService() {
+
+    	startUpcomingDownloadService();
+		
+    }
+    
+    private void startUpcomingDownloadService() {
+    	
+		if( !mRunningServiceHelper.isServiceRunning( getActivity(), "org.mythtv.service.dvr.UpcomingDownloadService" ) ) {
+			getActivity().startService( new Intent( UpcomingDownloadService.ACTION_DOWNLOAD ) );
+		}
+
+    }
+    
+	private class BackendStatusReceiver extends BroadcastReceiver {
+
+		/* (non-Javadoc)
+		 * @see android.content.BroadcastReceiver#onReceive(android.content.Context, android.content.Intent)
+		 */
+		@Override
+		public void onReceive( Context context, Intent intent ) {
+        	Log.v( TAG, "BackendStatusReceiver.onReceive : enter" );
+			
+	        if( intent.getAction().equals( BackendStatusService.ACTION_COMPLETE ) ) {
+	        	Log.i( TAG, "BackendStatusReceiver.onReceive : " + intent.getStringExtra( BackendStatusService.EXTRA_COMPLETE ) );
+
+	        	if( !intent.getBooleanExtra( BackendStatusService.EXTRA_COMPLETE_OFFLINE, false ) ) {
+	        		
+	        		if( null != intent.getSerializableExtra( BackendStatusService.EXTRA_COMPLETE_DATA ) ) {
+	        			mStatus = (BackendStatus) intent.getSerializableExtra( BackendStatusService.EXTRA_COMPLETE_DATA );
+	        		
+	        			onBackendStatusUpdated( mStatus );
+	        			
+	        		}
+	        		
+        			checkFrontendDiscoveryService();
+        			checkChannelDownloadService();
+	        	}
+	        	
+	        }
+
+        	Log.v( TAG, "BackendStatusReceiver.onReceive : exit" );
+		}
+		
+	}
+
+	private class ChannelDownloadReceiver extends BroadcastReceiver {
+
+		/* (non-Javadoc)
+		 * @see android.content.BroadcastReceiver#onReceive(android.content.Context, android.content.Intent)
+		 */
+		@Override
+		public void onReceive( Context context, Intent intent ) {
+        	Log.v( TAG, "ChannelDownloadReceiver.onReceive : enter" );
+
+	        if( intent.getAction().equals( ChannelDownloadService.ACTION_PROGRESS ) ) {
+	        	Log.i( TAG, "ChannelDownloadReceiver.onReceive : progress=" + intent.getStringExtra( ChannelDownloadService.EXTRA_PROGRESS ) );
+	        }
+	        
+	        if( intent.getAction().equals( ChannelDownloadService.ACTION_COMPLETE ) ) {
+	        	Log.i( TAG, "ChannelDownloadReceiver.onReceive : " + intent.getStringExtra( ChannelDownloadService.EXTRA_COMPLETE ) );
+	        	
+//	        	if( intent.getBooleanExtra( ChannelDownloadService.EXTRA_COMPLETE_UPTODATE, true ) ) {
+//	        		Toast.makeText( getActivity(), "Channels are up to date!", Toast.LENGTH_SHORT ).show();
+//	        	} else {
+//	        		Toast.makeText( getActivity(), "Channels are NOT up to date!", Toast.LENGTH_SHORT ).show();
+//	        	}
+
+        		checkRecordedDownloadService();
+        		
+	        }
+
+        	Log.v( TAG, "ChannelDownloadReceiver.onReceive : exit" );
+		}
+		
+	}
+
+	private class RecordedDownloadReceiver extends BroadcastReceiver {
+
+		/* (non-Javadoc)
+		 * @see android.content.BroadcastReceiver#onReceive(android.content.Context, android.content.Intent)
+		 */
+		@Override
+		public void onReceive( Context context, Intent intent ) {
+        	Log.v( TAG, "RecordedDownloadReceiver.onReceive : enter" );
+			
+	        if( intent.getAction().equals( RecordedService.ACTION_PROGRESS ) ) {
+	        	Log.i( TAG, "RecordedDownloadReceiver.onReceive : progress=" + intent.getStringExtra( RecordedService.EXTRA_PROGRESS ) );
+	        }
+	        
+	        if( intent.getAction().equals( RecordedService.ACTION_COMPLETE ) ) {
+	        	Log.i( TAG, "RecordedDownloadReceiver.onReceive : complete=" + intent.getStringExtra( RecordedService.EXTRA_COMPLETE ) );
+	        	
+//	        	LocationProfile profile = mLocationProfileDaoHelper.findConnectedProfile( BackendStatusService.this );
+	        	
+//	        	boolean inError = false;
+//	        	Cursor errorCursor = getContentResolver().query( ProgramConstants.CONTENT_URI_RECORDED, new String[] { ProgramConstants._ID }, ProgramConstants.TABLE_NAME_RECORDED + "." + ProgramConstants.FIELD_IN_ERROR + " = ? AND " + ProgramConstants.TABLE_NAME_RECORDED + "." + ProgramConstants.FIELD_MASTER_HOSTNAME + " = ?", new String[] { "1", profile.getHostname() }, null );
+//	        	if( errorCursor.moveToFirst() ) {
+//	        		inError = true;
+//	        	}
+//	        	errorCursor.close();
+
+//	        	if( intent.getExtras().containsKey( RecordedService.EXTRA_COMPLETE_UPTODATE ) ) {
+//	        		Toast.makeText( getActivity(), "Recorded Programs are up to date!" + ( inError ? " (Backend error(s) detected)" : "" ), Toast.LENGTH_SHORT ).show();
+//	        	} else if( intent.getExtras().containsKey( RecordedService.EXTRA_COMPLETE_OFFLINE ) ) {
+//	        		Toast.makeText( getActivity(), "Recorded Programs Update failed because Master Backend is not connected!", Toast.LENGTH_SHORT ).show();
+//	        	} else {
+//	        		Toast.makeText( getActivity(), "Recorded Programs updated!" + ( inError ? " (Backend error(s) detected)" : "" ), Toast.LENGTH_SHORT ).show();
+//	        	}
+	        	
+	        	checkUpcomingDownloadService();
+
+	        }
+
+        	Log.v( TAG, "RecordedDownloadReceiver.onReceive : exit" );
+		}
+		
+	}
+
+	private class RecordingRuleDownloadReceiver extends BroadcastReceiver {
+
+		/* (non-Javadoc)
+		 * @see android.content.BroadcastReceiver#onReceive(android.content.Context, android.content.Intent)
+		 */
+		@Override
+		public void onReceive( Context context, Intent intent ) {
+        	Log.v( TAG, "RecordingRuleDownloadReceiver.onReceive : enter" );
+			
+	        if ( intent.getAction().equals( RecordingRuleService.ACTION_PROGRESS ) ) {
+	        	Log.i( TAG, "RecordingRuleDownloadReceiver.onReceive : progress=" + intent.getStringExtra( RecordingRuleService.EXTRA_PROGRESS ) );
+	        }
+	        
+	        if ( intent.getAction().equals( RecordingRuleService.ACTION_COMPLETE ) ) {
+	        	Log.i( TAG, "RecordingRuleDownloadReceiver.onReceive : complete=" + intent.getStringExtra( RecordingRuleService.EXTRA_COMPLETE ) );
+	        	
+//	        	if( intent.getExtras().containsKey( RecordingRuleService.EXTRA_COMPLETE_UPTODATE ) ) {
+//	        		Toast.makeText( getActivity(), "Recording Rules are up to date!", Toast.LENGTH_SHORT ).show();
+//	        	} else if( intent.getExtras().containsKey( RecordingRuleService.EXTRA_COMPLETE_OFFLINE ) ) {
+//	        		Toast.makeText( getActivity(), "Recording Rules Update failed because Master Backend is not connected!", Toast.LENGTH_SHORT ).show();
+//	        	} else {
+//	        		Toast.makeText( getActivity(), "Recording Rules updated!", Toast.LENGTH_SHORT ).show();
+//	        	}
+	        	
+	        	checkProgramGuideDownloadService();
+
+	        }
+
+        	Log.v( TAG, "RecordingRuleDownloadReceiver.onReceive : exit" );
+		}
+		
+	}
+
+	private class UpcomingDownloadReceiver extends BroadcastReceiver {
+
+		/* (non-Javadoc)
+		 * @see android.content.BroadcastReceiver#onReceive(android.content.Context, android.content.Intent)
+		 */
+		@Override
+		public void onReceive( Context context, Intent intent ) {
+        	Log.v( TAG, "UpcomingDownloadReceiver.onReceive : enter" );
+
+	        if ( intent.getAction().equals( UpcomingDownloadService.ACTION_PROGRESS ) ) {
+	        	Log.i( TAG, "UpcomingDownloadReceiver.onReceive : " + intent.getStringExtra( UpcomingDownloadService.EXTRA_PROGRESS ) );
+	        	
+	        	String filename = intent.getStringExtra( UpcomingDownloadService.EXTRA_PROGRESS_FILENAME );
+	        	if( null != filename && !"".equals( filename ) ) {
+	        		Log.d( TAG, "UpcomingDownloadReceiver.onReceive : removing from cache" + filename );
+	        	}
+	        }
+	        
+	        if ( intent.getAction().equals( UpcomingDownloadService.ACTION_COMPLETE ) ) {
+	        	Log.i( TAG, "UpcomingDownloadReceiver.onReceive : " + intent.getStringExtra( UpcomingDownloadService.EXTRA_COMPLETE ) );
+	        	
+//	        	if( intent.getExtras().containsKey( UpcomingDownloadService.EXTRA_COMPLETE_UPTODATE ) ) {
+//	        		Toast.makeText( getActivity(), "Upcoming Programs are up to date!", Toast.LENGTH_SHORT ).show();
+//	        	} else if( intent.getExtras().containsKey( UpcomingDownloadService.EXTRA_COMPLETE_OFFLINE ) ) {
+//	        		Toast.makeText( getActivity(), "Upcoming Programs Update failed because Master Backend is not connected!", Toast.LENGTH_SHORT ).show();
+//	        	} else {
+//	        		Toast.makeText( getActivity(), "Upcoming Programs updated!", Toast.LENGTH_SHORT ).show();
+//	        	}
+
+	        	checkRecordingRulesDownloadService();
+
+	        }
+	        
+        	Log.v( TAG, "UpcomingDownloadReceiver.onReceive : exit" );
+		}
+		
+	}
+
+	private class ProgramGuideDownloadReceiver extends BroadcastReceiver {
+
+		/* (non-Javadoc)
+		 * @see android.content.BroadcastReceiver#onReceive(android.content.Context, android.content.Intent)
+		 */
+		@Override
+		public void onReceive( Context context, Intent intent ) {
+        	Log.v( TAG, "ProgramGuideDownloadReceiver.onReceive : enter" );
+
+	        if ( intent.getAction().equals( ProgramGuideDownloadService.ACTION_PROGRESS ) ) {
+	        	Log.i( TAG, "ProgramGuideDownloadReceiver.onReceive : " + intent.getStringExtra( ProgramGuideDownloadService.EXTRA_PROGRESS ) );
+	        	
+	        }
+	        
+	        if ( intent.getAction().equals( ProgramGuideDownloadService.ACTION_COMPLETE ) ) {
+	        	Log.i( TAG, "ProgramGuideDownloadReceiver.onReceive : " + intent.getStringExtra( ProgramGuideDownloadService.EXTRA_COMPLETE ) );
+	        	
+//	        	if( intent.getExtras().containsKey( ProgramGuideDownloadService.EXTRA_COMPLETE_UPTODATE ) ) {
+//	        		Toast.makeText( getActivity(), "Program Guide is up to date!", Toast.LENGTH_SHORT ).show();
+//	        	} else if( intent.getExtras().containsKey( ProgramGuideDownloadService.EXTRA_COMPLETE_OFFLINE ) ) {
+//	        		Toast.makeText( getActivity(), "Program Guide Update failed because Master Backend is not connected!", Toast.LENGTH_SHORT ).show();
+//	        	} else {
+//	        		Toast.makeText( getActivity(), "Program Guide updated!", Toast.LENGTH_SHORT ).show();
+//	        	}
+	        	
+	        }
+	        
+        	Log.v( TAG, "ProgramGuideDownloadReceiver.onReceive : exit" );
+		}
+		
+	}
+
+	private class FrontendsDiscoveryReceiver extends BroadcastReceiver {
+
+		/* (non-Javadoc)
+		 * @see android.content.BroadcastReceiver#onReceive(android.content.Context, android.content.Intent)
+		 */
+		@Override
+		public void onReceive( Context context, Intent intent ) {
+        	Log.v( TAG, "FrontendsDiscoveryReceiver.onReceive : enter" );
+
+	        if ( intent.getAction().equals( FrontendsDiscoveryService.ACTION_PROGRESS ) ) {
+	        	Log.i( TAG, "FrontendsDiscoveryReceiver.onReceive : progress=" + intent.getStringExtra( FrontendsDiscoveryService.EXTRA_PROGRESS ) );
+	        }
+	        
+	        if ( intent.getAction().equals( ChannelDownloadService.ACTION_COMPLETE ) ) {
+	        	Log.i( TAG, "FrontendsDiscoveryReceiver.onReceive : " + intent.getStringExtra( FrontendsDiscoveryService.EXTRA_COMPLETE ) );
+	        }
+
+        	Log.v( TAG, "FrontendsDiscoveryReceiver.onReceive : exit" );
+		}
+		
 	}
 
 }

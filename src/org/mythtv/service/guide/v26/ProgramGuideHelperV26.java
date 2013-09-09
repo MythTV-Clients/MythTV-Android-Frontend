@@ -48,7 +48,35 @@ public class ProgramGuideHelperV26 extends AbstractBaseHelper {
 	private static MainApplication mMainApplication;
 	private static MythServicesTemplate mMythServicesTemplate;
 	
-	public static boolean process( final Context context, final LocationProfile locationProfile ) {
+	private static ProgramGuideHelperV26 singleton;
+	
+	/**
+	 * Returns the one and only ProgramGuideHelperV26. init() must be called before 
+	 * any 
+	 * @return
+	 */
+	public static ProgramGuideHelperV26 getInstance() {
+		if( null == singleton ) {
+			
+			synchronized( ProgramGuideHelperV26.class ) {
+
+				if( null == singleton ) {
+					singleton = new ProgramGuideHelperV26();
+				}
+			
+			}
+			
+		}
+		
+		return singleton;
+	}
+	
+	/**
+	 * Constructor. No one but getInstance() can do this.
+	 */
+	private ProgramGuideHelperV26() { }
+
+	public boolean process( final Context context, final LocationProfile locationProfile ) {
 		Log.v( TAG, "process : enter" );
 		
 		if( !MythAccessFactory.isServerReachable( locationProfile.getUrl() ) ) {
@@ -76,19 +104,19 @@ public class ProgramGuideHelperV26 extends AbstractBaseHelper {
 		return passed;
 	}
 	
-	public static Program findProgram( final Context context, final LocationProfile locationProfile, Integer channelId, DateTime startTime ) {
+	public Program findProgram( final Context context, final LocationProfile locationProfile, Integer channelId, DateTime startTime ) {
 		Log.v( TAG, "findProgram : enter" );
 		
-		Program program = ProgramHelperV26.findProgram( context, locationProfile, ProgramConstants.CONTENT_URI_GUIDE, ProgramConstants.TABLE_NAME_GUIDE, channelId, startTime );
+		Program program = ProgramHelperV26.getInstance().findProgram( context, locationProfile, ProgramConstants.CONTENT_URI_GUIDE, ProgramConstants.TABLE_NAME_GUIDE, channelId, startTime );
 		
 		Log.v( TAG, "findProgram : enter" );
 		return program;
 	}
 	
-	public static boolean deleteProgram( final Context context, final LocationProfile locationProfile, Integer channelId, DateTime startTime, Integer recordId ) {
+	public boolean deleteProgram( final Context context, final LocationProfile locationProfile, Integer channelId, DateTime startTime, Integer recordId ) {
 		Log.v( TAG, "deleteProgram : enter" );
 		
-		boolean removed = ProgramHelperV26.deleteProgram( context, locationProfile, ProgramConstants.CONTENT_URI_GUIDE, ProgramConstants.TABLE_NAME_GUIDE, channelId, startTime, recordId );
+		boolean removed = ProgramHelperV26.getInstance().deleteProgram( context, locationProfile, ProgramConstants.CONTENT_URI_GUIDE, ProgramConstants.TABLE_NAME_GUIDE, channelId, startTime, recordId );
 		
 		Log.v( TAG, "deleteProgram : enter" );
 		return removed;
@@ -96,30 +124,30 @@ public class ProgramGuideHelperV26 extends AbstractBaseHelper {
 	
 	// internal helpers
 	
-	private static void downloadProgramGuide( final Context context, final LocationProfile locationProfile ) throws RemoteException, OperationApplicationException {
+	private void downloadProgramGuide( final Context context, final LocationProfile locationProfile ) throws RemoteException, OperationApplicationException {
 		Log.v( TAG, "downloadProgramGuide : enter" );
 	
 		DateTime startDownloading = new DateTime();
 		
 		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences( context );
 		int downloadDays = Integer.parseInt( sp.getString( "preference_program_guide_days", "14" ) );
-		Log.v( TAG, "download : downloadDays=" + downloadDays );
+		Log.v( TAG, "downloadProgramGuide : downloadDays=" + downloadDays );
 		
 		DateTime start = new DateTime( DateTimeZone.getDefault() ).withTimeAtStartOfDay();
 		DateTime end = start.plusHours( 3 );
 		for( int i = 0; i < ( ( downloadDays * 24 ) / 3 ); i++ ) {
-			Log.i( TAG, "download : starting download for [" + i + " of " + ( ( downloadDays * 24 ) / 3 ) + "] " + DateUtils.getDateTimeUsingLocaleFormattingPretty( start, mMainApplication.getDateFormat(), mMainApplication.getClockType() ) + ", end time=" + DateUtils.getDateTimeUsingLocaleFormattingPretty( end, mMainApplication.getDateFormat(), mMainApplication.getClockType() ) );
+			Log.i( TAG, "downloadProgramGuide : starting download for [" + i + " of " + ( ( downloadDays * 24 ) / 3 ) + "] " + DateUtils.getDateTimeUsingLocaleFormattingPretty( start, mMainApplication.getDateFormat(), mMainApplication.getClockType() ) + ", end time=" + DateUtils.getDateTimeUsingLocaleFormattingPretty( end, mMainApplication.getDateFormat(), mMainApplication.getClockType() ) );
 
 			EtagInfoDelegate etag = mEtagDaoHelper.findByEndpointAndDataId( context, locationProfile, GuideTemplate.Endpoint.GET_PROGRAM_GUIDE.name(), String.valueOf( i ) );
-			Log.v( TAG, "download : etag=" + etag.toString() );
+			Log.d( TAG, "downloadProgramGuide : etag=" + etag.getValue() );
 			
 			if( null == etag.getDate() || start.isAfter( etag.getDate() ) ) {
-				Log.v( TAG, "download : next mythfilldatabase has passed" );
+				Log.v( TAG, "downloadProgramGuide : next mythfilldatabase has passed" );
 				
 				ResponseEntity<ProgramGuideWrapper> responseEntity = mMythServicesTemplate.guideOperations().getProgramGuide( start, end, 1, -1, false, etag );
 
 				if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
-					Log.i( TAG, "download : " + GuideTemplate.Endpoint.GET_PROGRAM_GUIDE.name() + " returned 200 OK" );
+					Log.i( TAG, "downloadProgramGuide : " + GuideTemplate.Endpoint.GET_PROGRAM_GUIDE.name() + " returned 200 OK" );
 					ProgramGuideWrapper programGuide = responseEntity.getBody();
 
 					if( null != programGuide ) {
@@ -131,7 +159,7 @@ public class ProgramGuideHelperV26 extends AbstractBaseHelper {
 					}
 
 					if( null != etag.getValue() ) {
-						Log.i( TAG, "download : saving etag: " + etag.getValue() );
+						Log.i( TAG, "downloadProgramGuide : saving etag: " + etag.getValue() );
 
 						etag.setEndpoint( GuideTemplate.Endpoint.GET_PROGRAM_GUIDE.name() );
 						etag.setDataId( i );
@@ -169,7 +197,7 @@ public class ProgramGuideHelperV26 extends AbstractBaseHelper {
 		Log.v( TAG, "downloadProgramGuide : exit" );
 	}
 	
-	private static int load( final Context context, final LocationProfile locationProfile, final ProgramGuide programGuide ) throws RemoteException, OperationApplicationException {
+	private int load( final Context context, final LocationProfile locationProfile, final ProgramGuide programGuide ) throws RemoteException, OperationApplicationException {
 		Log.d( TAG, "load : enter" );
 		
 		if( null == context ) 
@@ -185,18 +213,20 @@ public class ProgramGuideHelperV26 extends AbstractBaseHelper {
 		
 		for( ChannelInfo channel : programGuide.getChannels() ) {
 		
-			ChannelInfo channelInfo = ChannelHelperV26.findChannel( context, locationProfile, channel.getChannelId() );
+			ChannelHelperV26 channelHelper = ChannelHelperV26.getInstance();
+			ChannelInfo channelInfo = channelHelper.findChannel( context, locationProfile, channel.getChannelId() );
 			if( null == channelInfo ) {
-				ChannelHelperV26.processChannel( context, locationProfile, ops, channelInfo, lastModified, count );
+				channelHelper.processChannel( context, locationProfile, ops, channelInfo, lastModified, count );
 				
-				channelInfo = ChannelHelperV26.findChannel( context, locationProfile, channel.getChannelId() );
+				channelInfo = channelHelper.findChannel( context, locationProfile, channel.getChannelId() );
 			}
 			
 			for( Program program : channel.getPrograms() ) {
-
+				program.setChannelInfo( channelInfo );
+				
 				DateTime startTime = program.getStartTime();
 
-				ProgramHelperV26.processProgram( context, locationProfile, ProgramConstants.CONTENT_URI_GUIDE, ProgramConstants.TABLE_NAME_GUIDE, ops, program, lastModified, startTime, count );
+				ProgramHelperV26.getInstance().processProgram( context, locationProfile, ProgramConstants.CONTENT_URI_GUIDE, ProgramConstants.TABLE_NAME_GUIDE, ops, program, lastModified, startTime, count );
 
 				if( count > BATCH_COUNT_LIMIT ) {
 //					Log.i( TAG, "load : applying batch for '" + count + "' transactions, processing programs" );
@@ -212,7 +242,7 @@ public class ProgramGuideHelperV26 extends AbstractBaseHelper {
 		processBatch( context, ops, processed, count );
 
 //		Log.v( TAG, "load : DELETE PROGRAMS" );
-		ProgramHelperV26.deletePrograms( context, locationProfile, ops, ProgramConstants.CONTENT_URI_GUIDE, ProgramConstants.TABLE_NAME_GUIDE, today );
+		ProgramHelperV26.getInstance().deletePrograms( context, locationProfile, ops, ProgramConstants.CONTENT_URI_GUIDE, ProgramConstants.TABLE_NAME_GUIDE, today );
 
 		processBatch( context, ops, processed, count );
 

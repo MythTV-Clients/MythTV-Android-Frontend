@@ -30,7 +30,35 @@ public class StorageGroupHelperV26 extends AbstractBaseHelper {
 	
 	private static MythServicesTemplate mMythServicesTemplate;
 
-	public static List<StorageGroupDirectory> process( final LocationProfile locationProfile, String storageGroupName ) {
+	private static StorageGroupHelperV26 singleton;
+	
+	/**
+	 * Returns the one and only StorageGroupHelperV26. init() must be called before 
+	 * any 
+	 * @return
+	 */
+	public static StorageGroupHelperV26 getInstance() {
+		if( null == singleton ) {
+			
+			synchronized( StorageGroupHelperV26.class ) {
+
+				if( null == singleton ) {
+					singleton = new StorageGroupHelperV26();
+				}
+			
+			}
+			
+		}
+		
+		return singleton;
+	}
+	
+	/**
+	 * Constructor. No one but getInstance() can do this.
+	 */
+	private StorageGroupHelperV26() { }
+
+	public List<StorageGroupDirectory> process( final LocationProfile locationProfile, String storageGroupName ) {
 		Log.v( TAG, "process : enter" );
 		
 		if( !MythAccessFactory.isServerReachable( locationProfile.getUrl() ) ) {
@@ -59,7 +87,7 @@ public class StorageGroupHelperV26 extends AbstractBaseHelper {
 
 	// internal helpers
 	
-	private static List<StorageGroupDirectory> downloadStorageGroups( final LocationProfile locationProfile, final String storageGroupName ) {
+	private List<StorageGroupDirectory> downloadStorageGroups( final LocationProfile locationProfile, final String storageGroupName ) {
 		Log.v( TAG, "downloadStorageGroups : enter" );
 	
 		List<StorageGroupDirectory> storageGroupDirectories = null;
@@ -84,7 +112,7 @@ public class StorageGroupHelperV26 extends AbstractBaseHelper {
 		return storageGroupDirectories;
 	}
 	
-	private static List<StorageGroupDirectory> load( List<org.mythtv.services.api.v026.beans.StorageGroupDirectory> versionStorageGroupDirectories ) {
+	private List<StorageGroupDirectory> load( List<org.mythtv.services.api.v026.beans.StorageGroupDirectory> versionStorageGroupDirectories ) {
 		Log.v( TAG, "load : enter" );
 		
 		List<StorageGroupDirectory> storageGroupDirectories = new ArrayList<StorageGroupDirectory>();

@@ -82,18 +82,18 @@ public class GetSettingTask extends AsyncTask<String, Void, String> {
 		switch( apiVersion ) {
 			case v026 :
 				
-				setting = SettingHelperV26.process( mLocationProfile, settingName, settingDefault );
+				setting = SettingHelperV26.getInstance().process( mLocationProfile, settingName, settingDefault );
 				
 				break;
 			case v027 :
 
-				setting = SettingHelperV27.process( mLocationProfile, settingName, settingDefault );
+				setting = SettingHelperV27.getInstance().process( mLocationProfile, settingName, settingDefault );
 				
 				break;
 				
 			default :
 				
-				setting = SettingHelperV26.process( mLocationProfile, settingName, settingDefault );
+				setting = SettingHelperV26.getInstance().process( mLocationProfile, settingName, settingDefault );
 
 				break;
 		}

@@ -26,7 +26,35 @@ public class SettingHelperV27 extends AbstractBaseHelper {
 	
 	private static MythServicesTemplate mMythServicesTemplate;
 
-	public static String process( final LocationProfile locationProfile, final String settingName, final String settingDefault ) {
+	private static SettingHelperV27 singleton;
+	
+	/**
+	 * Returns the one and only SettingHelperV27. init() must be called before 
+	 * any 
+	 * @return
+	 */
+	public static SettingHelperV27 getInstance() {
+		if( null == singleton ) {
+			
+			synchronized( SettingHelperV27.class ) {
+
+				if( null == singleton ) {
+					singleton = new SettingHelperV27();
+				}
+			
+			}
+			
+		}
+		
+		return singleton;
+	}
+	
+	/**
+	 * Constructor. No one but getInstance() can do this.
+	 */
+	private SettingHelperV27() { }
+
+	public String process( final LocationProfile locationProfile, final String settingName, final String settingDefault ) {
 		Log.v( TAG, "process : enter" );
 		
 		if( !MythAccessFactory.isServerReachable( locationProfile.getUrl() ) ) {
@@ -55,7 +83,7 @@ public class SettingHelperV27 extends AbstractBaseHelper {
 
 	// internal helpers
 	
-	private static String downloadSetting( final LocationProfile locationProfile, final String settingName, String settingDefault ) {
+	private String downloadSetting( final LocationProfile locationProfile, final String settingName, String settingDefault ) {
 		Log.v( TAG, "downloadSetting : enter" );
 	
 		String setting = null;

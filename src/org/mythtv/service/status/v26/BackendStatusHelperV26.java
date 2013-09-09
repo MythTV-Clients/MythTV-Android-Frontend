@@ -9,6 +9,7 @@ import java.util.List;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.mythtv.client.ui.preferences.LocationProfile;
+import org.mythtv.db.AbstractBaseHelper;
 import org.mythtv.db.channel.model.ChannelInfo;
 import org.mythtv.db.content.model.ArtworkInfo;
 import org.mythtv.db.content.model.ArtworkInfos;
@@ -34,6 +35,7 @@ import org.mythtv.db.status.model.Miscellaneous;
 import org.mythtv.db.status.model.Scheduled;
 import org.mythtv.service.dvr.v26.ProgramHelperV26;
 import org.mythtv.service.dvr.v26.RecordingHelperV26;
+import org.mythtv.service.status.v27.BackendStatusHelperV27;
 import org.mythtv.services.api.ApiVersion;
 import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.connect.MythAccessFactory;
@@ -43,13 +45,15 @@ import org.springframework.http.ResponseEntity;
 
 import android.content.ContentProviderOperation;
 import android.content.Context;
+import android.content.OperationApplicationException;
+import android.os.RemoteException;
 import android.util.Log;
 
 /**
  * @author Daniel Frey
  *
  */
-public class BackendStatusHelperV26 {
+public class BackendStatusHelperV26 extends AbstractBaseHelper {
 
 	private static final String TAG = BackendStatusHelperV26.class.getSimpleName();
 	
@@ -61,7 +65,35 @@ public class BackendStatusHelperV26 {
 	private static Context mContext;
 	private static LocationProfile mLocationProfile;
 	
-	public static BackendStatus process( final Context context, final LocationProfile locationProfile ) {
+	private static BackendStatusHelperV26 singleton;
+	
+	/**
+	 * Returns the one and only BackendStatusHelperV26. init() must be called before 
+	 * any 
+	 * @return
+	 */
+	public static BackendStatusHelperV26 getInstance() {
+		if( null == singleton ) {
+			
+			synchronized( BackendStatusHelperV27.class ) {
+
+				if( null == singleton ) {
+					singleton = new BackendStatusHelperV26();
+				}
+			
+			}
+			
+		}
+		
+		return singleton;
+	}
+	
+	/**
+	 * Constructor. No one but getInstance() can do this.
+	 */
+	private BackendStatusHelperV26() { }
+
+	public BackendStatus process( final Context context, final LocationProfile locationProfile ) {
 		Log.d( TAG, "process : enter" );
 
 		if( !MythAccessFactory.isServerReachable( locationProfile.getUrl() ) ) {
@@ -75,7 +107,12 @@ public class BackendStatusHelperV26 {
 		
 		mMythServicesTemplate = (MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( mApiVersion, locationProfile.getUrl() );
 
-		BackendStatus backendStatus = downloadBackendStatus();
+		BackendStatus backendStatus = null;
+		try {
+			backendStatus = downloadBackendStatus();
+		} catch( Exception e ) {
+			Log.e( TAG, "process : error", e );
+		}
 		
 		Log.d( TAG, "process : enter" );
 		return backendStatus;
@@ -83,18 +120,19 @@ public class BackendStatusHelperV26 {
 
 	// internal helpers
 	
-	private static BackendStatus downloadBackendStatus() {
+	private BackendStatus downloadBackendStatus() throws RemoteException, OperationApplicationException {
 		Log.v( TAG, "downloadBackendStatus : enter" );
 
 		ResponseEntity<org.mythtv.services.api.v026.beans.BackendStatus> status = mMythServicesTemplate.statusOperations().getStatus( ETagInfo.createEmptyETag() );
 
 		if( status.getStatusCode() == HttpStatus.OK ) {
-			Log.i( TAG, "BackendStatusTask.doInBackground : exit" );
 
 			if( null != status.getBody() ) {
        			
+				ApiVersion apiVersion = MythAccessFactory.getMythVersion( mLocationProfile.getUrl() );
+				mLocationProfile.setVersion( apiVersion.name() );
+				
 				mLocationProfile.setConnected( true );
-    			mLocationProfile.setVersion( status.getBody().getVersion() );
     			mLocationProfile.setProtocolVersion( String.valueOf( status.getBody().getProtocolVersion() ) );
     			if( null != status.getBody().getMachineInfo() ) {
     				if( null != status.getBody().getMachineInfo().getGuide() ) {
@@ -103,7 +141,7 @@ public class BackendStatusHelperV26 {
     			}
     			mLocationProfileDaoHelper.save( mContext, mLocationProfile );
 
-    			updateProgramGuide( status.getBody() );
+    			updateProgramGuide( mContext, status.getBody() );
 			
 				return convertBackendStatus( status.getBody() );
 			} else {
@@ -121,13 +159,14 @@ public class BackendStatusHelperV26 {
 
 	
 	
-	private static void updateProgramGuide( org.mythtv.services.api.v026.beans.BackendStatus status ) {
+	private void updateProgramGuide( final Context mContext, org.mythtv.services.api.v026.beans.BackendStatus status ) throws RemoteException, OperationApplicationException {
 		Log.v( TAG, "updateProgramGuide : enter" );
 		
 		if( null != status.getScheduled() ) {
 		
 			if( null != status.getScheduled().getPrograms() && !status.getScheduled().getPrograms().isEmpty() ) {
 			
+				int processed = -1;
 				int count = 0;
 		
 				ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
@@ -147,23 +186,31 @@ public class BackendStatusHelperV26 {
 					DateTime startTime = versionProgram.getStartTime();
 
 					// load upcoming program
-					ProgramHelperV26.processProgram( mContext, mLocationProfile, ProgramConstants.CONTENT_URI_UPCOMING, ProgramConstants.TABLE_NAME_UPCOMING, ops, versionProgram, lastModified, startTime, count );
+					ProgramHelperV26.getInstance().processProgram( mContext, mLocationProfile, ProgramConstants.CONTENT_URI_UPCOMING, ProgramConstants.TABLE_NAME_UPCOMING, ops, versionProgram, lastModified, startTime, count );
 					// update program guide
-					ProgramHelperV26.processProgram( mContext, mLocationProfile, ProgramConstants.CONTENT_URI_GUIDE, ProgramConstants.TABLE_NAME_GUIDE, ops, versionProgram, lastModified, startTime, count );
+					ProgramHelperV26.getInstance().processProgram( mContext, mLocationProfile, ProgramConstants.CONTENT_URI_GUIDE, ProgramConstants.TABLE_NAME_GUIDE, ops, versionProgram, lastModified, startTime, count );
 
 					if( !inError && null != versionProgram.getRecording() ) {
 						
 						if( versionProgram.getRecording().getRecordId() > 0 ) {
 						
 							// load upcoming recording
-							RecordingHelperV26.processRecording( mContext, mLocationProfile, ops, RecordingConstants.ContentDetails.UPCOMING, versionProgram, lastModified, startTime, count );
+							RecordingHelperV26.getInstance().processRecording( mContext, mLocationProfile, ops, RecordingConstants.ContentDetails.UPCOMING, versionProgram, lastModified, startTime, count );
 							// update program guide recording
-							RecordingHelperV26.processRecording( mContext, mLocationProfile, ops, RecordingConstants.ContentDetails.GUIDE, versionProgram, lastModified, startTime, count );
+							RecordingHelperV26.getInstance().processRecording( mContext, mLocationProfile, ops, RecordingConstants.ContentDetails.GUIDE, versionProgram, lastModified, startTime, count );
 
 						}
 						
 					}
 
+					if( count > BATCH_COUNT_LIMIT ) {
+//						Log.i( TAG, "load : applying batch for '" + count + "' transactions, processing programs" );
+						
+						processBatch( mContext, ops, processed, count );
+
+						count = 0;
+					}
+					
 				}
 
 			}
@@ -173,7 +220,7 @@ public class BackendStatusHelperV26 {
 		Log.v( TAG, "updateProgramGuide : exit" );
 	}
 	
-	private static BackendStatus convertBackendStatus( org.mythtv.services.api.v026.beans.BackendStatus status ) {
+	private BackendStatus convertBackendStatus( org.mythtv.services.api.v026.beans.BackendStatus status ) {
 		Log.v( TAG, "convertBackendStatus : enter" );
 		
 		BackendStatus bs = new BackendStatus();
@@ -397,7 +444,7 @@ public class BackendStatusHelperV26 {
 		return bs;
 	}
 	
-	private static Program convertProgram( org.mythtv.services.api.v026.beans.Program versionProgram ) {
+	private Program convertProgram( org.mythtv.services.api.v026.beans.Program versionProgram ) {
 		
 		Program program = new Program();
 		program.setAirDate( versionProgram.getAirDate() );
@@ -423,13 +470,7 @@ public class BackendStatusHelperV26 {
 		program.setHostname( versionProgram.getHostname() );
 		program.setInetref( versionProgram.getInetref() );
 		program.setLastModified( versionProgram.getLastModified() );
-		
-		try {
-			program.setProgramFlags( Integer.parseInt( versionProgram.getProgramFlags() ) );
-		} catch( NumberFormatException e ) {
-			program.setProgramFlags( -1 );
-		}
-
+		program.setProgramFlags( versionProgram.getProgramFlags() );
 		program.setProgramId( versionProgram.getProgramId() );
 		program.setRepeat( versionProgram.isRepeat() );
 		
@@ -476,7 +517,7 @@ public class BackendStatusHelperV26 {
 		return program;
 	}
 
-	private static Recording convertRecording( org.mythtv.services.api.v026.beans.Recording versionRecording ) {
+	private Recording convertRecording( org.mythtv.services.api.v026.beans.Recording versionRecording ) {
 		
 		Recording recording = new Recording();
 		recording.setDuplicateInType( versionRecording.getDuplicateInType() );
@@ -496,7 +537,7 @@ public class BackendStatusHelperV26 {
 		return recording;
 	}
 
-	private static ChannelInfo convertChannel( org.mythtv.services.api.v026.beans.ChannelInfo versionChannel ) {
+	private ChannelInfo convertChannel( org.mythtv.services.api.v026.beans.ChannelInfo versionChannel ) {
 		
 		ChannelInfo channel = new ChannelInfo();
 		channel.setAtscMajorChannel( versionChannel.getAtscMajorChannel() );
@@ -529,7 +570,7 @@ public class BackendStatusHelperV26 {
 		return channel;
 	}
 
-	private static ArtworkInfo convertArtwork( org.mythtv.services.api.v026.beans.ArtworkInfo versionArtwork ) {
+	private ArtworkInfo convertArtwork( org.mythtv.services.api.v026.beans.ArtworkInfo versionArtwork ) {
 		
 		ArtworkInfo artworkInfo = new ArtworkInfo();
 		artworkInfo.setFilename( versionArtwork.getFilename() );

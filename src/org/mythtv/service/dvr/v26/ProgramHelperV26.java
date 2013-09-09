@@ -43,11 +43,39 @@ public class ProgramHelperV26 extends AbstractBaseHelper {
 
 	private static final String[] programProjection = new String[] { ProgramConstants._ID };
 	
-	public static void processProgram( final Context context, final LocationProfile locationProfile, Uri uri, String table, ArrayList<ContentProviderOperation> ops, Program program, DateTime lastModified, DateTime startTime, int count ) {
+	private static ProgramHelperV26 singleton;
+	
+	/**
+	 * Returns the one and only ProgramHelperV26. init() must be called before 
+	 * any 
+	 * @return
+	 */
+	public static ProgramHelperV26 getInstance() {
+		if( null == singleton ) {
+			
+			synchronized( ProgramHelperV26.class ) {
+
+				if( null == singleton ) {
+					singleton = new ProgramHelperV26();
+				}
+			
+			}
+			
+		}
+		
+		return singleton;
+	}
+	
+	/**
+	 * Constructor. No one but getInstance() can do this.
+	 */
+	private ProgramHelperV26() { }
+
+	public void processProgram( final Context context, final LocationProfile locationProfile, Uri uri, String table, ArrayList<ContentProviderOperation> ops, Program program, DateTime lastModified, DateTime startTime, int count ) {
 		Log.d( TAG, "processProgram : enter" );
 		
 		String programSelection = table + "." + ProgramConstants.FIELD_CHANNEL_ID + " = ? AND " + table + "." + ProgramConstants.FIELD_START_TIME + " = ?";
-		programSelection = appendLocationHostname( context, locationProfile, programSelection, ProgramConstants.TABLE_NAME_RECORDED );
+		programSelection = appendLocationHostname( context, locationProfile, programSelection, table );
 
 		ContentValues programValues = convertProgramToContentValues( locationProfile, lastModified, program );
 		Cursor programCursor = context.getContentResolver().query( uri, programProjection, programSelection, new String[] { String.valueOf( program.getChannelInfo().getChannelId() ), String.valueOf( startTime.getMillis() ) }, null );
@@ -79,13 +107,13 @@ public class ProgramHelperV26 extends AbstractBaseHelper {
 		Log.d( TAG, "processProgram : exit" );
 	}
 	
-	public static Program findProgram( final Context context, final LocationProfile locationProfile, Uri uri, String table, Integer channelId, DateTime startTime ) {
+	public Program findProgram( final Context context, final LocationProfile locationProfile, Uri uri, String table, Integer channelId, DateTime startTime ) {
 		Log.d( TAG, "findProgram : enter" );
 		
 		String programSelection = table + "." + ProgramConstants.FIELD_CHANNEL_ID + " = ? AND " + table + "." + ProgramConstants.FIELD_START_TIME + " = ?";
 		String[] programSelectionArgs = new String[] { String.valueOf( channelId ), String.valueOf( startTime.getMillis() ) };
 		
-		programSelection = appendLocationHostname( context, locationProfile, programSelection, ProgramConstants.TABLE_NAME_RECORDED );
+		programSelection = appendLocationHostname( context, locationProfile, programSelection, table );
 		
 		Program program = null;
 		
@@ -101,7 +129,7 @@ public class ProgramHelperV26 extends AbstractBaseHelper {
 		return program;
 	}
 	
-	public static void deletePrograms( final Context context, final LocationProfile locationProfile, ArrayList<ContentProviderOperation> ops, Uri uri, String table, DateTime today ) {
+	public void deletePrograms( final Context context, final LocationProfile locationProfile, ArrayList<ContentProviderOperation> ops, Uri uri, String table, DateTime today ) {
 		Log.d( TAG, "deletePrograms : enter" );
 		
 		String selection = table + "." + ProgramConstants.FIELD_LAST_MODIFIED_DATE + " < ?";
@@ -119,7 +147,7 @@ public class ProgramHelperV26 extends AbstractBaseHelper {
 		Log.d( TAG, "deletePrograms : exit" );
 	}
 	
-	public static boolean deleteProgram( final Context context, final LocationProfile locationProfile, Uri uri, String table, Integer channelId, DateTime startTime, Integer recordId ) {
+	public boolean deleteProgram( final Context context, final LocationProfile locationProfile, Uri uri, String table, Integer channelId, DateTime startTime, Integer recordId ) {
 		Log.d( TAG, "deleteProgram : enter" );
 		
 		if( !MythAccessFactory.isServerReachable( locationProfile.getUrl() ) ) {
@@ -145,7 +173,7 @@ public class ProgramHelperV26 extends AbstractBaseHelper {
 
 					int deleted = context.getContentResolver().delete( uri, programSelection, programSelectionArgs );
 					if( deleted == 1 ) {
-						RecordingHelperV26.deleteRecording( context, locationProfile, uri, table, recordId, startTime );
+						RecordingHelperV26.getInstance().deleteRecording( context, locationProfile, uri, table, recordId, startTime );
 					}
 					
 				}
@@ -160,8 +188,8 @@ public class ProgramHelperV26 extends AbstractBaseHelper {
 		return false;
 	}
 
-	private static ContentValues convertProgramToContentValues( final LocationProfile locationProfile, final DateTime lastModified, final Program program ) {
-		Log.v( TAG, "convertProgramToContentValues : enter" );
+	private ContentValues convertProgramToContentValues( final LocationProfile locationProfile, final DateTime lastModified, final Program program ) {
+//		Log.v( TAG, "convertProgramToContentValues : enter" );
 		
 		boolean inError;
 		
@@ -210,11 +238,11 @@ public class ProgramHelperV26 extends AbstractBaseHelper {
 		values.put( ProgramConstants.FIELD_MASTER_HOSTNAME, locationProfile.getHostname() );
 		values.put( ProgramConstants.FIELD_LAST_MODIFIED_DATE, lastModified.getMillis() );
 		
-		Log.v( TAG, "convertProgramToContentValues : exit" );
+//		Log.v( TAG, "convertProgramToContentValues : exit" );
 		return values;
 	}
 
-	private static Program convertCursorToProgram( Cursor cursor, final String table ) {
+	private Program convertCursorToProgram( Cursor cursor, final String table ) {
 //		Log.v( TAG, "convertCursorToProgram : enter" );
 
 		DateTime startTime = null, endTime = null, lastModified = null, airDate = null;
@@ -318,11 +346,11 @@ public class ProgramHelperV26 extends AbstractBaseHelper {
 		}
 		
 		if( cursor.getColumnIndex( ProgramConstants.FIELD_CHANNEL_ID ) != -1 ) {
-			channelInfo = ChannelHelperV26.convertCursorToChannelInfo( cursor );
+			channelInfo = ChannelHelperV26.getInstance().convertCursorToChannelInfo( cursor );
 		}
 
 		if( cursor.getColumnIndex( RecordingConstants.ContentDetails.getValueFromParent( table ).getTableName() + "_" + RecordingConstants.FIELD_RECORD_ID ) != -1 ) {
-			recording = RecordingHelperV26.convertCursorToRecording( cursor, table );
+			recording = RecordingHelperV26.getInstance().convertCursorToRecording( cursor, table );
 		}
 		
 		Program program = new Program();

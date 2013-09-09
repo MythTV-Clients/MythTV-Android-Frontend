@@ -30,7 +30,35 @@ public class RecordingHelperV26 extends AbstractBaseHelper {
 
 	private static final String TAG = RecordingHelperV26.class.getSimpleName();
 	
-	public static void processRecording( final Context context, final LocationProfile locationProfile, ArrayList<ContentProviderOperation> ops, ContentDetails details, Program program, DateTime lastModified, DateTime startTime, int count ) {
+	private static RecordingHelperV26 singleton;
+	
+	/**
+	 * Returns the one and only ProgramHelperV26. init() must be called before 
+	 * any 
+	 * @return
+	 */
+	public static RecordingHelperV26 getInstance() {
+		if( null == singleton ) {
+			
+			synchronized( RecordingHelperV26.class ) {
+
+				if( null == singleton ) {
+					singleton = new RecordingHelperV26();
+				}
+			
+			}
+			
+		}
+		
+		return singleton;
+	}
+	
+	/**
+	 * Constructor. No one but getInstance() can do this.
+	 */
+	private RecordingHelperV26() { }
+
+	public void processRecording( final Context context, final LocationProfile locationProfile, ArrayList<ContentProviderOperation> ops, ContentDetails details, Program program, DateTime lastModified, DateTime startTime, int count ) {
 		Log.v( TAG, "processRecording : enter" );
 		
 		String[] recordingProjection = new String[] { details.getTableName() + "_" + RecordingConstants._ID };
@@ -67,7 +95,7 @@ public class RecordingHelperV26 extends AbstractBaseHelper {
 		Log.v( TAG, "processRecording : exit" );
 	}
 	
-	public static void deleteRecordings( ArrayList<ContentProviderOperation> ops, ContentDetails details, DateTime today ) {
+	public void deleteRecordings( ArrayList<ContentProviderOperation> ops, ContentDetails details, DateTime today ) {
 		Log.v( TAG, "deleteRecordings : enter" );
 		
 		ops.add(  
@@ -80,7 +108,7 @@ public class RecordingHelperV26 extends AbstractBaseHelper {
 		Log.v( TAG, "deleteRecordings : exit" );
 	}
 
-	public static boolean deleteRecording( final Context context, final LocationProfile locationProfile, Uri uri, String table, Integer recordId, DateTime startTime ) {
+	public boolean deleteRecording( final Context context, final LocationProfile locationProfile, Uri uri, String table, Integer recordId, DateTime startTime ) {
 		Log.d( TAG, "deleteProgram : enter" );
 		
 		String recordingSelection = table + "." + RecordingConstants.FIELD_RECORD_ID + " = ? AND " + table + "." + RecordingConstants.FIELD_START_TIME + " = ?";
@@ -99,7 +127,7 @@ public class RecordingHelperV26 extends AbstractBaseHelper {
 		return false;
 	}
 
-	public static Recording convertCursorToRecording( final Cursor cursor, final String table ) {
+	public Recording convertCursorToRecording( final Cursor cursor, final String table ) {
 //		Log.v( TAG, "convertCursorToRecording : enter" );
 
 		RecordingConstants.ContentDetails details = RecordingConstants.ContentDetails.getValueFromParent( table );
@@ -180,7 +208,9 @@ public class RecordingHelperV26 extends AbstractBaseHelper {
 		return recording;
 	}
 
-	public static ContentValues convertRecordingToContentValues( final LocationProfile locationProfile, final DateTime lastModified, final DateTime startTime, final Recording recording ) {
+	// internal helers
+	
+	private ContentValues convertRecordingToContentValues( final LocationProfile locationProfile, final DateTime lastModified, final DateTime startTime, final Recording recording ) {
 //		Log.v( TAG, "convertRecordingToContentValues : enter" );
 		
 		DateTime startTimestamp = new DateTime( DateTimeZone.UTC );

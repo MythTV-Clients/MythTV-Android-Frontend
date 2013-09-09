@@ -237,6 +237,10 @@ public class LocationProfileEditor extends AbstractMythtvFragmentActivity implem
 		if( save() ) {
 			Log.v( TAG, "saveAndExit : save completed successfully" );
 
+			Long id = mLocationProfileDaoHelper.save( LocationProfileEditor.this, profile );
+			profile = mLocationProfileDaoHelper.findOne( LocationProfileEditor.this, id );
+			Log.v( TAG, "saveAndExit : profile=" + profile.toString() );
+			
 			if( !mRunningServiceHelper.isServiceRunning( this, "org.mythtv.service.preferences.PreferencesRecordedDownloadService" ) ) {
 				
 				mProgressDialog = ProgressDialog.show( LocationProfileEditor.this, getResources().getString( R.string.please_wait ), getResources().getString( R.string.preferences_profile_loading ), true, false );
@@ -306,23 +310,6 @@ public class LocationProfileEditor extends AbstractMythtvFragmentActivity implem
 		return retVal;
 	}
 
-	private class PreferencesRecordedDownloadReceiver extends BroadcastReceiver {
-
-		@Override
-		public void onReceive( Context context, Intent intent ) {
-        	Log.i( TAG, "PreferencesRecordedDownloadReceiver.onReceive : enter" );
-			
-	        if ( intent.getAction().equals( PreferencesRecordedDownloadService.ACTION_COMPLETE ) ) {
-	        	Log.i( TAG, "PreferencesRecordedDownloadReceiver.onReceive : complete=" + intent.getStringExtra( PreferencesRecordedDownloadService.EXTRA_COMPLETE ) );
-	        }
-
-	        new GetHostnameTask( profile, LocationProfileEditor.this ).execute();
-	        
-        	Log.i( TAG, "PreferencesRecordedDownloadReceiver.onReceive : exit" );
-		}
-		
-	}
-
 	/* (non-Javadoc)
 	 * @see org.mythtv.service.myth.GetHostnameTask.TaskFinishedListener#onGetHostnameTaskStarted()
 	 */
@@ -371,6 +358,25 @@ public class LocationProfileEditor extends AbstractMythtvFragmentActivity implem
 		builder.show();
 	
        	Log.d( TAG, "onGetHostnameTaskFinished : exit" );
+	}
+
+	private class PreferencesRecordedDownloadReceiver extends BroadcastReceiver {
+
+		@Override
+		public void onReceive( Context context, Intent intent ) {
+        	Log.i( TAG, "PreferencesRecordedDownloadReceiver.onReceive : enter" );
+			
+	        if ( intent.getAction().equals( PreferencesRecordedDownloadService.ACTION_COMPLETE ) ) {
+	        	Log.i( TAG, "PreferencesRecordedDownloadReceiver.onReceive : complete=" + intent.getStringExtra( PreferencesRecordedDownloadService.EXTRA_COMPLETE ) );
+	        }
+
+	        profile = mLocationProfileDaoHelper.findOne( LocationProfileEditor.this, profile.getId() );
+	        
+	        new GetHostnameTask( profile, LocationProfileEditor.this ).execute();
+	        
+        	Log.i( TAG, "PreferencesRecordedDownloadReceiver.onReceive : exit" );
+		}
+		
 	}
 
 }

@@ -29,7 +29,35 @@ public class FileListHelperV27 extends AbstractBaseHelper {
 	
 	private static MythServicesTemplate mMythServicesTemplate;
 
-	public static List<String> process( final LocationProfile locationProfile, String storageGroupName ) {
+	private static FileListHelperV27 singleton;
+	
+	/**
+	 * Returns the one and only FileListHelperV27. init() must be called before 
+	 * any 
+	 * @return
+	 */
+	public static FileListHelperV27 getInstance() {
+		if( null == singleton ) {
+			
+			synchronized( FileListHelperV27.class ) {
+
+				if( null == singleton ) {
+					singleton = new FileListHelperV27();
+				}
+			
+			}
+			
+		}
+		
+		return singleton;
+	}
+	
+	/**
+	 * Constructor. No one but getInstance() can do this.
+	 */
+	private FileListHelperV27() { }
+
+	public List<String> process( final LocationProfile locationProfile, String storageGroupName ) {
 		Log.v( TAG, "process : enter" );
 		
 		if( !MythAccessFactory.isServerReachable( locationProfile.getUrl() ) ) {
@@ -58,7 +86,7 @@ public class FileListHelperV27 extends AbstractBaseHelper {
 
 	// internal helpers
 	
-	private static List<String> downloadFiles( final String storageGroupName ) {
+	private List<String> downloadFiles( final String storageGroupName ) {
 		Log.v( TAG, "downloadFiles : enter" );
 	
 		List<String> files = null;
@@ -84,7 +112,7 @@ public class FileListHelperV27 extends AbstractBaseHelper {
 		return files;
 	}
 	
-	private static List<String> load( String[] versionFiles ) {
+	private List<String> load( String[] versionFiles ) {
 		Log.v( TAG, "load : enter" );
 		
 		List<String> files = new ArrayList<String>();

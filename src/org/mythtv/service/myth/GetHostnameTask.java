@@ -93,7 +93,10 @@ public class GetHostnameTask extends AsyncTask<Void, Void, String> {
 				ResponseEntity<String> hostnameV27 = mythServicesTemplateV27.mythOperations().getHostName( ETagInfo.createEmptyETag() );
 				if( hostnameV27.getStatusCode().equals( HttpStatus.OK ) ) {
 					if( null != hostnameV27.getBody() && !"".equals( hostnameV27.getBody() ) ) {
-						hostname = hostnameV27.getBody();
+						hostname = hostnameV27.getBody().split( ":" )[ 1 ];
+						hostname = hostname.replaceAll( "\"", "" );
+						hostname = hostname.substring( 0, hostname.length() -1 );
+						hostname = hostname.trim();
 					}
 				}
 				

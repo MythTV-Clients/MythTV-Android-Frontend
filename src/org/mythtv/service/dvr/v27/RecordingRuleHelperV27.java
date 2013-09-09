@@ -45,7 +45,35 @@ public class RecordingRuleHelperV27 extends AbstractBaseHelper {
 	
 	private static MythServicesTemplate mMythServicesTemplate;
 
-	public static boolean process( final Context context, final LocationProfile locationProfile ) {
+	private static RecordingRuleHelperV27 singleton;
+	
+	/**
+	 * Returns the one and only RecordingRuleHelperV27. init() must be called before 
+	 * any 
+	 * @return
+	 */
+	public static RecordingRuleHelperV27 getInstance() {
+		if( null == singleton ) {
+			
+			synchronized( RecordingRuleHelperV27.class ) {
+
+				if( null == singleton ) {
+					singleton = new RecordingRuleHelperV27();
+				}
+			
+			}
+			
+		}
+		
+		return singleton;
+	}
+	
+	/**
+	 * Constructor. No one but getInstance() can do this.
+	 */
+	private RecordingRuleHelperV27() { }
+
+	public boolean process( final Context context, final LocationProfile locationProfile ) {
 		Log.v( TAG, "process : enter" );
 		
 		if( !MythAccessFactory.isServerReachable( locationProfile.getUrl() ) ) {
@@ -72,7 +100,7 @@ public class RecordingRuleHelperV27 extends AbstractBaseHelper {
 		return passed;
 	}
 
-	public static boolean add( final Context context, final LocationProfile locationProfile, final RecRule recordingRule ) {
+	public boolean add( final Context context, final LocationProfile locationProfile, final RecRule recordingRule ) {
 		Log.v( TAG, "add : enter" );
 		
 		if( !MythAccessFactory.isServerReachable( locationProfile.getUrl() ) ) {
@@ -99,7 +127,7 @@ public class RecordingRuleHelperV27 extends AbstractBaseHelper {
 		return passed;
 	}
 
-	public static boolean update( final Context context, final LocationProfile locationProfile, final RecRule recordingRule ) {
+	public boolean update( final Context context, final LocationProfile locationProfile, final RecRule recordingRule ) {
 		Log.v( TAG, "update : enter" );
 		
 		if( !MythAccessFactory.isServerReachable( locationProfile.getUrl() ) ) {
@@ -126,7 +154,7 @@ public class RecordingRuleHelperV27 extends AbstractBaseHelper {
 		return passed;
 	}
 
-	public static boolean remove( final Context context, final LocationProfile locationProfile, final RecRule recordingRule ) {
+	public boolean remove( final Context context, final LocationProfile locationProfile, final RecRule recordingRule ) {
 		Log.v( TAG, "remove : enter" );
 		
 		if( !MythAccessFactory.isServerReachable( locationProfile.getUrl() ) ) {
@@ -155,10 +183,11 @@ public class RecordingRuleHelperV27 extends AbstractBaseHelper {
 
 	// internal helpers
 	
-	private static void downloadRecordinRules( final Context context, final LocationProfile locationProfile ) throws RemoteException, OperationApplicationException {
+	private void downloadRecordinRules( final Context context, final LocationProfile locationProfile ) throws RemoteException, OperationApplicationException {
 		Log.v( TAG, "downloadRecordinRules : enter" );
 	
 		EtagInfoDelegate etag = mEtagDaoHelper.findByEndpointAndDataId( context, locationProfile, "GetRecordScheduleList", "" );
+		Log.d( TAG, "downloadRecordinRules : etag=" + etag.getValue() );
 		
 		ResponseEntity<org.mythtv.services.api.v027.beans.RecRuleList> responseEntity = mMythServicesTemplate.dvrOperations().getRecordScheduleList( -1, -1, etag );
 
@@ -200,7 +229,7 @@ public class RecordingRuleHelperV27 extends AbstractBaseHelper {
 		Log.v( TAG, "downloadRecordinRules : exit" );
 	}
 
-	private static int load( final Context context, final LocationProfile locationProfile, final org.mythtv.services.api.v027.beans.RecRule[] recordingRules ) throws RemoteException, OperationApplicationException {
+	private int load( final Context context, final LocationProfile locationProfile, final org.mythtv.services.api.v027.beans.RecRule[] recordingRules ) throws RemoteException, OperationApplicationException {
 		Log.d( TAG, "load : enter" );
 		
 		if( null == context ) 
@@ -236,7 +265,7 @@ public class RecordingRuleHelperV27 extends AbstractBaseHelper {
 		return processed;
 	}
 
-	private static void processRecordingRule( final Context context, final LocationProfile locationProfile, ArrayList<ContentProviderOperation> ops, org.mythtv.services.api.v027.beans.RecRule recRule, DateTime lastModified, int count ) {
+	private void processRecordingRule( final Context context, final LocationProfile locationProfile, ArrayList<ContentProviderOperation> ops, org.mythtv.services.api.v027.beans.RecRule recRule, DateTime lastModified, int count ) {
 		Log.d( TAG, "processRecordingRule : enter" );
 
 		String recRuleSelection = RecordingRuleConstants.FIELD_REC_RULE_ID + " = ?";
@@ -271,7 +300,7 @@ public class RecordingRuleHelperV27 extends AbstractBaseHelper {
 		Log.d( TAG, "processRecordingRule : exit" );
 	}
 	
-	private static void deleteRecordingRules( final Context context, final LocationProfile locationProfile, ArrayList<ContentProviderOperation> ops, DateTime lastModified ) {
+	private void deleteRecordingRules( final Context context, final LocationProfile locationProfile, ArrayList<ContentProviderOperation> ops, DateTime lastModified ) {
 		Log.d( TAG, "deleteRecordingRules : enter" );
 
 //		Log.v( TAG, "load : remove deleted recordings" );
@@ -290,7 +319,7 @@ public class RecordingRuleHelperV27 extends AbstractBaseHelper {
 		Log.d( TAG, "deleteRecordingRules : exit" );
 	}
 	
-	private static int addRecordingRule( final Context context, final LocationProfile locationProfile, final RecRule recordingRule ) throws RemoteException, OperationApplicationException {
+	private int addRecordingRule( final Context context, final LocationProfile locationProfile, final RecRule recordingRule ) throws RemoteException, OperationApplicationException {
 		Log.d( TAG, "addRecordingRule : enter" );
 
 		int ret = -1;
@@ -300,7 +329,7 @@ public class RecordingRuleHelperV27 extends AbstractBaseHelper {
 		
 			ChannelInfo channel = null;
 			if( null != versionRecRule.getChanId() ) {
-				ChannelHelperV27.findChannel( context, locationProfile, versionRecRule.getChanId() );
+				channel = ChannelHelperV27.getInstance().findChannel( context, locationProfile, versionRecRule.getChanId() );
 			}
 			
 			// update existing rule
@@ -335,7 +364,7 @@ public class RecordingRuleHelperV27 extends AbstractBaseHelper {
 		return ret;
 	}
 
-	private static boolean updateRecordingRule( final Context context, final LocationProfile locationProfile, final RecRule recordingRule ) throws RemoteException, OperationApplicationException {
+	private boolean updateRecordingRule( final Context context, final LocationProfile locationProfile, final RecRule recordingRule ) throws RemoteException, OperationApplicationException {
 		Log.d( TAG, "updateRecordingRule : enter" );
 
 		boolean ret = false;
@@ -345,7 +374,7 @@ public class RecordingRuleHelperV27 extends AbstractBaseHelper {
 		
 			ChannelInfo channel = null;
 			if( null != versionRecRule.getChanId() ) {
-				ChannelHelperV27.findChannel( context, locationProfile, versionRecRule.getChanId() );
+				channel = ChannelHelperV27.getInstance().findChannel( context, locationProfile, versionRecRule.getChanId() );
 			}
 			
 			// update existing rule
@@ -380,7 +409,7 @@ public class RecordingRuleHelperV27 extends AbstractBaseHelper {
 		return ret;
 	}
 
-	private static boolean removeRecordingRule( final Context context, final LocationProfile locationProfile, final RecRule recordingRule ) throws RemoteException, OperationApplicationException {
+	private boolean removeRecordingRule( final Context context, final LocationProfile locationProfile, final RecRule recordingRule ) throws RemoteException, OperationApplicationException {
 		Log.d( TAG, "removeRecordingRule : enter" );
 
 		boolean ret = false;
@@ -405,7 +434,7 @@ public class RecordingRuleHelperV27 extends AbstractBaseHelper {
 		return ret;
 	}
 
-	private static ContentValues convertRecRuleToContentValues( final LocationProfile locationProfile, final DateTime lastModified, final org.mythtv.services.api.v027.beans.RecRule recRule ) {
+	private ContentValues convertRecRuleToContentValues( final LocationProfile locationProfile, final DateTime lastModified, final org.mythtv.services.api.v027.beans.RecRule recRule ) {
 //		Log.v( TAG, "convertRecRuleToContentValues : enter" );
 		
 		DateTime startTimestamp = new DateTime( DateTimeZone.UTC );
@@ -480,7 +509,7 @@ public class RecordingRuleHelperV27 extends AbstractBaseHelper {
 		return values;
 	}
 
-	private static org.mythtv.services.api.v027.beans.RecRule convertRecRuleToRecRuleV27( final RecRule recordingRule ) {
+	private org.mythtv.services.api.v027.beans.RecRule convertRecRuleToRecRuleV27( final RecRule recordingRule ) {
 		
 		org.mythtv.services.api.v027.beans.RecRule versionRecRule = new org.mythtv.services.api.v027.beans.RecRule();
 		versionRecRule.setId( recordingRule.getId() );

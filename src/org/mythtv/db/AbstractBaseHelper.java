@@ -62,7 +62,7 @@ public abstract class AbstractBaseHelper {
 		Log.v( TAG, "processBatch : enter" );
 		
 		if( !ops.isEmpty() ) {
-			Log.v( TAG, "processBatch : applying batch" );
+			Log.v( TAG, "processBatch : applying batch, count=" + count );
 			
 			ContentProviderResult[] results = context.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
 			processed += results.length;
@@ -70,11 +70,11 @@ public abstract class AbstractBaseHelper {
 			if( results.length > 0 ) {
 				ops.clear();
 
-				if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
-					for( ContentProviderResult result : results ) {
-						Log.v( TAG, "processBatch : batch result=" + result.toString() );
-					}
-				}
+//				if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
+//					for( ContentProviderResult result : results ) {
+//						Log.v( TAG, "processBatch : batch result=" + result.toString() );
+//					}
+//				}
 				
 			}
 			
