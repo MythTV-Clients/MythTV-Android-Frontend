@@ -22,12 +22,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.mythtv.R;
 import org.mythtv.client.ui.AbstractMythFragment;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.util.MenuHelper;
 import org.mythtv.client.ui.util.MenuItemRefreshAnimated;
-import org.mythtv.db.dvr.DvrEndpoint;
 import org.mythtv.db.http.EtagDaoHelper;
 import org.mythtv.service.dvr.UpcomingDownloadService;
 import org.mythtv.service.util.DateUtils;
@@ -105,10 +105,10 @@ public class UpcomingPagerFragment extends AbstractMythFragment {
 
 		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
 		
-		DateTime etag = mEtagDaoHelper.findDateByEndpointAndDataId( getActivity(), mLocationProfile, DvrEndpoint.GET_UPCOMING_LIST.name(), "" );
+		DateTime etag = mEtagDaoHelper.findDateByEndpointAndDataId( getActivity(), mLocationProfile, "GetUpcomingList", "" );
 		if( null != etag ) {
 			
-			DateTime now = DateUtils.convertUtc( new DateTime( System.currentTimeMillis() ) );
+			DateTime now = new DateTime( DateTimeZone.UTC );
 			if( now.getMillis() - etag.getMillis() > ( 2 * 3600000 ) ) {
 				loadData();
 			}
@@ -127,7 +127,7 @@ public class UpcomingPagerFragment extends AbstractMythFragment {
 		Log.v( TAG, "onStart : enter" );
 		super.onStart();
 
-		IntentFilter upcomingDownloadFilter = new IntentFilter();
+		IntentFilter upcomingDownloadFilter = new IntentFilter( UpcomingDownloadService.ACTION_DOWNLOAD );
 		upcomingDownloadFilter.addAction( UpcomingDownloadService.ACTION_PROGRESS );
 		upcomingDownloadFilter.addAction( UpcomingDownloadService.ACTION_COMPLETE );
 	    getActivity().registerReceiver( upcomingDownloadReceiver, upcomingDownloadFilter );

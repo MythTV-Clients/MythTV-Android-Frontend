@@ -14,7 +14,6 @@ import org.mythtv.db.dvr.DvrEndpoint;
 import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.db.dvr.RecordingConstants;
 import org.mythtv.db.http.model.EtagInfoDelegate;
-import org.mythtv.service.channel.v26.ChannelHelperV26;
 import org.mythtv.service.util.DateUtils;
 import org.mythtv.services.api.ApiVersion;
 import org.mythtv.services.api.connect.MythAccessFactory;
@@ -163,8 +162,6 @@ public class UpcomingHelperV26 extends AbstractBaseHelper {
 		
 		boolean inError;
 
-		List<Integer> channelsChecked = new ArrayList<Integer>();
-		
 		for( Program program : programs ) {
 
 			if( null == program.getStartTime() || null == program.getEndTime() ) {
@@ -184,19 +181,6 @@ public class UpcomingHelperV26 extends AbstractBaseHelper {
 			// update program guide
 			ProgramHelperV26.getInstance().processProgram( context, locationProfile, ProgramConstants.CONTENT_URI_GUIDE, ProgramConstants.TABLE_NAME_GUIDE, ops, program, lastModified, startTime, count );
 			count++;
-			
-			if( null != program.getChannelInfo() ) {
-
-				if( !channelsChecked.contains( program.getChannelInfo().getChannelId() ) ) {
-					
-					ChannelHelperV26.getInstance().processChannel( context, locationProfile, ops, program.getChannelInfo(), lastModified, count );
-					count++;
-					
-					channelsChecked.add( program.getChannelInfo().getChannelId() );
-			
-				}
-
-			}
 			
 			if( !inError && null != program.getRecording() ) {
 				

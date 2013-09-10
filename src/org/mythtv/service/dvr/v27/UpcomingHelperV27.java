@@ -4,7 +4,6 @@
 package org.mythtv.service.dvr.v27;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -13,7 +12,6 @@ import org.mythtv.db.AbstractBaseHelper;
 import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.db.dvr.RecordingConstants;
 import org.mythtv.db.http.model.EtagInfoDelegate;
-import org.mythtv.service.channel.v27.ChannelHelperV27;
 import org.mythtv.services.api.ApiVersion;
 import org.mythtv.services.api.connect.MythAccessFactory;
 import org.mythtv.services.api.v027.MythServicesTemplate;
@@ -159,8 +157,6 @@ public class UpcomingHelperV27 extends AbstractBaseHelper {
 		
 		boolean inError;
 
-		List<Integer> channelsChecked = new ArrayList<Integer>();
-		
 		for( Program program : programs ) {
 			Log.d( TAG, "load : count=" + count );
 			
@@ -182,19 +178,6 @@ public class UpcomingHelperV27 extends AbstractBaseHelper {
 			ProgramHelperV27.getInstance().processProgram( context, locationProfile, ProgramConstants.CONTENT_URI_GUIDE, ProgramConstants.TABLE_NAME_GUIDE, ops, program, lastModified, startTime, count );
 			count++;
 
-			if( null != program.getChannel() ) {
-
-				if( !channelsChecked.contains( program.getChannel().getChanId() ) ) {
-					
-					ChannelHelperV27.getInstance().processChannel( context, locationProfile, ops, program.getChannel(), lastModified, count );
-					count++;
-					
-					channelsChecked.add( program.getChannel().getChanId() );
-			
-				}
-
-			}
-			
 			if( !inError && null != program.getRecording() ) {
 				
 				if( program.getRecording().getRecordId() > 0 ) {
