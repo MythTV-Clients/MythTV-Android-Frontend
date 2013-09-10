@@ -77,7 +77,6 @@ public class GalleryGridAdapter extends BaseAdapter implements
 
 	private ImageLoader imageLoader;
 	private String baseUrl;
-	private String previewWidth = "256";
 
 	private boolean hasBackendGallerySG = false;
 	private boolean backendAndFrontendShareHostname = false;
@@ -161,6 +160,10 @@ public class GalleryGridAdapter extends BaseAdapter implements
 	@Override
 	public View getView( final int position, View convertView, ViewGroup parent ) {
 		
+        // 800p screen / 3 columns = 266,67 for each
+        // 720p screen / 3 columns = 240 for each
+        String previewWidth = "256";
+
 		final ViewHolder holder;
 
 		if( convertView == null ) {

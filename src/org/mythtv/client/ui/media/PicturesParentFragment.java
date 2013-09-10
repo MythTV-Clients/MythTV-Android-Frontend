@@ -21,6 +21,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.GridView;
 
+import org.mythtv.R;
+import org.mythtv.client.ui.AbstractMythFragment;
+import org.mythtv.client.ui.preferences.LocationProfile;
+import org.mythtv.client.ui.util.MenuHelper;
+import org.mythtv.client.ui.util.MenuItemRefreshAnimated;
+
 /**
  * @author dmfrey
  * 
@@ -28,10 +34,6 @@ import android.widget.GridView;
 public class PicturesParentFragment extends AbstractMythFragment implements GalleryGridAdapter.OnLoadingImagesListener {
 
 	private static final String TAG = PicturesParentFragment.class.getSimpleName();
-
-	public static ArrayList<GalleryImageItem> images = new ArrayList<GalleryImageItem>();
-
-	public static boolean IMAGE_LIST_DOWNLOADED = false;
 
 	private MenuHelper mMenuHelper = MenuHelper.getInstance();
 	private MenuItemRefreshAnimated mMenuItemRefresh;
