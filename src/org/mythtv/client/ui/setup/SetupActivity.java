@@ -18,8 +18,6 @@
  */
 package org.mythtv.client.ui.setup;
 
-import org.mythtv.R;
-
 import android.os.Bundle;
 import android.util.Log;
 
@@ -36,7 +34,7 @@ public class SetupActivity extends AbstractSetupActivity {
 		Log.d( TAG, "onCreate : enter" );
 		super.onCreate( savedInstanceState );
 
-		setContentView( R.layout.activity_setup );
+//		setContentView( R.layout.activity_setup );
 		
 		setupActionBar();
 
