@@ -96,7 +96,7 @@ public class LiveStreamHelperV26 extends AbstractBaseHelper {
 				
 				if( null != program ) {
 					ResponseEntity<LiveStreamInfoWrapper> wrapper = mMythServicesTemplate.contentOperations().
-							addLiveStream( null, program.getFilename(), program.getHostname(), -1, -1,
+							addLiveStream( program.getRecording().getStorageGroup(), program.getFilename(), program.getHostname(), -1, -1,
 								selectedPlaybackProfile.getHeight(), selectedPlaybackProfile.getVideoBitrate(), 
 								selectedPlaybackProfile.getAudioBitrate(), selectedPlaybackProfile.getAudioSampleRate() );
 
