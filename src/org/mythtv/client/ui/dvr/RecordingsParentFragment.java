@@ -286,7 +286,7 @@ public class RecordingsParentFragment extends AbstractMythFragment implements Re
 		selectedProgram = null;
 
 		List<Program> programs = mRecordedDaoHelper.findAllByTitle(getActivity(), mLocationProfile, programGroup.getTitle());
-		if (null == programs || programs.isEmpty()) {
+		if( null == programs || programs.isEmpty() ) {
 			Log.d(TAG, "onProgramGroupSelected : exit, no programs in programGroup");
 			programs = mRecordedDaoHelper.findAll(getActivity(), mLocationProfile);
 		}

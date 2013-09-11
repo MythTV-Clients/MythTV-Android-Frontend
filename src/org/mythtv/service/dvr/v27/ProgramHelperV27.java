@@ -132,6 +132,29 @@ public class ProgramHelperV27 extends AbstractBaseHelper {
 		return program;
 	}
 	
+	public Integer countProgramsByTitle( final Context context, final LocationProfile locationProfile, Uri uri, String table, String title ) {
+		Log.d( TAG, "countProgramsByTitle : enter" );
+		
+		String[] projection = new String[] { "count(" + table + "." + ProgramConstants.FIELD_TITLE + ")" };
+		String selection = table + "." + ProgramConstants.FIELD_TITLE + " = ?";
+		String[] selectionArgs = new String[] { title };
+		
+		selection = appendLocationHostname( context, locationProfile, selection, table );
+		
+		Integer count = null;
+		
+		Cursor cursor = context.getContentResolver().query( uri, projection, selection, selectionArgs, null );
+		if( cursor.moveToFirst() ) {
+//			Log.v( TAG, "findProgram : program=" + program.toString() );
+
+			count = cursor.getInt( 0 );
+		}
+		cursor.close();
+
+		Log.d( TAG, "countProgramsByTitle : exit" );
+		return count;
+	}
+
 	public void deletePrograms( final Context context, final LocationProfile locationProfile, ArrayList<ContentProviderOperation> ops, Uri uri, String table, DateTime today ) {
 		Log.v( TAG, "deletePrograms : enter" );
 		
@@ -163,14 +186,17 @@ public class ProgramHelperV27 extends AbstractBaseHelper {
 
 		ResponseEntity<Bool> response = mMythServicesTemplate.dvrOperations().removeRecorded( channelId, startTime, EtagInfoDelegate.createEmptyETag() );
 		if( null != response ) {
+			Log.d( TAG, "deleteProgram : response returned" );
 			
 			if( response.getStatusCode().equals( HttpStatus.OK ) ) {
-				
+				Log.d( TAG, "deleteProgram : HttpStatus is OK" );
+
 				boolean removed = response.getBody().getValue();
 				if( removed ) {
+					Log.d( TAG, "deleteProgram : program removed on backend" );
 
 					String programSelection = ProgramConstants.FIELD_CHANNEL_ID + " = ? AND " + ProgramConstants.FIELD_START_TIME + " = ?";
-					String[] programSelectionArgs = new String[] { String.valueOf( channelId ), String.valueOf( startTime ) };
+					String[] programSelectionArgs = new String[] { String.valueOf( channelId ), String.valueOf( startTime.getMillis() ) };
 
 					programSelection = appendLocationHostname( context, locationProfile, programSelection, null );
 

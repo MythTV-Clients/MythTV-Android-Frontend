@@ -129,6 +129,29 @@ public class ProgramHelperV26 extends AbstractBaseHelper {
 		return program;
 	}
 	
+	public Integer countProgramsBySeries( final Context context, final LocationProfile locationProfile, Uri uri, String table, String seriesId ) {
+		Log.d( TAG, "countProgramsBySeries : enter" );
+		
+		String[] projection = new String[] { "count(" + table + "." + ProgramConstants._ID + ")" };
+		String selection = table + "." + ProgramConstants.FIELD_SERIES_ID+ " = ?";
+		String[] selectionArgs = new String[] { seriesId };
+		
+		selection = appendLocationHostname( context, locationProfile, selection, table );
+		
+		Integer count = null;
+		
+		Cursor cursor = context.getContentResolver().query( uri, projection, selection, selectionArgs, null );
+		if( cursor.moveToFirst() ) {
+//			Log.v( TAG, "findProgram : program=" + program.toString() );
+
+			count = cursor.getInt( 0 );
+		}
+		cursor.close();
+
+		Log.d( TAG, "countProgramsBySeriesId : exit" );
+		return count;
+	}
+
 	public void deletePrograms( final Context context, final LocationProfile locationProfile, ArrayList<ContentProviderOperation> ops, Uri uri, String table, DateTime today ) {
 		Log.d( TAG, "deletePrograms : enter" );
 		
@@ -167,7 +190,7 @@ public class ProgramHelperV26 extends AbstractBaseHelper {
 				if( removed ) {
 					
 					String programSelection = ProgramConstants.FIELD_CHANNEL_ID + " = ? AND " + ProgramConstants.FIELD_START_TIME + " = ?";
-					String[] programSelectionArgs = new String[] { String.valueOf( channelId ), String.valueOf( startTime ) };
+					String[] programSelectionArgs = new String[] { String.valueOf( channelId ), String.valueOf( startTime.getMillis() ) };
 
 					programSelection = appendLocationHostname( context, locationProfile, programSelection, null );
 

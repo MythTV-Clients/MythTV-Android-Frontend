@@ -20,6 +20,7 @@ import org.mythtv.db.dvr.RecordingConstants;
 import org.mythtv.db.dvr.RemoveStreamTask;
 import org.mythtv.db.dvr.programGroup.ProgramGroup;
 import org.mythtv.db.dvr.programGroup.ProgramGroupConstants;
+import org.mythtv.db.dvr.programGroup.ProgramGroupDaoHelper;
 import org.mythtv.db.http.model.EtagInfoDelegate;
 import org.mythtv.service.channel.v26.ChannelHelperV26;
 import org.mythtv.services.api.ApiVersion;
@@ -108,6 +109,15 @@ public class RecordedHelperV26 extends AbstractBaseHelper {
 		return passed;
 	}
 	
+	public Integer countRecordedBySeriesId( final Context context, final LocationProfile locationProfile, String seriesId ) {
+		Log.v( TAG, "countRecordedBySeriesId : enter" );
+		
+		Integer count = ProgramHelperV26.getInstance().countProgramsBySeries( context, locationProfile, ProgramConstants.CONTENT_URI_RECORDED, ProgramConstants.TABLE_NAME_RECORDED, seriesId );
+		
+		Log.v( TAG, "countRecordedBySeriesId : enter" );
+		return count;
+	}
+	
 	public Program findRecorded( final Context context, final LocationProfile locationProfile, Integer channelId, DateTime startTime ) {
 		Log.v( TAG, "findRecorded : enter" );
 		
@@ -120,7 +130,33 @@ public class RecordedHelperV26 extends AbstractBaseHelper {
 	public boolean deleteRecorded( final Context context, final LocationProfile locationProfile, Integer channelId, DateTime startTime, Integer recordId ) {
 		Log.v( TAG, "deleteRecorded : enter" );
 		
-		boolean removed = ProgramHelperV26.getInstance().deleteProgram( context, locationProfile, ProgramConstants.CONTENT_URI_RECORDED, ProgramConstants.TABLE_NAME_RECORDED, channelId, startTime, recordId );
+		boolean removed = false;
+		
+		ProgramHelperV26 programHelper = ProgramHelperV26.getInstance();
+		
+		Program program = programHelper.findProgram( context, locationProfile, ProgramConstants.CONTENT_URI_RECORDED, ProgramConstants.TABLE_NAME_RECORDED, channelId, startTime );
+		if( null != program ) {
+			
+			String title = program.getTitle();
+			String seriesId = program.getSeriesId();
+			
+			removed = programHelper.deleteProgram( context, locationProfile, ProgramConstants.CONTENT_URI_RECORDED, ProgramConstants.TABLE_NAME_RECORDED, channelId, startTime, recordId );
+			if( removed ) {
+
+				Integer programCount = countRecordedBySeriesId( context, locationProfile, seriesId );
+				if( null == programCount ) {
+					ProgramGroupDaoHelper programGroupDaoHelper = ProgramGroupDaoHelper.getInstance();
+				
+					ProgramGroup programGroup = programGroupDaoHelper.findByTitle( context, locationProfile, title );
+					if( null != programGroup ) {
+						programGroupDaoHelper.delete( context, programGroup );
+					}
+					
+				}
+				
+			}
+		
+		}
 		
 		Log.v( TAG, "deleteRecorded : enter" );
 		return removed;

@@ -695,7 +695,10 @@ public class EpisodeFragment extends AbstractMythFragment {
 	        		if( null != program ) {
 	        			ProgramGroup programGroup = mProgramGroupDaoHelper.findByTitle( getActivity(), mLocationProfile, program.getTitle() );
 	        			listener.onEpisodeDeleted( programGroup );
+	        		} else {
+	        			listener.onEpisodeDeleted( null );
 	        		}
+	        		
 	        	}
 	        	
 	        }
