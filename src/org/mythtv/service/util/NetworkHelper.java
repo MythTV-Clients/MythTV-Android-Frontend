@@ -19,6 +19,7 @@
 package org.mythtv.service.util;
 
 import org.mythtv.client.ui.preferences.LocationProfile;
+import org.mythtv.services.api.MythServiceApiRuntimeException;
 import org.mythtv.services.api.connect.MythAccessFactory;
 
 import android.content.Context;
@@ -111,12 +112,16 @@ public class NetworkHelper {
 			return false;
 		}
 
-		if( !MythAccessFactory.isServerReachable( profile.getUrl() ) ) {
-			Log.w( TAG, "process : Master Backend '" + profile.getHostname() + "' is unreachable" );
-			
+		try {
+			if( !MythAccessFactory.isServerReachable( profile.getUrl() ) ) {
+				Log.w( TAG, "process : Master Backend '" + profile.getHostname() + "' is unreachable" );
+
+				return false;
+			}
+		} catch( MythServiceApiRuntimeException e ) {
 			return false;
 		}
-
+		
 //		Log.w( TAG, "isMasterBackendConnected : exit" );
 		return true;
 	}
