@@ -141,7 +141,7 @@ public class ProgramGuideHelperV27 extends AbstractBaseHelper {
 			if( null == etag.getDate() || start.isAfter( etag.getDate() ) ) {
 				Log.v( TAG, "downloadProgramGuide : next mythfilldatabase has passed" );
 				
-				ResponseEntity<ProgramGuide> responseEntity = mMythServicesTemplate.guideOperations().getProgramGuide( start, end, 1, -1, false, etag );
+				ResponseEntity<ProgramGuide> responseEntity = mMythServicesTemplate.guideOperations().getProgramGuide( start, end, 1, null, false, etag );
 
 				if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
 					Log.i( TAG, "downloadProgramGuide : GetProgramGuide returned 200 OK" );
