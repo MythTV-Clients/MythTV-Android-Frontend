@@ -48,32 +48,41 @@ public class BackendStatusService extends MythtvService {
 		if ( intent.getAction().equals( ACTION_DOWNLOAD ) ) {
     		Log.i( TAG, "onHandleIntent : DOWNLOAD action selected" );
     		
- 			ApiVersion apiVersion = ApiVersion.valueOf( mLocationProfile.getVersion() );
-			switch( apiVersion ) {
-				case v026 :
-				
-					mBackendStatus = BackendStatusHelperV26.getInstance().process( this, mLocationProfile );
-				
-					break;
-				case v027 :
+    		try {
+    		
+    			ApiVersion apiVersion = ApiVersion.valueOf( mLocationProfile.getVersion() );
+    			switch( apiVersion ) {
+    				case v026 :
 
-					mBackendStatus = BackendStatusHelperV27.getInstance().process( this, mLocationProfile );
+    					mBackendStatus = BackendStatusHelperV26.getInstance().process( this, mLocationProfile );
 
-					break;
-				
-				default :
-				
-					mBackendStatus = BackendStatusHelperV26.getInstance().process( this, mLocationProfile );
+    					break;
+    				
+    				case v027 :
 
-					break;
-			}
-		
-			if( null == mBackendStatus ) {
+    					mBackendStatus = BackendStatusHelperV27.getInstance().process( this, mLocationProfile );
+
+    					break;
+
+    				default :
+
+    					mBackendStatus = BackendStatusHelperV26.getInstance().process( this, mLocationProfile );
+
+    					break;
+    				}
+
+    				if( null == mBackendStatus ) {
+    					sendCompleteNotConnected();
+    				} else {
+    					sendComplete();
+    				}
+
+    		} catch( Exception e ) {
+        		Log.e( TAG, "onHandleIntent : error", e );
+    			
 				sendCompleteNotConnected();
-			} else {
-	        	sendComplete();
-			}
-			
+    		}
+
 		}
 		
 		Log.d( TAG, "onHandleIntent : exit" );
