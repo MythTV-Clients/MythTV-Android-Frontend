@@ -47,7 +47,6 @@ import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 /**
  * @author Daniel Frey
@@ -295,11 +294,8 @@ public class UpcomingActivity extends AbstractMythtvFragmentActivity {
 	        	mMenuItemRefresh.stopRefreshAnimation();
 	        	
 	        	if( intent.getExtras().containsKey( UpcomingDownloadService.EXTRA_COMPLETE_UPTODATE ) ) {
-	        		Toast.makeText( UpcomingActivity.this, "Upcoming Programs are up to date!", Toast.LENGTH_SHORT ).show();
 	        	} else if( intent.getExtras().containsKey( UpcomingDownloadService.EXTRA_COMPLETE_OFFLINE ) ) {
-	        		Toast.makeText( UpcomingActivity.this, "Upcoming Programs Update failed because Master Backend is not connected!", Toast.LENGTH_SHORT ).show();
 	        	} else {
-	        		Toast.makeText( UpcomingActivity.this, "Upcoming Programs updated!", Toast.LENGTH_SHORT ).show();
 
 	        		mAdapter.notifyDataSetChanged();
 	        	}

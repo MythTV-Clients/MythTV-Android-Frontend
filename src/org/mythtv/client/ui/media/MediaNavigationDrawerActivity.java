@@ -33,7 +33,6 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
-import android.widget.Toast;
 
 /**
  * @author dmfrey
@@ -312,8 +311,6 @@ public class MediaNavigationDrawerActivity extends AbstractMythtvFragmentActivit
 				invalidateOptionsMenu();
 				mAdapter.resetNavigationDrawer();
             
-			} else {
-				Toast.makeText( MediaNavigationDrawerActivity.this, row.getTitle() + " comming soon!", Toast.LENGTH_SHORT ).show();
 			}
 
 		}

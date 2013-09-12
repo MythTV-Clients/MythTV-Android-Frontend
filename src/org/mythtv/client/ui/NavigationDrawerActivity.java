@@ -45,7 +45,6 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
-import android.widget.Toast;
 
 /**
  * @author dmfrey
@@ -217,7 +216,6 @@ public class NavigationDrawerActivity extends AbstractMythtvFragmentActivity {
 					if( row instanceof SetupActionRow ) {
 						Log.v( TAG, "onCreate : starting setup activity" );
 						
-						Toast.makeText( NavigationDrawerActivity.this, "Setup - Coming Soon!", Toast.LENGTH_SHORT ).show();
 					}
 
 				}

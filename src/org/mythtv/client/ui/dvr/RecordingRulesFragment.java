@@ -59,8 +59,6 @@ import android.widget.CursorAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-//import android.widget.Toast;
-
 /**
  * @author Daniel Frey
  * @author Thomas G. Kenny Jr
@@ -495,16 +493,8 @@ public class RecordingRulesFragment extends MythtvListFragment implements Loader
 				mMenuItemRefresh.stopRefreshAnimation();
 
 				if( intent.getExtras().containsKey( RecordingRuleService.EXTRA_COMPLETE_UPTODATE ) ) {
-					// Toast.makeText( getActivity(),
-					// "Recording Rules are up to date!", Toast.LENGTH_SHORT
-					// ).show();
 				} else if( intent.getExtras().containsKey( RecordingRuleService.EXTRA_COMPLETE_OFFLINE ) ) {
-					// Toast.makeText( getActivity(),
-					// "Recording Rules update failed because Master Backend is not connected!",
-					// Toast.LENGTH_SHORT ).show();
 				} else {
-					// Toast.makeText( getActivity(),
-					// "Recording Rules updated!", Toast.LENGTH_SHORT ).show();
 
 					adapter.notifyDataSetChanged();
 				}

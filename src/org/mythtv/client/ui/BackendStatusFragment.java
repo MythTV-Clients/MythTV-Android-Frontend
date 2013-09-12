@@ -769,12 +769,6 @@ public class BackendStatusFragment extends AbstractMythFragment {
 	        if( intent.getAction().equals( ChannelDownloadService.ACTION_COMPLETE ) ) {
 	        	Log.i( TAG, "ChannelDownloadReceiver.onReceive : " + intent.getStringExtra( ChannelDownloadService.EXTRA_COMPLETE ) );
 	        	
-//	        	if( intent.getBooleanExtra( ChannelDownloadService.EXTRA_COMPLETE_UPTODATE, true ) ) {
-//	        		Toast.makeText( getActivity(), "Channels are up to date!", Toast.LENGTH_SHORT ).show();
-//	        	} else {
-//	        		Toast.makeText( getActivity(), "Channels are NOT up to date!", Toast.LENGTH_SHORT ).show();
-//	        	}
-
         		checkRecordedDownloadService();
         		
 	        }
@@ -800,23 +794,6 @@ public class BackendStatusFragment extends AbstractMythFragment {
 	        if( intent.getAction().equals( RecordedService.ACTION_COMPLETE ) ) {
 	        	Log.i( TAG, "RecordedDownloadReceiver.onReceive : complete=" + intent.getStringExtra( RecordedService.EXTRA_COMPLETE ) );
 	        	
-//	        	LocationProfile profile = mLocationProfileDaoHelper.findConnectedProfile( BackendStatusService.this );
-	        	
-//	        	boolean inError = false;
-//	        	Cursor errorCursor = getContentResolver().query( ProgramConstants.CONTENT_URI_RECORDED, new String[] { ProgramConstants._ID }, ProgramConstants.TABLE_NAME_RECORDED + "." + ProgramConstants.FIELD_IN_ERROR + " = ? AND " + ProgramConstants.TABLE_NAME_RECORDED + "." + ProgramConstants.FIELD_MASTER_HOSTNAME + " = ?", new String[] { "1", profile.getHostname() }, null );
-//	        	if( errorCursor.moveToFirst() ) {
-//	        		inError = true;
-//	        	}
-//	        	errorCursor.close();
-
-//	        	if( intent.getExtras().containsKey( RecordedService.EXTRA_COMPLETE_UPTODATE ) ) {
-//	        		Toast.makeText( getActivity(), "Recorded Programs are up to date!" + ( inError ? " (Backend error(s) detected)" : "" ), Toast.LENGTH_SHORT ).show();
-//	        	} else if( intent.getExtras().containsKey( RecordedService.EXTRA_COMPLETE_OFFLINE ) ) {
-//	        		Toast.makeText( getActivity(), "Recorded Programs Update failed because Master Backend is not connected!", Toast.LENGTH_SHORT ).show();
-//	        	} else {
-//	        		Toast.makeText( getActivity(), "Recorded Programs updated!" + ( inError ? " (Backend error(s) detected)" : "" ), Toast.LENGTH_SHORT ).show();
-//	        	}
-	        	
 	        	checkUpcomingDownloadService();
 
 	        }
@@ -841,14 +818,6 @@ public class BackendStatusFragment extends AbstractMythFragment {
 	        
 	        if ( intent.getAction().equals( RecordingRuleService.ACTION_COMPLETE ) ) {
 	        	Log.i( TAG, "RecordingRuleDownloadReceiver.onReceive : complete=" + intent.getStringExtra( RecordingRuleService.EXTRA_COMPLETE ) );
-	        	
-//	        	if( intent.getExtras().containsKey( RecordingRuleService.EXTRA_COMPLETE_UPTODATE ) ) {
-//	        		Toast.makeText( getActivity(), "Recording Rules are up to date!", Toast.LENGTH_SHORT ).show();
-//	        	} else if( intent.getExtras().containsKey( RecordingRuleService.EXTRA_COMPLETE_OFFLINE ) ) {
-//	        		Toast.makeText( getActivity(), "Recording Rules Update failed because Master Backend is not connected!", Toast.LENGTH_SHORT ).show();
-//	        	} else {
-//	        		Toast.makeText( getActivity(), "Recording Rules updated!", Toast.LENGTH_SHORT ).show();
-//	        	}
 	        	
 	        	checkProgramGuideDownloadService();
 
@@ -880,14 +849,6 @@ public class BackendStatusFragment extends AbstractMythFragment {
 	        if ( intent.getAction().equals( UpcomingDownloadService.ACTION_COMPLETE ) ) {
 	        	Log.i( TAG, "UpcomingDownloadReceiver.onReceive : " + intent.getStringExtra( UpcomingDownloadService.EXTRA_COMPLETE ) );
 	        	
-//	        	if( intent.getExtras().containsKey( UpcomingDownloadService.EXTRA_COMPLETE_UPTODATE ) ) {
-//	        		Toast.makeText( getActivity(), "Upcoming Programs are up to date!", Toast.LENGTH_SHORT ).show();
-//	        	} else if( intent.getExtras().containsKey( UpcomingDownloadService.EXTRA_COMPLETE_OFFLINE ) ) {
-//	        		Toast.makeText( getActivity(), "Upcoming Programs Update failed because Master Backend is not connected!", Toast.LENGTH_SHORT ).show();
-//	        	} else {
-//	        		Toast.makeText( getActivity(), "Upcoming Programs updated!", Toast.LENGTH_SHORT ).show();
-//	        	}
-
 	        	checkRecordingRulesDownloadService();
 
 	        }
@@ -913,14 +874,6 @@ public class BackendStatusFragment extends AbstractMythFragment {
 	        
 	        if ( intent.getAction().equals( ProgramGuideDownloadService.ACTION_COMPLETE ) ) {
 	        	Log.i( TAG, "ProgramGuideDownloadReceiver.onReceive : " + intent.getStringExtra( ProgramGuideDownloadService.EXTRA_COMPLETE ) );
-	        	
-//	        	if( intent.getExtras().containsKey( ProgramGuideDownloadService.EXTRA_COMPLETE_UPTODATE ) ) {
-//	        		Toast.makeText( getActivity(), "Program Guide is up to date!", Toast.LENGTH_SHORT ).show();
-//	        	} else if( intent.getExtras().containsKey( ProgramGuideDownloadService.EXTRA_COMPLETE_OFFLINE ) ) {
-//	        		Toast.makeText( getActivity(), "Program Guide Update failed because Master Backend is not connected!", Toast.LENGTH_SHORT ).show();
-//	        	} else {
-//	        		Toast.makeText( getActivity(), "Program Guide updated!", Toast.LENGTH_SHORT ).show();
-//	        	}
 	        	
 	        }
 	        
