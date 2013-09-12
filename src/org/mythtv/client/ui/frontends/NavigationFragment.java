@@ -97,7 +97,7 @@ public class NavigationFragment extends AbstractFrontendFragment implements OnCl
 		if( null == fe )
 			return;
 
-		SendActionTask sendActionTask = new SendActionTask( mLocationProfile );
+		SendActionTask sendActionTask = new SendActionTask( getActivity(),  mLocationProfile );
 
 		switch( v.getId() ) {
 		case R.id.imageButton_nav_info:

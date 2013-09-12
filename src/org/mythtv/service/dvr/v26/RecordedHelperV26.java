@@ -23,6 +23,7 @@ import org.mythtv.db.dvr.programGroup.ProgramGroupConstants;
 import org.mythtv.db.dvr.programGroup.ProgramGroupDaoHelper;
 import org.mythtv.db.http.model.EtagInfoDelegate;
 import org.mythtv.service.channel.v26.ChannelHelperV26;
+import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.ApiVersion;
 import org.mythtv.services.api.connect.MythAccessFactory;
 import org.mythtv.services.api.v026.MythServicesTemplate;
@@ -85,7 +86,7 @@ public class RecordedHelperV26 extends AbstractBaseHelper {
 	public boolean process( final Context context, final LocationProfile locationProfile ) {
 		Log.v( TAG, "process : enter" );
 		
-		if( !MythAccessFactory.isServerReachable( locationProfile.getUrl() ) ) {
+		if( !NetworkHelper.getInstance().isMasterBackendConnected( context, locationProfile ) ) {
 			Log.w( TAG, "process : Master Backend '" + locationProfile.getHostname() + "' is unreachable" );
 			
 			return false;
@@ -312,8 +313,7 @@ public class RecordedHelperV26 extends AbstractBaseHelper {
 
 				int liveStreamId = liveStreamCursor.getInt( liveStreamCursor.getColumnIndex( LiveStreamConstants.TABLE_NAME + "." + LiveStreamConstants.FIELD_ID ) );
 					
-				RemoveStreamTask removeStreamTask = new RemoveStreamTask();
-				removeStreamTask.setLocationProfile( locationProfile );
+				RemoveStreamTask removeStreamTask = new RemoveStreamTask( context, locationProfile );
 				removeStreamTask.execute( liveStreamId );
 
 			}

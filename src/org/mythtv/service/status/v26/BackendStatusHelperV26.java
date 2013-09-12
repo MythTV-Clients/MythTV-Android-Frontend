@@ -36,6 +36,7 @@ import org.mythtv.db.status.model.Scheduled;
 import org.mythtv.service.dvr.v26.ProgramHelperV26;
 import org.mythtv.service.dvr.v26.RecordingHelperV26;
 import org.mythtv.service.status.v27.BackendStatusHelperV27;
+import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.ApiVersion;
 import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.connect.MythAccessFactory;
@@ -96,7 +97,7 @@ public class BackendStatusHelperV26 extends AbstractBaseHelper {
 	public BackendStatus process( final Context context, final LocationProfile locationProfile ) {
 		Log.d( TAG, "process : enter" );
 
-		if( !MythAccessFactory.isServerReachable( locationProfile.getUrl() ) ) {
+		if( !NetworkHelper.getInstance().isMasterBackendConnected( context, locationProfile ) ) {
 			Log.w( TAG, "process : Master Backend '" + locationProfile.getHostname() + "' is unreachable" );
 			
 			return null;

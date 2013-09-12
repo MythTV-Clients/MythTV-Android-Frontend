@@ -372,7 +372,7 @@ public class LocationProfileEditor extends AbstractMythtvFragmentActivity implem
 
 	        profile = mLocationProfileDaoHelper.findOne( LocationProfileEditor.this, profile.getId() );
 	        
-	        new GetHostnameTask( profile, LocationProfileEditor.this ).execute();
+	        new GetHostnameTask( LocationProfileEditor.this, profile, LocationProfileEditor.this ).execute();
 	        
         	Log.i( TAG, "PreferencesRecordedDownloadReceiver.onReceive : exit" );
 		}

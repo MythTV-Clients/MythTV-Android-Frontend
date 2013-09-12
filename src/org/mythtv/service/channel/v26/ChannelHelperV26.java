@@ -12,6 +12,7 @@ import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.AbstractBaseHelper;
 import org.mythtv.db.channel.ChannelConstants;
 import org.mythtv.db.http.model.EtagInfoDelegate;
+import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.ApiVersion;
 import org.mythtv.services.api.connect.MythAccessFactory;
 import org.mythtv.services.api.v026.MythServicesTemplate;
@@ -76,9 +77,9 @@ public class ChannelHelperV26 extends AbstractBaseHelper {
 	public boolean process( final Context context, final LocationProfile locationProfile ) {
 		Log.v( TAG, "process : enter" );
 		
-		if( !MythAccessFactory.isServerReachable( locationProfile.getUrl() ) ) {
+		if( !NetworkHelper.getInstance().isMasterBackendConnected( context, locationProfile ) ) {
 			Log.w( TAG, "process : Master Backend '" + locationProfile.getHostname() + "' is unreachable" );
-			
+
 			return false;
 		}
 		

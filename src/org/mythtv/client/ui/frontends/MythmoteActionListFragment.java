@@ -65,7 +65,7 @@ public class MythmoteActionListFragment extends AbstractFrontendFragment impleme
 
 		// exit if we don't have a frontend
 		if( null != fe ) {
-			new GetFrontendActionListTask( mLocationProfile, this ).execute( fe.getUrl() );
+			new GetFrontendActionListTask( getActivity(), mLocationProfile, this ).execute( fe.getUrl() );
 		}
 
 		return mView;

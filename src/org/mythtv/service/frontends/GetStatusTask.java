@@ -6,9 +6,10 @@ package org.mythtv.service.frontends;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.service.frontends.v26.StatusHelperV26;
 import org.mythtv.service.frontends.v27.StatusHelperV27;
+import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.ApiVersion;
-import org.mythtv.services.api.connect.MythAccessFactory;
 
+import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -20,6 +21,7 @@ public class GetStatusTask extends AsyncTask<String, Void, org.mythtv.db.fronten
 
 	private static final String TAG = GetStatusTask.class.getSimpleName();
 	
+	private final Context mContext;
 	private final LocationProfile mLocationProfile;
 	private final TaskFinishedListener listener;
 	
@@ -31,7 +33,8 @@ public class GetStatusTask extends AsyncTask<String, Void, org.mythtv.db.fronten
 	    
 	}
 
-	public GetStatusTask( LocationProfile locationProfile, TaskFinishedListener listener ) {
+	public GetStatusTask( Context context, LocationProfile locationProfile, TaskFinishedListener listener ) {
+		this.mContext = context;
 		this.mLocationProfile = locationProfile;
 		this.listener = listener;
 	}
@@ -55,6 +58,10 @@ public class GetStatusTask extends AsyncTask<String, Void, org.mythtv.db.fronten
 	protected org.mythtv.db.frontends.model.Status doInBackground( String... params ) {
 		Log.d( TAG, "doInBackground : enter" );
 
+		if( null == mContext ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
+
 		if( null == mLocationProfile ) {
 			throw new IllegalArgumentException( "LocationProfile is required" );
 		}
@@ -67,7 +74,7 @@ public class GetStatusTask extends AsyncTask<String, Void, org.mythtv.db.fronten
 			throw new IllegalArgumentException( "Params is required" );
 		}
 
-		if( !MythAccessFactory.isServerReachable( mLocationProfile.getUrl() ) ) {
+		if( !NetworkHelper.getInstance().isMasterBackendConnected( mContext, mLocationProfile ) ) {
 			Log.w( TAG, "process : Master Backend '" + mLocationProfile.getHostname() + "' is unreachable" );
 			
 			return null;
@@ -81,18 +88,18 @@ public class GetStatusTask extends AsyncTask<String, Void, org.mythtv.db.fronten
 		switch( apiVersion ) {
 			case v026 :
 				
-				status = StatusHelperV26.getInstance().process( mLocationProfile, url );
+				status = StatusHelperV26.getInstance().process( mContext,mLocationProfile, url );
 				
 				break;
 			case v027 :
 
-				status = StatusHelperV27.getInstance().process( mLocationProfile, url );
+				status = StatusHelperV27.getInstance().process( mContext, mLocationProfile, url );
 				
 				break;
 				
 			default :
 				
-				status = StatusHelperV26.getInstance().process( mLocationProfile, url );
+				status = StatusHelperV26.getInstance().process( mContext, mLocationProfile, url );
 
 				break;
 		}

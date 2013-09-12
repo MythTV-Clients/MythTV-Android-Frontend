@@ -4,10 +4,12 @@
 package org.mythtv.service.frontends;
 
 import org.mythtv.client.ui.preferences.LocationProfile;
+import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.ApiVersion;
 import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.connect.MythAccessFactory;
 
+import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -19,9 +21,11 @@ public class SendMessageTask extends AsyncTask<String, Void, Void> {
 
 	private static final String TAG = SendMessageTask.class.getSimpleName();
 
-	private LocationProfile mLocationProfile;
+	private final Context mContext;
+	private final LocationProfile mLocationProfile;
 	
-	public SendMessageTask( LocationProfile locationProfile ) {
+	public SendMessageTask( Context context, LocationProfile locationProfile ) {
+		mContext = context;
 		mLocationProfile = locationProfile;
 	}
 	
@@ -32,6 +36,10 @@ public class SendMessageTask extends AsyncTask<String, Void, Void> {
 	protected Void doInBackground( String... params ) {
 		Log.d( TAG, "doInBackground : enter" );
 		
+		if( null == mContext ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
+		
 		if( null == mLocationProfile ) {
 			throw new IllegalArgumentException( "LocationProfile is required" );
 		}
@@ -40,7 +48,7 @@ public class SendMessageTask extends AsyncTask<String, Void, Void> {
 			throw new IllegalArgumentException( "Params is required" );
 		}
 		
-		if( !MythAccessFactory.isServerReachable( mLocationProfile.getUrl() ) ) {
+		if( !NetworkHelper.getInstance().isMasterBackendConnected( mContext, mLocationProfile ) ) {
 			Log.w( TAG, "process : Master Backend '" + mLocationProfile.getHostname() + "' is unreachable" );
 			
 			return null;

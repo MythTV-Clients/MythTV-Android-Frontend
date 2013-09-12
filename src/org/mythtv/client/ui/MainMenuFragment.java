@@ -301,7 +301,7 @@ public class MainMenuFragment extends AbstractMythFragment implements ServiceLis
 					if( null == fe )
 						return;
 
-					SendMessageTask sendMessageTask = new SendMessageTask( mLocationProfile );
+					SendMessageTask sendMessageTask = new SendMessageTask( getActivity(), mLocationProfile );
 					sendMessageTask.execute( fe.getUrl(), "Incoming Call From: " + incomingNumber );
 				}
 

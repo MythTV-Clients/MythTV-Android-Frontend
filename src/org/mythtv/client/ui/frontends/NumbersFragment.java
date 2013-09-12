@@ -71,7 +71,7 @@ public class NumbersFragment extends AbstractFrontendFragment implements OnClick
 		if( null == fe )
 			return;
 
-		SendActionTask sendActionTask = new SendActionTask( mLocationProfile );
+		SendActionTask sendActionTask = new SendActionTask( getActivity(), mLocationProfile );
 		
 		switch( v.getId() ) {
 		case R.id.numbers_button0:

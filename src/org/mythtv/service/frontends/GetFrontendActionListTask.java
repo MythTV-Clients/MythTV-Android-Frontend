@@ -8,12 +8,14 @@ import java.util.List;
 
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.frontends.model.Action;
+import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.ApiVersion;
 import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.connect.MythAccessFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -25,6 +27,7 @@ public class GetFrontendActionListTask extends AsyncTask<String, Void, List<Acti
 
 	private static final String  TAG = GetFrontendActionListTask.class.getSimpleName();
 
+	private final Context mContext;
 	private final LocationProfile mLocationProfile;
 	private final TaskFinishedListener listener;
 	
@@ -36,7 +39,8 @@ public class GetFrontendActionListTask extends AsyncTask<String, Void, List<Acti
 	    
 	}
 
-	public GetFrontendActionListTask( LocationProfile locationProfile, TaskFinishedListener listener ) {
+	public GetFrontendActionListTask( Context context, LocationProfile locationProfile, TaskFinishedListener listener ) {
+		this.mContext = context;
 		this.mLocationProfile = locationProfile;
 		this.listener = listener;
 	}
@@ -60,6 +64,10 @@ public class GetFrontendActionListTask extends AsyncTask<String, Void, List<Acti
 	protected List<Action> doInBackground( String... params ) {
 		Log.d( TAG, "doInBackground : enter" );
 		
+		if( null == mContext ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
+
 		if( null == mLocationProfile ) {
 			throw new IllegalArgumentException( "LocationProfile is required" );
 		}
@@ -72,7 +80,7 @@ public class GetFrontendActionListTask extends AsyncTask<String, Void, List<Acti
 			throw new IllegalArgumentException( "Params is required" );
 		}
 		
-		if( !MythAccessFactory.isServerReachable( mLocationProfile.getUrl() ) ) {
+		if( !NetworkHelper.getInstance().isMasterBackendConnected( mContext, mLocationProfile ) ) {
 			Log.w( TAG, "process : Master Backend '" + mLocationProfile.getHostname() + "' is unreachable" );
 			
 			return null;

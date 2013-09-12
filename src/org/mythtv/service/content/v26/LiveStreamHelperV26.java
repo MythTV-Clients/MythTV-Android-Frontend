@@ -12,6 +12,7 @@ import org.mythtv.db.content.LiveStreamConstants;
 import org.mythtv.db.http.model.EtagInfoDelegate;
 import org.mythtv.db.preferences.PlaybackProfileDaoHelper;
 import org.mythtv.service.dvr.v26.RecordedHelperV26;
+import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.ApiVersion;
 import org.mythtv.services.api.connect.MythAccessFactory;
 import org.mythtv.services.api.v026.Bool;
@@ -72,9 +73,9 @@ public class LiveStreamHelperV26 extends AbstractBaseHelper {
 	public boolean create( final Context context, final LocationProfile locationProfile, final Integer channelId, final DateTime startTime ) {
 		Log.v( TAG, "create : enter" );
 		
-		if( !MythAccessFactory.isServerReachable( locationProfile.getUrl() ) ) {
+		if( !NetworkHelper.getInstance().isMasterBackendConnected( context, locationProfile ) ) {
 			Log.w( TAG, "create : Master Backend '" + locationProfile.getHostname() + "' is unreachable" );
-			
+
 			return false;
 		}
 		
@@ -124,9 +125,9 @@ public class LiveStreamHelperV26 extends AbstractBaseHelper {
 	public boolean update( final Context context, final LocationProfile locationProfile, final Integer channelId, final DateTime startTime ) {
 		Log.v( TAG, "update : enter" );
 		
-		if( !MythAccessFactory.isServerReachable( locationProfile.getUrl() ) ) {
+		if( !NetworkHelper.getInstance().isMasterBackendConnected( context, locationProfile ) ) {
 			Log.w( TAG, "update : Master Backend '" + locationProfile.getHostname() + "' is unreachable" );
-			
+
 			return false;
 		}
 		
@@ -165,9 +166,9 @@ public class LiveStreamHelperV26 extends AbstractBaseHelper {
 	public boolean remove( final Context context, final LocationProfile locationProfile, final Integer channelId, final DateTime startTime ) {
 		Log.v( TAG, "remove : enter" );
 		
-		if( !MythAccessFactory.isServerReachable( locationProfile.getUrl() ) ) {
+		if( !NetworkHelper.getInstance().isMasterBackendConnected( context, locationProfile ) ) {
 			Log.w( TAG, "remove : Master Backend '" + locationProfile.getHostname() + "' is unreachable" );
-			
+
 			return false;
 		}
 		

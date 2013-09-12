@@ -8,9 +8,10 @@ import java.util.List;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.service.myth.v26.HostHelperV26;
 import org.mythtv.service.myth.v27.HostHelperV27;
+import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.ApiVersion;
-import org.mythtv.services.api.connect.MythAccessFactory;
 
+import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -22,6 +23,7 @@ public class GetHostsTask extends AsyncTask<Void, Void, List<String>> {
 
 	private static final String TAG = GetHostsTask.class.getSimpleName();
 	
+	private final Context mContext;
 	private final LocationProfile mLocationProfile;
 	private final TaskFinishedListener listener;
 	
@@ -33,7 +35,8 @@ public class GetHostsTask extends AsyncTask<Void, Void, List<String>> {
 	    
 	}
 
-	public GetHostsTask( LocationProfile locationProfile, TaskFinishedListener listener ) {
+	public GetHostsTask( Context context, LocationProfile locationProfile, TaskFinishedListener listener ) {
+		this.mContext = context;
 		this.mLocationProfile = locationProfile;
 		this.listener = listener;
 	}
@@ -57,6 +60,10 @@ public class GetHostsTask extends AsyncTask<Void, Void, List<String>> {
 	protected List<String> doInBackground( Void... params ) {
 		Log.d( TAG, "doInBackground : enter" );
 
+		if( null == mContext ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
+		
 		if( null == mLocationProfile ) {
 			throw new IllegalArgumentException( "LocationProfile is required" );
 		}
@@ -67,7 +74,7 @@ public class GetHostsTask extends AsyncTask<Void, Void, List<String>> {
 
 		List<String> hosts = null;
 		
-		if( !MythAccessFactory.isServerReachable( mLocationProfile.getUrl() ) ) {
+		if( !NetworkHelper.getInstance().isMasterBackendConnected( mContext, mLocationProfile ) ) {
 			Log.w( TAG, "process : Master Backend '" + mLocationProfile.getHostname() + "' is unreachable" );
 			
 			return null;
@@ -77,18 +84,18 @@ public class GetHostsTask extends AsyncTask<Void, Void, List<String>> {
 		switch( apiVersion ) {
 			case v026 :
 				
-				hosts = HostHelperV26.getInstance().process( mLocationProfile );
+				hosts = HostHelperV26.getInstance().process( mContext, mLocationProfile );
 				
 				break;
 			case v027 :
 
-				hosts = HostHelperV27.getInstance().process( mLocationProfile );
+				hosts = HostHelperV27.getInstance().process( mContext, mLocationProfile );
 				
 				break;
 				
 			default :
 				
-				hosts = HostHelperV26.getInstance().process( mLocationProfile );
+				hosts = HostHelperV26.getInstance().process( mContext, mLocationProfile );
 
 				break;
 		}

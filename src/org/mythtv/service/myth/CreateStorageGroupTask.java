@@ -4,11 +4,13 @@
 package org.mythtv.service.myth;
 
 import org.mythtv.client.ui.preferences.LocationProfile;
+import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.ApiVersion;
 import org.mythtv.services.api.connect.MythAccessFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -20,6 +22,7 @@ public class CreateStorageGroupTask extends AsyncTask<String, Void, Boolean> {
 
 	private static final String TAG = CreateStorageGroupTask.class.getSimpleName();
 	
+	private final Context mContext;
 	private final LocationProfile mLocationProfile;
 	private final TaskFinishedListener listener;
 	
@@ -31,7 +34,8 @@ public class CreateStorageGroupTask extends AsyncTask<String, Void, Boolean> {
 	    
 	}
 
-	public CreateStorageGroupTask( LocationProfile locationProfile, TaskFinishedListener listener ) {
+	public CreateStorageGroupTask( Context context, LocationProfile locationProfile, TaskFinishedListener listener ) {
+		this.mContext = context;
 		this.mLocationProfile = locationProfile;
 		this.listener = listener;
 	}
@@ -55,6 +59,10 @@ public class CreateStorageGroupTask extends AsyncTask<String, Void, Boolean> {
 	protected Boolean doInBackground( String... params ) {
 		Log.d( TAG, "doInBackground : enter" );
 
+		if( null == mContext ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
+		
 		if( null == mLocationProfile ) {
 			throw new IllegalArgumentException( "LocationProfile is required" );
 		}
@@ -69,7 +77,7 @@ public class CreateStorageGroupTask extends AsyncTask<String, Void, Boolean> {
 
 		boolean created = false;
 		
-		if( !MythAccessFactory.isServerReachable( mLocationProfile.getUrl() ) ) {
+		if( !NetworkHelper.getInstance().isMasterBackendConnected( mContext, mLocationProfile ) ) {
 			Log.w( TAG, "process : Master Backend '" + mLocationProfile.getHostname() + "' is unreachable" );
 			
 			return false;

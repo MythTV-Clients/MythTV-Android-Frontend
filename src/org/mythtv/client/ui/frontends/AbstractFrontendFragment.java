@@ -47,7 +47,7 @@ public class AbstractFrontendFragment extends AbstractMythFragment implements Ge
 		
 		// create only one get status task
 		if( null == sGetStatusTask ) {
-			sGetStatusTask = new GetStatusTask( mLocationProfile, this );
+			sGetStatusTask = new GetStatusTask( getActivity(), mLocationProfile, this );
 
 			// kick it off with a status request
 //			final Frontend fe = MainMenuFragment.getSelectedFrontend();

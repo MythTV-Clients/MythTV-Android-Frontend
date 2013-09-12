@@ -6,9 +6,10 @@ package org.mythtv.service.myth;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.service.myth.v26.SettingHelperV26;
 import org.mythtv.service.myth.v27.SettingHelperV27;
+import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.ApiVersion;
-import org.mythtv.services.api.connect.MythAccessFactory;
 
+import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -20,6 +21,7 @@ public class GetSettingTask extends AsyncTask<String, Void, String> {
 
 	private static final String TAG = GetSettingTask.class.getSimpleName();
 	
+	private final Context mContext;
 	private final LocationProfile mLocationProfile;
 	private final TaskFinishedListener listener;
 	
@@ -31,7 +33,8 @@ public class GetSettingTask extends AsyncTask<String, Void, String> {
 	    
 	}
 
-	public GetSettingTask( LocationProfile locationProfile, TaskFinishedListener listener ) {
+	public GetSettingTask( Context context, LocationProfile locationProfile, TaskFinishedListener listener ) {
+		this.mContext = context;
 		this.mLocationProfile = locationProfile;
 		this.listener = listener;
 	}
@@ -55,6 +58,10 @@ public class GetSettingTask extends AsyncTask<String, Void, String> {
 	protected String doInBackground( String... params ) {
 		Log.d( TAG, "doInBackground : enter" );
 
+		if( null == mContext ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
+		
 		if( null == mLocationProfile ) {
 			throw new IllegalArgumentException( "LocationProfile is required" );
 		}
@@ -69,7 +76,7 @@ public class GetSettingTask extends AsyncTask<String, Void, String> {
 
 		String setting = null;
 		
-		if( !MythAccessFactory.isServerReachable( mLocationProfile.getUrl() ) ) {
+		if( !NetworkHelper.getInstance().isMasterBackendConnected( mContext, mLocationProfile ) ) {
 			Log.w( TAG, "process : Master Backend '" + mLocationProfile.getHostname() + "' is unreachable" );
 			
 			return null;
@@ -82,18 +89,18 @@ public class GetSettingTask extends AsyncTask<String, Void, String> {
 		switch( apiVersion ) {
 			case v026 :
 				
-				setting = SettingHelperV26.getInstance().process( mLocationProfile, settingName, settingDefault );
+				setting = SettingHelperV26.getInstance().process( mContext, mLocationProfile, settingName, settingDefault );
 				
 				break;
 			case v027 :
 
-				setting = SettingHelperV27.getInstance().process( mLocationProfile, settingName, settingDefault );
+				setting = SettingHelperV27.getInstance().process( mContext, mLocationProfile, settingName, settingDefault );
 				
 				break;
 				
 			default :
 				
-				setting = SettingHelperV26.getInstance().process( mLocationProfile, settingName, settingDefault );
+				setting = SettingHelperV26.getInstance().process( mContext, mLocationProfile, settingName, settingDefault );
 
 				break;
 		}

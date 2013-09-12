@@ -12,6 +12,7 @@ import org.mythtv.db.frontends.model.State;
 import org.mythtv.db.frontends.model.StateStringItem;
 import org.mythtv.db.frontends.model.Status;
 import org.mythtv.service.myth.v26.HostHelperV26;
+import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.ApiVersion;
 import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.connect.MythAccessFactory;
@@ -19,6 +20,7 @@ import org.mythtv.services.api.v026.MythServicesTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import android.content.Context;
 import android.content.OperationApplicationException;
 import android.os.RemoteException;
 import android.util.Log;
@@ -63,10 +65,10 @@ public class StatusHelperV26 extends AbstractBaseHelper {
 	 */
 	private StatusHelperV26() { }
 
-	public Status process( final LocationProfile locationProfile, final String url ) {
+	public Status process( final Context context, final LocationProfile locationProfile, final String url ) {
 		Log.v( TAG, "process : enter" );
 		
-		if( !MythAccessFactory.isServerReachable( locationProfile.getUrl() ) ) {
+		if( !NetworkHelper.getInstance().isMasterBackendConnected( context, locationProfile ) ) {
 			Log.w( TAG, "process : Master Backend '" + locationProfile.getHostname() + "' is unreachable" );
 			
 			return null;

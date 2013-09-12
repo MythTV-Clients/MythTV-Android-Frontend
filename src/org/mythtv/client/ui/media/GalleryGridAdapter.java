@@ -251,7 +251,7 @@ public class GalleryGridAdapter extends BaseAdapter implements
 	private void getImages() {
 		Log.v( TAG, "getImages : enter" );
 		
-		GetFileListTask fileListTask = new GetFileListTask( mLocationProfile, this );
+		GetFileListTask fileListTask = new GetFileListTask( mContext, mLocationProfile, this );
 		fileListTask.execute( galleryStorageGroupName );
 		
 		Log.v( TAG, "getImages : exit" );
@@ -260,7 +260,7 @@ public class GalleryGridAdapter extends BaseAdapter implements
 	private void setConnectedProfileInHostsList() {
 		Log.v( TAG, "setConnectedProfileInHostsList : enter" );
 	
-		GetHostsTask hostsTask = new GetHostsTask( mLocationProfile, this );
+		GetHostsTask hostsTask = new GetHostsTask( mContext, mLocationProfile, this );
 		hostsTask.execute();
 		
 		Log.v( TAG, "setConnectedProfileInHostsList : exit, false" );
@@ -269,7 +269,7 @@ public class GalleryGridAdapter extends BaseAdapter implements
 	private void setHasBackendGalleryStorageGroup() {
 		Log.v( TAG, "setHasBackendGalleryStorageGroup : enter" );
 		
-		GetStorageGroupsTask storageGroupTask = new GetStorageGroupsTask( mLocationProfile, this );
+		GetStorageGroupsTask storageGroupTask = new GetStorageGroupsTask( mContext, mLocationProfile, this );
 		storageGroupTask.execute( galleryStorageGroupName );
 		
 		Log.v( TAG, "setHasBackendGalleryStorageGroup : exit" );
@@ -278,7 +278,7 @@ public class GalleryGridAdapter extends BaseAdapter implements
 	private void setGalleryStorageDirectoryPresentInSettings() {
 		Log.v( TAG, "setGalleryStorageDirectoryPresentInSettings : enter" );
 		
-		GetSettingTask settingTask = new GetSettingTask( mLocationProfile, this );
+		GetSettingTask settingTask = new GetSettingTask( mContext, mLocationProfile, this );
 		settingTask.execute( gallerySetting, "" );
 		
 		Log.v( TAG, "setGalleryStorageDirectoryPresentInSettings : exit" );
@@ -290,7 +290,7 @@ public class GalleryGridAdapter extends BaseAdapter implements
 			galleryDir = directoryName.getText().toString();
 		}
 		
-		CreateStorageGroupTask createStorageGroupTask = new CreateStorageGroupTask( mLocationProfile, GalleryGridAdapter.this );
+		CreateStorageGroupTask createStorageGroupTask = new CreateStorageGroupTask( mContext, mLocationProfile, GalleryGridAdapter.this );
 		createStorageGroupTask.execute( galleryStorageGroupName, galleryDir );
 
 	}

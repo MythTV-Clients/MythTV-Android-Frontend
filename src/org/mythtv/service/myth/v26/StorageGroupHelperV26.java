@@ -9,6 +9,7 @@ import java.util.List;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.AbstractBaseHelper;
 import org.mythtv.db.myth.model.StorageGroupDirectory;
+import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.ApiVersion;
 import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.connect.MythAccessFactory;
@@ -16,6 +17,7 @@ import org.mythtv.services.api.v026.MythServicesTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import android.content.Context;
 import android.util.Log;
 
 /**
@@ -58,10 +60,10 @@ public class StorageGroupHelperV26 extends AbstractBaseHelper {
 	 */
 	private StorageGroupHelperV26() { }
 
-	public List<StorageGroupDirectory> process( final LocationProfile locationProfile, String storageGroupName ) {
+	public List<StorageGroupDirectory> process( final Context context, final LocationProfile locationProfile, String storageGroupName ) {
 		Log.v( TAG, "process : enter" );
 		
-		if( !MythAccessFactory.isServerReachable( locationProfile.getUrl() ) ) {
+		if( !NetworkHelper.getInstance().isMasterBackendConnected( context, locationProfile ) ) {
 			Log.w( TAG, "process : Master Backend '" + locationProfile.getHostname() + "' is unreachable" );
 			
 			return null;

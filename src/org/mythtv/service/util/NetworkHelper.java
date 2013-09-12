@@ -18,9 +18,10 @@
  */
 package org.mythtv.service.util;
 
+import java.net.HttpURLConnection;
+import java.net.URL;
+
 import org.mythtv.client.ui.preferences.LocationProfile;
-import org.mythtv.services.api.MythServiceApiRuntimeException;
-import org.mythtv.services.api.connect.MythAccessFactory;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
@@ -97,7 +98,9 @@ public class NetworkHelper {
 	public boolean isMasterBackendConnected( final Context context, LocationProfile profile ) {
 //		Log.v( TAG, "isMasterBackendConnected : profile=" + profile.toString() );
 		
-		/* Check if we're not initialized */
+        boolean isOK = false;
+
+        /* Check if we're not initialized */
 		if( null == context ) {
 //			Log.e(TAG, "NetworkHelper not initialized");
 			throw new IllegalArgumentException( "NetworkHelper is not initialized" );
@@ -109,21 +112,20 @@ public class NetworkHelper {
 		}
 		
 		if( !isNetworkConnected( context ) ) {
-			return false;
+			return isOK;
 		}
 
-		try {
-			if( !MythAccessFactory.isServerReachable( profile.getUrl() ) ) {
-				Log.w( TAG, "process : Master Backend '" + profile.getHostname() + "' is unreachable" );
-
-				return false;
-			}
-		} catch( MythServiceApiRuntimeException e ) {
-			return false;
+        try {
+            final URL url = new URL( profile.getUrl() );
+            final HttpURLConnection urlcon = (HttpURLConnection) url.openConnection();
+            isOK = urlcon.getResponseCode() == HttpURLConnection.HTTP_OK;
+            urlcon.disconnect();
+        } catch( Exception e ) {
+			isOK = false;
 		}
 		
 //		Log.w( TAG, "isMasterBackendConnected : exit" );
-		return true;
+		return isOK;
 	}
 
 	/* (non-Javadoc)

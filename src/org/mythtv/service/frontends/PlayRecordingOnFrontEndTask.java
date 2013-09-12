@@ -5,12 +5,14 @@ package org.mythtv.service.frontends;
 
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.dvr.model.Program;
+import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.ApiVersion;
 import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.connect.MythAccessFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -22,10 +24,12 @@ public class PlayRecordingOnFrontEndTask extends AsyncTask<String, Void, Boolean
 
 	private static final String TAG = PlayRecordingOnFrontEndTask.class.getSimpleName();
 
-	private LocationProfile mLocationProfile;
-	private Program mProgram;
+	private final Context mContext;
+	private final LocationProfile mLocationProfile;
+	private final Program mProgram;
 	
-	public PlayRecordingOnFrontEndTask( LocationProfile locationProfile, Program program ) {
+	public PlayRecordingOnFrontEndTask( Context context, LocationProfile locationProfile, Program program ) {
+		mContext = context;
 		mLocationProfile = locationProfile;
 		mProgram = program;
 	}
@@ -37,6 +41,10 @@ public class PlayRecordingOnFrontEndTask extends AsyncTask<String, Void, Boolean
 	protected Boolean doInBackground( String... params ) {
 		Log.d( TAG, "doInBackground : enter" );
 		
+		if( null == mContext ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
+		
 		if( null == mLocationProfile ) {
 			throw new IllegalArgumentException( "LocationProfile is required" );
 		}
@@ -47,7 +55,7 @@ public class PlayRecordingOnFrontEndTask extends AsyncTask<String, Void, Boolean
 		
 		boolean started = false;
 		
-		if( !MythAccessFactory.isServerReachable( mLocationProfile.getUrl() ) ) {
+		if( !NetworkHelper.getInstance().isMasterBackendConnected( mContext, mLocationProfile ) ) {
 			Log.w( TAG, "process : Master Backend '" + mLocationProfile.getHostname() + "' is unreachable" );
 			
 			return false;

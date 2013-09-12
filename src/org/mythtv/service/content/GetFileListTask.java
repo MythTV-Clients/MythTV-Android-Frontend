@@ -10,6 +10,7 @@ import org.mythtv.service.content.v26.FileListHelperV26;
 import org.mythtv.service.content.v27.FileListHelperV27;
 import org.mythtv.services.api.ApiVersion;
 
+import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -21,6 +22,7 @@ public class GetFileListTask extends AsyncTask<String, Void, List<String>> {
 
 	private static final String TAG = GetFileListTask.class.getSimpleName();
 	
+	private final Context mContext;
 	private final LocationProfile mLocationProfile;
 	private final TaskFinishedListener listener;
 	
@@ -32,7 +34,8 @@ public class GetFileListTask extends AsyncTask<String, Void, List<String>> {
 	    
 	}
 
-	public GetFileListTask( LocationProfile locationProfile, TaskFinishedListener listener ) {
+	public GetFileListTask( Context context, LocationProfile locationProfile, TaskFinishedListener listener ) {
+		this.mContext = context;
 		this.mLocationProfile = locationProfile;
 		this.listener = listener;
 	}
@@ -76,18 +79,18 @@ public class GetFileListTask extends AsyncTask<String, Void, List<String>> {
 		switch( apiVersion ) {
 			case v026 :
 				
-				files = FileListHelperV26.getInstance().process( mLocationProfile, storageGroupName );
+				files = FileListHelperV26.getInstance().process( mContext, mLocationProfile, storageGroupName );
 				
 				break;
 			case v027 :
 
-				files = FileListHelperV27.getInstance().process( mLocationProfile, storageGroupName );
+				files = FileListHelperV27.getInstance().process( mContext, mLocationProfile, storageGroupName );
 				
 				break;
 				
 			default :
 				
-				files = FileListHelperV26.getInstance().process( mLocationProfile, storageGroupName );
+				files = FileListHelperV26.getInstance().process( mContext, mLocationProfile, storageGroupName );
 
 				break;
 		}

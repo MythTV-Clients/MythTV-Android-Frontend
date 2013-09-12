@@ -15,6 +15,7 @@ import org.mythtv.db.dvr.RecordingRuleConstants;
 import org.mythtv.db.dvr.model.RecRule;
 import org.mythtv.db.http.model.EtagInfoDelegate;
 import org.mythtv.service.channel.v27.ChannelHelperV27;
+import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.ApiVersion;
 import org.mythtv.services.api.connect.MythAccessFactory;
 import org.mythtv.services.api.v027.MythServicesTemplate;
@@ -76,7 +77,7 @@ public class RecordingRuleHelperV27 extends AbstractBaseHelper {
 	public boolean process( final Context context, final LocationProfile locationProfile ) {
 		Log.v( TAG, "process : enter" );
 		
-		if( !MythAccessFactory.isServerReachable( locationProfile.getUrl() ) ) {
+		if( !NetworkHelper.getInstance().isMasterBackendConnected( context, locationProfile ) ) {
 			Log.w( TAG, "process : Master Backend '" + locationProfile.getHostname() + "' is unreachable" );
 			
 			return false;
@@ -103,7 +104,7 @@ public class RecordingRuleHelperV27 extends AbstractBaseHelper {
 	public boolean add( final Context context, final LocationProfile locationProfile, final RecRule recordingRule ) {
 		Log.v( TAG, "add : enter" );
 		
-		if( !MythAccessFactory.isServerReachable( locationProfile.getUrl() ) ) {
+		if( !NetworkHelper.getInstance().isMasterBackendConnected( context, locationProfile ) ) {
 			Log.w( TAG, "add : Master Backend '" + locationProfile.getHostname() + "' is unreachable" );
 			
 			return false;
@@ -130,7 +131,7 @@ public class RecordingRuleHelperV27 extends AbstractBaseHelper {
 	public boolean update( final Context context, final LocationProfile locationProfile, final RecRule recordingRule ) {
 		Log.v( TAG, "update : enter" );
 		
-		if( !MythAccessFactory.isServerReachable( locationProfile.getUrl() ) ) {
+		if( !NetworkHelper.getInstance().isMasterBackendConnected( context, locationProfile ) ) {
 			Log.w( TAG, "update : Master Backend '" + locationProfile.getHostname() + "' is unreachable" );
 			
 			return false;
@@ -157,7 +158,7 @@ public class RecordingRuleHelperV27 extends AbstractBaseHelper {
 	public boolean remove( final Context context, final LocationProfile locationProfile, final RecRule recordingRule ) {
 		Log.v( TAG, "remove : enter" );
 		
-		if( !MythAccessFactory.isServerReachable( locationProfile.getUrl() ) ) {
+		if( !NetworkHelper.getInstance().isMasterBackendConnected( context, locationProfile ) ) {
 			Log.w( TAG, "remove : Master Backend '" + locationProfile.getHostname() + "' is unreachable" );
 			
 			return false;

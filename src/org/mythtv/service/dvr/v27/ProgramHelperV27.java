@@ -14,6 +14,7 @@ import org.mythtv.db.dvr.RecordingConstants;
 import org.mythtv.db.http.model.EtagInfoDelegate;
 import org.mythtv.service.channel.v27.ChannelHelperV27;
 import org.mythtv.service.util.DateUtils;
+import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.ApiVersion;
 import org.mythtv.services.api.Bool;
 import org.mythtv.services.api.connect.MythAccessFactory;
@@ -176,7 +177,7 @@ public class ProgramHelperV27 extends AbstractBaseHelper {
 	public boolean deleteProgram( final Context context, final LocationProfile locationProfile, Uri uri, String table, Integer channelId, DateTime startTime, Integer recordId ) {
 		Log.d( TAG, "deleteProgram : enter" );
 		
-		if( !MythAccessFactory.isServerReachable( locationProfile.getUrl() ) ) {
+		if( !NetworkHelper.getInstance().isMasterBackendConnected( context, locationProfile ) ) {
 			Log.w( TAG, "deleteProgram : Master Backend '" + locationProfile.getHostname() + "' is unreachable" );
 			
 			return false;
