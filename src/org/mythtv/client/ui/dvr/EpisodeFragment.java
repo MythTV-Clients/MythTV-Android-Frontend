@@ -690,7 +690,6 @@ public class EpisodeFragment extends AbstractMythFragment {
 	        	if( intent.getExtras().containsKey( RecordedService.EXTRA_COMPLETE_OFFLINE ) ) {
 	        		notConnectedNotify();
 	        	} else {
-	        		Toast.makeText( getActivity(), intent.getStringExtra( RecordedService.EXTRA_COMPLETE ), Toast.LENGTH_SHORT ).show();
 	        		
 	        		if( null != program ) {
 	        			ProgramGroup programGroup = mProgramGroupDaoHelper.findByTitle( getActivity(), mLocationProfile, program.getTitle() );
@@ -732,7 +731,7 @@ public class EpisodeFragment extends AbstractMythFragment {
 	        	}
 	        	
 	        	if( intent.getExtras().containsKey( LiveStreamService.EXTRA_COMPLETE_ERROR ) ) {
-	        		Toast.makeText( getActivity(), intent.getStringExtra( LiveStreamService.EXTRA_COMPLETE_ERROR ), Toast.LENGTH_SHORT ).show();
+//	        		Toast.makeText( getActivity(), intent.getStringExtra( LiveStreamService.EXTRA_COMPLETE_ERROR ), Toast.LENGTH_SHORT ).show();
 	        	} 
 	        	
 	        	if( intent.getExtras().containsKey( LiveStreamService.EXTRA_COMPLETE_PLAY ) ) {
@@ -743,13 +742,14 @@ public class EpisodeFragment extends AbstractMythFragment {
 	        	
 	        	if( intent.getExtras().containsKey( LiveStreamService.EXTRA_COMPLETE_REMOVE ) ) {
 
-	        		ProgramGroup programGroup = mProgramGroupDaoHelper.findByTitle( getActivity(), mLocationProfile, program.getTitle() );
-	        		listener.onEpisodeDeleted( programGroup );
-       			
-	        		if( intent.getExtras().containsKey( LiveStreamService.EXTRA_COMPLETE ) && !"".equals( intent.getStringExtra( LiveStreamService.EXTRA_COMPLETE ) ) ) {
-	        			Toast.makeText( getActivity(), intent.getStringExtra( LiveStreamService.EXTRA_COMPLETE ), Toast.LENGTH_SHORT ).show();
+	        		Integer programCount = mProgramGroupDaoHelper.countProgramsByTitle( getActivity(), mLocationProfile, program.getTitle() );
+	        		if( null != programCount && programCount.intValue() > 0 ) {
+	        			ProgramGroup programGroup = mProgramGroupDaoHelper.findByTitle( getActivity(), mLocationProfile, program.getTitle() );
+	        			listener.onEpisodeDeleted( programGroup );
+	        		} else {
+	        			listener.onEpisodeDeleted( null );
 	        		}
-	        		
+       			
 	        	}
 	        	
 	        	updateHlsDetails();

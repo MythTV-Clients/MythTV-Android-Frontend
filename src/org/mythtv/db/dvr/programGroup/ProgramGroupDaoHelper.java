@@ -128,6 +128,29 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 		return programGroup;
 	}
 
+	public Integer countProgramsByTitle( final Context context, final LocationProfile locationProfile, String title ) {
+		Log.d( TAG, "countProgramsByTitle : enter" );
+		
+		String[] projection = new String[] { "count(" + ProgramGroupConstants.FIELD_TITLE + ")" };
+		String selection = ProgramGroupConstants.FIELD_TITLE + " = ?";
+		String[] selectionArgs = new String[] { title };
+		
+		selection = appendLocationHostname( context, locationProfile, selection, ProgramGroupConstants.TABLE_NAME );
+		
+		Integer count = null;
+		
+		Cursor cursor = context.getContentResolver().query( ProgramGroupConstants.CONTENT_URI, projection, selection, selectionArgs, null );
+		if( cursor.moveToFirst() ) {
+//			Log.v( TAG, "findProgram : program=" + program.toString() );
+
+			count = cursor.getInt( 0 );
+		}
+		cursor.close();
+
+		Log.d( TAG, "countProgramsByTitle : exit" );
+		return count;
+	}
+
 	public ProgramGroup findByTitle( final Context context, final LocationProfile locationProfile, final String title ) {
 		Log.v( TAG, "findOne : enter" );
 		

@@ -196,12 +196,13 @@ public class ProgramHelperV27 extends AbstractBaseHelper {
 				if( removed ) {
 					Log.d( TAG, "deleteProgram : program removed on backend" );
 
-					String programSelection = ProgramConstants.FIELD_CHANNEL_ID + " = ? AND " + ProgramConstants.FIELD_START_TIME + " = ?";
+					String programSelection = table + "." + ProgramConstants.FIELD_CHANNEL_ID + " = ? AND " + table + "." + ProgramConstants.FIELD_START_TIME + " = ?";
 					String[] programSelectionArgs = new String[] { String.valueOf( channelId ), String.valueOf( startTime.getMillis() ) };
 
-					programSelection = appendLocationHostname( context, locationProfile, programSelection, null );
+					programSelection = appendLocationHostname( context, locationProfile, programSelection, table );
 
 					int deleted = context.getContentResolver().delete( uri, programSelection, programSelectionArgs );
+					Log.d( TAG, "deleteProgram : deleted=" + deleted );
 					if( deleted == 1 ) {
 						RecordingHelperV27.getInstance().deleteRecording( context, locationProfile, uri, table, recordId, startTime );
 					}

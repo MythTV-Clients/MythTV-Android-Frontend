@@ -27,6 +27,7 @@ import org.mythtv.client.ui.util.ProgramHelper;
 import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.db.dvr.ProgramDaoHelper;
 import org.mythtv.db.dvr.RecordedDaoHelper;
+import org.mythtv.db.dvr.RecordingConstants;
 import org.mythtv.db.dvr.programGroup.ProgramGroup;
 import org.mythtv.db.dvr.programGroup.ProgramGroupDaoHelper;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
@@ -89,14 +90,14 @@ public class ProgramGroupFragment extends MythtvListFragment implements LoaderMa
 		
 		String[] projection = { ProgramConstants._ID, ProgramConstants.FIELD_TITLE, ProgramConstants.FIELD_SUB_TITLE, ProgramConstants.FIELD_CATEGORY, ProgramConstants.FIELD_START_TIME };
 		
-		String selection = ProgramConstants.TABLE_NAME_RECORDED + "." + ProgramConstants.FIELD_MASTER_HOSTNAME + " = ? AND " + ProgramConstants.TABLE_NAME_RECORDED + "." + ProgramConstants.FIELD_IN_ERROR + " = ?";
+		String selection = ProgramConstants.TABLE_NAME_RECORDED + "." + ProgramConstants.FIELD_MASTER_HOSTNAME + " = ? AND " + ProgramConstants.TABLE_NAME_RECORDED + "." + ProgramConstants.FIELD_IN_ERROR + " = ? AND NOT " + RecordingConstants.ContentDetails.RECORDED.getTableName() + "." + RecordingConstants.FIELD_REC_GROUP + " = ?";
 		if( null != programGroup && !"All".equals( programGroup.getTitle() ) ) {
 			selection = ProgramConstants.FIELD_TITLE + " = ? AND " + selection;
 		}
 		
-		String[] selectionArgs = { mLocationProfile.getHostname(), "0" };
+		String[] selectionArgs = { mLocationProfile.getHostname(), "0", "Deleted" };
 		if( null != programGroup && !"All".equals( programGroup.getTitle() ) ) {
-			selectionArgs = new String[] { ( null != programGroup && null != programGroup.getTitle() ? programGroup.getTitle() : "" ), mLocationProfile.getHostname(), "0" };
+			selectionArgs = new String[] { ( null != programGroup && null != programGroup.getTitle() ? programGroup.getTitle() : "" ), mLocationProfile.getHostname(), "0", "Deleted" };
 		}
 		
 		String sort = ( ProgramConstants.TABLE_NAME_RECORDED + "." + ProgramConstants.FIELD_END_TIME ) + " DESC";

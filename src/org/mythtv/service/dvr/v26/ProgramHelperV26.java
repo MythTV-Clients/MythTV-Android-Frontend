@@ -190,12 +190,13 @@ public class ProgramHelperV26 extends AbstractBaseHelper {
 				boolean removed = response.getBody().getBool();
 				if( removed ) {
 					
-					String programSelection = ProgramConstants.FIELD_CHANNEL_ID + " = ? AND " + ProgramConstants.FIELD_START_TIME + " = ?";
+					String programSelection = table + "." + ProgramConstants.FIELD_CHANNEL_ID + " = ? AND " + table + "." + ProgramConstants.FIELD_START_TIME + " = ?";
 					String[] programSelectionArgs = new String[] { String.valueOf( channelId ), String.valueOf( startTime.getMillis() ) };
 
-					programSelection = appendLocationHostname( context, locationProfile, programSelection, null );
+					programSelection = appendLocationHostname( context, locationProfile, programSelection, table );
 
 					int deleted = context.getContentResolver().delete( uri, programSelection, programSelectionArgs );
+					Log.d( TAG, "deleteProgram : deleted=" + deleted );
 					if( deleted == 1 ) {
 						RecordingHelperV26.getInstance().deleteRecording( context, locationProfile, uri, table, recordId, startTime );
 					}
