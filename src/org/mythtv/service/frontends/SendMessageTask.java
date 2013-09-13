@@ -48,27 +48,27 @@ public class SendMessageTask extends AsyncTask<String, Void, Void> {
 			throw new IllegalArgumentException( "Params is required" );
 		}
 		
-		if( !NetworkHelper.getInstance().isMasterBackendConnected( mContext, mLocationProfile ) ) {
+		String url = params[ 0 ];
+		String message = params[ 1 ];
+		
+		if( !NetworkHelper.getInstance().isFrontendConnected( mContext, mLocationProfile, url ) ) {
 			Log.w( TAG, "process : Master Backend '" + mLocationProfile.getHostname() + "' is unreachable" );
 			
 			return null;
 		}
 
-		String url = params[ 0 ];
-		String message = params[ 1 ];
-		
 		ApiVersion apiVersion = ApiVersion.valueOf( mLocationProfile.getVersion() );
 		switch( apiVersion ) {
 			case v026 :
 				
-				org.mythtv.services.api.v026.MythServicesTemplate mythServicesTemplateV26 = (org.mythtv.services.api.v026.MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( apiVersion, mLocationProfile.getUrl() );
+				org.mythtv.services.api.v026.MythServicesTemplate mythServicesTemplateV26 = (org.mythtv.services.api.v026.MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( apiVersion, url );
 
 				mythServicesTemplateV26.frontendOperations().sendMessage( url, message );
 
 				break;
 			case v027 :
 
-				org.mythtv.services.api.v027.MythServicesTemplate mythServicesTemplateV27 = (org.mythtv.services.api.v027.MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( apiVersion, mLocationProfile.getUrl() );
+				org.mythtv.services.api.v027.MythServicesTemplate mythServicesTemplateV27 = (org.mythtv.services.api.v027.MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( apiVersion, url );
 
 				mythServicesTemplateV27.frontendOperations().sendMessage( message, 1000, ETagInfo.createEmptyETag() );
 				
@@ -76,6 +76,10 @@ public class SendMessageTask extends AsyncTask<String, Void, Void> {
 				
 			default :
 				
+				org.mythtv.services.api.v026.MythServicesTemplate mythServicesTemplateDefault = (org.mythtv.services.api.v026.MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( apiVersion, url );
+
+				mythServicesTemplateDefault.frontendOperations().sendMessage( url, message );
+
 				break;
 		}
 

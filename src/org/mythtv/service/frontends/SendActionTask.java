@@ -51,7 +51,7 @@ public class SendActionTask extends AsyncTask<String, Void, Void> {
 		String url = params[ 0 ];
 		String action = params[ 1 ];
 		
-		if( !NetworkHelper.getInstance().isMasterBackendConnected( mContext, mLocationProfile ) ) {
+		if( !NetworkHelper.getInstance().isFrontendConnected( mContext, mLocationProfile, url ) ) {
 			Log.w( TAG, "process : Master Backend '" + mLocationProfile.getHostname() + "' is unreachable" );
 			
 			return null;
@@ -61,14 +61,14 @@ public class SendActionTask extends AsyncTask<String, Void, Void> {
 		switch( apiVersion ) {
 			case v026 :
 				
-				org.mythtv.services.api.v026.MythServicesTemplate mythServicesTemplateV26 = (org.mythtv.services.api.v026.MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( apiVersion, mLocationProfile.getUrl() );
+				org.mythtv.services.api.v026.MythServicesTemplate mythServicesTemplateV26 = (org.mythtv.services.api.v026.MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( apiVersion, url );
 
 				mythServicesTemplateV26.frontendOperations().sendAction( url, action, null, 0, 0 );
 
 				break;
 			case v027 :
 
-				org.mythtv.services.api.v027.MythServicesTemplate mythServicesTemplateV27 = (org.mythtv.services.api.v027.MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( apiVersion, mLocationProfile.getUrl() );
+				org.mythtv.services.api.v027.MythServicesTemplate mythServicesTemplateV27 = (org.mythtv.services.api.v027.MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( apiVersion, url );
 
 				mythServicesTemplateV27.frontendOperations().sendAction( action, null, 0, 0, ETagInfo.createEmptyETag() );
 				
@@ -76,7 +76,7 @@ public class SendActionTask extends AsyncTask<String, Void, Void> {
 				
 			default :
 				
-				org.mythtv.services.api.v026.MythServicesTemplate mythServicesTemplateV26Default = (org.mythtv.services.api.v026.MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( apiVersion, mLocationProfile.getUrl() );
+				org.mythtv.services.api.v026.MythServicesTemplate mythServicesTemplateV26Default = (org.mythtv.services.api.v026.MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( apiVersion, url );
 
 				mythServicesTemplateV26Default.frontendOperations().sendAction( url, action, null, 0, 0 );
 

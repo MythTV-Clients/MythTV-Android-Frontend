@@ -6,7 +6,6 @@ package org.mythtv.service.frontends;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.service.frontends.v26.StatusHelperV26;
 import org.mythtv.service.frontends.v27.StatusHelperV27;
-import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.ApiVersion;
 
 import android.content.Context;
@@ -74,12 +73,6 @@ public class GetStatusTask extends AsyncTask<String, Void, org.mythtv.db.fronten
 			throw new IllegalArgumentException( "Params is required" );
 		}
 
-		if( !NetworkHelper.getInstance().isMasterBackendConnected( mContext, mLocationProfile ) ) {
-			Log.w( TAG, "process : Master Backend '" + mLocationProfile.getHostname() + "' is unreachable" );
-			
-			return null;
-		}
-
 		String url = params[ 0 ];
 		
 		org.mythtv.db.frontends.model.Status status = null;
@@ -88,7 +81,7 @@ public class GetStatusTask extends AsyncTask<String, Void, org.mythtv.db.fronten
 		switch( apiVersion ) {
 			case v026 :
 				
-				status = StatusHelperV26.getInstance().process( mContext,mLocationProfile, url );
+				status = StatusHelperV26.getInstance().process( mContext, mLocationProfile, url );
 				
 				break;
 			case v027 :

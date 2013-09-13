@@ -67,13 +67,13 @@ public class StatusHelperV27 extends AbstractBaseHelper {
 	public Status process( final Context context, final LocationProfile locationProfile, final String url ) {
 		Log.v( TAG, "process : enter" );
 		
-		if( !NetworkHelper.getInstance().isMasterBackendConnected( context, locationProfile ) ) {
+		if( !NetworkHelper.getInstance().isFrontendConnected( context, locationProfile, url ) ) {
 			Log.w( TAG, "process : Master Backend '" + locationProfile.getHostname() + "' is unreachable" );
 			
 			return null;
 		}
 		
-		mMythServicesTemplate = (MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( mApiVersion, locationProfile.getUrl() );
+		mMythServicesTemplate = (MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( mApiVersion, url );
 		
 		Status status = null;
 

@@ -128,6 +128,39 @@ public class NetworkHelper {
 		return isOK;
 	}
 
+	public boolean isFrontendConnected( final Context context, LocationProfile profile, String frontendUrl ) {
+		
+        boolean isOK = false;
+
+        /* Check if we're not initialized */
+		if( null == context ) {
+//			Log.e(TAG, "NetworkHelper not initialized");
+			throw new IllegalArgumentException( "NetworkHelper is not initialized" );
+		}
+		
+		if( null == profile ) {
+//			Log.e(TAG, "NetworkHelper not initialized");
+			throw new IllegalArgumentException( "LocationProfile is required" );
+		}
+
+		// first check if the master backend is still connected
+		if( !isMasterBackendConnected( context, profile ) ) {
+			return isOK;
+		}
+
+        try {
+            final URL url = new URL( frontendUrl );
+            final HttpURLConnection urlcon = (HttpURLConnection) url.openConnection();
+            isOK = urlcon.getResponseCode() == HttpURLConnection.HTTP_OK;
+            urlcon.disconnect();
+        } catch( Exception e ) {
+			isOK = false;
+		}
+		
+//		Log.w( TAG, "isMasterBackendConnected : exit" );
+		return isOK;
+	}
+
 	/* (non-Javadoc)
 	 * @see java.lang.Object#clone()
 	 */

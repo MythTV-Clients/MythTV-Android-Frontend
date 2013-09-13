@@ -80,21 +80,21 @@ public class GetFrontendActionListTask extends AsyncTask<String, Void, List<Acti
 			throw new IllegalArgumentException( "Params is required" );
 		}
 		
-		if( !NetworkHelper.getInstance().isMasterBackendConnected( mContext, mLocationProfile ) ) {
+		String url = params[ 0 ];
+		
+		if( !NetworkHelper.getInstance().isFrontendConnected( mContext, mLocationProfile, url ) ) {
 			Log.w( TAG, "process : Master Backend '" + mLocationProfile.getHostname() + "' is unreachable" );
 			
 			return null;
 		}
 
-		String url = params[ 0 ];
-		
 		List<Action> actions = new ArrayList<Action>();
 		
 		ApiVersion apiVersion = ApiVersion.valueOf( mLocationProfile.getVersion() );
 		switch( apiVersion ) {
 			case v026 :
 				
-				org.mythtv.services.api.v026.MythServicesTemplate mythServicesTemplateV26 = (org.mythtv.services.api.v026.MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( apiVersion, mLocationProfile.getUrl() );
+				org.mythtv.services.api.v026.MythServicesTemplate mythServicesTemplateV26 = (org.mythtv.services.api.v026.MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( apiVersion, url );
 
 				ResponseEntity<org.mythtv.services.api.v026.beans.FrontendActionList> actionsV26 = mythServicesTemplateV26.frontendOperations().getActionList( url, ETagInfo.createEmptyETag() );
 				if( actionsV26.getStatusCode().equals( HttpStatus.OK ) ) {
@@ -116,7 +116,7 @@ public class GetFrontendActionListTask extends AsyncTask<String, Void, List<Acti
 				break;
 			case v027 :
 
-				org.mythtv.services.api.v027.MythServicesTemplate mythServicesTemplateV27 = (org.mythtv.services.api.v027.MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( apiVersion, mLocationProfile.getUrl() );
+				org.mythtv.services.api.v027.MythServicesTemplate mythServicesTemplateV27 = (org.mythtv.services.api.v027.MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( apiVersion, url );
 
 				ResponseEntity<org.mythtv.services.api.v027.beans.FrontendActionList> actionsV27 = mythServicesTemplateV27.frontendOperations().getActionList( url, ETagInfo.createEmptyETag() );
 				if( actionsV27.getStatusCode().equals( HttpStatus.OK ) ) {
@@ -139,7 +139,7 @@ public class GetFrontendActionListTask extends AsyncTask<String, Void, List<Acti
 				
 			default :
 				
-				org.mythtv.services.api.v026.MythServicesTemplate mythServicesTemplateV26Default = (org.mythtv.services.api.v026.MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( apiVersion, mLocationProfile.getUrl() );
+				org.mythtv.services.api.v026.MythServicesTemplate mythServicesTemplateV26Default = (org.mythtv.services.api.v026.MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( apiVersion, url );
 
 				ResponseEntity<org.mythtv.services.api.v026.beans.FrontendActionList> actionsV26Default = mythServicesTemplateV26Default.frontendOperations().getActionList( url, ETagInfo.createEmptyETag() );
 				if( actionsV26Default.getStatusCode().equals( HttpStatus.OK ) ) {
