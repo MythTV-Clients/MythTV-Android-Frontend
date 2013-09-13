@@ -68,7 +68,7 @@ public class StatusHelperV27 extends AbstractBaseHelper {
 		Log.v( TAG, "process : enter" );
 		
 		if( !NetworkHelper.getInstance().isFrontendConnected( context, locationProfile, url ) ) {
-			Log.w( TAG, "process : Master Backend '" + locationProfile.getHostname() + "' is unreachable" );
+			Log.w( TAG, "process : Frontend @ '" + url + "' is unreachable" );
 			
 			return null;
 		}

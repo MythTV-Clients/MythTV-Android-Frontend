@@ -67,7 +67,7 @@ public class PlayRecordingOnFrontEndTask extends AsyncTask<String, Void, Boolean
 				String url = params[ 0 ];
 				
 				if( !NetworkHelper.getInstance().isFrontendConnected( mContext, mLocationProfile, url ) ) {
-					Log.w( TAG, "process : Master Backend '" + mLocationProfile.getHostname() + "' is unreachable" );
+					Log.w( TAG, "process : Frontend @ '" + url + "' is unreachable" );
 					
 					return false;
 				}
