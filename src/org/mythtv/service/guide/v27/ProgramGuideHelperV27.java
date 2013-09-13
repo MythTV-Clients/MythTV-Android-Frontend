@@ -134,7 +134,7 @@ public class ProgramGuideHelperV27 extends AbstractBaseHelper {
 		DateTime start = new DateTime( DateTimeZone.getDefault() ).withTimeAtStartOfDay();
 		DateTime end = start.plusHours( 3 );
 		for( int i = 0; i < ( ( downloadDays * 24 ) / 3 ); i++ ) {
-			Log.i( TAG, "downloadProgramGuide : starting download for [" + i + " of " + ( ( downloadDays * 24 ) / 3 ) + "] " + DateUtils.getDateTimeUsingLocaleFormattingPretty( start, mMainApplication.getDateFormat(), mMainApplication.getClockType() ) + ", end time=" + DateUtils.getDateTimeUsingLocaleFormattingPretty( end, mMainApplication.getDateFormat(), mMainApplication.getClockType() ) );
+			Log.i( TAG, "downloadProgramGuide : starting download for [" + ( i + 1 ) + " of " + ( ( downloadDays * 24 ) / 3 ) + "] " + DateUtils.getDateTimeUsingLocaleFormattingPretty( start, mMainApplication.getDateFormat(), mMainApplication.getClockType() ) + ", end time=" + DateUtils.getDateTimeUsingLocaleFormattingPretty( end, mMainApplication.getDateFormat(), mMainApplication.getClockType() ) );
 
 			EtagInfoDelegate etag = mEtagDaoHelper.findByEndpointAndDataId( context, locationProfile, "GetProgramGuide", String.valueOf( i ) );
 			Log.d( TAG, "downloadProgramGuide : etag=" + etag.getValue() );
@@ -212,7 +212,7 @@ public class ProgramGuideHelperV27 extends AbstractBaseHelper {
 		for( ChannelInfo channel : programGuide.getChannels() ) {
 		
 			for( Program program : channel.getPrograms() ) {
-				Log.i( TAG, "load : count=" + count );
+				//Log.i( TAG, "load : count=" + count );
 
 				program.setChannel( channel );
 
