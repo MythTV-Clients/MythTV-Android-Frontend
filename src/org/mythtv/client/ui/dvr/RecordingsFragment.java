@@ -29,21 +29,19 @@ import org.mythtv.db.dvr.DvrEndpoint;
 import org.mythtv.db.dvr.programGroup.ProgramGroup;
 import org.mythtv.db.dvr.programGroup.ProgramGroupConstants;
 import org.mythtv.db.dvr.programGroup.ProgramGroupDaoHelper;
-import org.mythtv.db.http.EtagConstants;
 import org.mythtv.db.http.EtagDaoHelper;
+import org.mythtv.db.http.model.EtagInfoDelegate;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.dvr.RecordedService;
 import org.mythtv.service.util.DateUtils;
 import org.mythtv.service.util.RunningServiceHelper;
 
 import android.content.BroadcastReceiver;
-import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -272,17 +270,14 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 		case MenuHelper.REFRESH_ID:
 			Log.d( TAG, "onOptionsItemSelected : refresh selected" );
 
-			Cursor cursor = getActivity().getContentResolver().query( Uri.withAppendedPath( EtagConstants.CONTENT_URI, "endpoint" ), null, EtagConstants.FIELD_ENDPOINT + " = ?" ,new String[] { DvrEndpoint.GET_RECORDED_LIST.name() }, null );
-			if( cursor.moveToFirst() ) {
-				Long id = cursor.getLong( cursor.getColumnIndexOrThrow( EtagConstants._ID ) );
-
-				getActivity().getContentResolver().delete( ContentUris.withAppendedId( EtagConstants.CONTENT_URI, id ), null, null );
-			}
-			cursor.close();
-
 			if( !mRunningServiceHelper.isServiceRunning( getActivity(), "org.mythtv.service.dvr.RecordedDownloadService" ) ) {
+
+				EtagInfoDelegate etag = mEtagDaoHelper.findByEndpoint( getActivity(), mLocationProfile, "GetRecordedList" );
+				mEtagDaoHelper.delete( getActivity(), mLocationProfile, etag );
+				
 				getActivity().startService( new Intent( RecordedService.ACTION_DOWNLOAD ) );
-				this.mMenuItemRefresh.startRefreshAnimation();
+				mMenuItemRefresh.startRefreshAnimation();
+			
 			}
 		    
 	        return true;

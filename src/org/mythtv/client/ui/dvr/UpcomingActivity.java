@@ -30,6 +30,7 @@ import org.mythtv.client.ui.util.MenuItemRefreshAnimated;
 import org.mythtv.db.dvr.DvrEndpoint;
 import org.mythtv.db.dvr.UpcomingDaoHelper;
 import org.mythtv.db.http.EtagDaoHelper;
+import org.mythtv.db.http.model.EtagInfoDelegate;
 import org.mythtv.service.dvr.UpcomingDownloadService;
 import org.mythtv.service.util.DateUtils;
 import org.mythtv.service.util.RunningServiceHelper;
@@ -176,6 +177,9 @@ public class UpcomingActivity extends AbstractMythtvFragmentActivity {
 		case MenuHelper.REFRESH_ID:
 			Log.d( TAG, "onOptionsItemSelected : refresh selected" );
 
+			EtagInfoDelegate etag = mEtagDaoHelper.findByEndpoint( this, mLocationProfile, "GetUpcomingList" );
+			mEtagDaoHelper.delete( this, mLocationProfile, etag );
+			
 			loadData();
 		    
 	        return true;

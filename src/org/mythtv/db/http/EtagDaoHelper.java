@@ -202,6 +202,26 @@ public class EtagDaoHelper extends AbstractDaoHelper {
 
 	/**
 	 * @param endpoint
+	 * @return
+	 */
+	public EtagInfoDelegate findByEndpoint( final Context context, final LocationProfile locationProfile, final String endpoint ) {
+//		Log.d( TAG, "findByEndpoint : enter" );
+		
+		if( null == context ) 
+			throw new RuntimeException( "EtagDaoHelper is not initialized" );
+		
+		String selection = EtagConstants.FIELD_ENDPOINT + " = ?";
+		
+		String[] selectionArgs = new String[] { endpoint };
+		
+		EtagInfoDelegate etagInfo = findOne( context, locationProfile, null, null, selection, selectionArgs, null );
+		
+//		Log.d( TAG, "findByEndpoint : exit" );
+		return etagInfo;
+	}
+
+	/**
+	 * @param endpoint
 	 * @param date
 	 * @return
 	 */

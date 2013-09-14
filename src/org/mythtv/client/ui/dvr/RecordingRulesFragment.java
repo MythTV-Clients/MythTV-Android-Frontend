@@ -33,6 +33,7 @@ import org.mythtv.db.dvr.RecordingRuleConstants;
 import org.mythtv.db.dvr.RecordingRuleDaoHelper;
 import org.mythtv.db.dvr.model.RecRule;
 import org.mythtv.db.http.EtagDaoHelper;
+import org.mythtv.db.http.model.EtagInfoDelegate;
 import org.mythtv.service.dvr.RecordingRuleService;
 import org.mythtv.service.util.DateUtils;
 import org.mythtv.service.util.RunningServiceHelper;
@@ -267,7 +268,7 @@ public class RecordingRulesFragment extends MythtvListFragment implements Loader
 		Log.v( TAG, "onCreateOptionsMenu : enter" );
 		super.onCreateOptionsMenu( menu, inflater );
 
-		mMenuHelper.refreshMenuItem( getActivity(), menu, this.mMenuItemRefresh );
+		mMenuHelper.refreshMenuItem( getActivity(), menu, mMenuItemRefresh );
 
 		Log.v( TAG, "onCreateOptionsMenu : exit" );
 	}
@@ -289,8 +290,11 @@ public class RecordingRulesFragment extends MythtvListFragment implements Loader
 
 			// adapter.refresh();
 			if( !mRunningServiceHelper.isServiceRunning( getActivity(), "org.mythtv.service.dvr.RecordingRuleService" ) ) {
+				EtagInfoDelegate etag = mEtagDaoHelper.findByEndpoint( getActivity(), mLocationProfile, "GetRecordScheduleList" );
+				mEtagDaoHelper.delete( getActivity(), mLocationProfile, etag );
+				
 				getActivity().startService( new Intent( RecordingRuleService.ACTION_DOWNLOAD ) );
-				this.mMenuItemRefresh.startRefreshAnimation();
+				mMenuItemRefresh.startRefreshAnimation();
 			}
 
 			return true;
