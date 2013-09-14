@@ -52,7 +52,7 @@ public class SendMessageTask extends AsyncTask<String, Void, Void> {
 		String message = params[ 1 ];
 		
 		if( !NetworkHelper.getInstance().isFrontendConnected( mContext, mLocationProfile, url ) ) {
-			Log.w( TAG, "process : Master Backend '" + mLocationProfile.getHostname() + "' is unreachable" );
+			Log.w( TAG, "process : Frontend @ '" + url + "' is unreachable" );
 			
 			return null;
 		}
