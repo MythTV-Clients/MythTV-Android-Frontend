@@ -29,7 +29,6 @@ import org.mythtv.services.api.connect.MythAccessFactory;
 import org.mythtv.services.api.v026.MythServicesTemplate;
 import org.mythtv.services.api.v026.beans.Program;
 import org.mythtv.services.api.v026.beans.ProgramList;
-import org.mythtv.services.api.v026.impl.DvrTemplate;
 import org.mythtv.services.utils.ArticleCleaner;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -168,7 +167,7 @@ public class RecordedHelperV26 extends AbstractBaseHelper {
 	private void downloadRecorded( final Context context, final LocationProfile locationProfile ) throws RemoteException, OperationApplicationException {
 		Log.v( TAG, "downloadRecorded : enter" );
 	
-		EtagInfoDelegate etag = mEtagDaoHelper.findByEndpointAndDataId( context, locationProfile, DvrTemplate.Endpoint.GET_RECORDED_LIST.name(), "" );
+		EtagInfoDelegate etag = mEtagDaoHelper.findByEndpointAndDataId( context, locationProfile, "GetRecordedList", "" );
 		Log.d( TAG, "downloadRecorded : etag=" + etag.getValue() );
 
 		ResponseEntity<ProgramList> responseEntity = mMythServicesTemplate.dvrOperations().getRecordedList( etag );
@@ -185,7 +184,7 @@ public class RecordedHelperV26 extends AbstractBaseHelper {
 				if( null != etag.getValue() ) {
 					Log.i( TAG, "download : saving etag: " + etag.getValue() );
 					
-					etag.setEndpoint( DvrEndpoint.GET_RECORDED_LIST.name() );
+					etag.setEndpoint( "GetRecordedList" );
 					etag.setDate( date );
 					etag.setMasterHostname( locationProfile.getHostname() );
 					etag.setLastModified( date );
@@ -197,7 +196,7 @@ public class RecordedHelperV26 extends AbstractBaseHelper {
 		}
 
 		if( responseEntity.getStatusCode().equals( HttpStatus.NOT_MODIFIED ) ) {
-			Log.i( TAG, "download : " + DvrEndpoint.GET_RECORDED_LIST.getEndpoint() + " returned 304 Not Modified" );
+			Log.i( TAG, "download : GetRecordedList returned 304 Not Modified" );
 
 			if( null != etag.getValue() ) {
 				Log.i( TAG, "download : saving etag: " + etag.getValue() );

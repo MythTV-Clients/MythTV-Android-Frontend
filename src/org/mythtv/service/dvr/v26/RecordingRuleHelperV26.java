@@ -10,7 +10,6 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.AbstractBaseHelper;
-import org.mythtv.db.dvr.DvrEndpoint;
 import org.mythtv.db.dvr.RecordingRuleConstants;
 import org.mythtv.db.dvr.model.RecRule;
 import org.mythtv.db.http.model.EtagInfoDelegate;
@@ -18,7 +17,6 @@ import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.ApiVersion;
 import org.mythtv.services.api.connect.MythAccessFactory;
 import org.mythtv.services.api.v026.MythServicesTemplate;
-import org.mythtv.services.api.v026.impl.DvrTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -186,14 +184,14 @@ public class RecordingRuleHelperV26 extends AbstractBaseHelper {
 	private void downloadRecordinRules( final Context context, final LocationProfile locationProfile ) throws RemoteException, OperationApplicationException {
 		Log.v( TAG, "downloadRecordinRules : enter" );
 	
-		EtagInfoDelegate etag = mEtagDaoHelper.findByEndpointAndDataId( context, locationProfile, DvrTemplate.Endpoint.GET_RECORD_SCHEDULE_LIST.name(), "" );
+		EtagInfoDelegate etag = mEtagDaoHelper.findByEndpointAndDataId( context, locationProfile, "GetRecordScheduleList", "" );
 		Log.d( TAG, "downloadRecordinRules : etag=" + etag.getValue() );
 
 		ResponseEntity<org.mythtv.services.api.v026.beans.RecRuleList> responseEntity = mMythServicesTemplate.dvrOperations().getRecordScheduleList( -1, -1, etag );
 
 		DateTime date = new DateTime( DateTimeZone.UTC );
 		if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
-			Log.i( TAG, "downloadRecordinRules : " + DvrEndpoint.GET_RECORD_SCHEDULE_LIST.getEndpoint() + " returned 200 OK" );
+			Log.i( TAG, "downloadRecordinRules : GetRecordScheduleList returned 200 OK" );
 			org.mythtv.services.api.v026.beans.RecRuleList recRuleList = responseEntity.getBody();
 
 			if( null != recRuleList.getRecRules() ) {
@@ -203,7 +201,7 @@ public class RecordingRuleHelperV26 extends AbstractBaseHelper {
 				if( null != etag.getValue() ) {
 					Log.i( TAG, "downloadRecordinRules : saving etag: " + etag.getValue() );
 					
-					etag.setEndpoint( DvrEndpoint.GET_RECORD_SCHEDULE_LIST.name() );
+					etag.setEndpoint( "GetRecordScheduleList" );
 					etag.setDate( date );
 					etag.setMasterHostname( locationProfile.getHostname() );
 					etag.setLastModified( date );
@@ -215,7 +213,7 @@ public class RecordingRuleHelperV26 extends AbstractBaseHelper {
 		}
 
 		if( responseEntity.getStatusCode().equals( HttpStatus.NOT_MODIFIED ) ) {
-			Log.i( TAG, "downloadRecordinRules : " + DvrEndpoint.GET_RECORD_SCHEDULE_LIST.getEndpoint() + " returned 304 Not Modified" );
+			Log.i( TAG, "downloadRecordinRules : GetRecordScheduleList returned 304 Not Modified" );
 
 			if( null != etag.getValue() ) {
 				Log.i( TAG, "downloadRecordinRules : saving etag: " + etag.getValue() );

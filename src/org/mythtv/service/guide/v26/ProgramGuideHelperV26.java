@@ -23,7 +23,6 @@ import org.mythtv.services.api.v026.beans.ChannelInfo;
 import org.mythtv.services.api.v026.beans.Program;
 import org.mythtv.services.api.v026.beans.ProgramGuide;
 import org.mythtv.services.api.v026.beans.ProgramGuideWrapper;
-import org.mythtv.services.api.v026.impl.GuideTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -138,7 +137,7 @@ public class ProgramGuideHelperV26 extends AbstractBaseHelper {
 		for( int i = 0; i < ( ( downloadDays * 24 ) / 3 ); i++ ) {
 			Log.i( TAG, "downloadProgramGuide : starting download for [" + i + " of " + ( ( downloadDays * 24 ) / 3 ) + "] " + DateUtils.getDateTimeUsingLocaleFormattingPretty( start, mMainApplication.getDateFormat(), mMainApplication.getClockType() ) + ", end time=" + DateUtils.getDateTimeUsingLocaleFormattingPretty( end, mMainApplication.getDateFormat(), mMainApplication.getClockType() ) );
 
-			EtagInfoDelegate etag = mEtagDaoHelper.findByEndpointAndDataId( context, locationProfile, GuideTemplate.Endpoint.GET_PROGRAM_GUIDE.name(), String.valueOf( i ) );
+			EtagInfoDelegate etag = mEtagDaoHelper.findByEndpointAndDataId( context, locationProfile, "GetProgramGuide", String.valueOf( i ) );
 			Log.d( TAG, "downloadProgramGuide : etag=" + etag.getValue() );
 			
 			if( null == etag.getDate() || start.isAfter( etag.getDate() ) ) {
@@ -147,7 +146,7 @@ public class ProgramGuideHelperV26 extends AbstractBaseHelper {
 				ResponseEntity<ProgramGuideWrapper> responseEntity = mMythServicesTemplate.guideOperations().getProgramGuide( start, end, 1, -1, false, etag );
 
 				if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
-					Log.i( TAG, "downloadProgramGuide : " + GuideTemplate.Endpoint.GET_PROGRAM_GUIDE.name() + " returned 200 OK" );
+					Log.i( TAG, "downloadProgramGuide : GetProgramGuide returned 200 OK" );
 					ProgramGuideWrapper programGuide = responseEntity.getBody();
 
 					if( null != programGuide ) {
@@ -161,7 +160,7 @@ public class ProgramGuideHelperV26 extends AbstractBaseHelper {
 					if( null != etag.getValue() ) {
 						Log.i( TAG, "downloadProgramGuide : saving etag: " + etag.getValue() );
 
-						etag.setEndpoint( GuideTemplate.Endpoint.GET_PROGRAM_GUIDE.name() );
+						etag.setEndpoint( "GetProgramGuide" );
 						etag.setDataId( i );
 						etag.setDate( locationProfile.getNextMythFillDatabase() );
 						etag.setMasterHostname( locationProfile.getHostname() );
@@ -172,7 +171,7 @@ public class ProgramGuideHelperV26 extends AbstractBaseHelper {
 				}
 
 				if( responseEntity.getStatusCode().equals( HttpStatus.NOT_MODIFIED ) ) {
-					Log.i( TAG, "downloadProgramGuide : " + GuideTemplate.Endpoint.GET_PROGRAM_GUIDE.name() + " returned 304 Not Modified" );
+					Log.i( TAG, "downloadProgramGuide : GetProgramGuide returned 304 Not Modified" );
 
 					if( null != etag.getValue() ) {
 						Log.i( TAG, "downloadProgramGuide : saving etag: " + etag.getValue() );

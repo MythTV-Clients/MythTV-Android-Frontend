@@ -10,7 +10,6 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.AbstractBaseHelper;
-import org.mythtv.db.dvr.DvrEndpoint;
 import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.db.dvr.RecordingConstants;
 import org.mythtv.db.http.model.EtagInfoDelegate;
@@ -21,7 +20,6 @@ import org.mythtv.services.api.connect.MythAccessFactory;
 import org.mythtv.services.api.v026.MythServicesTemplate;
 import org.mythtv.services.api.v026.beans.Program;
 import org.mythtv.services.api.v026.beans.ProgramList;
-import org.mythtv.services.api.v026.impl.DvrTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -104,14 +102,14 @@ public class UpcomingHelperV26 extends AbstractBaseHelper {
 	private void downloadUpcoming( final Context context, final LocationProfile locationProfile ) throws RemoteException, OperationApplicationException {
 		Log.v( TAG, "downloadUpcoming : enter" );
 	
-		EtagInfoDelegate etag = mEtagDaoHelper.findByEndpointAndDataId( context, locationProfile, DvrTemplate.Endpoint.GET_UPCOMING_LIST.name(), "" );
+		EtagInfoDelegate etag = mEtagDaoHelper.findByEndpointAndDataId( context, locationProfile, "GetUpcomingList", "" );
 		Log.d( TAG, "downloadUpcoming : etag=" + etag.getValue() );
 		
 		ResponseEntity<ProgramList> responseEntity = mMythServicesTemplate.dvrOperations().getRecordedList( etag );
 
 		DateTime date = new DateTime( DateTimeZone.UTC );
 		if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
-			Log.i( TAG, "downloadUpcoming : " + DvrEndpoint.GET_UPCOMING_LIST.getEndpoint() + " returned 200 OK" );
+			Log.i( TAG, "downloadUpcoming : GetUpcomingList returned 200 OK" );
 			ProgramList programList = responseEntity.getBody();
 
 			if( null != programList.getPrograms() ) {
@@ -121,7 +119,7 @@ public class UpcomingHelperV26 extends AbstractBaseHelper {
 				if( null != etag.getValue() ) {
 					Log.i( TAG, "downloadUpcoming : saving etag: " + etag.getValue() );
 					
-					etag.setEndpoint( DvrEndpoint.GET_UPCOMING_LIST.name() );
+					etag.setEndpoint( "GetUpcomingList" );
 					etag.setDate( date );
 					etag.setMasterHostname( locationProfile.getHostname() );
 					etag.setLastModified( date );
@@ -133,7 +131,7 @@ public class UpcomingHelperV26 extends AbstractBaseHelper {
 		}
 
 		if( responseEntity.getStatusCode().equals( HttpStatus.NOT_MODIFIED ) ) {
-			Log.i( TAG, "downloadUpcoming : " + DvrEndpoint.GET_UPCOMING_LIST.getEndpoint() + " returned 304 Not Modified" );
+			Log.i( TAG, "downloadUpcoming : GetUpcomingList returned 304 Not Modified" );
 
 			if( null != etag.getValue() ) {
 				Log.i( TAG, "downloadUpcoming : saving etag: " + etag.getValue() );

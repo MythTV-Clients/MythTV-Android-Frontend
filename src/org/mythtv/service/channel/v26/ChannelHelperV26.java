@@ -21,7 +21,6 @@ import org.mythtv.services.api.v026.beans.ChannelInfoList;
 import org.mythtv.services.api.v026.beans.ChannelInfos;
 import org.mythtv.services.api.v026.beans.VideoSource;
 import org.mythtv.services.api.v026.beans.VideoSourceList;
-import org.mythtv.services.api.v026.impl.ChannelTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -88,7 +87,7 @@ public class ChannelHelperV26 extends AbstractBaseHelper {
 		boolean passed = true;
 		
 		try {
-			EtagInfoDelegate etag = mEtagDaoHelper.findByEndpointAndDataId( context, locationProfile, ChannelTemplate.Endpoint.GET_VIDEO_SOURCE_LIST.name(), null );
+			EtagInfoDelegate etag = mEtagDaoHelper.findByEndpointAndDataId( context, locationProfile, "GetVideoSourceList", null );
 			
 			ResponseEntity<VideoSourceList> responseEntity = mMythServicesTemplate.channelOperations().getVideoSourceList( etag );
 			if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
@@ -105,7 +104,7 @@ public class ChannelHelperV26 extends AbstractBaseHelper {
 					for( VideoSource videoSource : videoSourceList.getVideoSources().getVideoSources() ) {
 						Log.i( TAG, "process : videoSourceId = '" + videoSource.getId() + "'" );
 						
-						DateTime date = mEtagDaoHelper.findDateByEndpointAndDataId( context, locationProfile, ChannelTemplate.Endpoint.GET_CHANNEL_INFO_LIST.name(), String.valueOf( videoSource.getId() ) );
+						DateTime date = mEtagDaoHelper.findDateByEndpointAndDataId( context, locationProfile, "GetChannelInfoList", String.valueOf( videoSource.getId() ) );
 						if( null != date ) {
 							
 							DateTime now = new DateTime( DateTimeZone.UTC );
@@ -200,18 +199,18 @@ public class ChannelHelperV26 extends AbstractBaseHelper {
 	private ChannelInfos downloadChannels( final Context context, final LocationProfile locationProfile, final int sourceId ) {
 		Log.v( TAG, "downloadChannels : enter" );
 		
-		EtagInfoDelegate etag = mEtagDaoHelper.findByEndpointAndDataId( context, locationProfile, ChannelTemplate.Endpoint.GET_CHANNEL_INFO_LIST.name(), String.valueOf( sourceId ) );
+		EtagInfoDelegate etag = mEtagDaoHelper.findByEndpointAndDataId( context, locationProfile, "GetChannelInfoList", String.valueOf( sourceId ) );
 		
 		ResponseEntity<ChannelInfoList> responseEntity = mMythServicesTemplate.channelOperations().getChannelInfoList( sourceId, 0, -1, etag );
 
 		DateTime date = new DateTime( DateTimeZone.UTC );
 		if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
-			Log.i( TAG, "downloadChannels : " + ChannelTemplate.Endpoint.GET_CHANNEL_INFO_LIST.getEndpoint() + " returned 200 OK" );
+			Log.i( TAG, "downloadChannels : GetChannelInfoList returned 200 OK" );
 
 			ChannelInfoList channelInfoList = responseEntity.getBody();
 			if( null != channelInfoList ) {
 
-				etag.setEndpoint( ChannelTemplate.Endpoint.GET_CHANNEL_INFO_LIST.name() );
+				etag.setEndpoint( "GetChannelInfoList" );
 				etag.setDataId( sourceId );
 				etag.setDate( date );
 				etag.setMasterHostname( locationProfile.getHostname() );
@@ -229,7 +228,7 @@ public class ChannelHelperV26 extends AbstractBaseHelper {
 		}
 
 		if( responseEntity.getStatusCode().equals( HttpStatus.NOT_MODIFIED ) ) {
-			Log.i( TAG, "downloadChannels : " + ChannelTemplate.Endpoint.GET_CHANNEL_INFO_LIST.getEndpoint() + " returned 304 Not Modified" );
+			Log.i( TAG, "downloadChannels : GetChannelInfoList returned 304 Not Modified" );
 
 			etag.setLastModified( date );
 			mEtagDaoHelper.save( context, locationProfile, etag );
