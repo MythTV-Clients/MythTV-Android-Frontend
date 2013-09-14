@@ -139,18 +139,23 @@ public class LiveStreamHelperV26 extends AbstractBaseHelper {
 			if( null != program ) {
 				LiveStreamInfo liveStream = findLiveStream( context, locationProfile, channelId, startTime );
 				
-				ResponseEntity<LiveStreamInfoWrapper> wrapper = mMythServicesTemplate.contentOperations().getLiveStream( liveStream.getId(), EtagInfoDelegate.createEmptyETag() );
-				if( wrapper.getStatusCode().equals( HttpStatus.OK ) ) {
-					LiveStreamInfo updated = wrapper.getBody().getLiveStreamInfo();
+				if( null != liveStream ) {
+					Log.v( TAG, "update : liveStream=" + liveStream.toString() );
+					
+					ResponseEntity<LiveStreamInfoWrapper> wrapper = mMythServicesTemplate.contentOperations().getLiveStream( liveStream.getId(), EtagInfoDelegate.createEmptyETag() );
+					if( wrapper.getStatusCode().equals( HttpStatus.OK ) ) {
+						LiveStreamInfo updated = wrapper.getBody().getLiveStreamInfo();
 
-					if( !"Unknown status value".equalsIgnoreCase( updated.getStatusStr() ) ) {
-						save( context, locationProfile, updated, channelId, startTime );
-					} else {
-						deleteLiveStream( context, locationProfile, channelId, startTime );
+						if( !"Unknown status value".equalsIgnoreCase( updated.getStatusStr() ) ) {
+							save( context, locationProfile, updated, channelId, startTime );
+						} else {
+							deleteLiveStream( context, locationProfile, channelId, startTime );
+						}
+
+						Log.v( TAG, "update : exit" );
+						return true;
 					}
 
-					Log.v( TAG, "update : exit" );
-					return true;
 				}
 				
 			}
@@ -233,7 +238,7 @@ public class LiveStreamHelperV26 extends AbstractBaseHelper {
 		
 		String projection[] = null;
 		String selection = LiveStreamConstants.FIELD_CHAN_ID + " = ? AND " + LiveStreamConstants.FIELD_START_TIME + " = ?";
-		String[] selectionArgs = new String[] { String.valueOf( channelId ), String.valueOf( startTime ) };
+		String[] selectionArgs = new String[] { String.valueOf( channelId ), String.valueOf( startTime.getMillis() ) };
 		
 		LiveStreamInfo liveStreamInfo = null;
 		
