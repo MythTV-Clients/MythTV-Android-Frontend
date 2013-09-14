@@ -104,7 +104,7 @@ public class LiveStreamHelperV26 extends AbstractBaseHelper {
 					if( wrapper.getStatusCode().equals( HttpStatus.OK ) ) {
 						LiveStreamInfo liveStreamInfo = wrapper.getBody().getLiveStreamInfo();
 
-						save( context, locationProfile, liveStreamInfo, program );
+						save( context, locationProfile, liveStreamInfo, channelId, startTime );
 
 						Log.v( TAG, "create : exit" );
 						return true;
@@ -122,7 +122,7 @@ public class LiveStreamHelperV26 extends AbstractBaseHelper {
 		return false;
 	}
 
-	public boolean update( final Context context, final LocationProfile locationProfile, final Integer channelId, final DateTime startTime ) {
+	public boolean update( final Context context, final LocationProfile locationProfile, final int channelId, final DateTime startTime ) {
 		Log.v( TAG, "update : enter" );
 		
 		if( !NetworkHelper.getInstance().isMasterBackendConnected( context, locationProfile ) ) {
@@ -144,7 +144,7 @@ public class LiveStreamHelperV26 extends AbstractBaseHelper {
 					LiveStreamInfo updated = wrapper.getBody().getLiveStreamInfo();
 
 					if( !"Unknown status value".equalsIgnoreCase( updated.getStatusStr() ) ) {
-						save( context, locationProfile, updated, program );
+						save( context, locationProfile, updated, channelId, startTime );
 					} else {
 						deleteLiveStream( context, locationProfile, channelId, startTime );
 					}
@@ -294,7 +294,7 @@ public class LiveStreamHelperV26 extends AbstractBaseHelper {
 
 	// internal helpers
 	
-	private boolean save( final Context context, final LocationProfile locationProfile, LiveStreamInfo liveStreamInfo, final Program program ) {
+	private boolean save( final Context context, final LocationProfile locationProfile, LiveStreamInfo liveStreamInfo, int channelId, DateTime startTime ) {
 		Log.d( TAG, "save : enter" );
 
 		if( null == context ) 
@@ -302,7 +302,7 @@ public class LiveStreamHelperV26 extends AbstractBaseHelper {
 		
 		boolean saved = false;
 		
-		ContentValues values = convertLiveStreamInfoToContentValues( locationProfile, liveStreamInfo, program );
+		ContentValues values = convertLiveStreamInfoToContentValues( locationProfile, liveStreamInfo, channelId, startTime );
 
 		String[] projection = new String[] { LiveStreamConstants.TABLE_NAME + "_" + LiveStreamConstants._ID };
 		String selection = LiveStreamConstants.FIELD_ID + " = ?";
@@ -472,7 +472,7 @@ public class LiveStreamHelperV26 extends AbstractBaseHelper {
 		return liveStreamInfo;
 	}
 
-	private ContentValues convertLiveStreamInfoToContentValues( final LocationProfile locationProfile, final LiveStreamInfo liveStreamInfo, final Program program ) {
+	private ContentValues convertLiveStreamInfoToContentValues( final LocationProfile locationProfile, final LiveStreamInfo liveStreamInfo, final int channelId, final DateTime startTime ) {
 //		Log.v( TAG, "convertLiveStreamToContentValues : enter" );
 		
 		ContentValues values = new ContentValues();
@@ -499,8 +499,8 @@ public class LiveStreamHelperV26 extends AbstractBaseHelper {
 		values.put( LiveStreamConstants.FIELD_SOURCE_WIDTH, liveStreamInfo.getSourceWidth() );
 		values.put( LiveStreamConstants.FIELD_SOURCE_HEIGHT, liveStreamInfo.getSourceHeight() );
 		values.put( LiveStreamConstants.FIELD_AUDIO_ONLY_BITRATE, liveStreamInfo.getAudioOnlyBitrate() );
-		values.put( LiveStreamConstants.FIELD_CHAN_ID, program.getChannelInfo().getChannelId() );
-		values.put( LiveStreamConstants.FIELD_START_TIME, program.getStartTime().getMillis() );
+		values.put( LiveStreamConstants.FIELD_CHAN_ID, channelId );
+		values.put( LiveStreamConstants.FIELD_START_TIME, startTime.getMillis() );
 		values.put( LiveStreamConstants.FIELD_MASTER_HOSTNAME, locationProfile.getHostname() );
 		
 //		Log.v( TAG, "convertLiveStreamToContentValues : exit" );

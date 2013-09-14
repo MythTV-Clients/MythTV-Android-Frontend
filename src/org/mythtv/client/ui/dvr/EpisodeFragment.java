@@ -540,7 +540,7 @@ public class EpisodeFragment extends AbstractMythFragment {
 		
 		Intent intent = new Intent( LiveStreamService.ACTION_CREATE );
 		intent.putExtra( LiveStreamService.KEY_CHANNEL_ID, program.getChannelInfo().getChannelId() );
-		intent.putExtra( LiveStreamService.KEY_START_TIMESTAMP, program.getRecording().getStartTimestamp().getMillis() );
+		intent.putExtra( LiveStreamService.KEY_START_TIMESTAMP, program.getStartTime().getMillis() );
 		getActivity().startService( intent );
 
 		runningIntent = intent;
