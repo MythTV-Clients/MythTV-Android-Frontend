@@ -52,7 +52,7 @@
 			    android:layout_height="wrap_content"
 			    android:layout_margin="5dp"
 			    android:paddingLeft="5dp"
-			    android:text="unknown status" />
+			    android:text="@string/backend_status_unknown_status" />
 		
 		</LinearLayout>
 		
@@ -78,7 +78,7 @@
 			    android:layout_height="wrap_content"
 			    android:visibility="gone"
 			    android:paddingLeft="5dp"
-			    android:text="Encoders list is empty"/>
+			    android:text="@string/backend_status_encoders_list_is_empty"/>
 			<LinearLayout
 			    android:id="@+id/linearlayout_encoders_list"
 			    android:layout_width="match_parent"
@@ -108,7 +108,7 @@
 			    android:layout_height="wrap_content"
 			    android:visibility="gone"
 			    android:paddingLeft="5dp"
-			    android:text="Job Queue is empty"/>
+			    android:text="@string/backend_status_job_queue_is_empty"/>
 			<LinearLayout
 			    android:id="@+id/linearlayout_job_queue"
 			    android:layout_width="match_parent"
@@ -138,7 +138,7 @@
 			    android:layout_height="wrap_content"
 			    android:visibility="gone"
 			    android:paddingLeft="5dp"
-			    android:text="There are no upcoming recordings"/>
+			    android:text="@string/backend_status_there_are_no_upcoming_recordings"/>
 			<LinearLayout
 			    android:id="@+id/linearlayout_upcoming_recordings_list"
 			    android:layout_width="match_parent"

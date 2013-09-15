@@ -51,7 +51,7 @@
 			    android:ellipsize="end"
 			    android:paddingLeft="8dp"
 			    android:paddingRight="8dp"
-			    android:text="time slot"
+			    android:text="@string/guide_time_slot"
 			    android:textColor="@color/body_text_1"
 			    android:textSize="12dp" />
 
@@ -62,7 +62,7 @@
 			    android:ellipsize="end"
 			    android:paddingLeft="8dp"
 			    android:paddingRight="8dp"
-			    android:text="time slot description"
+			    android:text="@string/guide_time_slot_description"
 			    android:textColor="@color/body_text_1"
 			    android:textSize="9dp" />
 

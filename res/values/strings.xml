@@ -56,7 +56,7 @@
 	
 	<string name="please_wait">Please wait&#8230;</string>
 	
-	<string name="data_loading">Mythtv for Android is currently loading data from your backend. Please try again later.</string>
+	<string name="data_loading">MythTV for Android Frontend is currently loading data from your backend. Please try again later.</string>
 	
     <!-- Menus -->
 	<string name="menu_about">About</string>
@@ -347,14 +347,14 @@
     <string name="btn_pictures_ally">View pictures, not implemented</string>
     
     <!-- Frontends Dashboard -->
- 	<string name="frontends_title">Mythmote</string>
+    <string name="frontends_title">MythMote</string>
     <string name="tab_frontends">Frontends</string>
     <string name="frontends_prompt">Choose a frontend</string>
     <string name="frontends_scan_error_title">No MythTV Frontends Found!</string>
     <string name="frontends_scan_error_message">No MythTV Frontends could be found on your network.  Please make sure you are connected to Wifi on your Home Network.</string>
-	<string name="mythmote_page_navigation">Navigation</string>
-	<string name="mythmote_page_numbers">Numbers</string>
-	<string name="mythmote_page_actionlist">Action List</string>
+    <string name="mythmote_page_navigation">Navigation</string>
+    <string name="mythmote_page_numbers">Numbers</string>
+    <string name="mythmote_page_actionlist">Action List</string>
     
     <!-- Setup Dashboard Buttons -->
 	<string name="setup_title">Setup</string>
@@ -425,5 +425,41 @@
     <string name="gallery_sg_error">The Gallery only works with StorageGroups. Please manually create a StorageGroup called \'Gallery\' via mythtv-setup on the Master backend, slave backends or separate frontends are not supported.</string>
     <string name="gallery_sg_failed">Creating StorageGroups \'Gallery\' failed. Please create manually via mythtv-setup on the Master backend.</string>
     <string name="gallery_descr_image">Image</string>
+
+    <!-- Lint Additions -->
+    <string name="digit_zero">0</string>
+    <string name="digit_one">1</string>
+    <string name="digit_two">2</string>
+    <string name="digit_three">3</string>
+    <string name="digit_four">4</string>
+    <string name="digit_five">5</string>
+    <string name="digit_six">6</string>
+    <string name="digit_seven">7</string>
+    <string name="digit_eight">8</string>
+    <string name="digit_nine">9</string>
+
+    <string name="generic_delete">Delete</string>
+    <string name="generic_enter">Enter</string>
+    <string name="generic_title">Title</string>
+    <string name="generic_channel_num">Channel Num</string>
+    <string name="generic_channel_num_title">Channel NumTitle</string>
+    <string name="generic_sub_title">Sub-Title</string>
+    <string name="generic_air_date">AirDate</string>
+    <string name="generic_air_date_title">AirDateTitle</string>
+    <string name="generic_description">Description</string>
+    <string name="generic_mythmote">MythMote</string>
+    <string name="generic_refresh">Refresh</string>
+
+    <string name="backend_status_encoders_list_is_empty">Encoders list is empty</string>
+    <string name="backend_status_job_queue_is_empty">Job Queue is empty</string>
+    <string name="backend_status_there_are_no_upcoming_recordings">There are no upcoming recordings</string>
+    <string name="backend_status_unknown_status">unknown status</string>
+
+    <string name="main_menu_preference">Preference</string>
+
+    <string name="program_group_row">Program Group Row</string>
+
+    <string name="guide_time_slot">time slot</string>
+    <string name="guide_time_slot_description">time slot description</string>
 
 </resources>

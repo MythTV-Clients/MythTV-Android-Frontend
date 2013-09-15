@@ -42,7 +42,7 @@
 	    android:layout_alignParentRight="true"
 	    android:layout_centerVertical="true"
 	    android:background="@color/background_main_menu"
-	    android:contentDescription="MythMote"
+	    android:contentDescription="@string/generic_mythmote"
 	    android:padding="10dp"
 	    android:src="@drawable/ic_menu_mythmote_default_light" />
 	

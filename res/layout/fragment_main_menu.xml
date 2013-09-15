@@ -92,7 +92,7 @@
 	                android:layout_height="wrap_content"
 	                android:layout_gravity="bottom"
 	                android:background="@drawable/main_menu_image_button"
-	                android:contentDescription="Preference"
+	                android:contentDescription="@string/main_menu_preference"
 	                android:src="@drawable/ic_menu_preferences" />
 	            
 	        </LinearLayout>
@@ -146,7 +146,7 @@
 		            android:layout_gravity="center"
 		            android:padding="4dp"
 		            android:background="@drawable/main_menu_image_button"
-		            android:contentDescription="MythMote"
+		            android:contentDescription="@string/generic_mythmote"
 		            android:src="@drawable/ic_menu_mythmote_default" />
 	
 		    </LinearLayout>

@@ -40,7 +40,7 @@
 	    android:layout_height="wrap_content"
 	    android:layout_gravity="center"
 	    android:padding="4dp"
-	    android:contentDescription="Refresh"
+	    android:contentDescription="@string/generic_refresh"
 	    android:src="@drawable/ic_menu_mythmote_default" 
 	    android:visibility="gone"
 	/>

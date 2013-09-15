@@ -68,7 +68,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight=".3"
                     android:padding="5dp"
-                    android:text="Title"
+                    android:text="@string/generic_title"
                     android:textAppearance="?android:attr/textAppearanceLarge" />
 
                 <TextView
@@ -76,7 +76,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:padding="5dp"
-                    android:text="Channel Num" />
+                    android:text="@string/generic_channel_num" />
                 
             </LinearLayout>
 
@@ -91,14 +91,14 @@
                     android:layout_height="wrap_content"
                     android:layout_weight=".3"
                     android:padding="5dp"
-                    android:text="Sub-Title" />
+                    android:text="@string/generic_sub_title" />
 
                 <TextView
                     android:id="@+id/textView_episode_airdate"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:padding="5dp"
-                    android:text="AirDate" />
+                    android:text="@string/generic_air_date" />
 
             </LinearLayout>
 
@@ -107,7 +107,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="5dp"
-                android:text="Description" />
+                android:text="@string/generic_description" />
             
         </LinearLayout>
     </ScrollView>

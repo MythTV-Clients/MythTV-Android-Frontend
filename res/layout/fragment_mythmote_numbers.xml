@@ -40,7 +40,7 @@
             android:layout_marginRight="1dp"
             android:layout_marginTop="1dp"
             android:background="@drawable/mythmote_button"
-            android:text="1" />
+            android:text="@string/digit_one" />
 
         <Button
             android:id="@+id/numbers_button2"
@@ -50,7 +50,7 @@
             android:layout_marginRight="1dp"
             android:layout_marginTop="1dp"
             android:background="@drawable/mythmote_button"
-            android:text="2" />
+            android:text="@string/digit_two" />
 
         <Button
             android:id="@+id/numbers_button3"
@@ -60,7 +60,7 @@
             android:layout_marginRight="1dp"
             android:layout_marginTop="1dp"
             android:background="@drawable/mythmote_button"
-            android:text="3" />
+            android:text="@string/digit_three" />
 
     </TableRow>
 
@@ -77,7 +77,7 @@
             android:layout_marginLeft="1dp"
             android:layout_marginRight="1dp"
             android:background="@drawable/mythmote_button"
-            android:text="4" />
+            android:text="@string/digit_four" />
 
         <Button
             android:id="@+id/numbers_button5"
@@ -86,7 +86,7 @@
             android:layout_marginBottom="1dp"
             android:layout_marginRight="1dp"
             android:background="@drawable/mythmote_button"
-            android:text="5" />
+            android:text="@string/digit_five" />
 
         <Button
             android:id="@+id/numbers_button6"
@@ -95,7 +95,7 @@
             android:layout_marginBottom="1dp"
             android:layout_marginRight="1dp"
             android:background="@drawable/mythmote_button"
-            android:text="6" />
+            android:text="@string/digit_six" />
 
     </TableRow>
 
@@ -112,7 +112,7 @@
             android:layout_marginLeft="1dp"
             android:layout_marginRight="1dp"
             android:background="@drawable/mythmote_button"
-            android:text="7" />
+            android:text="@string/digit_seven" />
 
         <Button
             android:id="@+id/numbers_button8"
@@ -121,7 +121,7 @@
             android:layout_marginBottom="1dp"
             android:layout_marginRight="1dp"
             android:background="@drawable/mythmote_button"
-            android:text="8" />
+            android:text="@string/digit_eight" />
 
         <Button
             android:id="@+id/numbers_button9"
@@ -130,7 +130,7 @@
             android:layout_marginBottom="1dp"
             android:layout_marginRight="1dp"
             android:background="@drawable/mythmote_button"
-            android:text="9" />
+            android:text="@string/digit_nine" />
 
     </TableRow>
 
@@ -147,7 +147,7 @@
             android:layout_marginLeft="1dp"
             android:layout_marginRight="1dp"
             android:background="@drawable/mythmote_button"
-            android:text="Delete" />
+            android:text="@string/generic_delete" />
 
         <Button
             android:id="@+id/numbers_button0"
@@ -156,7 +156,7 @@
             android:layout_marginBottom="1dp"
             android:layout_marginRight="1dp"
             android:background="@drawable/mythmote_button"
-            android:text="0" />
+            android:text="@string/digit_zero" />
 
         <Button
             android:id="@+id/numbers_button_enter"
@@ -165,7 +165,7 @@
             android:layout_marginBottom="1dp"
             android:layout_marginRight="1dp"
             android:background="@drawable/mythmote_button"
-            android:text="Enter" />
+            android:text="@string/generic_enter" />
 
     </TableRow>
     

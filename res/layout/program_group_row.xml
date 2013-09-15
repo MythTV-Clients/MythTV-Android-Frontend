@@ -44,9 +44,9 @@
   			android:gravity="center_vertical"
   			android:layout_marginLeft="4dip"
   			android:minHeight="?android:attr/listPreferredItemHeight"
-  			android:contentDescription="Program Group Row"
-   	    />
-    	
+			android:contentDescription="@string/program_group_row"
+		/>
+
         <TextView
   			android:id="@+id/program_group_row"
   			android:layout_width="match_parent"
