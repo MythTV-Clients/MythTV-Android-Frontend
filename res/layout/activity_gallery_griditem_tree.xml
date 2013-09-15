@@ -32,7 +32,8 @@
                android:layout_height="150dip"
                android:padding="0dip"
                android:scaleType="centerCrop"
-               android:layout_margin="0dip">
+               android:layout_margin="0dip"
+               android:contentDescription="@null">
     </ImageView>
 
     <TextView android:id="@+id/grid_item_text"

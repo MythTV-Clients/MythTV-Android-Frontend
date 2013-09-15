@@ -90,8 +90,9 @@
 	    	    android:layout_width="wrap_content"
 	    	    android:layout_height="wrap_content"
 	    	    android:layout_weight=".20"
-	    		android:alpha="0.5"
-	    	    android:src="@drawable/mythmote_btn_media_rec"/>
+				android:alpha="0.5"
+				android:src="@drawable/mythmote_btn_media_rec"
+				android:contentDescription="@null"/>
 	    
 	    </LinearLayout>
 	    

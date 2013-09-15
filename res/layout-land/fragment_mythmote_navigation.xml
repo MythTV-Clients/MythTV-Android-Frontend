@@ -37,7 +37,8 @@
             android:layout_margin="1dp"
             android:layout_weight="10"
             android:background="@drawable/mythmote_button"
-            android:src="@drawable/mythmote_btn_ch_up" />
+            android:src="@drawable/mythmote_btn_ch_up"
+            android:contentDescription="@null" />
     
 	     <ImageButton
 	         android:id="@+id/imageButton_nav_info"
@@ -48,7 +49,8 @@
 	         android:layout_marginTop="1dp"
 	         android:layout_weight="10"
 	         android:background="@drawable/mythmote_button"
-	         android:src="@drawable/mythmote_btn_nav_info" />
+	         android:src="@drawable/mythmote_btn_nav_info"
+	         android:contentDescription="@null" />
 	
 	    <ImageButton
 	        android:id="@+id/imageButton_nav_up"
@@ -59,7 +61,8 @@
 	        android:layout_marginTop="1dp"
 	        android:layout_weight="10"
 	        android:background="@drawable/mythmote_button"
-	        android:src="@drawable/mythmote_btn_nav_up" />
+	        android:src="@drawable/mythmote_btn_nav_up"
+	        android:contentDescription="@null" />
 	    
 	    <ImageButton
 	        android:id="@+id/imageButton_nav_tvguide"
@@ -70,7 +73,8 @@
 	        android:layout_marginTop="1dp"
 	        android:layout_weight="10"
 	        android:background="@drawable/mythmote_button"
-	        android:src="@drawable/mythmote_btn_nav_guide" />
+	        android:src="@drawable/mythmote_btn_nav_guide"
+	        android:contentDescription="@null" />
 
 	    <ImageButton
 	        android:id="@+id/imageButton_vol_up"
@@ -81,7 +85,8 @@
 	        android:layout_marginTop="1dp"
 	        android:layout_weight="10"
 	        android:background="@drawable/mythmote_button"
-	        android:src="@drawable/mythmote_btn_vol_up" />
+	        android:src="@drawable/mythmote_btn_vol_up"
+	        android:contentDescription="@null" />
     
     </TableRow>
     
@@ -98,7 +103,8 @@
             android:layout_marginRight="1dp"
             android:layout_weight="10"
             android:background="@drawable/mythmote_button"
-            android:src="@drawable/mythmote_btn_ch_last" />
+            android:src="@drawable/mythmote_btn_ch_last"
+            android:contentDescription="@null" />
     
 	     <ImageButton
 	         android:id="@+id/imageButton_nav_left"
@@ -108,7 +114,8 @@
 	         android:layout_marginRight="1dp"
 	         android:layout_weight="10"
 	         android:background="@drawable/mythmote_button"
-	         android:src="@drawable/mythmote_btn_nav_left" />
+	         android:src="@drawable/mythmote_btn_nav_left"
+	         android:contentDescription="@null" />
 	
 	    <ImageButton
 	        android:id="@+id/imageButton_nav_select"
@@ -118,7 +125,8 @@
 	        android:layout_marginRight="1dp"
 	        android:layout_weight="10"
 	        android:background="@drawable/mythmote_button"
-	        android:src="@drawable/mythmote_btn_nav_select" />
+	        android:src="@drawable/mythmote_btn_nav_select"
+	        android:contentDescription="@null" />
 	    
 	    <ImageButton
 	        android:id="@+id/imageButton_nav_right"
@@ -128,7 +136,8 @@
 	        android:layout_marginRight="1dp"
 	        android:layout_weight="10"
 	        android:background="@drawable/mythmote_button"
-	        android:src="@drawable/mythmote_btn_nav_right" />
+	        android:src="@drawable/mythmote_btn_nav_right"
+	        android:contentDescription="@null" />
 
 	    <ImageButton
 	        android:id="@+id/imageButton_vol_mute"
@@ -138,7 +147,8 @@
 	        android:layout_marginRight="1dp"
 	        android:layout_weight="10"
 	        android:background="@drawable/mythmote_button"
-	        android:src="@drawable/mythmote_btn_vol_mute" />
+	        android:src="@drawable/mythmote_btn_vol_mute"
+	        android:contentDescription="@null" />
     
     </TableRow>
     
@@ -154,7 +164,8 @@
             android:layout_marginRight="1dp"
             android:layout_weight="10"
             android:background="@drawable/mythmote_button"
-            android:src="@drawable/mythmote_btn_ch_down" />
+            android:src="@drawable/mythmote_btn_ch_down"
+            android:contentDescription="@null" />
     
 	     <ImageButton
 	         android:id="@+id/imageButton_nav_cancel"
@@ -164,7 +175,8 @@
 	         android:layout_marginRight="1dp"
 	         android:layout_weight="10"
 	         android:background="@drawable/mythmote_button"
-	         android:src="@drawable/mythmote_btn_nav_cancel" />
+	         android:src="@drawable/mythmote_btn_nav_cancel"
+	         android:contentDescription="@null" />
 	
 	    <ImageButton
 	        android:id="@+id/imageButton_nav_down"
@@ -174,7 +186,8 @@
 	        android:layout_marginRight="1dp"
 	        android:layout_weight="10"
 	        android:background="@drawable/mythmote_button"
-	        android:src="@drawable/mythmote_btn_nav_down" />
+	        android:src="@drawable/mythmote_btn_nav_down"
+	        android:contentDescription="@null" />
 	    
 	    <ImageButton
 	        android:id="@+id/imageButton_nav_menu"
@@ -184,7 +197,8 @@
 	        android:layout_marginRight="1dp"
 	        android:layout_weight="10"
 	        android:background="@drawable/mythmote_button"
-	        android:src="@drawable/mythmote_btn_nav_menu" />
+	        android:src="@drawable/mythmote_btn_nav_menu"
+	        android:contentDescription="@null" />
 
 	    <ImageButton
 	        android:id="@+id/imageButton_vol_down"
@@ -194,7 +208,8 @@
 	        android:layout_marginRight="1dp"
 	        android:layout_weight="10"
 	        android:background="@drawable/mythmote_button"
-	        android:src="@drawable/mythmote_btn_vol_down" />
+	        android:src="@drawable/mythmote_btn_vol_down"
+	        android:contentDescription="@null" />
     
     </TableRow>
     
@@ -210,7 +225,8 @@
 	         android:layout_marginRight="1dp"
 	         android:layout_weight="10"
 	         android:background="@drawable/mythmote_button"
-	         android:src="@drawable/mythmote_btn_media_rec" />
+	         android:src="@drawable/mythmote_btn_media_rec"
+	         android:contentDescription="@null" />
 	
 	    <ImageButton
 	        android:id="@+id/imageButton_mediactrl_stop"
@@ -220,7 +236,8 @@
 	        android:layout_marginRight="1dp"
 	        android:layout_weight="10"
 	        android:background="@drawable/mythmote_button"
-	        android:src="@drawable/mythmote_btn_media_stop" />
+	        android:src="@drawable/mythmote_btn_media_stop"
+	        android:contentDescription="@null" />
 	    
 	    <ImageButton
 	        android:id="@+id/imageButton_mediactrl_pause"
@@ -230,7 +247,8 @@
 	        android:layout_marginRight="1dp"
 	        android:layout_weight="10"
 	        android:background="@drawable/mythmote_button"
-	        android:src="@drawable/mythmote_btn_media_pause" />
+	        android:src="@drawable/mythmote_btn_media_pause"
+	        android:contentDescription="@null" />
 	    
 	    <ImageButton
 	        android:id="@+id/imageButton_mediactrl_play"
@@ -240,7 +258,8 @@
 	        android:layout_marginRight="1dp"
 	        android:layout_weight="10"
 	        android:background="@drawable/mythmote_button"
-	        android:src="@drawable/mythmote_btn_media_play" />
+	        android:src="@drawable/mythmote_btn_media_play"
+	        android:contentDescription="@null" />
     
     </TableRow>
     
@@ -257,7 +276,8 @@
 	         android:layout_marginRight="1dp"
 	         android:layout_weight="10"
 	         android:background="@drawable/mythmote_button"
-	         android:src="@drawable/mythmote_btn_media_prev" />
+	         android:src="@drawable/mythmote_btn_media_prev"
+	         android:contentDescription="@null" />
 	
 	    <ImageButton
 	        android:id="@+id/imageButton_mediactrl_rew"
@@ -267,7 +287,8 @@
 	        android:layout_marginRight="1dp"
 	        android:layout_weight="10"
 	        android:background="@drawable/mythmote_button"
-	        android:src="@drawable/mythmote_btn_media_rew" />
+	        android:src="@drawable/mythmote_btn_media_rew"
+	        android:contentDescription="@null" />
 	    
 	    <ImageButton
 	        android:id="@+id/imageButton_mediactrl_ff"
@@ -277,7 +298,8 @@
 	        android:layout_marginRight="1dp"
 	        android:layout_weight="10"
 	        android:background="@drawable/mythmote_button"
-	        android:src="@drawable/mythmote_btn_media_ff" />
+	        android:src="@drawable/mythmote_btn_media_ff"
+	        android:contentDescription="@null" />
 	    
 	    <ImageButton
 	        android:id="@+id/imageButton_mediactrl_next"
@@ -287,7 +309,8 @@
 	        android:layout_marginRight="1dp"
 	        android:layout_weight="10"
 	        android:background="@drawable/mythmote_button"
-	        android:src="@drawable/mythmote_btn_media_next" />
+	        android:src="@drawable/mythmote_btn_media_next"
+	        android:contentDescription="@null" />
     
     </TableRow>
     
