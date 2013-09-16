@@ -87,8 +87,13 @@ public class LiveStreamDaoHelper extends AbstractDaoHelper {
 	public List<LiveStreamInfo> findAll( final Context context, final LocationProfile locationProfile, String[] projection, String selection, String[] selectionArgs, String sortOrder ) {
 		Log.d( TAG, "findAll : enter" );
 		
-		if( null == context ) 
-			throw new RuntimeException( "LiveStreamDaoHelper is not initialized" );
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
+		
+		if( null == locationProfile ) {
+			throw new IllegalArgumentException( "LocationProfile is required" );
+		}
 		
 		List<LiveStreamInfo> liveStreamInfos = new ArrayList<LiveStreamInfo>();
 		
@@ -111,6 +116,14 @@ public class LiveStreamDaoHelper extends AbstractDaoHelper {
 	public List<LiveStreamInfo> finalAll( final Context context, final LocationProfile locationProfile ) {
 		Log.d( TAG, "findAll : enter" );
 		
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
+		
+		if( null == locationProfile ) {
+			throw new IllegalArgumentException( "LocationProfile is required" );
+		}
+		
 		List<LiveStreamInfo> liveStreamInfos = findAll( context, locationProfile, null, null, null, null );
 		
 		Log.d( TAG, "findAll : exit" );
@@ -128,8 +141,13 @@ public class LiveStreamDaoHelper extends AbstractDaoHelper {
 	public LiveStreamInfo findOne( final Context context, final LocationProfile locationProfile, final Long id, String[] projection, String selection, String[] selectionArgs, String sortOrder ) {
 		Log.d( TAG, "findOne : enter" );
 		
-		if( null == context ) 
-			throw new RuntimeException( "LiveStreamDaoHelper is not initialized" );
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
+		
+		if( null == locationProfile ) {
+			throw new IllegalArgumentException( "LocationProfile is required" );
+		}
 		
 		LiveStreamInfo liveStreamInfo = null;
 		
@@ -158,6 +176,14 @@ public class LiveStreamDaoHelper extends AbstractDaoHelper {
 	public LiveStreamInfo findOne( final Context context, final LocationProfile locationProfile, final Long id ) {
 		Log.d( TAG, "findOne : enter" );
 		
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
+		
+		if( null == locationProfile ) {
+			throw new IllegalArgumentException( "LocationProfile is required" );
+		}
+		
 		LiveStreamInfo liveStreamInfo = findOne( context, locationProfile, id, null, null, null, null );
 		if( null != liveStreamInfo ) {
 			Log.v( TAG, "findOne : liveStreamInfo=" + liveStreamInfo.toString() );
@@ -174,6 +200,14 @@ public class LiveStreamDaoHelper extends AbstractDaoHelper {
 	public LiveStreamInfo findByLiveStreamId( final Context context, final LocationProfile locationProfile, final Long liveStreamId ) {
 		Log.d( TAG, "findByLiveStreamId : enter" );
 		
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
+		
+		if( null == locationProfile ) {
+			throw new IllegalArgumentException( "LocationProfile is required" );
+		}
+		
 		String selection = LiveStreamConstants.FIELD_ID + " = ?";
 		String[] selectionArgs = new String[] { String.valueOf( liveStreamId ) };
 		
@@ -188,6 +222,14 @@ public class LiveStreamDaoHelper extends AbstractDaoHelper {
 
 	public LiveStreamInfo findByProgram( final Context context, final LocationProfile locationProfile, final Program program ) {
 		Log.d( TAG, "findByProgram : enter" );
+		
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
+		
+		if( null == locationProfile ) {
+			throw new IllegalArgumentException( "LocationProfile is required" );
+		}
 		
 		try {
 			String selection = LiveStreamConstants.FIELD_CHAN_ID + " = ? AND " + LiveStreamConstants.FIELD_START_TIME + " = ?";
@@ -215,8 +257,13 @@ public class LiveStreamDaoHelper extends AbstractDaoHelper {
 	public int save( final Context context, final LocationProfile locationProfile, LiveStreamInfo liveStreamInfo, final Program program ) {
 		Log.d( TAG, "save : enter" );
 
-		if( null == context ) 
-			throw new RuntimeException( "LiveStreamDaoHelper is not initialized" );
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
+		
+		if( null == locationProfile ) {
+			throw new IllegalArgumentException( "LocationProfile is required" );
+		}
 		
 		ContentValues values = convertLiveStreamInfoToContentValues( locationProfile, liveStreamInfo, program );
 
@@ -253,8 +300,9 @@ public class LiveStreamDaoHelper extends AbstractDaoHelper {
 	public int deleteAll( final Context context ) {
 		Log.d( TAG, "deleteAll : enter" );
 		
-		if( null == context ) 
-			throw new RuntimeException( "LiveStreamDaoHelper is not initialized" );
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
 		
 		int deleted = context.getContentResolver().delete( LiveStreamConstants.CONTENT_URI, null, null );
 		Log.v( TAG, "deleteAll : deleted=" + deleted );
@@ -270,8 +318,9 @@ public class LiveStreamDaoHelper extends AbstractDaoHelper {
 	public int delete( final Context context, final Long id ) {
 		Log.d( TAG, "delete : enter" );
 		
-		if( null == context ) 
-			throw new RuntimeException( "LiveStreamDaoHelper is not initialized" );
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
 		
 		int deleted = context.getContentResolver().delete( ContentUris.withAppendedId( LiveStreamConstants.CONTENT_URI, id ), null, null );
 		Log.v( TAG, "delete : deleted=" + deleted );

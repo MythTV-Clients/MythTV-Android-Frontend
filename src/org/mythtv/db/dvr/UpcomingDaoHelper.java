@@ -71,6 +71,14 @@ public class UpcomingDaoHelper extends ProgramDaoHelper {
 	public List<Program> findAll( final Context context, final LocationProfile locationProfile ) {
 //		Log.d( TAG, "findAll : enter" );
 		
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
+		
+		if( null == locationProfile ) {
+			throw new IllegalArgumentException( "LocationProfile is required" );
+		}
+		
 		String selection = appendLocationHostname( context, locationProfile, "", ProgramConstants.TABLE_NAME_UPCOMING );
 
 		List<Program> programs = findAll( context, ProgramConstants.CONTENT_URI_UPCOMING, null, selection, null, null, ProgramConstants.TABLE_NAME_UPCOMING );
@@ -85,6 +93,14 @@ public class UpcomingDaoHelper extends ProgramDaoHelper {
 	 */
 	public List<Program> findAllByTitle( final Context context, final LocationProfile locationProfile, final String title ) {
 //		Log.d( TAG, "findAllByTitle : enter" );
+		
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
+		
+		if( null == locationProfile ) {
+			throw new IllegalArgumentException( "LocationProfile is required" );
+		}
 		
 		String selection = ProgramConstants.FIELD_TITLE + " = ?";
 		String[] selectionArgs = new String[] { title };
@@ -108,6 +124,11 @@ public class UpcomingDaoHelper extends ProgramDaoHelper {
 	 */
 	public Program findOne( final Context context, final Long id ) {
 //		Log.d( TAG, "findOne : enter" );
+
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
+		
 //		Log.d( TAG, "findOne : id=" + id );
 		
 		Program program = findOne( context, ContentUris.withAppendedId( ProgramConstants.CONTENT_URI_UPCOMING, id ), null, null, null, null, ProgramConstants.TABLE_NAME_UPCOMING );
@@ -125,6 +146,14 @@ public class UpcomingDaoHelper extends ProgramDaoHelper {
 	@Override
 	public Program findOne( final Context context, final LocationProfile locationProfile, final int channelId, final DateTime startTime ) {
 //		Log.d( TAG, "findOne : enter" );
+		
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
+		
+		if( null == locationProfile ) {
+			throw new IllegalArgumentException( "LocationProfile is required" );
+		}
 		
 		String selection = ProgramConstants.TABLE_NAME_UPCOMING + "." + ProgramConstants.FIELD_CHANNEL_ID + " = ? AND " + ProgramConstants.TABLE_NAME_UPCOMING + "." + ProgramConstants.FIELD_START_TIME + " = ?";
 		String[] selectionArgs = new String[] { String.valueOf( channelId ), String.valueOf( startTime.getMillis() ) };
@@ -149,6 +178,14 @@ public class UpcomingDaoHelper extends ProgramDaoHelper {
 	public int save( final Context context, final LocationProfile locationProfile, Program program ) {
 //		Log.d( TAG, "save : enter" );
 
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
+		
+		if( null == locationProfile ) {
+			throw new IllegalArgumentException( "LocationProfile is required" );
+		}
+		
 		int saved = save( context, ProgramConstants.CONTENT_URI_UPCOMING, locationProfile, program, ProgramConstants.TABLE_NAME_UPCOMING );
 		
 //		Log.d( TAG, "save : exit" );
@@ -162,6 +199,10 @@ public class UpcomingDaoHelper extends ProgramDaoHelper {
 	public int deleteAll( final Context context ) {
 //		Log.d( TAG, "deleteAll : enter" );
 
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
+		
 		int deleted = deleteAll( context, ProgramConstants.CONTENT_URI_UPCOMING );
 		
 //		Log.d( TAG, "deleteAll : exit" );
@@ -175,6 +216,14 @@ public class UpcomingDaoHelper extends ProgramDaoHelper {
 	public int delete( final Context context, final LocationProfile locationProfile, Program program ) {
 //		Log.d( TAG, "delete : enter" );
 
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
+		
+		if( null == locationProfile ) {
+			throw new IllegalArgumentException( "LocationProfile is required" );
+		}
+		
 		int deleted = delete( context, ProgramConstants.CONTENT_URI_UPCOMING, locationProfile, program, ProgramConstants.TABLE_NAME_UPCOMING );
 		
 //		Log.d( TAG, "delete : exit" );

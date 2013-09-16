@@ -85,8 +85,13 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 	public List<ProgramGroup> findAll( final Context context, final LocationProfile locationProfile ) {
 		Log.v( TAG, "findAll : enter" );
 		
-		if( null == context ) 
-			throw new RuntimeException( "ProgramGroupDaoHelper is not initialized" );
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
+		
+		if( null == locationProfile ) {
+			throw new IllegalArgumentException( "LocationProfile is required" );
+		}
 		
 		String selection = "";
 		String[] selectionArgs = null;
@@ -113,8 +118,9 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 	public ProgramGroup findOne( final Context context, final Long id ) {
 		Log.v( TAG, "findOne : enter" );
 		
-		if( null == context ) 
-			throw new RuntimeException( "ProgramGroupDaoHelper is not initialized" );
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
 		
 		ProgramGroup programGroup = null;
 		
@@ -130,6 +136,14 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 
 	public Integer countProgramsByTitle( final Context context, final LocationProfile locationProfile, String title ) {
 		Log.d( TAG, "countProgramsByTitle : enter" );
+		
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
+		
+		if( null == locationProfile ) {
+			throw new IllegalArgumentException( "LocationProfile is required" );
+		}
 		
 		String[] projection = new String[] { "count(" + ProgramGroupConstants.FIELD_TITLE + ")" };
 		String selection = ProgramGroupConstants.FIELD_TITLE + " = ?";
@@ -154,8 +168,13 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 	public ProgramGroup findByTitle( final Context context, final LocationProfile locationProfile, final String title ) {
 		Log.v( TAG, "findOne : enter" );
 		
-		if( null == context ) 
-			throw new RuntimeException( "ProgramGroupDaoHelper is not initialized" );
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
+		
+		if( null == locationProfile ) {
+			throw new IllegalArgumentException( "LocationProfile is required" );
+		}
 		
 		String selection = ProgramGroupConstants.FIELD_TITLE + " = ?";
 		String[] selectionArgs = new String[] { title };
@@ -181,8 +200,13 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 	public int save( final Context context, final LocationProfile locationProfile, ProgramGroup programGroup ) {
 		Log.v( TAG, "save : enter" );
 
-		if( null == context ) 
-			throw new RuntimeException( "ProgramGroupDaoHelper is not initialized" );
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
+		
+		if( null == locationProfile ) {
+			throw new IllegalArgumentException( "LocationProfile is required" );
+		}
 		
 		ContentValues values = convertProgramGroupToContentValues( locationProfile, DateUtils.convertUtc( new DateTime( System.currentTimeMillis() ) ), programGroup );
 
@@ -219,8 +243,13 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 	public int deleteAll( final Context context, final LocationProfile locationProfile ) {
 		Log.v( TAG, "deleteAll : enter" );
 		
-		if( null == context ) 
-			throw new RuntimeException( "ProgramGroupDaoHelper is not initialized" );
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
+		
+		if( null == locationProfile ) {
+			throw new IllegalArgumentException( "LocationProfile is required" );
+		}
 		
 		String selection = "";
 		
@@ -240,8 +269,9 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 	public int delete( final Context context, ProgramGroup programGroup ) {
 		Log.v( TAG, "delete : enter" );
 		
-		if( null == context ) 
-			throw new RuntimeException( "ProgramGroupDaoHelper is not initialized" );
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
 		
 		int deleted = context.getContentResolver().delete( ContentUris.withAppendedId( ProgramGroupConstants.CONTENT_URI, programGroup.getId() ), null, null );
 		Log.v( TAG, "delete : deleted=" + deleted );
@@ -253,8 +283,13 @@ public class ProgramGroupDaoHelper extends AbstractDaoHelper {
 	public int load( final Context context, final LocationProfile locationProfile, List<Program> programs ) throws RemoteException, OperationApplicationException {
 		Log.v( TAG, "load : enter" );
 		
-		if( null == context ) 
-			throw new RuntimeException( "ProgramGroupDaoHelper is not initialized" );
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
+		
+		if( null == locationProfile ) {
+			throw new IllegalArgumentException( "LocationProfile is required" );
+		}
 		
 		DateTime lastModified = new DateTime( DateTimeZone.UTC );
 		

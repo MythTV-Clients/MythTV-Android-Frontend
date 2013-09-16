@@ -68,8 +68,13 @@ public class RecordingRuleDaoHelper extends AbstractDaoHelper {
 	public List<RecRule> findAll( final Context context, final LocationProfile locationProfile, String[] projection, String selection, String[] selectionArgs, String sortOrder ) {
 //		Log.d( TAG, "findAll : enter" );
 		
-		if( null == context ) 
-			throw new RuntimeException( "RecordingRuleDaoHelper is not initialized" );
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
+		
+		if( null == locationProfile ) {
+			throw new IllegalArgumentException( "LocationProfile is required" );
+		}
 		
 		List<RecRule> recRules = new ArrayList<RecRule>();
 		
@@ -92,6 +97,14 @@ public class RecordingRuleDaoHelper extends AbstractDaoHelper {
 	public List<RecRule> findAll( final Context context, final LocationProfile locationProfile ) {
 //		Log.d( TAG, "findAll : enter" );
 		
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
+		
+		if( null == locationProfile ) {
+			throw new IllegalArgumentException( "LocationProfile is required" );
+		}
+		
 		List<RecRule> recRules = findAll( context, locationProfile, null, null, null, null );
 		
 //		Log.d( TAG, "findAll : exit" );
@@ -109,8 +122,13 @@ public class RecordingRuleDaoHelper extends AbstractDaoHelper {
 	public RecRule findOne( final Context context, final LocationProfile locationProfile, Long id, String[] projection, String selection, String[] selectionArgs, String sortOrder ) {
 //		Log.d( TAG, "findOne : enter" );
 		
-		if( null == context ) 
-			throw new RuntimeException( "RecordingRuleDaoHelper is not initialized" );
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
+		
+		if( null == locationProfile ) {
+			throw new IllegalArgumentException( "LocationProfile is required" );
+		}
 		
 		RecRule recRule = null;
 		
@@ -139,6 +157,14 @@ public class RecordingRuleDaoHelper extends AbstractDaoHelper {
 	public RecRule findOne( final Context context, final LocationProfile locationProfile, final Long id ) {
 //		Log.d( TAG, "findOne : enter" );
 		
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
+		
+		if( null == locationProfile ) {
+			throw new IllegalArgumentException( "LocationProfile is required" );
+		}
+		
 		RecRule recRule = findOne( context, locationProfile, id, null, null, null, null );
 //		if( null != recRule ) {
 //			Log.v( TAG, "findOne : recRule=" + recRule.toString() );
@@ -155,6 +181,14 @@ public class RecordingRuleDaoHelper extends AbstractDaoHelper {
 	 */
 	public RecRule findByRecordingRuleId( final Context context, final LocationProfile locationProfile, final Long recordingRuleId ) {
 //		Log.d( TAG, "findByRecordingRuleId : enter" );
+		
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
+		
+		if( null == locationProfile ) {
+			throw new IllegalArgumentException( "LocationProfile is required" );
+		}
 		
 //		Log.d( TAG, "findByRecordingRuleId : recordingRuleId=" + recordingRuleId );
 
@@ -177,11 +211,16 @@ public class RecordingRuleDaoHelper extends AbstractDaoHelper {
 	public int save( final Context context, final LocationProfile locationProfile, RecRule recRule ) {
 //		Log.d( TAG, "save : enter" );
 
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
+		
+		if( null == locationProfile ) {
+			throw new IllegalArgumentException( "LocationProfile is required" );
+		}
+		
 //		Log.d( TAG, "save : recRule=" + recRule.toString() );
 
-		if( null == context ) 
-			throw new RuntimeException( "RecordingRuleDaoHelper is not initialized" );
-		
 		ContentValues values = convertRecRuleToContentValues( locationProfile, DateUtils.convertUtc( new DateTime( System.currentTimeMillis() ) ), recRule );
 
 		String[] projection = new String[] { RecordingRuleConstants._ID };
@@ -222,8 +261,9 @@ public class RecordingRuleDaoHelper extends AbstractDaoHelper {
 	public int deleteAll( final Context context ) {
 //		Log.d( TAG, "deleteAll : enter" );
 		
-		if( null == context ) 
-			throw new RuntimeException( "RecordingRuleDaoHelper is not initialized" );
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
 		
 		int deleted = context.getContentResolver().delete( RecordingRuleConstants.CONTENT_URI, null, null );
 //		Log.v( TAG, "deleteAll : deleted=" + deleted );
@@ -239,8 +279,9 @@ public class RecordingRuleDaoHelper extends AbstractDaoHelper {
 	public int delete( final Context context, final Long id ) {
 //		Log.d( TAG, "delete : enter" );
 		
-		if( null == context ) 
-			throw new RuntimeException( "RecordingRuleDaoHelper is not initialized" );
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
 		
 		int deleted = context.getContentResolver().delete( ContentUris.withAppendedId( RecordingRuleConstants.CONTENT_URI, id ), null, null );
 //		Log.v( TAG, "delete : deleted=" + deleted );
@@ -257,8 +298,13 @@ public class RecordingRuleDaoHelper extends AbstractDaoHelper {
 	public int delete( final Context context, final LocationProfile locationProfile, RecRule recRule ) {
 //		Log.d( TAG, "delete : enter" );
 		
-		if( null == context ) 
-			throw new RuntimeException( "RecordingRuleDaoHelper is not initialized" );
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
+		
+		if( null == locationProfile ) {
+			throw new IllegalArgumentException( "LocationProfile is required" );
+		}
 		
 		String selection = RecordingRuleConstants.FIELD_REC_RULE_ID + " = ?";
 		String[] selectionArgs = new String[] { String.valueOf( recRule.getId() ) };

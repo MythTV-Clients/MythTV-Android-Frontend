@@ -84,8 +84,13 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 	public List<ChannelInfo> findAll( final Context context, final LocationProfile locationProfile, String[] projection, String selection, String[] selectionArgs, String sortOrder ) {
 //		Log.d( TAG, "findAll : enter" );
 		
-		if( null == context ) 
-			throw new RuntimeException( "ChannelDaoHelper is not initialized" );
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
+		
+		if( null == locationProfile ) {
+			throw new IllegalArgumentException( "LocationProfile is required" );
+		}
 		
 		List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
 		
@@ -108,6 +113,14 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 	public List<ChannelInfo> findAll( final Context context, final LocationProfile locationProfile ) {
 //		Log.d( TAG, "findAll : enter" );
 		
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
+		
+		if( null == locationProfile ) {
+			throw new IllegalArgumentException( "LocationProfile is required" );
+		}
+		
 		List<ChannelInfo> channelInfos = findAll( context, locationProfile, null, null, null, ChannelConstants.FIELD_CHAN_NUM_FORMATTED + " ASC" );
 		
 //		Log.d( TAG, "findAll : exit" );
@@ -125,8 +138,13 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 	public ChannelInfo findOne( final Context context, final LocationProfile locationProfile, Long id, String[] projection, String selection, String[] selectionArgs, String sortOrder ) {
 //		Log.d( TAG, "findOne : enter" );
 		
-		if( null == context ) 
-			throw new RuntimeException( "ChannelDaoHelper is not initialized" );
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
+		
+		if( null == locationProfile ) {
+			throw new IllegalArgumentException( "LocationProfile is required" );
+		}
 		
 		ChannelInfo channelInfo = null;
 		
@@ -155,6 +173,14 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 	public ChannelInfo findOne( final Context context, final LocationProfile locationProfile, final Long id ) {
 //		Log.d( TAG, "findOne : enter" );
 		
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
+		
+		if( null == locationProfile ) {
+			throw new IllegalArgumentException( "LocationProfile is required" );
+		}
+		
 		ChannelInfo channelInfo = findOne( context, locationProfile, id, null, null, null, null );
 //		if( null != channelInfo ) {
 //			Log.v( TAG, "findOne : channelInfo=" + channelInfo.toString() );
@@ -170,6 +196,14 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 	 */
 	public ChannelInfo findByChannelId( final Context context, final LocationProfile locationProfile, final Long channelId ) {
 //		Log.d( TAG, "findByChannelId : enter" );
+		
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
+		
+		if( null == locationProfile ) {
+			throw new IllegalArgumentException( "LocationProfile is required" );
+		}
 		
 //		Log.d( TAG, "findByChannelId : channelId=" + channelId );
 
@@ -192,8 +226,13 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 	public int save( final Context context, final LocationProfile locationProfile, ChannelInfo channelInfo ) {
 //		Log.d( TAG, "save : enter" );
 
-		if( null == context ) 
-			throw new RuntimeException( "ChannelDaoHelper is not initialized" );
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
+		
+		if( null == locationProfile ) {
+			throw new IllegalArgumentException( "LocationProfile is required" );
+		}
 		
 		ContentValues values = convertChannelInfoToContentValues( locationProfile, DateUtils.convertUtc( new DateTime( System.currentTimeMillis() ) ), channelInfo );
 
@@ -232,8 +271,9 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 	public int deleteAll( final Context context ) {
 //		Log.d( TAG, "deleteAll : enter" );
 		
-		if( null == context ) 
-			throw new RuntimeException( "ChannelDaoHelper is not initialized" );
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
 		
 		int deleted = context.getContentResolver().delete( ChannelConstants.CONTENT_URI, null, null );
 //		Log.v( TAG, "deleteAll : deleted=" + deleted );
@@ -249,8 +289,9 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 	public int delete( final Context context, final Long id ) {
 //		Log.d( TAG, "delete : enter" );
 		
-		if( null == context ) 
-			throw new RuntimeException( "ChannelDaoHelper is not initialized" );
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
 		
 		int deleted = context.getContentResolver().delete( ContentUris.withAppendedId( ChannelConstants.CONTENT_URI, id ), null, null );
 //		Log.v( TAG, "delete : deleted=" + deleted );
@@ -267,8 +308,13 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 	public int delete( final Context context, final LocationProfile locationProfile, ChannelInfo channelInfo ) {
 //		Log.d( TAG, "delete : enter" );
 		
-		if( null == context ) 
-			throw new RuntimeException( "ChannelDaoHelper is not initialized" );
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
+		
+		if( null == locationProfile ) {
+			throw new IllegalArgumentException( "LocationProfile is required" );
+		}
 		
 		String selection = ChannelConstants.FIELD_CHAN_ID + " = ?";
 		String[] selectionArgs = new String[] { String.valueOf( channelInfo.getChannelId() ) };

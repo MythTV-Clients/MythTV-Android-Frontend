@@ -74,6 +74,14 @@ public class RecordedDaoHelper extends ProgramDaoHelper {
 	public List<Program> findAll( final Context context, final LocationProfile locationProfile ) {
 //		Log.d( TAG, "findAll : enter" );
 
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
+		
+		if( null == locationProfile ) {
+			throw new IllegalArgumentException( "LocationProfile is required" );
+		}
+		
 		String selection = appendLocationHostname( context, locationProfile, "", ProgramConstants.TABLE_NAME_RECORDED );
 //		Log.d( TAG, "findAll : selection=" + selection );
 		
@@ -89,6 +97,14 @@ public class RecordedDaoHelper extends ProgramDaoHelper {
 	 */
 	public List<Program> findAllByTitle( final Context context, final LocationProfile locationProfile, final String title ) {
 //		Log.d( TAG, "findAllByTitle : enter" );
+		
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
+		
+		if( null == locationProfile ) {
+			throw new IllegalArgumentException( "LocationProfile is required" );
+		}
 		
 		String selection = ProgramConstants.FIELD_TITLE + " = ?";
 		String[] selectionArgs = new String[] { title };
@@ -115,6 +131,10 @@ public class RecordedDaoHelper extends ProgramDaoHelper {
 //		Log.d( TAG, "findOne : enter" );
 //		Log.d( TAG, "findOne : id=" + id );
 		
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
+		
 		Program program = findOne( context, ContentUris.withAppendedId( ProgramConstants.CONTENT_URI_RECORDED, id ), null, null, null, null, ProgramConstants.TABLE_NAME_RECORDED );
 //		if( null != program ) {
 //			Log.d( TAG, "findOne : program=" + program.toString() );
@@ -130,6 +150,14 @@ public class RecordedDaoHelper extends ProgramDaoHelper {
 	@Override
 	public Program findOne( final Context context, final LocationProfile locationProfile, final int channelId, final DateTime startTime ) {
 //		Log.d( TAG, "findOne : enter" );
+		
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
+		
+		if( null == locationProfile ) {
+			throw new IllegalArgumentException( "LocationProfile is required" );
+		}
 		
 		String selection = ProgramConstants.TABLE_NAME_RECORDED + "." + ProgramConstants.FIELD_CHANNEL_ID + " = ? AND " + ProgramConstants.TABLE_NAME_RECORDED + "." + ProgramConstants.FIELD_START_TIME + " = ?";
 		String[] selectionArgs = new String[] { String.valueOf( channelId ), String.valueOf( startTime.getMillis() ) };
@@ -154,6 +182,14 @@ public class RecordedDaoHelper extends ProgramDaoHelper {
 	public int save( final Context context, final LocationProfile locationProfile, Program program ) {
 //		Log.d( TAG, "save : enter" );
 
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
+		
+		if( null == locationProfile ) {
+			throw new IllegalArgumentException( "LocationProfile is required" );
+		}
+		
 		int saved = save( context, ProgramConstants.CONTENT_URI_RECORDED, locationProfile, program, ProgramConstants.TABLE_NAME_RECORDED );
 		
 //		Log.d( TAG, "save : exit" );
@@ -167,6 +203,10 @@ public class RecordedDaoHelper extends ProgramDaoHelper {
 	public int deleteAll( final Context context ) {
 //		Log.d( TAG, "deleteAll : enter" );
 
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
+		
 		int deleted = deleteAll( context, ProgramConstants.CONTENT_URI_RECORDED );
 		
 //		Log.d( TAG, "deleteAll : exit" );
@@ -180,6 +220,14 @@ public class RecordedDaoHelper extends ProgramDaoHelper {
 	public int delete( final Context context, final LocationProfile locationProfile, Program program ) {
 //		Log.d( TAG, "delete : enter" );
 
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
+		
+		if( null == locationProfile ) {
+			throw new IllegalArgumentException( "LocationProfile is required" );
+		}
+		
 		int deleted = delete( context, ProgramConstants.CONTENT_URI_RECORDED, locationProfile, program, ProgramConstants.TABLE_NAME_RECORDED );
 		
 //		Log.d( TAG, "delete : exit" );

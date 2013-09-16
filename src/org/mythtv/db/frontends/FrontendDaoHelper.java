@@ -68,8 +68,13 @@ public class FrontendDaoHelper extends AbstractDaoHelper {
 	public List<Frontend> findAll( final Context context, final LocationProfile locationProfile, String[] projection, String selection, String[] selectionArgs, String sortOrder ) {
 		Log.d( TAG, "findAll : enter" );
 		
-		if( null == context ) 
-			throw new RuntimeException( "FrontendDaoHelper is not initialized" );
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
+		
+		if( null == locationProfile ) {
+			throw new IllegalArgumentException( "LocationProfile is required" );
+		}
 		
 		List<Frontend> frontends = new ArrayList<Frontend>();
 		
@@ -92,6 +97,14 @@ public class FrontendDaoHelper extends AbstractDaoHelper {
 	public List<Frontend> findAll( final Context context, final LocationProfile locationProfile ) {
 		Log.d( TAG, "findAll : enter" );
 		
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
+		
+		if( null == locationProfile ) {
+			throw new IllegalArgumentException( "LocationProfile is required" );
+		}
+		
 		String selection = "";
 		String[] selectionArgs = null;
 
@@ -108,6 +121,14 @@ public class FrontendDaoHelper extends AbstractDaoHelper {
 	 */
 	public List<Frontend> findAllAvailable( final Context context, final LocationProfile locationProfile ) {
 		Log.d( TAG, "findAllAvailable : enter" );
+		
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
+		
+		if( null == locationProfile ) {
+			throw new IllegalArgumentException( "LocationProfile is required" );
+		}
 		
 		String selection = FrontendConstants.FIELD_AVAILABLE + " = ?";
 		String[] selectionArgs = new String[] { "1" };
@@ -131,8 +152,13 @@ public class FrontendDaoHelper extends AbstractDaoHelper {
 	public Frontend findOne( final Context context, final LocationProfile locationProfile, Long id, String[] projection, String selection, String[] selectionArgs, String sortOrder ) {
 		Log.d( TAG, "findOne : enter" );
 		
-		if( null == context ) 
-			throw new RuntimeException( "FrontendDaoHelper is not initialized" );
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
+		
+		if( null == locationProfile ) {
+			throw new IllegalArgumentException( "LocationProfile is required" );
+		}
 		
 		Frontend frontend = null;
 		
@@ -161,6 +187,14 @@ public class FrontendDaoHelper extends AbstractDaoHelper {
 	public Frontend findOne( final Context context, final LocationProfile locationProfile, final Long id ) {
 		Log.d( TAG, "findOne : enter" );
 		
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
+		
+		if( null == locationProfile ) {
+			throw new IllegalArgumentException( "LocationProfile is required" );
+		}
+		
 		Frontend frontend = findOne( context, locationProfile, id, null, null, null, null );
 		if( null != frontend ) {
 			Log.v( TAG, "findOne : frontend=" + frontend.toString() );
@@ -177,6 +211,14 @@ public class FrontendDaoHelper extends AbstractDaoHelper {
 	 */
 	public Frontend findByName( final Context context, final LocationProfile locationProfile, final String name ) {
 		Log.d( TAG, "findByName : enter" );
+		
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
+		
+		if( null == locationProfile ) {
+			throw new IllegalArgumentException( "LocationProfile is required" );
+		}
 		
 		Log.d( TAG, "findByName : name=" + name );
 
@@ -199,6 +241,14 @@ public class FrontendDaoHelper extends AbstractDaoHelper {
 	public Frontend findByUrl( final Context context, final LocationProfile locationProfile, final String url ) {
 		Log.d( TAG, "findByUrl : enter" );
 		
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
+		
+		if( null == locationProfile ) {
+			throw new IllegalArgumentException( "LocationProfile is required" );
+		}
+		
 		Log.d( TAG, "findByUrl : url=" + url );
 
 		String selection = FrontendConstants.FIELD_URL + " = ?";
@@ -220,8 +270,13 @@ public class FrontendDaoHelper extends AbstractDaoHelper {
 	public int save( final Context context, final LocationProfile locationProfile, Frontend frontend ) {
 		Log.d( TAG, "save : enter" );
 
-		if( null == context ) 
-			throw new RuntimeException( "FrontendDaoHelper is not initialized" );
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
+		
+		if( null == locationProfile ) {
+			throw new IllegalArgumentException( "LocationProfile is required" );
+		}
 		
 		ContentValues values = convertFrontendToContentValues( locationProfile, DateUtils.convertUtc( new DateTime( System.currentTimeMillis() ) ), frontend );
 
@@ -257,6 +312,14 @@ public class FrontendDaoHelper extends AbstractDaoHelper {
 	public void resetAllAvailable( final Context context, final LocationProfile locationProfile ) {
 		Log.d( TAG, "resetAllAvailable : enter" );
 		
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
+		
+		if( null == locationProfile ) {
+			throw new IllegalArgumentException( "LocationProfile is required" );
+		}
+		
 		List<Frontend> frontends = findAll( context, locationProfile );
 		if( null != frontends && !frontends.isEmpty() ) {
 			for( Frontend fe : frontends ) {
@@ -274,8 +337,9 @@ public class FrontendDaoHelper extends AbstractDaoHelper {
 	public int deleteAll( final Context context ) {
 		Log.d( TAG, "deleteAll : enter" );
 		
-		if( null == context ) 
-			throw new RuntimeException( "FrontendDaoHelper is not initialized" );
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
 		
 		int deleted = context.getContentResolver().delete( FrontendConstants.CONTENT_URI, null, null );
 		Log.v( TAG, "deleteAll : deleted=" + deleted );
@@ -291,8 +355,9 @@ public class FrontendDaoHelper extends AbstractDaoHelper {
 	public int delete( final Context context, final Long id ) {
 		Log.d( TAG, "delete : enter" );
 		
-		if( null == context ) 
-			throw new RuntimeException( "FrontendDaoHelper is not initialized" );
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
 		
 		int deleted = context.getContentResolver().delete( ContentUris.withAppendedId( FrontendConstants.CONTENT_URI, id ), null, null );
 		Log.v( TAG, "delete : deleted=" + deleted );
@@ -309,8 +374,13 @@ public class FrontendDaoHelper extends AbstractDaoHelper {
 	public int delete( final Context context, final LocationProfile locationProfile, Frontend frontend ) {
 		Log.d( TAG, "delete : enter" );
 		
-		if( null == context ) 
-			throw new RuntimeException( "FrontendDaoHelper is not initialized" );
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
+		
+		if( null == locationProfile ) {
+			throw new IllegalArgumentException( "LocationProfile is required" );
+		}
 		
 		String selection = FrontendConstants.FIELD_NAME + " = ? AND " + FrontendConstants.FIELD_URL + " = ?";
 		String[] selectionArgs = new String[] { frontend.getName(), frontend.getUrl() };

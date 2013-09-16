@@ -81,8 +81,13 @@ public class EtagDaoHelper extends AbstractDaoHelper {
 	public List<EtagInfoDelegate> findAll( final Context context, final LocationProfile locationProfile, String[] projection, String selection, String[] selectionArgs, String sortOrder ) {
 //		Log.d( TAG, "findAll : enter" );
 		
-		if( null == context ) 
-			throw new RuntimeException( "EtagDaoHelper is not initialized" );
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
+		
+		if( null == locationProfile ) {
+			throw new IllegalArgumentException( "LocationProfile is required" );
+		}
 		
 		List<EtagInfoDelegate> etagInfos = new ArrayList<EtagInfoDelegate>();
 		
@@ -105,6 +110,14 @@ public class EtagDaoHelper extends AbstractDaoHelper {
 	public List<EtagInfoDelegate> findAll( final Context context, final LocationProfile locationProfile ) {
 //		Log.d( TAG, "findAll : enter" );
 		
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
+		
+		if( null == locationProfile ) {
+			throw new IllegalArgumentException( "LocationProfile is required" );
+		}
+		
 		List<EtagInfoDelegate> etagInfos = findAll( context, locationProfile, null, null, null, null );
 		
 //		Log.d( TAG, "findAll : exit" );
@@ -116,6 +129,14 @@ public class EtagDaoHelper extends AbstractDaoHelper {
 	 */
 	public List<EtagInfoDelegate> findAllByEndpoint( final Context context, final LocationProfile locationProfile, final String endpoint ) {
 //		Log.d( TAG, "findAll : enter" );
+		
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
+		
+		if( null == locationProfile ) {
+			throw new IllegalArgumentException( "LocationProfile is required" );
+		}
 		
 		String selection = EtagConstants.FIELD_ENDPOINT + " = ?";
 		String[] selectionArgs = new String[] { endpoint };
@@ -137,8 +158,13 @@ public class EtagDaoHelper extends AbstractDaoHelper {
 	public EtagInfoDelegate findOne( final Context context, final LocationProfile locationProfile, Long id, String[] projection, String selection, String[] selectionArgs, String sortOrder ) {
 //		Log.d( TAG, "findOne : enter" );
 		
-		if( null == context ) 
-			throw new RuntimeException( "EtagDaoHelper is not initialized" );
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
+		
+		if( null == locationProfile ) {
+			throw new IllegalArgumentException( "LocationProfile is required" );
+		}
 		
 		EtagInfoDelegate etagInfo = EtagInfoDelegate.createEmptyETag();
 		
@@ -167,6 +193,14 @@ public class EtagDaoHelper extends AbstractDaoHelper {
 	public EtagInfoDelegate findOne( final Context context, final LocationProfile locationProfile, final Long id ) {
 //		Log.d( TAG, "findOne : enter" );
 		
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
+		
+		if( null == locationProfile ) {
+			throw new IllegalArgumentException( "LocationProfile is required" );
+		}
+		
 		EtagInfoDelegate etagInfo = findOne( context, locationProfile, id, null, null, null, null );
 		
 //		Log.d( TAG, "findOne : exit" );
@@ -181,8 +215,13 @@ public class EtagDaoHelper extends AbstractDaoHelper {
 	public EtagInfoDelegate findByEndpointAndDataId( final Context context, final LocationProfile locationProfile, final String endpoint, final String dataId ) {
 //		Log.d( TAG, "findByEndpointAndDataId : enter" );
 		
-		if( null == context ) 
-			throw new RuntimeException( "EtagDaoHelper is not initialized" );
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
+		
+		if( null == locationProfile ) {
+			throw new IllegalArgumentException( "LocationProfile is required" );
+		}
 		
 		String selection = EtagConstants.FIELD_ENDPOINT + " = ?";
 		if( null != dataId && !"".equals( dataId ) ) {
@@ -207,8 +246,13 @@ public class EtagDaoHelper extends AbstractDaoHelper {
 	public EtagInfoDelegate findByEndpoint( final Context context, final LocationProfile locationProfile, final String endpoint ) {
 //		Log.d( TAG, "findByEndpoint : enter" );
 		
-		if( null == context ) 
-			throw new RuntimeException( "EtagDaoHelper is not initialized" );
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
+		
+		if( null == locationProfile ) {
+			throw new IllegalArgumentException( "LocationProfile is required" );
+		}
 		
 		String selection = EtagConstants.FIELD_ENDPOINT + " = ?";
 		
@@ -228,8 +272,13 @@ public class EtagDaoHelper extends AbstractDaoHelper {
 	public EtagInfoDelegate findByEndpointAndDate( final Context context, final LocationProfile locationProfile, final String endpoint, final DateTime date ) {
 //		Log.d( TAG, "findByEndpointAndDate : enter" );
 		
-		if( null == context ) 
-			throw new RuntimeException( "EtagDaoHelper is not initialized" );
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
+		
+		if( null == locationProfile ) {
+			throw new IllegalArgumentException( "LocationProfile is required" );
+		}
 		
 		String selection = EtagConstants.FIELD_ENDPOINT + " = ?";
 		if( null != date ) {
@@ -257,8 +306,13 @@ public class EtagDaoHelper extends AbstractDaoHelper {
 	public DateTime findDateByEndpointAndDataId( final Context context, final LocationProfile locationProfile, final String endpoint, final String dataId ) {
 //		Log.d( TAG, "findDateByEndpointAndDataId : enter" );
 		
-		if( null == context ) 
-			throw new RuntimeException( "EtagDaoHelper is not initialized" );
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
+		
+		if( null == locationProfile ) {
+			throw new IllegalArgumentException( "LocationProfile is required" );
+		}
 		
 		String selection = EtagConstants.FIELD_ENDPOINT + " = ?";
 		if( null != dataId && !"".equals( dataId ) ) {
@@ -290,8 +344,13 @@ public class EtagDaoHelper extends AbstractDaoHelper {
 	public int save( final Context context, final LocationProfile locationProfile, final EtagInfoDelegate etagInfo ) {
 //		Log.d( TAG, "save : enter" );
 
-		if( null == context ) 
-			throw new RuntimeException( "EtagDaoHelper is not initialized" );
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
+		
+		if( null == locationProfile ) {
+			throw new IllegalArgumentException( "LocationProfile is required" );
+		}
 		
 		ContentValues values = convertEtagInfoDelegateToContentValues( etagInfo );
 
@@ -333,8 +392,9 @@ public class EtagDaoHelper extends AbstractDaoHelper {
 	public int deleteAll( Context context ) {
 //		Log.d( TAG, "deleteAll : enter" );
 		
-		if( null == context ) 
-			throw new RuntimeException( "EtagDaoHelper is not initialized" );
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
 		
 		int deleted = context.getContentResolver().delete( EtagConstants.CONTENT_URI, null, null );
 //		Log.v( TAG, "deleteAll : deleted=" + deleted );
@@ -350,8 +410,13 @@ public class EtagDaoHelper extends AbstractDaoHelper {
 	public int delete( final Context context, final LocationProfile locationProfile, final EtagInfoDelegate etag ) {
 //		Log.d( TAG, "delete : enter" );
 		
-		if( null == context ) 
-			throw new RuntimeException( "EtagDaoHelper is not initialized" );
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
+		
+		if( null == locationProfile ) {
+			throw new IllegalArgumentException( "LocationProfile is required" );
+		}
 		
 		String selection = EtagConstants.FIELD_ENDPOINT + " = ?";
 		if( etag.getDataId() > 0 ) {

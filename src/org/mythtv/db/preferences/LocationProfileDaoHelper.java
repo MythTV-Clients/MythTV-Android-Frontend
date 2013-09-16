@@ -74,8 +74,9 @@ public class LocationProfileDaoHelper {
 	public List<LocationProfile> findAll( Context context ) {
 //		Log.d( TAG, "findAll : enter" );
 		
-		if( null == context ) 
-			throw new RuntimeException( "LocationProfileDaoHelper is not initialized" );
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
 		
 		List<LocationProfile> profiles = new ArrayList<LocationProfile>();
 		
@@ -96,8 +97,9 @@ public class LocationProfileDaoHelper {
 	public List<LocationProfile> findAllHomeLocationProfiles( Context context ) {
 //		Log.d( TAG, "findAllHomeLocationProfiles : enter" );
 
-		if( null == context ) 
-			throw new RuntimeException( "LocationProfileDaoHelper is not initialized" );
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
 		
 		List<LocationProfile> profiles = findAllByType( context, LocationType.HOME );
 
@@ -111,8 +113,9 @@ public class LocationProfileDaoHelper {
 	public List<LocationProfile> findAllAwayLocationProfiles( Context context ) {
 //		Log.d( TAG, "findAllAwayLocationProfiles : enter" );
 
-		if( null == context ) 
-			throw new RuntimeException( "LocationProfileDaoHelper is not initialized" );
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
 		
 		List<LocationProfile> profiles = findAllByType( context, LocationType.AWAY );
 
@@ -127,8 +130,9 @@ public class LocationProfileDaoHelper {
 	public LocationProfile findOne( Context context, Long id ) {
 //		Log.d( TAG, "findOne : enter" );
 		
-		if( null == context ) 
-			throw new RuntimeException( "LocationProfileDaoHelper is not initialized" );
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
 		
 		LocationProfile profile = null;
 		
@@ -151,8 +155,9 @@ public class LocationProfileDaoHelper {
 	public long save( Context context, LocationProfile profile ) {
 //		Log.d( TAG, "save : enter" );
 
-		if( null == context ) 
-			throw new RuntimeException( "LocationProfileDaoHelper is not initialized" );
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
 		
 		long ret = 0;
 		
@@ -216,8 +221,9 @@ public class LocationProfileDaoHelper {
 	public boolean delete( Context context, Long id ) {
 //		Log.d( TAG, "delete : enter" );
 		
-		if( null == context ) 
-			throw new RuntimeException( "LocationProfileDaoHelper is not initialized" );
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
 		
 		boolean ret = false;
 		
@@ -237,8 +243,9 @@ public class LocationProfileDaoHelper {
 	public boolean setSelectedLocationProfile( Context context, Long profileId ) {
 //		Log.d( TAG, "setSelectedLocationProfile : enter" );
 
-		if( null == context ) 
-			throw new RuntimeException( "LocationProfileDaoHelper is not initialized" );
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
 		
 		boolean saved = false;
 		
@@ -264,8 +271,9 @@ public class LocationProfileDaoHelper {
 	public LocationProfile findByLocationTypeAndUrl( Context context, LocationType type, String url ) {
 //		Log.d( TAG, "findByLocationTypeAndUrl : enter" );
 		
-		if( null == context ) 
-			throw new RuntimeException( "LocationProfileDaoHelper is not initialized" );
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
 		
 		LocationProfile profile = null;
 		
@@ -288,8 +296,9 @@ public class LocationProfileDaoHelper {
 	public LocationProfile findHomeProfileByUrl( Context context, String url ) {
 //		Log.d( TAG, "findHomeProfileByUrl : enter" );
 		
-		if( null == context ) 
-			throw new RuntimeException( "LocationProfileDaoHelper is not initialized" );
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
 		
 		LocationProfile profile = findByLocationTypeAndUrl( context, LocationType.HOME, url );
 		
@@ -303,8 +312,9 @@ public class LocationProfileDaoHelper {
 	public LocationProfile findAwayProfileByUrl( Context context, String url ) {
 //		Log.d( TAG, "findAwayProfileByUrl : enter" );
 		
-		if( null == context ) 
-			throw new RuntimeException( "LocationProfileDaoHelper is not initialized" );
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
 		
 		LocationProfile profile = findByLocationTypeAndUrl( context, LocationType.AWAY, url );
 		
@@ -318,8 +328,9 @@ public class LocationProfileDaoHelper {
 	public LocationProfile findSelectedHomeProfile( Context context ) {
 //		Log.d( TAG, "findSelectedHomeProfile : enter" );
 		
-		if( null == context ) 
-			throw new RuntimeException( "LocationProfileDaoHelper is not initialized" );
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
 		
 		LocationProfile profile = findSelectedProfile( context, LocationType.HOME );
 		
@@ -333,8 +344,9 @@ public class LocationProfileDaoHelper {
 	public LocationProfile findSelectedAwayProfile( Context context ) {
 //		Log.d( TAG, "findSelectedAwayProfile : enter" );
 		
-		if( null == context ) 
-			throw new RuntimeException( "LocationProfileDaoHelper is not initialized" );
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
 		
 		LocationProfile profile = findSelectedProfile( context, LocationType.AWAY );
 		
@@ -349,8 +361,9 @@ public class LocationProfileDaoHelper {
 	public boolean setConnectedLocationProfile( Context context, Long profileId ) {
 //		Log.d( TAG, "setConnectedLocationProfile : enter" );
 		
-		if( null == context ) 
-			throw new RuntimeException( "LocationProfileDaoHelper is not initialized" );
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
 		
 		boolean saved = false;
 
@@ -373,8 +386,9 @@ public class LocationProfileDaoHelper {
 	public LocationProfile findConnectedProfile( Context context ) {
 //		Log.d( TAG, "findConnectedProfile : enter" );
 		
-		if( null == context ) 
-			throw new RuntimeException( "LocationProfileDaoHelper is not initialized" );
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
 		
 		LocationProfile profile = null;
 		
@@ -481,8 +495,9 @@ public class LocationProfileDaoHelper {
 	private List<LocationProfile> findAllByType( Context context, LocationType type ) {
 //		Log.d( TAG, "findAllByType : enter" );
 		
-		if( null == context ) 
-			throw new RuntimeException( "LocationProfileDaoHelper is not initialized" );
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
 		
 		List<LocationProfile> profiles = new ArrayList<LocationProfile>();
 		
@@ -500,8 +515,9 @@ public class LocationProfileDaoHelper {
 	private LocationProfile findSelectedProfile( Context context, LocationType type ) {
 //		Log.d( TAG, "findSelectedProfile : enter" );
 		
-		if( null == context ) 
-			throw new RuntimeException( "LocationProfileDaoHelper is not initialized" );
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
 		
 		LocationProfile profile = null;
 		
@@ -518,8 +534,9 @@ public class LocationProfileDaoHelper {
 	private boolean resetSelectedProfiles( Context context, LocationType type ) {
 //		Log.d( TAG, "resetSelectedProfiles : enter" );
 
-		if( null == context ) 
-			throw new RuntimeException( "LocationProfileDaoHelper is not initialized" );
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
 		
 		boolean ret = false;
 		
@@ -537,8 +554,9 @@ public class LocationProfileDaoHelper {
 	public boolean resetConnectedProfiles( Context context ) {
 //		Log.d( TAG, "resetConnectedProfiles : enter" );
 
-		if( null == context ) 
-			throw new RuntimeException( "LocationProfileDaoHelper is not initialized" );
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
 		
 		boolean ret = false;
 		

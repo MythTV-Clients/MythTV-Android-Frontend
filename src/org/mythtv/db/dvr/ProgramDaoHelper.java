@@ -69,8 +69,9 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 	protected List<Program> findAll( final Context context, final Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder, final String table ) {
 //		Log.v( TAG, "findAll : enter" );
 		
-		if( null == context ) 
-			throw new RuntimeException( "ProgramDaoHelper is not initialized" );
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
 		
 		List<Program> programs = new ArrayList<Program>();
 		
@@ -101,15 +102,9 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 	protected Program findOne( final Context context, final Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder, final String table ) {
 //		Log.v( TAG, "findOne : enter" );
 		
-		if( null == context ) 
-			throw new RuntimeException( "ProgramDaoHelper is not initialized" );
-		
-//		Log.v( TAG, "findOne : selection=" + selection );
-//		if( null != selectionArgs ) {
-//			for( String selectionArg : selectionArgs ) {
-//				Log.v( TAG, "findOne : selectionArg=" + selectionArg );
-//			}
-//		}
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
 		
 		Program program = null;
 		
@@ -140,8 +135,9 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 	protected int save( final Context context, final Uri uri, final LocationProfile locationProfile, Program program, final String table ) {
 //		Log.v( TAG, "save : enter" );
 
-		if( null == context ) 
-			throw new RuntimeException( "ProgramDaoHelper is not initialized" );
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
 		
 		ContentValues values = convertProgramToContentValues( locationProfile, new DateTime( DateTimeZone.UTC ), program );
 
@@ -193,8 +189,9 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 	public int deleteAll( final Context context, final Uri uri ) {
 //		Log.v( TAG, "deleteAll : enter" );
 		
-		if( null == context ) 
-			throw new RuntimeException( "ProgramDaoHelper is not initialized" );
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
 		
 		int deleted = context.getContentResolver().delete( uri, null, null );
 //		Log.v( TAG, "deleteAll : deleted=" + deleted );
@@ -216,8 +213,9 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 	public int delete( final Context context, final Uri uri, final LocationProfile locationProfile, Program program, final String table ) {
 //		Log.v( TAG, "delete : enter" );
 		
-		if( null == context ) 
-			throw new RuntimeException( "ProgramDaoHelper is not initialized" );
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
 		
 		String selection = ProgramConstants.FIELD_CHANNEL_ID + " = ? AND " + ProgramConstants.FIELD_START_TIME + " = ?";
 		String[] selectionArgs = new String[] { String.valueOf( program.getChannelInfo().getChannelId() ), String.valueOf( program.getStartTime().getMillis() ) };
@@ -393,8 +391,6 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		program.setEpisode( episode );
 		program.setChannelInfo( channelInfo );
 		program.setRecording( recording );
-//		program.set;
-//		program.set;
 		
 //		Log.v( TAG, "convertCursorToProgram : id=" + id + ", program=" + program.toString() );
 

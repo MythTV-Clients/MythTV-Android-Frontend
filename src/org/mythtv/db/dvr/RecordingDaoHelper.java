@@ -86,9 +86,10 @@ public class RecordingDaoHelper extends AbstractDaoHelper {
 	public List<Recording> findAll( final Context context, String[] projection, String selection, String[] selectionArgs, String sortOrder, final String table ) {
 //		Log.d( TAG, "findAll : enter" );
 		
-		if( null == context ) 
-			throw new RuntimeException( "RecordingDaoHelper is not initialized" );
-
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
+		
 		RecordingConstants.ContentDetails details = RecordingConstants.ContentDetails.getValueFromParent( table );
 
 		List<Recording> recordings = new ArrayList<Recording>();
@@ -110,6 +111,10 @@ public class RecordingDaoHelper extends AbstractDaoHelper {
 	public List<Recording> finalAll( final Context context, final String table ) {
 //		Log.d( TAG, "findAll : enter" );
 		
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
+		
 		List<Recording> recordings = findAll( context, null, null, null, null, table );
 		
 //		Log.d( TAG, "findAll : exit" );
@@ -127,8 +132,9 @@ public class RecordingDaoHelper extends AbstractDaoHelper {
 	public Recording findOne( final Context context, final Long id, String[] projection, String selection, String[] selectionArgs, String sortOrder, final String table ) {
 //		Log.d( TAG, "findOne : enter" );
 		
-		if( null == context ) 
-			throw new RuntimeException( "RecordingDaoHelper is not initialized" );
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
 		
 		RecordingConstants.ContentDetails details = RecordingConstants.ContentDetails.getValueFromParent( table );
 
@@ -156,6 +162,10 @@ public class RecordingDaoHelper extends AbstractDaoHelper {
 	public Recording findOne( final Context context, final Long id, final String table ) {
 //		Log.d( TAG, "findOne : enter" );
 		
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
+		
 		Recording recording = findOne( context, id, null, null, null, null, table );
 		
 //		Log.d( TAG, "findOne : exit" );
@@ -170,8 +180,9 @@ public class RecordingDaoHelper extends AbstractDaoHelper {
 	protected int save( final Context context, final Uri uri, final LocationProfile locationProfile, final DateTime startTime, Recording recording, final String table ) {
 		Log.v( TAG, "save : enter" );
 
-		if( null == context ) 
-			throw new RuntimeException( "RecordingDaoHelper is not initialized" );
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
 		
 		ContentValues values = convertRecordingToContentValues( locationProfile, new DateTime( DateTimeZone.UTC ), startTime, recording );
 
@@ -210,8 +221,9 @@ public class RecordingDaoHelper extends AbstractDaoHelper {
 	public int deleteAll( final Context context, final String table ) {
 //		Log.d( TAG, "deleteAll : enter" );
 		
-		if( null == context ) 
-			throw new RuntimeException( "RecordingDaoHelper is not initialized" );
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
 		
 		RecordingConstants.ContentDetails details = RecordingConstants.ContentDetails.getValueFromParent( table );
 
@@ -225,8 +237,9 @@ public class RecordingDaoHelper extends AbstractDaoHelper {
 	public int delete( final Context context, final Long id, final String where, final String[] selectionArgs, final String table ) {
 //		Log.d( TAG, "delete : enter" );
 		
-		if( null == context ) 
-			throw new RuntimeException( "RecordingDaoHelper is not initialized" );
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
 		
 		RecordingConstants.ContentDetails details = RecordingConstants.ContentDetails.getValueFromParent( table );
 
@@ -250,8 +263,9 @@ public class RecordingDaoHelper extends AbstractDaoHelper {
 	public int delete( final Context context, final Long id, final String table ) {
 //		Log.d( TAG, "delete : enter" );
 		
-		if( null == context ) 
-			throw new RuntimeException( "RecordingDaoHelper is not initialized" );
+		if( null == context ) {
+			throw new IllegalArgumentException( "Context is required" );
+		}
 		
 		int deleted = delete( context, id, null, null, table );
 //		Log.v( TAG, "delete : deleted=" + deleted );

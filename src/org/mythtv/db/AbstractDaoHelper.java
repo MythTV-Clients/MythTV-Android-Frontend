@@ -41,6 +41,10 @@ public abstract class AbstractDaoHelper {
 
 	protected String appendLocationHostname( final Context context, final LocationProfile locationProfile, String selection, String table ) {
 		
+		if( null == locationProfile ) {
+			return selection;
+		}
+		
 		return ( !TextUtils.isEmpty( table ) ? ( table + "." ) : "" ) + AbstractBaseConstants.FIELD_MASTER_HOSTNAME
 				+ " = '"
 				+ locationProfile.getHostname()
