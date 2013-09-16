@@ -90,7 +90,7 @@ public class ProgramGroupFragment extends MythtvListFragment implements LoaderMa
 		
 		String[] projection = { ProgramConstants._ID, ProgramConstants.FIELD_TITLE, ProgramConstants.FIELD_SUB_TITLE, ProgramConstants.FIELD_CATEGORY, ProgramConstants.FIELD_START_TIME };
 		
-		String selection = ProgramConstants.TABLE_NAME_RECORDED + "." + ProgramConstants.FIELD_MASTER_HOSTNAME + " = ? AND " + ProgramConstants.TABLE_NAME_RECORDED + "." + ProgramConstants.FIELD_IN_ERROR + " = ? AND NOT " + RecordingConstants.ContentDetails.RECORDED.getTableName() + "." + RecordingConstants.FIELD_REC_GROUP + " = ?";
+		String selection = ProgramConstants.TABLE_NAME_RECORDED + "." + ProgramConstants.FIELD_MASTER_HOSTNAME + " = ? AND " + ProgramConstants.TABLE_NAME_RECORDED + "." + ProgramConstants.FIELD_IN_ERROR + " = ? AND (" + RecordingConstants.ContentDetails.RECORDED.getTableName() + "." + RecordingConstants.FIELD_REC_GROUP + " IS NULL OR NOT " + RecordingConstants.ContentDetails.RECORDED.getTableName() + "." + RecordingConstants.FIELD_REC_GROUP + " = ? )";
 		if( null != programGroup && !"All".equals( programGroup.getTitle() ) ) {
 			selection = ProgramConstants.FIELD_TITLE + " = ? AND " + selection;
 		}
