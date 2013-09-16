@@ -325,7 +325,7 @@ public class VideoActivity extends AbstractMythtvFragmentActivity {
 		
 		Intent intent = new Intent( LiveStreamService.ACTION_UPDATE );
 		intent.putExtra( LiveStreamService.KEY_CHANNEL_ID, program.getChannelInfo().getChannelId() );
-		intent.putExtra( LiveStreamService.KEY_START_TIMESTAMP, program.getRecording().getStartTimestamp().getMillis() );
+		intent.putExtra( LiveStreamService.KEY_START_TIMESTAMP, program.getStartTime().getMillis() );
 		startService( intent );
 
 		Log.v( TAG, "startUpdateStreamService : exit" );
