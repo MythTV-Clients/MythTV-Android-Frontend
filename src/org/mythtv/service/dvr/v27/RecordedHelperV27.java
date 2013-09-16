@@ -112,7 +112,7 @@ public class RecordedHelperV27 extends AbstractBaseHelper {
 		Log.v( TAG, "countRecordedByTitle : enter" );
 		
 		Integer count = ProgramHelperV27.getInstance().countProgramsByTitle( context, locationProfile, ProgramConstants.CONTENT_URI_RECORDED, ProgramConstants.TABLE_NAME_RECORDED, title );
-		Log.v( TAG, "countRecordedByTitle : count=" + count );
+//		Log.v( TAG, "countRecordedByTitle : count=" + count );
 		
 		Log.v( TAG, "countRecordedByTitle : exit" );
 		return count;
@@ -146,7 +146,7 @@ public class RecordedHelperV27 extends AbstractBaseHelper {
 				
 				Integer programCount = countRecordedByTitle( context, locationProfile, title );
 				if( null == programCount ) {
-					Log.v( TAG, "deleteRecorded : programCount=" + programCount );
+//					Log.v( TAG, "deleteRecorded : programCount=" + programCount );
 
 					ProgramGroupDaoHelper programGroupDaoHelper = ProgramGroupDaoHelper.getInstance();
 				

@@ -159,7 +159,7 @@ public class UpcomingHelperV27 extends AbstractBaseHelper {
 		boolean inError;
 
 		for( Program program : programs ) {
-			Log.d( TAG, "load : count=" + count );
+//			Log.d( TAG, "load : count=" + count );
 			
 			if( null == program.getStartTime() || null == program.getEndTime() ) {
 //				Log.w(TAG, "load : null starttime and or endtime" );
