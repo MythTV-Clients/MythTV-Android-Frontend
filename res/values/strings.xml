@@ -226,7 +226,7 @@
     <string name="episode_watch_title">Use HLS?</string>
     <string name="episode_watch_message">Recordings can be streamed directly from your Master Backend or processed as an HTTP Live Stream.  HLS makes the recording available for when you are away from your home network. *NOTE* HLS is recommended for MPEG2 HD recordings.</string>
     <string name="episode_watch_button_hls">Play with HLS</string>
-    <string name="episode_watch_button_raw">Play Recoding</string>
+    <string name="episode_watch_button_raw">Play Recording</string>
     
     <!-- Guide -->
     <string name="program_guide_icon_content_disposition">icon</string>
