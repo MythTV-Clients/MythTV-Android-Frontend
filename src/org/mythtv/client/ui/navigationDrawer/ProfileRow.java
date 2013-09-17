@@ -262,8 +262,8 @@ public class ProfileRow implements Row {
 		@Override
 		protected void onPreExecute() {
 			mProgressDialog = new ProgressDialog( mContext );
-			mProgressDialog.setTitle( "Connecting..." );
-			mProgressDialog.setMessage( "Attempting to connection to master backend" );
+		    mProgressDialog.setTitle( R.string.connection_status_connecting );
+		    mProgressDialog.setMessage( view.getContext().getResources().getString( R.string.connection_status_attempting_connect )  );
 			mProgressDialog.setCancelable( false );
 			mProgressDialog.setIndeterminate( true );
 			mProgressDialog.show();
@@ -300,8 +300,8 @@ public class ProfileRow implements Row {
 				
 				mLocationProfileDaoHelper.resetConnectedProfiles( mContext );
 			
-	        	holder.hostname.setText( "Not Connected" );
-	        	holder.url.setText( "" );
+			    holder.hostname.setText( R.string.connection_status_not_connected );
+			    holder.url.setText( "" );
 
 				mLocationProfile = null;
 			}

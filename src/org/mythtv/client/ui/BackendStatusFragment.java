@@ -397,7 +397,7 @@ public class BackendStatusFragment extends AbstractMythFragment {
 		if( null == mLocationProfile ) {
 			Log.v( TAG, "getStatusText : exit, no connected profiles found" );
 
-			return "The selected Backend profile's host isn't responding";
+            return getString( R.string.backend_status_not_responding );
 		}
 
 		Log.v( TAG, "getStatusText : mLocationProfile=" + mLocationProfile.toString() );
@@ -407,7 +407,7 @@ public class BackendStatusFragment extends AbstractMythFragment {
 		mMenuItemRefresh.startRefreshAnimation();
 
 		Log.v( TAG, "getStatusText : exit" );
-		return ( mLocationProfile.isConnected() ? "Connected to " : "NOT Connected to " ) + mLocationProfile.getName();
+		return ( getString( mLocationProfile.isConnected() ? R.string.backend_status_connected : R.string.backend_status_not_connected, mLocationProfile.getName() ) );
 	}
 
 	/*
@@ -502,10 +502,10 @@ public class BackendStatusFragment extends AbstractMythFragment {
 		if( null != tView ) {
 			Program rec = encoder.getRecording();
 			if( null != rec ) {
-				tView.setText( rec.getTitle() + " on " + rec.getChannelInfo().getChannelName() );
+				tView.setText( getString( R.string.encoder_status_recording, rec.getTitle(), rec.getChannelInfo().getChannelName() ) );
 				// + rec.getEndTime().toString("hh:mm") );
 			} else {
-				tView.setText( "Inactive" );
+				tView.setText( R.string.encoder_status_inactive );
 			}
 		}
 
