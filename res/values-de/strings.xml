@@ -258,7 +258,10 @@
 	<!-- Backend Status -->
 	<string name="recording">Aufnahme:</string>
 	<string name="connection_status">Verbindungsstatus</string>
-	<string name="encoders">Encoder</string>
+    <string name="connection_status_connecting">Verbinde&#8230;</string>
+    <string name="connection_status_attempting_connect">Versuche Verbindung zu Master Backend herzustellen</string>
+    <string name="connection_status_not_connected">Nicht verbunden</string>
+    <string name="encoders">Encoder</string>
 	<string name="job_queue">Auftragsliste</string>
 	<string name="upcoming_recordings">Geplante Aufnahmen</string>
 	
@@ -311,7 +314,13 @@
     <string name="backend_status_job_queue_is_empty">Auftragsliste ist leer</string>
     <string name="backend_status_there_are_no_upcoming_recordings">Es sind keine Aufnahmen geplant</string>
     <string name="backend_status_unknown_status">unbekannter Status</string>
-
+    <string name="backend_status_not_responding">Der Rechner des ausgewählten Backend-Profils antwortet nicht</string>
+    <string name="backend_status_connected">Verbunden mit %s</string>
+    <string name="backend_status_not_connected">NICHT verbunden mit %s</string>
+    
+    <string name="encoder_status_inactive">Inaktiv</string>
+    <string name="encoder_status_recording">%1$s auf %2$s</string>
+    
     <string name="main_menu_preference">Einstellungen</string>
 
     <string name="program_group_row">Programmgruppen-Zeile</string>
