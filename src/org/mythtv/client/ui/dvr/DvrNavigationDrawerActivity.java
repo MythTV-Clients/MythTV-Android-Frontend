@@ -3,6 +3,7 @@
  */
 package org.mythtv.client.ui.dvr;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,9 +25,9 @@ import org.mythtv.client.ui.dvr.navigationDrawer.DvrVersionRow;
 import org.mythtv.client.ui.navigationDrawer.Row;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.util.MenuHelper;
-import org.mythtv.db.http.model.EtagInfoDelegate;
 import org.mythtv.db.dvr.DvrEndpoint;
 import org.mythtv.db.guide.GuideEndpoint;
+import org.mythtv.db.http.model.EtagInfoDelegate;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -57,6 +58,8 @@ public class DvrNavigationDrawerActivity extends AbstractMythtvFragmentActivity 
 	
 	private static final String SELECTION_ID = "SELECTION";
 	
+	private static WeakReference<DvrNavigationDrawerActivity> wrActivity = null; 
+	
 	private DrawerLayout drawer = null;
 	private ActionBarDrawerToggle drawerToggle = null;
 	private ListView navList = null;
@@ -78,6 +81,8 @@ public class DvrNavigationDrawerActivity extends AbstractMythtvFragmentActivity 
 		super.onCreate( savedInstanceState );
 		Log.v( TAG, "onCreate : enter" );
 		
+		wrActivity = new WeakReference<DvrNavigationDrawerActivity>( this );
+		
 		// Read saved state if available
 		if( null != savedInstanceState ) {
 			
@@ -89,14 +94,14 @@ public class DvrNavigationDrawerActivity extends AbstractMythtvFragmentActivity 
 
 		setContentView( R.layout.activity_navigation_drawer );
 
-        mAdapter = new DvrNavigationDrawerAdapter( getActionBar().getThemedContext() );
+        mAdapter = new DvrNavigationDrawerAdapter( wrActivity.get().getActionBar().getThemedContext() );
 
-		drawer = (DrawerLayout) findViewById( R.id.drawer_layout );
+		drawer = (DrawerLayout) wrActivity.get().findViewById( R.id.drawer_layout );
 
 		navList = (ListView) findViewById( R.id.drawer );
 		navList.setAdapter( mAdapter );
 		
-		drawerToggle = new ActionBarDrawerToggle( this, drawer, R.drawable.ic_drawer, R.string.open, R.string.close ) {
+		drawerToggle = new ActionBarDrawerToggle( wrActivity.get(), drawer, R.drawable.ic_drawer, R.string.open, R.string.close ) {
 	        
 			/* (non-Javadoc)
 			 * @see android.support.v4.app.ActionBarDrawerToggle#onDrawerClosed(android.view.View)
@@ -130,7 +135,7 @@ public class DvrNavigationDrawerActivity extends AbstractMythtvFragmentActivity 
 				Log.d( TAG, "onDrawerOpened : enter" );
 	            super.onDrawerOpened( drawerView );
 	            
-	            getActionBar().setTitle( R.string.tab_dvr );
+	            wrActivity.get().getActionBar().setTitle( R.string.tab_dvr );
 	            invalidateOptionsMenu();
 
 	            Log.d( TAG, "onDrawerOpened : exit" );
@@ -160,8 +165,8 @@ public class DvrNavigationDrawerActivity extends AbstractMythtvFragmentActivity 
 		});
 
 		updateContent(); 
-		getActionBar().setDisplayHomeAsUpEnabled( true );
-		getActionBar().setHomeButtonEnabled( true );
+		wrActivity.get().getActionBar().setDisplayHomeAsUpEnabled( true );
+		wrActivity.get().getActionBar().setHomeButtonEnabled( true );
 
 		new Thread( new Runnable() {
 
@@ -171,7 +176,7 @@ public class DvrNavigationDrawerActivity extends AbstractMythtvFragmentActivity 
 			@Override
 			public void run() {
 				
-				prefs = getPreferences( MODE_PRIVATE );
+				prefs = wrActivity.get().getPreferences( MODE_PRIVATE );
 				opened = prefs.getBoolean( OPENED_DVR_KEY, false );
 				
 				if( opened == false ) {
@@ -303,15 +308,20 @@ public class DvrNavigationDrawerActivity extends AbstractMythtvFragmentActivity 
 		if( row instanceof DvrActionRow ) {
 		
 			if( row.isImplemented() ) {
-				getActionBar().setTitle( row.getTitle() );
+				wrActivity.get().getActionBar().setTitle( row.getTitle() );
 				
 				if( selection != oldSelection ) {
 				
-					FragmentTransaction tx = getSupportFragmentManager().beginTransaction();
-					tx.replace( R.id.main, Fragment.instantiate( DvrNavigationDrawerActivity.this, row.getFragment() ) );
-					tx.commit();
+					if( null != wrActivity.get() && wrActivity.get().isFinishing() != true ) {
 					
-					oldSelection = selection;
+						FragmentTransaction tx = wrActivity.get().getSupportFragmentManager().beginTransaction();
+						tx.replace( R.id.main, Fragment.instantiate( wrActivity.get(), row.getFragment() ) );
+						tx.commit();
+
+						oldSelection = selection;
+					
+					}
+					
 				}
 
 				selectedRow = row;
@@ -321,7 +331,7 @@ public class DvrNavigationDrawerActivity extends AbstractMythtvFragmentActivity 
 				mAdapter.resetNavigationDrawer();
             
 			} else {
-				Toast.makeText( DvrNavigationDrawerActivity.this, row.getTitle() + " comming soon!", Toast.LENGTH_SHORT ).show();
+				Toast.makeText( wrActivity.get(), row.getTitle() + " comming soon!", Toast.LENGTH_SHORT ).show();
 			}
 		
 		}
@@ -372,9 +382,9 @@ public class DvrNavigationDrawerActivity extends AbstractMythtvFragmentActivity 
 		private List<Row> rows = new ArrayList<Row>();
 
         public DvrNavigationDrawerAdapter( Context context ) {
-			this.mContext = context;
+			mContext = context;
 			
-			this.mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( mContext );
+			mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( mContext );
 
 			if( null == selectedRow ) {
 				selectedRow = new DvrRecordingsActionRow( mContext, "Recordings" );
@@ -455,7 +465,7 @@ public class DvrNavigationDrawerActivity extends AbstractMythtvFragmentActivity 
 				EtagInfoDelegate recordingsEtag = mEtagDaoHelper.findByEndpointAndDataId( mContext, mLocationProfile, DvrEndpoint.GET_RECORDED_LIST.name(), "" );
 				if( null != recordingsEtag && recordingsEtag.getId() > 0 ) {
 					DvrRecordingsLastUpdateActionRow recordingsLastUpdateRow = new DvrRecordingsLastUpdateActionRow( mContext, recordingsEtag );
-					recordingsLastUpdateRow.setOnRefreshListener( DvrNavigationDrawerActivity.this );
+					recordingsLastUpdateRow.setOnRefreshListener( wrActivity.get() );
 					rows.add( recordingsLastUpdateRow );
 				}
 			}
@@ -465,7 +475,7 @@ public class DvrNavigationDrawerActivity extends AbstractMythtvFragmentActivity 
 				EtagInfoDelegate upcomingEtag = mEtagDaoHelper.findByEndpointAndDataId( mContext, mLocationProfile, DvrEndpoint.GET_UPCOMING_LIST.name(), "" );
 				if( null != upcomingEtag && upcomingEtag.getId() > 0 ) {
 					DvrUpcomingLastUpdateActionRow upcomingLastUpdateRow = new DvrUpcomingLastUpdateActionRow( mContext, upcomingEtag );
-					upcomingLastUpdateRow.setOnRefreshListener( DvrNavigationDrawerActivity.this );
+					upcomingLastUpdateRow.setOnRefreshListener( wrActivity.get() );
 					rows.add( upcomingLastUpdateRow );
 				}
 			}
@@ -475,7 +485,7 @@ public class DvrNavigationDrawerActivity extends AbstractMythtvFragmentActivity 
 				EtagInfoDelegate guideEtag = mEtagDaoHelper.findByEndpointAndDataId( mContext, mLocationProfile, GuideEndpoint.GET_PROGRAM_GUIDE.name(), "" );
 				if( null != guideEtag && guideEtag.getId() > 0 ) {
 					DvrGuideLastUpdateActionRow guideLastUpdateRow = new DvrGuideLastUpdateActionRow( mContext, guideEtag );
-					guideLastUpdateRow.setOnRefreshListener( DvrNavigationDrawerActivity.this );
+					guideLastUpdateRow.setOnRefreshListener( wrActivity.get() );
 					rows.add( guideLastUpdateRow );
 				}
 			}
@@ -485,7 +495,7 @@ public class DvrNavigationDrawerActivity extends AbstractMythtvFragmentActivity 
 				EtagInfoDelegate recordingRulesEtag = mEtagDaoHelper.findByEndpointAndDataId( mContext, mLocationProfile, DvrEndpoint.GET_RECORD_SCHEDULE_LIST.name(), "" );
 				if( null != recordingRulesEtag && recordingRulesEtag.getId() > 0 ) {
 					DvrRecordingRulesLastUpdateActionRow recordingRulesLastUpdateRow = new DvrRecordingRulesLastUpdateActionRow( mContext, recordingRulesEtag );
-					recordingRulesLastUpdateRow.setOnRefreshListener( DvrNavigationDrawerActivity.this );
+					recordingRulesLastUpdateRow.setOnRefreshListener( wrActivity.get() );
 					rows.add( recordingRulesLastUpdateRow );
 				}
 			}

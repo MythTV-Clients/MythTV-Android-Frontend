@@ -3,6 +3,7 @@
  */
 package org.mythtv.client.ui;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,6 +55,8 @@ public class NavigationDrawerActivity extends AbstractMythtvFragmentActivity {
 
 	private static final String TAG = NavigationDrawerActivity.class.getSimpleName();
 	
+	private static WeakReference<NavigationDrawerActivity> wrActivity = null; 
+	
 	private NavigationDrawerAdapter mAdapter;
 	private ActionBarDrawerToggle drawerToggle = null;
 	private DrawerLayout drawer = null;
@@ -78,9 +81,14 @@ public class NavigationDrawerActivity extends AbstractMythtvFragmentActivity {
 			getActionBar().setTitle( appName + " Status" );
 			updateContent( BackendStatusFragment.BACKEND_STATUS_FRAGMENT_NAME );
             
-			LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile( NavigationDrawerActivity.this );
-			mAdapter.resetConnectedLocationProfile( locationProfile );
-
+			if( null != wrActivity.get() && wrActivity.get().isFinishing() != true ) {
+				Log.v( TAG, "onProfileChanged : weak reference to activity available" );
+				
+				LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile( wrActivity.get() );
+				mAdapter.resetConnectedLocationProfile( locationProfile );
+			
+			}
+			
 			drawer.closeDrawer( navList );
 			
 			Log.v( TAG, "onProfileChanged : exit" );
@@ -96,18 +104,20 @@ public class NavigationDrawerActivity extends AbstractMythtvFragmentActivity {
 		super.onCreate( savedInstanceState );
 		Log.v( TAG, "onCreate : enter" );
 
+		wrActivity = new WeakReference<NavigationDrawerActivity>( this );
+		
 		setContentView( R.layout.activity_navigation_drawer );
 
-		appName = getResources().getString( R.string.app_name );
+		appName = wrActivity.get().getResources().getString( R.string.app_name );
 		
-		mAdapter = new NavigationDrawerAdapter( getActionBar().getThemedContext() );
+		mAdapter = new NavigationDrawerAdapter( wrActivity.get().getActionBar().getThemedContext() );
 
-		drawer = (DrawerLayout) findViewById( R.id.drawer_layout );
+		drawer = (DrawerLayout) wrActivity.get().findViewById( R.id.drawer_layout );
 
-		navList = (ListView) findViewById( R.id.drawer );
+		navList = (ListView) wrActivity.get().findViewById( R.id.drawer );
 		navList.setAdapter( mAdapter );
 		
-		drawerToggle = new ActionBarDrawerToggle( this, drawer, R.drawable.ic_drawer, R.string.open, R.string.close ) {
+		drawerToggle = new ActionBarDrawerToggle( wrActivity.get(), drawer, R.drawable.ic_drawer, R.string.open, R.string.close ) {
 	        
 			/* (non-Javadoc)
 			 * @see android.support.v4.app.ActionBarDrawerToggle#onDrawerClosed(android.view.View)
@@ -141,7 +151,7 @@ public class NavigationDrawerActivity extends AbstractMythtvFragmentActivity {
 				Log.d( TAG, "onDrawerOpened : enter" );
 	            super.onDrawerOpened( drawerView );
 	            
-	            getActionBar().setTitle( R.string.app_name );
+	            wrActivity.get().getActionBar().setTitle( R.string.app_name );
 	            invalidateOptionsMenu();
 
 	            Log.d( TAG, "onDrawerOpened : exit" );
@@ -197,20 +207,20 @@ public class NavigationDrawerActivity extends AbstractMythtvFragmentActivity {
 					if( row instanceof ManageProfilesActionRow ) {
 						Log.v( TAG, "onCreate : starting preferences activity" );
 						
-				    	startActivity( new Intent( NavigationDrawerActivity.this, MythtvPreferenceActivity.class ) );
+				    	startActivity( new Intent( wrActivity.get(), MythtvPreferenceActivity.class ) );
 						
 					}
 
 					if( row instanceof DvrActionRow ) {
 						Log.v( TAG, "onCreate : starting dvr activity" );
 												
-						startActivity( new Intent( NavigationDrawerActivity.this, DvrNavigationDrawerActivity.class ) );
+						startActivity( new Intent( wrActivity.get(), DvrNavigationDrawerActivity.class ) );
 					}
 
 					if( row instanceof MultimediaActionRow ) {
 						Log.v( TAG, "onCreate : starting multimedia activity" );
 						
-                        startActivity( new Intent( NavigationDrawerActivity.this, MediaNavigationDrawerActivity.class ) );
+                        startActivity( new Intent( wrActivity.get(), MediaNavigationDrawerActivity.class ) );
 					}
 
 					if( row instanceof SetupActionRow ) {
@@ -227,10 +237,10 @@ public class NavigationDrawerActivity extends AbstractMythtvFragmentActivity {
 
 		});
 
-		getActionBar().setTitle( appName + " Status" );
+		wrActivity.get().getActionBar().setTitle( appName + " Status" );
 		updateContent( BackendStatusFragment.BACKEND_STATUS_FRAGMENT_NAME ); 
-		getActionBar().setDisplayHomeAsUpEnabled( true );
-		getActionBar().setHomeButtonEnabled( true );
+		wrActivity.get().getActionBar().setDisplayHomeAsUpEnabled( true );
+		wrActivity.get().getActionBar().setHomeButtonEnabled( true );
 
 		new Thread( new Runnable() {
 
@@ -240,7 +250,7 @@ public class NavigationDrawerActivity extends AbstractMythtvFragmentActivity {
 			@Override
 			public void run() {
 				
-				prefs = getPreferences( MODE_PRIVATE );
+				prefs = wrActivity.get().getPreferences( MODE_PRIVATE );
 				opened = prefs.getBoolean( OPENED_KEY, false );
 				
 				if( opened == false ) {
@@ -274,13 +284,15 @@ public class NavigationDrawerActivity extends AbstractMythtvFragmentActivity {
 	 */
 	@Override
 	protected void onResume() {
-		
-		ProfileRow pRow = (ProfileRow)mAdapter.getItem(1);
-		if(null != pRow){
+		Log.v( TAG, "onResume : enter" );
+		super.onResume();
+
+		ProfileRow pRow = (ProfileRow) mAdapter.getItem( 1 );
+		if( null != pRow ){
 			pRow.backendConnectionUpdate();
 		}
 		
-		super.onResume();
+		Log.v( TAG, "onResume : exit" );
 	}
 
 	/* (non-Javadoc)
@@ -335,10 +347,15 @@ public class NavigationDrawerActivity extends AbstractMythtvFragmentActivity {
 		
 		Log.v( TAG, "updateContent : fragment=" + fragment );
 
-        FragmentTransaction tx = getSupportFragmentManager().beginTransaction();
-        tx.replace( R.id.main, Fragment.instantiate( NavigationDrawerActivity.this, fragment ), fragment );
-        tx.commit();
-
+		if( null != wrActivity.get() && wrActivity.get().isFinishing() != true ) {
+			Log.v( TAG, "updateContent : weak reference to activity available" );
+			
+			FragmentTransaction tx = wrActivity.get().getSupportFragmentManager().beginTransaction();
+        	tx.replace( R.id.main, Fragment.instantiate( wrActivity.get(), fragment ), fragment );
+        	tx.commit();
+		
+		}
+		
 		drawer.closeDrawer( navList );
 
 		Log.v( TAG, "updateContent : exit" );
@@ -355,9 +372,9 @@ public class NavigationDrawerActivity extends AbstractMythtvFragmentActivity {
 		public NavigationDrawerAdapter( Context context ) { 
 			Log.v( TAG, "NavigationDrawerAdapter : enter" );
 			
-			this.mContext = context;
+			mContext = context;
 			
-			this.mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( mContext );
+			mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( mContext );
 			
 			setupRowsList();
 			
@@ -413,7 +430,7 @@ public class NavigationDrawerActivity extends AbstractMythtvFragmentActivity {
 		}
 		
 		public void resetConnectedLocationProfile( LocationProfile locationProfile ) {
-			this.mLocationProfile = locationProfile;
+			mLocationProfile = locationProfile;
 			
 			setupRowsList();
 			

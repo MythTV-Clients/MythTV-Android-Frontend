@@ -3,6 +3,7 @@
  */
 package org.mythtv.client.ui.media;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,6 +45,8 @@ public class MediaNavigationDrawerActivity extends AbstractMythtvFragmentActivit
 	
 	private static final String SELECTION_ID = "SELECTION";
 	
+	private static WeakReference<MediaNavigationDrawerActivity> wrActivity = null; 
+
 	private DrawerLayout drawer = null;
 	private ActionBarDrawerToggle drawerToggle = null;
 	private ListView navList = null;
@@ -65,6 +68,8 @@ public class MediaNavigationDrawerActivity extends AbstractMythtvFragmentActivit
 		super.onCreate( savedInstanceState );
 		Log.v( TAG, "onCreate : enter" );
 		
+		wrActivity = new WeakReference<MediaNavigationDrawerActivity>( this );
+		
 		// Read saved state if available
 		if( null != savedInstanceState){
 			
@@ -76,14 +81,14 @@ public class MediaNavigationDrawerActivity extends AbstractMythtvFragmentActivit
 
 		setContentView( R.layout.activity_navigation_drawer );
 
-        mAdapter = new MediaNavigationDrawerAdapter( getActionBar().getThemedContext() );
+        mAdapter = new MediaNavigationDrawerAdapter( wrActivity.get().getActionBar().getThemedContext() );
 
-		drawer = (DrawerLayout) findViewById( R.id.drawer_layout );
+		drawer = (DrawerLayout) wrActivity.get().findViewById( R.id.drawer_layout );
 
-		navList = (ListView) findViewById( R.id.drawer );
+		navList = (ListView) wrActivity.get().findViewById( R.id.drawer );
 		navList.setAdapter( mAdapter );
 		
-		drawerToggle = new ActionBarDrawerToggle( this, drawer, R.drawable.ic_drawer, R.string.open, R.string.close ) {
+		drawerToggle = new ActionBarDrawerToggle( wrActivity.get(), drawer, R.drawable.ic_drawer, R.string.open, R.string.close ) {
 	        
 			/* (non-Javadoc)
 			 * @see android.support.v4.app.ActionBarDrawerToggle#onDrawerClosed(android.view.View)
@@ -117,7 +122,7 @@ public class MediaNavigationDrawerActivity extends AbstractMythtvFragmentActivit
 				Log.d( TAG, "onDrawerOpened : enter" );
 	            super.onDrawerOpened( drawerView );
 	            
-	            getActionBar().setTitle( R.string.tab_multimedia );
+	            wrActivity.get().getActionBar().setTitle( R.string.tab_multimedia );
 	            invalidateOptionsMenu();
 
 	            Log.d( TAG, "onDrawerOpened : exit" );
@@ -147,8 +152,8 @@ public class MediaNavigationDrawerActivity extends AbstractMythtvFragmentActivit
 		});
 
 		updateContent(); 
-		getActionBar().setDisplayHomeAsUpEnabled( true );
-		getActionBar().setHomeButtonEnabled( true );
+		wrActivity.get().getActionBar().setDisplayHomeAsUpEnabled( true );
+		wrActivity.get().getActionBar().setHomeButtonEnabled( true );
 
 		new Thread( new Runnable() {
 
@@ -158,7 +163,7 @@ public class MediaNavigationDrawerActivity extends AbstractMythtvFragmentActivit
 			@Override
 			public void run() {
 				
-				prefs = getPreferences( MODE_PRIVATE );
+				prefs = wrActivity.get().getPreferences( MODE_PRIVATE );
 				opened = prefs.getBoolean( OPENED_MEDIA_KEY, false );
 				
 				if( opened == false ) {
@@ -293,14 +298,18 @@ public class MediaNavigationDrawerActivity extends AbstractMythtvFragmentActivit
 			if( row.isImplemented() ) {
 				Log.v( TAG, "updateContent : row is implemented" );
 
-				getActionBar().setTitle( row.getTitle() );
+				wrActivity.get().getActionBar().setTitle( row.getTitle() );
 
 				if( selection != oldSelection ) {
 					Log.v( TAG, "updateContent : selection is not last selected" );
 
-					FragmentTransaction tx = getSupportFragmentManager().beginTransaction();
-					tx.replace( R.id.main, Fragment.instantiate( MediaNavigationDrawerActivity.this, row.getFragment() ) );
-					tx.commit();
+					if( null != wrActivity.get() && wrActivity.get().isFinishing() != true ) {
+						
+						FragmentTransaction tx = wrActivity.get().getSupportFragmentManager().beginTransaction();
+						tx.replace( R.id.main, Fragment.instantiate( wrActivity.get(), row.getFragment() ) );
+						tx.commit();
+
+					}
 				
 					oldSelection = selection;
 				}
@@ -325,7 +334,7 @@ public class MediaNavigationDrawerActivity extends AbstractMythtvFragmentActivit
 		private List<Row> rows = new ArrayList<Row>();
 
         public MediaNavigationDrawerAdapter( Context context ) {
-			this.mContext = context;
+			mContext = context;
 			
 			if( null == selectedRow ) {
 				selectedRow = new MediaPicturesActionRow( mContext, "Pictures" );
