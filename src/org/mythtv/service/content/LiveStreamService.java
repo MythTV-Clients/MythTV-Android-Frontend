@@ -29,7 +29,7 @@ public class LiveStreamService extends MythtvService {
 
     public static final String ACTION_PLAY = "org.mythtv.background.liveStream.ACTION_PLAY";
     public static final String ACTION_CREATE = "org.mythtv.background.liveStream.ACTION_CREATE";
-    public static final String ACTION_UPDATE = "org.mythtv.background.liveStream.ACTION_UPDATE";
+    public static final String ACTION_LOAD = "org.mythtv.background.liveStream.ACTION_LOAD";
     public static final String ACTION_REMOVE = "org.mythtv.background.liveStream.ACTION_REMOVE";
 
     public static final String ACTION_PROGRESS = "org.mythtv.background.liveStream.ACTION_PROGRESS";
@@ -95,22 +95,24 @@ public class LiveStreamService extends MythtvService {
 		if( intent.getAction().equals( ACTION_CREATE ) ) {
     		Log.i( TAG, "onHandleIntent : CREATE action selected" );
 
-    		createLiveStream( locationProfile, program );
+    		try {
+        		createLiveStream( locationProfile, program );
+			} catch( InterruptedException e ) {
+				Log.e( TAG, "onHandleIntent : error", e );
+				
+				sendCompleteError();
+			}
     		
     		Log.d( TAG, "onHandleIntent : exit, create" );
     		return;
 		}
 		
-		if( intent.getAction().equals( ACTION_UPDATE ) ) {
-    		Log.i( TAG, "onHandleIntent : UPDATE action selected" );
+		if( intent.getAction().equals( ACTION_LOAD ) ) {
+    		Log.i( TAG, "onHandleIntent : LOAD action selected" );
 
-    		try {
-				updateLiveStream( locationProfile, program );
-			} catch( InterruptedException e ) {
-				Log.e( TAG, "onHandleIntent : error", e );
-			}
+    		loadLiveStreams( locationProfile );
     		
-    		Log.d( TAG, "onHandleIntent : exit, update" );
+    		Log.d( TAG, "onHandleIntent : exit, remove" );
     		return;
 		}
 		
@@ -138,25 +140,27 @@ public class LiveStreamService extends MythtvService {
 
 	// internal helpers
 
-	private void sendProgress( final LiveStreamInfo liveStreamInfo ) {
-		Log.v( TAG, "sendProgress : enter" );
+	private void sendCompleteError() {
+		Log.v( TAG, "sendComplete : enter" );
 		
-		Intent progressIntent = new Intent( ACTION_PROGRESS );
-		progressIntent.putExtra( EXTRA_PROGRESS, "HLS Processing Update" );
-		progressIntent.putExtra( EXTRA_PROGRESS_ID, liveStreamInfo.getId() );
-		progressIntent.putExtra( EXTRA_PROGRESS_DATA, liveStreamInfo.getPercentComplete() );
+		Intent completeIntent = new Intent( ACTION_COMPLETE );
+		completeIntent.putExtra( EXTRA_COMPLETE, "HLS Processing Error" );
+		completeIntent.putExtra( EXTRA_COMPLETE_ERROR, "HLS Processing Failed" );
 		
-		sendBroadcast( progressIntent );
+		sendBroadcast( completeIntent );
 		
-		Log.v( TAG, "sendProgress : exit" );
+		Log.v( TAG, "sendComplete : exit" );
 	}
-	
+
 	private void sendComplete( final LiveStreamInfo liveStreamInfo ) {
 		Log.v( TAG, "sendComplete : enter" );
 		
 		Intent completeIntent = new Intent( ACTION_COMPLETE );
 		completeIntent.putExtra( EXTRA_COMPLETE, "HLS Processing Complete" );
-		completeIntent.putExtra( EXTRA_COMPLETE_ID, liveStreamInfo.getId() );
+		
+		if( null != liveStreamInfo ) {
+			completeIntent.putExtra( EXTRA_COMPLETE_ID, liveStreamInfo.getId() );
+		}
 		
 		sendBroadcast( completeIntent );
 		
@@ -224,11 +228,14 @@ public class LiveStreamService extends MythtvService {
 	}
 
 	private Program loadRecorded( final Intent intent, final LocationProfile locationProfile ) {
+		Log.v( TAG, "loadRecorded : enter" );
 		
 		Bundle extras = intent.getExtras();
 		int channelId = extras.getInt( KEY_CHANNEL_ID );
 		long startTimestamp = extras.getLong( KEY_START_TIMESTAMP );
+		Log.v( TAG, "loadRecorded : channelId=" + channelId + ", startTimestamp=" + startTimestamp );
 
+		Log.v( TAG, "loadRecorded : exit" );
 		return mRecordedDaoHelper.findOne( this, locationProfile, channelId, new DateTime( startTimestamp ) );
 	}
 	
@@ -245,7 +252,7 @@ public class LiveStreamService extends MythtvService {
 		Log.v( TAG, "playLiveStream : exit" );
 	}
 	
-	private boolean createLiveStream( final LocationProfile locationProfile, final Program program ) {
+	private boolean createLiveStream( final LocationProfile locationProfile, final Program program ) throws InterruptedException {
 		Log.v( TAG, "createLiveStream : enter" );
 		
 		boolean created = false;
@@ -274,54 +281,49 @@ public class LiveStreamService extends MythtvService {
 		
 			LiveStreamInfo liveStreamInfo = mLiveStreamDaoHelper.findByProgram( this, locationProfile, program );
 			if( null != liveStreamInfo ) {
+
 				sendComplete( liveStreamInfo );
+				
 			}
 		
 		}
-		
-		stopSelf();
 		
 		Log.v( TAG, "createLiveStream : exit" );
 		return created;
 	}
 
-	private void updateLiveStream( final LocationProfile locationProfile, final Program program ) throws InterruptedException {
-		Log.v( TAG, "updateLiveStream : enter" );
+	private void loadLiveStreams( final LocationProfile locationProfile ) {
+		Log.v( TAG, "loadLiveStreams : enter" );
 		
-		boolean updated = false;
+		Integer loaded = null;
 		
 		ApiVersion apiVersion = ApiVersion.valueOf( locationProfile.getVersion() );
 		switch( apiVersion ) {
 			case v026 :
 				
-				updated = LiveStreamHelperV26.getInstance().update( this, locationProfile, program.getChannelInfo().getChannelId(), program.getStartTime() );
+				loaded = LiveStreamHelperV26.getInstance().load( this, locationProfile );
 				
 				break;
 			case v027 :
 
-				updated = LiveStreamHelperV27.getInstance().update( this, locationProfile, program.getChannelInfo().getChannelId(), program.getStartTime() );
+				loaded = LiveStreamHelperV27.getInstance().load( this, locationProfile );
 
 				break;
 				
 			default :
 				
-				updated = LiveStreamHelperV26.getInstance().update( this, locationProfile, program.getChannelInfo().getChannelId(), program.getStartTime() );
+				loaded = LiveStreamHelperV26.getInstance().load( this, locationProfile );
 
 				break;
 		}
 
-		if( updated ) {
+		if( null != loaded ) {
 			
-			LiveStreamInfo liveStreamInfo = mLiveStreamDaoHelper.findByProgram( this, locationProfile, program );
-			if( null != liveStreamInfo && liveStreamInfo.getPercentComplete() < 100 ) {
-				sendProgress( liveStreamInfo );
-			}
-			
-		}
+			sendComplete( null );
 		
-		stopSelf();
+		}
 
-		Log.v( TAG, "updateLiveStream : exit" );
+		Log.v( TAG, "loadLiveStreams : exit" );
 	}
 
 	private void removeLiveStream( final LocationProfile locationProfile, final Program program ) {
@@ -358,8 +360,6 @@ public class LiveStreamService extends MythtvService {
 			
 		}
 		
-		stopSelf();
-
 		Log.v( TAG, "removeLiveStream : exit" );
 	}
 

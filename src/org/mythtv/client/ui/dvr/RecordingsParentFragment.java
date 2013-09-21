@@ -270,6 +270,8 @@ public class RecordingsParentFragment extends AbstractMythFragment implements
 	public void onEpisodeSelected( int channelId, DateTime startTime ) {
 		Log.v( TAG, "onEpisodeSelect : enter" );
 
+		Log.v( TAG, "onEpisodeSelect : channelId=" + channelId + ", startTime=" + startTime.getMillis() );
+		
 		// check if we're hosting multiple fragments and have the episode
 		// fragment
 		if( mUseMultiplePanes && null != mEpisodeFragment ) {

@@ -23,7 +23,6 @@ import java.util.List;
 import org.joda.time.DateTime;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.dvr.model.Program;
-import org.mythtv.db.dvr.programGroup.ProgramGroupDaoHelper;
 
 import android.content.ContentUris;
 import android.content.Context;
@@ -36,8 +35,6 @@ import android.content.Context;
 public class RecordedDaoHelper extends ProgramDaoHelper {
 
 //	private static final String TAG = RecordedDaoHelper.class.getSimpleName();
-	
-	private ProgramGroupDaoHelper mProgramGroupDaoHelper = ProgramGroupDaoHelper.getInstance();
 	
 	private static RecordedDaoHelper singleton = null;
 
