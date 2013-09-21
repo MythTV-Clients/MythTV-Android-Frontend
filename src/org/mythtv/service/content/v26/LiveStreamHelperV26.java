@@ -3,7 +3,11 @@
  */
 package org.mythtv.service.content.v26;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.preferences.LocationProfile.LocationType;
 import org.mythtv.client.ui.preferences.PlaybackProfile;
@@ -11,6 +15,7 @@ import org.mythtv.db.AbstractBaseHelper;
 import org.mythtv.db.content.LiveStreamConstants;
 import org.mythtv.db.http.model.EtagInfoDelegate;
 import org.mythtv.db.preferences.PlaybackProfileDaoHelper;
+import org.mythtv.service.content.LiveStreamService;
 import org.mythtv.service.dvr.v26.RecordedHelperV26;
 import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.ApiVersion;
@@ -19,15 +24,20 @@ import org.mythtv.services.api.v026.Bool;
 import org.mythtv.services.api.v026.MythServicesTemplate;
 import org.mythtv.services.api.v026.beans.LiveStreamInfo;
 import org.mythtv.services.api.v026.beans.LiveStreamInfoWrapper;
+import org.mythtv.services.api.v026.beans.LiveStreamInfos;
 import org.mythtv.services.api.v026.beans.Program;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import android.content.ContentProviderOperation;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
+import android.content.OperationApplicationException;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.RemoteException;
 import android.util.Log;
 
 /**
@@ -122,7 +132,42 @@ public class LiveStreamHelperV26 extends AbstractBaseHelper {
 		return false;
 	}
 
-	public boolean update( final Context context, final LocationProfile locationProfile, final int channelId, final DateTime startTime ) {
+	public Integer load( final Context context, final LocationProfile locationProfile ) {
+		Log.v( TAG, "load : enter" );
+		
+		if( !NetworkHelper.getInstance().isMasterBackendConnected( context, locationProfile ) ) {
+			Log.w( TAG, "update : Master Backend '" + locationProfile.getHostname() + "' is unreachable" );
+
+			return null;
+		}
+		
+		MythServicesTemplate mMythServicesTemplate = (MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( mApiVersion, locationProfile.getUrl() );
+		
+		Integer loaded = null;
+		
+		try {
+			
+			ResponseEntity<LiveStreamInfos> wrapper = mMythServicesTemplate.contentOperations().getLiveStreamList( EtagInfoDelegate.createEmptyETag() );
+			if( wrapper.getStatusCode().equals( HttpStatus.OK ) ) {
+				List<LiveStreamInfo> liveStreams = wrapper.getBody().getLiveStreamInfos();
+
+				if( null != liveStreams && !liveStreams.isEmpty() ) {
+					loaded = load( context, locationProfile, liveStreams );
+				}
+				
+				Log.v( TAG, "update : exit" );
+				return loaded;
+			}
+			
+		} catch( Exception e ) {
+			Log.e( TAG, "update : error", e );
+		}
+			
+		Log.v( TAG, "update : exit, live streams NOT loaded" );
+		return loaded;
+	}
+
+	public boolean update( final Context context, final LocationProfile locationProfile, final long liveStreamId, final int channelId, DateTime startTime ) {
 		Log.v( TAG, "update : enter" );
 		
 		if( !NetworkHelper.getInstance().isMasterBackendConnected( context, locationProfile ) ) {
@@ -134,30 +179,25 @@ public class LiveStreamHelperV26 extends AbstractBaseHelper {
 		MythServicesTemplate mMythServicesTemplate = (MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( mApiVersion, locationProfile.getUrl() );
 		
 		try {
-			Program program = RecordedHelperV26.getInstance().findRecorded( context, locationProfile, channelId, startTime );
 			
-			if( null != program ) {
-				LiveStreamInfo liveStream = findLiveStream( context, locationProfile, channelId, startTime );
-				
-				if( null != liveStream ) {
-					Log.v( TAG, "update : liveStream=" + liveStream.toString() );
-					
-					ResponseEntity<LiveStreamInfoWrapper> wrapper = mMythServicesTemplate.contentOperations().getLiveStream( liveStream.getId(), EtagInfoDelegate.createEmptyETag() );
-					if( wrapper.getStatusCode().equals( HttpStatus.OK ) ) {
-						LiveStreamInfo updated = wrapper.getBody().getLiveStreamInfo();
+			LiveStreamInfo liveStream = findLiveStream( context, locationProfile, liveStreamId );
+			if( null != liveStream ) {
+				Log.v( TAG, "update : liveStream=" + liveStream.toString() );
 
-						if( !"Unknown status value".equalsIgnoreCase( updated.getStatusStr() ) ) {
-							save( context, locationProfile, updated, channelId, startTime );
-						} else {
-							deleteLiveStream( context, locationProfile, channelId, startTime );
-						}
+				ResponseEntity<LiveStreamInfoWrapper> wrapper = mMythServicesTemplate.contentOperations().getLiveStream( liveStream.getId(), EtagInfoDelegate.createEmptyETag() );
+				if( wrapper.getStatusCode().equals( HttpStatus.OK ) ) {
+					LiveStreamInfo updated = wrapper.getBody().getLiveStreamInfo();
 
-						Log.v( TAG, "update : exit" );
-						return true;
+					if( !"Unknown status value".equalsIgnoreCase( updated.getStatusStr() ) ) {
+						save( context, locationProfile, updated, channelId, startTime );
+					} else {
+						deleteLiveStream( context, liveStreamId );
 					}
 
+					Log.v( TAG, "update : exit" );
+					return true;
 				}
-				
+
 			}
 				
 		} catch( Exception e ) {
@@ -187,14 +227,19 @@ public class LiveStreamHelperV26 extends AbstractBaseHelper {
 				
 				ResponseEntity<Bool> wrapper = mMythServicesTemplate.contentOperations().removeLiveStream( liveStream.getId() );
 				if( wrapper.getStatusCode().equals( HttpStatus.OK ) ) {
+					
 					Bool bool = wrapper.getBody();
 					if( bool.getBool() == Boolean.TRUE ) {
-						boolean removed = deleteLiveStream( context, (long) liveStream.getId() );
+						
+						boolean removed = deleteLiveStreamByLiveStreamId( context, locationProfile, liveStream.getId() );
 						if( removed ) {
 							Log.v( TAG, "remove : exit" );
+					
 							return true;
 						}
+				
 					}
+				
 				}
 				
 			}
@@ -271,43 +316,149 @@ public class LiveStreamHelperV26 extends AbstractBaseHelper {
 		return false;
 	}
 
+	// internal helpers
+	
 	/**
-	 * @param liveStreamInfo
+	 * @param liveStreamId
 	 * @return
 	 */
-	public boolean deleteLiveStream( final Context context, final LocationProfile locationProfile, final Integer channelId, final DateTime startTime ) {
-		Log.d( TAG, "deleteLiveStream : enter" );
+	private boolean deleteLiveStreamByLiveStreamId( final Context context, final LocationProfile locationProfile, final Integer liveStreamId ) {
+		Log.d( TAG, "deleteLiveStreamByLiveStreamId : enter" );
 		
 		if( null == context ) 
-			throw new RuntimeException( "LiveStreamHelperV27 is not initialized" );
+			throw new RuntimeException( "LiveStreamHelperV26 is not initialized" );
 		
-		String selection = LiveStreamConstants.FIELD_CHAN_ID + " = ? AND " + LiveStreamConstants.FIELD_START_TIME + " = ?";
-		String[] selectionArgs = new String[] { String.valueOf( channelId ), String.valueOf( startTime ) };
+		String selection = LiveStreamConstants.FIELD_ID + " = ?";
+		String[] selectionArgs = new String[] { String.valueOf( liveStreamId ) };
 		
 		selection = appendLocationHostname( context, locationProfile, selection, LiveStreamConstants.TABLE_NAME );
 		
 		int deleted = context.getContentResolver().delete( LiveStreamConstants.CONTENT_URI, selection, selectionArgs );
 		if( deleted == 1 ) {
-			Log.v( TAG, "deleteLiveStream : exit" );
+			Log.v( TAG, "deleteLiveStreamByLiveStreamId : exit" );
 			
 			return true;
 		}
 		
-		Log.d( TAG, "deleteLiveStream : exit, live stream NOT deleted" );
+		Log.d( TAG, "deleteLiveStreamByLiveStreamId : exit, live stream NOT deleted" );
 		return false;
 	}
 
-	// internal helpers
+	private Integer countLiveStreamsNotComplete( final Context context, final LocationProfile locationProfile ) {
+		Log.d( TAG, "countLiveStreamsNotComplete : enter" );
+		
+		String[] projection = new String[] { "count(" + LiveStreamConstants.TABLE_NAME + "." + LiveStreamConstants._ID + ")" };
+		String selection = "NOT " + LiveStreamConstants.TABLE_NAME + "." + LiveStreamConstants.FIELD_PERCENT_COMPLETE + " = ?";
+		String[] selectionArgs = new String[] { "100" };
+		
+		selection = appendLocationHostname( context, locationProfile, selection, LiveStreamConstants.TABLE_NAME );
+		
+		Integer count = null;
+		
+		Cursor cursor = context.getContentResolver().query( LiveStreamConstants.CONTENT_URI, projection, selection, selectionArgs, null );
+		if( cursor.moveToFirst() ) {
+//			Log.v( TAG, "findProgram : program=" + program.toString() );
+
+			count = cursor.getInt( 0 );
+		}
+		cursor.close();
+
+		Log.d( TAG, "countLiveStreamsNotComplete : exit" );
+		return null != count ? count : 0;
+	}
+
+	private int load( final Context context, final LocationProfile locationProfile, List<LiveStreamInfo> liveStreams ) throws RemoteException, OperationApplicationException {
+		Log.d( TAG, "load : enter" );
+		
+		if( null == context ) {
+			throw new RuntimeException( "LiveStreamHelperV26 is not initialized" );
+		}
+		
+		DateTime lastModified = new DateTime( DateTimeZone.UTC );
+		
+		int processed = -1;
+		int count = 0;
+		
+		ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
+
+		for( LiveStreamInfo liveStream : liveStreams ) {
+
+			ContentValues values = convertLiveStreamInfoToContentValues( locationProfile, liveStream, lastModified, -1, null );
+
+			String[] projection = new String[] { LiveStreamConstants.TABLE_NAME + "_" + LiveStreamConstants._ID };
+			String selection = LiveStreamConstants.FIELD_ID + " = ?";
+			String[] selectionArgs = new String[] { String.valueOf( liveStream.getId() ) };
+			
+			selection = appendLocationHostname( context, locationProfile, selection, LiveStreamConstants.TABLE_NAME );
+			
+			Cursor cursor = context.getContentResolver().query( LiveStreamConstants.CONTENT_URI, projection, selection, selectionArgs, null );
+			if( cursor.moveToFirst() ) {
+				Log.v( TAG, "load : updating existing liveStream info" );
+				long id = cursor.getLong( cursor.getColumnIndexOrThrow( LiveStreamConstants.TABLE_NAME + "_" + LiveStreamConstants._ID ) );
+				
+				context.getContentResolver().update( ContentUris.withAppendedId( LiveStreamConstants.CONTENT_URI, id ), values, null, null );
+			}
+			cursor.close();
+			count++;
+			
+			if( count > BATCH_COUNT_LIMIT ) {
+				Log.i( TAG, "load : applying batch for '" + count + "' transactions, processing programs" );
+				
+				processBatch( context, ops, processed, count );
+
+				count = 0;
+				
+			}
+
+		}
+		
+		processBatch( context, ops, processed, count );
+		
+		Log.v( TAG, "load : remove deleted liveStreams" );
+		String deletedSelection = LiveStreamConstants.TABLE_NAME + "." + LiveStreamConstants.FIELD_LAST_MODIFIED + " < ?";
+		String[] deletedSelectionArgs = new String[] { String.valueOf( lastModified.getMillis() ) };
+			
+		deletedSelection = appendLocationHostname( context, locationProfile, deletedSelection, LiveStreamConstants.TABLE_NAME );
+			
+		ops.add(  
+			ContentProviderOperation.newDelete( LiveStreamConstants.CONTENT_URI )
+				.withSelection( deletedSelection, deletedSelectionArgs )
+				.withYieldAllowed( true )
+				.build()
+		);
+
+		processBatch( context, ops, processed, count );
+		
+		Intent progressIntent = new Intent( LiveStreamService.ACTION_PROGRESS );
+		context.sendBroadcast( progressIntent );
+			
+		if( countLiveStreamsNotComplete( context, locationProfile ) > 0 ) {
+			Log.d( TAG, "load : further updates are required" );
+			
+			try {
+				Thread.sleep( 15000 );
+			} catch( InterruptedException e ) {
+				Log.e( TAG, "load : error", e );
+			}
+			
+			processed = load( context, locationProfile );
+		}
+
+		Log.d( TAG, "load : exit" );
+		return processed;
+	}
 	
 	private boolean save( final Context context, final LocationProfile locationProfile, LiveStreamInfo liveStreamInfo, int channelId, DateTime startTime ) {
 		Log.d( TAG, "save : enter" );
 
 		if( null == context ) 
-			throw new RuntimeException( "LiveStreamHelperV27 is not initialized" );
+			throw new RuntimeException( "LiveStreamHelperV26 is not initialized" );
 		
+		DateTime lastModified = new DateTime( DateTimeZone.UTC );
+
 		boolean saved = false;
 		
-		ContentValues values = convertLiveStreamInfoToContentValues( locationProfile, liveStreamInfo, channelId, startTime );
+		ContentValues values = convertLiveStreamInfoToContentValues( locationProfile, liveStreamInfo, lastModified, channelId, startTime );
 
 		String[] projection = new String[] { LiveStreamConstants.TABLE_NAME + "_" + LiveStreamConstants._ID };
 		String selection = LiveStreamConstants.FIELD_ID + " = ?";
@@ -477,7 +628,7 @@ public class LiveStreamHelperV26 extends AbstractBaseHelper {
 		return liveStreamInfo;
 	}
 
-	private ContentValues convertLiveStreamInfoToContentValues( final LocationProfile locationProfile, final LiveStreamInfo liveStreamInfo, final int channelId, final DateTime startTime ) {
+	private ContentValues convertLiveStreamInfoToContentValues( final LocationProfile locationProfile, final LiveStreamInfo liveStreamInfo, final DateTime lastModified, final int channelId, final DateTime startTime ) {
 //		Log.v( TAG, "convertLiveStreamToContentValues : enter" );
 		
 		ContentValues values = new ContentValues();
@@ -504,9 +655,17 @@ public class LiveStreamHelperV26 extends AbstractBaseHelper {
 		values.put( LiveStreamConstants.FIELD_SOURCE_WIDTH, liveStreamInfo.getSourceWidth() );
 		values.put( LiveStreamConstants.FIELD_SOURCE_HEIGHT, liveStreamInfo.getSourceHeight() );
 		values.put( LiveStreamConstants.FIELD_AUDIO_ONLY_BITRATE, liveStreamInfo.getAudioOnlyBitrate() );
-		values.put( LiveStreamConstants.FIELD_CHAN_ID, channelId );
-		values.put( LiveStreamConstants.FIELD_START_TIME, startTime.getMillis() );
+		
+		if( channelId > 0 ) {
+			values.put( LiveStreamConstants.FIELD_CHAN_ID, channelId );
+		}
+		
+		if( null != startTime ) {
+			values.put( LiveStreamConstants.FIELD_START_TIME, startTime.getMillis() );
+		}
+		
 		values.put( LiveStreamConstants.FIELD_MASTER_HOSTNAME, locationProfile.getHostname() );
+		values.put( LiveStreamConstants.FIELD_LAST_MODIFIED, lastModified.getMillis() );
 		
 //		Log.v( TAG, "convertLiveStreamToContentValues : exit" );
 		return values;

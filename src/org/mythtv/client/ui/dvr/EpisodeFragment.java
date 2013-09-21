@@ -30,6 +30,7 @@ import org.mythtv.db.dvr.RecordedDaoHelper;
 import org.mythtv.db.dvr.model.Program;
 import org.mythtv.db.dvr.programGroup.ProgramGroup;
 import org.mythtv.db.dvr.programGroup.ProgramGroupDaoHelper;
+import org.mythtv.service.content.GetLiveStreamTask;
 import org.mythtv.service.content.LiveStreamService;
 import org.mythtv.service.dvr.RecordedService;
 import org.mythtv.service.util.DateUtils;
@@ -63,7 +64,7 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener;
 
-public class EpisodeFragment extends AbstractMythFragment {
+public class EpisodeFragment extends AbstractMythFragment implements GetLiveStreamTask.TaskFinishedListener {
 
 	private static final String TAG = EpisodeFragment.class.getSimpleName();
 	private static final String DISMISS_ADD = "org.mythtv.episodeFragment.dismissAddDialog";
@@ -88,8 +89,6 @@ public class EpisodeFragment extends AbstractMythFragment {
 	private ImageLoader imageLoader = ImageLoader.getInstance();
 	private DisplayImageOptions options;
 
-	private Intent runningIntent;
-	
 	/* (non-Javadoc)
 	 * @see android.support.v4.app.Fragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle)
 	 */
@@ -156,7 +155,7 @@ public class EpisodeFragment extends AbstractMythFragment {
 		liveStreamFilter.addAction( LiveStreamService.ACTION_PROGRESS );
 		liveStreamFilter.addAction( LiveStreamService.ACTION_CREATE );
 		liveStreamFilter.addAction( LiveStreamService.ACTION_PLAY );
-		liveStreamFilter.addAction( LiveStreamService.ACTION_UPDATE );
+		liveStreamFilter.addAction( LiveStreamService.ACTION_LOAD );
 		liveStreamFilter.addAction( LiveStreamService.ACTION_REMOVE );
         getActivity().registerReceiver( liveStreamReceiver, liveStreamFilter );
 
@@ -170,10 +169,6 @@ public class EpisodeFragment extends AbstractMythFragment {
 	public void onStop() {
 		Log.v( TAG, "onStop : enter" );
 		super.onStop();
-
-		if( null != runningIntent && mRunningServiceHelper.isServiceRunning( getActivity(), "org.mythtv.service.dvr.LiveStreamService" ) ) {
-			getActivity().stopService( runningIntent );
-		}
 
 		// Unregister for broadcast
 		if( null != recordedRemovedReceiver ) {
@@ -405,16 +400,18 @@ public class EpisodeFragment extends AbstractMythFragment {
 
 		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
 
-		program = null;
-		
 		Log.v( TAG, "loadEpisode : channelId=" + channelId + ", startTime=" + DateUtils.dateTimeFormatterPretty.print( startTime ) );
         program = mRecordedDaoHelper.findOne( getActivity(), mLocationProfile, channelId, startTime );
 		if( null != program ) {
-
+			Log.v( TAG, "loadEpisode : program found" );
+			
 			LiveStreamInfo liveStreamInfo = mLiveStreamDaoHelper.findByProgram( getActivity(), mLocationProfile, program );
 			if( null != liveStreamInfo ) {
+				Log.v( TAG, "loadEpisode : program has livestream" );
 				
 				if( liveStreamInfo.getPercentComplete() < 100 ) {
+					Log.v( TAG, "loadEpisode : livestream is not complete, start update" );
+					
 					startUpdateStreamService();
 				}
 				
@@ -470,7 +467,7 @@ public class EpisodeFragment extends AbstractMythFragment {
 
 			// airdate
 			tView = (TextView) activity.findViewById( R.id.textView_episode_airdate );
-            tView.setText( DateUtils.getDateTimeUsingLocaleFormattingPretty(program.getStartTime(), getMainApplication().getDateFormat(), getMainApplication().getClockType() ) );
+            tView.setText( DateUtils.getDateTimeUsingLocaleFormattingPretty( program.getStartTime(), getMainApplication().getDateFormat(), getMainApplication().getClockType() ) );
 
             if( null == hlsView ) {
             	hlsView = (TextView) activity.findViewById( R.id.textView_episode_hls );
@@ -499,8 +496,8 @@ public class EpisodeFragment extends AbstractMythFragment {
 	private void startPlayer( boolean raw ) {
 		Log.i( TAG, "startPlayer : enter" );
 		
-		if( null != runningIntent && mRunningServiceHelper.isServiceRunning( getActivity(), "org.mythtv.service.dvr.LiveStreamService" ) ) {
-			getActivity().stopService( runningIntent );
+		if( null != program ) {
+			Log.v( TAG, "startPlayer : channelId=" + program.getChannelInfo().getChannelId() + ", startTime=" + program.getStartTime().getMillis() );
 		}
 
 		Intent playerIntent = new Intent( getActivity(), VideoActivity.class );
@@ -509,24 +506,20 @@ public class EpisodeFragment extends AbstractMythFragment {
 		playerIntent.putExtra( VideoActivity.EXTRA_RAW, raw );
 		startActivity( playerIntent );
 
-		runningIntent = null;
-
 		Log.i( TAG, "startPlayer : exit" );
 	}
 	
 	private void startPlayStreamService() {
 		Log.i( TAG, "startPlayStreamService : enter" );
 		
-		if( null != runningIntent && mRunningServiceHelper.isServiceRunning( getActivity(), "org.mythtv.service.dvr.LiveStreamService" ) ) {
-			getActivity().stopService( runningIntent );
+		if( null != program ) {
+			Log.v( TAG, "startPlayStreamService : channelId=" + program.getChannelInfo().getChannelId() + ", startTime=" + program.getStartTime().getMillis() );
 		}
-		
+
 		Intent intent = new Intent( LiveStreamService.ACTION_PLAY );
 		intent.putExtra( LiveStreamService.KEY_CHANNEL_ID, program.getChannelInfo().getChannelId() );
-		intent.putExtra( LiveStreamService.KEY_START_TIMESTAMP, program.getRecording().getStartTimestamp().getMillis() );
+		intent.putExtra( LiveStreamService.KEY_START_TIMESTAMP, program.getStartTime().getMillis() );
 		getActivity().startService( intent );
-
-		runningIntent = intent;
 
 		Log.i( TAG, "startPlayStreamService : exit" );
 	}
@@ -534,8 +527,8 @@ public class EpisodeFragment extends AbstractMythFragment {
 	private void startCreateStreamService() {
 		Log.i( TAG, "startCreateStreamService : enter" );
 		
-		if( null != runningIntent && mRunningServiceHelper.isServiceRunning( getActivity(), "org.mythtv.service.dvr.LiveStreamService" ) ) {
-			getActivity().stopService( runningIntent );
+		if( null != program ) {
+			Log.v( TAG, "startCreateStreamService : channelId=" + program.getChannelInfo().getChannelId() + ", startTime=" + program.getStartTime().getMillis() );
 		}
 		
 		Intent intent = new Intent( LiveStreamService.ACTION_CREATE );
@@ -543,24 +536,30 @@ public class EpisodeFragment extends AbstractMythFragment {
 		intent.putExtra( LiveStreamService.KEY_START_TIMESTAMP, program.getStartTime().getMillis() );
 		getActivity().startService( intent );
 
-		runningIntent = intent;
-
 		Log.i( TAG, "startCreateStreamService : exit" );
 	}
 	
 	private void startUpdateStreamService() {
 		Log.i( TAG, "startUpdateStreamService : enter" );
 		
-		if( null != runningIntent && mRunningServiceHelper.isServiceRunning( getActivity(), "org.mythtv.service.dvr.LiveStreamService" ) ) {
-			getActivity().stopService( runningIntent );
-		}
-		
-		Intent intent = new Intent( LiveStreamService.ACTION_UPDATE );
-		intent.putExtra( LiveStreamService.KEY_CHANNEL_ID, program.getChannelInfo().getChannelId() );
-		intent.putExtra( LiveStreamService.KEY_START_TIMESTAMP, program.getRecording().getStartTimestamp().getMillis() );
-		getActivity().startService( intent );
+		if( null != program ) {
+			Log.v( TAG, "startUpdateStreamService : channelId=" + program.getChannelInfo().getChannelId() + ", startTime=" + program.getStartTime().getMillis() );
 
-		runningIntent = intent;
+			LiveStreamInfo liveStreamInfo = mLiveStreamDaoHelper.findByProgram( getActivity(), mLocationProfile, program );
+			if( null != liveStreamInfo ) {
+			
+				if( liveStreamInfo.getPercentComplete() < 100 ) {
+
+					Intent intent = new Intent( LiveStreamService.ACTION_LOAD );
+					intent.putExtra( LiveStreamService.KEY_CHANNEL_ID, program.getChannelInfo().getChannelId() );
+					intent.putExtra( LiveStreamService.KEY_START_TIMESTAMP, program.getStartTime().getMillis() );
+					getActivity().startService( intent );
+					
+				}
+			
+			}
+			
+		}
 
 		Log.i( TAG, "startUpdateStreamService : exit" );
 	}
@@ -568,25 +567,25 @@ public class EpisodeFragment extends AbstractMythFragment {
 	private void startRemoveStreamService() {
 		Log.i( TAG, "startRemoveStreamService : enter" );
 		
-		if( null != runningIntent && mRunningServiceHelper.isServiceRunning( getActivity(), "org.mythtv.service.dvr.LiveStreamService" ) ) {
-			getActivity().stopService( runningIntent );
+		if( null != program ) {
+			Log.v( TAG, "startRemoveStreamService : channelId=" + program.getChannelInfo().getChannelId() + ", startTime=" + program.getStartTime().getMillis() );
 		}
+
+		getActivity().stopService( new Intent( getActivity(), LiveStreamService.class ) );
 		
 		Intent intent = new Intent( LiveStreamService.ACTION_REMOVE );
 		intent.putExtra( LiveStreamService.KEY_CHANNEL_ID, program.getChannelInfo().getChannelId() );
-		intent.putExtra( LiveStreamService.KEY_START_TIMESTAMP, program.getRecording().getStartTimestamp().getMillis() );
+		intent.putExtra( LiveStreamService.KEY_START_TIMESTAMP, program.getStartTime().getMillis() );
 		getActivity().startService( intent );
 
-		runningIntent = intent;
-		
 		Log.i( TAG, "startRemoveStreamService : exit" );
 	}
 	
 	private void startRemoveProgramService() {
 		Log.i( TAG, "startRemoveProgramService : enter" );
 		
-		if( null != runningIntent && mRunningServiceHelper.isServiceRunning( getActivity(), "org.mythtv.service.dvr.LiveStreamService" ) ) {
-			getActivity().stopService( runningIntent );
+		if( null != program ) {
+			Log.v( TAG, "startRemoveProgramService : channelId=" + program.getChannelInfo().getChannelId() + ", startTime=" + program.getStartTime().getMillis() );
 		}
 
 		startRemoveStreamService();
@@ -619,6 +618,7 @@ public class EpisodeFragment extends AbstractMythFragment {
 
 				if( liveStreamInfo.getPercentComplete() == 100 ) {
 					hlsView.setText( "WATCH IT NOW!" );
+					
 				} else if( liveStreamInfo.getPercentComplete() >= 0 ) {
 					hlsView.setText( "Processing " + liveStreamInfo.getPercentComplete() + "%" );
 
@@ -716,11 +716,6 @@ public class EpisodeFragment extends AbstractMythFragment {
 	        if ( intent.getAction().equals( LiveStreamService.ACTION_PROGRESS ) ) {
 	        	Log.i( TAG, "LiveStreamReceiver.onReceive : progress=" + intent.getIntExtra( LiveStreamService.EXTRA_PROGRESS_ID, -1 ) + ":" + intent.getIntExtra( LiveStreamService.EXTRA_PROGRESS_DATA, -1 ) );
 	        	
-	        	if( intent.getIntExtra( LiveStreamService.EXTRA_PROGRESS_DATA, -1 ) < 100 ) {
-	        		startUpdateStreamService();
-	        	}
-	        	
-	        	updateHlsDetails();
 	        }
 	        
 	        if ( intent.getAction().equals( LiveStreamService.ACTION_COMPLETE ) ) {
@@ -730,8 +725,12 @@ public class EpisodeFragment extends AbstractMythFragment {
 	        		notConnectedNotify();
 	        	}
 	        	
+	        	if( intent.getExtras().containsKey( LiveStreamService.EXTRA_COMPLETE_ID ) ) {
+	        		startUpdateStreamService();
+	        	}
+	        	
 	        	if( intent.getExtras().containsKey( LiveStreamService.EXTRA_COMPLETE_ERROR ) ) {
-//	        		Toast.makeText( getActivity(), intent.getStringExtra( LiveStreamService.EXTRA_COMPLETE_ERROR ), Toast.LENGTH_SHORT ).show();
+	        		Toast.makeText( getActivity(), intent.getStringExtra( LiveStreamService.EXTRA_COMPLETE_ERROR ), Toast.LENGTH_SHORT ).show();
 	        	} 
 	        	
 	        	if( intent.getExtras().containsKey( LiveStreamService.EXTRA_COMPLETE_PLAY ) ) {
@@ -752,13 +751,37 @@ public class EpisodeFragment extends AbstractMythFragment {
        			
 	        	}
 	        	
-	        	updateHlsDetails();
-	        		
 	        }
 
+        	updateHlsDetails();
+    		
         	Log.i( TAG, "LiveStreamReceiver.onReceive : exit" );
 		}
 		
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mythtv.service.content.GetLiveStreamTask.TaskFinishedListener#onGetLiveStreamTaskStarted()
+	 */
+	@Override
+	public void onGetLiveStreamTaskStarted() {
+		Log.i( TAG, "onGetLiveStreamTaskStarted : enter" );
+
+		Log.i( TAG, "onGetLiveStreamTaskStarted : exit" );
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mythtv.service.content.GetLiveStreamTask.TaskFinishedListener#onGetLiveStreamTaskFinished(org.mythtv.db.content.model.LiveStreamInfo)
+	 */
+	@Override
+	public void onGetLiveStreamTaskFinished( LiveStreamInfo result ) {
+		Log.i( TAG, "onGetLiveStreamTaskFinished : enter" );
+
+		if( null != result ) {
+			updateHlsDetails();
+		}
+		
+		Log.i( TAG, "onGetLiveStreamTaskFinished : exit" );
 	}
 
 }

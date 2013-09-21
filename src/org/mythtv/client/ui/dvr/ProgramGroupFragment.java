@@ -84,6 +84,10 @@ public class ProgramGroupFragment extends MythtvListFragment implements LoaderMa
 	public Loader<Cursor> onCreateLoader( int id, Bundle args ) {
 		Log.v( TAG, "onCreateLoader : enter" );
 
+		if( null == mLocationProfile ) {
+			mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
+		}
+		
 		if( null == programGroup ) {
 			programGroup = mProgramGroupDaoHelper.findByTitle( getActivity(), mLocationProfile, "All" );
 		}

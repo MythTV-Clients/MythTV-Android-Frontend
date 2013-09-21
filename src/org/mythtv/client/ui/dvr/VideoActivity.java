@@ -26,15 +26,12 @@ import org.mythtv.db.content.LiveStreamDaoHelper;
 import org.mythtv.db.content.model.LiveStreamInfo;
 import org.mythtv.db.dvr.RecordedDaoHelper;
 import org.mythtv.db.dvr.model.Program;
-import org.mythtv.service.content.LiveStreamService;
+import org.mythtv.service.content.GetLiveStreamTask;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
@@ -49,7 +46,7 @@ import android.widget.Toast;
  * @author John Baab
  * 
  */
-public class VideoActivity extends AbstractMythtvFragmentActivity {
+public class VideoActivity extends AbstractMythtvFragmentActivity implements GetLiveStreamTask.TaskFinishedListener {
 
 	private static final String TAG = VideoActivity.class.getSimpleName();
 	private static final String DISMISS = "org.mythtv.videoActivity.dismissDialog";
@@ -60,8 +57,6 @@ public class VideoActivity extends AbstractMythtvFragmentActivity {
 	
 	private ProgressDialog progressDialog;
 
-	private LiveStreamReceiver liveStreamReceiver = new LiveStreamReceiver();
-	
 	private LiveStreamDaoHelper mLiveStreamDaoHelper = LiveStreamDaoHelper.getInstance();
 	private RecordedDaoHelper mRecordedDaoHelper = RecordedDaoHelper.getInstance();
 	
@@ -119,22 +114,6 @@ public class VideoActivity extends AbstractMythtvFragmentActivity {
 	}
 	
 	/* (non-Javadoc)
-	 * @see android.support.v4.app.FragmentActivity#onStart()
-	 */
-	@Override
-	public void onStart() {
-		Log.v( TAG, "onStart : enter" );
-		super.onStart();
-
-		IntentFilter liveStreamFilter = new IntentFilter( LiveStreamService.ACTION_COMPLETE );
-		liveStreamFilter.addAction( LiveStreamService.ACTION_PROGRESS );
-		liveStreamFilter.addAction( LiveStreamService.ACTION_UPDATE );
-        registerReceiver( liveStreamReceiver, liveStreamFilter );
-
-        Log.v( TAG, "onStart : exit" );
-	}
-
-	/* (non-Javadoc)
 	 * @see org.mythtv.client.ui.dvr.AbstractDvrActivity#onResume()
 	 */
 	@Override
@@ -156,24 +135,6 @@ public class VideoActivity extends AbstractMythtvFragmentActivity {
 		Log.v( TAG, "onPause : exit" );
 	}
 
-	/* (non-Javadoc)
-	 * @see android.support.v4.app.FragmentActivity#onStop()
-	 */
-	protected void onStop() {
-		Log.v( TAG, "onStop : enter" );
-		super.onStop();
-
-		if( null != liveStreamReceiver ) {
-			try {
-				unregisterReceiver( liveStreamReceiver );
-			} catch( IllegalArgumentException e ) {
-				Log.e( TAG, e.getLocalizedMessage(), e );
-			}
-		}
-
-		Log.v( TAG, "onStop : exit" );
-	}
-	
 	/* (non-Javadoc)
 	 * @see android.app.Activity#onRestart()
 	 */
@@ -323,10 +284,8 @@ public class VideoActivity extends AbstractMythtvFragmentActivity {
 	private void startUpdateStreamService() {
 		Log.v( TAG, "startUpdateStreamService : enter" );
 		
-		Intent intent = new Intent( LiveStreamService.ACTION_UPDATE );
-		intent.putExtra( LiveStreamService.KEY_CHANNEL_ID, program.getChannelInfo().getChannelId() );
-		intent.putExtra( LiveStreamService.KEY_START_TIMESTAMP, program.getStartTime().getMillis() );
-		startService( intent );
+		GetLiveStreamTask getLiveStreamTask = new GetLiveStreamTask( this, program, mLocationProfile, this );
+		getLiveStreamTask.execute( liveStreamInfo.getId() );
 
 		Log.v( TAG, "startUpdateStreamService : exit" );
 	}
@@ -337,35 +296,30 @@ public class VideoActivity extends AbstractMythtvFragmentActivity {
 		
 	}
 
-	private class LiveStreamReceiver extends BroadcastReceiver {
+	/* (non-Javadoc)
+	 * @see org.mythtv.service.content.GetLiveStreamTask.TaskFinishedListener#onGetLiveStreamTaskStarted()
+	 */
+	@Override
+	public void onGetLiveStreamTaskStarted() {
+		Log.i( TAG, "onGetLiveStreamTaskStarted : enter" );
 
-		@Override
-		public void onReceive( Context context, Intent intent ) {
-        	Log.i( TAG, "LiveStreamReceiver.onReceive : enter" );
+		Log.i( TAG, "onGetLiveStreamTaskStarted : exit" );
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mythtv.service.content.GetLiveStreamTask.TaskFinishedListener#onGetLiveStreamTaskFinished(org.mythtv.db.content.model.LiveStreamInfo)
+	 */
+	@Override
+	public void onGetLiveStreamTaskFinished( LiveStreamInfo result ) {
+		Log.i( TAG, "onGetLiveStreamTaskFinished : enter" );
+
+		if( null != result ) {
 			
-	        if ( intent.getAction().equals( LiveStreamService.ACTION_PROGRESS ) ) {
-	        	Log.i( TAG, "LiveStreamReceiver.onReceive : progress=" + intent.getIntExtra( LiveStreamService.EXTRA_PROGRESS_ID, -1 ) + ":" + intent.getIntExtra( LiveStreamService.EXTRA_PROGRESS_DATA, -1 ) );
-	        	
-	        	long id = liveStreamInfo.getId();
-	        	liveStreamInfo = mLiveStreamDaoHelper.findOne( context, mLocationProfile, id );
-	        	
-	        	if( intent.getIntExtra( LiveStreamService.EXTRA_PROGRESS_DATA, -1 ) < 2 ) {
-	        		startUpdateStreamService();
-	        	}
-	        }
-	        
-	        if ( intent.getAction().equals( LiveStreamService.ACTION_COMPLETE ) ) {
-	        	Log.i( TAG, "LiveStreamReceiver.onReceive : complete=" + intent.getStringExtra( LiveStreamService.EXTRA_COMPLETE ) );
-	        	
-	        	if( intent.getExtras().containsKey( LiveStreamService.EXTRA_COMPLETE_OFFLINE ) ) {
-	        		notConnectedNotify();
-	        	}
-	        	
-	        }
-	        
-        	Log.i( TAG, "LiveStreamReceiver.onReceive : exit" );
+			startUpdateStreamService();
+
 		}
 		
+		Log.i( TAG, "onGetLiveStreamTaskFinished : exit" );
 	}
 
 }

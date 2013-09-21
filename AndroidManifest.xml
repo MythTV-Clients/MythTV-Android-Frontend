@@ -154,7 +154,7 @@
                 <action android:name="org.mythtv.background.liveStream.ACTION_PROGRESS" />
                 <action android:name="org.mythtv.background.liveStream.ACTION_CREATE" />
                 <action android:name="org.mythtv.background.liveStream.ACTION_PLAY" />
-                <action android:name="org.mythtv.background.liveStream.ACTION_UPDATE" />
+                <action android:name="org.mythtv.background.liveStream.ACTION_LOAD" />
                 <action android:name="org.mythtv.background.liveStream.ACTION_REMOVE" />
             </intent-filter>
         </service>
