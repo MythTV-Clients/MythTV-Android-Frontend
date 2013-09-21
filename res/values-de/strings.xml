@@ -40,8 +40,6 @@
 -->
 
 <resources>
-    <string name="hello">Hallo Welt!</string>
-    
     <string name="item_network_title">Suche im Netzwerk nach MythTV&#8230;</string>
 	<string name="item_network_caption">Stelle sicher, dass Du im selben Netzwerk wie das MythTV Master Backend bist</string>
     
