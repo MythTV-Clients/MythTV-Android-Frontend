@@ -326,4 +326,9 @@
     <string name="guide_time_slot">Tageszeit</string>
     <string name="guide_time_slot_description">Tageszeit Beschreibung</string>
     
+    <string name="navigation_manage_profiles">Profile bearbeiten</string>
+    <string name="navigation_actions">Funktionen</string>
+    <string name="navigation_actions_setup">Einrichten</string>
+    <string name="navigation_dvr_actions">DVR Funktionen</string>
+    <string name="navigation_media_actions">Medienfunktionen</string>
 </resources>
