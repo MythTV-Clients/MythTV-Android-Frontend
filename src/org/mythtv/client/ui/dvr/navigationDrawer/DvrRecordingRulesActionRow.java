@@ -15,7 +15,6 @@ import android.widget.ImageView;
  */
 public class DvrRecordingRulesActionRow extends DvrActionRow {
 
-	private static final String TITLE = "Recording Rules";
 	private static final String FRAGMENT = "org.mythtv.client.ui.dvr.RecordingRulesFragment";
 	
 	public DvrRecordingRulesActionRow( Context context, int actionResId ) {
@@ -39,19 +38,12 @@ public class DvrRecordingRulesActionRow extends DvrActionRow {
 	public int getViewType() {
 		return DvrRowType.RECORDING_RULES_ROW.ordinal();
 	}
-	
-	/* (non-Javadoc)
-	 * @see org.mythtv.client.ui.navigationDrawer.Row#getTitle()
-	 */
-	@Override
-	public String getTitle() {
-		return TITLE;
-	}
 
 	/* (non-Javadoc)
 	 * @see org.mythtv.client.ui.navigationDrawer.ActionRow#getFragment()
 	 */
-	public String getFragment() {
+	@Override
+    public String getFragment() {
 		return FRAGMENT;
 	}
 	

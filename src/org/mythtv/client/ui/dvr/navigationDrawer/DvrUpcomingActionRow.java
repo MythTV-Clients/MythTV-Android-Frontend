@@ -15,7 +15,6 @@ import android.widget.ImageView;
  */
 public class DvrUpcomingActionRow extends DvrActionRow {
 
-	private static final String TITLE = "Upcoming";
 	private static final String FRAGMENT = "org.mythtv.client.ui.dvr.UpcomingPagerFragment";
 	
 	public DvrUpcomingActionRow( Context context, int actionResId ) {
@@ -38,15 +37,6 @@ public class DvrUpcomingActionRow extends DvrActionRow {
 	@Override
 	public int getViewType() {
 		return DvrRowType.UPCOMING_ROW.ordinal();
-	}
-	
-	
-	/* (non-Javadoc)
-	 * @see org.mythtv.client.ui.navigationDrawer.Row#getTitle()
-	 */
-	@Override
-	public String getTitle() {
-		return TITLE;
 	}
 
 	/* (non-Javadoc)

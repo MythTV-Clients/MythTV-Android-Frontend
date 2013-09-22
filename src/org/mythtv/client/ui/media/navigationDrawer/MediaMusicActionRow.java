@@ -15,7 +15,6 @@ import android.widget.ImageView;
  */
 public class MediaMusicActionRow extends MediaActionRow {
 
-	private static final String TITLE = "Music";
 	private static final String FRAGMENT = "org.mythtv.client.ui.media.MusicParentFragment";
 	
 	public MediaMusicActionRow( Context context, int actionResId ) {
@@ -38,14 +37,6 @@ public class MediaMusicActionRow extends MediaActionRow {
 	@Override
 	public int getViewType() {
 		return MediaRowType.MUSIC_ROW.ordinal();
-	}
-	
-	/* (non-Javadoc)
-	 * @see org.mythtv.client.ui.navigationDrawer.Row#getTitle()
-	 */
-	@Override
-	public String getTitle() {
-		return TITLE;
 	}
 
 	/* (non-Javadoc)

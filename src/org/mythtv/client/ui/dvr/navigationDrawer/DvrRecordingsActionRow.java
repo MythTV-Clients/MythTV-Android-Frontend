@@ -15,7 +15,6 @@ import android.widget.ImageView;
  */
 public class DvrRecordingsActionRow extends DvrActionRow {
 
-	private static final String TITLE = "Recordings";
 	private static final String FRAGMENT = "org.mythtv.client.ui.dvr.RecordingsParentFragment";
 	
 	public DvrRecordingsActionRow( Context context, int actionResId ) {
@@ -38,14 +37,6 @@ public class DvrRecordingsActionRow extends DvrActionRow {
 	@Override
 	public int getViewType() {
 		return DvrRowType.RECORDINGS_ROW.ordinal();
-	}
-	
-	/* (non-Javadoc)
-	 * @see org.mythtv.client.ui.navigationDrawer.Row#getTitle()
-	 */
-	@Override
-	public String getTitle() {
-		return TITLE;
 	}
 
 	/* (non-Javadoc)

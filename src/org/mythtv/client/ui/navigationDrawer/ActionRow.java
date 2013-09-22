@@ -74,7 +74,7 @@ public class ActionRow implements Row {
 	 */
 	@Override
 	public String getTitle() {
-		return null;
+		return mAction;
 	}
 
 	/* (non-Javadoc)
