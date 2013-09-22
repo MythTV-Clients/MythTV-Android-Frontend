@@ -91,12 +91,12 @@
 	<string name="preference_home_profiles_scan_error_message">MythTV konnte in deinem Netzwerk nicht gefunden werden. Bitte stelle sicher, dass Du über Wifi mit deinem Heimnetz verbunden bist.</string>
 			
 	<string name="preference_home_playback_profiles">Daheim Wiedergabeprofile</string>
-	<string name="preference_home_playback_profiles_summary">Bearbeite deine Daheim Wiedergabeeinstellungen</string>
+	<string name="preference_home_playback_profiles_summary">Bearbeite deine Daheim Wiedergabeprofil-Einstellungen</string>
 	<string name="preference_home_playback_profiles_select">Daheim Wiedergabeprofil auswählen</string>
-	<string name="preference_home_playback_profiles_default">Daheim Wiedergabeprofil ausgewählt</string>
+	<string name="preference_home_playback_profiles_default">Ausgewähltes Daheim Wiedergabeprofil</string>
 	<string name="preference_home_playback_profiles_modify">Daheim Wiedergabeprofile bearbeiten</string>
 	<string name="preference_home_playback_profiles_modify_summary">Bearbeite Daheim Audio- und Video-Wiedergabeprofile</string>
-	<string name="preference_home_playback_profiles_saved">Daheim Wiedergabeprofile gespeichert</string>
+	<string name="preference_home_playback_profiles_saved">Gespeicherte Daheim Wiedergabeprofile</string>
 					
 	<string name="preference_away_profiles">Unterwegs Profile</string>
 	<string name="preference_away_profiles_summary">Bearbeite deine Unterwegs Profil Einstellungen</string>
@@ -111,12 +111,12 @@
 	<string name="preference_away_profiles_delete_summary">Löscht ein bestehendes Master Backend Profil.</string>
 
 	<string name="preference_away_playback_profiles">Unterwegs Wiedergabeprofile</string>
-	<string name="preference_away_playback_profiles_summary">Bearbeite deine Unterwegs Wiedergabeeinstellungen</string>
+	<string name="preference_away_playback_profiles_summary">Bearbeite deine Unterwegs Wiedergabeprofil-Einstellungen</string>
 	<string name="preference_away_playback_profiles_select">Unterwegs Wiedergabeprofil auswählen</string>
-	<string name="preference_away_playback_profiles_default">Unterwegs Wiedergabeprofil ausgewählt</string>
+	<string name="preference_away_playback_profiles_default">Ausgewähltes Unterwegs Wiedergabeprofil</string>
 	<string name="preference_away_playback_profiles_modify">Unterwegs Wiedergabeprofil bearbeiten</string>
 	<string name="preference_away_playback_profiles_modify_summary">Bearbeite Unterwegs Audio- und Video-Wiedergabeprofile</string>
-	<string name="preference_away_playback_profiles_saved">Unterwegs Wiedergabeprofil gespeichert</string>
+	<string name="preference_away_playback_profiles_saved">Gespeicherte Unterwegs Wiedergabeprofile</string>
 			
 	<string name="preference_location_profile_edit_text_name_hint">Daheim oder 3G, etc.</string>
 	<string name="preference_location_profile_text_view_name_error_invalid">Ungültiger Name</string>
@@ -140,10 +140,10 @@
 	<string name="preference_playback_profile_text_view_sample_rate_error_invalid">Ungültige Sample Rate</string>
 		
 	<string name="preference_program_guide">Programmübersicht</string>
-	<string name="preference_program_guide_summary">Bearbeite Einstellungen zur Verwaltung der Programmübersicht.</string>
+	<string name="preference_program_guide_summary">Bearbeite Einstellungen zur Verwaltung der Programmübersicht</string>
 	<string name="preference_program_guide_modify">Bearbeite Programmübersicht Einstellungen</string>
 	<string name="preference_program_guide_modify_summary">Bearbeite Programmübersicht Einstellungen</string>
-	<string name="preference_program_guide_days_title">Konfiguriere Programmübersicht Download-Tage</string>
+	<string name="preference_program_guide_days_title">Konfiguriere Programmübersicht Download Tage</string>
 	<string name="preference_program_guide_days_default">3</string>
 	<string name="preference_program_guide_channel_icon_download_title">Senderlogos herunterladen?</string>
 	<string name="preference_program_guide_channel_icon_download_summary">Senderlogos herunterladen?</string>
