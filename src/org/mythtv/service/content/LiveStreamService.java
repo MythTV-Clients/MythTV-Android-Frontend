@@ -183,7 +183,7 @@ public class LiveStreamService extends MythtvService {
 		Log.v( TAG, "sendCompleteRecordedProgramNotFound : enter" );
 		
 		Intent completeIntent = new Intent( ACTION_COMPLETE );
-		completeIntent.putExtra( EXTRA_COMPLETE_ERROR, "Recorded program not found" );
+		completeIntent.putExtra( EXTRA_COMPLETE_ERROR, "Recorded program HLS not found" );
 		
 		sendBroadcast( completeIntent );
 		

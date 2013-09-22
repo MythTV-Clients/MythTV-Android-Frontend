@@ -732,7 +732,7 @@ public class EpisodeFragment extends AbstractMythFragment implements GetLiveStre
 	        	}
 	        	
 	        	if( intent.getExtras().containsKey( LiveStreamService.EXTRA_COMPLETE_ERROR ) ) {
-	        		Toast.makeText( getActivity(), intent.getStringExtra( LiveStreamService.EXTRA_COMPLETE_ERROR ), Toast.LENGTH_SHORT ).show();
+//	        		Toast.makeText( getActivity(), intent.getStringExtra( LiveStreamService.EXTRA_COMPLETE_ERROR ), Toast.LENGTH_SHORT ).show();
 	        	} 
 	        	
 	        	if( intent.getExtras().containsKey( LiveStreamService.EXTRA_COMPLETE_PLAY ) ) {
