@@ -12,7 +12,6 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.AbstractBaseHelper;
-import org.mythtv.db.channel.ChannelConstants;
 import org.mythtv.db.content.LiveStreamConstants;
 import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.db.dvr.RecordingConstants;
@@ -221,7 +220,6 @@ public class RecordedHelperV27 extends AbstractBaseHelper {
 		if( null == context ) 
 			throw new RuntimeException( "RecordedHelperV27 is not initialized" );
 		
-		DateTime today = new DateTime( DateTimeZone.UTC ).withTimeAtStartOfDay();
 		DateTime lastModified = new DateTime( DateTimeZone.UTC );
 		
 		int processed = -1;
@@ -301,8 +299,8 @@ public class RecordedHelperV27 extends AbstractBaseHelper {
 		while( deletedCursor.moveToNext() ) {
 //			Log.v( TAG, "load : remove deleted recording - " + program.getTitle() + " [" + program.getSubTitle() + "]" );
 
-			long channelId = deletedCursor.getLong( deletedCursor.getColumnIndex( ChannelConstants.TABLE_NAME + "_" + ChannelConstants.FIELD_CHAN_ID ) );
-			long startTime = deletedCursor.getLong( deletedCursor.getColumnIndex( ProgramConstants.TABLE_NAME_RECORDED + "." + ProgramConstants.FIELD_START_TIME ) );
+			long channelId = deletedCursor.getLong( deletedCursor.getColumnIndex( ProgramConstants.FIELD_CHANNEL_ID ) );
+			long startTime = deletedCursor.getLong( deletedCursor.getColumnIndex( ProgramConstants.FIELD_START_TIME ) );
 				
 			// Delete any live stream details
 			String liveStreamSelection = LiveStreamConstants.FIELD_CHAN_ID + " = ? AND " + LiveStreamConstants.FIELD_START_TIME + " = ?";
@@ -325,10 +323,10 @@ public class RecordedHelperV27 extends AbstractBaseHelper {
 		deletedCursor.close();
 
 //		Log.v( TAG, "load : DELETE PROGRAMS" );
-		ProgramHelperV27.getInstance().deletePrograms( context, locationProfile, ops, ProgramConstants.CONTENT_URI_RECORDED, ProgramConstants.TABLE_NAME_RECORDED, today );
+		ProgramHelperV27.getInstance().deletePrograms( context, locationProfile, ops, ProgramConstants.CONTENT_URI_RECORDED, ProgramConstants.TABLE_NAME_RECORDED, lastModified );
 
 //		Log.v( TAG, "load : DELETE RECORDINGS" );
-		RecordingHelperV27.getInstance().deleteRecordings( ops, RecordingConstants.ContentDetails.RECORDED, today );
+		RecordingHelperV27.getInstance().deleteRecordings( ops, RecordingConstants.ContentDetails.RECORDED, lastModified );
 
 		processBatch( context, ops, processed, count );
 

@@ -283,7 +283,7 @@ public class ChannelHelperV27 extends AbstractBaseHelper {
 	}
 
 	public void processChannel( final Context context, final LocationProfile locationProfile, ArrayList<ContentProviderOperation> ops, ChannelInfo channel, DateTime lastModified, int count ) {
-		Log.d( TAG, "processProgram : enter" );
+//		Log.d( TAG, "processChannel : enter" );
 		
 		String[] projection = new String[] { ChannelConstants._ID };
 		String selection = ChannelConstants.FIELD_CHAN_ID + " = ?";
@@ -318,7 +318,7 @@ public class ChannelHelperV27 extends AbstractBaseHelper {
 		channelCursor.close();
 		count++;
 
-		Log.d( TAG, "processProgram : exit" );
+//		Log.d( TAG, "processChannel : exit" );
 	}
 
 	private void deleteChannels( final Context context, final LocationProfile locationProfile, ArrayList<ContentProviderOperation> ops, DateTime today ) {
