@@ -214,7 +214,7 @@ public class RecordedHelperV26 extends AbstractBaseHelper {
 		Log.d( TAG, "load : enter" );
 		
 		if( null == context ) 
-			throw new RuntimeException( "ProgramGuideHelperV27 is not initialized" );
+			throw new RuntimeException( "ProgramGuideHelperV26 is not initialized" );
 		
 		DateTime today = new DateTime( DateTimeZone.UTC ).withTimeAtStartOfDay();
 		DateTime lastModified = new DateTime( DateTimeZone.UTC );
@@ -288,8 +288,8 @@ public class RecordedHelperV26 extends AbstractBaseHelper {
 		processBatch( context, ops, processed, count );
 
 //		Log.v( TAG, "load : remove deleted recordings" );
-		String deletedSelection = ProgramConstants.TABLE_NAME_RECORDED + "." + ProgramConstants.FIELD_LAST_MODIFIED + " < ?";
-		String[] deletedSelectionArgs = new String[] { String.valueOf( today.getMillis() ) };
+		String deletedSelection = ProgramConstants.TABLE_NAME_RECORDED + "." + ProgramConstants.FIELD_LAST_MODIFIED_DATE + " < ?";
+		String[] deletedSelectionArgs = new String[] { String.valueOf( lastModified.getMillis() ) };
 			
 		deletedSelection = appendLocationHostname( context, locationProfile, deletedSelection, ProgramConstants.TABLE_NAME_RECORDED );
 			

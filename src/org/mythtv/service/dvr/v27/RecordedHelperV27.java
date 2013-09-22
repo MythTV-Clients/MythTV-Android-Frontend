@@ -249,7 +249,7 @@ public class RecordedHelperV27 extends AbstractBaseHelper {
 				inError = false;
 			}
 
-			DateTime startTime = new DateTime( program.getStartTime() );
+			DateTime startTime = program.getStartTime();
 			
 			ProgramHelperV27.getInstance().processProgram( context, locationProfile, ProgramConstants.CONTENT_URI_RECORDED, ProgramConstants.TABLE_NAME_RECORDED, ops, program, lastModified, startTime, count );
 			count++;
@@ -292,8 +292,8 @@ public class RecordedHelperV27 extends AbstractBaseHelper {
 		processBatch( context, ops, processed, count );
 
 //		Log.v( TAG, "load : remove deleted recordings" );
-		String deletedSelection = ProgramConstants.TABLE_NAME_RECORDED + "." + ProgramConstants.FIELD_LAST_MODIFIED + " < ?";
-		String[] deletedSelectionArgs = new String[] { String.valueOf( today.getMillis() ) };
+		String deletedSelection = ProgramConstants.TABLE_NAME_RECORDED + "." + ProgramConstants.FIELD_LAST_MODIFIED_DATE + " < ?";
+		String[] deletedSelectionArgs = new String[] { String.valueOf( lastModified.getMillis() ) };
 			
 		deletedSelection = appendLocationHostname( context, locationProfile, deletedSelection, ProgramConstants.TABLE_NAME_RECORDED );
 			

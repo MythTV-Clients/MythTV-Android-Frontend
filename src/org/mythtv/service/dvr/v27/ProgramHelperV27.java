@@ -84,7 +84,7 @@ public class ProgramHelperV27 extends AbstractBaseHelper {
 		ContentValues programValues = convertProgramToContentValues( locationProfile, lastModified, program );
 		Cursor programCursor = context.getContentResolver().query( uri, programProjection, programSelection, programSelectionArgs, null );
 		if( programCursor.moveToFirst() ) {
-//			Log.v( TAG, "processProgram : UPDATE PROGRAM " + count + ":" + program.getChannelInfo().getChannelId() + ":" + program.getStartTime() + ":" + program.getHostname() );
+//			Log.v( TAG, "processProgram : UPDATE PROGRAM " + count + ":" + program.getTitle() + ":" + program.getSubTitle() + ":" + program.getChannel().getChanId() + ":" + program.getStartTime() + ":" + program.getHostName() );
 
 			Long id = programCursor.getLong( programCursor.getColumnIndexOrThrow( ProgramConstants._ID ) );
 			ops.add( 
@@ -95,7 +95,7 @@ public class ProgramHelperV27 extends AbstractBaseHelper {
 			);
 			
 		} else {
-//			Log.v( TAG, "processProgram : INSERT PROGRAM " + count + ":" + program.getChannelInfo().getChannelId() + ":" + program.getStartTime() + ":" + program.getHostname() );
+//			Log.v( TAG, "processProgram : INSERT PROGRAM " + count + ":" + program.getTitle() + ":" + program.getSubTitle() + ":" + program.getChannel().getChanId() + ":" + program.getStartTime() + ":" + program.getHostName() );
 
 			ops.add(
 				ContentProviderOperation.newInsert( uri )

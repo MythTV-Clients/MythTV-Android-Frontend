@@ -70,7 +70,7 @@ public class RecordingHelperV27 extends AbstractBaseHelper {
 		ContentValues recordingValues = convertRecordingToContentValues( locationProfile, lastModified, startTime, program.getRecording() );
 		Cursor recordingCursor = context.getContentResolver().query( details.getContentUri(), recordingProjection, recordingSelection, recordingSelectionArgs, null );
 		if( recordingCursor.moveToFirst() ) {
-			//Log.v( TAG, "processRecording : UPDATE RECORDING " + count + ":" + program.getTitle() + ", recording=" + program.getRecording().getRecordId() );
+//			Log.v( TAG, "processRecording : UPDATE RECORDING " + count + ":" + program.getTitle() + ":" + program.getSubTitle() + ", recording=" + program.getRecording().getRecordId() );
 
 			Long id = recordingCursor.getLong( recordingCursor.getColumnIndexOrThrow( details.getTableName() + "_" + RecordingConstants._ID ) );					
 			ops.add( 
@@ -80,7 +80,7 @@ public class RecordingHelperV27 extends AbstractBaseHelper {
 					.build()
 				);
 		} else {
-			//Log.v( TAG, "processRecording : INSERT RECORDING " + count + ":" + program.getTitle() + ", recording=" + program.getRecording().getRecordId() );
+//			Log.v( TAG, "processRecording : INSERT RECORDING " + count + ":" + program.getTitle() + ":" + program.getSubTitle() + ", recording=" + program.getRecording().getRecordId() );
 
 			ops.add(  
 				ContentProviderOperation.newInsert( details.getContentUri() )

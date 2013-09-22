@@ -516,11 +516,13 @@ public class EpisodeFragment extends AbstractMythFragment implements GetLiveStre
 			Log.v( TAG, "startPlayStreamService : channelId=" + program.getChannelInfo().getChannelId() + ", startTime=" + program.getStartTime().getMillis() );
 		}
 
-		Intent intent = new Intent( LiveStreamService.ACTION_PLAY );
-		intent.putExtra( LiveStreamService.KEY_CHANNEL_ID, program.getChannelInfo().getChannelId() );
-		intent.putExtra( LiveStreamService.KEY_START_TIMESTAMP, program.getStartTime().getMillis() );
-		getActivity().startService( intent );
+//		Intent intent = new Intent( LiveStreamService.ACTION_PLAY );
+//		intent.putExtra( LiveStreamService.KEY_CHANNEL_ID, program.getChannelInfo().getChannelId() );
+//		intent.putExtra( LiveStreamService.KEY_START_TIMESTAMP, program.getStartTime().getMillis() );
+//		getActivity().startService( intent );
 
+		startPlayer( false );
+		
 		Log.i( TAG, "startPlayStreamService : exit" );
 	}
 
