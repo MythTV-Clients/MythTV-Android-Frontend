@@ -14,8 +14,8 @@ import android.widget.ImageView;
  */
 public class DvrActionRow extends ActionRow {
 
-	public DvrActionRow( Context context, String action ) {
-		super( context, action, true );
+	public DvrActionRow( Context context, int actionResId ) {
+		super( context, actionResId, true );
 	}
 
 	/* (non-Javadoc)

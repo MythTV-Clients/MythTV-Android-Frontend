@@ -18,8 +18,8 @@ public class DvrUpcomingActionRow extends DvrActionRow {
 	private static final String TITLE = "Upcoming";
 	private static final String FRAGMENT = "org.mythtv.client.ui.dvr.UpcomingPagerFragment";
 	
-	public DvrUpcomingActionRow( Context context, String action ) {
-		super( context, action, true );
+	public DvrUpcomingActionRow( Context context, int actionResId ) {
+		super( context, actionResId, true );
 	}
 	
 	@Override

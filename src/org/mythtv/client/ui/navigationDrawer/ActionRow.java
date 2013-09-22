@@ -22,7 +22,11 @@ public class ActionRow implements Row {
 	private String mAction;
 	private boolean mImplemented;
 	
-	public ActionRow( Context context, String action, boolean implemented ) {
+	public ActionRow( Context context, int actionResId, boolean implemented ) {
+	    this( context, context.getString(actionResId), implemented );
+	}
+	
+	private ActionRow( Context context, String action, boolean implemented ) {
 		this.mContext = context;
 		this.mLayoutInflater = (LayoutInflater) mContext.getSystemService( Context.LAYOUT_INFLATER_SERVICE );
 		

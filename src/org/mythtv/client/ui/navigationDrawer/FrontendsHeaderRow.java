@@ -21,7 +21,11 @@ public class FrontendsHeaderRow implements Row {
 	
 	private String mHeader;
 	
-	public FrontendsHeaderRow( Context context, String header ) {
+	public FrontendsHeaderRow( Context context, int headerResId ) {
+	    this( context, context.getString(headerResId) );
+	}
+	
+	private FrontendsHeaderRow( Context context, String header ) {
 		this.mContext = context;
 		this.mLayoutInflater = (LayoutInflater) mContext.getSystemService( Context.LAYOUT_INFLATER_SERVICE );
 		

@@ -18,8 +18,8 @@ public class MediaMusicActionRow extends MediaActionRow {
 	private static final String TITLE = "Music";
 	private static final String FRAGMENT = "org.mythtv.client.ui.media.MusicParentFragment";
 	
-	public MediaMusicActionRow( Context context, String action ) {
-		super( context, action, false );
+	public MediaMusicActionRow( Context context, int actionResId ) {
+		super( context, actionResId, false );
 	}
 	
 	@Override

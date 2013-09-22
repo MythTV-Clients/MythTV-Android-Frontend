@@ -15,10 +15,10 @@ public class DvrActionsHeaderRow extends ActionsHeaderRow {
 
 	/**
 	 * @param context
-	 * @param header
+	 * @param headerResId
 	 */
-	public DvrActionsHeaderRow( Context context, String header ) {
-		super( context, header );
+	public DvrActionsHeaderRow( Context context, int headerResId ) {
+		super( context, headerResId );
 	}
 
 	/* (non-Javadoc)

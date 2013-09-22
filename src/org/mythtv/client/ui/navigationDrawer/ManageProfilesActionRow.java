@@ -15,8 +15,8 @@ import android.widget.ImageView;
  */
 public class ManageProfilesActionRow extends ActionRow {
 
-	public ManageProfilesActionRow( Context context, String action ) {
-		super( context, action, true );
+	public ManageProfilesActionRow( Context context, int actionResId ) {
+		super( context, actionResId, true );
 	}
 	
 	/* (non-Javadoc)

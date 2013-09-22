@@ -15,8 +15,8 @@ import android.widget.ImageView;
  */
 public class MultimediaActionRow extends ActionRow {
 
-	public MultimediaActionRow( Context context, String action ) {
-		super( context, action, true );
+	public MultimediaActionRow( Context context, int actionResId ) {
+		super( context, actionResId, true );
 	}
 	
 	/* (non-Javadoc)

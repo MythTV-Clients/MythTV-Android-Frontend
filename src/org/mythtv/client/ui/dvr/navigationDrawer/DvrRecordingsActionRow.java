@@ -18,8 +18,8 @@ public class DvrRecordingsActionRow extends DvrActionRow {
 	private static final String TITLE = "Recordings";
 	private static final String FRAGMENT = "org.mythtv.client.ui.dvr.RecordingsParentFragment";
 	
-	public DvrRecordingsActionRow( Context context, String action ) {
-		super( context, action, true );
+	public DvrRecordingsActionRow( Context context, int actionResId ) {
+		super( context, actionResId, true );
 	}
 	
 	@Override

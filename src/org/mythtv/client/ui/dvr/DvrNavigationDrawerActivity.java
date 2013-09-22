@@ -387,7 +387,7 @@ public class DvrNavigationDrawerActivity extends AbstractMythtvFragmentActivity 
 			mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( mContext );
 
 			if( null == selectedRow ) {
-				selectedRow = new DvrRecordingsActionRow( mContext, "Recordings" );
+				selectedRow = new DvrRecordingsActionRow( mContext, R.string.btn_recording_rules );
 			}
 			
 			setupRowsList();
@@ -456,11 +456,11 @@ public class DvrNavigationDrawerActivity extends AbstractMythtvFragmentActivity 
 
 			rows = new ArrayList<Row>();
 			
-			rows.add( new DvrVersionRow( mContext, "MAF", "x" ) );
+			rows.add( new DvrVersionRow( mContext, R.string.navigation_version, "x" ) );
 
-			rows.add( new DvrActionsHeaderRow( mContext, "DVR Actions" ) );
+			rows.add( new DvrActionsHeaderRow( mContext, R.string.navigation_dvr_actions ) );
 			
-			rows.add( new DvrRecordingsActionRow( mContext, "Recordings" ) );
+			rows.add( new DvrRecordingsActionRow( mContext, R.string.btn_recordings ) );
 			if( null != selectedRow && selectedRow instanceof DvrRecordingsActionRow ) {
 				EtagInfoDelegate recordingsEtag = mEtagDaoHelper.findByEndpointAndDataId( mContext, mLocationProfile, DvrEndpoint.GET_RECORDED_LIST.name(), "" );
 				if( null != recordingsEtag && recordingsEtag.getId() > 0 ) {
@@ -470,7 +470,7 @@ public class DvrNavigationDrawerActivity extends AbstractMythtvFragmentActivity 
 				}
 			}
 			
-			rows.add( new DvrUpcomingActionRow( mContext, "Upcoming" ) );
+			rows.add( new DvrUpcomingActionRow( mContext, R.string.btn_upcoming ) );
 			if( null != selectedRow && selectedRow instanceof DvrUpcomingActionRow ) {
 				EtagInfoDelegate upcomingEtag = mEtagDaoHelper.findByEndpointAndDataId( mContext, mLocationProfile, DvrEndpoint.GET_UPCOMING_LIST.name(), "" );
 				if( null != upcomingEtag && upcomingEtag.getId() > 0 ) {
@@ -480,7 +480,7 @@ public class DvrNavigationDrawerActivity extends AbstractMythtvFragmentActivity 
 				}
 			}
 			
-			rows.add( new DvrGuideActionRow( mContext, "Guide" ) );
+			rows.add( new DvrGuideActionRow( mContext, R.string.btn_guide ) );
 			if( null != selectedRow && selectedRow instanceof DvrGuideActionRow ) {
 				EtagInfoDelegate guideEtag = mEtagDaoHelper.findByEndpointAndDataId( mContext, mLocationProfile, GuideEndpoint.GET_PROGRAM_GUIDE.name(), "" );
 				if( null != guideEtag && guideEtag.getId() > 0 ) {
@@ -490,7 +490,7 @@ public class DvrNavigationDrawerActivity extends AbstractMythtvFragmentActivity 
 				}
 			}
 			
-			rows.add( new DvrRecordingRulesActionRow( mContext, "Recording Rules" ) );
+			rows.add( new DvrRecordingRulesActionRow( mContext, R.string.btn_recording_rules ) );
 			if( null != selectedRow && selectedRow instanceof DvrRecordingRulesActionRow ) {
 				EtagInfoDelegate recordingRulesEtag = mEtagDaoHelper.findByEndpointAndDataId( mContext, mLocationProfile, DvrEndpoint.GET_RECORD_SCHEDULE_LIST.name(), "" );
 				if( null != recordingRulesEtag && recordingRulesEtag.getId() > 0 ) {

@@ -470,4 +470,13 @@
     <string name="guide_time_slot">time slot</string>
     <string name="guide_time_slot_description">time slot description</string>
 
+    <string name="navigation_version">MAF</string>
+    <string name="navigation_manage_profiles">Manage Profiles</string>
+    <string name="navigation_frontends">Frontends</string>
+    <string name="navigation_actions">Actions</string>
+    <string name="navigation_actions_dvr">DVR</string>
+    <string name="navigation_actions_multimedia">Multimedia</string>
+    <string name="navigation_actions_setup">Setup</string>
+    <string name="navigation_dvr_actions">DVR Actions</string>
+    <string name="navigation_media_actions">Media Actions</string>
 </resources>

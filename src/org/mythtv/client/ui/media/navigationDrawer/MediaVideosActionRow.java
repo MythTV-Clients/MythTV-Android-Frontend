@@ -18,8 +18,8 @@ public class MediaVideosActionRow extends MediaActionRow {
 	private static final String TITLE = "Videos";
 	private static final String FRAGMENT = "org.mythtv.client.ui.media.VideosParentFragment";
 	
-	public MediaVideosActionRow( Context context, String action ) {
-		super( context, action, false );
+	public MediaVideosActionRow( Context context, int actionResId ) {
+		super( context, actionResId, false );
 	}
 	
 	@Override
