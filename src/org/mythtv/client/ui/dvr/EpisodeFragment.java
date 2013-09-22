@@ -117,6 +117,8 @@ public class EpisodeFragment extends AbstractMythFragment implements GetLiveStre
 		options = new DisplayImageOptions.Builder()
 			.cacheInMemory( true )
 			.cacheOnDisc( true 	)
+			.showImageForEmptyUri( R.drawable.coverart_missing )
+			.showImageOnFail( R.drawable.coverart_missing )
 			.build();
 
 		setHasOptionsMenu( true );
@@ -442,10 +444,27 @@ public class EpisodeFragment extends AbstractMythFragment implements GetLiveStre
 					 */
 					@Override
 					public void onLoadingFailed( String imageUri, View view, FailReason failReason ) {
-				        iView.setVisibility( View.GONE );
+						if ( options.shouldShowImageOnFail() ) {
+							iView.setImageResource( options.getImageOnFail() );
+							iView.setVisibility( View.VISIBLE );
+						}
+						else {
+							iView.setVisibility( View.GONE );
+						}
 					}
-					
+
 				});
+
+			}
+			else {
+
+				if ( options.shouldShowImageOnFail() ) {
+					iView.setImageResource( options.getImageOnFail() );
+					iView.setVisibility( View.VISIBLE );
+				}
+				else {
+					iView.setVisibility( View.GONE );
+				}
 
 			}
 			
