@@ -139,7 +139,7 @@ public class RecordedHelperV27 extends AbstractBaseHelper {
 			
 			String title = program.getTitle();
 			
-			removed = programHelper.deleteProgram( context, locationProfile, ProgramConstants.CONTENT_URI_RECORDED, ProgramConstants.TABLE_NAME_RECORDED, channelId, startTime, recordId );
+			removed = programHelper.deleteProgram( context, locationProfile, ProgramConstants.CONTENT_URI_RECORDED, ProgramConstants.TABLE_NAME_RECORDED, program.getChannel().getChanId(), program.getStartTime(), program.getRecording().getStartTs(), recordId );
 			if( removed ) {
 				Log.v( TAG, "deleteRecorded : program removed from backend" );
 				
@@ -162,7 +162,7 @@ public class RecordedHelperV27 extends AbstractBaseHelper {
 		
 		}
 		
-		Log.v( TAG, "deleteRecorded : enter" );
+		Log.v( TAG, "deleteRecorded : exit" );
 		return removed;
 	}
 

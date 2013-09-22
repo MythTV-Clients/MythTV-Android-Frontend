@@ -112,10 +112,10 @@ public class ProgramGuideHelperV26 extends AbstractBaseHelper {
 		return program;
 	}
 	
-	public boolean deleteProgram( final Context context, final LocationProfile locationProfile, Integer channelId, DateTime startTime, Integer recordId ) {
+	public boolean deleteProgram( final Context context, final LocationProfile locationProfile, Integer channelId, DateTime programStartTime, DateTime recordingStartTime, Integer recordId ) {
 		Log.v( TAG, "deleteProgram : enter" );
 		
-		boolean removed = ProgramHelperV26.getInstance().deleteProgram( context, locationProfile, ProgramConstants.CONTENT_URI_GUIDE, ProgramConstants.TABLE_NAME_GUIDE, channelId, startTime, recordId );
+		boolean removed = ProgramHelperV26.getInstance().deleteProgram( context, locationProfile, ProgramConstants.CONTENT_URI_GUIDE, ProgramConstants.TABLE_NAME_GUIDE, channelId, programStartTime, recordingStartTime, recordId );
 		
 		Log.v( TAG, "deleteProgram : enter" );
 		return removed;

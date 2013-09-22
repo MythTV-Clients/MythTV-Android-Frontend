@@ -171,7 +171,7 @@ public class ProgramHelperV26 extends AbstractBaseHelper {
 		Log.d( TAG, "deletePrograms : exit" );
 	}
 	
-	public boolean deleteProgram( final Context context, final LocationProfile locationProfile, Uri uri, String table, Integer channelId, DateTime startTime, Integer recordId ) {
+	public boolean deleteProgram( final Context context, final LocationProfile locationProfile, Uri uri, String table, Integer channelId, DateTime programStartTime, DateTime recordingStartTime, Integer recordId ) {
 		Log.d( TAG, "deleteProgram : enter" );
 		
 		if( !NetworkHelper.getInstance().isMasterBackendConnected( context, locationProfile ) ) {
@@ -182,7 +182,7 @@ public class ProgramHelperV26 extends AbstractBaseHelper {
 		
 		MythServicesTemplate mMythServicesTemplate = (MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( mApiVersion, locationProfile.getUrl() );
 
-		ResponseEntity<Bool> response = mMythServicesTemplate.dvrOperations().removeRecorded( channelId, startTime );
+		ResponseEntity<Bool> response = mMythServicesTemplate.dvrOperations().removeRecorded( channelId, recordingStartTime );
 		if( null != response ) {
 			
 			if( response.getStatusCode().equals( HttpStatus.OK ) ) {
@@ -191,14 +191,14 @@ public class ProgramHelperV26 extends AbstractBaseHelper {
 				if( removed ) {
 					
 					String programSelection = table + "." + ProgramConstants.FIELD_CHANNEL_ID + " = ? AND " + table + "." + ProgramConstants.FIELD_START_TIME + " = ?";
-					String[] programSelectionArgs = new String[] { String.valueOf( channelId ), String.valueOf( startTime.getMillis() ) };
+					String[] programSelectionArgs = new String[] { String.valueOf( channelId ), String.valueOf( programStartTime.getMillis() ) };
 
 					programSelection = appendLocationHostname( context, locationProfile, programSelection, table );
 
 					int deleted = context.getContentResolver().delete( uri, programSelection, programSelectionArgs );
 					Log.d( TAG, "deleteProgram : deleted=" + deleted );
 					if( deleted == 1 ) {
-						RecordingHelperV26.getInstance().deleteRecording( context, locationProfile, uri, table, recordId, startTime );
+						RecordingHelperV26.getInstance().deleteRecording( context, locationProfile, RecordingConstants.ContentDetails.getValueFromParent( table ).getContentUri(), recordId, recordingStartTime );
 					}
 					
 				}

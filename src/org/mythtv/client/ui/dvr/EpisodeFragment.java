@@ -594,7 +594,7 @@ public class EpisodeFragment extends AbstractMythFragment implements GetLiveStre
 		
 		Intent intent = new Intent( RecordedService.ACTION_REMOVE );
 		intent.putExtra( RecordedService.KEY_CHANNEL_ID, program.getChannelInfo().getChannelId() );
-		intent.putExtra( RecordedService.KEY_START_TIMESTAMP, program.getRecording().getStartTimestamp().getMillis() );
+		intent.putExtra( RecordedService.KEY_START_TIMESTAMP, program.getStartTime().getMillis() );
 		intent.putExtra( RecordedService.KEY_RECORD_ID, program.getRecording().getRecordId() );
 		getActivity().startService( intent );
 

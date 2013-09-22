@@ -108,11 +108,11 @@ public class RecordingHelperV27 extends AbstractBaseHelper {
 		Log.v( TAG, "deleteRecordings : exit" );
 	}
 
-	public boolean deleteRecording( final Context context, final LocationProfile locationProfile, Uri uri, String table, Integer recordId, DateTime startTime ) {
+	public boolean deleteRecording( final Context context, final LocationProfile locationProfile, Uri uri, Integer recordId, DateTime startTime ) {
 		Log.d( TAG, "deleteProgram : enter" );
 		
-		String recordingSelection = table + "." + RecordingConstants.FIELD_RECORD_ID + " = ? AND " + table + "." + RecordingConstants.FIELD_START_TIME + " = ?";
-		String[] recordingSelectionArgs = new String[] { String.valueOf( recordId ), String.valueOf( startTime ) };
+		String recordingSelection = RecordingConstants.FIELD_RECORD_ID + " = ? AND " + RecordingConstants.FIELD_START_TS + " = ?";
+		String[] recordingSelectionArgs = new String[] { String.valueOf( recordId ), String.valueOf( startTime.getMillis() ) };
 
 		recordingSelection = appendLocationHostname( context, locationProfile, recordingSelection, null );
 

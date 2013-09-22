@@ -307,10 +307,12 @@ public class RecordingsParentFragment extends AbstractMythFragment implements
 			programs = mRecordedDaoHelper.findAll( getActivity(), mLocationProfile );
 		}
 
-		selectedProgram = programs.get( 0 );
-		onProgramGroupSelected( programGroup );
-		onEpisodeSelected( selectedProgram.getChannelInfo().getChannelId(), selectedProgram.getStartTime() );
-
+		if( null != programs && !programs.isEmpty() ) {
+			selectedProgram = programs.get( 0 );
+			onProgramGroupSelected( programGroup );
+			onEpisodeSelected( selectedProgram.getChannelInfo().getChannelId(), selectedProgram.getStartTime() );
+		}
+		
 		Log.v( TAG, "onEpisodeDeleted : exit" );
 	}
 

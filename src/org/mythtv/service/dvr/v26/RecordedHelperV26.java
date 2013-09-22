@@ -139,7 +139,7 @@ public class RecordedHelperV26 extends AbstractBaseHelper {
 			String title = program.getTitle();
 			String seriesId = program.getSeriesId();
 			
-			removed = programHelper.deleteProgram( context, locationProfile, ProgramConstants.CONTENT_URI_RECORDED, ProgramConstants.TABLE_NAME_RECORDED, channelId, startTime, recordId );
+			removed = programHelper.deleteProgram( context, locationProfile, ProgramConstants.CONTENT_URI_RECORDED, ProgramConstants.TABLE_NAME_RECORDED, program.getChannelInfo().getChannelId(), program.getStartTime(), program.getRecording().getStartTimestamp(), recordId );
 			if( removed ) {
 
 				Integer programCount = countRecordedBySeriesId( context, locationProfile, seriesId );
@@ -157,7 +157,7 @@ public class RecordedHelperV26 extends AbstractBaseHelper {
 		
 		}
 		
-		Log.v( TAG, "deleteRecorded : enter" );
+		Log.v( TAG, "deleteRecorded : exit" );
 		return removed;
 	}
 	
