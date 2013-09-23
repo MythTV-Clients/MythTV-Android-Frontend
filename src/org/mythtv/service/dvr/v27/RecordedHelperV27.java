@@ -103,7 +103,7 @@ public class RecordedHelperV27 extends AbstractBaseHelper {
 			passed = false;
 		}
 
-		Log.v( TAG, "process : enter" );
+		Log.v( TAG, "process : exit" );
 		return passed;
 	}
 	
@@ -141,7 +141,7 @@ public class RecordedHelperV27 extends AbstractBaseHelper {
 			
 			removed = programHelper.deleteProgram( context, locationProfile, ProgramConstants.CONTENT_URI_RECORDED, ProgramConstants.TABLE_NAME_RECORDED, program.getChannel().getChanId(), program.getStartTime(), program.getRecording().getStartTs(), recordId );
 			if( removed ) {
-				Log.v( TAG, "deleteRecorded : program removed from backend" );
+//				Log.v( TAG, "deleteRecorded : program removed from backend" );
 				
 				Integer programCount = countRecordedByTitle( context, locationProfile, title );
 				if( null == programCount ) {
@@ -151,7 +151,7 @@ public class RecordedHelperV27 extends AbstractBaseHelper {
 				
 					ProgramGroup programGroup = programGroupDaoHelper.findByTitle( context, locationProfile, title );
 					if( null != programGroup ) {
-						Log.v( TAG, "deleteRecorded : programGroup found" );
+//						Log.v( TAG, "deleteRecorded : programGroup found" );
 						
 						programGroupDaoHelper.delete( context, programGroup );
 					}

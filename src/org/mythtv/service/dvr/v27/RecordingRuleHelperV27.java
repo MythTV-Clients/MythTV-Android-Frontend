@@ -216,7 +216,7 @@ public class RecordingRuleHelperV27 extends AbstractBaseHelper {
 		}
 
 		if( responseEntity.getStatusCode().equals( HttpStatus.NOT_MODIFIED ) ) {
-			Log.i( TAG, "downloadRecordinRules : " + DvrEndpoint.GET_RECORD_SCHEDULE_LIST.getEndpoint() + " returned 304 Not Modified" );
+			Log.i( TAG, "downloadRecordinRules : GetRecordScheduleList returned 304 Not Modified" );
 
 			if( null != etag.getValue() ) {
 				Log.i( TAG, "downloadRecordinRules : saving etag: " + etag.getValue() );

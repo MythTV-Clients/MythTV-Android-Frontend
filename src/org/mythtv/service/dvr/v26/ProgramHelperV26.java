@@ -73,13 +73,15 @@ public class ProgramHelperV26 extends AbstractBaseHelper {
 	private ProgramHelperV26() { }
 
 	public void processProgram( final Context context, final LocationProfile locationProfile, Uri uri, String table, ArrayList<ContentProviderOperation> ops, Program program, DateTime lastModified, DateTime startTime, int count ) {
-		Log.d( TAG, "processProgram : enter" );
+//		Log.d( TAG, "processProgram : enter" );
 		
 		String programSelection = table + "." + ProgramConstants.FIELD_CHANNEL_ID + " = ? AND " + table + "." + ProgramConstants.FIELD_START_TIME + " = ?";
+		String[] programSelectionArgs = new String[] { String.valueOf( program.getChannelInfo().getChannelId() ), String.valueOf( startTime.getMillis() ) };
+		
 		programSelection = appendLocationHostname( context, locationProfile, programSelection, table );
 
 		ContentValues programValues = convertProgramToContentValues( locationProfile, lastModified, program );
-		Cursor programCursor = context.getContentResolver().query( uri, programProjection, programSelection, new String[] { String.valueOf( program.getChannelInfo().getChannelId() ), String.valueOf( startTime.getMillis() ) }, null );
+		Cursor programCursor = context.getContentResolver().query( uri, programProjection, programSelection, programSelectionArgs, null );
 		if( programCursor.moveToFirst() ) {
 //			Log.v( TAG, "processProgram : UPDATE PROGRAM " + count + ":" + program.getChannelInfo().getChannelId() + ":" + program.getStartTime() + ":" + program.getHostname() );
 
@@ -94,7 +96,7 @@ public class ProgramHelperV26 extends AbstractBaseHelper {
 		} else {
 //			Log.v( TAG, "processProgram : INSERT PROGRAM " + count + ":" + program.getChannelInfo().getChannelId() + ":" + program.getStartTime() + ":" + program.getHostname() );
 
-			ops.add(  
+			ops.add(
 				ContentProviderOperation.newInsert( uri )
 					.withValues( programValues )
 					.withYieldAllowed( true )
@@ -105,7 +107,7 @@ public class ProgramHelperV26 extends AbstractBaseHelper {
 		programCursor.close();
 		count++;
 
-		Log.d( TAG, "processProgram : exit" );
+//		Log.d( TAG, "processProgram : exit" );
 	}
 	
 	public Program findProgram( final Context context, final LocationProfile locationProfile, Uri uri, String table, Integer channelId, DateTime startTime ) {
@@ -130,12 +132,12 @@ public class ProgramHelperV26 extends AbstractBaseHelper {
 		return program;
 	}
 	
-	public Integer countProgramsBySeries( final Context context, final LocationProfile locationProfile, Uri uri, String table, String seriesId ) {
-		Log.d( TAG, "countProgramsBySeries : enter" );
+	public Integer countProgramsByTitle( final Context context, final LocationProfile locationProfile, Uri uri, String table, String title ) {
+		Log.d( TAG, "countProgramsByTitle : enter" );
 		
-		String[] projection = new String[] { "count(" + table + "." + ProgramConstants._ID + ")" };
-		String selection = table + "." + ProgramConstants.FIELD_SERIES_ID+ " = ?";
-		String[] selectionArgs = new String[] { seriesId };
+		String[] projection = new String[] { "count(" + table + "." + ProgramConstants.FIELD_TITLE + ")" };
+		String selection = table + "." + ProgramConstants.FIELD_TITLE + " = ?";
+		String[] selectionArgs = new String[] { title };
 		
 		selection = appendLocationHostname( context, locationProfile, selection, table );
 		
@@ -149,7 +151,7 @@ public class ProgramHelperV26 extends AbstractBaseHelper {
 		}
 		cursor.close();
 
-		Log.d( TAG, "countProgramsBySeriesId : exit" );
+		Log.d( TAG, "countProgramsByTitle : exit" );
 		return count;
 	}
 

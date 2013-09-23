@@ -22,6 +22,7 @@ import org.mythtv.db.dvr.programGroup.ProgramGroupConstants;
 import org.mythtv.db.dvr.programGroup.ProgramGroupDaoHelper;
 import org.mythtv.db.http.model.EtagInfoDelegate;
 import org.mythtv.service.channel.v26.ChannelHelperV26;
+import org.mythtv.service.dvr.v27.ProgramHelperV27;
 import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.ApiVersion;
 import org.mythtv.services.api.connect.MythAccessFactory;
@@ -108,12 +109,13 @@ public class RecordedHelperV26 extends AbstractBaseHelper {
 		return passed;
 	}
 	
-	public Integer countRecordedBySeriesId( final Context context, final LocationProfile locationProfile, String seriesId ) {
-		Log.v( TAG, "countRecordedBySeriesId : enter" );
+	public Integer countRecordedByTitle( final Context context, final LocationProfile locationProfile, String title ) {
+		Log.v( TAG, "countRecordedByTitle : enter" );
 		
-		Integer count = ProgramHelperV26.getInstance().countProgramsBySeries( context, locationProfile, ProgramConstants.CONTENT_URI_RECORDED, ProgramConstants.TABLE_NAME_RECORDED, seriesId );
+		Integer count = ProgramHelperV26.getInstance().countProgramsByTitle( context, locationProfile, ProgramConstants.CONTENT_URI_RECORDED, ProgramConstants.TABLE_NAME_RECORDED, title );
+//		Log.v( TAG, "countRecordedByTitle : count=" + count );
 		
-		Log.v( TAG, "countRecordedBySeriesId : enter" );
+		Log.v( TAG, "countRecordedByTitle : exit" );
 		return count;
 	}
 	
@@ -137,17 +139,21 @@ public class RecordedHelperV26 extends AbstractBaseHelper {
 		if( null != program ) {
 			
 			String title = program.getTitle();
-			String seriesId = program.getSeriesId();
 			
 			removed = programHelper.deleteProgram( context, locationProfile, ProgramConstants.CONTENT_URI_RECORDED, ProgramConstants.TABLE_NAME_RECORDED, program.getChannelInfo().getChannelId(), program.getStartTime(), program.getRecording().getStartTimestamp(), recordId );
 			if( removed ) {
+//				Log.v( TAG, "deleteRecorded : program removed from backend" );
 
-				Integer programCount = countRecordedBySeriesId( context, locationProfile, seriesId );
+				Integer programCount = countRecordedByTitle( context, locationProfile, title );
 				if( null == programCount ) {
+//					Log.v( TAG, "deleteRecorded : programCount=" + programCount );
+
 					ProgramGroupDaoHelper programGroupDaoHelper = ProgramGroupDaoHelper.getInstance();
 				
 					ProgramGroup programGroup = programGroupDaoHelper.findByTitle( context, locationProfile, title );
 					if( null != programGroup ) {
+//						Log.v( TAG, "deleteRecorded : programGroup found" );
+						
 						programGroupDaoHelper.delete( context, programGroup );
 					}
 					
@@ -173,7 +179,7 @@ public class RecordedHelperV26 extends AbstractBaseHelper {
 
 		DateTime date = new DateTime( DateTimeZone.UTC );
 		if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
-			Log.i( TAG, "download : " + DvrEndpoint.GET_RECORDED_LIST.getEndpoint() + " returned 200 OK" );
+			Log.i( TAG, "download : GetRecordedList returned 200 OK" );
 			ProgramList programList = responseEntity.getBody();
 
 			if( null != programList.getPrograms() ) {
@@ -230,7 +236,6 @@ public class RecordedHelperV26 extends AbstractBaseHelper {
 		
 		for( Program program : programs ) {
 
-			
 			if( null != program.getRecording() && "livetv".equalsIgnoreCase( program.getRecording().getRecordingGroup() )  && !"deleted".equalsIgnoreCase( program.getRecording().getRecordingGroup() ) ) {
 				continue;
 			}
@@ -312,7 +317,6 @@ public class RecordedHelperV26 extends AbstractBaseHelper {
 					
 				RemoveStreamTask removeStreamTask = new RemoveStreamTask( context, locationProfile );
 				removeStreamTask.execute( liveStreamId );
-
 			}
 			liveStreamCursor.close();
 

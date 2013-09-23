@@ -59,7 +59,7 @@ public class RecordingHelperV26 extends AbstractBaseHelper {
 	private RecordingHelperV26() { }
 
 	public void processRecording( final Context context, final LocationProfile locationProfile, ArrayList<ContentProviderOperation> ops, ContentDetails details, Program program, DateTime lastModified, DateTime startTime, int count ) {
-		Log.v( TAG, "processRecording : enter" );
+//		Log.v( TAG, "processRecording : enter" );
 		
 		String[] recordingProjection = new String[] { details.getTableName() + "_" + RecordingConstants._ID };
 		String recordingSelection = RecordingConstants.FIELD_RECORD_ID + " = ? AND " + RecordingConstants.FIELD_START_TIME + " = ? AND " + RecordingConstants.FIELD_MASTER_HOSTNAME + " = ?";
@@ -70,7 +70,7 @@ public class RecordingHelperV26 extends AbstractBaseHelper {
 		ContentValues recordingValues = convertRecordingToContentValues( locationProfile, lastModified, startTime, program.getRecording() );
 		Cursor recordingCursor = context.getContentResolver().query( details.getContentUri(), recordingProjection, recordingSelection, recordingSelectionArgs, null );
 		if( recordingCursor.moveToFirst() ) {
-			//Log.v( TAG, "processRecording : UPDATE RECORDING " + count + ":" + program.getTitle() + ", recording=" + program.getRecording().getRecordId() );
+//			Log.v( TAG, "processRecording : UPDATE RECORDING " + count + ":" + program.getTitle() + ", recording=" + program.getRecording().getRecordId() );
 
 			Long id = recordingCursor.getLong( recordingCursor.getColumnIndexOrThrow( details.getTableName() + "_" + RecordingConstants._ID ) );					
 			ops.add( 
@@ -80,7 +80,7 @@ public class RecordingHelperV26 extends AbstractBaseHelper {
 					.build()
 				);
 		} else {
-			//Log.v( TAG, "processRecording : INSERT RECORDING " + count + ":" + program.getTitle() + ", recording=" + program.getRecording().getRecordId() );
+//			Log.v( TAG, "processRecording : INSERT RECORDING " + count + ":" + program.getTitle() + ", recording=" + program.getRecording().getRecordId() );
 
 			ops.add(  
 				ContentProviderOperation.newInsert( details.getContentUri() )
@@ -92,7 +92,7 @@ public class RecordingHelperV26 extends AbstractBaseHelper {
 		recordingCursor.close();
 		count++;
 
-		Log.v( TAG, "processRecording : exit" );
+//		Log.v( TAG, "processRecording : exit" );
 	}
 	
 	public void deleteRecordings( ArrayList<ContentProviderOperation> ops, ContentDetails details, DateTime today ) {

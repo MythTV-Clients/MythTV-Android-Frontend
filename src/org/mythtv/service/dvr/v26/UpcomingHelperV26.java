@@ -162,7 +162,8 @@ public class UpcomingHelperV26 extends AbstractBaseHelper {
 		boolean inError;
 
 		for( Program program : programs ) {
-
+//			Log.d( TAG, "load : count=" + count );
+			
 			if( null == program.getStartTime() || null == program.getEndTime() ) {
 //				Log.w(TAG, "load : null starttime and or endtime" );
 			
@@ -219,58 +220,6 @@ public class UpcomingHelperV26 extends AbstractBaseHelper {
 
 //		Log.v( TAG, "load : exit" );
 		return processed;
-	}
-
-	protected ContentValues convertProgramToContentValues( final LocationProfile locationProfile, final DateTime lastModified, final Program program ) {
-		
-		boolean inError;
-		
-		DateTime startTime = new DateTime( DateTimeZone.UTC );
-		DateTime endTime = new DateTime( DateTimeZone.UTC );
-
-		// If one timestamp is bad, leave them both set to 0.
-		if( null == program.getStartTime() || null == program.getEndTime() ) {
-//			Log.w(TAG, "convertProgramToContentValues : null starttime and or endtime" );
-		
-			inError = true;
-		} else {
-			startTime = program.getStartTime();
-			endTime = program.getEndTime();
-			
-			inError = false;
-		}
-
-		ContentValues values = new ContentValues();
-		values.put( ProgramConstants.FIELD_START_TIME, startTime.getMillis() );
-		values.put( ProgramConstants.FIELD_END_TIME, endTime.getMillis() );
-		values.put( ProgramConstants.FIELD_TITLE, null != program.getTitle() ? program.getTitle() : "" );
-		values.put( ProgramConstants.FIELD_SUB_TITLE, null != program.getSubTitle() ? program.getSubTitle() : "" );
-		values.put( ProgramConstants.FIELD_CATEGORY, null != program.getCategory() ? program.getCategory() : "" );
-		values.put( ProgramConstants.FIELD_CATEGORY_TYPE, null != program.getCategoryType() ? program.getCategoryType() : "" );
-		values.put( ProgramConstants.FIELD_REPEAT, program.isRepeat() ? 1 : 0 );
-		values.put( ProgramConstants.FIELD_VIDEO_PROPS, program.getVideoProps() );
-		values.put( ProgramConstants.FIELD_AUDIO_PROPS, program.getAudioProps() );
-		values.put( ProgramConstants.FIELD_SUB_PROPS, program.getSubProps() );
-		values.put( ProgramConstants.FIELD_SERIES_ID, null != program.getSeriesId() ? program.getSeriesId() : "" );
-		values.put( ProgramConstants.FIELD_PROGRAM_ID, null != program.getProgramId() ? program.getProgramId() : "" );
-		values.put( ProgramConstants.FIELD_STARS, program.getStars() );
-		values.put( ProgramConstants.FIELD_FILE_SIZE, null != program.getFileSize() ? program.getFileSize() : "" );
-		values.put( ProgramConstants.FIELD_LAST_MODIFIED, null != program.getLastModified() ? DateUtils.dateTimeFormatter.print( program.getLastModified() ) : "" );
-		values.put( ProgramConstants.FIELD_PROGRAM_FLAGS, null != program.getProgramFlags() ? program.getProgramFlags() : "" );
-		values.put( ProgramConstants.FIELD_HOSTNAME, null != program.getHostname() ? program.getHostname() : "" );
-		values.put( ProgramConstants.FIELD_FILENAME, null != program.getFilename() ? program.getFilename() : "" );
-		values.put( ProgramConstants.FIELD_AIR_DATE, null != program.getAirDate() ? DateUtils.dateTimeFormatter.print( program.getAirDate() ) : "" );
-		values.put( ProgramConstants.FIELD_DESCRIPTION, null != program.getDescription() ? program.getDescription() : "" );
-		values.put( ProgramConstants.FIELD_INETREF, null != program.getInetref() ? program.getInetref() : "" );
-		values.put( ProgramConstants.FIELD_SEASON, null != program.getSeason() ? program.getSeason() : "" );
-		values.put( ProgramConstants.FIELD_EPISODE, null != program.getEpisode() ? program.getEpisode() : "" );
-		values.put( ProgramConstants.FIELD_CHANNEL_ID, null != program.getChannelInfo() ? program.getChannelInfo().getChannelId() : -1 );
-		values.put( ProgramConstants.FIELD_RECORD_ID, null != program.getRecording() ? program.getRecording().getRecordId() : -1 );
-		values.put( ProgramConstants.FIELD_IN_ERROR, inError ? 1 : 0 );
-		values.put( ProgramConstants.FIELD_MASTER_HOSTNAME, locationProfile.getHostname() );
-		values.put( ProgramConstants.FIELD_LAST_MODIFIED_DATE, lastModified.getMillis() );
-		
-		return values;
 	}
 
 }

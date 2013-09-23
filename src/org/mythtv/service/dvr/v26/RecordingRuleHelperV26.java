@@ -304,6 +304,7 @@ public class RecordingRuleHelperV26 extends AbstractBaseHelper {
 	private void deleteRecordingRules( final Context context, final LocationProfile locationProfile, ArrayList<ContentProviderOperation> ops, DateTime lastModified ) {
 		Log.d( TAG, "deleteRecordingRules : enter" );
 
+//		Log.v( TAG, "load : remove deleted recordings" );
 		String deletedSelection = RecordingRuleConstants.TABLE_NAME + "." + RecordingRuleConstants.FIELD_LAST_MODIFIED_DATE + " < ?";
 		String[] deletedSelectionArgs = new String[] { String.valueOf( lastModified.getMillis() ) };
 			
