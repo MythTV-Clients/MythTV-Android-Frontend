@@ -332,6 +332,8 @@ public class LiveStreamDaoHelper extends AbstractDaoHelper {
 	/**
 	 * @param liveStreamInfo
 	 * @return
+	 * 
+	 * @deprecated
 	 */
 	public int delete( final Context context, final LocationProfile locationProfile, LiveStreamInfo liveStreamInfo ) {
 		Log.d( TAG, "delete : enter" );
