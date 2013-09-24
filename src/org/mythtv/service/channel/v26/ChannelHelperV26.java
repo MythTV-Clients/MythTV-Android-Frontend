@@ -299,7 +299,7 @@ public class ChannelHelperV26 extends AbstractBaseHelper {
 		ContentValues channelValues = convertChannelInfoToContentValues( locationProfile, lastModified, channel );
 		Cursor channelCursor = context.getContentResolver().query( ChannelConstants.CONTENT_URI, projection, selection, selectionArgs, null );
 		if( channelCursor.moveToFirst() ) {
-//			Log.v( TAG, "load : updating channel " + channel.getChannelId() );
+			Log.v( TAG, "load : updating channel " + channel.getChannelId() );
 
 			Long id = channelCursor.getLong( channelCursor.getColumnIndexOrThrow( ChannelConstants._ID ) );
 			ops.add( 
@@ -310,7 +310,7 @@ public class ChannelHelperV26 extends AbstractBaseHelper {
 			);
 
 		} else {
-//			Log.v( TAG, "load : adding channel " + channel.getChannelId() );
+			Log.v( TAG, "load : adding channel " + channel.getChannelId() );
 
 			ops.add(  
 				ContentProviderOperation.newInsert( ChannelConstants.CONTENT_URI )

@@ -18,6 +18,13 @@
  */
 package org.mythtv.client.ui.media;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.mythtv.R;
+import org.mythtv.client.MainApplication;
+import org.mythtv.client.ui.AbstractMythtvFragmentActivity;
+
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -35,13 +42,6 @@ import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener;
-
-import org.mythtv.R;
-import org.mythtv.client.MainApplication;
-import org.mythtv.client.ui.AbstractMythtvFragmentActivity;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author Espen A. Fossen.

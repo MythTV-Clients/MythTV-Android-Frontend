@@ -21,7 +21,6 @@ package org.mythtv.service.dvr;
 import org.joda.time.DateTime;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.service.MythtvService;
-import org.mythtv.service.content.LiveStreamService;
 import org.mythtv.service.dvr.v26.RecordedHelperV26;
 import org.mythtv.service.dvr.v27.RecordedHelperV27;
 import org.mythtv.services.api.ApiVersion;
@@ -151,11 +150,6 @@ public class RecordedService extends MythtvService {
 		Log.v( TAG, "removeRecorded : enter" );
 		
 		boolean removed = false;
-
-		Intent intent = new Intent( LiveStreamService.ACTION_REMOVE );
-		intent.putExtra( LiveStreamService.KEY_CHANNEL_ID, channelId );
-		intent.putExtra( LiveStreamService.KEY_START_TIMESTAMP, startTimestamp.getMillis() );
-		startService( intent );
 
 		ApiVersion apiVersion = ApiVersion.valueOf( locationProfile.getVersion() );
 		switch( apiVersion ) {

@@ -4,6 +4,7 @@
 package org.mythtv.client.ui.navigationDrawer;
 
 import org.mythtv.R;
+
 import android.content.Context;
 import android.view.View;
 import android.widget.ImageView;

@@ -10,7 +10,6 @@ import org.joda.time.DateTimeZone;
 import org.joda.time.LocalTime;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.AbstractBaseHelper;
-import org.mythtv.db.dvr.DvrEndpoint;
 import org.mythtv.db.dvr.RecordingRuleConstants;
 import org.mythtv.db.dvr.model.RecRule;
 import org.mythtv.db.http.model.EtagInfoDelegate;

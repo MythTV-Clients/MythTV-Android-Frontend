@@ -28,9 +28,9 @@ import org.mythtv.client.ui.AbstractMythFragment;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.util.MenuHelper;
 import org.mythtv.db.channel.ChannelDaoHelper;
+import org.mythtv.db.channel.model.ChannelInfo;
 import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.service.util.DateUtils;
-import org.mythtv.db.channel.model.ChannelInfo;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;

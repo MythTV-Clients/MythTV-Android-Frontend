@@ -3,8 +3,6 @@
  */
 package org.mythtv.client.ui.media;
 
-import java.util.ArrayList;
-
 import org.mythtv.R;
 import org.mythtv.client.ui.AbstractMythFragment;
 import org.mythtv.client.ui.preferences.LocationProfile;
@@ -20,12 +18,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.GridView;
-
-import org.mythtv.R;
-import org.mythtv.client.ui.AbstractMythFragment;
-import org.mythtv.client.ui.preferences.LocationProfile;
-import org.mythtv.client.ui.util.MenuHelper;
-import org.mythtv.client.ui.util.MenuItemRefreshAnimated;
 
 /**
  * @author dmfrey

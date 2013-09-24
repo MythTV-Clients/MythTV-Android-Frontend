@@ -19,6 +19,7 @@
 package org.mythtv.client.ui.dvr;
 
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.mythtv.R;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.util.MythtvListFragment;
@@ -80,9 +81,9 @@ public class UpcomingFragment extends MythtvListFragment implements LoaderManage
 		String startDate = args.getString( START_DATE_KEY );
 		Log.v( TAG, "onCreateLoader : startDate=" + startDate );
 		
-		DateTime startDay = new DateTime( startDate ).withTimeAtStartOfDay();
+		DateTime startDay = new DateTime( startDate ).withZone( DateTimeZone.UTC ).withTimeAtStartOfDay();
 		DateTime endDay = startDay.plusDays( 1 );
-		DateTime now = new DateTime( System.currentTimeMillis() );
+		DateTime now = new DateTime( DateTimeZone.UTC );
 
         //mainApplication = getMainApplication();
 

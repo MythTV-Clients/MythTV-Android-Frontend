@@ -35,7 +35,6 @@ import org.mythtv.db.status.model.Miscellaneous;
 import org.mythtv.db.status.model.Scheduled;
 import org.mythtv.service.dvr.v26.ProgramHelperV26;
 import org.mythtv.service.dvr.v26.RecordingHelperV26;
-import org.mythtv.service.status.v27.BackendStatusHelperV27;
 import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.ApiVersion;
 import org.mythtv.services.api.ETagInfo;
@@ -76,7 +75,7 @@ public class BackendStatusHelperV26 extends AbstractBaseHelper {
 	public static BackendStatusHelperV26 getInstance() {
 		if( null == singleton ) {
 			
-			synchronized( BackendStatusHelperV27.class ) {
+			synchronized( BackendStatusHelperV26.class ) {
 
 				if( null == singleton ) {
 					singleton = new BackendStatusHelperV26();
@@ -115,7 +114,7 @@ public class BackendStatusHelperV26 extends AbstractBaseHelper {
 			Log.e( TAG, "process : error", e );
 		}
 		
-		Log.d( TAG, "process : enter" );
+		Log.d( TAG, "process : exit" );
 		return backendStatus;
 	}
 
@@ -158,8 +157,6 @@ public class BackendStatusHelperV26 extends AbstractBaseHelper {
 		return null;
 	}
 
-	
-	
 	private void updateProgramGuide( final Context mContext, org.mythtv.services.api.v026.beans.BackendStatus status ) throws RemoteException, OperationApplicationException {
 		Log.v( TAG, "updateProgramGuide : enter" );
 		
@@ -188,8 +185,11 @@ public class BackendStatusHelperV26 extends AbstractBaseHelper {
 
 					// load upcoming program
 					ProgramHelperV26.getInstance().processProgram( mContext, mLocationProfile, ProgramConstants.CONTENT_URI_UPCOMING, ProgramConstants.TABLE_NAME_UPCOMING, ops, versionProgram, lastModified, startTime, count );
+					count++;
+
 					// update program guide
 					ProgramHelperV26.getInstance().processProgram( mContext, mLocationProfile, ProgramConstants.CONTENT_URI_GUIDE, ProgramConstants.TABLE_NAME_GUIDE, ops, versionProgram, lastModified, startTime, count );
+					count++;
 
 					if( !inError && null != versionProgram.getRecording() ) {
 						
@@ -197,8 +197,11 @@ public class BackendStatusHelperV26 extends AbstractBaseHelper {
 						
 							// load upcoming recording
 							RecordingHelperV26.getInstance().processRecording( mContext, mLocationProfile, ops, RecordingConstants.ContentDetails.UPCOMING, versionProgram, lastModified, startTime, count );
+							count++;
+
 							// update program guide recording
 							RecordingHelperV26.getInstance().processRecording( mContext, mLocationProfile, ops, RecordingConstants.ContentDetails.GUIDE, versionProgram, lastModified, startTime, count );
+							count++;
 
 						}
 						

@@ -13,7 +13,6 @@ import org.mythtv.db.AbstractBaseHelper;
 import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.db.dvr.RecordingConstants;
 import org.mythtv.db.http.model.EtagInfoDelegate;
-import org.mythtv.service.util.DateUtils;
 import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.ApiVersion;
 import org.mythtv.services.api.connect.MythAccessFactory;
@@ -24,7 +23,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import android.content.ContentProviderOperation;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.OperationApplicationException;
 import android.os.RemoteException;

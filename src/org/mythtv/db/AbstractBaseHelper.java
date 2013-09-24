@@ -34,7 +34,6 @@ import android.content.Context;
 import android.content.OperationApplicationException;
 import android.os.RemoteException;
 import android.text.TextUtils;
-import android.util.Log;
 
 /**
  * @author Daniel Frey
