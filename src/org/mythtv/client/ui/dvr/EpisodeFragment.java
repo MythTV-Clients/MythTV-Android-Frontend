@@ -113,12 +113,17 @@ public class EpisodeFragment extends AbstractMythFragment implements GetLiveStre
 		super.onActivityCreated( savedInstanceState );
 
 		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
+
+		/*
+		 * TODO Add the following to enable an image where there is none
+		 * on the backend. Change the coverart to something nicer.
+		 * .showImageForEmptyUri( R.drawable.coverart_missing )
+		 * .showImageOnFail( R.drawable.coverart_missing )
+		 */
 		
 		options = new DisplayImageOptions.Builder()
 			.cacheInMemory( true )
 			.cacheOnDisc( true 	)
-			.showImageForEmptyUri( R.drawable.coverart_missing )
-			.showImageOnFail( R.drawable.coverart_missing )
 			.build();
 
 		setHasOptionsMenu( true );
