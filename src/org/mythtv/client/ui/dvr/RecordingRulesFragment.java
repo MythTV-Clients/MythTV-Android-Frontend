@@ -18,7 +18,6 @@
  */
 package org.mythtv.client.ui.dvr;
 
-import org.joda.time.DateTime;
 import org.mythtv.R;
 import org.mythtv.client.MainApplication;
 import org.mythtv.client.ui.preferences.LocationProfile;
@@ -28,7 +27,6 @@ import org.mythtv.client.ui.util.MythtvListFragment;
 import org.mythtv.client.ui.util.ProgramHelper;
 import org.mythtv.db.channel.ChannelDaoHelper;
 import org.mythtv.db.channel.model.ChannelInfo;
-import org.mythtv.db.dvr.DvrEndpoint;
 import org.mythtv.db.dvr.RecordingRuleConstants;
 import org.mythtv.db.dvr.RecordingRuleDaoHelper;
 import org.mythtv.db.dvr.model.RecRule;
@@ -195,43 +193,11 @@ public class RecordingRulesFragment extends MythtvListFragment implements Loader
 		Log.v( TAG, "onStart : enter" );
 		super.onStart();
 
-		IntentFilter recordingRuleFilter = new IntentFilter( RecordingRuleService.ACTION_DOWNLOAD );
+		IntentFilter recordingRuleFilter = new IntentFilter( RecordingRuleService.ACTION_COMPLETE );
 		recordingRuleFilter.addAction( RecordingRuleService.ACTION_PROGRESS );
-		recordingRuleFilter.addAction( RecordingRuleService.ACTION_COMPLETE );
 		getActivity().registerReceiver( recordingRuleReceiver, recordingRuleFilter );
 
 		Log.v( TAG, "onStart : enter" );
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see android.support.v4.app.Fragment#onResume()
-	 */
-	@Override
-	public void onResume() {
-		Log.v( TAG, "onResume : enter" );
-		super.onStart();
-
-		DateTime etag = mEtagDaoHelper.findDateByEndpointAndDataId( getActivity(), mLocationProfile,
-				DvrEndpoint.GET_RECORD_SCHEDULE_LIST.name(), "" );
-		if( null != etag ) {
-
-			DateTime now = DateUtils.convertUtc( new DateTime( System.currentTimeMillis() ) );
-			if( now.getMillis() - etag.getMillis() > 3600000 ) {
-				if( !mRunningServiceHelper.isServiceRunning( getActivity(),
-						"org.mythtv.service.dvr.RecordingRuleService" ) ) {
-					getActivity().startService( new Intent( RecordingRuleService.ACTION_DOWNLOAD ) );
-				}
-			}
-
-		} else {
-			if( !mRunningServiceHelper.isServiceRunning( getActivity(), "org.mythtv.service.dvr.RecordingRuleService" ) ) {
-				getActivity().startService( new Intent( RecordingRuleService.ACTION_DOWNLOAD ) );
-			}
-		}
-
-		Log.v( TAG, "onResume : exit" );
 	}
 
 	/*
