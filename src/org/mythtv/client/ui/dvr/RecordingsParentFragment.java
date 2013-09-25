@@ -310,7 +310,14 @@ public class RecordingsParentFragment extends AbstractMythFragment implements
 		if( null != programs && !programs.isEmpty() ) {
 			selectedProgram = programs.get( 0 );
 			onProgramGroupSelected( programGroup );
-			onEpisodeSelected( selectedProgram.getChannelInfo().getChannelId(), selectedProgram.getStartTime() );
+			
+			if( null != selectedProgram ) {
+			
+				if( null != selectedProgram.getStartTime() && null != selectedProgram.getChannelInfo() ) {
+					onEpisodeSelected( selectedProgram.getChannelInfo().getChannelId(), selectedProgram.getStartTime() );
+				}
+			}
+			
 		}
 		
 		Log.v( TAG, "onEpisodeDeleted : exit" );
