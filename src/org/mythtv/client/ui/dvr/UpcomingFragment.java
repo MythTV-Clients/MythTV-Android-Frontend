@@ -19,7 +19,6 @@
 package org.mythtv.client.ui.dvr;
 
 import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.mythtv.R;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.util.MythtvListFragment;
