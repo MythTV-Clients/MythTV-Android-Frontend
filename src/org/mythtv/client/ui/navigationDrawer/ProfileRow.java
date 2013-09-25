@@ -104,6 +104,7 @@ public class ProfileRow implements Row {
 			Log.v( TAG, "onCheckedChanged : exit" );
 		}
 	};
+	
 	private ProfileToggleCheckChangedListener mProfileToggleCheckChangedListener = new ProfileToggleCheckChangedListener();
 	
 	public interface ProfileChangedListener {
