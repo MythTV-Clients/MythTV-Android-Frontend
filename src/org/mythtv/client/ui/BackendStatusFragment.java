@@ -744,6 +744,19 @@ public class BackendStatusFragment extends AbstractMythFragment {
 	        		
         			checkFrontendDiscoveryService();
         			checkChannelDownloadService();
+	        	
+	        	} else {
+	        		
+	        		if( null != mLocationProfile ) {
+	        			
+	        			mLocationProfile.setConnected( false );
+	        			mLocationProfileDaoHelper.save( getActivity(), mLocationProfile );
+	        			
+	        		}
+	        		
+	        		mMenuItemRefresh.stopRefreshAnimation();
+	        		
+	        		getStatus();
 	        	}
 	        	
 	        }
