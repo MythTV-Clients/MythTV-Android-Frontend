@@ -182,14 +182,12 @@ public class BackendStatusHelperV27 extends AbstractBaseHelper {
 						inError = false;
 					}
 
-					DateTime startTime = versionProgram.getStartTime();
-
 					// load upcoming program
-					ProgramHelperV27.getInstance().processProgram( mContext, mLocationProfile, ProgramConstants.CONTENT_URI_UPCOMING, ProgramConstants.TABLE_NAME_UPCOMING, ops, convertV27Program( versionProgram ), lastModified, startTime, count );
+					ProgramHelperV27.getInstance().processProgram( mContext, mLocationProfile, ProgramConstants.CONTENT_URI_UPCOMING, ProgramConstants.TABLE_NAME_UPCOMING, ops, convertV27Program( versionProgram ), lastModified, count );
 					count++;
 					
 					// update program guide
-					ProgramHelperV27.getInstance().processProgram( mContext, mLocationProfile, ProgramConstants.CONTENT_URI_GUIDE, ProgramConstants.TABLE_NAME_GUIDE, ops, convertV27Program( versionProgram ), lastModified, startTime, count );
+					ProgramHelperV27.getInstance().processProgram( mContext, mLocationProfile, ProgramConstants.CONTENT_URI_GUIDE, ProgramConstants.TABLE_NAME_GUIDE, ops, convertV27Program( versionProgram ), lastModified, count );
 					count++;
 
 					if( !inError && null != versionProgram.getRecording() ) {
@@ -197,11 +195,11 @@ public class BackendStatusHelperV27 extends AbstractBaseHelper {
 						if( versionProgram.getRecording().getRecordId() > 0 ) {
 						
 							// load upcoming recording
-							RecordingHelperV27.getInstance().processRecording( mContext, mLocationProfile, ops, RecordingConstants.ContentDetails.UPCOMING, convertV27Program( versionProgram ), lastModified, startTime, count );
+							RecordingHelperV27.getInstance().processRecording( mContext, mLocationProfile, ops, RecordingConstants.ContentDetails.UPCOMING, convertV27Program( versionProgram ), lastModified, count );
 							count++;
 
 							// update program guide recording
-							RecordingHelperV27.getInstance().processRecording( mContext, mLocationProfile, ops, RecordingConstants.ContentDetails.GUIDE, convertV27Program( versionProgram ), lastModified, startTime, count );
+							RecordingHelperV27.getInstance().processRecording( mContext, mLocationProfile, ops, RecordingConstants.ContentDetails.GUIDE, convertV27Program( versionProgram ), lastModified, count );
 							count++;
 
 						}

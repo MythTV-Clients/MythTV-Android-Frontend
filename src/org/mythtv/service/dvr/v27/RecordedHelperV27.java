@@ -221,6 +221,7 @@ public class RecordedHelperV27 extends AbstractBaseHelper {
 			throw new RuntimeException( "RecordedHelperV27 is not initialized" );
 		
 		DateTime lastModified = new DateTime( DateTimeZone.UTC );
+		Log.d( TAG, "load : lastModified=" + lastModified.toString() );
 		
 		int processed = -1;
 		int count = 0;
@@ -236,20 +237,20 @@ public class RecordedHelperV27 extends AbstractBaseHelper {
 		for( Program program : programs ) {
 
 			if( null != program.getRecording() && "livetv".equalsIgnoreCase( program.getRecording().getRecGroup() )  && !"deleted".equalsIgnoreCase( program.getRecording().getRecGroup() ) ) {
+				Log.w( TAG, "load : program has no recording or program is in livetv or deleted recording groups:" + program.getTitle() + ":" + program.getSubTitle() + ":" + program.getChannel().getChanId() + ":" + program.getStartTime() + ":" + program.getHostName() + " (" + ( null == program.getRecording() ? "No Recording" : ( "livetv".equalsIgnoreCase( program.getRecording().getRecGroup() ) ? "LiveTv" : "Deleted" ) ) + ")" );
+
 				continue;
 			}
 			
 			if( null == program.getStartTime() || null == program.getEndTime() ) {
-//				Log.w(TAG, "load : null starttime and or endtime" );
+				Log.w( TAG, "load : null starttime and or endtime" );
 			
 				inError = true;
 			} else {
 				inError = false;
 			}
 
-			DateTime startTime = program.getStartTime();
-			
-			ProgramHelperV27.getInstance().processProgram( context, locationProfile, ProgramConstants.CONTENT_URI_RECORDED, ProgramConstants.TABLE_NAME_RECORDED, ops, program, lastModified, startTime, count );
+			ProgramHelperV27.getInstance().processProgram( context, locationProfile, ProgramConstants.CONTENT_URI_RECORDED, ProgramConstants.TABLE_NAME_RECORDED, ops, program, lastModified, count );
 			count++;
 			
 			if( null != program.getChannel() ) {
@@ -269,7 +270,7 @@ public class RecordedHelperV27 extends AbstractBaseHelper {
 				
 				if( program.getRecording().getRecordId() > 0 ) {
 				
-					RecordingHelperV27.getInstance().processRecording( context, locationProfile, ops, RecordingConstants.ContentDetails.RECORDED, program, lastModified, startTime, count );
+					RecordingHelperV27.getInstance().processRecording( context, locationProfile, ops, RecordingConstants.ContentDetails.RECORDED, program, lastModified, count );
 					count++;
 					
 				}
@@ -289,7 +290,7 @@ public class RecordedHelperV27 extends AbstractBaseHelper {
 
 		processBatch( context, ops, processed, count );
 
-//		Log.v( TAG, "load : remove deleted recordings" );
+		Log.v( TAG, "load : remove deleted recording live streams" );
 		String deletedSelection = ProgramConstants.TABLE_NAME_RECORDED + "." + ProgramConstants.FIELD_LAST_MODIFIED_DATE + " < ?";
 		String[] deletedSelectionArgs = new String[] { String.valueOf( lastModified.getMillis() ) };
 			
@@ -297,7 +298,6 @@ public class RecordedHelperV27 extends AbstractBaseHelper {
 			
 		Cursor deletedCursor = context.getContentResolver().query( ProgramConstants.CONTENT_URI_RECORDED, null, deletedSelection, deletedSelectionArgs, null );
 		while( deletedCursor.moveToNext() ) {
-//			Log.v( TAG, "load : remove deleted recording - " + program.getTitle() + " [" + program.getSubTitle() + "]" );
 
 			long channelId = deletedCursor.getLong( deletedCursor.getColumnIndex( ProgramConstants.FIELD_CHANNEL_ID ) );
 			long startTime = deletedCursor.getLong( deletedCursor.getColumnIndex( ProgramConstants.FIELD_START_TIME ) );

@@ -58,7 +58,7 @@ public class RecordingHelperV27 extends AbstractBaseHelper {
 	 */
 	private RecordingHelperV27() { }
 
-	public void processRecording( final Context context, final LocationProfile locationProfile, ArrayList<ContentProviderOperation> ops, ContentDetails details, Program program, DateTime lastModified, DateTime startTime, int count ) {
+	public void processRecording( final Context context, final LocationProfile locationProfile, ArrayList<ContentProviderOperation> ops, ContentDetails details, Program program, DateTime lastModified, int count ) {
 //		Log.v( TAG, "processRecording : enter" );
 		
 		String[] recordingProjection = new String[] { details.getTableName() + "_" + RecordingConstants._ID };
@@ -67,10 +67,11 @@ public class RecordingHelperV27 extends AbstractBaseHelper {
 
 		//Log.v( TAG, "processRecording : recording=" + program.getRecording().toString() );
 
-		ContentValues recordingValues = convertRecordingToContentValues( locationProfile, lastModified, startTime, program.getRecording() );
+//		Log.v( TAG, "processRecording : lastModified=" + lastModified.toString() );
+		ContentValues recordingValues = convertRecordingToContentValues( locationProfile, lastModified, program.getStartTime(), program.getRecording() );
 		Cursor recordingCursor = context.getContentResolver().query( details.getContentUri(), recordingProjection, recordingSelection, recordingSelectionArgs, null );
 		if( recordingCursor.moveToFirst() ) {
-//			Log.v( TAG, "processRecording : UPDATE RECORDING " + count + ":" + program.getTitle() + ":" + program.getSubTitle() + ", recording=" + program.getRecording().getRecordId() );
+			Log.v( TAG, "processRecording : UPDATE RECORDING " + count + ":" + program.getTitle() + ":" + program.getSubTitle() + ", recording=" + program.getRecording().getRecordId() );
 
 			Long id = recordingCursor.getLong( recordingCursor.getColumnIndexOrThrow( details.getTableName() + "_" + RecordingConstants._ID ) );					
 			ops.add( 
@@ -80,7 +81,7 @@ public class RecordingHelperV27 extends AbstractBaseHelper {
 					.build()
 				);
 		} else {
-//			Log.v( TAG, "processRecording : INSERT RECORDING " + count + ":" + program.getTitle() + ":" + program.getSubTitle() + ", recording=" + program.getRecording().getRecordId() );
+			Log.v( TAG, "processRecording : INSERT RECORDING " + count + ":" + program.getTitle() + ":" + program.getSubTitle() + ", recording=" + program.getRecording().getRecordId() );
 
 			ops.add(  
 				ContentProviderOperation.newInsert( details.getContentUri() )
@@ -95,12 +96,13 @@ public class RecordingHelperV27 extends AbstractBaseHelper {
 //		Log.v( TAG, "processRecording : exit" );
 	}
 
-	public void deleteRecordings( ArrayList<ContentProviderOperation> ops, ContentDetails details, DateTime today ) {
+	public void deleteRecordings( ArrayList<ContentProviderOperation> ops, ContentDetails details, DateTime lastModified ) {
 		Log.v( TAG, "deleteRecordings : enter" );
 		
+		Log.v( TAG, "deleteRecordings : lastModified=" + lastModified.toString() );
 		ops.add(  
 			ContentProviderOperation.newDelete( details.getContentUri() )
-				.withSelection( details.getTableName() + "." + RecordingConstants.FIELD_LAST_MODIFIED_DATE + " < ?", new String[] { String.valueOf( today.getMillis() ) } )
+				.withSelection( details.getTableName() + "." + RecordingConstants.FIELD_LAST_MODIFIED_DATE + " < ?", new String[] { String.valueOf( lastModified.getMillis() ) } )
 				.withYieldAllowed( true )
 				.build()
 		);

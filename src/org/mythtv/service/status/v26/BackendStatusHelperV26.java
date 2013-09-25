@@ -181,14 +181,12 @@ public class BackendStatusHelperV26 extends AbstractBaseHelper {
 						inError = false;
 					}
 
-					DateTime startTime = versionProgram.getStartTime();
-
 					// load upcoming program
-					ProgramHelperV26.getInstance().processProgram( mContext, mLocationProfile, ProgramConstants.CONTENT_URI_UPCOMING, ProgramConstants.TABLE_NAME_UPCOMING, ops, versionProgram, lastModified, startTime, count );
+					ProgramHelperV26.getInstance().processProgram( mContext, mLocationProfile, ProgramConstants.CONTENT_URI_UPCOMING, ProgramConstants.TABLE_NAME_UPCOMING, ops, versionProgram, lastModified, count );
 					count++;
 
 					// update program guide
-					ProgramHelperV26.getInstance().processProgram( mContext, mLocationProfile, ProgramConstants.CONTENT_URI_GUIDE, ProgramConstants.TABLE_NAME_GUIDE, ops, versionProgram, lastModified, startTime, count );
+					ProgramHelperV26.getInstance().processProgram( mContext, mLocationProfile, ProgramConstants.CONTENT_URI_GUIDE, ProgramConstants.TABLE_NAME_GUIDE, ops, versionProgram, lastModified, count );
 					count++;
 
 					if( !inError && null != versionProgram.getRecording() ) {
@@ -196,11 +194,11 @@ public class BackendStatusHelperV26 extends AbstractBaseHelper {
 						if( versionProgram.getRecording().getRecordId() > 0 ) {
 						
 							// load upcoming recording
-							RecordingHelperV26.getInstance().processRecording( mContext, mLocationProfile, ops, RecordingConstants.ContentDetails.UPCOMING, versionProgram, lastModified, startTime, count );
+							RecordingHelperV26.getInstance().processRecording( mContext, mLocationProfile, ops, RecordingConstants.ContentDetails.UPCOMING, versionProgram, lastModified, count );
 							count++;
 
 							// update program guide recording
-							RecordingHelperV26.getInstance().processRecording( mContext, mLocationProfile, ops, RecordingConstants.ContentDetails.GUIDE, versionProgram, lastModified, startTime, count );
+							RecordingHelperV26.getInstance().processRecording( mContext, mLocationProfile, ops, RecordingConstants.ContentDetails.GUIDE, versionProgram, lastModified, count );
 							count++;
 
 						}

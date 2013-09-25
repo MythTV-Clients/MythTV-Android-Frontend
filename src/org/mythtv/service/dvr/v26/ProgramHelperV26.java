@@ -72,11 +72,11 @@ public class ProgramHelperV26 extends AbstractBaseHelper {
 	 */
 	private ProgramHelperV26() { }
 
-	public void processProgram( final Context context, final LocationProfile locationProfile, Uri uri, String table, ArrayList<ContentProviderOperation> ops, Program program, DateTime lastModified, DateTime startTime, int count ) {
+	public void processProgram( final Context context, final LocationProfile locationProfile, Uri uri, String table, ArrayList<ContentProviderOperation> ops, Program program, DateTime lastModified, int count ) {
 //		Log.d( TAG, "processProgram : enter" );
 		
 		String programSelection = table + "." + ProgramConstants.FIELD_CHANNEL_ID + " = ? AND " + table + "." + ProgramConstants.FIELD_START_TIME + " = ?";
-		String[] programSelectionArgs = new String[] { String.valueOf( program.getChannelInfo().getChannelId() ), String.valueOf( startTime.getMillis() ) };
+		String[] programSelectionArgs = new String[] { String.valueOf( program.getChannelInfo().getChannelId() ), String.valueOf( program.getStartTime().getMillis() ) };
 		
 		programSelection = appendLocationHostname( context, locationProfile, programSelection, table );
 
@@ -105,7 +105,6 @@ public class ProgramHelperV26 extends AbstractBaseHelper {
 			
 		}
 		programCursor.close();
-		count++;
 
 //		Log.d( TAG, "processProgram : exit" );
 	}
@@ -155,11 +154,11 @@ public class ProgramHelperV26 extends AbstractBaseHelper {
 		return count;
 	}
 
-	public void deletePrograms( final Context context, final LocationProfile locationProfile, ArrayList<ContentProviderOperation> ops, Uri uri, String table, DateTime today ) {
+	public void deletePrograms( final Context context, final LocationProfile locationProfile, ArrayList<ContentProviderOperation> ops, Uri uri, String table, DateTime lastModified ) {
 		Log.d( TAG, "deletePrograms : enter" );
 		
 		String selection = table + "." + ProgramConstants.FIELD_LAST_MODIFIED_DATE + " < ?";
-		String[] selectionArgs = new String[] { String.valueOf( today.getMillis() ) };
+		String[] selectionArgs = new String[] { String.valueOf( lastModified.getMillis() ) };
 		
 		selection = appendLocationHostname( context, locationProfile, selection, table );
 		

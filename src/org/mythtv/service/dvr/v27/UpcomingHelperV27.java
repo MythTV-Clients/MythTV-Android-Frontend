@@ -169,14 +169,12 @@ public class UpcomingHelperV27 extends AbstractBaseHelper {
 				inError = false;
 			}
 
-			DateTime startTime = program.getStartTime();
-
 			// load upcoming program
-			ProgramHelperV27.getInstance().processProgram( context, locationProfile, ProgramConstants.CONTENT_URI_UPCOMING, ProgramConstants.TABLE_NAME_UPCOMING, ops, program, lastModified, startTime, count );
+			ProgramHelperV27.getInstance().processProgram( context, locationProfile, ProgramConstants.CONTENT_URI_UPCOMING, ProgramConstants.TABLE_NAME_UPCOMING, ops, program, lastModified, count );
 			count++;
 			
 			// update program guide
-			ProgramHelperV27.getInstance().processProgram( context, locationProfile, ProgramConstants.CONTENT_URI_GUIDE, ProgramConstants.TABLE_NAME_GUIDE, ops, program, lastModified, startTime, count );
+			ProgramHelperV27.getInstance().processProgram( context, locationProfile, ProgramConstants.CONTENT_URI_GUIDE, ProgramConstants.TABLE_NAME_GUIDE, ops, program, lastModified, count );
 			count++;
 
 			if( !inError && null != program.getRecording() ) {
@@ -184,11 +182,11 @@ public class UpcomingHelperV27 extends AbstractBaseHelper {
 				if( program.getRecording().getRecordId() > 0 ) {
 				
 					// load upcoming recording
-					RecordingHelperV27.getInstance().processRecording( context, locationProfile, ops, RecordingConstants.ContentDetails.UPCOMING, program, lastModified, startTime, count );
+					RecordingHelperV27.getInstance().processRecording( context, locationProfile, ops, RecordingConstants.ContentDetails.UPCOMING, program, lastModified, count );
 					count++;
 
 					// update program guide recording
-					RecordingHelperV27.getInstance().processRecording( context, locationProfile, ops, RecordingConstants.ContentDetails.GUIDE, program, lastModified, startTime, count );
+					RecordingHelperV27.getInstance().processRecording( context, locationProfile, ops, RecordingConstants.ContentDetails.GUIDE, program, lastModified, count );
 					count++;
 
 				}

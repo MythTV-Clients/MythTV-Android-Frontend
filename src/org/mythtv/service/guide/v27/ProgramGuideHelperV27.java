@@ -216,9 +216,7 @@ public class ProgramGuideHelperV27 extends AbstractBaseHelper {
 
 				program.setChannel( channel );
 
-				DateTime startTime = program.getStartTime();
-
-				ProgramHelperV27.getInstance().processProgram( context, locationProfile, ProgramConstants.CONTENT_URI_GUIDE, ProgramConstants.TABLE_NAME_GUIDE, ops, program, lastModified, startTime, count );
+				ProgramHelperV27.getInstance().processProgram( context, locationProfile, ProgramConstants.CONTENT_URI_GUIDE, ProgramConstants.TABLE_NAME_GUIDE, ops, program, lastModified, count );
 				count++;
 
 				if( count > BATCH_COUNT_LIMIT ) {

@@ -246,9 +246,7 @@ public class RecordedHelperV26 extends AbstractBaseHelper {
 				inError = false;
 			}
 
-			DateTime startTime = program.getStartTime();
-			
-			ProgramHelperV26.getInstance().processProgram( context, locationProfile, ProgramConstants.CONTENT_URI_RECORDED, ProgramConstants.TABLE_NAME_RECORDED, ops, program, lastModified, startTime, count );
+			ProgramHelperV26.getInstance().processProgram( context, locationProfile, ProgramConstants.CONTENT_URI_RECORDED, ProgramConstants.TABLE_NAME_RECORDED, ops, program, lastModified, count );
 			count++;
 			
 			if( null != program.getChannelInfo() ) {
@@ -268,7 +266,7 @@ public class RecordedHelperV26 extends AbstractBaseHelper {
 				
 				if( program.getRecording().getRecordId() > 0 ) {
 				
-					RecordingHelperV26.getInstance().processRecording( context, locationProfile, ops, RecordingConstants.ContentDetails.RECORDED, program, lastModified, startTime, count );
+					RecordingHelperV26.getInstance().processRecording( context, locationProfile, ops, RecordingConstants.ContentDetails.RECORDED, program, lastModified, count );
 					count++;
 					
 				}
