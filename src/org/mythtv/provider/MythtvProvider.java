@@ -312,6 +312,7 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 			case RECORDED:
 
 				deleted = db.delete( ProgramConstants.TABLE_NAME_RECORDED, selection, selectionArgs );
+//				System.out.println( "Recorded Deleted: " + deleted );
 				
 				getContext().getContentResolver().notifyChange( uri, null );
 				
@@ -1899,6 +1900,7 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 			final ContentProviderResult[] results = new ContentProviderResult[ numOperations ];
 			for( int i = 0; i < numOperations; i++ ) {
 				results[ i ] = operations.get( i ).apply( this, results, i );
+//				System.out.println( "applyBatch : " + results[ i ].toString() );
 			}
 			db.setTransactionSuccessful();
 			return results;
