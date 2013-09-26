@@ -35,6 +35,7 @@ import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
@@ -350,10 +351,14 @@ public class NavigationDrawerActivity extends AbstractMythtvFragmentActivity {
 		if( null != wrActivity.get() && wrActivity.get().isFinishing() != true ) {
 			Log.v( TAG, "updateContent : weak reference to activity available" );
 			
-			FragmentTransaction tx = wrActivity.get().getSupportFragmentManager().beginTransaction();
-        	tx.replace( R.id.main, Fragment.instantiate( wrActivity.get(), fragment ), fragment );
-        	tx.commit();
-		
+			FragmentManager fragmentManager = wrActivity.get().getSupportFragmentManager();
+			if( null == fragmentManager.findFragmentByTag( fragment ) ) {
+				FragmentTransaction tx = fragmentManager.beginTransaction();
+				Fragment f = Fragment.instantiate( wrActivity.get(), fragment );
+				tx.replace( R.id.main, f, fragment );
+				tx.commit();
+			}
+			
 		}
 		
 		drawer.closeDrawer( navList );
