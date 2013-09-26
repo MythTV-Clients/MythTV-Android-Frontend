@@ -25,7 +25,10 @@ import org.mythtv.service.guide.v27.ProgramGuideHelperV27;
 import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.ApiVersion;
 
+import android.content.Context;
 import android.content.Intent;
+import android.os.PowerManager;
+import android.os.PowerManager.WakeLock;
 import android.util.Log;
 
 /**
@@ -74,6 +77,9 @@ public class ProgramGuideDownloadService extends MythtvService {
 
 		if ( intent.getAction().equals( ACTION_DOWNLOAD ) ) {
 			
+			PowerManager mgr = (PowerManager) getSystemService( Context.POWER_SERVICE );
+			WakeLock wakeLock = mgr.newWakeLock( PowerManager.PARTIAL_WAKE_LOCK, "ProgramGuideServiceDownload" );
+
 			try {
 
     			ApiVersion apiVersion = ApiVersion.valueOf( locationProfile.getVersion() );
@@ -102,6 +108,10 @@ public class ProgramGuideDownloadService extends MythtvService {
 				passed = false;
 			} finally {
 
+    			if( wakeLock.isHeld() ) {
+    				wakeLock.release();
+    			}
+				
 				Intent completeIntent = new Intent( ACTION_COMPLETE );
 				completeIntent.putExtra( EXTRA_COMPLETE, "Program Guide Download Service Finished" );
 				completeIntent.putExtra( EXTRA_COMPLETE_UPTODATE, passed );

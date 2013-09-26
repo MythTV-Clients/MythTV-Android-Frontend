@@ -15,8 +15,11 @@ import org.mythtv.service.content.v27.LiveStreamHelperV27;
 import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.ApiVersion;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.PowerManager;
+import android.os.PowerManager.WakeLock;
 import android.util.Log;
 
 /**
@@ -95,12 +98,22 @@ public class LiveStreamService extends MythtvService {
 		if( intent.getAction().equals( ACTION_CREATE ) ) {
     		Log.i( TAG, "onHandleIntent : CREATE action selected" );
 
+			PowerManager mgr = (PowerManager) getSystemService( Context.POWER_SERVICE );
+			WakeLock wakeLock = mgr.newWakeLock( PowerManager.PARTIAL_WAKE_LOCK, "LiveStreamServiceCreate" );
+    		
     		try {
         		createLiveStream( locationProfile, program );
 			} catch( InterruptedException e ) {
 				Log.e( TAG, "onHandleIntent : error", e );
 				
 				sendCompleteError();
+			}
+    		finally {
+				
+    			if( wakeLock.isHeld() ) {
+    				wakeLock.release();
+    			}
+				
 			}
     		
     		Log.d( TAG, "onHandleIntent : exit, create" );
@@ -110,8 +123,21 @@ public class LiveStreamService extends MythtvService {
 		if( intent.getAction().equals( ACTION_LOAD ) ) {
     		Log.i( TAG, "onHandleIntent : LOAD action selected" );
 
-    		loadLiveStreams( locationProfile );
-    		
+			PowerManager mgr = (PowerManager) getSystemService( Context.POWER_SERVICE );
+			WakeLock wakeLock = mgr.newWakeLock( PowerManager.PARTIAL_WAKE_LOCK, "LiveStreamServiceLoad" );
+
+			try {
+			
+				loadLiveStreams( locationProfile );
+			
+			} finally {
+				
+    			if( wakeLock.isHeld() ) {
+    				wakeLock.release();
+    			}
+				
+			}
+			
     		Log.d( TAG, "onHandleIntent : exit, remove" );
     		return;
 		}
@@ -119,8 +145,21 @@ public class LiveStreamService extends MythtvService {
 		if( intent.getAction().equals( ACTION_REMOVE ) ) {
     		Log.i( TAG, "onHandleIntent : REMOVE action selected" );
 
-    		removeLiveStream( locationProfile, program );
+			PowerManager mgr = (PowerManager) getSystemService( Context.POWER_SERVICE );
+			WakeLock wakeLock = mgr.newWakeLock( PowerManager.PARTIAL_WAKE_LOCK, "LiveStreamServiceRemove" );
+
+			try {
     		
+				removeLiveStream( locationProfile, program );
+			
+			} finally {
+				
+    			if( wakeLock.isHeld() ) {
+    				wakeLock.release();
+    			}
+				
+			}
+			
     		Log.d( TAG, "onHandleIntent : exit, remove" );
     		return;
 		}

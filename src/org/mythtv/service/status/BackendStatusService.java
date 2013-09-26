@@ -10,7 +10,10 @@ import org.mythtv.service.status.v26.BackendStatusHelperV26;
 import org.mythtv.service.status.v27.BackendStatusHelperV27;
 import org.mythtv.services.api.ApiVersion;
 
+import android.content.Context;
 import android.content.Intent;
+import android.os.PowerManager;
+import android.os.PowerManager.WakeLock;
 import android.util.Log;
 
 /**
@@ -48,7 +51,10 @@ public class BackendStatusService extends MythtvService {
 		if ( intent.getAction().equals( ACTION_DOWNLOAD ) ) {
     		Log.i( TAG, "onHandleIntent : DOWNLOAD action selected" );
     		
-    		try {
+			PowerManager mgr = (PowerManager) getSystemService( Context.POWER_SERVICE );
+			WakeLock wakeLock = mgr.newWakeLock( PowerManager.PARTIAL_WAKE_LOCK, "StatusServiceDownload" );
+
+			try {
     		
     			ApiVersion apiVersion = ApiVersion.valueOf( mLocationProfile.getVersion() );
     			switch( apiVersion ) {
@@ -81,6 +87,12 @@ public class BackendStatusService extends MythtvService {
         		Log.e( TAG, "onHandleIntent : error", e );
     			
 				sendCompleteNotConnected();
+    		} finally {
+    			
+    			if( wakeLock.isHeld() ) {
+    				wakeLock.release();
+    			}
+    			
     		}
 
 		}

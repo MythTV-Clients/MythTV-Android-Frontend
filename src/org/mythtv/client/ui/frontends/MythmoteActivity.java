@@ -96,7 +96,9 @@ public class MythmoteActivity extends AbstractFrontendsActivity {
 	@Override
 	protected void onPause() {
 		
-		wakeLock.release();
+		if( wakeLock.isHeld() ) {
+			wakeLock.release();
+		}
 		
 		super.onPause();
 	}
