@@ -12,8 +12,10 @@ import org.mythtv.client.MainApplication;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.AbstractBaseHelper;
 import org.mythtv.db.dvr.ProgramConstants;
+import org.mythtv.db.dvr.RecordingConstants.ContentDetails;
 import org.mythtv.db.http.model.EtagInfoDelegate;
 import org.mythtv.service.dvr.v26.ProgramHelperV26;
+import org.mythtv.service.dvr.v26.RecordingHelperV26;
 import org.mythtv.service.util.DateUtils;
 import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.ApiVersion;
@@ -126,6 +128,10 @@ public class ProgramGuideHelperV26 extends AbstractBaseHelper {
 	private void downloadProgramGuide( final Context context, final LocationProfile locationProfile ) throws RemoteException, OperationApplicationException {
 		Log.v( TAG, "downloadProgramGuide : enter" );
 	
+		ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
+		ProgramHelperV26.getInstance().deletePrograms( context, locationProfile, ops, ProgramConstants.CONTENT_URI_GUIDE, ProgramConstants.TABLE_NAME_GUIDE );
+		RecordingHelperV26.getInstance().deleteRecordings( context, locationProfile, ops, ContentDetails.GUIDE );
+
 		DateTime startDownloading = new DateTime();
 		
 		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences( context );
@@ -202,9 +208,6 @@ public class ProgramGuideHelperV26 extends AbstractBaseHelper {
 		if( null == context ) 
 			throw new RuntimeException( "ProgramGuideHelperV27 is not initialized" );
 		
-		DateTime today = new DateTime( DateTimeZone.UTC ).withTimeAtStartOfDay();
-		DateTime lastModified = new DateTime( DateTimeZone.UTC );
-		
 		int processed = -1;
 		int count = 0;
 		
@@ -213,9 +216,11 @@ public class ProgramGuideHelperV26 extends AbstractBaseHelper {
 		for( ChannelInfo channel : programGuide.getChannels() ) {
 		
 			for( Program program : channel.getPrograms() ) {
-				program.setChannelInfo( channel );
 
-				ProgramHelperV26.getInstance().processProgram( context, locationProfile, ProgramConstants.CONTENT_URI_GUIDE, ProgramConstants.TABLE_NAME_GUIDE, ops, program, lastModified, count );
+				program.setChannelInfo( channel );
+				program.setHostname( locationProfile.getHostname() );
+
+				ProgramHelperV26.getInstance().processProgram( context, locationProfile, ProgramConstants.CONTENT_URI_GUIDE, ProgramConstants.TABLE_NAME_GUIDE, ops, program );
 				count++;
 				
 				if( count > BATCH_COUNT_LIMIT ) {
@@ -230,13 +235,12 @@ public class ProgramGuideHelperV26 extends AbstractBaseHelper {
 
 		}
 		
-		processBatch( context, ops, processed, count );
+		if( !ops.isEmpty() ) {
+//			Log.i( TAG, "load : applying batch for '" + count + "' transactions, processing programs" );
 
-//		Log.v( TAG, "load : DELETE PROGRAMS" );
-		ProgramHelperV26.getInstance().deletePrograms( context, locationProfile, ops, ProgramConstants.CONTENT_URI_GUIDE, ProgramConstants.TABLE_NAME_GUIDE, today );
-
-		processBatch( context, ops, processed, count );
-
+			processBatch( context, ops, processed, count );
+		}
+		
 //		Log.v( TAG, "load : exit" );
 		return processed;
 	}

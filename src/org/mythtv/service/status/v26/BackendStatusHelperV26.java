@@ -6,8 +6,6 @@ package org.mythtv.service.status.v26;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.AbstractBaseHelper;
 import org.mythtv.db.channel.model.ChannelInfo;
@@ -169,8 +167,6 @@ public class BackendStatusHelperV26 extends AbstractBaseHelper {
 		
 				ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
 
-				DateTime lastModified = new DateTime( DateTimeZone.UTC );
-				
 				for( org.mythtv.services.api.v026.beans.Program versionProgram : status.getScheduled().getPrograms() ) {
 
 					boolean inError = false;
@@ -182,11 +178,11 @@ public class BackendStatusHelperV26 extends AbstractBaseHelper {
 					}
 
 					// load upcoming program
-					ProgramHelperV26.getInstance().processProgram( mContext, mLocationProfile, ProgramConstants.CONTENT_URI_UPCOMING, ProgramConstants.TABLE_NAME_UPCOMING, ops, versionProgram, lastModified, count );
+					ProgramHelperV26.getInstance().processProgram( mContext, mLocationProfile, ProgramConstants.CONTENT_URI_UPCOMING, ProgramConstants.TABLE_NAME_UPCOMING, ops, versionProgram );
 					count++;
 
 					// update program guide
-					ProgramHelperV26.getInstance().processProgram( mContext, mLocationProfile, ProgramConstants.CONTENT_URI_GUIDE, ProgramConstants.TABLE_NAME_GUIDE, ops, versionProgram, lastModified, count );
+					ProgramHelperV26.getInstance().processProgram( mContext, mLocationProfile, ProgramConstants.CONTENT_URI_GUIDE, ProgramConstants.TABLE_NAME_GUIDE, ops, versionProgram );
 					count++;
 
 					if( !inError && null != versionProgram.getRecording() ) {
@@ -194,11 +190,11 @@ public class BackendStatusHelperV26 extends AbstractBaseHelper {
 						if( versionProgram.getRecording().getRecordId() > 0 ) {
 						
 							// load upcoming recording
-							RecordingHelperV26.getInstance().processRecording( mContext, mLocationProfile, ops, RecordingConstants.ContentDetails.UPCOMING, versionProgram, lastModified, count );
+							RecordingHelperV26.getInstance().processRecording( mContext, mLocationProfile, ops, RecordingConstants.ContentDetails.UPCOMING, versionProgram );
 							count++;
 
 							// update program guide recording
-							RecordingHelperV26.getInstance().processRecording( mContext, mLocationProfile, ops, RecordingConstants.ContentDetails.GUIDE, versionProgram, lastModified, count );
+							RecordingHelperV26.getInstance().processRecording( mContext, mLocationProfile, ops, RecordingConstants.ContentDetails.GUIDE, versionProgram );
 							count++;
 
 						}

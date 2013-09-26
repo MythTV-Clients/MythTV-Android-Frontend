@@ -174,8 +174,9 @@
 
         <service android:name=".service.dvr.UpcomingDownloadService" android:process=":upcoming" android:exported="false">
 			<intent-filter>
-                <action
-                    android:name="org.mythtv.background.upcomingDownload.ACTION_DOWNLOAD" />
+                <action android:name="org.mythtv.background.upcomingDownload.ACTION_DOWNLOAD" />
+                <action android:name="org.mythtv.background.upcomingDownload.ACTION_PROGRESS" />
+                <action android:name="org.mythtv.background.upcomingDownload.ACTION_COMPLETE" />
             </intent-filter>
 		</service>
 		

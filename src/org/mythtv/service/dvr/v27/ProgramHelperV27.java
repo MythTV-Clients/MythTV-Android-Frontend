@@ -73,37 +73,14 @@ public class ProgramHelperV27 extends AbstractBaseHelper {
 	 */
 	private ProgramHelperV27() { }
 
-	public void processProgram( final Context context, final LocationProfile locationProfile, Uri uri, String table, ArrayList<ContentProviderOperation> ops, Program program, DateTime lastModified, int count ) {
+	public void processProgram( final Context context, final LocationProfile locationProfile, Uri uri, String table, ArrayList<ContentProviderOperation> ops, Program program ) {
 //		Log.d( TAG, "processProgram : enter" );
 		
-		String programSelection = table + "." + ProgramConstants.FIELD_CHANNEL_ID + " = ? AND " + table + "." + ProgramConstants.FIELD_START_TIME + " = ?";
-		String[] programSelectionArgs = new String[] { String.valueOf( program.getChannel().getChanId() ), String.valueOf( program.getStartTime().getMillis() ) };
+		ContentValues programValues = convertProgramToContentValues( locationProfile, program );
 		
-		programSelection = appendLocationHostname( context, locationProfile, programSelection, table );
+		if( table.equals( ProgramConstants.TABLE_NAME_RECORDED ) || table.equals( ProgramConstants.TABLE_NAME_UPCOMING ) ) {
 
-//		Log.d( TAG, "processProgram : lastModified=" + lastModified.toString() );
-		ContentValues programValues = convertProgramToContentValues( locationProfile, lastModified, program );
-//		if( programValues.containsKey( ProgramConstants.FIELD_LAST_MODIFIED_DATE ) ) {
-//			if( programValues.getAsLong( ProgramConstants.FIELD_LAST_MODIFIED_DATE ) != lastModified.getMillis() ) {
-//				Log.d( TAG, "processProgram : lastModified not equal in programValues" );
-//			}
-//		}
-		
-		Cursor programCursor = context.getContentResolver().query( uri, programProjection, programSelection, programSelectionArgs, null );
-		if( programCursor.moveToFirst() ) {
-			Log.v( TAG, "processProgram : UPDATE PROGRAM " + count + ":" + program.getTitle() + ":" + program.getSubTitle() + ":" + program.getChannel().getChanId() + ":" + program.getStartTime() + ":" + program.getEndTime() + ":" + program.getHostName() );
-
-			Long id = programCursor.getLong( programCursor.getColumnIndexOrThrow( ProgramConstants._ID ) );
-			ops.add( 
-				ContentProviderOperation.newUpdate( ContentUris.withAppendedId( uri, id ) )
-					.withValues( programValues )
-					.withYieldAllowed( true )
-					.build()
-			);
-			
-		} else {
-			Log.v( TAG, "processProgram : INSERT PROGRAM " + count + ":" + program.getTitle() + ":" + program.getSubTitle() + ":" + program.getChannel().getChanId() + ":" + program.getStartTime() + ":" + program.getEndTime() + ":" + program.getHostName() );
-
+			Log.v( TAG, "processProgram : INSERT PROGRAM : " + program.getTitle() + ":" + program.getSubTitle() + ":" + program.getChannel().getChanId() + ":" + program.getStartTime() + ":" + program.getEndTime() + ":" + program.getHostName() );
 			ops.add(
 				ContentProviderOperation.newInsert( uri )
 					.withValues( programValues )
@@ -111,9 +88,40 @@ public class ProgramHelperV27 extends AbstractBaseHelper {
 					.build()
 			);
 			
-		}
-		programCursor.close();
+		} else {
+		
+			String programSelection = table + "." + ProgramConstants.FIELD_CHANNEL_ID + " = ? AND " + table + "." + ProgramConstants.FIELD_START_TIME + " = ?";
+			String[] programSelectionArgs = new String[] { String.valueOf( program.getChannel().getChanId() ), String.valueOf( program.getStartTime().getMillis() ) };
+			
+			programSelection = appendLocationHostname( context, locationProfile, programSelection, table );
 
+			Cursor programCursor = context.getContentResolver().query( uri, programProjection, programSelection, programSelectionArgs, null );
+			if( programCursor.moveToFirst() ) {
+				Log.v( TAG, "processProgram : UPDATE PROGRAM : " + program.getTitle() + ":" + program.getSubTitle() + ":" + program.getChannel().getChanId() + ":" + program.getStartTime() + ":" + program.getEndTime() + ":" + program.getHostName() );
+
+				Long id = programCursor.getLong( programCursor.getColumnIndexOrThrow( ProgramConstants._ID ) );
+				ops.add( 
+					ContentProviderOperation.newUpdate( ContentUris.withAppendedId( uri, id ) )
+						.withValues( programValues )
+						.withYieldAllowed( true )
+						.build()
+				);
+
+			} else {
+				Log.v( TAG, "processProgram : INSERT PROGRAM : " + program.getTitle() + ":" + program.getSubTitle() + ":" + program.getChannel().getChanId() + ":" + program.getStartTime() + ":" + program.getEndTime() + ":" + program.getHostName() );
+
+				ops.add(
+					ContentProviderOperation.newInsert( uri )
+						.withValues( programValues )
+						.withYieldAllowed( true )
+						.build()
+				);
+
+			}
+			programCursor.close();
+		
+		}
+		
 //		Log.d( TAG, "processProgram : exit" );
 	}
 	
@@ -162,6 +170,24 @@ public class ProgramHelperV27 extends AbstractBaseHelper {
 		return count;
 	}
 
+	public void deletePrograms( final Context context, final LocationProfile locationProfile, ArrayList<ContentProviderOperation> ops, Uri uri, String table ) {
+		Log.v( TAG, "deletePrograms : enter" );
+		
+		String selection = null;
+		String[] selectionArgs = null;
+		
+		selection = appendLocationHostname( context, locationProfile, selection, table );
+		
+		ops.add(  
+			ContentProviderOperation.newDelete( uri )
+				.withSelection( selection, selectionArgs )
+				.withYieldAllowed( true )
+				.build()
+		);
+
+		Log.v( TAG, "deletePrograms : exit" );
+	}
+	
 	public void deletePrograms( final Context context, final LocationProfile locationProfile, ArrayList<ContentProviderOperation> ops, Uri uri, String table, DateTime lastModified ) {
 		Log.v( TAG, "deletePrograms : enter" );
 		
@@ -226,7 +252,7 @@ public class ProgramHelperV27 extends AbstractBaseHelper {
 		return false;
 	}
 
-	private ContentValues convertProgramToContentValues( final LocationProfile locationProfile, final DateTime lastModified, final Program program ) {
+	private ContentValues convertProgramToContentValues( final LocationProfile locationProfile, final Program program ) {
 //		Log.v( TAG, "convertProgramToContentValues : enter" );
 		
 		boolean inError;
@@ -274,7 +300,7 @@ public class ProgramHelperV27 extends AbstractBaseHelper {
 		values.put( ProgramConstants.FIELD_RECORD_ID, null != program.getRecording() && null != program.getRecording().getRecordId() ? program.getRecording().getRecordId() : -1 );
 		values.put( ProgramConstants.FIELD_IN_ERROR, inError ? 1 : 0 );
 		values.put( ProgramConstants.FIELD_MASTER_HOSTNAME, locationProfile.getHostname() );
-		values.put( ProgramConstants.FIELD_LAST_MODIFIED_DATE, lastModified.getMillis() );
+		values.put( ProgramConstants.FIELD_LAST_MODIFIED_DATE, new DateTime().getMillis() );
 		
 //		Log.v( TAG, "convertProgramToContentValues : exit" );
 		return values;

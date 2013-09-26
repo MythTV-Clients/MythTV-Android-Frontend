@@ -255,7 +255,7 @@ public class ChannelHelperV27 extends AbstractBaseHelper {
 
 			if( channel.isVisible() ) {
 
-				processChannel( context, locationProfile, ops, channel, lastModified, count );
+				processChannel( context, locationProfile, ops, channel );
 				count++;
 				
 				if( count > BATCH_COUNT_LIMIT ) {
@@ -282,7 +282,7 @@ public class ChannelHelperV27 extends AbstractBaseHelper {
 		return processed;
 	}
 
-	public void processChannel( final Context context, final LocationProfile locationProfile, ArrayList<ContentProviderOperation> ops, ChannelInfo channel, DateTime lastModified, int count ) {
+	public void processChannel( final Context context, final LocationProfile locationProfile, ArrayList<ContentProviderOperation> ops, ChannelInfo channel ) {
 //		Log.d( TAG, "processChannel : enter" );
 		
 		String[] projection = new String[] { ChannelConstants._ID };
@@ -291,7 +291,7 @@ public class ChannelHelperV27 extends AbstractBaseHelper {
 		
 		selection = appendLocationHostname( context, locationProfile, selection, null );
 
-		ContentValues channelValues = convertChannelInfoToContentValues( locationProfile, lastModified, channel );
+		ContentValues channelValues = convertChannelInfoToContentValues( locationProfile, channel );
 		Cursor channelCursor = context.getContentResolver().query( ChannelConstants.CONTENT_URI, projection, selection, selectionArgs, null );
 		if( channelCursor.moveToFirst() ) {
 //			Log.v( TAG, "load : updating channel " + channel.getChannelId() );
@@ -316,7 +316,6 @@ public class ChannelHelperV27 extends AbstractBaseHelper {
 
 		}
 		channelCursor.close();
-		count++;
 
 //		Log.d( TAG, "processChannel : exit" );
 	}
@@ -486,7 +485,7 @@ public class ChannelHelperV27 extends AbstractBaseHelper {
 		return channelInfo;
 	}
 
-	public ContentValues convertChannelInfoToContentValues( final LocationProfile locationProfile, final DateTime lastModified, final ChannelInfo channelInfo ) {
+	public ContentValues convertChannelInfoToContentValues( final LocationProfile locationProfile, final ChannelInfo channelInfo ) {
 //		Log.v( TAG, "convertChannelToContentValues : enter" );
 		
 		String formattedChannelNumber = formatChannelNumber( channelInfo.getChanNum() );
@@ -523,7 +522,7 @@ public class ChannelHelperV27 extends AbstractBaseHelper {
 		values.put( ChannelConstants.FIELD_XMLTV_ID, channelInfo.getXMLTVID() );
 		values.put( ChannelConstants.FIELD_DEFAULT_AUTH, channelInfo.getDefaultAuth() );
 		values.put( ChannelConstants.FIELD_MASTER_HOSTNAME, locationProfile.getHostname() );
-		values.put( ChannelConstants.FIELD_LAST_MODIFIED_DATE, lastModified.getMillis() );
+		values.put( ChannelConstants.FIELD_LAST_MODIFIED_DATE, new DateTime().getMillis() );
 		
 //		Log.v( TAG, "convertChannelToContentValues : exit" );
 		return values;

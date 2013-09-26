@@ -244,7 +244,7 @@ public class RecordingRuleHelperV27 extends AbstractBaseHelper {
 		
 		for( org.mythtv.services.api.v027.beans.RecRule recordingRule : recordingRules ) {
 
-			processRecordingRule( context, locationProfile, ops, recordingRule, lastModified, count );
+			processRecordingRule( context, locationProfile, ops, recordingRule );
 			count++;
 			
 			if( count > BATCH_COUNT_LIMIT ) {
@@ -267,14 +267,14 @@ public class RecordingRuleHelperV27 extends AbstractBaseHelper {
 		return processed;
 	}
 
-	private void processRecordingRule( final Context context, final LocationProfile locationProfile, ArrayList<ContentProviderOperation> ops, org.mythtv.services.api.v027.beans.RecRule recRule, DateTime lastModified, int count ) {
+	private void processRecordingRule( final Context context, final LocationProfile locationProfile, ArrayList<ContentProviderOperation> ops, org.mythtv.services.api.v027.beans.RecRule recRule ) {
 		Log.d( TAG, "processRecordingRule : enter" );
 
 		String recRuleSelection = RecordingRuleConstants.FIELD_REC_RULE_ID + " = ?";
 
 		recRuleSelection = appendLocationHostname( context, locationProfile, recRuleSelection, RecordingRuleConstants.TABLE_NAME );
 
-		ContentValues recRuleValues = convertRecRuleToContentValues( locationProfile, lastModified, recRule );
+		ContentValues recRuleValues = convertRecRuleToContentValues( locationProfile, recRule );
 		Cursor recRuleCursor = context.getContentResolver().query( RecordingRuleConstants.CONTENT_URI, recRuleProjection, recRuleSelection, new String[] { String.valueOf( recRule.getId() ) }, null );
 		if( recRuleCursor.moveToFirst() ) {
 			Long id = recRuleCursor.getLong( recRuleCursor.getColumnIndexOrThrow( RecordingRuleConstants._ID ) );
@@ -297,7 +297,6 @@ public class RecordingRuleHelperV27 extends AbstractBaseHelper {
 
 		}
 		recRuleCursor.close();
-		count++;
 		
 		Log.d( TAG, "processRecordingRule : exit" );
 	}
@@ -436,7 +435,7 @@ public class RecordingRuleHelperV27 extends AbstractBaseHelper {
 		return ret;
 	}
 
-	private ContentValues convertRecRuleToContentValues( final LocationProfile locationProfile, final DateTime lastModified, final org.mythtv.services.api.v027.beans.RecRule recRule ) {
+	private ContentValues convertRecRuleToContentValues( final LocationProfile locationProfile, final org.mythtv.services.api.v027.beans.RecRule recRule ) {
 //		Log.v( TAG, "convertRecRuleToContentValues : enter" );
 		
 		DateTime startTimestamp = new DateTime( DateTimeZone.UTC );
@@ -504,7 +503,7 @@ public class RecordingRuleHelperV27 extends AbstractBaseHelper {
 		values.put( RecordingRuleConstants.FIELD_LAST_DELETED, null != recRule.getLastDeleted() ? recRule.getLastDeleted().getMillis() : -1 );
 		values.put( RecordingRuleConstants.FIELD_AVERAGE_DELAY, recRule.getAverageDelay() );
 		values.put( RecordingRuleConstants.FIELD_MASTER_HOSTNAME, locationProfile.getHostname() );
-		values.put( RecordingRuleConstants.FIELD_LAST_MODIFIED_DATE, lastModified.getMillis() );
+		values.put( RecordingRuleConstants.FIELD_LAST_MODIFIED_DATE, new DateTime( DateTimeZone.UTC ).getMillis() );
 //		Log.v( TAG, "convertRecRuleToContentValues : values=" + values.toString() );
 		
 //		Log.v( TAG, "convertRecRuleToContentValues : exit" );

@@ -12,10 +12,8 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.AbstractBaseHelper;
-import org.mythtv.db.content.LiveStreamConstants;
 import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.db.dvr.RecordingConstants;
-import org.mythtv.db.dvr.RemoveStreamTask;
 import org.mythtv.db.dvr.programGroup.ProgramGroup;
 import org.mythtv.db.dvr.programGroup.ProgramGroupConstants;
 import org.mythtv.db.dvr.programGroup.ProgramGroupDaoHelper;
@@ -220,15 +218,15 @@ public class RecordedHelperV27 extends AbstractBaseHelper {
 		if( null == context ) 
 			throw new RuntimeException( "RecordedHelperV27 is not initialized" );
 		
-		DateTime lastModified = new DateTime( DateTimeZone.UTC );
-		Log.d( TAG, "load : lastModified=" + lastModified.toString() );
-		
+		processProgramGroups( context, locationProfile, programs );
+
 		int processed = -1;
 		int count = 0;
 		
 		ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
 		
-		processProgramGroups( context, locationProfile, ops, programs, lastModified, processed, count );
+		ProgramHelperV27.getInstance().deletePrograms( context, locationProfile, ops, ProgramConstants.CONTENT_URI_RECORDED, ProgramConstants.TABLE_NAME_RECORDED );
+		RecordingHelperV27.getInstance().deleteRecordings( context, locationProfile, ops, RecordingConstants.ContentDetails.RECORDED );
 
 		boolean inError;
 
@@ -250,14 +248,14 @@ public class RecordedHelperV27 extends AbstractBaseHelper {
 				inError = false;
 			}
 
-			ProgramHelperV27.getInstance().processProgram( context, locationProfile, ProgramConstants.CONTENT_URI_RECORDED, ProgramConstants.TABLE_NAME_RECORDED, ops, program, lastModified, count );
+			ProgramHelperV27.getInstance().processProgram( context, locationProfile, ProgramConstants.CONTENT_URI_RECORDED, ProgramConstants.TABLE_NAME_RECORDED, ops, program );
 			count++;
 			
 			if( null != program.getChannel() ) {
 
 				if( !channelsChecked.contains( program.getChannel().getChanId() ) ) {
 					
-					ChannelHelperV27.getInstance().processChannel( context, locationProfile, ops, program.getChannel(), lastModified, count );
+					ChannelHelperV27.getInstance().processChannel( context, locationProfile, ops, program.getChannel() );
 					count++;
 					
 					channelsChecked.add( program.getChannel().getChanId() );
@@ -270,7 +268,7 @@ public class RecordedHelperV27 extends AbstractBaseHelper {
 				
 				if( program.getRecording().getRecordId() > 0 ) {
 				
-					RecordingHelperV27.getInstance().processRecording( context, locationProfile, ops, RecordingConstants.ContentDetails.RECORDED, program, lastModified, count );
+					RecordingHelperV27.getInstance().processRecording( context, locationProfile, ops, RecordingConstants.ContentDetails.RECORDED, program, count );
 					count++;
 					
 				}
@@ -290,51 +288,51 @@ public class RecordedHelperV27 extends AbstractBaseHelper {
 
 		processBatch( context, ops, processed, count );
 
-		Log.v( TAG, "load : remove deleted recording live streams" );
-		String deletedSelection = ProgramConstants.TABLE_NAME_RECORDED + "." + ProgramConstants.FIELD_LAST_MODIFIED_DATE + " < ?";
-		String[] deletedSelectionArgs = new String[] { String.valueOf( lastModified.getMillis() ) };
-			
-		deletedSelection = appendLocationHostname( context, locationProfile, deletedSelection, ProgramConstants.TABLE_NAME_RECORDED );
-			
-		Cursor deletedCursor = context.getContentResolver().query( ProgramConstants.CONTENT_URI_RECORDED, null, deletedSelection, deletedSelectionArgs, null );
-		while( deletedCursor.moveToNext() ) {
-
-			long channelId = deletedCursor.getLong( deletedCursor.getColumnIndex( ProgramConstants.FIELD_CHANNEL_ID ) );
-			long startTime = deletedCursor.getLong( deletedCursor.getColumnIndex( ProgramConstants.FIELD_START_TIME ) );
-				
-			// Delete any live stream details
-			String liveStreamSelection = LiveStreamConstants.FIELD_CHAN_ID + " = ? AND " + LiveStreamConstants.FIELD_START_TIME + " = ?";
-			String[] liveStreamSelectionArgs = new String[] { String.valueOf( channelId ), String.valueOf( startTime ) };
-
-			liveStreamSelection = appendLocationHostname( context, locationProfile, liveStreamSelection, LiveStreamConstants.TABLE_NAME );
-				
-			Cursor liveStreamCursor = context.getContentResolver().query( LiveStreamConstants.CONTENT_URI, null, liveStreamSelection, liveStreamSelectionArgs, null );
-			if( liveStreamCursor.moveToFirst() ) {
+//		Log.v( TAG, "load : remove deleted recording live streams" );
+//		String[] deletedProjection = new String[] { ProgramConstants.FIELD_CHANNEL_ID, ProgramConstants.FIELD_START_TIME, ProgramConstants.FIELD_TITLE, ProgramConstants.FIELD_SUB_TITLE, ProgramConstants.FIELD_LAST_MODIFIED_DATE };
+//		String deletedSelection = ProgramConstants.TABLE_NAME_RECORDED + "." + ProgramConstants.FIELD_LAST_MODIFIED_DATE + " < ?";
+//		String[] deletedSelectionArgs = new String[] { String.valueOf( lastModified.getMillis() ) };
+//			
+//		deletedSelection = appendLocationHostname( context, locationProfile, deletedSelection, ProgramConstants.TABLE_NAME_RECORDED );
+//		
+//		int deleteCount = 0;
+//		Cursor deletedCursor = context.getContentResolver().query( ProgramConstants.CONTENT_URI_RECORDED, deletedProjection, deletedSelection, deletedSelectionArgs, null );
+//		while( deletedCursor.moveToNext() ) {
+//
+//			long channelId = deletedCursor.getLong( deletedCursor.getColumnIndex( ProgramConstants.FIELD_CHANNEL_ID ) );
+//			long startTime = deletedCursor.getLong( deletedCursor.getColumnIndex( ProgramConstants.FIELD_START_TIME ) );
+//			String title = deletedCursor.getString( deletedCursor.getColumnIndex( ProgramConstants.FIELD_TITLE ) );
+//			String subTitle = deletedCursor.getString( deletedCursor.getColumnIndex( ProgramConstants.FIELD_SUB_TITLE ) );
+//			DateTime lastModifiedDate = new DateTime( deletedCursor.getLong( deletedCursor.getColumnIndex( ProgramConstants.FIELD_LAST_MODIFIED_DATE ) ) );
+//			Log.v( TAG, "load : queued deleted program - " + title + ":" + subTitle + ":" + lastModified + ":" + lastModifiedDate + " (" + lastModified.isBefore( lastModifiedDate ) + ")" );
+//			
+//			// Delete any live stream details
+//			String liveStreamSelection = LiveStreamConstants.FIELD_CHAN_ID + " = ? AND " + LiveStreamConstants.FIELD_START_TIME + " = ?";
+//			String[] liveStreamSelectionArgs = new String[] { String.valueOf( channelId ), String.valueOf( startTime ) };
+//
+//			liveStreamSelection = appendLocationHostname( context, locationProfile, liveStreamSelection, LiveStreamConstants.TABLE_NAME );
+//				
+//			Cursor liveStreamCursor = context.getContentResolver().query( LiveStreamConstants.CONTENT_URI, null, liveStreamSelection, liveStreamSelectionArgs, null );
+//			if( liveStreamCursor.moveToFirst() ) {
 //				Log.v( TAG, "load : remove live stream" );
-
-				int liveStreamId = liveStreamCursor.getInt( liveStreamCursor.getColumnIndex( LiveStreamConstants.TABLE_NAME + "." + LiveStreamConstants.FIELD_ID ) );
-					
-				RemoveStreamTask removeStreamTask = new RemoveStreamTask( context, locationProfile );
-				removeStreamTask.execute( liveStreamId );
-			}
-			liveStreamCursor.close();
-
-		}
-		deletedCursor.close();
-
-//		Log.v( TAG, "load : DELETE PROGRAMS" );
-		ProgramHelperV27.getInstance().deletePrograms( context, locationProfile, ops, ProgramConstants.CONTENT_URI_RECORDED, ProgramConstants.TABLE_NAME_RECORDED, lastModified );
-
-//		Log.v( TAG, "load : DELETE RECORDINGS" );
-		RecordingHelperV27.getInstance().deleteRecordings( ops, RecordingConstants.ContentDetails.RECORDED, lastModified );
-
-		processBatch( context, ops, processed, count );
+//
+//				int liveStreamId = liveStreamCursor.getInt( liveStreamCursor.getColumnIndex( LiveStreamConstants.TABLE_NAME + "." + LiveStreamConstants.FIELD_ID ) );
+//					
+//				RemoveStreamTask removeStreamTask = new RemoveStreamTask( context, locationProfile );
+//				removeStreamTask.execute( liveStreamId );
+//			}
+//			liveStreamCursor.close();
+//
+//			deleteCount++;
+//		}
+//		deletedCursor.close();
+//		Log.v( TAG, "load : queued deleted programs - " + deleteCount );
 
 //		Log.v( TAG, "load : exit" );
 		return processed;
 	}
 
-	private void processProgramGroups( final Context context, final LocationProfile locationProfile, ArrayList<ContentProviderOperation> ops, Program[] programs, DateTime lastModified, Integer processed, Integer count ) throws RemoteException, OperationApplicationException {
+	private void processProgramGroups( final Context context, final LocationProfile locationProfile, Program[] programs ) throws RemoteException, OperationApplicationException {
 		Log.v( TAG, "processProgramGroups : enter" );
 		
 		if( null == context ) 
@@ -364,7 +362,25 @@ public class RecordedHelperV27 extends AbstractBaseHelper {
 			
 		}
 		
-		Log.v( TAG, "load : adding 'All' program group in programGroups" );
+		int processed = -1;
+		int count = 0;
+		
+		ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
+
+		Log.v( TAG, "processProgramGroups : remove deleted program groups" );
+		String deleteProgramGroupSelection = null;
+		String[] deleteProgramGroupArgs = null;
+
+		deleteProgramGroupSelection = appendLocationHostname( context, locationProfile, deleteProgramGroupSelection, null );
+
+		ops.add(  
+			ContentProviderOperation.newDelete( ProgramGroupConstants.CONTENT_URI )
+			.withSelection( deleteProgramGroupSelection, deleteProgramGroupArgs )
+			.withYieldAllowed( true )
+			.build()
+		);
+			
+		Log.v( TAG, "processProgramGroups : adding 'All' program group in programGroups" );
 		ProgramGroup all = new ProgramGroup( null, "All", "All", "All", "", 1 );
 		programGroups.put( all.getProgramGroup(), all );
 		
@@ -374,11 +390,11 @@ public class RecordedHelperV27 extends AbstractBaseHelper {
 		programGroupSelection = appendLocationHostname( context, locationProfile, programGroupSelection, null );
 
 		for( String key : programGroups.keySet() ) {
-			Log.v( TAG, "load : processing programGroup '" + key + "'" );
+			Log.v( TAG, "processProgramGroups : processing programGroup '" + key + "'" );
 			
 			ProgramGroup programGroup = programGroups.get( key );
 			
-			ContentValues programValues = convertProgramGroupToContentValues( locationProfile, lastModified, programGroup );
+			ContentValues programValues = convertProgramGroupToContentValues( locationProfile, programGroup );
 			Cursor programGroupCursor = context.getContentResolver().query( ProgramGroupConstants.CONTENT_URI, programGroupProjection, programGroupSelection, new String[] { key }, null );
 			if( programGroupCursor.moveToFirst() ) {
 
@@ -403,7 +419,7 @@ public class RecordedHelperV27 extends AbstractBaseHelper {
 			count++;
 
 			if( count > 100 ) {
-				Log.v( TAG, "process : applying batch for '" + count + "' transactions" );
+				Log.v( TAG, "processProgramGroups : applying batch for '" + count + "' transactions" );
 
 				processBatch( context, ops, processed, count );
 			}
@@ -411,21 +427,7 @@ public class RecordedHelperV27 extends AbstractBaseHelper {
 		}
 
 		if( !ops.isEmpty() ) {
-			Log.v( TAG, "load : applying batch for '" + count + "' transactions" );
-			
-			processBatch( context, ops, processed, count );
-		}
-
-		Log.v( TAG, "load : remove deleted program groups" );
-		ops.add(  
-			ContentProviderOperation.newDelete( ProgramGroupConstants.CONTENT_URI )
-			.withSelection( ProgramGroupConstants.FIELD_LAST_MODIFIED_DATE + " < ?", new String[] { String.valueOf( lastModified.getMillis() ) } )
-			.withYieldAllowed( true )
-			.build()
-		);
-			
-		if( !ops.isEmpty() ) {
-			Log.v( TAG, "load : applying final batch for '" + count + "' transactions" );
+			Log.v( TAG, "processProgramGroups : applying batch for '" + count + "' transactions" );
 			
 			processBatch( context, ops, processed, count );
 		}
@@ -433,7 +435,7 @@ public class RecordedHelperV27 extends AbstractBaseHelper {
 		Log.v( TAG, "processProgramGroups : exit" );
 	}
 
-	private ContentValues convertProgramGroupToContentValues( final LocationProfile locationProfile, final DateTime lastModified, final ProgramGroup programGroup ) {
+	private ContentValues convertProgramGroupToContentValues( final LocationProfile locationProfile, final ProgramGroup programGroup ) {
 		
 		ContentValues values = new ContentValues();
 		values.put( ProgramGroupConstants.FIELD_PROGRAM_GROUP, null != programGroup.getTitle() ? ArticleCleaner.clean( programGroup.getTitle() ) : "" );
@@ -442,7 +444,7 @@ public class RecordedHelperV27 extends AbstractBaseHelper {
 		values.put( ProgramGroupConstants.FIELD_INETREF, null != programGroup.getInetref() ? programGroup.getInetref() : "" );
 		values.put( ProgramGroupConstants.FIELD_SORT, programGroup.getSort() );
 		values.put( ProgramGroupConstants.FIELD_MASTER_HOSTNAME, locationProfile.getHostname() );
-		values.put( ProgramGroupConstants.FIELD_LAST_MODIFIED_DATE, lastModified.getMillis() );
+		values.put( ProgramGroupConstants.FIELD_LAST_MODIFIED_DATE, new DateTime().getMillis() );
 		
 		return values;
 	}

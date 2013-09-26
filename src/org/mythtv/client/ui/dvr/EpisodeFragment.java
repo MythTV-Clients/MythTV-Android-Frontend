@@ -717,11 +717,19 @@ public class EpisodeFragment extends AbstractMythFragment implements GetLiveStre
 	        		notConnectedNotify();
 	        	} else {
 	        		
-	        		if( null != program ) {
-	        			ProgramGroup programGroup = mProgramGroupDaoHelper.findByTitle( getActivity(), mLocationProfile, program.getTitle() );
-	        			listener.onEpisodeDeleted( programGroup );
+	        		if( null != intent.getStringExtra( RecordedService.EXTRA_COMPLETE ) && intent.getStringExtra( RecordedService.EXTRA_COMPLETE ).startsWith( "Episode" ) && intent.getStringExtra( RecordedService.EXTRA_COMPLETE ).endsWith( "deleted!" ) ) {
+	        		
+	        			if( null != program ) {
+	        				ProgramGroup programGroup = mProgramGroupDaoHelper.findByTitle( getActivity(), mLocationProfile, program.getTitle() );
+	        				listener.onEpisodeDeleted( programGroup );
+	        			} else {
+	        				listener.onEpisodeDeleted( null );
+	        			}
+
 	        		} else {
+	        			
 	        			listener.onEpisodeDeleted( null );
+	        			
 	        		}
 	        		
 	        	}

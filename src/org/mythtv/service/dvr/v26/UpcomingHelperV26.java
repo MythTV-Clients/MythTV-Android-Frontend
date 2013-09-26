@@ -149,13 +149,13 @@ public class UpcomingHelperV26 extends AbstractBaseHelper {
 		if( null == context ) 
 			throw new RuntimeException( "UpcomingHelperV27 is not initialized" );
 		
-		DateTime today = new DateTime( DateTimeZone.UTC ).withTimeAtStartOfDay();
-		DateTime lastModified = new DateTime( DateTimeZone.UTC );
-		
 		int processed = -1;
 		int count = 0;
 		
 		ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
+
+		ProgramHelperV26.getInstance().deletePrograms( context, locationProfile, ops, ProgramConstants.CONTENT_URI_UPCOMING, ProgramConstants.TABLE_NAME_UPCOMING );
+		RecordingHelperV26.getInstance().deleteRecordings( context, locationProfile, ops, RecordingConstants.ContentDetails.UPCOMING );
 		
 		boolean inError;
 
@@ -171,11 +171,11 @@ public class UpcomingHelperV26 extends AbstractBaseHelper {
 			}
 
 			// load upcoming program
-			ProgramHelperV26.getInstance().processProgram( context, locationProfile, ProgramConstants.CONTENT_URI_UPCOMING, ProgramConstants.TABLE_NAME_UPCOMING, ops, program, lastModified, count );
+			ProgramHelperV26.getInstance().processProgram( context, locationProfile, ProgramConstants.CONTENT_URI_UPCOMING, ProgramConstants.TABLE_NAME_UPCOMING, ops, program );
 			count++;
 			
 			// update program guide
-			ProgramHelperV26.getInstance().processProgram( context, locationProfile, ProgramConstants.CONTENT_URI_GUIDE, ProgramConstants.TABLE_NAME_GUIDE, ops, program, lastModified, count );
+			ProgramHelperV26.getInstance().processProgram( context, locationProfile, ProgramConstants.CONTENT_URI_GUIDE, ProgramConstants.TABLE_NAME_GUIDE, ops, program );
 			count++;
 			
 			if( !inError && null != program.getRecording() ) {
@@ -183,11 +183,11 @@ public class UpcomingHelperV26 extends AbstractBaseHelper {
 				if( program.getRecording().getRecordId() > 0 ) {
 				
 					// load upcoming recording
-					RecordingHelperV26.getInstance().processRecording( context, locationProfile, ops, RecordingConstants.ContentDetails.UPCOMING, program, lastModified, count );
+					RecordingHelperV26.getInstance().processRecording( context, locationProfile, ops, RecordingConstants.ContentDetails.UPCOMING, program );
 					count++;
 					
 					// update program guide recording
-					RecordingHelperV26.getInstance().processRecording( context, locationProfile, ops, RecordingConstants.ContentDetails.GUIDE, program, lastModified, count );
+					RecordingHelperV26.getInstance().processRecording( context, locationProfile, ops, RecordingConstants.ContentDetails.GUIDE, program );
 					count++;
 					
 				}
@@ -204,15 +204,11 @@ public class UpcomingHelperV26 extends AbstractBaseHelper {
 			
 		}
 
-		processBatch( context, ops, processed, count );
-
-//		Log.v( TAG, "load : DELETE PROGRAMS" );
-		ProgramHelperV26.getInstance().deletePrograms( context, locationProfile, ops, ProgramConstants.CONTENT_URI_UPCOMING, ProgramConstants.TABLE_NAME_UPCOMING, today );
-
-//		Log.v( TAG, "load : DELETE RECORDINGS" );
-		RecordingHelperV26.getInstance().deleteRecordings( ops, RecordingConstants.ContentDetails.UPCOMING, today );
-
-		processBatch( context, ops, processed, count );
+		if( !ops.isEmpty() ) {
+			Log.v( TAG, "load : applying batch for '" + count + "' transactions" );
+			
+			processBatch( context, ops, processed, count );
+		}
 
 //		Log.v( TAG, "load : exit" );
 		return processed;

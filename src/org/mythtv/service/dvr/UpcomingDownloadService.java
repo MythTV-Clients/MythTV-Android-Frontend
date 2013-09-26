@@ -98,7 +98,6 @@ public class UpcomingDownloadService extends MythtvService {
 
     			Intent completeIntent = new Intent( ACTION_COMPLETE );
     			completeIntent.putExtra( EXTRA_COMPLETE, "Upcoming Programs Download Service Finished" );
-    			completeIntent.putExtra( EXTRA_COMPLETE, "Recorded Programs Download Service Finished" );
    				completeIntent.putExtra( EXTRA_COMPLETE_UPTODATE, passed );
     			
     			sendBroadcast( completeIntent );

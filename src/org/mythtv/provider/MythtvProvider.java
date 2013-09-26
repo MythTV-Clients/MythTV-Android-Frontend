@@ -1942,7 +1942,7 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 			insert.bindLong( 25, value.getAsInteger( ProgramConstants.FIELD_RECORD_ID ) );
 			insert.bindLong( 26, value.getAsInteger( ProgramConstants.FIELD_IN_ERROR ) );
 			insert.bindString( 27, value.getAsString( ProgramConstants.FIELD_MASTER_HOSTNAME ) );
-			insert.bindLong( 28, value.getAsInteger( ProgramConstants.FIELD_LAST_MODIFIED_DATE ) );
+			insert.bindLong( 28, value.getAsLong( ProgramConstants.FIELD_LAST_MODIFIED_DATE ) );
 			
 			insert.execute();
 		}
