@@ -1384,247 +1384,146 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 		switch( URI_MATCHER.match( uri ) ) {
 			case RECORDED:
 				affected = db.update( ProgramConstants.TABLE_NAME_RECORDED, values, selection , selectionArgs );
-				
-				getContext().getContentResolver().notifyChange( uri, null );
-				
-				return affected;
+				break;
 
 			case RECORDED_ID:
 				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
-
 				affected = db.update( ProgramConstants.TABLE_NAME_RECORDED, values, selection , selectionArgs );
-				
-				getContext().getContentResolver().notifyChange( uri, null );
-				
-				return affected;
+				break;
 
 			case UPCOMING:
 				affected = db.update( ProgramConstants.TABLE_NAME_UPCOMING, values, selection , selectionArgs );
-				
-				getContext().getContentResolver().notifyChange( uri, null );
-				
-				return affected;
+				break;
 
 			case UPCOMING_ID:
 				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
-
 				affected = db.update( ProgramConstants.TABLE_NAME_UPCOMING, values, selection , selectionArgs );
-				
-				getContext().getContentResolver().notifyChange( uri, null );
-				
-				return affected;
+				break;
 
 			case GUIDE:
 				affected = db.update( ProgramConstants.TABLE_NAME_GUIDE, values, selection , selectionArgs );
-				
-				getContext().getContentResolver().notifyChange( uri, null );
-				
-				return affected;
+				break;
 
 			case GUIDE_ID:
 				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
-
 				affected = db.update( ProgramConstants.TABLE_NAME_GUIDE, values, selection , selectionArgs );
-				
-				getContext().getContentResolver().notifyChange( uri, null );
-				
-				return affected;
+				break;
 
 			case PROGRAM_GROUP:
 				affected = db.update( ProgramGroupConstants.TABLE_NAME, values, selection , selectionArgs );
-				
-				getContext().getContentResolver().notifyChange( uri, null );
-				
-				return affected;
+				break;
 
 			case PROGRAM_GROUP_ID:
 				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
-
 				affected = db.update( ProgramGroupConstants.TABLE_NAME, values, selection , selectionArgs );
-				
-				getContext().getContentResolver().notifyChange( uri, null );
-				
-				return affected;
+				break;
 
 			case RECORDING_GUIDE:
 				affected = db.update( RecordingConstants.ContentDetails.GUIDE.getTableName(), values, selection , selectionArgs );
-				
-				getContext().getContentResolver().notifyChange( uri, null );
-				
-				return affected;
+				break;
 
 			case RECORDING_GUIDE_ID:
 				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
-
 				affected = db.update( RecordingConstants.ContentDetails.GUIDE.getTableName(), values, selection , selectionArgs );
-				
-				getContext().getContentResolver().notifyChange( uri, null );
-				
-				return affected;
+				break;
 
 			case RECORDING_RECORDED:
 				affected = db.update( RecordingConstants.ContentDetails.RECORDED.getTableName(), values, selection , selectionArgs );
-				
-				getContext().getContentResolver().notifyChange( uri, null );
-				
-				return affected;
+				break;
 
 			case RECORDING_RECORDED_ID:
 				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
-
 				affected = db.update( RecordingConstants.ContentDetails.RECORDED.getTableName(), values, selection , selectionArgs );
-				
-				getContext().getContentResolver().notifyChange( uri, null );
-				
-				return affected;
+				break;
 
 			case RECORDING_UPCOMING:
 				affected = db.update( RecordingConstants.ContentDetails.UPCOMING.getTableName(), values, selection , selectionArgs );
-				
-				getContext().getContentResolver().notifyChange( uri, null );
-				
-				return affected;
+				break;
 
 			case RECORDING_UPCOMING_ID:
 				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
-
 				affected = db.update( RecordingConstants.ContentDetails.UPCOMING.getTableName(), values, selection , selectionArgs );
-				
-				getContext().getContentResolver().notifyChange( uri, null );
-				
-				return affected;
+				break;
 
 			case RECORDING_RULE:
 				affected = db.update( RecordingRuleConstants.TABLE_NAME, values, selection , selectionArgs );
-				
-				getContext().getContentResolver().notifyChange( uri, null );
-				
-				return affected;
+				break;
 
 			case RECORDING_RULE_ID:
 				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
-
 				affected = db.update( RecordingRuleConstants.TABLE_NAME, values, selection , selectionArgs );
-				
-				getContext().getContentResolver().notifyChange( uri, null );
-				
-				return affected;
+				break;
 
 			case LIVE_STREAM:
 				affected = db.update( LiveStreamConstants.TABLE_NAME, values, selection , selectionArgs );
-				
-				getContext().getContentResolver().notifyChange( uri, null );
-				
-				return affected;
+				break;
 
 			case LIVE_STREAM_ID:
 				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
-
 				affected = db.update( LiveStreamConstants.TABLE_NAME, values, selection , selectionArgs );
-				
-				getContext().getContentResolver().notifyChange( uri, null );
-				
-				return affected;
+				break;
 
 			case CHANNELS:
 				affected = db.update( ChannelConstants.TABLE_NAME, values, selection , selectionArgs );
-				
-				getContext().getContentResolver().notifyChange( uri, null );
-				
-				return affected;
+				break;
 
 			case CHANNEL_ID:
 				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
-
 				affected = db.update( ChannelConstants.TABLE_NAME, values, selection , selectionArgs );
-
-				getContext().getContentResolver().notifyChange( uri, null );
-				
-				return affected;
+				break;
 
 			case FRONTENDS:
 				affected = db.update( FrontendConstants.TABLE_NAME, values, selection , selectionArgs );
-				
-				getContext().getContentResolver().notifyChange( uri, null );
-				
-				return affected;
+				break;
 
 			case FRONTEND_ID:
 				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
-
 				affected = db.update( FrontendConstants.TABLE_NAME, values, selection , selectionArgs );
-
-				getContext().getContentResolver().notifyChange( uri, null );
-				
-				return affected;
+				break;
 
 			case ETAGS:
 				affected = db.update( EtagConstants.TABLE_NAME, values, selection , selectionArgs );
-				
-				getContext().getContentResolver().notifyChange( uri, null );
-				
-				return affected;
+				break;
 
 			case ETAG_ID:
 				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
-
 				affected = db.update( EtagConstants.TABLE_NAME, values, selection , selectionArgs );
-
-				getContext().getContentResolver().notifyChange( uri, null );
-				
-				return affected;
+				break;
 
 			case STATUS:
 				affected = db.update( StatusConstants.TABLE_NAME, values, selection , selectionArgs );
-				
-				getContext().getContentResolver().notifyChange( uri, null );
-				
-				return affected;
+				break;
 
 			case STATUS_ID:
 				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
-
 				affected = db.update( StatusConstants.TABLE_NAME, values, selection , selectionArgs );
-
-				getContext().getContentResolver().notifyChange( uri, null );
-				
-				return affected;
+				break;
 
 			case LOCATION_PROFILE:
 				affected = db.update( LocationProfileConstants.TABLE_NAME, values, selection , selectionArgs );
-				
-				getContext().getContentResolver().notifyChange( uri, null );
-				
-				return affected;
+				break;
 
 			case LOCATION_PROFILE_ID:
 				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
-
 				affected = db.update( LocationProfileConstants.TABLE_NAME, values, selection , selectionArgs );
-
-				getContext().getContentResolver().notifyChange( uri, null );
-				
-				return affected;
+				break;
 
 			case PLAYBACK_PROFILE:
 				affected = db.update( PlaybackProfileConstants.TABLE_NAME, values, selection , selectionArgs );
-				
-				getContext().getContentResolver().notifyChange( uri, null );
-				
-				return affected;
+				break;
 
 			case PLAYBACK_PROFILE_ID:
 				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
-
 				affected = db.update( PlaybackProfileConstants.TABLE_NAME, values, selection , selectionArgs );
-
-				getContext().getContentResolver().notifyChange( uri, null );
-				
-				return affected;
+				break;
 
 			default:
 				throw new IllegalArgumentException( "Unknown URI: " + uri );
 		}
+		
+		getContext().getContentResolver().notifyChange( uri, null );
+		
+		return affected;
 		
 	}
 
