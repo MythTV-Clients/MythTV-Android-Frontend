@@ -13,6 +13,8 @@ import org.mythtv.db.AbstractBaseHelper;
 import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.db.dvr.RecordingConstants;
 import org.mythtv.db.http.model.EtagInfoDelegate;
+import org.mythtv.service.dvr.v27.ProgramHelperV27;
+import org.mythtv.service.dvr.v27.RecordingHelperV27;
 import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.ApiVersion;
 import org.mythtv.services.api.connect.MythAccessFactory;
@@ -154,9 +156,6 @@ public class UpcomingHelperV26 extends AbstractBaseHelper {
 		
 		ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
 
-		ProgramHelperV26.getInstance().deletePrograms( context, locationProfile, ops, ProgramConstants.CONTENT_URI_UPCOMING, ProgramConstants.TABLE_NAME_UPCOMING );
-		RecordingHelperV26.getInstance().deleteRecordings( context, locationProfile, ops, RecordingConstants.ContentDetails.UPCOMING );
-		
 		boolean inError;
 
 		for( Program program : programs ) {
@@ -205,7 +204,21 @@ public class UpcomingHelperV26 extends AbstractBaseHelper {
 		}
 
 		if( !ops.isEmpty() ) {
-			Log.v( TAG, "load : applying batch for '" + count + "' transactions" );
+			Log.v( TAG, "load : applying final batch for '" + count + "' transactions" );
+			
+			processBatch( context, ops, processed, count );
+		}
+
+		ops = new ArrayList<ContentProviderOperation>();
+
+		DateTime lastModified = new DateTime();
+		lastModified = lastModified.minusHours( 1 );
+		
+		ProgramHelperV27.getInstance().deletePrograms( context, locationProfile, ops, ProgramConstants.CONTENT_URI_UPCOMING, ProgramConstants.TABLE_NAME_UPCOMING, lastModified );
+		RecordingHelperV27.getInstance().deleteRecordings( context, locationProfile, ops, RecordingConstants.ContentDetails.UPCOMING, lastModified );
+
+		if( !ops.isEmpty() ) {
+			Log.v( TAG, "load : applying delete batch for transactions" );
 			
 			processBatch( context, ops, processed, count );
 		}

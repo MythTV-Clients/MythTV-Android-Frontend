@@ -78,9 +78,9 @@ public class ProgramHelperV27 extends AbstractBaseHelper {
 		
 		ContentValues programValues = convertProgramToContentValues( locationProfile, program );
 		
-		if( table.equals( ProgramConstants.TABLE_NAME_RECORDED ) || table.equals( ProgramConstants.TABLE_NAME_UPCOMING ) ) {
+		if( table.equals( ProgramConstants.TABLE_NAME_RECORDED ) || table.equals( ProgramConstants.TABLE_NAME_UPCOMING ) || table.equals( ProgramConstants.TABLE_NAME_GUIDE ) ) {
 
-			Log.v( TAG, "processProgram : INSERT PROGRAM : " + program.getTitle() + ":" + program.getSubTitle() + ":" + program.getChannel().getChanId() + ":" + program.getStartTime() + ":" + program.getEndTime() + ":" + program.getHostName() );
+			Log.v( TAG, "processProgram : INSERT PROGRAM : " + program.getTitle() + ":" + program.getSubTitle() + ":" + program.getChannel().getChanId() + ":" + program.getStartTime() + ":" + program.getEndTime() + ":" + program.getHostName() + ":" + table );
 			ops.add(
 				ContentProviderOperation.newInsert( uri )
 					.withValues( programValues )
@@ -97,7 +97,7 @@ public class ProgramHelperV27 extends AbstractBaseHelper {
 
 			Cursor programCursor = context.getContentResolver().query( uri, programProjection, programSelection, programSelectionArgs, null );
 			if( programCursor.moveToFirst() ) {
-				Log.v( TAG, "processProgram : UPDATE PROGRAM : " + program.getTitle() + ":" + program.getSubTitle() + ":" + program.getChannel().getChanId() + ":" + program.getStartTime() + ":" + program.getEndTime() + ":" + program.getHostName() );
+				Log.v( TAG, "processProgram : UPDATE PROGRAM : " + program.getTitle() + ":" + program.getSubTitle() + ":" + program.getChannel().getChanId() + ":" + program.getStartTime() + ":" + program.getEndTime() + ":" + program.getHostName() + ":" + table );
 
 				Long id = programCursor.getLong( programCursor.getColumnIndexOrThrow( ProgramConstants._ID ) );
 				ops.add( 
@@ -108,7 +108,7 @@ public class ProgramHelperV27 extends AbstractBaseHelper {
 				);
 
 			} else {
-				Log.v( TAG, "processProgram : INSERT PROGRAM : " + program.getTitle() + ":" + program.getSubTitle() + ":" + program.getChannel().getChanId() + ":" + program.getStartTime() + ":" + program.getEndTime() + ":" + program.getHostName() );
+				Log.v( TAG, "processProgram : INSERT PROGRAM : " + program.getTitle() + ":" + program.getSubTitle() + ":" + program.getChannel().getChanId() + ":" + program.getStartTime() + ":" + program.getEndTime() + ":" + program.getHostName() + ":" + table );
 
 				ops.add(
 					ContentProviderOperation.newInsert( uri )

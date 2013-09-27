@@ -153,9 +153,6 @@ public class UpcomingHelperV27 extends AbstractBaseHelper {
 		
 		ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
 		
-		ProgramHelperV27.getInstance().deletePrograms( context, locationProfile, ops, ProgramConstants.CONTENT_URI_UPCOMING, ProgramConstants.TABLE_NAME_UPCOMING );
-		RecordingHelperV27.getInstance().deleteRecordings( context, locationProfile, ops, RecordingConstants.ContentDetails.UPCOMING );
-		
 		boolean inError;
 
 		for( Program program : programs ) {
@@ -182,11 +179,11 @@ public class UpcomingHelperV27 extends AbstractBaseHelper {
 				if( program.getRecording().getRecordId() > 0 ) {
 				
 					// load upcoming recording
-					RecordingHelperV27.getInstance().processRecording( context, locationProfile, ops, RecordingConstants.ContentDetails.UPCOMING, program, count );
+					RecordingHelperV27.getInstance().processRecording( context, locationProfile, ops, RecordingConstants.ContentDetails.UPCOMING, program );
 					count++;
 
 					// update program guide recording
-					RecordingHelperV27.getInstance().processRecording( context, locationProfile, ops, RecordingConstants.ContentDetails.GUIDE, program, count );
+					RecordingHelperV27.getInstance().processRecording( context, locationProfile, ops, RecordingConstants.ContentDetails.GUIDE, program );
 					count++;
 
 				}
@@ -204,7 +201,21 @@ public class UpcomingHelperV27 extends AbstractBaseHelper {
 		}
 
 		if( !ops.isEmpty() ) {
-			Log.v( TAG, "load : applying batch for '" + count + "' transactions" );
+			Log.v( TAG, "load : applying final batch for '" + count + "' transactions" );
+			
+			processBatch( context, ops, processed, count );
+		}
+
+		ops = new ArrayList<ContentProviderOperation>();
+
+		DateTime lastModified = new DateTime();
+		lastModified = lastModified.minusHours( 1 );
+		
+		ProgramHelperV27.getInstance().deletePrograms( context, locationProfile, ops, ProgramConstants.CONTENT_URI_UPCOMING, ProgramConstants.TABLE_NAME_UPCOMING, lastModified );
+		RecordingHelperV27.getInstance().deleteRecordings( context, locationProfile, ops, RecordingConstants.ContentDetails.UPCOMING, lastModified );
+
+		if( !ops.isEmpty() ) {
+			Log.v( TAG, "load : applying delete batch for transactions" );
 			
 			processBatch( context, ops, processed, count );
 		}

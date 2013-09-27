@@ -233,8 +233,6 @@ public class RecordingRuleHelperV26 extends AbstractBaseHelper {
 		if( null == context ) 
 			throw new RuntimeException( "RecordingRuleHelperV27 is not initialized" );
 		
-		DateTime lastModified = new DateTime( DateTimeZone.UTC );
-		
 		int processed = -1;
 		int count = 0;
 		
@@ -246,7 +244,7 @@ public class RecordingRuleHelperV26 extends AbstractBaseHelper {
 			count++;
 			
 			if( count > BATCH_COUNT_LIMIT ) {
-//				Log.i( TAG, "load : applying batch for '" + count + "' transactions, processing programs" );
+				Log.i( TAG, "load : applying batch for '" + count + "' transactions" );
 				
 				processBatch( context, ops, processed, count );
 				
@@ -256,11 +254,24 @@ public class RecordingRuleHelperV26 extends AbstractBaseHelper {
 			
 		}
 
-		processBatch( context, ops, processed, count );
+		if( !ops.isEmpty() ) {
+			Log.v( TAG, "load : applying final batch for '" + count + "' transactions" );
+			
+			processBatch( context, ops, processed, count );
+		}
 
+		ops = new ArrayList<ContentProviderOperation>();
+		
+		DateTime lastModified = new DateTime();
+		lastModified = lastModified.minusHours( 1 );
+		
 		deleteRecordingRules( context, locationProfile, ops, lastModified );
 		
-		processBatch( context, ops, processed, count );
+		if( !ops.isEmpty() ) {
+			Log.v( TAG, "load : applying delete batch for transactions" );
+			
+			processBatch( context, ops, processed, count );
+		}
 
 //		Log.v( TAG, "load : exit" );
 		return processed;
@@ -471,7 +482,7 @@ public class RecordingRuleHelperV26 extends AbstractBaseHelper {
 		values.put( RecordingRuleConstants.FIELD_LAST_DELETED, null != recRule.getLastDeleted() ? recRule.getLastDeleted().getMillis() : -1 );
 		values.put( RecordingRuleConstants.FIELD_AVERAGE_DELAY, recRule.getAverageDelay() );
 		values.put( RecordingRuleConstants.FIELD_MASTER_HOSTNAME, locationProfile.getHostname() );
-		values.put( RecordingRuleConstants.FIELD_LAST_MODIFIED_DATE, new DateTime( DateTimeZone.UTC ).getMillis() );
+		values.put( RecordingRuleConstants.FIELD_LAST_MODIFIED_DATE, new DateTime().getMillis() );
 		
 //		Log.v( TAG, "convertRecRuleToContentValues : exit" );
 		return values;

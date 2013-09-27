@@ -191,11 +191,11 @@ public class BackendStatusHelperV27 extends AbstractBaseHelper {
 						if( versionProgram.getRecording().getRecordId() > 0 ) {
 						
 							// load upcoming recording
-							RecordingHelperV27.getInstance().processRecording( mContext, mLocationProfile, ops, RecordingConstants.ContentDetails.UPCOMING, convertV27Program( versionProgram ), count );
+							RecordingHelperV27.getInstance().processRecording( mContext, mLocationProfile, ops, RecordingConstants.ContentDetails.UPCOMING, convertV27Program( versionProgram ) );
 							count++;
 
 							// update program guide recording
-							RecordingHelperV27.getInstance().processRecording( mContext, mLocationProfile, ops, RecordingConstants.ContentDetails.GUIDE, convertV27Program( versionProgram ), count );
+							RecordingHelperV27.getInstance().processRecording( mContext, mLocationProfile, ops, RecordingConstants.ContentDetails.GUIDE, convertV27Program( versionProgram ) );
 							count++;
 
 						}

@@ -237,7 +237,6 @@ public class BackendStatusFragment extends AbstractMythFragment {
 		if( null != upcomingDownloadReceiver ) {
 			try {
 				getActivity().unregisterReceiver( upcomingDownloadReceiver );
-				upcomingDownloadReceiver = null;
 			} catch( IllegalArgumentException e ) {
 				Log.e( TAG, "onDestroy : error", e );
 			}
@@ -782,9 +781,9 @@ public class BackendStatusFragment extends AbstractMythFragment {
 	        if( intent.getAction().equals( ChannelDownloadService.ACTION_COMPLETE ) ) {
 	        	Log.i( TAG, "ChannelDownloadReceiver.onReceive : " + intent.getStringExtra( ChannelDownloadService.EXTRA_COMPLETE ) );
 	        	
-        		checkRecordedDownloadService();
-        		
 	        }
+
+	        checkRecordedDownloadService();
 
         	Log.v( TAG, "ChannelDownloadReceiver.onReceive : exit" );
 		}
@@ -807,9 +806,9 @@ public class BackendStatusFragment extends AbstractMythFragment {
 	        if( intent.getAction().equals( RecordedService.ACTION_COMPLETE ) ) {
 	        	Log.i( TAG, "RecordedDownloadReceiver.onReceive : complete=" + intent.getStringExtra( RecordedService.EXTRA_COMPLETE ) );
 	        	
-	        	checkUpcomingDownloadService();
-
 	        }
+
+        	checkUpcomingDownloadService();
 
         	Log.v( TAG, "RecordedDownloadReceiver.onReceive : exit" );
 		}
@@ -832,9 +831,9 @@ public class BackendStatusFragment extends AbstractMythFragment {
 	        if ( intent.getAction().equals( RecordingRuleService.ACTION_COMPLETE ) ) {
 	        	Log.i( TAG, "RecordingRuleDownloadReceiver.onReceive : complete=" + intent.getStringExtra( RecordingRuleService.EXTRA_COMPLETE ) );
 	        	
-	        	checkProgramGuideDownloadService();
-
 	        }
+
+        	checkProgramGuideDownloadService();
 
         	Log.v( TAG, "RecordingRuleDownloadReceiver.onReceive : exit" );
 		}
@@ -858,10 +857,10 @@ public class BackendStatusFragment extends AbstractMythFragment {
 	        if ( intent.getAction().equals( UpcomingDownloadService.ACTION_COMPLETE ) ) {
 	        	Log.i( TAG, "UpcomingDownloadReceiver.onReceive : " + intent.getStringExtra( UpcomingDownloadService.EXTRA_COMPLETE ) );
 	        	
-	        	checkRecordingRulesDownloadService();
-
 	        }
 	        
+        	checkRecordingRulesDownloadService();
+
         	Log.v( TAG, "UpcomingDownloadReceiver.onReceive : exit" );
 		}
 		

@@ -58,14 +58,14 @@ public class RecordingHelperV27 extends AbstractBaseHelper {
 	 */
 	private RecordingHelperV27() { }
 
-	public void processRecording( final Context context, final LocationProfile locationProfile, ArrayList<ContentProviderOperation> ops, ContentDetails details, Program program, int count ) {
+	public void processRecording( final Context context, final LocationProfile locationProfile, ArrayList<ContentProviderOperation> ops, ContentDetails details, Program program ) {
 //		Log.v( TAG, "processRecording : enter" );
 		
 		ContentValues recordingValues = convertRecordingToContentValues( locationProfile, program.getStartTime(), program.getRecording() );
 
-		if( details.equals( ContentDetails.RECORDED ) || details.equals( ContentDetails.UPCOMING ) ) {
+		if( details.equals( ContentDetails.RECORDED ) || details.equals( ContentDetails.UPCOMING ) || details.equals( ContentDetails.GUIDE ) ) {
 			
-			Log.v( TAG, "processRecording : INSERT RECORDING " + count + ":" + program.getTitle() + ":" + program.getSubTitle() + ", recording=" + program.getRecording().getRecordId() );
+			Log.v( TAG, "processRecording : INSERT RECORDING : " + program.getTitle() + ":" + program.getSubTitle() + ", recording=" + program.getRecording().getRecordId() + ":" + details.getTableName() );
 			ops.add(  
 				ContentProviderOperation.newInsert( details.getContentUri() )
 					.withValues( recordingValues )
@@ -83,7 +83,7 @@ public class RecordingHelperV27 extends AbstractBaseHelper {
 
 			Cursor recordingCursor = context.getContentResolver().query( details.getContentUri(), recordingProjection, recordingSelection, recordingSelectionArgs, null );
 			if( recordingCursor.moveToFirst() ) {
-				Log.v( TAG, "processRecording : UPDATE RECORDING " + count + ":" + program.getTitle() + ":" + program.getSubTitle() + ", recording=" + program.getRecording().getRecordId() );
+				Log.v( TAG, "processRecording : UPDATE RECORDING : " + program.getTitle() + ":" + program.getSubTitle() + ", recording=" + program.getRecording().getRecordId() + ":" + details.getTableName() );
 
 				Long id = recordingCursor.getLong( recordingCursor.getColumnIndexOrThrow( details.getTableName() + "_" + RecordingConstants._ID ) );					
 				ops.add( 
@@ -93,7 +93,7 @@ public class RecordingHelperV27 extends AbstractBaseHelper {
 						.build()
 						);
 			} else {
-				Log.v( TAG, "processRecording : INSERT RECORDING " + count + ":" + program.getTitle() + ":" + program.getSubTitle() + ", recording=" + program.getRecording().getRecordId() );
+				Log.v( TAG, "processRecording : INSERT RECORDING : " + program.getTitle() + ":" + program.getSubTitle() + ", recording=" + program.getRecording().getRecordId() + ":" + details.getTableName() );
 				ops.add(  
 					ContentProviderOperation.newInsert( details.getContentUri() )
 						.withValues( recordingValues )
@@ -102,7 +102,6 @@ public class RecordingHelperV27 extends AbstractBaseHelper {
 				);
 			}
 			recordingCursor.close();
-			count++;
 
 		}
 		
@@ -127,13 +126,17 @@ public class RecordingHelperV27 extends AbstractBaseHelper {
 		Log.v( TAG, "deleteRecordings : exit" );
 	}
 
-	public void deleteRecordings( ArrayList<ContentProviderOperation> ops, ContentDetails details, DateTime lastModified ) {
+	public void deleteRecordings( final Context context, final LocationProfile locationProfile, ArrayList<ContentProviderOperation> ops, ContentDetails details, DateTime lastModified ) {
 		Log.v( TAG, "deleteRecordings : enter" );
 		
-		Log.v( TAG, "deleteRecordings : lastModified=" + lastModified.toString() );
+		String selection = details.getTableName() + "." + RecordingConstants.FIELD_LAST_MODIFIED_DATE + " < ?";
+		String[] selectionArgs = new String[] { String.valueOf( lastModified.getMillis() ) };
+		
+		selection = appendLocationHostname( context, locationProfile, selection, details.getTableName() );
+
 		ops.add(  
 			ContentProviderOperation.newDelete( details.getContentUri() )
-				.withSelection( details.getTableName() + "." + RecordingConstants.FIELD_LAST_MODIFIED_DATE + " < ?", new String[] { String.valueOf( lastModified.getMillis() ) } )
+				.withSelection( selection, selectionArgs )
 				.withYieldAllowed( true )
 				.build()
 		);

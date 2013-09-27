@@ -301,23 +301,27 @@ public class RecordingsParentFragment extends AbstractMythFragment implements
 		selectedProgramGroup = programGroup;
 		selectedProgram = null;
 
-		List<Program> programs = mRecordedDaoHelper.findAllByTitle( getActivity(), mLocationProfile, programGroup.getTitle() );
-		if( null == programs || programs.isEmpty() ) {
-			Log.d( TAG, "onProgramGroupSelected : exit, no programs in programGroup" );
-			programs = mRecordedDaoHelper.findAll( getActivity(), mLocationProfile );
-		}
-
-		if( null != programs && !programs.isEmpty() ) {
-			selectedProgram = programs.get( 0 );
-			onProgramGroupSelected( programGroup );
-			
-			if( null != selectedProgram ) {
-			
-				if( null != selectedProgram.getStartTime() && null != selectedProgram.getChannelInfo() ) {
-					onEpisodeSelected( selectedProgram.getChannelInfo().getChannelId(), selectedProgram.getStartTime() );
-				}
+		if( null != selectedProgramGroup ) {
+		
+			List<Program> programs = mRecordedDaoHelper.findAllByTitle( getActivity(), mLocationProfile, programGroup.getTitle() );
+			if( null == programs || programs.isEmpty() ) {
+				Log.d( TAG, "onProgramGroupSelected : exit, no programs in programGroup" );
+				programs = mRecordedDaoHelper.findAll( getActivity(), mLocationProfile );
 			}
-			
+
+			if( null != programs && !programs.isEmpty() ) {
+				selectedProgram = programs.get( 0 );
+				onProgramGroupSelected( programGroup );
+
+				if( null != selectedProgram ) {
+
+					if( null != selectedProgram.getStartTime() && null != selectedProgram.getChannelInfo() ) {
+						onEpisodeSelected( selectedProgram.getChannelInfo().getChannelId(), selectedProgram.getStartTime() );
+					}
+				}
+
+			}
+		
 		}
 		
 		Log.v( TAG, "onEpisodeDeleted : exit" );
