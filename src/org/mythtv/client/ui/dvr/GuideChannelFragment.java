@@ -238,8 +238,7 @@ public class GuideChannelFragment extends MythtvListFragment implements LoaderMa
 			final ChannelInfo channel = ChannelDaoHelper.convertCursorToChannelInfo( cursor );
 
 	        final ViewHolder mHolder = (ViewHolder) view.getTag();
-			
-	        
+				        
 			mHolder.channel.setText( channel.getChannelNumber() );
 			mHolder.callsign.setText( channel.getCallSign() );
 			if(mSelectedChannel == null || mSelectedChannel.getChannelId() != channel.getChannelId()){
@@ -250,28 +249,38 @@ public class GuideChannelFragment extends MythtvListFragment implements LoaderMa
 			}
 
 			if( downloadIcons ) {
-				String imageUri = mLocationProfileDaoHelper.findConnectedProfile( getActivity() ).getUrl() + "Guide/GetChannelIcon?ChanId=" + channel.getChannelId() + "&Width=32&Height=32";
-				imageLoader.displayImage( imageUri, mHolder.icon, options, new SimpleImageLoadingListener() {
+				
+				if( null != channel.getIconUrl() && !"".equals( channel.getIconUrl() ) ) {
+				
+					String imageUri = mLocationProfileDaoHelper.findConnectedProfile( getActivity() ).getUrl() + "Guide/GetChannelIcon?ChanId=" + channel.getChannelId() + "&Width=32&Height=32";
+					imageLoader.displayImage( imageUri, mHolder.icon, options, new SimpleImageLoadingListener() {
 
-					/* (non-Javadoc)
-					 * @see com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener#onLoadingComplete(android.graphics.Bitmap)
-					 */
-					@Override
-					public void onLoadingComplete( String imageUri, View view, Bitmap loadedImage ) {
-/*						mHolder.icon.setVisibility( View.GONE );
-						mHolder.icon.setVisibility( View.VISIBLE );
-*/					}
+						/* (non-Javadoc)
+						 * @see com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener#onLoadingComplete(android.graphics.Bitmap)
+						 */
+						@Override
+						public void onLoadingComplete( String imageUri, View view, Bitmap loadedImage ) {
+							/*	
+							 * mHolder.icon.setVisibility( View.GONE );
+							 * mHolder.icon.setVisibility( View.VISIBLE );
+							 */
+						}
 
-					/* (non-Javadoc)
-					 * @see com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener#onLoadingFailed(com.nostra13.universalimageloader.core.assist.FailReason)
-					 */
-					@Override
-					public void onLoadingFailed( String imageUri, View view, FailReason failReason ) {
-/*						mHolder.icon.setVisibility( View.VISIBLE );
-						mHolder.icon.setVisibility( View.GONE );
-*/					}
+						/* (non-Javadoc)
+						 * @see com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener#onLoadingFailed(com.nostra13.universalimageloader.core.assist.FailReason)
+						 */
+						@Override
+						public void onLoadingFailed( String imageUri, View view, FailReason failReason ) {
+							/*	
+							 * mHolder.icon.setVisibility( View.VISIBLE );
+							 * mHolder.icon.setVisibility( View.GONE );
+							 */
+						}
 
-				});
+					});
+				
+				}
+				
 			}
 			
 			mHolder.row.setOnClickListener( new OnClickListener() {
