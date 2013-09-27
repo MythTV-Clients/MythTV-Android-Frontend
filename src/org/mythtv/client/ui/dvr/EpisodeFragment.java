@@ -97,6 +97,18 @@ public class EpisodeFragment extends AbstractMythFragment implements GetLiveStre
 		Log.v( TAG, "onCreateView : enter" );
 
 		View root = inflater.inflate( R.layout.fragment_dvr_episode, container, false );
+		
+		/*
+		 * TODO Add the following to enable an image where there is none
+		 * on the backend. Change the coverart to something nicer.
+		 * .showImageForEmptyUri( R.drawable.coverart_missing )
+		 * .showImageOnFail( R.drawable.coverart_missing )
+		 */
+		
+		options = new DisplayImageOptions.Builder()
+			.cacheInMemory( true )
+			.cacheOnDisc( true 	)
+			.build();
 
 		Log.v( TAG, "onCreateView : exit" );
 		return root;
@@ -114,17 +126,7 @@ public class EpisodeFragment extends AbstractMythFragment implements GetLiveStre
 
 		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
 
-		/*
-		 * TODO Add the following to enable an image where there is none
-		 * on the backend. Change the coverart to something nicer.
-		 * .showImageForEmptyUri( R.drawable.coverart_missing )
-		 * .showImageOnFail( R.drawable.coverart_missing )
-		 */
 		
-		options = new DisplayImageOptions.Builder()
-			.cacheInMemory( true )
-			.cacheOnDisc( true 	)
-			.build();
 
 		setHasOptionsMenu( true );
 
