@@ -155,10 +155,10 @@ public class BackendStatusFragment extends AbstractMythFragment {
 
 		mMenuItemRefresh = new MenuItemRefreshAnimated( this.getActivity() );
 
-		mPanelStartY = container.getHeight() + 1;
-
+		mPanelStartY = this.getResources().getDisplayMetrics().heightPixels;
+		
 		mView = inflater.inflate( R.layout.fragment_backend_status, null, false );
-
+		
 		mLinearLayoutEncodersList = (LinearLayout) mView.findViewById( R.id.linearlayout_encoders_list );
 		mLinearLayoutUpcomingRecsList = (LinearLayout) mView.findViewById( R.id.linearlayout_upcoming_recordings_list );
 		mLinearLayoutJobQueueList = (LinearLayout) mView.findViewById( R.id.linearlayout_job_queue );
