@@ -222,14 +222,19 @@ public class MythmoteActivity extends AbstractFrontendsActivity {
 		protected Boolean doInBackground( String... params ) {
 			Log.d( TAG, "doInBackground : enter" );
 			
-			if( null == mContext ) throw new IllegalArgumentException( "Context is required" );
-			if( null == mLocationProfile ) throw new IllegalArgumentException( "LocationProfile is required" );
-			if( null == params || params.length != 2 ) throw new IllegalArgumentException( "Params is required" );
-			
-			String url = params[ 0 ];
-			frontendName = params[1];
-			
-			return NetworkHelper.getInstance().isFrontendConnected( mContext, mLocationProfile, url );
+			try {
+				if( null == mContext ) throw new IllegalArgumentException( "Context is required" );
+				if( null == mLocationProfile ) throw new IllegalArgumentException( "LocationProfile is required" );
+				if( null == params || params.length != 2 ) throw new IllegalArgumentException( "Params is required" );
+				
+				String url = params[ 0 ];
+				frontendName = params[1];
+				
+				return NetworkHelper.getInstance().isFrontendConnected( mContext, mLocationProfile, url );
+			} catch(Exception e){
+				Log.d(TAG, e.getMessage());
+				return false;
+			}
 		}
 		
 		@Override
