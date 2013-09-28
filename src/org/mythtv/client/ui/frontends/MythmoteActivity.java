@@ -22,8 +22,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.mythtv.R;
-
+import org.mythtv.client.ui.navigationDrawer.FrontendsRow;
+import org.mythtv.client.ui.preferences.LocationProfile;
+import org.mythtv.service.util.NetworkHelper;
 import android.app.ActionBar;
+import android.content.Context;
+import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -33,6 +38,7 @@ import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.WindowManager;
+import android.widget.TextView;
 
 /**
  * @author Daniel Frey
@@ -45,6 +51,7 @@ public class MythmoteActivity extends AbstractFrontendsActivity {
 		
 	private List<Fragment> fragmentArrayList;
 	private List<String> headerArrayList;
+	private TextView mTextViewStatus;
 	
 
 	/* (non-Javadoc)
@@ -57,12 +64,30 @@ public class MythmoteActivity extends AbstractFrontendsActivity {
 		super.onCreate( savedInstanceState );
 		setContentView( R.layout.activity_mythmote );
 		
+		mTextViewStatus = (TextView)findViewById(R.id.textView_mythmote_status);
+		
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 		
 		//setup the viewpager if layout contains one
 		setupViewPager();
 
 		Log.v( TAG, "onCreate : exit" );
+	}
+	
+	@Override
+	protected void onPostResume() {
+		super.onPostResume();
+		
+		Frontend fe = FrontendsRow.getSelectedFrontend();
+		
+		if( null == fe ){
+			this.setStatus("Selected Frontend is undefined", Color.RED);
+			return;
+		}
+		
+		this.setStatus("Connecting to " + fe.getName(), Color.BLUE);
+		FrontendConnectedTask frontendConnectedTask = new FrontendConnectedTask(this, mLocationProfileDaoHelper.findConnectedProfile(this));
+		frontendConnectedTask.execute(fe.getUrl(), fe.getNameStripped());
 	}
 
 	/* (non-Javadoc)
@@ -139,6 +164,18 @@ public class MythmoteActivity extends AbstractFrontendsActivity {
 		}
 	}
 	
+	/**
+	 * Sets the status textview's Text
+	 * @param status
+	 * @param color
+	 */
+	private void setStatus(String status, int color){
+		if(null != mTextViewStatus) {
+			mTextViewStatus.setText(status);
+			mTextViewStatus.setTextColor(color);
+		}
+	}
+	
 	
 	
 	class MythmotePagerAdapter extends FragmentStatePagerAdapter {
@@ -163,5 +200,50 @@ public class MythmoteActivity extends AbstractFrontendsActivity {
 		}
 
     }
+	
+	
+	
+	class FrontendConnectedTask extends AsyncTask<String, Void, Boolean> {
+
+		private final String TAG = FrontendConnectedTask.class.getSimpleName();
+		private final Context mContext;
+		private final LocationProfile mLocationProfile;
+		private String frontendName;
+		
+		public FrontendConnectedTask( Context context, LocationProfile locationProfile ) {
+			mContext = context;
+			mLocationProfile = locationProfile;
+		}
+		
+		/* (non-Javadoc)
+		 * @see android.os.AsyncTask#doInBackground(Params[])
+		 */
+		@Override
+		protected Boolean doInBackground( String... params ) {
+			Log.d( TAG, "doInBackground : enter" );
+			
+			if( null == mContext ) throw new IllegalArgumentException( "Context is required" );
+			if( null == mLocationProfile ) throw new IllegalArgumentException( "LocationProfile is required" );
+			if( null == params || params.length != 2 ) throw new IllegalArgumentException( "Params is required" );
+			
+			String url = params[ 0 ];
+			frontendName = params[1];
+			
+			return NetworkHelper.getInstance().isFrontendConnected( mContext, mLocationProfile, url );
+		}
+		
+		@Override
+		protected void onPostExecute(Boolean result) {
+			super.onPostExecute(result);
+			
+			if(result){
+				setStatus("Connected to " + frontendName, 0xff1d7015);
+			}else{
+				setStatus(frontendName + " connection refused", Color.RED);
+			}
+			
+		}
+
+	}
 
 }

@@ -50,12 +50,6 @@ public class SendActionTask extends AsyncTask<String, Void, Void> {
 		
 		String url = params[ 0 ];
 		String action = params[ 1 ];
-		
-		if( !NetworkHelper.getInstance().isFrontendConnected( mContext, mLocationProfile, url ) ) {
-			Log.w( TAG, "process : Frontend @ '" + url + "' is unreachable" );
-			
-			return null;
-		}
 
 		ApiVersion apiVersion = ApiVersion.valueOf( mLocationProfile.getVersion() );
 		switch( apiVersion ) {

@@ -24,6 +24,7 @@ import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.service.frontends.SendActionTask;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -31,11 +32,13 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 
 /**
- * @author pot8oe
+ * @author Thomas G. Kenny Jr
  * 
  */
 public class NavigationFragment extends AbstractFrontendFragment implements OnClickListener {
 
+	private static final String TAG = NavigationFragment.class.getSimpleName();
+	
 	private LocationProfile mLocationProfile;
 	
 	/* (non-Javadoc)
@@ -94,8 +97,10 @@ public class NavigationFragment extends AbstractFrontendFragment implements OnCl
 		final Frontend fe = FrontendsRow.getSelectedFrontend();
 
 		// exit if we don't have a frontend
-		if( null == fe )
+		if( null == fe ){
+			Log.d(TAG, "Selected frontend is undefined");
 			return;
+		}
 
 		SendActionTask sendActionTask = new SendActionTask( getActivity(),  mLocationProfile );
 
