@@ -24,27 +24,25 @@ import java.util.List;
 import org.mythtv.R;
 
 import android.app.ActionBar;
-import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.PowerManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.WindowManager;
 
 /**
  * @author Daniel Frey
+ * @author Thomas G. Kenny Jr
  *
  */
 public class MythmoteActivity extends AbstractFrontendsActivity {
 
 	private static final String TAG = MythmoteActivity.class.getSimpleName();
 		
-	private PowerManager powerManager;
-	private PowerManager.WakeLock wakeLock;
 	private List<Fragment> fragmentArrayList;
 	private List<String> headerArrayList;
 	
@@ -59,11 +57,10 @@ public class MythmoteActivity extends AbstractFrontendsActivity {
 		super.onCreate( savedInstanceState );
 		setContentView( R.layout.activity_mythmote );
 		
+		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+		
 		//setup the viewpager if layout contains one
 		setupViewPager();
-		
-		//get power manager so we can keep the screen on
-		powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
 
 		Log.v( TAG, "onCreate : exit" );
 	}
@@ -83,26 +80,6 @@ public class MythmoteActivity extends AbstractFrontendsActivity {
 		
 		Log.v( TAG, "MythmoteActivity.setupActionBar : exit" );
 	}
-
-	@Override
-	protected void onResume() {
-		
-		wakeLock = powerManager.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, "Mythmote wakelock");
-		wakeLock.acquire();
-		
-		super.onResume();
-	}
-	
-	@Override
-	protected void onPause() {
-		
-		if( wakeLock.isHeld() ) {
-			wakeLock.release();
-		}
-		
-		super.onPause();
-	}
-
 	
 	/* (non-Javadoc)
 	 * @see android.app.Activity#onOptionsItemSelected(android.view.MenuItem)
