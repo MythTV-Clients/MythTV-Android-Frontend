@@ -207,8 +207,8 @@ public class FrontendsRow implements Row, OnItemSelectedListener {
 
 			Frontend frontend = frontends.get(position);
 
-			holder.name.setText(frontend.getName());
-			holder.url.setText(frontend.getUrl());
+			holder.name.setText(frontend.getNameStripped());
+			holder.url.setText(frontend.getUrl().replace("http://", "").replace(":6547/", ""));
 
 			Log.v(TAG, "getFrontendView : exit");
 			return row;

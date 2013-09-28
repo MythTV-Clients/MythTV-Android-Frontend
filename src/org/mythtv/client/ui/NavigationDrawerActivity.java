@@ -42,6 +42,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -49,7 +50,8 @@ import android.widget.BaseAdapter;
 import android.widget.ListView;
 
 /**
- * @author dmfrey
+ * @author Daniel Frey
+ * @author Thomas G. Kenny Jr
  *
  */
 public class NavigationDrawerActivity extends AbstractMythtvFragmentActivity {
@@ -93,6 +95,15 @@ public class NavigationDrawerActivity extends AbstractMythtvFragmentActivity {
 			drawer.closeDrawer( navList );
 			
 			Log.v( TAG, "onProfileChanged : exit" );
+		}
+		
+	};
+	
+	private OnClickListener mManageProfilesOnClickListener = new OnClickListener(){
+
+		@Override
+		public void onClick(View v) {
+			startActivity( new Intent( wrActivity.get(), MythtvPreferenceActivity.class ) );
 		}
 		
 	};
@@ -209,7 +220,6 @@ public class NavigationDrawerActivity extends AbstractMythtvFragmentActivity {
 						Log.v( TAG, "onCreate : starting preferences activity" );
 						
 				    	startActivity( new Intent( wrActivity.get(), MythtvPreferenceActivity.class ) );
-						
 					}
 
 					if( row instanceof DvrActionRow ) {
@@ -450,8 +460,8 @@ public class NavigationDrawerActivity extends AbstractMythtvFragmentActivity {
 			rows = new ArrayList<Row>();
 			
 			rows.add( new VersionRow( mContext, "MAF", "x" ) );
-			rows.add( new ProfileRow( mContext, mProfileChangedListener ) );
-			rows.add( new ManageProfilesActionRow( mContext, "Manage Profiles" ) );
+			rows.add( new ProfileRow( mContext, mProfileChangedListener, mManageProfilesOnClickListener ) );
+			// -- Integrated into ProfileRow -- rows.add( new ManageProfilesActionRow( mContext, "Manage Profiles" ) );
 			
 			if( null != mLocationProfile && mLocationProfile.getType().equals( LocationType.HOME ) ) {
 				rows.add( new FrontendsHeaderRow( mContext, "Frontends" ) );

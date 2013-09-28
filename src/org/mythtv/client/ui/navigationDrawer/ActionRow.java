@@ -16,8 +16,8 @@ import android.widget.TextView;
  */
 public class ActionRow implements Row {
 
-	private Context mContext;
-	private LayoutInflater mLayoutInflater;
+	protected LayoutInflater mLayoutInflater;
+	protected Context mContext;
 	
 	private String mAction;
 	private boolean mImplemented;
