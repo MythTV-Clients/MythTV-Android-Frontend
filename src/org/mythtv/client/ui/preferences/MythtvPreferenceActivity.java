@@ -617,7 +617,7 @@ public class MythtvPreferenceActivity extends PreferenceActivity {
 			}
 
     		try {
-    			mProgressDialog = ProgressDialog.show( wrActivity.get(), "Please wait...", "Scanning network for MythTV Backend.", true, false );
+    			mProgressDialog = ProgressDialog.show( wrActivity.get(), getString( R.string.please_wait_title_str ), getString( R.string.preference_home_profiles_scan_scanning ), true, false );
     		} catch( Exception e ) {
     			Log.w( TAG, "startProbe : error", e );
     		}

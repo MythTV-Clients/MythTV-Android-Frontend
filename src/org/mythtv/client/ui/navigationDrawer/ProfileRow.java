@@ -208,7 +208,7 @@ public class ProfileRow implements Row {
         	}
         	
         } else {
-        	holder.hostname.setText( "Not Connected" );
+        	holder.hostname.setText( R.string.connection_status_not_connected );
         }
         
         return convertView;
