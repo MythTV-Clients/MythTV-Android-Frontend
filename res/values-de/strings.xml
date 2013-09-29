@@ -49,7 +49,7 @@
 	
 	<string name="please_wait">Bitte warten&#8230;</string>
 	
-	<string name="data_loading">Mythtv für Android lädt gerade Daten von deinem Backend. Bitte versuche es später noch einmal.</string>
+	<string name="data_loading">MythTV für Android lädt gerade Daten von deinem Backend. Bitte versuche es später noch einmal.</string>
 	
     <!-- Menus -->
 	<string name="menu_about">Über</string>
@@ -200,7 +200,7 @@
     <string name="episode_add_button_cancel">Abbrechen</string>
     
     <string name="episode_watch_title">HLS verwenden?</string>
-    <string name="episode_watch_message">Aufnahmen können direkt vom Master Backend gestreamt werden oder als HTTP Live Stream verarbeitet verden.  HLS macht die Aufnahme von Unterwegs verfügbar. *HINWEIS* HLS wird für MPEG2 HD Aufnahmen empfohlen.</string>
+    <string name="episode_watch_message">Aufnahmen können direkt vom Master Backend gestreamt werden oder als HTTP Live Stream verarbeitet werden.  HLS macht die Aufnahme von Unterwegs verfügbar. *HINWEIS* HLS wird für MPEG2 HD Aufnahmen empfohlen.</string>
     <string name="episode_watch_button_hls">Mit HLS abspielen</string>
     <string name="episode_watch_button_raw">Aufnahme abspielen</string>
         
@@ -275,7 +275,7 @@
 	<string name="job_queue_status_no_flags">Keine Flags</string>
 	<string name="job_queue_status_paused">Pausiert</string>
 	<string name="job_queue_status_pending">Bevorstehend</string>
-	<string name="job_queue_status_queued">Anstehend</string>
+	<string name="job_queue_status_queued">In Warteschlange</string>
 	<string name="job_queue_status_retry">Neuversuch</string>
 	<string name="job_queue_status_running">Läuft</string>
 	<string name="job_queue_status_starting">Gestartet</string>
@@ -290,7 +290,7 @@
     <string name="gallery_sg_create_done">Speichergruppe \'Images\' erfolgreich im Master Backend angelegt, bitte fülle sie mit Bildern damit die Galerie funktioniert.</string>
     <string name="gallery_sg_create_hint">Standardverzeichnis für Speichergruppen im Master Backend.</string>
 
-    <string name="gallery_sg_exist_create">Die Galerie benötigt eine Speichergruppe (SG) namens \'Images\'. MythGallery scheinen bei dein Master Backend und Frontend namens \'</string>
+    <string name="gallery_sg_exist_create">Die Galerie benötigt eine Speichergruppe (SG) namens \'Images\'. MythGallery scheint bei deinem Master Backend und Frontend namens \'</string>
     <string name="gallery_sg_exist_create2">\' installiert zu sein, aber keine SG. Erstellen?</string>
     <string name="gallery_sg_exist_create_done">Speichergruppe \'Images\' erfolgreich im Master Backend angelegt.</string>
 
