@@ -15,10 +15,10 @@ public class MediaActionsHeaderRow extends ActionsHeaderRow {
 
 	/**
 	 * @param context
-	 * @param header
+	 * @param headerResId
 	 */
-	public MediaActionsHeaderRow( Context context, String header ) {
-		super( context, header );
+	public MediaActionsHeaderRow( Context context, int headerResId ) {
+		super( context, headerResId );
 	}
 
 	/* (non-Javadoc)

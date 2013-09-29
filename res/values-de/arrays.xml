@@ -22,29 +22,16 @@
 <resources>
 
     <string-array name="nav_names">
-        <item>Dvr</item>
+        <item>DVR</item>
         <item>Multimedia</item>
-        <item>Setup</item>
-    </string-array>
-
-    <string-array name="nav_classes" translatable="false">
-        <item>org.mythtv.client.ui.BackendStatusFragment</item>
-        <item>org.mythtv.client.ui.BackendStatusFragment</item>
-        <item>org.mythtv.client.ui.BackendStatusFragment</item>
+        <item>Einstellungen</item>
     </string-array>
 
     <string-array name="nav_dvr_names">
-        <item>Recordings</item>
-        <item>Upcoming</item>
-        <item>Guide</item>
-        <item>Recording Rules</item>
-    </string-array>
-    
-    <string-array name="nav_dvr_classes" translatable="false">
-        <item>org.mythtv.client.ui.dvr.RecordingsParentFragment</item>
-        <item>org.mythtv.client.ui.dvr.UpcomingPagerFragment</item>
-        <item>org.mythtv.client.ui.dvr.GuideFragment</item>
-        <item>org.mythtv.client.ui.dvr.RecordingRulesFragment</item>
+        <item>Aufnahmen</item>
+        <item>Geplant</item>
+        <item>Programmübersicht</item>
+        <item>Aufnahmeregeln</item>
     </string-array>
 
     <string-array name="program_guide_days">

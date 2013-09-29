@@ -13,8 +13,8 @@ import android.content.Context;
  */
 public class MediaVersionRow extends VersionRow {
 
-	public MediaVersionRow( Context context, String name, String version ) {
-		super(context, name, version);
+	public MediaVersionRow( Context context, int nameResId, String version ) {
+		super(context, nameResId, version);
 	}
 
 	/* (non-Javadoc)

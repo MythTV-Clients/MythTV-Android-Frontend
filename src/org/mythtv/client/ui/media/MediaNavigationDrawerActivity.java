@@ -337,7 +337,7 @@ public class MediaNavigationDrawerActivity extends AbstractMythtvFragmentActivit
 			mContext = context;
 			
 			if( null == selectedRow ) {
-				selectedRow = new MediaPicturesActionRow( mContext, "Pictures" );
+				selectedRow = new MediaPicturesActionRow( mContext, R.string.btn_pictures );
 			}
 			
 			setupRowsList();
@@ -406,11 +406,11 @@ public class MediaNavigationDrawerActivity extends AbstractMythtvFragmentActivit
 
 			rows = new ArrayList<Row>();
 			
-			rows.add( new MediaVersionRow( mContext, "MAF", "x" ) );
+			rows.add( new MediaVersionRow( mContext, R.string.app_short_name, "x" ) );
 
-			rows.add( new MediaActionsHeaderRow( mContext, "Media Actions" ) );
+			rows.add( new MediaActionsHeaderRow( mContext, R.string.navigation_media_actions ) );
 			
-			rows.add( new MediaPicturesActionRow( mContext, "Pictures" ) );
+			rows.add( new MediaPicturesActionRow( mContext, R.string.btn_pictures ) );
 			//rows.add( new MediaVideosActionRow( mContext, "Videos" ) );
 			//rows.add( new MediaMusicActionRow( mContext, "Music" ) );
 			

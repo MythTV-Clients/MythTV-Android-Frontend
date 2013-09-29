@@ -21,7 +21,11 @@ public class ActionsHeaderRow implements Row {
 	
 	private String mHeader;
 	
-	public ActionsHeaderRow( Context context, String header ) {
+	public ActionsHeaderRow( Context context, int headerResId ) {
+	    this( context, context.getString( headerResId ));
+	}
+	
+	private ActionsHeaderRow( Context context, String header ) {
 		this.mContext = context;
 		this.mLayoutInflater = (LayoutInflater) mContext.getSystemService( Context.LAYOUT_INFLATER_SERVICE );
 		

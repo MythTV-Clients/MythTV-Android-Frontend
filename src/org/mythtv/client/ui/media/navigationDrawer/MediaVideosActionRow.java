@@ -15,11 +15,10 @@ import android.widget.ImageView;
  */
 public class MediaVideosActionRow extends MediaActionRow {
 
-	private static final String TITLE = "Videos";
 	private static final String FRAGMENT = "org.mythtv.client.ui.media.VideosParentFragment";
 	
-	public MediaVideosActionRow( Context context, String action ) {
-		super( context, action, false );
+	public MediaVideosActionRow( Context context, int actionResId ) {
+		super( context, actionResId, false );
 	}
 	
 	@Override
@@ -38,14 +37,6 @@ public class MediaVideosActionRow extends MediaActionRow {
 	@Override
 	public int getViewType() {
 		return MediaRowType.VIDEOS_ROW.ordinal();
-	}
-	
-	/* (non-Javadoc)
-	 * @see org.mythtv.client.ui.navigationDrawer.Row#getTitle()
-	 */
-	@Override
-	public String getTitle() {
-		return TITLE;
 	}
 
 	/* (non-Javadoc)

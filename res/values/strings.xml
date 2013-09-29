@@ -41,7 +41,7 @@
 
 <resources>
     
-    <string name="app_version">1.20.0</string>
+    <string name="app_version" translatable="false">1.20.0</string>
 
     <string name="app_name">MythTV Android Frontend</string>
     <string name="app_short_name">MAF</string>
@@ -94,7 +94,8 @@
 	<string name="preference_home_profiles_delete_summary">Delete an existing Master Backend Profile.</string>
 	<string name="preference_home_profiles_scan">Scan Network</string>
 	<string name="preference_home_profiles_scan_summary">Scan network for MythTV Master Backend</string>
-	<string name="preference_home_profiles_scan_error_title">MythTV Not Found</string>
+    <string name="preference_home_profiles_scan_scanning">Scanning network for MythTV Master Backend</string>
+    <string name="preference_home_profiles_scan_error_title">MythTV Not Found</string>
 	<string name="preference_home_profiles_scan_error_message">MythTV could not be found on your network.  Please make sure you are connected to Wifi on your Home Network.</string>
 			
 	<string name="preference_home_playback_profiles">Home Playback Profiles</string>
@@ -225,7 +226,7 @@
     <string name="episode_watch_title">Use HLS?</string>
     <string name="episode_watch_message">Recordings can be streamed directly from your Master Backend or processed as an HTTP Live Stream.  HLS makes the recording available for when you are away from your home network. *NOTE* HLS is recommended for MPEG2 HD recordings.</string>
     <string name="episode_watch_button_hls">Play with HLS</string>
-    <string name="episode_watch_button_raw">Play Recoding</string>
+    <string name="episode_watch_button_raw">Play Recording</string>
     
     <!-- Guide -->
     <string name="program_guide_icon_content_disposition">icon</string>
@@ -372,6 +373,7 @@
     <string name="video_playback_doNotDisplay">Do not display this warning again</string>
     <string name="video_playback_button_play">Start</string>
     <string name="video_playback_button_cancel">Cancel</string>
+    <string name="video_playback_retrieving">Retrieving video…</string>
     
     <!-- Notification Strings -->
     <string name="notification_sync_program_guide">Syncing Program Guide</string>
@@ -388,6 +390,9 @@
 	<string name="backend_host">Backend Host:</string>
 	<string name="recording">Recording:</string>
 	<string name="connection_status">Connection Status</string>
+    <string name="connection_status_connecting">Connecting&#8230;</string>
+    <string name="connection_status_attempting_connect">Attempting to connect to master backend</string>
+    <string name="connection_status_not_connected">Not Connected</string>
 	<string name="encoders">Encoders</string>
 	<string name="job_queue">Job Queue</string>
 	<string name="upcoming_recordings">Upcoming Recordings</string>
@@ -455,6 +460,12 @@
     <string name="backend_status_job_queue_is_empty">Job Queue is empty</string>
     <string name="backend_status_there_are_no_upcoming_recordings">There are no upcoming recordings</string>
     <string name="backend_status_unknown_status">unknown status</string>
+    <string name="backend_status_not_responding">The selected Backend profile\'s host isn\'t responding</string>
+    <string name="backend_status_connected">Connected to %s</string>
+    <string name="backend_status_not_connected">NOT connected to %s</string>
+    
+    <string name="encoder_status_inactive">Inactive</string>
+    <string name="encoder_status_recording">%1$s on %2$s</string>
 
     <string name="main_menu_preference">Preference</string>
 
@@ -463,4 +474,12 @@
     <string name="guide_time_slot">time slot</string>
     <string name="guide_time_slot_description">time slot description</string>
 
+    <string name="navigation_manage_profiles">Manage Profiles</string>
+    <string name="navigation_frontends">Frontends</string>
+    <string name="navigation_actions">Actions</string>
+    <string name="navigation_actions_dvr">DVR</string>
+    <string name="navigation_actions_multimedia">Multimedia</string>
+    <string name="navigation_actions_setup">Setup</string>
+    <string name="navigation_dvr_actions">DVR Actions</string>
+    <string name="navigation_media_actions">Media Actions</string>
 </resources>

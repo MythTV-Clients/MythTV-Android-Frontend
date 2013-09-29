@@ -13,8 +13,8 @@ import android.content.Context;
  */
 public abstract class MediaActionRow extends ActionRow {
 
-	public MediaActionRow( Context context, String action, boolean implemented ) {
-		super( context, action, implemented );
+	public MediaActionRow( Context context, int actionResId, boolean implemented ) {
+		super( context, actionResId, implemented );
 	}
 
 }

@@ -1,0 +1,483 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ This file is part of MythTV Android Frontend
+  ~
+  ~ MythTV Android Frontend is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ MythTV Android Frontend is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with MythTV Android Frontend.  If not, see <http://www.gnu.org/licenses/>.
+  ~
+  ~ This software can be found at <https://github.com/MythTV-Clients/MythTV-Android-Frontend/>
+  -->
+
+<!--
+
+    This file is part of MythTV Android Frontend
+
+    MythTV Android Frontend is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MythTV Android Frontend is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MythTV Android Frontend.  If not, see <http://www.gnu.org/licenses/>.
+
+    This software can be found at <https://github.com/MythTV-Clients/MythTV-Android-Frontend/>
+
+-->
+
+<resources>
+
+    <string name="app_name">MythTV Android Frontend</string>
+    <string name="app_short_name">MAF</string>
+
+    <string name="item_network_title">Suche im Netzwerk nach MythTV&#8230;</string>
+	<string name="item_network_caption">Stelle sicher, dass Du im selben Netzwerk wie das MythTV Master Backend bist</string>
+    
+    <string name="exception">Fehler</string>
+	<string name="open">Öffnen</string>
+    <string name="close">Schließen</string>
+	
+	<string name="please_wait">Bitte warten&#8230;</string>
+	
+	<string name="data_loading">MythTV für Android lädt gerade Daten von deinem Backend. Bitte versuche es später noch einmal.</string>
+	
+    <!-- Menus -->
+	<string name="menu_about">Über</string>
+	<string name="menu_refresh">Aktualisieren</string>
+	<string name="menu_edit">Bearbeiten</string>
+	<string name="menu_save">Speichern</string>
+	<string name="menu_reset">Zurücksetzen</string>
+	<string name="menu_delete">Löschen</string>
+	<string name="menu_watch">Ansehen</string>
+	<string name="menu_add">Hinzufügen</string>
+	<string name="menu_clear">Entfernen</string>
+	<string name="menu_prefs">Einstellungen</string>
+	<string name="menu_help">Hilfe</string>
+    <string name="menu_help_faq">FAQ</string>
+	<string name="menu_help_troubleshoot">Fehlersuche</string>
+	<string name="menu_help_issues">Probleme</string>
+	<string name="menu_help_not_connected">Auf deinem Gerät ist gerade kein Internet verfügbar. Bitte prüfe die Verbindungen und versuche es erneut.</string>
+	<string name="menu_guide_day">Tag auswählen</string>
+	
+	<!-- Preferences -->
+	<string name="preferences_title">Einstellungen</string>
+	<string name="preferences_unset">Kein Wert ausgewählt</string>
+	<string name="preferences_profiles">Profile</string>
+	<string name="preferences_profile_delete">Profil löschen</string>
+	<string name="preferences_profile_loading">Lade Master Backend Details&#8230;</string>
+	<string name="preference_home_profiles">Daheim Profile</string>
+	<string name="preference_home_profiles_summary">Bearbeite deine Daheim Profil Einstellungen</string>
+	<string name="preference_home_profiles_select">Daheim Profil auswählen</string>
+	<string name="preference_home_profiles_default">Ausgewähltes Daheim Profil</string>
+	<string name="preference_home_profiles_modify">Daheim Profile bearbeiten</string>
+	<string name="preference_home_profiles_modify_summary">Bearbeite Master Backend Einstellungen wenn Du in deinem Heimnetz etwas ansiehst.</string>
+	<string name="preference_home_profiles_saved">Gespeicherte Daheim Profile</string>
+	<string name="preference_home_profiles_add">Daheim Profil hinzufügen</string>
+	<string name="preference_home_profiles_add_summary">Fügt ein neues Master Backend Profil in deinem Heimnetz hinzu.</string>
+	<string name="preference_home_profiles_delete">Daheim Profil löschen</string>
+	<string name="preference_home_profiles_delete_summary">Löscht ein bestehendes Master Backend Profil.</string>
+	<string name="preference_home_profiles_scan">Netzwerk scannen</string>
+	<string name="preference_home_profiles_scan_summary">Sucht im Netzwerk nach MythTV Master Backends.</string>
+    <string name="preference_home_profiles_scan_scanning">Suche im Netzwerk nach MythTV Master Backends</string>
+	<string name="preference_home_profiles_scan_error_title">MythTV nicht gefunden</string>
+	<string name="preference_home_profiles_scan_error_message">MythTV konnte in deinem Netzwerk nicht gefunden werden. Bitte stelle sicher, dass Du über Wifi mit deinem Heimnetz verbunden bist.</string>
+			
+	<string name="preference_home_playback_profiles">Daheim Wiedergabeprofile</string>
+	<string name="preference_home_playback_profiles_summary">Bearbeite deine Daheim Wiedergabeprofil-Einstellungen</string>
+	<string name="preference_home_playback_profiles_select">Daheim Wiedergabeprofil auswählen</string>
+	<string name="preference_home_playback_profiles_default">Ausgewähltes Daheim Wiedergabeprofil</string>
+	<string name="preference_home_playback_profiles_modify">Daheim Wiedergabeprofile bearbeiten</string>
+	<string name="preference_home_playback_profiles_modify_summary">Bearbeite Daheim Audio- und Video-Wiedergabeprofile</string>
+	<string name="preference_home_playback_profiles_saved">Gespeicherte Daheim Wiedergabeprofile</string>
+					
+	<string name="preference_away_profiles">Unterwegs Profile</string>
+	<string name="preference_away_profiles_summary">Bearbeite deine Unterwegs Profil Einstellungen</string>
+	<string name="preference_away_profiles_select">Unterwegs Profil auswählen</string>
+	<string name="preference_away_profiles_default">Ausgewähltes Unterwegs Profil</string>
+	<string name="preference_away_profiles_modify">Unterwegs Profile bearbeiten</string>
+	<string name="preference_away_profiles_modify_summary">Bearbeite Master Backend Einstellungen wenn Du unterwegs etwas ansiehst. Schließt 3G/4G Verbindungen mit ein.</string>
+	<string name="preference_away_profiles_saved">Gespeicherte Unterwegs Profile</string>
+	<string name="preference_away_profiles_add">Unterwegs Profil hinzufügen</string>
+	<string name="preference_away_profiles_add_summary">Fügt ein neues Master Backend Profil hinzu, das nicht in deinem Heimnetz ist.</string>
+	<string name="preference_away_profiles_delete">Unterwegs Profil löschen</string>
+	<string name="preference_away_profiles_delete_summary">Löscht ein bestehendes Master Backend Profil.</string>
+
+	<string name="preference_away_playback_profiles">Unterwegs Wiedergabeprofile</string>
+	<string name="preference_away_playback_profiles_summary">Bearbeite deine Unterwegs Wiedergabeprofil-Einstellungen</string>
+	<string name="preference_away_playback_profiles_select">Unterwegs Wiedergabeprofil auswählen</string>
+	<string name="preference_away_playback_profiles_default">Ausgewähltes Unterwegs Wiedergabeprofil</string>
+	<string name="preference_away_playback_profiles_modify">Unterwegs Wiedergabeprofil bearbeiten</string>
+	<string name="preference_away_playback_profiles_modify_summary">Bearbeite Unterwegs Audio- und Video-Wiedergabeprofile</string>
+	<string name="preference_away_playback_profiles_saved">Gespeicherte Unterwegs Wiedergabeprofile</string>
+			
+    <string name="preference_location_profile_text_view_name">Name:</string>
+	<string name="preference_location_profile_edit_text_name_hint">Daheim oder 3G, etc.</string>
+	<string name="preference_location_profile_text_view_name_error_invalid">Ungültiger Name</string>
+	<string name="preference_location_profile_text_view_url">MythTV Master Backend Adresse:</string>
+    <string name="preference_location_profile_edit_text_url_hint">http://192.168.10.200:6544/</string>
+	<string name="preference_location_profile_text_view_url_error_invalid">Ungültige MythTV Master Backend Adresse</string>
+	<string name="preference_location_profile_text_view_url_error_already_exists">MythTV Master Backend Adresse ist bereits eingerichtet.</string>
+	<string name="preference_location_profile_text_view_wol">WOL Adresse (Optional):</string>
+    <string name="preference_location_profile_edit_text_wol_hint">AA:BB:CC:DD:EE:FF</string>
+	<string name="preference_location_profile_text_view_wol_error_invalid">Ungültige MAC Adresse</string>
+	<string name="preference_location_profile_not_connected">Master Backend konnte nicht erreicht werden, bitte überprüfe deine Netzwerkverbindung.</string>
+				
+    <string name="preference_playback_profile_text_view_name">Name:</string>
+	<string name="preference_playback_profile_edit_text_name_hint">Hohe Qualität</string>
+	<string name="preference_playback_profile_text_view_name_error_invalid">Ungültiger Name</string>
+	<string name="preference_playback_profile_text_view_width">Breite:</string>
+	<string name="preference_playback_profile_edit_text_width_hint">Breite in Pixeln</string>
+	<string name="preference_playback_profile_text_view_width_error_invalid">Ungültige Breite</string>
+	<string name="preference_playback_profile_text_view_height">Höhe:</string>
+	<string name="preference_playback_profile_edit_text_height_hint">Höhe in Pixeln</string>
+	<string name="preference_playback_profile_text_view_height_error_invalid">Ungültige Höhe</string>
+    <string name="preference_playback_profile_text_view_video_bitrate">Video Bitrate:</string>
+    <string name="preference_playback_profile_edit_text_video_bitrate_hint">Video Bitrate</string>
+	<string name="preference_playback_profile_text_view_video_bitrate_error_invalid">Ungültige Video Bitrate</string>
+    <string name="preference_playback_profile_text_view_audio_bitrate">Audio Bitrate:</string>
+    <string name="preference_playback_profile_edit_text_audio_bitrate_hint">Audio Bitrate</string>
+	<string name="preference_playback_profile_text_view_audio_bitrate_error_invalid">Ungültige Audio Bitrate</string>
+    <string name="preference_playback_profile_text_view_sample_rate">Audio Sample Rate:</string>
+    <string name="preference_playback_profile_edit_text_sample_rate_hint">Audio Sample Rate</string>
+	<string name="preference_playback_profile_text_view_sample_rate_error_invalid">Ungültige Sample Rate</string>
+		
+	<string name="preference_program_guide">Programmübersicht</string>
+	<string name="preference_program_guide_summary">Bearbeite Einstellungen zur Verwaltung der Programmübersicht</string>
+	<string name="preference_program_guide_modify">Bearbeite Programmübersicht Einstellungen</string>
+	<string name="preference_program_guide_modify_summary">Bearbeite Programmübersicht Einstellungen</string>
+	<string name="preference_program_guide_days_title">Konfiguriere Programmübersicht Download Tage</string>
+	<string name="preference_program_guide_days_default">3</string>
+	<string name="preference_program_guide_channel_icon_download_title">Senderlogos herunterladen?</string>
+	<string name="preference_program_guide_channel_icon_download_summary">Senderlogos herunterladen?</string>
+		
+	<string name="preference_edit_error_dialog_title">Fehler</string>
+	
+	<string name="btn_ok">OK</string>
+	<string name="btn_save">Speichern</string>
+	<string name="btn_cancel">Abbrechen</string>
+						
+	<!-- Location dashboard -->
+	<string name="btn_home">Daheim</string>
+	<string name="btn_home_ally">Ausgewähltes Daheim Profil nutzen</string>
+	<string name="btn_away">Unterwegs</string>
+	<string name="btn_away_ally">Ausgewähltes Unterwegs Profil nutzen</string>
+	<string name="location_alert_error_title">Kein MythTV Master Backend Profil!</string>
+	<string name="location_alert_error_message">Es konnte keine Verbindung zum MythTV Master Backend hergestellt werden.  Richte zuerst ein Daheim oder Unterwegs Profil im Einstellungsbildschirm ein.</string>
+	<string name="location_alert_error_message_not_connected">Konnte das MythTV Master Backend nicht erreichen.  Bitte überprüfe deine Profileinstellungen.</string>
+	<string name="location_alert_error_home_message">Es sind keine Daheim Profile eingerichtet. Richte zuerst deine Daheim Profile im Einstellungsbildschirm ein.</string>
+	<string name="location_alert_error_away_message">Es sind keine Unterwegs Profile eingerichtet. Richte zuerst deine Unterwegs Profile im Einstellungsbildschirm ein.</string>
+				
+	<string-array name="action_list">
+        <item>DVR</item>
+        <item>MythMote</item>
+    </string-array>
+
+    <!-- DVR Dashboard Buttons -->
+    <string name="tab_dvr">DVR</string>
+    <string name="btn_recordings">Aufnahmen</string>
+    <string name="btn_recordings_ally">Aufnahmen anzeigen</string>
+    <string name="btn_upcoming">Geplant</string>
+    <string name="btn_upcoming_ally">Geplante Aufnahmen anzeigen</string>
+    <string name="btn_guide">Programmübersicht</string>
+    <string name="btn_guide_ally">Programmübersicht anzeigen</string>
+    <string name="btn_recording_rules">Aufnahmeregeln</string>
+    <string name="btn_recording_rules_ally">Aufnahmenregeln anzeigen, nicht implementiert</string>
+    
+    <string name="btn_upcoming_dont_record">X</string>
+    <string name="upcoming_today">Heute</string>
+    <string name="upcoming_tomorrow">Morgen</string>
+    
+    <string name="guide_previous">ZURÜCK</string>
+    <string name="guide_date">Heute</string>
+    <string name="guide_next">VOR</string>
+    
+    <string name="episode_alert_delete_title">Aufnahme löschen&#8230;</string>
+    <string name="episode_alert_delete_message">Willst Du wirklich diese Aufnahme löschen?</string>
+    <string name="episode_alert_delete_button_cancel">Abbrechen</string>
+    <string name="episode_alert_delete_button_delete">Löschen</string>
+    
+    <string name="episode_alert_remove_title">HLS Stream entfernen&#8230;</string>
+    <string name="episode_alert_remove_message">Willst Du wirklich diesen HLS Stream entfernen?</string>
+    <string name="episode_alert_remove_button_cancel">Abbrechen</string>
+    <string name="episode_alert_remove_button_delete">Entfernen</string>
+    
+    <string name="episode_add_title">HTTP Live Stream Warnung</string>
+    <string name="episode_add_message">HLS Verarbeitung benötigt einen erheblichen Teil der MythTV Master Backend Rechenleistung. Es kann die Leistung stark beeinträchtigen.</string>
+    <string name="episode_add_doNotDisplay">Diese Warnung nicht mehr anzeigen</string>
+    <string name="episode_add_button_play">Verarbeiten</string>
+    <string name="episode_add_button_cancel">Abbrechen</string>
+    
+    <string name="episode_watch_title">HLS verwenden?</string>
+    <string name="episode_watch_message">Aufnahmen können direkt vom Master Backend gestreamt werden oder als HTTP Live Stream verarbeitet werden.  HLS macht die Aufnahme von Unterwegs verfügbar. *HINWEIS* HLS wird für MPEG2 HD Aufnahmen empfohlen.</string>
+    <string name="episode_watch_button_hls">Mit HLS abspielen</string>
+    <string name="episode_watch_button_raw">Aufnahme abspielen</string>
+
+    <!-- Guide -->
+    <string name="program_guide_icon_content_disposition">icon</string>
+    <string name="program_guide_timeslots_00_00_12">12:00 AM</string>
+    <string name="program_guide_timeslots_00_00_24">00:00</string>
+    <string name="program_guide_timeslots_00_30_12">12:30 AM</string>
+    <string name="program_guide_timeslots_00_30_24">00:30</string>
+    <string name="program_guide_timeslots_01_00_12">1:00 AM</string>
+    <string name="program_guide_timeslots_01_00_24">01:00</string>
+    <string name="program_guide_timeslots_01_30_12">1:30 AM</string>
+    <string name="program_guide_timeslots_01_30_24">01:30</string>
+    <string name="program_guide_timeslots_02_00_12">2:00 AM</string>
+    <string name="program_guide_timeslots_02_00_24">02:00</string>
+    <string name="program_guide_timeslots_02_30_12">2:30 AM</string>
+    <string name="program_guide_timeslots_02_30_24">02:30</string>
+    <string name="program_guide_timeslots_03_00_12">3:00 AM</string>
+    <string name="program_guide_timeslots_03_00_24">03:00</string>
+    <string name="program_guide_timeslots_03_30_12">3:30 AM</string>
+    <string name="program_guide_timeslots_03_30_24">03:30</string>
+    <string name="program_guide_timeslots_04_00_12">4:00 AM</string>
+    <string name="program_guide_timeslots_04_00_24">04:00</string>
+    <string name="program_guide_timeslots_04_30_12">4:30 AM</string>
+    <string name="program_guide_timeslots_04_30_24">04:30</string>
+    <string name="program_guide_timeslots_05_00_12">5:00 AM</string>
+    <string name="program_guide_timeslots_05_00_24">05:00</string>
+    <string name="program_guide_timeslots_05_30_12">5:30 AM</string>
+    <string name="program_guide_timeslots_05_30_24">05:30</string>
+    <string name="program_guide_timeslots_06_00_12">6:00 AM</string>
+    <string name="program_guide_timeslots_06_00_24">06:00</string>
+    <string name="program_guide_timeslots_06_30_12">6:30 AM</string>
+    <string name="program_guide_timeslots_06_30_24">06:30</string>
+    <string name="program_guide_timeslots_07_00_12">7:00 AM</string>
+    <string name="program_guide_timeslots_07_00_24">07:00</string>
+    <string name="program_guide_timeslots_07_30_12">7:30 AM</string>
+    <string name="program_guide_timeslots_07_30_24">07:30</string>
+    <string name="program_guide_timeslots_08_00_12">8:00 AM</string>
+    <string name="program_guide_timeslots_08_00_24">08:00</string>
+    <string name="program_guide_timeslots_08_30_12">8:30 AM</string>
+    <string name="program_guide_timeslots_08_30_24">08:30</string>
+    <string name="program_guide_timeslots_09_00_12">9:00 AM</string>
+    <string name="program_guide_timeslots_09_00_24">09:00</string>
+    <string name="program_guide_timeslots_09_30_12">9:30 AM</string>
+    <string name="program_guide_timeslots_09_30_24">09:30</string>
+    <string name="program_guide_timeslots_10_00_12">10:00 AM</string>
+    <string name="program_guide_timeslots_10_00_24">10:00</string>
+    <string name="program_guide_timeslots_10_30_12">10:30 AM</string>
+    <string name="program_guide_timeslots_10_30_24">10:30</string>
+    <string name="program_guide_timeslots_11_00_12">11:00 AM</string>
+    <string name="program_guide_timeslots_11_00_24">11:00</string>
+    <string name="program_guide_timeslots_11_30_12">11:30 AM</string>
+    <string name="program_guide_timeslots_11_30_24">11:30</string>
+    <string name="program_guide_timeslots_12_00_12">12:00 PM</string>
+    <string name="program_guide_timeslots_12_00_24">12:00</string>
+    <string name="program_guide_timeslots_12_30_12">12:30 PM</string>
+    <string name="program_guide_timeslots_12_30_24">12:30</string>
+    <string name="program_guide_timeslots_13_00_12">1:00 PM</string>
+    <string name="program_guide_timeslots_13_00_24">13:00</string>
+    <string name="program_guide_timeslots_13_30_12">1:30 PM</string>
+    <string name="program_guide_timeslots_13_30_24">13:30</string>
+    <string name="program_guide_timeslots_14_00_12">2:00 PM</string>
+    <string name="program_guide_timeslots_14_00_24">14:00</string>
+    <string name="program_guide_timeslots_14_30_12">2:30 PM</string>
+    <string name="program_guide_timeslots_14_30_24">14:30</string>
+    <string name="program_guide_timeslots_15_00_12">3:00 PM</string>
+    <string name="program_guide_timeslots_15_00_24">15:00</string>
+    <string name="program_guide_timeslots_15_30_12">3:30 PM</string>
+    <string name="program_guide_timeslots_15_30_24">15:30</string>
+    <string name="program_guide_timeslots_16_00_12">4:00 PM</string>
+    <string name="program_guide_timeslots_16_00_24">16:00</string>
+    <string name="program_guide_timeslots_16_30_12">4:30 PM</string>
+    <string name="program_guide_timeslots_16_30_24">16:30</string>
+    <string name="program_guide_timeslots_17_00_12">5:00 PM</string>
+    <string name="program_guide_timeslots_17_00_24">17:00</string>
+    <string name="program_guide_timeslots_17_30_12">5:30 PM</string>
+    <string name="program_guide_timeslots_17_30_24">17:30</string>
+    <string name="program_guide_timeslots_18_00_12">6:00 PM</string>
+    <string name="program_guide_timeslots_18_00_24">18:00</string>
+    <string name="program_guide_timeslots_18_30_12">6:30 PM</string>
+    <string name="program_guide_timeslots_18_30_24">18:30</string>
+    <string name="program_guide_timeslots_19_00_12">7:00 PM</string>
+    <string name="program_guide_timeslots_19_00_24">19:00</string>
+    <string name="program_guide_timeslots_19_30_12">7:30 PM</string>
+    <string name="program_guide_timeslots_19_30_24">19:30</string>
+    <string name="program_guide_timeslots_20_00_12">8:00 PM</string>
+    <string name="program_guide_timeslots_20_00_24">20:00</string>
+    <string name="program_guide_timeslots_20_30_12">8:30 PM</string>
+    <string name="program_guide_timeslots_20_30_24">20:30</string>
+    <string name="program_guide_timeslots_21_00_12">9:00 PM</string>
+    <string name="program_guide_timeslots_21_00_24">21:00</string>
+    <string name="program_guide_timeslots_21_30_12">9:30 PM</string>
+    <string name="program_guide_timeslots_21_30_24">21:30</string>
+    <string name="program_guide_timeslots_22_00_12">10:00 PM</string>
+    <string name="program_guide_timeslots_22_00_24">22:00</string>
+    <string name="program_guide_timeslots_22_30_12">10:30 PM</string>
+    <string name="program_guide_timeslots_22_30_24">22:30</string>
+    <string name="program_guide_timeslots_23_00_12">11:00 PM</string>
+    <string name="program_guide_timeslots_23_00_24">23:00</string>
+    <string name="program_guide_timeslots_23_30_12">11:30 PM</string>
+    <string name="program_guide_timeslots_23_30_24">23:30</string>
+        
+    <!-- Recording Rule -->
+    <string name="chkbox_rec_rule_active">Aufnahmeregel aktiv</string>
+    <string name="chkbox_rec_rule_auto_comm_flag">Auf Werbung untersuchen</string>
+    <string name="chkbox_rec_rule_auto_transcode">Neue Aufnahmen umwandeln</string>
+    <string name="chkbox_rec_rule_auto_meta_lookup">Metadaten automatisch aktualisieren</string>
+    <string name="chkbox_rec_rule_auto_usr_job1">Auftrag 1 aktivieren</string>
+    <string name="chkbox_rec_rule_auto_usr_job2">Auftrag 2 aktivieren</string>
+    <string name="chkbox_rec_rule_auto_usr_job3">Auftrag 3 aktivieren</string>
+    <string name="chkbox_rec_rule_auto_usr_job4">Auftrag 4 aktivieren</string>
+    
+    <!-- Media Dashboard -->
+    <string name="tab_multimedia">Multimedia</string>
+    <string name="btn_videos">Videos</string>
+    <string name="btn_videos_ally">Videos ansehen, nicht implementiert</string>
+    <string name="btn_music">Musik</string>
+    <string name="btn_music_ally">Musik hören, nicht implementiert</string>
+    <string name="btn_pictures">Bilder</string>
+    <string name="btn_pictures_ally">Bilder ansehen, nicht implementiert</string>
+    
+    <!-- Frontends Dashboard -->
+    <string name="frontends_title">MythMote</string>
+    <string name="tab_frontends">Frontends</string>
+    <string name="frontends_prompt">Frontend auswählen</string>
+    <string name="frontends_scan_error_title">Keine MythTV Frontends gefunden!</string>
+    <string name="frontends_scan_error_message">Im Heimnetz wurde kein MythTV Frontend gefunden.  Bitte stelle sicher, dass Du über Wifi mit deinem Heimnetz verbunden bist.</string>
+    <string name="mythmote_page_navigation">Navigation</string>
+	<string name="mythmote_page_numbers">Ziffern</string>
+	<string name="mythmote_page_actionlist">Aktionsliste</string>
+    <string name="frontend_not_selected">Frontend nicht ausgewählt</string>
+    <string name="frontend_not_selected_OK">OK</string>
+    
+    <!-- Setup Dashboard Buttons -->
+	<string name="setup_title">Einstellungen</string>
+    <string name="btn_capture">Tuner</string>
+    
+    <!-- Dialog Strings -->
+    <string name="please_wait_title_str">Bitte warten…</string>
+    <string name="loading_recordings_msg_str">Lade Aufnahmen…</string>
+    <string name="loading_upcoming_recordings_msg_str">Lade geplante Aufnahmen…</string>
+
+    <!-- Video Playback Dialog -->
+    <string name="video_playback_title">Video Wiedergabewarnung</string>
+    <string name="video_playback_message">Manche Wiedergabeprogramme unterstützen Mehrfachgesten nicht gut (Vor-/Rücklauf&#8230;).</string>
+    <string name="video_playback_doNotDisplay">Diese Warnung nicht mehr anzeigen</string>
+    <string name="video_playback_button_play">Start</string>
+    <string name="video_playback_button_cancel">Abbrechen</string>
+    <string name="video_playback_retrieving">Lade Video…</string>
+    
+    <!-- Notification Strings -->
+    <string name="notification_sync_program_guide">Synchronisiere Programmübersicht</string>
+    <string name="notification_sync_recordings">Synchronisiere Aufnahmen</string>
+    <string name="notification_sync_upcoming">Synchronisiere geplante Aufnahmen</string>
+	<string name="notification_sync_channels">Synchronisiere Sender</string>
+	<string name="notification_not_connected">MythTV Master Backend ist nicht verbunden!</string>
+    <string name="notification_sync_recording_rules">Synchronisiere Aufnahmeregeln</string>
+		
+	<string name="test_title">Test Titel</string>
+	
+	<!-- Backend Status -->
+    <string name="encoder">Encoder:</string>
+    <string name="backend_host">Backend Host:</string>
+	<string name="recording">Aufnahme:</string>
+	<string name="connection_status">Verbindungsstatus</string>
+    <string name="connection_status_connecting">Verbinde&#8230;</string>
+    <string name="connection_status_attempting_connect">Versuche Verbindung zu Master Backend herzustellen</string>
+    <string name="connection_status_not_connected">Nicht verbunden</string>
+    <string name="encoders">Encoder</string>
+	<string name="job_queue">Auftragsliste</string>
+	<string name="upcoming_recordings">Geplante Aufnahmen</string>
+	
+	<!-- Backend Status - Job Queue  -->
+    <string name="job_queue_status">Status:</string>
+	<string name="job_queue_status_aborted">Abgebrochen</string>
+	<string name="job_queue_status_aborting">Abbrechen</string>
+	<string name="job_queue_status_cancelled">Abgebrochen</string>
+	<string name="job_queue_status_done">Erledigt</string>
+	<string name="job_queue_status_errored">Fehler</string>
+	<string name="job_queue_status_erroring">Fehler</string>
+	<string name="job_queue_status_finished">Abgeschlossen</string>
+	<string name="job_queue_status_no_flags">Keine Flags</string>
+	<string name="job_queue_status_paused">Pausiert</string>
+	<string name="job_queue_status_pending">Bevorstehend</string>
+	<string name="job_queue_status_queued">In Warteschlange</string>
+	<string name="job_queue_status_retry">Neuversuch</string>
+	<string name="job_queue_status_running">Läuft</string>
+	<string name="job_queue_status_starting">Gestartet</string>
+	<string name="job_queue_status_stopping">Gestoppt</string>
+	<string name="job_queue_status_unknown">Unbekannt</string>
+	<string name="job_queue_title">Titel:</string>
+	<string name="job_queue_type">Typ:</string>
+	
+
+    <!-- Gallery Dialog -->
+    <string name="gallery_sg_create">Die Galerie benötigt eine Speichergruppe (SG) namens \'Images\', diese SG wurde nicht im Master Backend gefunden. Erstellen?</string>
+    <string name="gallery_sg_create_done">Speichergruppe \'Images\' erfolgreich im Master Backend angelegt, bitte fülle sie mit Bildern damit die Galerie funktioniert.</string>
+    <string name="gallery_sg_create_hint">Standardverzeichnis für Speichergruppen im Master Backend.</string>
+
+    <string name="gallery_sg_exist_create">Die Galerie benötigt eine Speichergruppe (SG) namens \'Images\'. MythGallery scheint bei deinem Master Backend und Frontend namens \'</string>
+    <string name="gallery_sg_exist_create2">\' installiert zu sein, aber keine SG. Erstellen?</string>
+    <string name="gallery_sg_exist_create_done">Speichergruppe \'Images\' erfolgreich im Master Backend angelegt.</string>
+
+    <string name="gallery_sg_error">Die Galerie funktioniert nur mit Speichergruppen (SG). Bitte erstelle eine Speichergruppe namens \'Images\' mithilfe von mythtv-setup im Master Backend, Slave Backends oder separate Frontends werden nicht unterstützt.</string>
+    <string name="gallery_sg_failed">Erstellen der Speichergruppe \'Images\' fehlgeschlagen. Bitte erstelle sie von Hand mithilfe von mythtv-setup im Master Backend.</string>
+    <string name="gallery_descr_image">Bild</string>
+
+    <!-- Lint Additions -->
+    <string name="digit_zero">0</string>
+    <string name="digit_one">1</string>
+    <string name="digit_two">2</string>
+    <string name="digit_three">3</string>
+    <string name="digit_four">4</string>
+    <string name="digit_five">5</string>
+    <string name="digit_six">6</string>
+    <string name="digit_seven">7</string>
+    <string name="digit_eight">8</string>
+    <string name="digit_nine">9</string>
+
+    <string name="generic_delete">Löschen</string>
+    <string name="generic_enter">Eingeben</string>
+    <string name="generic_title">Titel</string>
+    <string name="generic_channel_num">Sendernummer</string>
+    <string name="generic_channel_num_title">SendernummerTitel</string>
+    <string name="generic_sub_title">Untertitel</string>
+    <string name="generic_air_date">Sendedatum</string>
+    <string name="generic_air_date_title">SendedatumTitel</string>
+    <string name="generic_description">Beschreibung</string>
+    <string name="generic_mythmote">MythMote</string>
+    <string name="generic_refresh">Aktualisieren</string>
+
+    <string name="backend_status_encoders_list_is_empty">Encoderliste ist leer</string>
+    <string name="backend_status_job_queue_is_empty">Auftragsliste ist leer</string>
+    <string name="backend_status_there_are_no_upcoming_recordings">Es sind keine Aufnahmen geplant</string>
+    <string name="backend_status_unknown_status">unbekannter Status</string>
+    <string name="backend_status_not_responding">Der Rechner des ausgewählten Backend-Profils antwortet nicht</string>
+    <string name="backend_status_connected">Verbunden mit %s</string>
+    <string name="backend_status_not_connected">NICHT verbunden mit %s</string>
+    
+    <string name="encoder_status_inactive">Inaktiv</string>
+    <string name="encoder_status_recording">%1$s auf %2$s</string>
+    
+    <string name="main_menu_preference">Einstellungen</string>
+
+    <string name="program_group_row">Programmgruppen-Zeile</string>
+
+    <string name="guide_time_slot">Tageszeit</string>
+    <string name="guide_time_slot_description">Tageszeit Beschreibung</string>
+    
+    <string name="navigation_manage_profiles">Profile bearbeiten</string>
+    <string name="navigation_frontends">Frontends</string>
+    <string name="navigation_actions">Funktionen</string>
+    <string name="navigation_actions_dvr">DVR</string>
+    <string name="navigation_actions_multimedia">Multimedia</string>
+    <string name="navigation_actions_setup">Einrichten</string>
+    <string name="navigation_dvr_actions">DVR Funktionen</string>
+    <string name="navigation_media_actions">Medienfunktionen</string>
+</resources>
