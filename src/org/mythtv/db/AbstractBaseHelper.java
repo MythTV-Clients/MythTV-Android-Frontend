@@ -34,7 +34,6 @@ import android.content.Context;
 import android.content.OperationApplicationException;
 import android.os.RemoteException;
 import android.text.TextUtils;
-import android.util.Log;
 
 /**
  * @author Daniel Frey
@@ -59,10 +58,10 @@ public abstract class AbstractBaseHelper {
 	}
 
 	protected static void processBatch( final Context context, ArrayList<ContentProviderOperation> ops, int processed, int count ) throws RemoteException, OperationApplicationException {
-		Log.v( TAG, "processBatch : enter" );
+//		Log.v( TAG, "processBatch : enter" );
 		
 		if( !ops.isEmpty() ) {
-			Log.v( TAG, "processBatch : applying batch, count=" + count );
+//			Log.v( TAG, "processBatch : applying batch, count=" + count );
 			
 			ContentProviderResult[] results = context.getContentResolver().applyBatch( MythtvProvider.AUTHORITY, ops );
 			processed += results.length;
@@ -82,7 +81,7 @@ public abstract class AbstractBaseHelper {
 
 		count = 0;
 
-		Log.v( TAG, "processBatch : exit" );
+//		Log.v( TAG, "processBatch : exit" );
 	}
 	
 

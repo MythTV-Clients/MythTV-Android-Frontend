@@ -19,9 +19,9 @@
  */
 package org.mythtv.db.myth.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.util.Map;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * @author Daniel Frey

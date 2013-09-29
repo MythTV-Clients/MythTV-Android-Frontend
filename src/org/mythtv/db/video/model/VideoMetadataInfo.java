@@ -19,11 +19,12 @@
  */
 package org.mythtv.db.video.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.joda.time.DateTime;
 import org.mythtv.db.content.model.ArtworkInfos;
 import org.mythtv.services.api.DateTimeSerializer;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 /**
  * @author Daniel Frey

@@ -13,7 +13,8 @@ import org.mythtv.db.AbstractBaseHelper;
 import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.db.dvr.RecordingConstants;
 import org.mythtv.db.http.model.EtagInfoDelegate;
-import org.mythtv.service.util.DateUtils;
+import org.mythtv.service.dvr.v27.ProgramHelperV27;
+import org.mythtv.service.dvr.v27.RecordingHelperV27;
 import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.ApiVersion;
 import org.mythtv.services.api.connect.MythAccessFactory;
@@ -24,7 +25,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import android.content.ContentProviderOperation;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.OperationApplicationException;
 import android.os.RemoteException;
@@ -151,18 +151,16 @@ public class UpcomingHelperV26 extends AbstractBaseHelper {
 		if( null == context ) 
 			throw new RuntimeException( "UpcomingHelperV27 is not initialized" );
 		
-		DateTime today = new DateTime( DateTimeZone.UTC ).withTimeAtStartOfDay();
-		DateTime lastModified = new DateTime( DateTimeZone.UTC );
-		
 		int processed = -1;
 		int count = 0;
 		
 		ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
-		
+
 		boolean inError;
 
 		for( Program program : programs ) {
-
+//			Log.d( TAG, "load : count=" + count );
+			
 			if( null == program.getStartTime() || null == program.getEndTime() ) {
 //				Log.w(TAG, "load : null starttime and or endtime" );
 			
@@ -171,14 +169,12 @@ public class UpcomingHelperV26 extends AbstractBaseHelper {
 				inError = false;
 			}
 
-			DateTime startTime = program.getStartTime();
-			
 			// load upcoming program
-			ProgramHelperV26.getInstance().processProgram( context, locationProfile, ProgramConstants.CONTENT_URI_UPCOMING, ProgramConstants.TABLE_NAME_UPCOMING, ops, program, lastModified, startTime, count );
+			ProgramHelperV26.getInstance().processProgram( context, locationProfile, ProgramConstants.CONTENT_URI_UPCOMING, ProgramConstants.TABLE_NAME_UPCOMING, ops, program );
 			count++;
 			
 			// update program guide
-			ProgramHelperV26.getInstance().processProgram( context, locationProfile, ProgramConstants.CONTENT_URI_GUIDE, ProgramConstants.TABLE_NAME_GUIDE, ops, program, lastModified, startTime, count );
+			ProgramHelperV26.getInstance().processProgram( context, locationProfile, ProgramConstants.CONTENT_URI_GUIDE, ProgramConstants.TABLE_NAME_GUIDE, ops, program );
 			count++;
 			
 			if( !inError && null != program.getRecording() ) {
@@ -186,11 +182,11 @@ public class UpcomingHelperV26 extends AbstractBaseHelper {
 				if( program.getRecording().getRecordId() > 0 ) {
 				
 					// load upcoming recording
-					RecordingHelperV26.getInstance().processRecording( context, locationProfile, ops, RecordingConstants.ContentDetails.UPCOMING, program, lastModified, startTime, count );
+					RecordingHelperV26.getInstance().processRecording( context, locationProfile, ops, RecordingConstants.ContentDetails.UPCOMING, program );
 					count++;
 					
 					// update program guide recording
-					RecordingHelperV26.getInstance().processRecording( context, locationProfile, ops, RecordingConstants.ContentDetails.GUIDE, program, lastModified, startTime, count );
+					RecordingHelperV26.getInstance().processRecording( context, locationProfile, ops, RecordingConstants.ContentDetails.GUIDE, program );
 					count++;
 					
 				}
@@ -207,70 +203,28 @@ public class UpcomingHelperV26 extends AbstractBaseHelper {
 			
 		}
 
-		processBatch( context, ops, processed, count );
+		if( !ops.isEmpty() ) {
+			Log.v( TAG, "load : applying final batch for '" + count + "' transactions" );
+			
+			processBatch( context, ops, processed, count );
+		}
 
-//		Log.v( TAG, "load : DELETE PROGRAMS" );
-		ProgramHelperV26.getInstance().deletePrograms( context, locationProfile, ops, ProgramConstants.CONTENT_URI_UPCOMING, ProgramConstants.TABLE_NAME_UPCOMING, today );
+		ops = new ArrayList<ContentProviderOperation>();
 
-//		Log.v( TAG, "load : DELETE RECORDINGS" );
-		RecordingHelperV26.getInstance().deleteRecordings( ops, RecordingConstants.ContentDetails.UPCOMING, today );
+		DateTime lastModified = new DateTime();
+		lastModified = lastModified.minusHours( 1 );
+		
+		ProgramHelperV27.getInstance().deletePrograms( context, locationProfile, ops, ProgramConstants.CONTENT_URI_UPCOMING, ProgramConstants.TABLE_NAME_UPCOMING, lastModified );
+		RecordingHelperV27.getInstance().deleteRecordings( context, locationProfile, ops, RecordingConstants.ContentDetails.UPCOMING, lastModified );
 
-		processBatch( context, ops, processed, count );
+		if( !ops.isEmpty() ) {
+			Log.v( TAG, "load : applying delete batch for transactions" );
+			
+			processBatch( context, ops, processed, count );
+		}
 
 //		Log.v( TAG, "load : exit" );
 		return processed;
-	}
-
-	protected ContentValues convertProgramToContentValues( final LocationProfile locationProfile, final DateTime lastModified, final Program program ) {
-		
-		boolean inError;
-		
-		DateTime startTime = new DateTime( DateTimeZone.UTC );
-		DateTime endTime = new DateTime( DateTimeZone.UTC );
-
-		// If one timestamp is bad, leave them both set to 0.
-		if( null == program.getStartTime() || null == program.getEndTime() ) {
-//			Log.w(TAG, "convertProgramToContentValues : null starttime and or endtime" );
-		
-			inError = true;
-		} else {
-			startTime = program.getStartTime();
-			endTime = program.getEndTime();
-			
-			inError = false;
-		}
-
-		ContentValues values = new ContentValues();
-		values.put( ProgramConstants.FIELD_START_TIME, startTime.getMillis() );
-		values.put( ProgramConstants.FIELD_END_TIME, endTime.getMillis() );
-		values.put( ProgramConstants.FIELD_TITLE, null != program.getTitle() ? program.getTitle() : "" );
-		values.put( ProgramConstants.FIELD_SUB_TITLE, null != program.getSubTitle() ? program.getSubTitle() : "" );
-		values.put( ProgramConstants.FIELD_CATEGORY, null != program.getCategory() ? program.getCategory() : "" );
-		values.put( ProgramConstants.FIELD_CATEGORY_TYPE, null != program.getCategoryType() ? program.getCategoryType() : "" );
-		values.put( ProgramConstants.FIELD_REPEAT, program.isRepeat() ? 1 : 0 );
-		values.put( ProgramConstants.FIELD_VIDEO_PROPS, program.getVideoProps() );
-		values.put( ProgramConstants.FIELD_AUDIO_PROPS, program.getAudioProps() );
-		values.put( ProgramConstants.FIELD_SUB_PROPS, program.getSubProps() );
-		values.put( ProgramConstants.FIELD_SERIES_ID, null != program.getSeriesId() ? program.getSeriesId() : "" );
-		values.put( ProgramConstants.FIELD_PROGRAM_ID, null != program.getProgramId() ? program.getProgramId() : "" );
-		values.put( ProgramConstants.FIELD_STARS, program.getStars() );
-		values.put( ProgramConstants.FIELD_FILE_SIZE, null != program.getFileSize() ? program.getFileSize() : "" );
-		values.put( ProgramConstants.FIELD_LAST_MODIFIED, null != program.getLastModified() ? DateUtils.dateTimeFormatter.print( program.getLastModified() ) : "" );
-		values.put( ProgramConstants.FIELD_PROGRAM_FLAGS, null != program.getProgramFlags() ? program.getProgramFlags() : "" );
-		values.put( ProgramConstants.FIELD_HOSTNAME, null != program.getHostname() ? program.getHostname() : "" );
-		values.put( ProgramConstants.FIELD_FILENAME, null != program.getFilename() ? program.getFilename() : "" );
-		values.put( ProgramConstants.FIELD_AIR_DATE, null != program.getAirDate() ? DateUtils.dateTimeFormatter.print( program.getAirDate() ) : "" );
-		values.put( ProgramConstants.FIELD_DESCRIPTION, null != program.getDescription() ? program.getDescription() : "" );
-		values.put( ProgramConstants.FIELD_INETREF, null != program.getInetref() ? program.getInetref() : "" );
-		values.put( ProgramConstants.FIELD_SEASON, null != program.getSeason() ? program.getSeason() : "" );
-		values.put( ProgramConstants.FIELD_EPISODE, null != program.getEpisode() ? program.getEpisode() : "" );
-		values.put( ProgramConstants.FIELD_CHANNEL_ID, null != program.getChannelInfo() ? program.getChannelInfo().getChannelId() : -1 );
-		values.put( ProgramConstants.FIELD_RECORD_ID, null != program.getRecording() ? program.getRecording().getRecordId() : -1 );
-		values.put( ProgramConstants.FIELD_IN_ERROR, inError ? 1 : 0 );
-		values.put( ProgramConstants.FIELD_MASTER_HOSTNAME, locationProfile.getHostname() );
-		values.put( ProgramConstants.FIELD_LAST_MODIFIED_DATE, lastModified.getMillis() );
-		
-		return values;
 	}
 
 }

@@ -26,8 +26,11 @@ import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.ApiVersion;
 import org.mythtv.services.api.connect.MythAccessFactory;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.PowerManager;
+import android.os.PowerManager.WakeLock;
 import android.util.Log;
 
 /**
@@ -76,7 +79,10 @@ public class PreferencesRecordedDownloadService extends MythtvService {
 		if ( intent.getAction().equals( ACTION_DOWNLOAD ) ) {
     		Log.i( TAG, "onHandleIntent : DOWNLOAD action selected" );
 
-    		LocationProfile profile = mLocationProfileDaoHelper.findOne( this, id );
+			PowerManager mgr = (PowerManager) getSystemService( Context.POWER_SERVICE );
+			WakeLock wakeLock = mgr.newWakeLock( PowerManager.PARTIAL_WAKE_LOCK, "PreferenceServiceDownload" );
+
+			LocationProfile profile = mLocationProfileDaoHelper.findOne( this, id );
     		if( null == profile ) {
     			Intent completeIntent = new Intent( ACTION_COMPLETE );
     			completeIntent.putExtra( EXTRA_COMPLETE, "Location Profile not found" );
@@ -110,6 +116,10 @@ public class PreferencesRecordedDownloadService extends MythtvService {
 				passed = false;
 			} finally {
 
+    			if( wakeLock.isHeld() ) {
+    				wakeLock.release();
+    			}
+				
     			Intent completeIntent = new Intent( ACTION_COMPLETE );
     			completeIntent.putExtra( EXTRA_COMPLETE, "Preferences Recorded Programs Download Service Finished" );
     			if( null == status ) {

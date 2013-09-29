@@ -312,6 +312,7 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 			case RECORDED:
 
 				deleted = db.delete( ProgramConstants.TABLE_NAME_RECORDED, selection, selectionArgs );
+//				System.out.println( "Recorded Deleted: " + deleted );
 				
 				getContext().getContentResolver().notifyChange( uri, null );
 				
@@ -799,6 +800,13 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				queryBuilder.setProjectionMap( mRecordedColumnMap );
 				
 //				System.out.println( queryBuilder.buildQuery( null, selection, null, null, sortOrder, null ) );
+//				System.out.println( sb.toString() );
+//				System.out.println( selection );
+//				if( null != selectionArgs && selectionArgs.length > 0 ) {
+//					for( String arg : selectionArgs ) {
+//						System.out.println( "query : arg=" + arg );
+//					}
+//				}
 				
 				cursor = queryBuilder.query( db, null, selection, selectionArgs, null, null, sortOrder );
 				
@@ -1376,247 +1384,146 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 		switch( URI_MATCHER.match( uri ) ) {
 			case RECORDED:
 				affected = db.update( ProgramConstants.TABLE_NAME_RECORDED, values, selection , selectionArgs );
-				
-				getContext().getContentResolver().notifyChange( uri, null );
-				
-				return affected;
+				break;
 
 			case RECORDED_ID:
 				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
-
 				affected = db.update( ProgramConstants.TABLE_NAME_RECORDED, values, selection , selectionArgs );
-				
-				getContext().getContentResolver().notifyChange( uri, null );
-				
-				return affected;
+				break;
 
 			case UPCOMING:
 				affected = db.update( ProgramConstants.TABLE_NAME_UPCOMING, values, selection , selectionArgs );
-				
-				getContext().getContentResolver().notifyChange( uri, null );
-				
-				return affected;
+				break;
 
 			case UPCOMING_ID:
 				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
-
 				affected = db.update( ProgramConstants.TABLE_NAME_UPCOMING, values, selection , selectionArgs );
-				
-				getContext().getContentResolver().notifyChange( uri, null );
-				
-				return affected;
+				break;
 
 			case GUIDE:
 				affected = db.update( ProgramConstants.TABLE_NAME_GUIDE, values, selection , selectionArgs );
-				
-				getContext().getContentResolver().notifyChange( uri, null );
-				
-				return affected;
+				break;
 
 			case GUIDE_ID:
 				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
-
 				affected = db.update( ProgramConstants.TABLE_NAME_GUIDE, values, selection , selectionArgs );
-				
-				getContext().getContentResolver().notifyChange( uri, null );
-				
-				return affected;
+				break;
 
 			case PROGRAM_GROUP:
 				affected = db.update( ProgramGroupConstants.TABLE_NAME, values, selection , selectionArgs );
-				
-				getContext().getContentResolver().notifyChange( uri, null );
-				
-				return affected;
+				break;
 
 			case PROGRAM_GROUP_ID:
 				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
-
 				affected = db.update( ProgramGroupConstants.TABLE_NAME, values, selection , selectionArgs );
-				
-				getContext().getContentResolver().notifyChange( uri, null );
-				
-				return affected;
+				break;
 
 			case RECORDING_GUIDE:
 				affected = db.update( RecordingConstants.ContentDetails.GUIDE.getTableName(), values, selection , selectionArgs );
-				
-				getContext().getContentResolver().notifyChange( uri, null );
-				
-				return affected;
+				break;
 
 			case RECORDING_GUIDE_ID:
 				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
-
 				affected = db.update( RecordingConstants.ContentDetails.GUIDE.getTableName(), values, selection , selectionArgs );
-				
-				getContext().getContentResolver().notifyChange( uri, null );
-				
-				return affected;
+				break;
 
 			case RECORDING_RECORDED:
 				affected = db.update( RecordingConstants.ContentDetails.RECORDED.getTableName(), values, selection , selectionArgs );
-				
-				getContext().getContentResolver().notifyChange( uri, null );
-				
-				return affected;
+				break;
 
 			case RECORDING_RECORDED_ID:
 				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
-
 				affected = db.update( RecordingConstants.ContentDetails.RECORDED.getTableName(), values, selection , selectionArgs );
-				
-				getContext().getContentResolver().notifyChange( uri, null );
-				
-				return affected;
+				break;
 
 			case RECORDING_UPCOMING:
 				affected = db.update( RecordingConstants.ContentDetails.UPCOMING.getTableName(), values, selection , selectionArgs );
-				
-				getContext().getContentResolver().notifyChange( uri, null );
-				
-				return affected;
+				break;
 
 			case RECORDING_UPCOMING_ID:
 				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
-
 				affected = db.update( RecordingConstants.ContentDetails.UPCOMING.getTableName(), values, selection , selectionArgs );
-				
-				getContext().getContentResolver().notifyChange( uri, null );
-				
-				return affected;
+				break;
 
 			case RECORDING_RULE:
 				affected = db.update( RecordingRuleConstants.TABLE_NAME, values, selection , selectionArgs );
-				
-				getContext().getContentResolver().notifyChange( uri, null );
-				
-				return affected;
+				break;
 
 			case RECORDING_RULE_ID:
 				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
-
 				affected = db.update( RecordingRuleConstants.TABLE_NAME, values, selection , selectionArgs );
-				
-				getContext().getContentResolver().notifyChange( uri, null );
-				
-				return affected;
+				break;
 
 			case LIVE_STREAM:
 				affected = db.update( LiveStreamConstants.TABLE_NAME, values, selection , selectionArgs );
-				
-				getContext().getContentResolver().notifyChange( uri, null );
-				
-				return affected;
+				break;
 
 			case LIVE_STREAM_ID:
 				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
-
 				affected = db.update( LiveStreamConstants.TABLE_NAME, values, selection , selectionArgs );
-				
-				getContext().getContentResolver().notifyChange( uri, null );
-				
-				return affected;
+				break;
 
 			case CHANNELS:
 				affected = db.update( ChannelConstants.TABLE_NAME, values, selection , selectionArgs );
-				
-				getContext().getContentResolver().notifyChange( uri, null );
-				
-				return affected;
+				break;
 
 			case CHANNEL_ID:
 				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
-
 				affected = db.update( ChannelConstants.TABLE_NAME, values, selection , selectionArgs );
-
-				getContext().getContentResolver().notifyChange( uri, null );
-				
-				return affected;
+				break;
 
 			case FRONTENDS:
 				affected = db.update( FrontendConstants.TABLE_NAME, values, selection , selectionArgs );
-				
-				getContext().getContentResolver().notifyChange( uri, null );
-				
-				return affected;
+				break;
 
 			case FRONTEND_ID:
 				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
-
 				affected = db.update( FrontendConstants.TABLE_NAME, values, selection , selectionArgs );
-
-				getContext().getContentResolver().notifyChange( uri, null );
-				
-				return affected;
+				break;
 
 			case ETAGS:
 				affected = db.update( EtagConstants.TABLE_NAME, values, selection , selectionArgs );
-				
-				getContext().getContentResolver().notifyChange( uri, null );
-				
-				return affected;
+				break;
 
 			case ETAG_ID:
 				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
-
 				affected = db.update( EtagConstants.TABLE_NAME, values, selection , selectionArgs );
-
-				getContext().getContentResolver().notifyChange( uri, null );
-				
-				return affected;
+				break;
 
 			case STATUS:
 				affected = db.update( StatusConstants.TABLE_NAME, values, selection , selectionArgs );
-				
-				getContext().getContentResolver().notifyChange( uri, null );
-				
-				return affected;
+				break;
 
 			case STATUS_ID:
 				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
-
 				affected = db.update( StatusConstants.TABLE_NAME, values, selection , selectionArgs );
-
-				getContext().getContentResolver().notifyChange( uri, null );
-				
-				return affected;
+				break;
 
 			case LOCATION_PROFILE:
 				affected = db.update( LocationProfileConstants.TABLE_NAME, values, selection , selectionArgs );
-				
-				getContext().getContentResolver().notifyChange( uri, null );
-				
-				return affected;
+				break;
 
 			case LOCATION_PROFILE_ID:
 				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
-
 				affected = db.update( LocationProfileConstants.TABLE_NAME, values, selection , selectionArgs );
-
-				getContext().getContentResolver().notifyChange( uri, null );
-				
-				return affected;
+				break;
 
 			case PLAYBACK_PROFILE:
 				affected = db.update( PlaybackProfileConstants.TABLE_NAME, values, selection , selectionArgs );
-				
-				getContext().getContentResolver().notifyChange( uri, null );
-				
-				return affected;
+				break;
 
 			case PLAYBACK_PROFILE_ID:
 				selection = appendRowId( selection, Long.parseLong( uri.getPathSegments().get( 1 ) ) );
-
 				affected = db.update( PlaybackProfileConstants.TABLE_NAME, values, selection , selectionArgs );
-
-				getContext().getContentResolver().notifyChange( uri, null );
-				
-				return affected;
+				break;
 
 			default:
 				throw new IllegalArgumentException( "Unknown URI: " + uri );
 		}
+		
+		getContext().getContentResolver().notifyChange( uri, null );
+		
+		return affected;
 		
 	}
 
@@ -1892,6 +1799,7 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 			final ContentProviderResult[] results = new ContentProviderResult[ numOperations ];
 			for( int i = 0; i < numOperations; i++ ) {
 				results[ i ] = operations.get( i ).apply( this, results, i );
+//				System.out.println( "applyBatch : " + results[ i ].toString() );
 			}
 			db.setTransactionSuccessful();
 			return results;
@@ -1933,7 +1841,7 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 			insert.bindLong( 25, value.getAsInteger( ProgramConstants.FIELD_RECORD_ID ) );
 			insert.bindLong( 26, value.getAsInteger( ProgramConstants.FIELD_IN_ERROR ) );
 			insert.bindString( 27, value.getAsString( ProgramConstants.FIELD_MASTER_HOSTNAME ) );
-			insert.bindLong( 28, value.getAsInteger( ProgramConstants.FIELD_LAST_MODIFIED_DATE ) );
+			insert.bindLong( 28, value.getAsLong( ProgramConstants.FIELD_LAST_MODIFIED_DATE ) );
 			
 			insert.execute();
 		}

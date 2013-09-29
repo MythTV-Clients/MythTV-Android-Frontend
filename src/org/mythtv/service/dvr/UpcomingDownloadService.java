@@ -25,7 +25,10 @@ import org.mythtv.service.dvr.v26.UpcomingHelperV26;
 import org.mythtv.service.dvr.v27.UpcomingHelperV27;
 import org.mythtv.services.api.ApiVersion;
 
+import android.content.Context;
 import android.content.Intent;
+import android.os.PowerManager;
+import android.os.PowerManager.WakeLock;
 import android.util.Log;
 
 /**
@@ -68,7 +71,10 @@ public class UpcomingDownloadService extends MythtvService {
 
     		boolean passed = true;
     		
-    		try {
+			PowerManager mgr = (PowerManager) getSystemService( Context.POWER_SERVICE );
+			WakeLock wakeLock = mgr.newWakeLock( PowerManager.PARTIAL_WAKE_LOCK, "UpcomingServiceDownload" );
+
+			try {
 
     			ApiVersion apiVersion = ApiVersion.valueOf( locationProfile.getVersion() );
     			switch( apiVersion ) {
@@ -96,9 +102,12 @@ public class UpcomingDownloadService extends MythtvService {
 				passed = false;
 			} finally {
 
+    			if( wakeLock.isHeld() ) {
+    				wakeLock.release();
+    			}
+				
     			Intent completeIntent = new Intent( ACTION_COMPLETE );
     			completeIntent.putExtra( EXTRA_COMPLETE, "Upcoming Programs Download Service Finished" );
-    			completeIntent.putExtra( EXTRA_COMPLETE, "Recorded Programs Download Service Finished" );
    				completeIntent.putExtra( EXTRA_COMPLETE_UPTODATE, passed );
     			
     			sendBroadcast( completeIntent );

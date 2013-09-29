@@ -19,12 +19,13 @@
  */
 package org.mythtv.db.dvr.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import java.util.List;
+
 import org.joda.time.DateTime;
 import org.mythtv.services.api.DateTimeSerializer;
 
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 /**
  * @author Daniel Frey

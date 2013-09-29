@@ -23,9 +23,9 @@ import org.mythtv.R;
 import org.mythtv.client.ui.AbstractMythtvFragmentActivity;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.dvr.ProgramConstants;
+import org.mythtv.db.dvr.model.Program;
 import org.mythtv.db.dvr.programGroup.ProgramGroup;
 import org.mythtv.db.dvr.programGroup.ProgramGroupConstants;
-import org.mythtv.db.dvr.model.Program;
 
 import android.content.Intent;
 import android.os.Bundle;

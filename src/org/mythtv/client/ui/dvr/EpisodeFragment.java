@@ -97,6 +97,18 @@ public class EpisodeFragment extends AbstractMythFragment implements GetLiveStre
 		Log.v( TAG, "onCreateView : enter" );
 
 		View root = inflater.inflate( R.layout.fragment_dvr_episode, container, false );
+		
+		/*
+		 * TODO Add the following to enable an image where there is none
+		 * on the backend. Change the coverart to something nicer.
+		 * .showImageForEmptyUri( R.drawable.coverart_missing )
+		 * .showImageOnFail( R.drawable.coverart_missing )
+		 */
+		
+		options = new DisplayImageOptions.Builder()
+			.cacheInMemory( true )
+			.cacheOnDisc( true 	)
+			.build();
 
 		Log.v( TAG, "onCreateView : exit" );
 		return root;
@@ -113,11 +125,8 @@ public class EpisodeFragment extends AbstractMythFragment implements GetLiveStre
 		super.onActivityCreated( savedInstanceState );
 
 		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
+
 		
-		options = new DisplayImageOptions.Builder()
-			.cacheInMemory( true )
-			.cacheOnDisc( true 	)
-			.build();
 
 		setHasOptionsMenu( true );
 
@@ -442,10 +451,27 @@ public class EpisodeFragment extends AbstractMythFragment implements GetLiveStre
 					 */
 					@Override
 					public void onLoadingFailed( String imageUri, View view, FailReason failReason ) {
-				        iView.setVisibility( View.GONE );
+						if ( options.shouldShowImageOnFail() ) {
+							iView.setImageResource( options.getImageOnFail() );
+							iView.setVisibility( View.VISIBLE );
+						}
+						else {
+							iView.setVisibility( View.GONE );
+						}
 					}
-					
+
 				});
+
+			}
+			else {
+
+				if ( options.shouldShowImageOnFail() ) {
+					iView.setImageResource( options.getImageOnFail() );
+					iView.setVisibility( View.VISIBLE );
+				}
+				else {
+					iView.setVisibility( View.GONE );
+				}
 
 			}
 			
@@ -516,11 +542,13 @@ public class EpisodeFragment extends AbstractMythFragment implements GetLiveStre
 			Log.v( TAG, "startPlayStreamService : channelId=" + program.getChannelInfo().getChannelId() + ", startTime=" + program.getStartTime().getMillis() );
 		}
 
-		Intent intent = new Intent( LiveStreamService.ACTION_PLAY );
-		intent.putExtra( LiveStreamService.KEY_CHANNEL_ID, program.getChannelInfo().getChannelId() );
-		intent.putExtra( LiveStreamService.KEY_START_TIMESTAMP, program.getStartTime().getMillis() );
-		getActivity().startService( intent );
+//		Intent intent = new Intent( LiveStreamService.ACTION_PLAY );
+//		intent.putExtra( LiveStreamService.KEY_CHANNEL_ID, program.getChannelInfo().getChannelId() );
+//		intent.putExtra( LiveStreamService.KEY_START_TIMESTAMP, program.getStartTime().getMillis() );
+//		getActivity().startService( intent );
 
+		startPlayer( false );
+		
 		Log.i( TAG, "startPlayStreamService : exit" );
 	}
 
@@ -592,7 +620,7 @@ public class EpisodeFragment extends AbstractMythFragment implements GetLiveStre
 		
 		Intent intent = new Intent( RecordedService.ACTION_REMOVE );
 		intent.putExtra( RecordedService.KEY_CHANNEL_ID, program.getChannelInfo().getChannelId() );
-		intent.putExtra( RecordedService.KEY_START_TIMESTAMP, program.getRecording().getStartTimestamp().getMillis() );
+		intent.putExtra( RecordedService.KEY_START_TIMESTAMP, program.getStartTime().getMillis() );
 		intent.putExtra( RecordedService.KEY_RECORD_ID, program.getRecording().getRecordId() );
 		getActivity().startService( intent );
 
@@ -691,11 +719,19 @@ public class EpisodeFragment extends AbstractMythFragment implements GetLiveStre
 	        		notConnectedNotify();
 	        	} else {
 	        		
-	        		if( null != program ) {
-	        			ProgramGroup programGroup = mProgramGroupDaoHelper.findByTitle( getActivity(), mLocationProfile, program.getTitle() );
-	        			listener.onEpisodeDeleted( programGroup );
+	        		if( null != intent.getStringExtra( RecordedService.EXTRA_COMPLETE ) && intent.getStringExtra( RecordedService.EXTRA_COMPLETE ).startsWith( "Episode" ) && intent.getStringExtra( RecordedService.EXTRA_COMPLETE ).endsWith( "deleted!" ) ) {
+	        		
+	        			if( null != program ) {
+	        				ProgramGroup programGroup = mProgramGroupDaoHelper.findByTitle( getActivity(), mLocationProfile, program.getTitle() );
+	        				listener.onEpisodeDeleted( programGroup );
+	        			} else {
+	        				listener.onEpisodeDeleted( null );
+	        			}
+
 	        		} else {
+	        			
 	        			listener.onEpisodeDeleted( null );
+	        			
 	        		}
 	        		
 	        	}
@@ -730,7 +766,7 @@ public class EpisodeFragment extends AbstractMythFragment implements GetLiveStre
 	        	}
 	        	
 	        	if( intent.getExtras().containsKey( LiveStreamService.EXTRA_COMPLETE_ERROR ) ) {
-	        		Toast.makeText( getActivity(), intent.getStringExtra( LiveStreamService.EXTRA_COMPLETE_ERROR ), Toast.LENGTH_SHORT ).show();
+//	        		Toast.makeText( getActivity(), intent.getStringExtra( LiveStreamService.EXTRA_COMPLETE_ERROR ), Toast.LENGTH_SHORT ).show();
 	        	} 
 	        	
 	        	if( intent.getExtras().containsKey( LiveStreamService.EXTRA_COMPLETE_PLAY ) ) {

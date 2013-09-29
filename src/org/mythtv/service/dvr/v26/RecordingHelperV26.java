@@ -58,49 +58,65 @@ public class RecordingHelperV26 extends AbstractBaseHelper {
 	 */
 	private RecordingHelperV26() { }
 
-	public void processRecording( final Context context, final LocationProfile locationProfile, ArrayList<ContentProviderOperation> ops, ContentDetails details, Program program, DateTime lastModified, DateTime startTime, int count ) {
-		Log.v( TAG, "processRecording : enter" );
+	public void processRecording( final Context context, final LocationProfile locationProfile, ArrayList<ContentProviderOperation> ops, ContentDetails details, Program program ) {
+//		Log.v( TAG, "processRecording : enter" );
 		
-		String[] recordingProjection = new String[] { details.getTableName() + "_" + RecordingConstants._ID };
-		String recordingSelection = RecordingConstants.FIELD_RECORD_ID + " = ? AND " + RecordingConstants.FIELD_START_TIME + " = ? AND " + RecordingConstants.FIELD_MASTER_HOSTNAME + " = ?";
-		String[] recordingSelectionArgs = new String[] { String.valueOf( program.getRecording().getRecordId() ), String.valueOf( program.getStartTime().getMillis() ), locationProfile.getHostname() };
+		ContentValues recordingValues = convertRecordingToContentValues( locationProfile, program.getStartTime(), program.getRecording() );
 
-		//Log.v( TAG, "processRecording : recording=" + program.getRecording().toString() );
-
-		ContentValues recordingValues = convertRecordingToContentValues( locationProfile, lastModified, startTime, program.getRecording() );
-		Cursor recordingCursor = context.getContentResolver().query( details.getContentUri(), recordingProjection, recordingSelection, recordingSelectionArgs, null );
-		if( recordingCursor.moveToFirst() ) {
-			//Log.v( TAG, "processRecording : UPDATE RECORDING " + count + ":" + program.getTitle() + ", recording=" + program.getRecording().getRecordId() );
-
-			Long id = recordingCursor.getLong( recordingCursor.getColumnIndexOrThrow( details.getTableName() + "_" + RecordingConstants._ID ) );					
-			ops.add( 
-				ContentProviderOperation.newUpdate( ContentUris.withAppendedId( details.getContentUri(), id ) )
-					.withValues( recordingValues )
-					.withYieldAllowed( true )
-					.build()
-				);
-		} else {
-			//Log.v( TAG, "processRecording : INSERT RECORDING " + count + ":" + program.getTitle() + ", recording=" + program.getRecording().getRecordId() );
-
+		if( details.equals( ContentDetails.RECORDED ) || details.equals( ContentDetails.UPCOMING ) || details.equals( ContentDetails.GUIDE ) ) {
+			
+			Log.v( TAG, "processRecording : INSERT RECORDING : " + program.getTitle() + ":" + program.getSubTitle() + ", recording=" + program.getRecording().getRecordId() + ":" + details.getTableName() );
 			ops.add(  
 				ContentProviderOperation.newInsert( details.getContentUri() )
 					.withValues( recordingValues )
 					.withYieldAllowed( true )
 					.build()
-				);
-		}
-		recordingCursor.close();
-		count++;
+			);
 
-		Log.v( TAG, "processRecording : exit" );
+		} else {
+
+			String[] recordingProjection = new String[] { details.getTableName() + "_" + RecordingConstants._ID };
+			String recordingSelection = RecordingConstants.FIELD_RECORD_ID + " = ? AND " + RecordingConstants.FIELD_START_TIME + " = ? AND " + RecordingConstants.FIELD_MASTER_HOSTNAME + " = ?";
+			String[] recordingSelectionArgs = new String[] { String.valueOf( program.getRecording().getRecordId() ), String.valueOf( program.getStartTime().getMillis() ), locationProfile.getHostname() };
+
+			Cursor recordingCursor = context.getContentResolver().query( details.getContentUri(), recordingProjection, recordingSelection, recordingSelectionArgs, null );
+			if( recordingCursor.moveToFirst() ) {
+				Log.v( TAG, "processRecording : UPDATE RECORDING : " + program.getTitle() + ", recording=" + program.getRecording().getRecordId() + ":" + details.getTableName() );
+
+				Long id = recordingCursor.getLong( recordingCursor.getColumnIndexOrThrow( details.getTableName() + "_" + RecordingConstants._ID ) );					
+				ops.add( 
+					ContentProviderOperation.newUpdate( ContentUris.withAppendedId( details.getContentUri(), id ) )
+						.withValues( recordingValues )
+						.withYieldAllowed( true )
+						.build()
+				);
+			} else {
+				Log.v( TAG, "processRecording : INSERT RECORDING : " + program.getTitle() + ", recording=" + program.getRecording().getRecordId() + ":" + details.getTableName() );
+				ops.add(  
+					ContentProviderOperation.newInsert( details.getContentUri() )
+						.withValues( recordingValues )
+						.withYieldAllowed( true )
+						.build()
+				);
+			}
+			recordingCursor.close();
+
+		}
+		
+//		Log.v( TAG, "processRecording : exit" );
 	}
 	
-	public void deleteRecordings( ArrayList<ContentProviderOperation> ops, ContentDetails details, DateTime today ) {
+	public void deleteRecordings( final Context context, final LocationProfile locationProfile, ArrayList<ContentProviderOperation> ops, ContentDetails details ) {
 		Log.v( TAG, "deleteRecordings : enter" );
 		
+		String selection = null;
+		String[] selectionArgs = null;
+		
+		selection = appendLocationHostname( context, locationProfile, selection, details.getTableName() );
+
 		ops.add(  
 			ContentProviderOperation.newDelete( details.getContentUri() )
-				.withSelection( details.getTableName() + "." + RecordingConstants.FIELD_LAST_MODIFIED_DATE + " < ?", new String[] { String.valueOf( today.getMillis() ) } )
+				.withSelection( selection, selectionArgs )
 				.withYieldAllowed( true )
 				.build()
 		);
@@ -108,11 +124,29 @@ public class RecordingHelperV26 extends AbstractBaseHelper {
 		Log.v( TAG, "deleteRecordings : exit" );
 	}
 
-	public boolean deleteRecording( final Context context, final LocationProfile locationProfile, Uri uri, String table, Integer recordId, DateTime startTime ) {
+	public void deleteRecordings( final Context context, final LocationProfile locationProfile, ArrayList<ContentProviderOperation> ops, ContentDetails details, DateTime lastModified ) {
+		Log.v( TAG, "deleteRecordings : enter" );
+		
+		String selection = details.getTableName() + "." + RecordingConstants.FIELD_LAST_MODIFIED_DATE + " < ?";
+		String[] selectionArgs = new String[] { String.valueOf( lastModified.getMillis() ) };
+		
+		selection = appendLocationHostname( context, locationProfile, selection, details.getTableName() );
+
+		ops.add(  
+			ContentProviderOperation.newDelete( details.getContentUri() )
+				.withSelection( selection, selectionArgs )
+				.withYieldAllowed( true )
+				.build()
+		);
+
+		Log.v( TAG, "deleteRecordings : exit" );
+	}
+
+	public boolean deleteRecording( final Context context, final LocationProfile locationProfile, Uri uri, Integer recordId, DateTime startTime ) {
 		Log.d( TAG, "deleteProgram : enter" );
 		
-		String recordingSelection = table + "." + RecordingConstants.FIELD_RECORD_ID + " = ? AND " + table + "." + RecordingConstants.FIELD_START_TIME + " = ?";
-		String[] recordingSelectionArgs = new String[] { String.valueOf( recordId ), String.valueOf( startTime ) };
+		String recordingSelection = RecordingConstants.FIELD_RECORD_ID + " = ? AND " + RecordingConstants.FIELD_START_TS + " = ?";
+		String[] recordingSelectionArgs = new String[] { String.valueOf( recordId ), String.valueOf( startTime.getMillis() ) };
 
 		recordingSelection = appendLocationHostname( context, locationProfile, recordingSelection, null );
 
@@ -210,7 +244,7 @@ public class RecordingHelperV26 extends AbstractBaseHelper {
 
 	// internal helers
 	
-	private ContentValues convertRecordingToContentValues( final LocationProfile locationProfile, final DateTime lastModified, final DateTime startTime, final Recording recording ) {
+	private ContentValues convertRecordingToContentValues( final LocationProfile locationProfile, final DateTime startTime, final Recording recording ) {
 //		Log.v( TAG, "convertRecordingToContentValues : enter" );
 		
 		DateTime startTimestamp = new DateTime( DateTimeZone.UTC );
@@ -240,7 +274,7 @@ public class RecordingHelperV26 extends AbstractBaseHelper {
 		values.put( RecordingConstants.FIELD_PROFILE, null != recording.getProfile() ? recording.getProfile() : "" );
 		values.put( RecordingConstants.FIELD_START_TIME, startTime.getMillis() );
 		values.put( RecordingConstants.FIELD_MASTER_HOSTNAME, locationProfile.getHostname() );
-		values.put( RecordingConstants.FIELD_LAST_MODIFIED_DATE, lastModified.getMillis() );
+		values.put( RecordingConstants.FIELD_LAST_MODIFIED_DATE, new DateTime( DateTimeZone.UTC ).getMillis() );
 		
 //		Log.v( TAG, "convertRecordingToContentValues : exit" );
 		return values;

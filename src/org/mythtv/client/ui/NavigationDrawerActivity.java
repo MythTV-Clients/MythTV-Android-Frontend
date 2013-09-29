@@ -35,12 +35,14 @@ import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -48,7 +50,8 @@ import android.widget.BaseAdapter;
 import android.widget.ListView;
 
 /**
- * @author dmfrey
+ * @author Daniel Frey
+ * @author Thomas G. Kenny Jr
  *
  */
 public class NavigationDrawerActivity extends AbstractMythtvFragmentActivity {
@@ -92,6 +95,15 @@ public class NavigationDrawerActivity extends AbstractMythtvFragmentActivity {
 			drawer.closeDrawer( navList );
 			
 			Log.v( TAG, "onProfileChanged : exit" );
+		}
+		
+	};
+	
+	private OnClickListener mManageProfilesOnClickListener = new OnClickListener(){
+
+		@Override
+		public void onClick(View v) {
+			startActivity( new Intent( wrActivity.get(), MythtvPreferenceActivity.class ) );
 		}
 		
 	};
@@ -208,7 +220,6 @@ public class NavigationDrawerActivity extends AbstractMythtvFragmentActivity {
 						Log.v( TAG, "onCreate : starting preferences activity" );
 						
 				    	startActivity( new Intent( wrActivity.get(), MythtvPreferenceActivity.class ) );
-						
 					}
 
 					if( row instanceof DvrActionRow ) {
@@ -350,10 +361,14 @@ public class NavigationDrawerActivity extends AbstractMythtvFragmentActivity {
 		if( null != wrActivity.get() && wrActivity.get().isFinishing() != true ) {
 			Log.v( TAG, "updateContent : weak reference to activity available" );
 			
-			FragmentTransaction tx = wrActivity.get().getSupportFragmentManager().beginTransaction();
-        	tx.replace( R.id.main, Fragment.instantiate( wrActivity.get(), fragment ), fragment );
-        	tx.commit();
-		
+			FragmentManager fragmentManager = wrActivity.get().getSupportFragmentManager();
+			if( null == fragmentManager.findFragmentByTag( fragment ) ) {
+				FragmentTransaction tx = fragmentManager.beginTransaction();
+				Fragment f = Fragment.instantiate( wrActivity.get(), fragment );
+				tx.replace( R.id.main, f, fragment );
+				tx.commit();
+			}
+			
 		}
 		
 		drawer.closeDrawer( navList );
@@ -445,8 +460,8 @@ public class NavigationDrawerActivity extends AbstractMythtvFragmentActivity {
 			rows = new ArrayList<Row>();
 			
 			rows.add( new VersionRow( mContext, R.string.navigation_version, "x" ) );
-			rows.add( new ProfileRow( mContext, mProfileChangedListener ) );
-			rows.add( new ManageProfilesActionRow( mContext, R.string.navigation_manage_profiles ) );
+			rows.add( new ProfileRow( mContext, mProfileChangedListener, mManageProfilesOnClickListener ) );
+			// -- Integrated into ProfileRow -- rows.add( new ManageProfilesActionRow( mContext, R.string.navigation_manage_profiles ) );
 			
 			if( null != mLocationProfile && mLocationProfile.getType().equals( LocationType.HOME ) ) {
 				rows.add( new FrontendsHeaderRow( mContext, R.string.navigation_frontends ) );

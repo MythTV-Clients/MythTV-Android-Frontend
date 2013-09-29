@@ -21,6 +21,8 @@ import android.content.Intent;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.net.wifi.WifiManager.MulticastLock;
+import android.os.PowerManager;
+import android.os.PowerManager.WakeLock;
 import android.util.Log;
 
 /**
@@ -77,14 +79,22 @@ public class FrontendsDiscoveryService extends MythtvService implements ServiceL
 		if ( intent.getAction().equals( ACTION_DISCOVER ) ) {
     		Log.i( TAG, "onHandleIntent : DISCOVER action selected" );
 		
-    		try {
+			PowerManager mgr = (PowerManager) getSystemService( Context.POWER_SERVICE );
+			WakeLock wakeLock = mgr.newWakeLock( PowerManager.PARTIAL_WAKE_LOCK, "FrontendServiceDiscover" );
+
+			try {
     			mFrontendDaoHelper.resetAllAvailable( this, mLocationProfile );
     			
 				startProbe();
 			} catch( IOException e ) {
 				Log.e( TAG, "onHandleIntent : error", e );
 			} finally {
-    			Intent completeIntent = new Intent( ACTION_COMPLETE );
+				
+    			if( wakeLock.isHeld() ) {
+    				wakeLock.release();
+    			}
+				
+				Intent completeIntent = new Intent( ACTION_COMPLETE );
 				completeIntent.putExtra( EXTRA_COMPLETE, "Frontends are being discovered" );
 			
 				sendBroadcast( completeIntent );

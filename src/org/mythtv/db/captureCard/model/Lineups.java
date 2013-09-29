@@ -19,9 +19,9 @@
  */
 package org.mythtv.db.captureCard.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * @author Daniel Frey

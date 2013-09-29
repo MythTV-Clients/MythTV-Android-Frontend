@@ -19,14 +19,15 @@
  */
 package org.mythtv.db.guide.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import java.io.Serializable;
+import java.util.List;
+
 import org.joda.time.DateTime;
 import org.mythtv.db.channel.model.ChannelInfo;
 import org.mythtv.services.api.DateTimeSerializer;
 
-import java.io.Serializable;
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 /**
  * @author Daniel Frey

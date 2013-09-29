@@ -19,6 +19,7 @@
 package org.mythtv.client.ui.preferences;
 
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.net.InetAddress;
 import java.util.EventListener;
 import java.util.List;
@@ -69,7 +70,9 @@ public class MythtvPreferenceActivity extends PreferenceActivity {
 	
 	private static LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
 	private static PlaybackProfileDaoHelper mPlaybackProfileDaoHelper = PlaybackProfileDaoHelper.getInstance();
-	
+
+	private static WeakReference<MythtvPreferenceActivity> wrActivity = null; 
+
 	/* (non-Javadoc)
 	 * @see android.preference.PreferenceActivity#onBuildHeaders(java.util.List)
 	 */
@@ -88,10 +91,11 @@ public class MythtvPreferenceActivity extends PreferenceActivity {
 	@Override
 	protected void onCreate( Bundle savedInstanceState ) {
 		Log.v( TAG, "onCreate : enter" );
-
 		super.onCreate( savedInstanceState );
 
-		ActionBar actionBar = getActionBar();
+		wrActivity = new WeakReference<MythtvPreferenceActivity>( this );
+		
+		ActionBar actionBar = wrActivity.get().getActionBar();
 		actionBar.setDisplayHomeAsUpEnabled( true );
 		actionBar.setTitle( R.string.preferences_title );
 		
@@ -475,10 +479,11 @@ public class MythtvPreferenceActivity extends PreferenceActivity {
 		@Override
 		public void onResume() {
 			Log.v( TAG, "onResume : enter" );
-
 			super.onResume();
 
-			setupPreferences( getActivity() );
+			if( null != wrActivity.get() && wrActivity.get().isFinishing() != true ) {
+				setupPreferences( wrActivity.get() );
+			}
 			
 			Log.v( TAG, "onResume : exit" );
 		}
@@ -551,11 +556,11 @@ public class MythtvPreferenceActivity extends PreferenceActivity {
 				profile.setName( event.getName() );
 				profile.setUrl( "http://" + hostname + ":" + port + "/" );
 			
-				showLocationProfileEditDialog( getActivity(), profile );
+				showLocationProfileEditDialog( wrActivity.get(), profile );
 			
 			} else {
 
-				AlertDialog.Builder builder = new AlertDialog.Builder( getActivity() );
+				AlertDialog.Builder builder = new AlertDialog.Builder( wrActivity.get() );
 				builder.setTitle( R.string.preference_edit_error_dialog_title );
 				builder.setNeutralButton( R.string.btn_ok, new DialogInterface.OnClickListener() {
 
@@ -612,13 +617,13 @@ public class MythtvPreferenceActivity extends PreferenceActivity {
 			}
 
     		try {
-    			mProgressDialog = ProgressDialog.show( getActivity(), "Please wait...", "Scanning network for MythTV Backend.", true, false );
+    			mProgressDialog = ProgressDialog.show( wrActivity.get(), "Please wait...", "Scanning network for MythTV Backend.", true, false );
     		} catch( Exception e ) {
     			Log.w( TAG, "startProbe : error", e );
     		}
 
 			// figure out our wifi address, otherwise bail
-			WifiManager wifi = (WifiManager) getActivity().getSystemService( Context.WIFI_SERVICE );
+			WifiManager wifi = (WifiManager) wrActivity.get().getSystemService( Context.WIFI_SERVICE );
 
 			WifiInfo wifiinfo = wifi.getConnectionInfo();
 			int intaddr = wifiinfo.getIpAddress();
@@ -805,10 +810,11 @@ public class MythtvPreferenceActivity extends PreferenceActivity {
 		@Override
 		public void onResume() {
 			Log.v( TAG, "onResume : enter" );
-
 			super.onResume();
 
-			setupPreferences( getActivity() );
+			if( null != wrActivity.get() && wrActivity.get().isFinishing() != true ) {
+				setupPreferences( wrActivity.get() );
+			}
 			
 			Log.v( TAG, "onResume : exit" );
 		}
@@ -900,10 +906,11 @@ public class MythtvPreferenceActivity extends PreferenceActivity {
 		@Override
 		public void onResume() {
 			Log.v( TAG, "onResume : enter" );
-
 			super.onResume();
 
-			setupPreferences( getActivity() );
+			if( null != wrActivity.get() && wrActivity.get().isFinishing() != true ) {
+				setupPreferences( wrActivity.get() );
+			}
 			
 			Log.v( TAG, "onResume : exit" );
 		}
@@ -1029,10 +1036,11 @@ public class MythtvPreferenceActivity extends PreferenceActivity {
 		@Override
 		public void onResume() {
 			Log.v( TAG, "onResume : enter" );
-
 			super.onResume();
 
-			setupPreferences( getActivity() );
+			if( null != wrActivity.get() && wrActivity.get().isFinishing() != true ) {
+				setupPreferences( wrActivity.get() );
+			}
 			
 			Log.v( TAG, "onResume : exit" );
 		}
@@ -1121,10 +1129,11 @@ public class MythtvPreferenceActivity extends PreferenceActivity {
 		@Override
 		public void onResume() {
 			Log.v( TAG, "onResume : enter" );
-
 			super.onResume();
 
-			setupPreferences( getActivity() );
+			if( null != wrActivity.get() && wrActivity.get().isFinishing() != true ) {
+				setupPreferences( wrActivity.get() );
+			}
 			
 			Log.v( TAG, "onResume : exit" );
 		}

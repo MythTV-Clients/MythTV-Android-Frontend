@@ -12,8 +12,10 @@ import org.mythtv.client.MainApplication;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.AbstractBaseHelper;
 import org.mythtv.db.dvr.ProgramConstants;
+import org.mythtv.db.dvr.RecordingConstants.ContentDetails;
 import org.mythtv.db.http.model.EtagInfoDelegate;
 import org.mythtv.service.dvr.v27.ProgramHelperV27;
+import org.mythtv.service.dvr.v27.RecordingHelperV27;
 import org.mythtv.service.util.DateUtils;
 import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.ApiVersion;
@@ -111,10 +113,10 @@ public class ProgramGuideHelperV27 extends AbstractBaseHelper {
 		return program;
 	}
 	
-	public static boolean deleteProgram( final Context context, final LocationProfile locationProfile, Integer channelId, DateTime startTime, Integer recordId ) {
+	public static boolean deleteProgram( final Context context, final LocationProfile locationProfile, Integer channelId, DateTime programStartTime, DateTime recordingStartTime, Integer recordId ) {
 		Log.v( TAG, "deleteProgram : enter" );
 		
-		boolean removed = ProgramHelperV27.getInstance().deleteProgram( context, locationProfile, ProgramConstants.CONTENT_URI_GUIDE, ProgramConstants.TABLE_NAME_GUIDE, channelId, startTime, recordId );
+		boolean removed = ProgramHelperV27.getInstance().deleteProgram( context, locationProfile, ProgramConstants.CONTENT_URI_GUIDE, ProgramConstants.TABLE_NAME_GUIDE, channelId, programStartTime, recordingStartTime, recordId );
 		
 		Log.v( TAG, "deleteProgram : enter" );
 		return removed;
@@ -124,7 +126,11 @@ public class ProgramGuideHelperV27 extends AbstractBaseHelper {
 	
 	private static void downloadProgramGuide( final Context context, final LocationProfile locationProfile ) throws RemoteException, OperationApplicationException {
 		Log.v( TAG, "downloadProgramGuide : enter" );
-	
+
+		ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
+		ProgramHelperV27.getInstance().deletePrograms( context, locationProfile, ops, ProgramConstants.CONTENT_URI_GUIDE, ProgramConstants.TABLE_NAME_GUIDE );
+		RecordingHelperV27.getInstance().deleteRecordings( context, locationProfile, ops, ContentDetails.GUIDE );
+
 		DateTime startDownloading = new DateTime();
 		
 		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences( context );
@@ -201,9 +207,6 @@ public class ProgramGuideHelperV27 extends AbstractBaseHelper {
 		if( null == context ) 
 			throw new RuntimeException( "ProgramGuideHelperV27 is not initialized" );
 		
-		DateTime today = new DateTime( DateTimeZone.UTC ).withTimeAtStartOfDay();
-		DateTime lastModified = new DateTime( DateTimeZone.UTC );
-		
 		int processed = -1;
 		int count = 0;
 		
@@ -215,10 +218,9 @@ public class ProgramGuideHelperV27 extends AbstractBaseHelper {
 				//Log.i( TAG, "load : count=" + count );
 
 				program.setChannel( channel );
+				program.setHostName( locationProfile.getHostname() );
 
-				DateTime startTime = program.getStartTime();
-
-				ProgramHelperV27.getInstance().processProgram( context, locationProfile, ProgramConstants.CONTENT_URI_GUIDE, ProgramConstants.TABLE_NAME_GUIDE, ops, program, lastModified, startTime, count );
+				ProgramHelperV27.getInstance().processProgram( context, locationProfile, ProgramConstants.CONTENT_URI_GUIDE, ProgramConstants.TABLE_NAME_GUIDE, ops, program );
 				count++;
 
 				if( count > BATCH_COUNT_LIMIT ) {
@@ -232,14 +234,13 @@ public class ProgramGuideHelperV27 extends AbstractBaseHelper {
 			}
 
 		}
+
+		if( !ops.isEmpty() ) {
+//			Log.i( TAG, "load : applying final batch for '" + count + "' transactions, processing programs" );
+			
+			processBatch( context, ops, processed, count );
+		}
 		
-		processBatch( context, ops, processed, count );
-
-//		Log.v( TAG, "load : DELETE PROGRAMS" );
-		ProgramHelperV27.getInstance().deletePrograms( context, locationProfile, ops, ProgramConstants.CONTENT_URI_GUIDE, ProgramConstants.TABLE_NAME_GUIDE, today );
-
-		processBatch( context, ops, processed, count );
-
 //		Log.v( TAG, "load : exit" );
 		return processed;
 	}

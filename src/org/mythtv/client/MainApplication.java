@@ -47,6 +47,7 @@ import com.nostra13.universalimageloader.cache.disc.impl.UnlimitedDiscCache;
 import com.nostra13.universalimageloader.cache.memory.impl.UsingFreqLimitedMemoryCache;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.nostra13.universalimageloader.utils.L;
 
 /**
  * @author Daniel Frey
@@ -153,6 +154,8 @@ public class MainApplication extends Application {
 		
 		// Initialize ImageLoader with configuration.
 		ImageLoader.getInstance().init( config );
+		
+		L.disableLogging();
 	}
 	
 	/**

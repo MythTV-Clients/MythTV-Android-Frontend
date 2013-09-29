@@ -6,8 +6,6 @@ package org.mythtv.service.status.v26;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.AbstractBaseHelper;
 import org.mythtv.db.channel.model.ChannelInfo;
@@ -35,7 +33,6 @@ import org.mythtv.db.status.model.Miscellaneous;
 import org.mythtv.db.status.model.Scheduled;
 import org.mythtv.service.dvr.v26.ProgramHelperV26;
 import org.mythtv.service.dvr.v26.RecordingHelperV26;
-import org.mythtv.service.status.v27.BackendStatusHelperV27;
 import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.ApiVersion;
 import org.mythtv.services.api.ETagInfo;
@@ -76,7 +73,7 @@ public class BackendStatusHelperV26 extends AbstractBaseHelper {
 	public static BackendStatusHelperV26 getInstance() {
 		if( null == singleton ) {
 			
-			synchronized( BackendStatusHelperV27.class ) {
+			synchronized( BackendStatusHelperV26.class ) {
 
 				if( null == singleton ) {
 					singleton = new BackendStatusHelperV26();
@@ -115,7 +112,7 @@ public class BackendStatusHelperV26 extends AbstractBaseHelper {
 			Log.e( TAG, "process : error", e );
 		}
 		
-		Log.d( TAG, "process : enter" );
+		Log.d( TAG, "process : exit" );
 		return backendStatus;
 	}
 
@@ -158,8 +155,6 @@ public class BackendStatusHelperV26 extends AbstractBaseHelper {
 		return null;
 	}
 
-	
-	
 	private void updateProgramGuide( final Context mContext, org.mythtv.services.api.v026.beans.BackendStatus status ) throws RemoteException, OperationApplicationException {
 		Log.v( TAG, "updateProgramGuide : enter" );
 		
@@ -172,8 +167,6 @@ public class BackendStatusHelperV26 extends AbstractBaseHelper {
 		
 				ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
 
-				DateTime lastModified = new DateTime( DateTimeZone.UTC );
-				
 				for( org.mythtv.services.api.v026.beans.Program versionProgram : status.getScheduled().getPrograms() ) {
 
 					boolean inError = false;
@@ -184,21 +177,25 @@ public class BackendStatusHelperV26 extends AbstractBaseHelper {
 						inError = false;
 					}
 
-					DateTime startTime = versionProgram.getStartTime();
-
 					// load upcoming program
-					ProgramHelperV26.getInstance().processProgram( mContext, mLocationProfile, ProgramConstants.CONTENT_URI_UPCOMING, ProgramConstants.TABLE_NAME_UPCOMING, ops, versionProgram, lastModified, startTime, count );
+					ProgramHelperV26.getInstance().processProgram( mContext, mLocationProfile, ProgramConstants.CONTENT_URI_UPCOMING, ProgramConstants.TABLE_NAME_UPCOMING, ops, versionProgram );
+					count++;
+
 					// update program guide
-					ProgramHelperV26.getInstance().processProgram( mContext, mLocationProfile, ProgramConstants.CONTENT_URI_GUIDE, ProgramConstants.TABLE_NAME_GUIDE, ops, versionProgram, lastModified, startTime, count );
+					ProgramHelperV26.getInstance().processProgram( mContext, mLocationProfile, ProgramConstants.CONTENT_URI_GUIDE, ProgramConstants.TABLE_NAME_GUIDE, ops, versionProgram );
+					count++;
 
 					if( !inError && null != versionProgram.getRecording() ) {
 						
 						if( versionProgram.getRecording().getRecordId() > 0 ) {
 						
 							// load upcoming recording
-							RecordingHelperV26.getInstance().processRecording( mContext, mLocationProfile, ops, RecordingConstants.ContentDetails.UPCOMING, versionProgram, lastModified, startTime, count );
+							RecordingHelperV26.getInstance().processRecording( mContext, mLocationProfile, ops, RecordingConstants.ContentDetails.UPCOMING, versionProgram );
+							count++;
+
 							// update program guide recording
-							RecordingHelperV26.getInstance().processRecording( mContext, mLocationProfile, ops, RecordingConstants.ContentDetails.GUIDE, versionProgram, lastModified, startTime, count );
+							RecordingHelperV26.getInstance().processRecording( mContext, mLocationProfile, ops, RecordingConstants.ContentDetails.GUIDE, versionProgram );
+							count++;
 
 						}
 						

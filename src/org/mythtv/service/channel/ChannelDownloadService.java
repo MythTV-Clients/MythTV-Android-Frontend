@@ -24,7 +24,10 @@ import org.mythtv.service.channel.v26.ChannelHelperV26;
 import org.mythtv.service.channel.v27.ChannelHelperV27;
 import org.mythtv.services.api.ApiVersion;
 
+import android.content.Context;
 import android.content.Intent;
+import android.os.PowerManager;
+import android.os.PowerManager.WakeLock;
 import android.util.Log;
 
 /**
@@ -72,6 +75,9 @@ public class ChannelDownloadService extends MythtvService {
     		
     		boolean passed = true;
     		
+			PowerManager mgr = (PowerManager) getSystemService( Context.POWER_SERVICE );
+			WakeLock wakeLock = mgr.newWakeLock( PowerManager.PARTIAL_WAKE_LOCK, "ChannelServiceDownload" );
+
     		try {
     			
     			ApiVersion apiVersion = ApiVersion.valueOf( locationProfile.getVersion() );
@@ -100,6 +106,10 @@ public class ChannelDownloadService extends MythtvService {
 				passed = false;
 			} finally {
 
+    			if( wakeLock.isHeld() ) {
+    				wakeLock.release();
+    			}
+				
     			Intent completeIntent = new Intent( ACTION_COMPLETE );
     			completeIntent.putExtra( EXTRA_COMPLETE, "Channels Download Service Finished" );
    				completeIntent.putExtra( EXTRA_COMPLETE_UPTODATE, passed );

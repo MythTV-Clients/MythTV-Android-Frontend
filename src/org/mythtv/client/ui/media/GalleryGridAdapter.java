@@ -18,18 +18,6 @@
  */
 package org.mythtv.client.ui.media;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.mythtv.R;
-import org.mythtv.client.ui.preferences.LocationProfile;
-import org.mythtv.db.myth.model.StorageGroupDirectory;
-import org.mythtv.service.content.GetFileListTask;
-import org.mythtv.service.myth.CreateStorageGroupTask;
-import org.mythtv.service.myth.GetHostsTask;
-import org.mythtv.service.myth.GetSettingTask;
-import org.mythtv.service.myth.GetStorageGroupsTask;
-
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -54,6 +42,18 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener;
 
+import org.mythtv.R;
+import org.mythtv.client.ui.preferences.LocationProfile;
+import org.mythtv.db.myth.model.StorageGroupDirectory;
+import org.mythtv.service.content.GetFileListTask;
+import org.mythtv.service.myth.CreateStorageGroupTask;
+import org.mythtv.service.myth.GetHostsTask;
+import org.mythtv.service.myth.GetSettingTask;
+import org.mythtv.service.myth.GetStorageGroupsTask;
+
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author Espen A. Fossen
  */
@@ -71,7 +71,7 @@ public class GalleryGridAdapter extends BaseAdapter implements
 	
 	public static List<GalleryImageItem> mImageItems = new ArrayList<GalleryImageItem>();
 	
-	private final String galleryStorageGroupName = "Gallery";
+	private final String galleryStorageGroupName = "Images";
 	private final String gallerySetting = "GalleryDir";
 	private String galleryDir = "";
 

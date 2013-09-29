@@ -21,8 +21,6 @@
 -->
 
 
-<fragment android:name="org.mythtv.client.ui.dvr.DvrDashboardFragment" xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/dvr_fragment_dashboard"
-    android:layout_width="fill_parent"
-    android:layout_height="0dip"
-    android:layout_weight="1" />
+<bitmap
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:src="@drawable/coverart_missing"/>

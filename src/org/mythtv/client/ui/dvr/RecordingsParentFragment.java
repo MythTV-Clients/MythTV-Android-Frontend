@@ -25,10 +25,10 @@ import org.mythtv.R;
 import org.mythtv.client.ui.AbstractMythFragment;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.dvr.RecordedDaoHelper;
+import org.mythtv.db.dvr.model.Program;
 import org.mythtv.db.dvr.programGroup.ProgramGroup;
 import org.mythtv.db.dvr.programGroup.ProgramGroupConstants;
 import org.mythtv.db.dvr.programGroup.ProgramGroupDaoHelper;
-import org.mythtv.db.dvr.model.Program;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -301,16 +301,29 @@ public class RecordingsParentFragment extends AbstractMythFragment implements
 		selectedProgramGroup = programGroup;
 		selectedProgram = null;
 
-		List<Program> programs = mRecordedDaoHelper.findAllByTitle( getActivity(), mLocationProfile, programGroup.getTitle() );
-		if( null == programs || programs.isEmpty() ) {
-			Log.d( TAG, "onProgramGroupSelected : exit, no programs in programGroup" );
-			programs = mRecordedDaoHelper.findAll( getActivity(), mLocationProfile );
+		if( null != selectedProgramGroup ) {
+		
+			List<Program> programs = mRecordedDaoHelper.findAllByTitle( getActivity(), mLocationProfile, programGroup.getTitle() );
+			if( null == programs || programs.isEmpty() ) {
+				Log.d( TAG, "onProgramGroupSelected : exit, no programs in programGroup" );
+				programs = mRecordedDaoHelper.findAll( getActivity(), mLocationProfile );
+			}
+
+			if( null != programs && !programs.isEmpty() ) {
+				selectedProgram = programs.get( 0 );
+				onProgramGroupSelected( programGroup );
+
+				if( null != selectedProgram ) {
+
+					if( null != selectedProgram.getStartTime() && null != selectedProgram.getChannelInfo() ) {
+						onEpisodeSelected( selectedProgram.getChannelInfo().getChannelId(), selectedProgram.getStartTime() );
+					}
+				}
+
+			}
+		
 		}
-
-		selectedProgram = programs.get( 0 );
-		onProgramGroupSelected( programGroup );
-		onEpisodeSelected( selectedProgram.getChannelInfo().getChannelId(), selectedProgram.getStartTime() );
-
+		
 		Log.v( TAG, "onEpisodeDeleted : exit" );
 	}
 

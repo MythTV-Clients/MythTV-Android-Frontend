@@ -21,14 +21,16 @@ package org.mythtv.service.dvr;
 import org.joda.time.DateTime;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.service.MythtvService;
-import org.mythtv.service.content.LiveStreamService;
 import org.mythtv.service.dvr.v26.RecordedHelperV26;
 import org.mythtv.service.dvr.v27.RecordedHelperV27;
 import org.mythtv.services.api.ApiVersion;
 import org.mythtv.services.api.MythServiceApiRuntimeException;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.PowerManager;
+import android.os.PowerManager.WakeLock;
 import android.util.Log;
 
 /**
@@ -44,7 +46,7 @@ public class RecordedService extends MythtvService {
     public static final String ACTION_PROGRESS = "org.mythtv.background.recorded.ACTION_PROGRESS";
     public static final String ACTION_COMPLETE = "org.mythtv.background.recorded.ACTION_COMPLETE";
 
-    public static final String KEY_CHANNEL_ID = "KEY_CHANNEL_ID";
+	public static final String KEY_CHANNEL_ID = "KEY_CHANNEL_ID";
     public static final String KEY_START_TIMESTAMP = "KEY_START_TIMESTAMP";
     public static final String KEY_RECORD_ID = "KEY_RECORD_ID";
     
@@ -74,7 +76,10 @@ public class RecordedService extends MythtvService {
 		if ( intent.getAction().equals( ACTION_DOWNLOAD ) ) {
     		Log.i( TAG, "onHandleIntent : DOWNLOAD action selected" );
 
-    		try {
+			PowerManager mgr = (PowerManager) getSystemService( Context.POWER_SERVICE );
+			WakeLock wakeLock = mgr.newWakeLock( PowerManager.PARTIAL_WAKE_LOCK, "RecordedServiceDownload" );
+
+			try {
 
     			ApiVersion apiVersion = ApiVersion.valueOf( locationProfile.getVersion() );
     			switch( apiVersion ) {
@@ -102,6 +107,10 @@ public class RecordedService extends MythtvService {
 				passed = false;
 			} finally {
 
+    			if( wakeLock.isHeld() ) {
+    				wakeLock.release();
+    			}
+				
     			Intent completeIntent = new Intent( ACTION_COMPLETE );
     			completeIntent.putExtra( EXTRA_COMPLETE, "Recorded Programs Download Service Finished" );
    				completeIntent.putExtra( EXTRA_COMPLETE_UPTODATE, passed );
@@ -151,11 +160,6 @@ public class RecordedService extends MythtvService {
 		Log.v( TAG, "removeRecorded : enter" );
 		
 		boolean removed = false;
-
-		Intent intent = new Intent( LiveStreamService.ACTION_REMOVE );
-		intent.putExtra( LiveStreamService.KEY_CHANNEL_ID, channelId );
-		intent.putExtra( LiveStreamService.KEY_START_TIMESTAMP, startTimestamp.getMillis() );
-		startService( intent );
 
 		ApiVersion apiVersion = ApiVersion.valueOf( locationProfile.getVersion() );
 		switch( apiVersion ) {

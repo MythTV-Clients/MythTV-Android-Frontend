@@ -90,7 +90,7 @@ public class UpcomingHelperV27 extends AbstractBaseHelper {
 			passed = false;
 		}
 
-		Log.v( TAG, "process : enter" );
+		Log.v( TAG, "process : exit" );
 		return passed;
 	}
 	
@@ -148,9 +148,6 @@ public class UpcomingHelperV27 extends AbstractBaseHelper {
 		if( null == context ) 
 			throw new RuntimeException( "UpcomingHelperV27 is not initialized" );
 		
-		DateTime today = new DateTime( DateTimeZone.UTC ).withTimeAtStartOfDay();
-		DateTime lastModified = new DateTime( DateTimeZone.UTC );
-		
 		int processed = -1;
 		int count = 0;
 		
@@ -169,14 +166,12 @@ public class UpcomingHelperV27 extends AbstractBaseHelper {
 				inError = false;
 			}
 
-			DateTime startTime = program.getStartTime();
-
 			// load upcoming program
-			ProgramHelperV27.getInstance().processProgram( context, locationProfile, ProgramConstants.CONTENT_URI_UPCOMING, ProgramConstants.TABLE_NAME_UPCOMING, ops, program, lastModified, startTime, count );
+			ProgramHelperV27.getInstance().processProgram( context, locationProfile, ProgramConstants.CONTENT_URI_UPCOMING, ProgramConstants.TABLE_NAME_UPCOMING, ops, program );
 			count++;
 			
 			// update program guide
-			ProgramHelperV27.getInstance().processProgram( context, locationProfile, ProgramConstants.CONTENT_URI_GUIDE, ProgramConstants.TABLE_NAME_GUIDE, ops, program, lastModified, startTime, count );
+			ProgramHelperV27.getInstance().processProgram( context, locationProfile, ProgramConstants.CONTENT_URI_GUIDE, ProgramConstants.TABLE_NAME_GUIDE, ops, program );
 			count++;
 
 			if( !inError && null != program.getRecording() ) {
@@ -184,11 +179,11 @@ public class UpcomingHelperV27 extends AbstractBaseHelper {
 				if( program.getRecording().getRecordId() > 0 ) {
 				
 					// load upcoming recording
-					RecordingHelperV27.getInstance().processRecording( context, locationProfile, ops, RecordingConstants.ContentDetails.UPCOMING, program, lastModified, startTime, count );
+					RecordingHelperV27.getInstance().processRecording( context, locationProfile, ops, RecordingConstants.ContentDetails.UPCOMING, program );
 					count++;
 
 					// update program guide recording
-					RecordingHelperV27.getInstance().processRecording( context, locationProfile, ops, RecordingConstants.ContentDetails.GUIDE, program, lastModified, startTime, count );
+					RecordingHelperV27.getInstance().processRecording( context, locationProfile, ops, RecordingConstants.ContentDetails.GUIDE, program );
 					count++;
 
 				}
@@ -205,15 +200,25 @@ public class UpcomingHelperV27 extends AbstractBaseHelper {
 			
 		}
 
-		processBatch( context, ops, processed, count );
+		if( !ops.isEmpty() ) {
+			Log.v( TAG, "load : applying final batch for '" + count + "' transactions" );
+			
+			processBatch( context, ops, processed, count );
+		}
 
-//		Log.v( TAG, "load : DELETE PROGRAMS" );
-		ProgramHelperV27.getInstance().deletePrograms( context, locationProfile, ops, ProgramConstants.CONTENT_URI_UPCOMING, ProgramConstants.TABLE_NAME_UPCOMING, today );
+		ops = new ArrayList<ContentProviderOperation>();
 
-//		Log.v( TAG, "load : DELETE RECORDINGS" );
-		RecordingHelperV27.getInstance().deleteRecordings( ops, RecordingConstants.ContentDetails.UPCOMING, today );
+		DateTime lastModified = new DateTime();
+		lastModified = lastModified.minusHours( 1 );
+		
+		ProgramHelperV27.getInstance().deletePrograms( context, locationProfile, ops, ProgramConstants.CONTENT_URI_UPCOMING, ProgramConstants.TABLE_NAME_UPCOMING, lastModified );
+		RecordingHelperV27.getInstance().deleteRecordings( context, locationProfile, ops, RecordingConstants.ContentDetails.UPCOMING, lastModified );
 
-		processBatch( context, ops, processed, count );
+		if( !ops.isEmpty() ) {
+			Log.v( TAG, "load : applying delete batch for transactions" );
+			
+			processBatch( context, ops, processed, count );
+		}
 
 //		Log.v( TAG, "load : exit" );
 		return processed;

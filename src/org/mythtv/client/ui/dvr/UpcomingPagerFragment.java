@@ -22,13 +22,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.mythtv.R;
 import org.mythtv.client.ui.AbstractMythFragment;
-import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.util.MenuHelper;
 import org.mythtv.client.ui.util.MenuItemRefreshAnimated;
-import org.mythtv.db.http.EtagDaoHelper;
 import org.mythtv.service.dvr.UpcomingDownloadService;
 import org.mythtv.service.util.DateUtils;
 import org.mythtv.service.util.RunningServiceHelper;
@@ -61,12 +58,9 @@ public class UpcomingPagerFragment extends AbstractMythFragment {
 
 	private UpcomingDownloadReceiver upcomingDownloadReceiver = new UpcomingDownloadReceiver();
 
-	private EtagDaoHelper mEtagDaoHelper = EtagDaoHelper.getInstance();
 	private MenuHelper mMenuHelper = MenuHelper.getInstance();
 	private RunningServiceHelper mRunningServiceHelper = RunningServiceHelper.getInstance();
 
-	private LocationProfile mLocationProfile;
-	
 	private View mView;
 	private ViewPager mViewPager;
 	private MythtvUpcomingPagerAdapter mAdapter;
@@ -102,19 +96,6 @@ public class UpcomingPagerFragment extends AbstractMythFragment {
 
 		setHasOptionsMenu( true );
 
-		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
-		
-		DateTime etag = mEtagDaoHelper.findDateByEndpointAndDataId( getActivity(), mLocationProfile, "GetUpcomingList", "" );
-		if( null != etag ) {
-			
-			DateTime now = new DateTime( DateTimeZone.UTC );
-			if( now.getMillis() - etag.getMillis() > ( 2 * 3600000 ) ) {
-				loadData();
-			}
-		} else {
-			loadData();
-		}
-
 		Log.v( TAG, "onActivityCreated : exit" );
 	}
 	
@@ -126,9 +107,8 @@ public class UpcomingPagerFragment extends AbstractMythFragment {
 		Log.v( TAG, "onStart : enter" );
 		super.onStart();
 
-		IntentFilter upcomingDownloadFilter = new IntentFilter( UpcomingDownloadService.ACTION_DOWNLOAD );
+		IntentFilter upcomingDownloadFilter = new IntentFilter( UpcomingDownloadService.ACTION_COMPLETE );
 		upcomingDownloadFilter.addAction( UpcomingDownloadService.ACTION_PROGRESS );
-		upcomingDownloadFilter.addAction( UpcomingDownloadService.ACTION_COMPLETE );
 	    getActivity().registerReceiver( upcomingDownloadReceiver, upcomingDownloadFilter );
 
 	    Log.v( TAG, "onStart : exit" );
@@ -193,7 +173,7 @@ public class UpcomingPagerFragment extends AbstractMythFragment {
 		
 		if( !mRunningServiceHelper.isServiceRunning( getActivity(), "org.mythtv.service.dvr.UpcomingDownloadService" ) ) {
 			getActivity().startService( new Intent( UpcomingDownloadService.ACTION_DOWNLOAD ) );
-			this.mMenuItemRefresh.startRefreshAnimation();
+			mMenuItemRefresh.startRefreshAnimation();
 		}
 		
 		Log.v( TAG, "loadData : exit" );
