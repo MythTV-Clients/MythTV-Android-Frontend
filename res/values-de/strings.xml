@@ -227,6 +227,7 @@
     <string name="frontends_scan_error_message">Im Heimnetz wurde kein MythTV Frontend gefunden.  Bitte stelle sicher, dass Du über Wifi mit deinem Heimnetz verbunden bist.</string>
 	<string name="mythmote_page_numbers">Ziffern</string>
 	<string name="mythmote_page_actionlist">Aktionsliste</string>
+    <string name="frontend_not_selected">Frontend nicht ausgewählt</string>
     
     <!-- Setup Dashboard Buttons -->
 	<string name="setup_title">Einstellungen</string>
@@ -285,16 +286,16 @@
 	
 
     <!-- Gallery Dialog -->
-    <string name="gallery_sg_create">Die Galerie benötigt eine Speichergruppe (SG) namens \'Gallery\', diese SG wurde nicht im Master Backend gefunden. Erstellen?</string>
-    <string name="gallery_sg_create_done">Speichergruppe \'Gallery\' erfolgreich im Master Backend angelegt, bitte fülle sie mit Bildern damit die Galerie funktioniert.</string>
+    <string name="gallery_sg_create">Die Galerie benötigt eine Speichergruppe (SG) namens \'Images\', diese SG wurde nicht im Master Backend gefunden. Erstellen?</string>
+    <string name="gallery_sg_create_done">Speichergruppe \'Images\' erfolgreich im Master Backend angelegt, bitte fülle sie mit Bildern damit die Galerie funktioniert.</string>
     <string name="gallery_sg_create_hint">Standardverzeichnis für Speichergruppen im Master Backend.</string>
 
-    <string name="gallery_sg_exist_create">Die Galerie benötigt eine Speichergruppe (SG) namens \'Gallery\'. MythGallery scheinen bei dein Master Backend und Frontend namens \'</string>
+    <string name="gallery_sg_exist_create">Die Galerie benötigt eine Speichergruppe (SG) namens \'Images\'. MythGallery scheinen bei dein Master Backend und Frontend namens \'</string>
     <string name="gallery_sg_exist_create2">\' installiert zu sein, aber keine SG. Erstellen?</string>
-    <string name="gallery_sg_exist_create_done">Speichergruppe \'Gallery\' erfolgreich im Master Backend angelegt.</string>
+    <string name="gallery_sg_exist_create_done">Speichergruppe \'Images\' erfolgreich im Master Backend angelegt.</string>
 
-    <string name="gallery_sg_error">Die Galerie funktioniert nur mit Speichergruppen (SG). Bitte erstelle eine Speichergruppe namens \'Gallery\' mithilfe von mythtv-setup im Master Backend, Slave Backends oder separate Frontends werden nicht unterstützt.</string>
-    <string name="gallery_sg_failed">Erstellen der Speichergruppe \'Gallery\' fehlgeschlagen. Bitte erstelle sie von Hand mithilfe von mythtv-setup im Master Backend.</string>
+    <string name="gallery_sg_error">Die Galerie funktioniert nur mit Speichergruppen (SG). Bitte erstelle eine Speichergruppe namens \'Images\' mithilfe von mythtv-setup im Master Backend, Slave Backends oder separate Frontends werden nicht unterstützt.</string>
+    <string name="gallery_sg_failed">Erstellen der Speichergruppe \'Images\' fehlgeschlagen. Bitte erstelle sie von Hand mithilfe von mythtv-setup im Master Backend.</string>
     <string name="gallery_descr_image">Bild</string>
 
     <string name="generic_delete">Löschen</string>
