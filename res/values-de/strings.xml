@@ -92,6 +92,7 @@
 	<string name="preference_home_profiles_delete_summary">Löscht ein bestehendes Master Backend Profil.</string>
 	<string name="preference_home_profiles_scan">Netzwerk scannen</string>
 	<string name="preference_home_profiles_scan_summary">Sucht im Netzwerk nach MythTV Master Backends.</string>
+    <string name="preference_home_profiles_scan_scanning">Suche im Netzwerk nach MythTV Master Backends</string>
 	<string name="preference_home_profiles_scan_error_title">MythTV nicht gefunden</string>
 	<string name="preference_home_profiles_scan_error_message">MythTV konnte in deinem Netzwerk nicht gefunden werden. Bitte stelle sicher, dass Du über Wifi mit deinem Heimnetz verbunden bist.</string>
 			
@@ -370,6 +371,7 @@
     <string name="video_playback_doNotDisplay">Diese Warnung nicht mehr anzeigen</string>
     <string name="video_playback_button_play">Start</string>
     <string name="video_playback_button_cancel">Abbrechen</string>
+    <string name="video_playback_retrieving">Lade Video…</string>
     
     <!-- Notification Strings -->
     <string name="notification_sync_program_guide">Synchronisiere Programmübersicht</string>
