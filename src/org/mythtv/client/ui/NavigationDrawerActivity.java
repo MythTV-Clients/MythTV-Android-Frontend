@@ -459,22 +459,22 @@ public class NavigationDrawerActivity extends AbstractMythtvFragmentActivity {
 
 			rows = new ArrayList<Row>();
 			
-			rows.add( new VersionRow( mContext, "MAF", "x" ) );
+			rows.add( new VersionRow( mContext, R.string.app_short_name, "x" ) );
 			rows.add( new ProfileRow( mContext, mProfileChangedListener, mManageProfilesOnClickListener ) );
-			// -- Integrated into ProfileRow -- rows.add( new ManageProfilesActionRow( mContext, "Manage Profiles" ) );
+			// -- Integrated into ProfileRow -- rows.add( new ManageProfilesActionRow( mContext, R.string.navigation_manage_profiles ) );
 			
 			if( null != mLocationProfile && mLocationProfile.getType().equals( LocationType.HOME ) ) {
-				rows.add( new FrontendsHeaderRow( mContext, "Frontends" ) );
+				rows.add( new FrontendsHeaderRow( mContext, R.string.navigation_frontends ) );
 
 				rows.add( new FrontendsRow( mContext ) );
 			}
 
 			if( null != mLocationProfile ) {
-				rows.add( new ActionsHeaderRow( mContext, "Actions" ) );
+				rows.add( new ActionsHeaderRow( mContext, R.string.navigation_actions ) );
 
-				rows.add( new DvrActionRow( mContext, "Dvr" ) );
-				rows.add( new MultimediaActionRow( mContext, "Multimedia" ) );
-//				rows.add( new SetupActionRow( mContext, "Setup" ) );
+				rows.add( new DvrActionRow( mContext, R.string.navigation_actions_dvr ) );
+				rows.add( new MultimediaActionRow( mContext, R.string.navigation_actions_multimedia ) );
+//				rows.add( new SetupActionRow( mContext, R.string.navigation_actions_setup ) );
 			}
 
 		}

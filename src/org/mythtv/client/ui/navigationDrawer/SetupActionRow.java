@@ -15,8 +15,8 @@ import android.widget.ImageView;
  */
 public class SetupActionRow extends ActionRow {
 
-	public SetupActionRow( Context context, String action ) {
-		super( context, action, false );
+	public SetupActionRow( Context context, int actionResId ) {
+		super( context, actionResId, false );
 	}
 	
 	@Override

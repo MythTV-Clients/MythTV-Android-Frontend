@@ -15,11 +15,10 @@ import android.widget.ImageView;
  */
 public class DvrGuideActionRow extends DvrActionRow {
 
-	private static final String TITLE = "Guide";
 	private static final String FRAGMENT = "org.mythtv.client.ui.dvr.GuideFragment";
 	
-	public DvrGuideActionRow( Context context, String action ) {
-		super( context, action, true );
+	public DvrGuideActionRow( Context context, int actionResId ) {
+		super( context, actionResId, true );
 	}
 
 	@Override
@@ -39,19 +38,12 @@ public class DvrGuideActionRow extends DvrActionRow {
 	public int getViewType() {
 		return DvrRowType.GUIDE_ROW.ordinal();
 	}
-	
-	/* (non-Javadoc)
-	 * @see org.mythtv.client.ui.navigationDrawer.Row#getTitle()
-	 */
-	@Override
-	public String getTitle() {
-		return TITLE;
-	}
 
 	/* (non-Javadoc)
 	 * @see org.mythtv.client.ui.navigationDrawer.ActionRow#getFragment()
 	 */
-	public String getFragment() {
+	@Override
+    public String getFragment() {
 		return FRAGMENT;
 	}
 	

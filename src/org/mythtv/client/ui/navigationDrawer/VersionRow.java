@@ -21,7 +21,11 @@ public class VersionRow implements Row {
 	
 	private String mName = "", mVersion = "";
 	
-	public VersionRow( Context context, String name, String version ) {
+	public VersionRow( Context context, int nameResId, String version ) {
+	    this(context, context.getString(nameResId), version);
+	}
+	
+	private VersionRow( Context context, String name, String version ) {
 		this.mContext = context;
 		this.mLayoutInflater = (LayoutInflater) mContext.getSystemService( Context.LAYOUT_INFLATER_SERVICE );
 		

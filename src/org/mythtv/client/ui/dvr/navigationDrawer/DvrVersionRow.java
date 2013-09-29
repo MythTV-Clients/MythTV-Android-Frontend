@@ -13,8 +13,8 @@ import android.content.Context;
  */
 public class DvrVersionRow extends VersionRow {
 
-	public DvrVersionRow( Context context, String name, String version ) {
-		super(context, name, version);
+	public DvrVersionRow( Context context, int nameResId, String version ) {
+		super(context, nameResId, version);
 	}
 
 	/* (non-Javadoc)
