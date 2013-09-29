@@ -354,6 +354,8 @@
     <string name="mythmote_page_navigation">Navigation</string>
     <string name="mythmote_page_numbers">Numbers</string>
     <string name="mythmote_page_actionlist">Action List</string>
+   	<string name="frontend_not_selected">Frontend not selected</string>
+   	<string name="frontend_not_selected_OK">OK</string>
     
     <!-- Setup Dashboard Buttons -->
 	<string name="setup_title">Setup</string>

@@ -14,6 +14,7 @@ import org.mythtv.db.frontends.FrontendDaoHelper;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.util.NetworkHelper;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
@@ -41,6 +42,7 @@ public class FrontendsRow implements Row, OnItemSelectedListener {
 	private Context mContext;
 	private LayoutInflater mLayoutInflater;
 	private List<Frontend> mFrontends;
+	private Spinner mFrontendSpinner;
     private FrontendDaoHelper mFrontendDaoHelper = FrontendDaoHelper.getInstance();
     private LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
     
@@ -50,6 +52,22 @@ public class FrontendsRow implements Row, OnItemSelectedListener {
 			
 			//leave if context is not set
 			if(null == mContext) return;
+			
+			//leave if we don't have a spinner with selected frontend
+			if(null == mFrontendSpinner) return;
+			
+			//get selected item from spinner
+			selectedFrontend = (Frontend)mFrontendSpinner.getSelectedItem();
+			
+			//error if nothing selected
+			if(null == selectedFrontend){
+				new AlertDialog.Builder( mContext )
+    			.setTitle( R.string.frontends_title )
+    			.setMessage( R.string.frontend_not_selected )
+    			.setNeutralButton(R.string.frontend_not_selected_OK, null)
+    			.show();
+				return;
+			}
 			
 			if( NetworkHelper.getInstance().isNetworkConnected( mContext ) && !mContext.getClass().equals(MythmoteActivity.class) ) {
 				mContext.startActivity( new Intent( mContext, MythmoteActivity.class ) );
@@ -75,7 +93,7 @@ public class FrontendsRow implements Row, OnItemSelectedListener {
     		convertView = mLayoutInflater.inflate( R.layout.navigation_drawer_frontends, null );
 
     		holder = new ViewHolder();
-    		holder.spinner = (Spinner) convertView.findViewById( R.id.navigation_drawer_frontends_spinner );
+    		holder.spinner = mFrontendSpinner = (Spinner) convertView.findViewById( R.id.navigation_drawer_frontends_spinner );
     		holder.spinner.setOnItemSelectedListener(this);
     		holder.mythmote = (ImageButton) convertView.findViewById( R.id.navigation_drawer_frontends_mythmote );
     		holder.mythmote.setOnClickListener(mythmoteButtonOnClick);
