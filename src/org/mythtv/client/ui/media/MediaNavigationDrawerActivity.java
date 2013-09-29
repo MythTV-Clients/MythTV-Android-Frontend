@@ -406,7 +406,7 @@ public class MediaNavigationDrawerActivity extends AbstractMythtvFragmentActivit
 
 			rows = new ArrayList<Row>();
 			
-			rows.add( new MediaVersionRow( mContext, R.string.navigation_version, "x" ) );
+			rows.add( new MediaVersionRow( mContext, R.string.app_short_name, "x" ) );
 
 			rows.add( new MediaActionsHeaderRow( mContext, R.string.navigation_media_actions ) );
 			

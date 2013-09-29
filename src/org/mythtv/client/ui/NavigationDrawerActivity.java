@@ -459,7 +459,7 @@ public class NavigationDrawerActivity extends AbstractMythtvFragmentActivity {
 
 			rows = new ArrayList<Row>();
 			
-			rows.add( new VersionRow( mContext, R.string.navigation_version, "x" ) );
+			rows.add( new VersionRow( mContext, R.string.app_short_name, "x" ) );
 			rows.add( new ProfileRow( mContext, mProfileChangedListener, mManageProfilesOnClickListener ) );
 			// -- Integrated into ProfileRow -- rows.add( new ManageProfilesActionRow( mContext, R.string.navigation_manage_profiles ) );
 			

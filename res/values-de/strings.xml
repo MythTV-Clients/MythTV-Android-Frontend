@@ -472,7 +472,6 @@
     <string name="guide_time_slot">Tageszeit</string>
     <string name="guide_time_slot_description">Tageszeit Beschreibung</string>
     
-    <string name="navigation_version">MAF</string>
     <string name="navigation_manage_profiles">Profile bearbeiten</string>
     <string name="navigation_frontends">Frontends</string>
     <string name="navigation_actions">Funktionen</string>

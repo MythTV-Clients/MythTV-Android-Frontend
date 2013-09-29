@@ -456,7 +456,7 @@ public class DvrNavigationDrawerActivity extends AbstractMythtvFragmentActivity 
 
 			rows = new ArrayList<Row>();
 			
-			rows.add( new DvrVersionRow( mContext, R.string.navigation_version, "x" ) );
+			rows.add( new DvrVersionRow( mContext, R.string.app_short_name, "x" ) );
 
 			rows.add( new DvrActionsHeaderRow( mContext, R.string.navigation_dvr_actions ) );
 			

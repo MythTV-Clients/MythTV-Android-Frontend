@@ -474,7 +474,6 @@
     <string name="guide_time_slot">time slot</string>
     <string name="guide_time_slot_description">time slot description</string>
 
-    <string name="navigation_version">MAF</string>
     <string name="navigation_manage_profiles">Manage Profiles</string>
     <string name="navigation_frontends">Frontends</string>
     <string name="navigation_actions">Actions</string>
