@@ -19,22 +19,36 @@
     This software can be found at <https://github.com/MythTV-Clients/MythTV-Android-Frontend/>
 
 -->
+<resources>
 
+    <string-array name="nav_names">
+        <item>DVR</item>
+        <item>Multimedia</item>
+        <item>Einstellungen</item>
+    </string-array>
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="horizontal"
-    android:layout_width="match_parent" android:layout_height="match_parent">
+    <string-array name="nav_dvr_names">
+        <item>Aufnahmen</item>
+        <item>Geplant</item>
+        <item>Programmübersicht</item>
+        <item>Aufnahmeregeln</item>
+    </string-array>
 
-    <fragment android:name="org.mythtv.client.ui.dvr.ProgramGroupsListFragment"
-        android:id="@+id/dvr_fragment_program_groups"
-        android:layout_weight="40"
-        android:layout_width="0px"
-        android:layout_height="match_parent" />
+    <string-array name="program_guide_days">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+        <item>8</item>
+        <item>9</item>
+        <item>10</item>
+        <item>11</item>
+        <item>12</item>
+        <item>13</item>
+        <item>14</item>
+    </string-array>
 
-    <FrameLayout 
-        android:id="@+id/dvr_frame_program_group" 
-        android:layout_weight="60"
-        android:layout_width="0px" 
-        android:layout_height="match_parent" />
-
-</LinearLayout>
+</resources>

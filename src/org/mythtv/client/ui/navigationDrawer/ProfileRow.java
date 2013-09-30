@@ -5,6 +5,7 @@ package org.mythtv.client.ui.navigationDrawer;
 
 import org.mythtv.R;
 import org.mythtv.client.ui.preferences.LocationProfile;
+import org.mythtv.client.ui.preferences.MythtvPreferenceActivity;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.util.NetworkHelper;
 
@@ -12,16 +13,20 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.CompoundButton;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
 /**
  * @author dmfrey
+ * @author Thomas G. Kenny Jr
  *
  */
 public class ProfileRow implements Row {
@@ -30,11 +35,10 @@ public class ProfileRow implements Row {
 	
 	private Context mContext;
 	private LayoutInflater mLayoutInflater;
-	
 	private NetworkHelper mNetworkHelper = NetworkHelper.getInstance();
 	private LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
-
 	private LocationProfile mLocationProfile;
+	private OnClickListener mManageProfilesOnClick;
 	
 	//mProfileToggleCheckChangedListener
 	private class ProfileToggleCheckChangedListener implements CompoundButton.OnCheckedChangeListener {
@@ -115,7 +119,7 @@ public class ProfileRow implements Row {
 	
 	private ProfileChangedListener mProfileChangedListener;
 	
-	public ProfileRow( Context context, ProfileChangedListener listener ) {
+	public ProfileRow( Context context, ProfileChangedListener listener, OnClickListener manageProfilesOnClick ) {
 		this.mContext = context;
 		
 		this.mProfileChangedListener = listener;
@@ -123,6 +127,8 @@ public class ProfileRow implements Row {
 		this.mLayoutInflater = (LayoutInflater) mContext.getSystemService( Context.LAYOUT_INFLATER_SERVICE );
 		
 		this.mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( mContext );
+		
+		this.mManageProfilesOnClick = manageProfilesOnClick;
 		
 	}
 	
@@ -172,6 +178,8 @@ public class ProfileRow implements Row {
     		holder.hostname = (TextView) convertView.findViewById( R.id.navigation_drawer_connected_profile_hostname );
     		holder.url = (TextView) convertView.findViewById( R.id.navigation_drawer_connected_profile_url );
     		holder.toggle = (ToggleButton) convertView.findViewById( R.id.navigation_drawer_connected_profile_toggle );
+    		holder.btnMngProfiles = (ImageButton)convertView.findViewById(R.id.imagebutton_navdrawer_manage_profiles);
+    		holder.btnMngProfiles.setOnClickListener(mManageProfilesOnClick);
     		
     		convertView.setTag( holder );
      			
@@ -200,7 +208,7 @@ public class ProfileRow implements Row {
         	}
         	
         } else {
-        	holder.hostname.setText( "Not Connected" );
+        	holder.hostname.setText( R.string.connection_status_not_connected );
         }
         
         return convertView;
@@ -243,6 +251,7 @@ public class ProfileRow implements Row {
 		TextView hostname;
 		TextView url;
 		ToggleButton toggle;
+		ImageButton btnMngProfiles;
 		
 	}
 	
@@ -263,8 +272,8 @@ public class ProfileRow implements Row {
 		@Override
 		protected void onPreExecute() {
 			mProgressDialog = new ProgressDialog( mContext );
-			mProgressDialog.setTitle( "Connecting..." );
-			mProgressDialog.setMessage( "Attempting to connection to master backend" );
+		    mProgressDialog.setTitle( R.string.connection_status_connecting );
+		    mProgressDialog.setMessage( view.getContext().getResources().getString( R.string.connection_status_attempting_connect )  );
 			mProgressDialog.setCancelable( false );
 			mProgressDialog.setIndeterminate( true );
 			mProgressDialog.show();
@@ -301,8 +310,8 @@ public class ProfileRow implements Row {
 				
 				mLocationProfileDaoHelper.resetConnectedProfiles( mContext );
 			
-	        	holder.hostname.setText( "Not Connected" );
-	        	holder.url.setText( "" );
+			    holder.hostname.setText( R.string.connection_status_not_connected );
+			    holder.url.setText( "" );
 
 				mLocationProfile = null;
 			}

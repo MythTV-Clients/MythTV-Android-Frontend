@@ -99,7 +99,7 @@ public class VideoActivity extends AbstractMythtvFragmentActivity implements Get
 	    	} else {
 	    		
 	    		try {
-	    			progressDialog = ProgressDialog.show( VideoActivity.this, "Please wait...", "Retrieving video...", true, true );
+	    			progressDialog = ProgressDialog.show( VideoActivity.this, getString( R.string.please_wait_title_str ), getString( R.string.video_playback_retrieving ), true, true );
 	    		} catch( Exception e ) {
 	    			Log.w( TAG, "onCreate : error", e );
 	    		}

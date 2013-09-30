@@ -22,10 +22,13 @@ import org.joda.time.DateTime;
 
 /**
  * @author Daniel Frey
+ * @author Thomas G. Kenny Jr
  *
  */
 public class Frontend {
 
+	private static final String EXCESSIVE_NAME = "Mythfrontend on";
+	
 	private long id;
 	private String name;
 	private String url;
@@ -158,6 +161,15 @@ public class Frontend {
 		}
 		builder.append("]");
 		return builder.toString();
+	}
+	
+	/**
+	 * Returns the frontend's stripper name
+	 * @return
+	 */
+	public String getNameStripped(){
+		if(null == this.name) return this.name;
+		return this.name.replace(EXCESSIVE_NAME, "");
 	}
 	
 }

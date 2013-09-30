@@ -27,7 +27,7 @@
         <item>Setup</item>
     </string-array>
 
-    <string-array name="nav_classes">
+    <string-array name="nav_classes" translatable="false">
         <item>org.mythtv.client.ui.BackendStatusFragment</item>
         <item>org.mythtv.client.ui.BackendStatusFragment</item>
         <item>org.mythtv.client.ui.BackendStatusFragment</item>
@@ -40,7 +40,7 @@
         <item>Recording Rules</item>
     </string-array>
     
-    <string-array name="nav_dvr_classes">
+    <string-array name="nav_dvr_classes" translatable="false">
         <item>org.mythtv.client.ui.dvr.RecordingsParentFragment</item>
         <item>org.mythtv.client.ui.dvr.UpcomingPagerFragment</item>
         <item>org.mythtv.client.ui.dvr.GuideFragment</item>
