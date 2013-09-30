@@ -96,21 +96,23 @@ public class GetFrontendActionListTask extends AsyncTask<String, Void, List<Acti
 				
 				org.mythtv.services.api.v026.MythServicesTemplate mythServicesTemplateV26 = (org.mythtv.services.api.v026.MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( apiVersion, url );
 
-				ResponseEntity<org.mythtv.services.api.v026.beans.FrontendActionList> actionsV26 = mythServicesTemplateV26.frontendOperations().getActionList( url, ETagInfo.createEmptyETag() );
-				if( actionsV26.getStatusCode().equals( HttpStatus.OK ) ) {
-					
-					if( null != actionsV26.getBody().getActions() && !actionsV26.getBody().getActions().isEmpty() ) {
-						
-						for( org.mythtv.services.api.v026.beans.Action versionAction: actionsV26.getBody().getActions() ) {
-							Action action = new Action();
-							action.setKey( versionAction.getKey() );
-							action.setValue( versionAction.getValue() );
-							
-							actions.add( action );
+				if( null != mythServicesTemplateV26 ) {
+					ResponseEntity<org.mythtv.services.api.v026.beans.FrontendActionList> actionsV26 = mythServicesTemplateV26.frontendOperations().getActionList( url, ETagInfo.createEmptyETag() );
+					if( actionsV26.getStatusCode().equals( HttpStatus.OK ) ) {
+
+						if( null != actionsV26.getBody().getActions() && !actionsV26.getBody().getActions().isEmpty() ) {
+
+							for( org.mythtv.services.api.v026.beans.Action versionAction: actionsV26.getBody().getActions() ) {
+								Action action = new Action();
+								action.setKey( versionAction.getKey() );
+								action.setValue( versionAction.getValue() );
+
+								actions.add( action );
+							}
+
 						}
-						
+
 					}
-					
 				}
 				
 				break;
@@ -118,21 +120,23 @@ public class GetFrontendActionListTask extends AsyncTask<String, Void, List<Acti
 
 				org.mythtv.services.api.v027.MythServicesTemplate mythServicesTemplateV27 = (org.mythtv.services.api.v027.MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( apiVersion, url );
 
-				ResponseEntity<org.mythtv.services.api.v027.beans.FrontendActionList> actionsV27 = mythServicesTemplateV27.frontendOperations().getActionList( url, ETagInfo.createEmptyETag() );
-				if( actionsV27.getStatusCode().equals( HttpStatus.OK ) ) {
-					
-					if( null != actionsV27.getBody().getActionList() && !actionsV27.getBody().getActionList().isEmpty() ) {
-						
-						for( String versionAction: actionsV27.getBody().getActionList().keySet() ) {
-							Action action = new Action();
-							action.setKey( versionAction );
-							action.setValue( actionsV27.getBody().getActionList().get( versionAction ) );
-							
-							actions.add( action );
+				if( null != mythServicesTemplateV27 ) {
+					ResponseEntity<org.mythtv.services.api.v027.beans.FrontendActionList> actionsV27 = mythServicesTemplateV27.frontendOperations().getActionList( url, ETagInfo.createEmptyETag() );
+					if( actionsV27.getStatusCode().equals( HttpStatus.OK ) ) {
+
+						if( null != actionsV27.getBody().getActionList() && !actionsV27.getBody().getActionList().isEmpty() ) {
+
+							for( String versionAction: actionsV27.getBody().getActionList().keySet() ) {
+								Action action = new Action();
+								action.setKey( versionAction );
+								action.setValue( actionsV27.getBody().getActionList().get( versionAction ) );
+
+								actions.add( action );
+							}
+
 						}
-						
+
 					}
-					
 				}
 				
 				break;
@@ -141,23 +145,25 @@ public class GetFrontendActionListTask extends AsyncTask<String, Void, List<Acti
 				
 				org.mythtv.services.api.v026.MythServicesTemplate mythServicesTemplateV26Default = (org.mythtv.services.api.v026.MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( apiVersion, url );
 
-				ResponseEntity<org.mythtv.services.api.v026.beans.FrontendActionList> actionsV26Default = mythServicesTemplateV26Default.frontendOperations().getActionList( url, ETagInfo.createEmptyETag() );
-				if( actionsV26Default.getStatusCode().equals( HttpStatus.OK ) ) {
-					
-					if( null != actionsV26Default.getBody().getActions() && !actionsV26Default.getBody().getActions().isEmpty() ) {
-						
-						for( org.mythtv.services.api.v026.beans.Action versionAction: actionsV26Default.getBody().getActions() ) {
-							Action action = new Action();
-							action.setKey( versionAction.getKey() );
-							action.setValue( versionAction.getValue() );
-							
-							actions.add( action );
-						}
-						
-					}
-					
-				}
+				if( null != mythServicesTemplateV26Default ) {
+					ResponseEntity<org.mythtv.services.api.v026.beans.FrontendActionList> actionsV26Default = mythServicesTemplateV26Default.frontendOperations().getActionList( url, ETagInfo.createEmptyETag() );
+					if( actionsV26Default.getStatusCode().equals( HttpStatus.OK ) ) {
 
+						if( null != actionsV26Default.getBody().getActions() && !actionsV26Default.getBody().getActions().isEmpty() ) {
+
+							for( org.mythtv.services.api.v026.beans.Action versionAction: actionsV26Default.getBody().getActions() ) {
+								Action action = new Action();
+								action.setKey( versionAction.getKey() );
+								action.setValue( versionAction.getValue() );
+
+								actions.add( action );
+							}
+
+						}
+
+					}
+				}
+				
 				break;
 		}
 		

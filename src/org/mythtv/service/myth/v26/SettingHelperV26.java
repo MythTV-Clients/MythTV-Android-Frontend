@@ -66,6 +66,11 @@ public class SettingHelperV26 extends AbstractBaseHelper {
 		}
 		
 		mMythServicesTemplate = (MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( mApiVersion, locationProfile.getUrl() );
+		if( null == mMythServicesTemplate ) {
+			Log.w( TAG, "process : Master Backend '" + locationProfile.getHostname() + "' is unreachable" );
+			
+			return null;
+		}
 		
 		String setting = null;
 

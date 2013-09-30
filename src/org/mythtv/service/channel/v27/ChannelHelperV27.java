@@ -83,7 +83,12 @@ public class ChannelHelperV27 extends AbstractBaseHelper {
 		}
 		
 		mMythServicesTemplate = (MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( mApiVersion, locationProfile.getUrl() );
-		
+		if( null == mMythServicesTemplate ) {
+			Log.w( TAG, "process : Master Backend '" + locationProfile.getHostname() + "' is unreachable" );
+			
+			return false;
+		}
+
 		boolean passed = true;
 		
 		try {

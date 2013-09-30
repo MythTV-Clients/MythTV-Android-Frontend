@@ -63,14 +63,18 @@ public class SendMessageTask extends AsyncTask<String, Void, Void> {
 				
 				org.mythtv.services.api.v026.MythServicesTemplate mythServicesTemplateV26 = (org.mythtv.services.api.v026.MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( apiVersion, url );
 
-				mythServicesTemplateV26.frontendOperations().sendMessage( url, message );
-
+				if( null != mythServicesTemplateV26 ) {
+					mythServicesTemplateV26.frontendOperations().sendMessage( url, message );
+				}
+				
 				break;
 			case v027 :
 
 				org.mythtv.services.api.v027.MythServicesTemplate mythServicesTemplateV27 = (org.mythtv.services.api.v027.MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( apiVersion, url );
 
-				mythServicesTemplateV27.frontendOperations().sendMessage( message, 1000, ETagInfo.createEmptyETag() );
+				if( null != mythServicesTemplateV27 ) {
+					mythServicesTemplateV27.frontendOperations().sendMessage( message, 1000, ETagInfo.createEmptyETag() );
+				}
 				
 				break;
 				
@@ -78,8 +82,10 @@ public class SendMessageTask extends AsyncTask<String, Void, Void> {
 				
 				org.mythtv.services.api.v026.MythServicesTemplate mythServicesTemplateDefault = (org.mythtv.services.api.v026.MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( apiVersion, url );
 
-				mythServicesTemplateDefault.frontendOperations().sendMessage( url, message );
-
+				if( null != mythServicesTemplateDefault ) {
+					mythServicesTemplateDefault.frontendOperations().sendMessage( url, message );
+				}
+				
 				break;
 		}
 

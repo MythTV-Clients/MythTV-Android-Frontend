@@ -89,7 +89,12 @@ public class LiveStreamHelperV27 extends AbstractBaseHelper {
 		}
 		
 		MythServicesTemplate mMythServicesTemplate = (MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( mApiVersion, locationProfile.getUrl() );
-		
+		if( null == mMythServicesTemplate ) {
+			Log.w( TAG, "create : Master Backend '" + locationProfile.getHostname() + "' is unreachable" );
+			
+			return false;
+		}
+
 		PlaybackProfile selectedPlaybackProfile = null;
 		LocationType locationType = locationProfile.getType();
 			
@@ -142,7 +147,12 @@ public class LiveStreamHelperV27 extends AbstractBaseHelper {
 		}
 		
 		MythServicesTemplate mMythServicesTemplate = (MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( mApiVersion, locationProfile.getUrl() );
-		
+		if( null == mMythServicesTemplate ) {
+			Log.w( TAG, "load : Master Backend '" + locationProfile.getHostname() + "' is unreachable" );
+			
+			return null;
+		}
+
 		Integer loaded = null;
 		
 		try {
@@ -177,7 +187,12 @@ public class LiveStreamHelperV27 extends AbstractBaseHelper {
 		}
 		
 		MythServicesTemplate mMythServicesTemplate = (MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( mApiVersion, locationProfile.getUrl() );
-		
+		if( null == mMythServicesTemplate ) {
+			Log.w( TAG, "update : Master Backend '" + locationProfile.getHostname() + "' is unreachable" );
+			
+			return false;
+		}
+
 		try {
 			
 			LiveStreamInfo liveStream = findLiveStream( context, locationProfile, liveStreamId );
@@ -218,7 +233,12 @@ public class LiveStreamHelperV27 extends AbstractBaseHelper {
 		}
 		
 		MythServicesTemplate mMythServicesTemplate = (MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( mApiVersion, locationProfile.getUrl() );
-		
+		if( null == mMythServicesTemplate ) {
+			Log.w( TAG, "remove : Master Backend '" + locationProfile.getHostname() + "' is unreachable" );
+			
+			return false;
+		}
+
 		try {
 			Program program = RecordedHelperV27.getInstance().findRecorded( context, locationProfile, channelId, startTime );
 			

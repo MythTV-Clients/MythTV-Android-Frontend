@@ -92,15 +92,17 @@ public class CreateStorageGroupTask extends AsyncTask<String, Void, Boolean> {
 				
 				org.mythtv.services.api.v026.MythServicesTemplate mythServicesTemplateV26 = (org.mythtv.services.api.v026.MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( apiVersion, mLocationProfile.getUrl() );
 
-				ResponseEntity<org.mythtv.services.api.v026.Bool> responseV26 = mythServicesTemplateV26.mythOperations().addStorageGroupDir( groupName, directory, mLocationProfile.getHostname() );
-				if( responseV26.getStatusCode().equals( HttpStatus.OK ) ) {
-					
-					if( null != responseV26.getBody() ) {
-					
-						created = responseV26.getBody().getBool().booleanValue();
-					
+				if( null != mythServicesTemplateV26 ) {
+					ResponseEntity<org.mythtv.services.api.v026.Bool> responseV26 = mythServicesTemplateV26.mythOperations().addStorageGroupDir( groupName, directory, mLocationProfile.getHostname() );
+					if( responseV26.getStatusCode().equals( HttpStatus.OK ) ) {
+
+						if( null != responseV26.getBody() ) {
+
+							created = responseV26.getBody().getBool().booleanValue();
+
+						}
+
 					}
-					
 				}
 				
 				break;
@@ -108,22 +110,37 @@ public class CreateStorageGroupTask extends AsyncTask<String, Void, Boolean> {
 
 				org.mythtv.services.api.v027.MythServicesTemplate mythServicesTemplateV27 = (org.mythtv.services.api.v027.MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( apiVersion, mLocationProfile.getUrl() );
 
-				ResponseEntity<org.mythtv.services.api.Bool> responseV27 = mythServicesTemplateV27.mythOperations().addStorageGroupDir( groupName, directory, mLocationProfile.getHostname() );
-				if( responseV27.getStatusCode().equals( HttpStatus.OK ) ) {
-					
-					if( null != responseV27.getBody() ) {
-					
-						created = responseV27.getBody().getValue();
-					
+				if( null != mythServicesTemplateV27 ) {
+					ResponseEntity<org.mythtv.services.api.Bool> responseV27 = mythServicesTemplateV27.mythOperations().addStorageGroupDir( groupName, directory, mLocationProfile.getHostname() );
+					if( responseV27.getStatusCode().equals( HttpStatus.OK ) ) {
+
+						if( null != responseV27.getBody() ) {
+
+							created = responseV27.getBody().getValue();
+
+						}
+
 					}
-					
 				}
 				
 				break;
 				
 			default :
 				
-				created = false;
+				org.mythtv.services.api.v026.MythServicesTemplate mythServicesTemplateV26Default = (org.mythtv.services.api.v026.MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( apiVersion, mLocationProfile.getUrl() );
+
+				if( null != mythServicesTemplateV26Default ) {
+					ResponseEntity<org.mythtv.services.api.v026.Bool> responseV26 = mythServicesTemplateV26Default.mythOperations().addStorageGroupDir( groupName, directory, mLocationProfile.getHostname() );
+					if( responseV26.getStatusCode().equals( HttpStatus.OK ) ) {
+
+						if( null != responseV26.getBody() ) {
+
+							created = responseV26.getBody().getBool().booleanValue();
+
+						}
+
+					}
+				}
 
 				break;
 		}

@@ -90,7 +90,12 @@ public class LiveStreamHelperV26 extends AbstractBaseHelper {
 		}
 		
 		MythServicesTemplate mMythServicesTemplate = (MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( mApiVersion, locationProfile.getUrl() );
-		
+		if( null == mMythServicesTemplate ) {
+			Log.w( TAG, "create : Master Backend '" + locationProfile.getHostname() + "' is unreachable" );
+			
+			return false;
+		}
+
 		PlaybackProfile selectedPlaybackProfile = null;
 		LocationType locationType = locationProfile.getType();
 			
@@ -142,7 +147,12 @@ public class LiveStreamHelperV26 extends AbstractBaseHelper {
 		}
 		
 		MythServicesTemplate mMythServicesTemplate = (MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( mApiVersion, locationProfile.getUrl() );
-		
+		if( null == mMythServicesTemplate ) {
+			Log.w( TAG, "load : Master Backend '" + locationProfile.getHostname() + "' is unreachable" );
+			
+			return null;
+		}
+
 		Integer loaded = null;
 		
 		try {
@@ -177,6 +187,11 @@ public class LiveStreamHelperV26 extends AbstractBaseHelper {
 		}
 		
 		MythServicesTemplate mMythServicesTemplate = (MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( mApiVersion, locationProfile.getUrl() );
+		if( null == mMythServicesTemplate ) {
+			Log.w( TAG, "update : Master Backend '" + locationProfile.getHostname() + "' is unreachable" );
+			
+			return false;
+		}
 		
 		try {
 			
@@ -218,7 +233,12 @@ public class LiveStreamHelperV26 extends AbstractBaseHelper {
 		}
 		
 		MythServicesTemplate mMythServicesTemplate = (MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( mApiVersion, locationProfile.getUrl() );
-		
+		if( null == mMythServicesTemplate ) {
+			Log.w( TAG, "rempve : Master Backend '" + locationProfile.getHostname() + "' is unreachable" );
+			
+			return false;
+		}
+
 		try {
 			Program program = RecordedHelperV26.getInstance().findRecorded( context, locationProfile, channelId, startTime );
 			

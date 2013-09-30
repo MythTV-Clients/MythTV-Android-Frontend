@@ -75,7 +75,12 @@ public class StatusHelperV26 extends AbstractBaseHelper {
 		}
 		
 		mMythServicesTemplate = (MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( mApiVersion, url );
-		
+		if( null == mMythServicesTemplate ) {
+			Log.w( TAG, "process : Master Backend '" + locationProfile.getHostname() + "' is unreachable" );
+			
+			return null;
+		}
+
 		Status status = null;
 
 		try {

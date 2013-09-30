@@ -71,6 +71,11 @@ public class HostHelperV27 extends AbstractBaseHelper {
 		}
 		
 		mMythServicesTemplate = (MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( mApiVersion, locationProfile.getUrl() );
+		if( null == mMythServicesTemplate ) {
+			Log.w( TAG, "process : Master Backend '" + locationProfile.getHostname() + "' is unreachable" );
+			
+			return null;
+		}
 		
 		List<String> hosts = null;
 

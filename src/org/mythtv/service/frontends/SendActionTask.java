@@ -4,7 +4,6 @@
 package org.mythtv.service.frontends;
 
 import org.mythtv.client.ui.preferences.LocationProfile;
-import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.ApiVersion;
 import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.connect.MythAccessFactory;
@@ -57,14 +56,18 @@ public class SendActionTask extends AsyncTask<String, Void, Void> {
 				
 				org.mythtv.services.api.v026.MythServicesTemplate mythServicesTemplateV26 = (org.mythtv.services.api.v026.MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( apiVersion, url );
 
-				mythServicesTemplateV26.frontendOperations().sendAction( url, action, null, 0, 0 );
-
+				if( null != mythServicesTemplateV26 ) {
+					mythServicesTemplateV26.frontendOperations().sendAction( url, action, null, 0, 0 );
+				}
+				
 				break;
 			case v027 :
 
 				org.mythtv.services.api.v027.MythServicesTemplate mythServicesTemplateV27 = (org.mythtv.services.api.v027.MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( apiVersion, url );
 
-				mythServicesTemplateV27.frontendOperations().sendAction( action, null, 0, 0, ETagInfo.createEmptyETag() );
+				if( null != mythServicesTemplateV27 ) {
+					mythServicesTemplateV27.frontendOperations().sendAction( action, null, 0, 0, ETagInfo.createEmptyETag() );
+				}
 				
 				break;
 				
@@ -72,8 +75,10 @@ public class SendActionTask extends AsyncTask<String, Void, Void> {
 				
 				org.mythtv.services.api.v026.MythServicesTemplate mythServicesTemplateV26Default = (org.mythtv.services.api.v026.MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( apiVersion, url );
 
-				mythServicesTemplateV26Default.frontendOperations().sendAction( url, action, null, 0, 0 );
-
+				if( null != mythServicesTemplateV26Default ) {
+					mythServicesTemplateV26Default.frontendOperations().sendAction( url, action, null, 0, 0 );
+				}
+				
 				break;
 		}
 
