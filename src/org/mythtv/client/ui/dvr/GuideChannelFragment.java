@@ -14,12 +14,12 @@ import org.mythtv.db.channel.ChannelDaoHelper;
 import org.mythtv.db.channel.model.ChannelInfo;
 
 import android.content.Context;
-import android.content.SharedPreferences;
+//import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
+//import android.preference.PreferenceManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -49,8 +49,8 @@ public class GuideChannelFragment extends MythtvListFragment implements LoaderMa
 
 	private static final String TAG = GuideChannelFragment.class.getSimpleName();
 
-	private SharedPreferences mSharedPreferences;
-	private boolean downloadIcons;
+//	private SharedPreferences mSharedPreferences;
+	private boolean downloadIcons = false;
 	
 	private ChannelDaoHelper mChannelDaoHelper = ChannelDaoHelper.getInstance();
 	
@@ -152,10 +152,9 @@ public class GuideChannelFragment extends MythtvListFragment implements LoaderMa
 		Log.v( TAG, "onActivityCreated : enter" );
 		super.onActivityCreated( savedInstanceState );
 
-		mSharedPreferences = PreferenceManager.getDefaultSharedPreferences( getActivity() );
-		downloadIcons = mSharedPreferences.getBoolean( "preference_program_guide_channel_icon_download", false );
-		Log.v( TAG, "download : downloadIcons=" + downloadIcons );
-
+//		mSharedPreferences = PreferenceManager.getDefaultSharedPreferences( getActivity() );
+//		downloadIcons = mSharedPreferences.getBoolean( "preference_program_guide_channel_icon_download", false );
+//		Log.v( TAG, "download : downloadIcons=" + downloadIcons );
 
 		options = new DisplayImageOptions.Builder()
 			.cacheInMemory( true )
