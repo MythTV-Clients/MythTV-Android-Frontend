@@ -82,19 +82,19 @@
                 android:layout_height="wrap_content" >
 
                 <Button
-                    android:id="@+id/btnPreferenceLocationProfileSave"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="50"
-                    android:text="@string/btn_save" >
-                </Button>
-
-                <Button
                     android:id="@+id/btnPreferenceLocationProfileCancel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="50"
                     android:text="@string/btn_cancel" >
+                </Button>
+
+                <Button
+                    android:id="@+id/btnPreferenceLocationProfileSave"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="50"
+                    android:text="@string/btn_save" >
                 </Button>
             </TableRow>
         </TableLayout>
