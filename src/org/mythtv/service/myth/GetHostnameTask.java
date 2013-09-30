@@ -86,10 +86,12 @@ public class GetHostnameTask extends AsyncTask<Void, Void, String> {
 				
 				org.mythtv.services.api.v026.MythServicesTemplate mythServicesTemplateV26 = (org.mythtv.services.api.v026.MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( apiVersion, mLocationProfile.getUrl() );
 
-				ResponseEntity<org.mythtv.services.api.v026.StringWrapper> hostnameV26 = mythServicesTemplateV26.mythOperations().getHostName();
-				if( hostnameV26.getStatusCode().equals( HttpStatus.OK ) ) {
-					if( null != hostnameV26.getBody().getString() && !"".equals( hostnameV26.getBody().getString() ) ) {
-						hostname = hostnameV26.getBody().getString();
+				if( null != mythServicesTemplateV26 ) {
+					ResponseEntity<org.mythtv.services.api.v026.StringWrapper> hostnameV26 = mythServicesTemplateV26.mythOperations().getHostName();
+					if( hostnameV26.getStatusCode().equals( HttpStatus.OK ) ) {
+						if( null != hostnameV26.getBody().getString() && !"".equals( hostnameV26.getBody().getString() ) ) {
+							hostname = hostnameV26.getBody().getString();
+						}
 					}
 				}
 				
@@ -98,13 +100,15 @@ public class GetHostnameTask extends AsyncTask<Void, Void, String> {
 
 				org.mythtv.services.api.v027.MythServicesTemplate mythServicesTemplateV27 = (org.mythtv.services.api.v027.MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( apiVersion, mLocationProfile.getUrl() );
 
-				ResponseEntity<String> hostnameV27 = mythServicesTemplateV27.mythOperations().getHostName( ETagInfo.createEmptyETag() );
-				if( hostnameV27.getStatusCode().equals( HttpStatus.OK ) ) {
-					if( null != hostnameV27.getBody() && !"".equals( hostnameV27.getBody() ) ) {
-						hostname = hostnameV27.getBody().split( ":" )[ 1 ];
-						hostname = hostname.replaceAll( "\"", "" );
-						hostname = hostname.substring( 0, hostname.length() -1 );
-						hostname = hostname.trim();
+				if( null != mythServicesTemplateV27 ) {
+					ResponseEntity<String> hostnameV27 = mythServicesTemplateV27.mythOperations().getHostName( ETagInfo.createEmptyETag() );
+					if( hostnameV27.getStatusCode().equals( HttpStatus.OK ) ) {
+						if( null != hostnameV27.getBody() && !"".equals( hostnameV27.getBody() ) ) {
+							hostname = hostnameV27.getBody().split( ":" )[ 1 ];
+							hostname = hostname.replaceAll( "\"", "" );
+							hostname = hostname.substring( 0, hostname.length() -1 );
+							hostname = hostname.trim();
+						}
 					}
 				}
 				
@@ -114,13 +118,15 @@ public class GetHostnameTask extends AsyncTask<Void, Void, String> {
 				
 				org.mythtv.services.api.v026.MythServicesTemplate mythServicesTemplateV26Default = (org.mythtv.services.api.v026.MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( apiVersion, mLocationProfile.getUrl() );
 
-				ResponseEntity<org.mythtv.services.api.v026.StringWrapper> hostnameV26Default = mythServicesTemplateV26Default.mythOperations().getHostName();
-				if( hostnameV26Default.getStatusCode().equals( HttpStatus.OK ) ) {
-					if( null != hostnameV26Default.getBody().getString() && !"".equals( hostnameV26Default.getBody().getString() ) ) {
-						hostname = hostnameV26Default.getBody().getString();
+				if( null != mythServicesTemplateV26Default ) {
+					ResponseEntity<org.mythtv.services.api.v026.StringWrapper> hostnameV26Default = mythServicesTemplateV26Default.mythOperations().getHostName();
+					if( hostnameV26Default.getStatusCode().equals( HttpStatus.OK ) ) {
+						if( null != hostnameV26Default.getBody().getString() && !"".equals( hostnameV26Default.getBody().getString() ) ) {
+							hostname = hostnameV26Default.getBody().getString();
+						}
 					}
 				}
-
+				
 				break;
 		}
 
