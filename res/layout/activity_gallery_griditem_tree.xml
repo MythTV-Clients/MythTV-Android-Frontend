@@ -44,7 +44,7 @@
               android:gravity="center_horizontal"
               android:layout_below="@+id/grid_item_image"
               android:layout_alignParentBottom="true"
-              android:textSize="10sp">
+              android:textSize="12sp">
     </TextView>
 
 </LinearLayout>
