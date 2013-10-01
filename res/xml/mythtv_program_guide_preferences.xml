@@ -34,11 +34,12 @@
         	android:entries="@array/program_guide_days"
             android:entryValues="@array/program_guide_days" />
         
-	    <CheckBoxPreference
-  	      	android:key="preference_program_guide_channel_icon_download"
-  	      	android:title="@string/preference_program_guide_channel_icon_download_title"
-          	android:defaultValue="true"
-          	android:summary="@string/preference_program_guide_channel_icon_download_summary" />
+<!--        Icon downloading disabled - hiding preference-->
+<!-- 	    <CheckBoxPreference -->
+<!--   	      	android:key="preference_program_guide_channel_icon_download" -->
+<!--   	      	android:title="@string/preference_program_guide_channel_icon_download_title" -->
+<!--           	android:defaultValue="true" -->
+<!--           	android:summary="@string/preference_program_guide_channel_icon_download_summary" /> -->
         
     </PreferenceCategory>
 
