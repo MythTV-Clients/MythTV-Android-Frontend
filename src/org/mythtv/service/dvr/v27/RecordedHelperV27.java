@@ -12,6 +12,7 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.AbstractBaseHelper;
+import org.mythtv.db.channel.ChannelDaoHelper;
 import org.mythtv.db.content.LiveStreamConstants;
 import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.db.dvr.RecordingConstants;
@@ -53,6 +54,8 @@ public class RecordedHelperV27 extends AbstractBaseHelper {
 	private static MythServicesTemplate mMythServicesTemplate;
 
 	private static RecordedHelperV27 singleton;
+	
+	private final ChannelDaoHelper mChannelDaoHelper = ChannelDaoHelper.getInstance();
 	
 	/**
 	 * Returns the one and only RecordedHelperV27. init() must be called before 
@@ -259,8 +262,12 @@ public class RecordedHelperV27 extends AbstractBaseHelper {
 
 				if( !channelsChecked.contains( program.getChannel().getChanId() ) ) {
 					
-					ChannelHelperV27.getInstance().processChannel( context, locationProfile, ops, program.getChannel() );
-					count++;
+					if( null == mChannelDaoHelper.findByChannelId( context, locationProfile, Long.parseLong( String.valueOf( program.getChannel().getChanId() ) ) ) ) {
+						
+						ChannelHelperV27.getInstance().processChannel( context, locationProfile, ops, program.getChannel() );
+						count++;
+					
+					}
 					
 					channelsChecked.add( program.getChannel().getChanId() );
 			

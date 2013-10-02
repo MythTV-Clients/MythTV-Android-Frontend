@@ -25,7 +25,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import android.content.ContentProviderOperation;
-import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.OperationApplicationException;
@@ -289,38 +288,18 @@ public class ChannelHelperV27 extends AbstractBaseHelper {
 
 	public void processChannel( final Context context, final LocationProfile locationProfile, ArrayList<ContentProviderOperation> ops, ChannelInfo channel ) {
 //		Log.d( TAG, "processChannel : enter" );
-		
-		String[] projection = new String[] { ChannelConstants._ID };
-		String selection = ChannelConstants.FIELD_CHAN_ID + " = ?";
-		String[] selectionArgs = new String[] { String.valueOf( channel.getChanId() ) };
-		
-		selection = appendLocationHostname( context, locationProfile, selection, null );
 
-		ContentValues channelValues = convertChannelInfoToContentValues( locationProfile, channel );
-		Cursor channelCursor = context.getContentResolver().query( ChannelConstants.CONTENT_URI, projection, selection, selectionArgs, null );
-		if( channelCursor.moveToFirst() ) {
-//			Log.v( TAG, "load : updating channel " + channel.getChannelId() );
-
-			Long id = channelCursor.getLong( channelCursor.getColumnIndexOrThrow( ChannelConstants._ID ) );
-			ops.add( 
-				ContentProviderOperation.newUpdate( ContentUris.withAppendedId( ChannelConstants.CONTENT_URI, id ) )
-					.withValues( channelValues )
-					.withYieldAllowed( true )
-					.build()
-			);
-
-		} else {
-//			Log.v( TAG, "load : adding channel " + channel.getChannelId() );
-
-			ops.add(  
-				ContentProviderOperation.newInsert( ChannelConstants.CONTENT_URI )
-					.withValues( channelValues )
-					.withYieldAllowed( true )
-					.build()
-			);
-
+		if( channel.getSourceId() < 1 || ( null == channel.getXMLTVID() || "".equals( channel.getXMLTVID() ) ) ) {
+			Log.d( TAG, "processChannel : channelId=" + channel.getChanId() + ", channelNumber=" + channel.getChanNum() + ", callSign=" + channel.getCallSign() + ", sourceId=" + channel.getSourceId() + ", xmltvid=" + channel.getXMLTVID() );
 		}
-		channelCursor.close();
+		
+		ContentValues channelValues = convertChannelInfoToContentValues( locationProfile, channel );
+		ops.add(  
+			ContentProviderOperation.newInsert( ChannelConstants.CONTENT_URI )
+				.withValues( channelValues )
+				.withYieldAllowed( true )
+				.build()
+		);
 
 //		Log.d( TAG, "processChannel : exit" );
 	}
