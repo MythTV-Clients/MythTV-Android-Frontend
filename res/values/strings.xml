@@ -165,6 +165,8 @@
 	<string name="preference_program_guide_days_default">3</string>
 	<string name="preference_program_guide_channel_icon_download_title">Download Channel Icons?</string>
 	<string name="preference_program_guide_channel_icon_download_summary">Download Channel Icons?</string>
+	<string name="preference_program_guide_allow_fast_channel_scrolling_title">Allow Fast Channel Scrolling?</string>
+	<string name="preference_program_guide_allow_fast_channel_scrolling_summary">Handy for those with a large number of channels</string>
 		
 	<string name="preference_edit_error_dialog_title">Error</string>
 	

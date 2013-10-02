@@ -40,7 +40,13 @@
 <!--   	      	android:title="@string/preference_program_guide_channel_icon_download_title" -->
 <!--           	android:defaultValue="true" -->
 <!--           	android:summary="@string/preference_program_guide_channel_icon_download_summary" /> -->
-        
+
+			<CheckBoxPreference
+				android:key="preference_program_guide_fast_channel_scrolling"
+				android:title="@string/preference_program_guide_allow_fast_channel_scrolling_title"
+				android:defaultValue="true"
+				android:summary="@string/preference_program_guide_allow_fast_channel_scrolling_summary" />
+
     </PreferenceCategory>
 
 </PreferenceScreen>
