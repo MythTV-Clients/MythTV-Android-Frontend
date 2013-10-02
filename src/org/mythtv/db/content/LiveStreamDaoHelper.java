@@ -231,6 +231,12 @@ public class LiveStreamDaoHelper extends AbstractDaoHelper {
 			throw new IllegalArgumentException( "LocationProfile is required" );
 		}
 		
+		if( null == program ) {
+			Log.d( TAG, "findByProgram : program has not been set" );
+			
+			return null;
+		}
+
 		if( null == program.getChannelInfo() ) {
 			Log.d( TAG, "findByProgram : channel has not been set" );
 			
