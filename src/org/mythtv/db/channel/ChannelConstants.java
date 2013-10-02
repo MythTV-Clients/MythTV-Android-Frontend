@@ -45,9 +45,6 @@ public class ChannelConstants extends AbstractBaseConstants {
 	public static final String FIELD_CHAN_NUM_FORMATTED = "CHAN_NUM_FORMATTED";
 	public static final String FIELD_CHAN_NUM_FORMATTED_DATA_TYPE = "FLOAT";
 	
-	public static final String FIELD_CHAN_NUM_MAJOR = "CHAN_NUM_MAJOR";
-	public static final String FIELD_CHAN_NUM_MAJOR_DATA_TYPE = "INTEGER";
-	
 	public static final String FIELD_CALLSIGN = "CALLSIGN";
 	public static final String FIELD_CALLSIGN_DATA_TYPE = "TEXT";
 	

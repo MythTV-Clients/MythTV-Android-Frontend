@@ -477,20 +477,10 @@ public class ChannelHelperV26 extends AbstractBaseHelper {
 			formattedChannelNumber = formattedChannelNumber.substring( 1 );
 		}
 
-		String majorChannelNumber = formattedChannelNumber;
-		if( null != majorChannelNumber && !"".equals( majorChannelNumber ) ) {
-
-			if( majorChannelNumber.contains( "." ) ) {
-				majorChannelNumber = majorChannelNumber.substring( 0, majorChannelNumber.indexOf( '.' ) -1 );
-			}
-			
-		}
-		
 		ContentValues values = new ContentValues();
 		values.put( ChannelConstants.FIELD_CHAN_ID, channelInfo.getChannelId() );
 		values.put( ChannelConstants.FIELD_CHAN_NUM, channelInfo.getChannelNumber() );
 		values.put( ChannelConstants.FIELD_CHAN_NUM_FORMATTED, ( null == formattedChannelNumber || formattedChannelNumber.length() == 0 ) ? 0.0 : Float.parseFloat( formattedChannelNumber ) );
-		values.put( ChannelConstants.FIELD_CHAN_NUM_MAJOR, majorChannelNumber );
 		values.put( ChannelConstants.FIELD_CALLSIGN, channelInfo.getCallSign() );
 		values.put( ChannelConstants.FIELD_ICON_URL, channelInfo.getIconUrl() );
 		values.put( ChannelConstants.FIELD_CHANNEL_NAME, channelInfo.getChannelName() );

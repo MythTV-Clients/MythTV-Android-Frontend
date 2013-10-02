@@ -105,7 +105,7 @@ public class GuideChannelFragment extends MythtvListFragment implements LoaderMa
 		case 0 :
 		    Log.v( TAG, "onCreateLoader : getting channels" );
 
-			projection = new String[] { "DISTINCT " + ChannelConstants.FIELD_CHAN_NUM_MAJOR + " AS " + ChannelConstants._ID, ChannelConstants.FIELD_CHAN_ID + " AS " + ChannelConstants.TABLE_NAME + "_" + ChannelConstants.FIELD_CHAN_ID, ChannelConstants.FIELD_CHAN_NUM + " AS " + ChannelConstants.TABLE_NAME + "_" + ChannelConstants.FIELD_CHAN_NUM, ChannelConstants.FIELD_CALLSIGN + " AS " + ChannelConstants.TABLE_NAME + "_" + ChannelConstants.FIELD_CALLSIGN };
+			projection = new String[] { "DISTINCT " + ChannelConstants.FIELD_ATSC_MAJOR_CHAN + " AS " + ChannelConstants._ID, ChannelConstants.FIELD_CHAN_ID + " AS " + ChannelConstants.TABLE_NAME + "_" + ChannelConstants.FIELD_CHAN_ID, ChannelConstants.FIELD_CHAN_NUM + " AS " + ChannelConstants.TABLE_NAME + "_" + ChannelConstants.FIELD_CHAN_NUM, ChannelConstants.FIELD_CALLSIGN + " AS " + ChannelConstants.TABLE_NAME + "_" + ChannelConstants.FIELD_CALLSIGN };
 			selection = ChannelConstants.FIELD_VISIBLE + " = ? AND " + ChannelConstants.FIELD_MASTER_HOSTNAME + " = ?";
 			selectionArgs = new String[] { "1", mLocationProfile.getHostname() };
 			sortOrder = ChannelConstants.FIELD_CHAN_NUM_FORMATTED;

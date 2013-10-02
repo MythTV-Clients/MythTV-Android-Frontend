@@ -49,7 +49,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	private static final String TAG = DatabaseHelper.class.getSimpleName();
 	
 	private static final String DATABASE_NAME = "mythtvdb";
-	private static final int DATABASE_VERSION = 131;
+	private static final int DATABASE_VERSION = 132;
 
 	public DatabaseHelper( Context context ) {
 		super( context, DATABASE_NAME, null, DATABASE_VERSION );
@@ -137,8 +137,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	public void onUpgrade( SQLiteDatabase db, int oldVersion, int newVersion ) {
 		Log.v( TAG, "onUpgrade : enter" );
 
-		if( oldVersion < 131 ) {
-			Log.v( TAG, "onUpgrade : upgrading to db version 131" );
+		if( oldVersion < 132 ) {
+			Log.v( TAG, "onUpgrade : upgrading to db version 132" );
 
 			onCreate( db );
 
@@ -519,7 +519,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		sqlBuilder.append( ChannelConstants.FIELD_CHAN_ID ).append( " " ).append( ChannelConstants.FIELD_CHAN_ID_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( ChannelConstants.FIELD_CHAN_NUM ).append( " " ).append( ChannelConstants.FIELD_CHAN_NUM_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( ChannelConstants.FIELD_CHAN_NUM_FORMATTED ).append( " " ).append( ChannelConstants.FIELD_CHAN_NUM_FORMATTED_DATA_TYPE ).append( ", " );
-		sqlBuilder.append( ChannelConstants.FIELD_CHAN_NUM_MAJOR ).append( " " ).append( ChannelConstants.FIELD_CHAN_NUM_MAJOR_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( ChannelConstants.FIELD_CALLSIGN ).append( " " ).append( ChannelConstants.FIELD_CALLSIGN_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( ChannelConstants.FIELD_ICON_URL ).append( " " ).append( ChannelConstants.FIELD_ICON_URL_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( ChannelConstants.FIELD_CHANNEL_NAME ).append( " " ).append( ChannelConstants.FIELD_CHANNEL_NAME_DATA_TYPE ).append( ", " );
