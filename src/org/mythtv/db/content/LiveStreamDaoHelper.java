@@ -231,6 +231,18 @@ public class LiveStreamDaoHelper extends AbstractDaoHelper {
 			throw new IllegalArgumentException( "LocationProfile is required" );
 		}
 		
+		if( null == program.getChannelInfo() ) {
+			Log.d( TAG, "findByProgram : channel has not been set" );
+			
+			return null;
+		}
+		
+		if( null == program.getStartTime() ) {
+			Log.d( TAG, "findByProgram : startTime has not been set" );
+			
+			return null;
+		}
+		
 		try {
 			String selection = LiveStreamConstants.FIELD_CHAN_ID + " = ? AND " + LiveStreamConstants.FIELD_START_TIME + " = ?";
 			String[] selectionArgs = new String[] { String.valueOf( program.getChannelInfo().getChannelId() ), String.valueOf( program.getStartTime().getMillis() ) };
