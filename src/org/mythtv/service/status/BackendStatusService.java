@@ -84,7 +84,7 @@ public class BackendStatusService extends MythtvService {
     				}
 
     		} catch( Exception e ) {
-        		Log.e( TAG, "onHandleIntent : error", e );
+        		Log.e( TAG, "onHandleIntent : expected APIVersion error" );
     			
 				sendCompleteNotConnected();
     		} finally {
