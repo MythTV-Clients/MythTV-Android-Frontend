@@ -84,7 +84,7 @@ public class ProgramConstants extends AbstractBaseConstants {
 	public static final String FIELD_FILE_SIZE_DATA_TYPE = "INTEGER";
 	
 	public static final String FIELD_LAST_MODIFIED = "LAST_MODIFIED";
-	public static final String FIELD_LAST_MODIFIED_DATA_TYPE = "TEXT";
+	public static final String FIELD_LAST_MODIFIED_DATA_TYPE = "INTEGER";
 	
 	public static final String FIELD_PROGRAM_FLAGS = "PROGRAM_FLAGS";
 	public static final String FIELD_PROGRAM_FLAGS_DATA_TYPE = "TEXT";
@@ -156,7 +156,7 @@ public class ProgramConstants extends AbstractBaseConstants {
 		insert.append( FIELD_RECORD_ID ).append( ", " );
 		insert.append( FIELD_IN_ERROR ).append( ", " );
 		insert.append( FIELD_MASTER_HOSTNAME ).append( ", " );
-		insert.append( FIELD_LAST_MODIFIED );
+		insert.append( FIELD_LAST_MODIFIED_DATE );
 		
 		StringBuilder values = new StringBuilder();
 		values.append( " ) " );

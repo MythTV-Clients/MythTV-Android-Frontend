@@ -282,11 +282,11 @@ public class ProgramHelperV26 extends AbstractBaseHelper {
 		values.put( ProgramConstants.FIELD_PROGRAM_ID, null != program.getProgramId() ? program.getProgramId() : "" );
 		values.put( ProgramConstants.FIELD_STARS, program.getStars() );
 		values.put( ProgramConstants.FIELD_FILE_SIZE, null != program.getFileSize() ? program.getFileSize() : "" );
-		values.put( ProgramConstants.FIELD_LAST_MODIFIED, null != program.getLastModified() ? DateUtils.dateTimeFormatter.print( program.getLastModified() ) : "" );
+		values.put( ProgramConstants.FIELD_LAST_MODIFIED, null != program.getLastModified() ? program.getLastModified().getMillis() : -1 );
 		values.put( ProgramConstants.FIELD_PROGRAM_FLAGS, null != program.getProgramFlags() ? program.getProgramFlags() : "" );
 		values.put( ProgramConstants.FIELD_HOSTNAME, null != program.getHostname() ? program.getHostname() : "" );
 		values.put( ProgramConstants.FIELD_FILENAME, null != program.getFilename() ? program.getFilename() : "" );
-		values.put( ProgramConstants.FIELD_AIR_DATE, null != program.getAirDate() ? DateUtils.dateTimeFormatter.print( program.getAirDate() ) : "" );
+		values.put( ProgramConstants.FIELD_AIR_DATE, null != program.getAirDate() ? DateUtils.dateFormatter.print( program.getAirDate() ) : "" );
 		values.put( ProgramConstants.FIELD_DESCRIPTION, null != program.getDescription() ? program.getDescription() : "" );
 		values.put( ProgramConstants.FIELD_INETREF, null != program.getInetref() ? program.getInetref() : "" );
 		values.put( ProgramConstants.FIELD_SEASON, null != program.getSeason() ? program.getSeason() : "" );
@@ -385,7 +385,11 @@ public class ProgramHelperV26 extends AbstractBaseHelper {
 		}
 		
 		if( cursor.getColumnIndex( ProgramConstants.FIELD_AIR_DATE ) != -1 ) {
-			airDate = new DateTime( cursor.getLong( cursor.getColumnIndex( ProgramConstants.FIELD_AIR_DATE ) ) );
+			try {
+				airDate = DateUtils.dateFormatter.parseDateTime( cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_AIR_DATE ) ) );
+			} catch( Exception e ) {
+				Log.w( TAG, "AirDate could not be parsed" );
+			}
 		}
 		
 		if( cursor.getColumnIndex( ProgramConstants.FIELD_DESCRIPTION ) != -1 ) {

@@ -243,8 +243,8 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 //		Log.v( TAG, "convertCursorToProgram : enter" );
 
 //		Long id = null;
-		DateTime startTime = null, endTime = null, lastModified = null, airDate = null;
-		String title = "", subTitle = "", category = "", categoryType = "", seriesId = "", programFlags = "", programId = "", hostname = "", filename = "", description = "", inetref = "", masterHostname = "";
+		DateTime startTime = null, endTime = null, lastModified = null;
+		String title = "", subTitle = "", category = "", categoryType = "", seriesId = "", programFlags = "", programId = "", hostname = "", filename = "", description = "", inetref = "", masterHostname = "", airDate = "";
 		int repeat = -1, videoProps = -1, audioProps = -1, subProps = -1, season = -1, episode = -1;
 		long fileSize = -1;
 		float stars = 0.0f;
@@ -330,7 +330,7 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		}
 		
 		if( cursor.getColumnIndex( ProgramConstants.FIELD_AIR_DATE ) != -1 ) {
-			airDate = new DateTime( cursor.getLong( cursor.getColumnIndex( ProgramConstants.FIELD_AIR_DATE ) ) );
+			airDate = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_AIR_DATE ) );
 		}
 		
 		if( cursor.getColumnIndex( ProgramConstants.FIELD_DESCRIPTION ) != -1 ) {
@@ -459,11 +459,11 @@ public abstract class ProgramDaoHelper extends AbstractDaoHelper {
 		values.put( ProgramConstants.FIELD_PROGRAM_ID, null != program.getProgramId() ? program.getProgramId() : "" );
 		values.put( ProgramConstants.FIELD_STARS, program.getStars() );
 		values.put( ProgramConstants.FIELD_FILE_SIZE, program.getFileSize() );
-		values.put( ProgramConstants.FIELD_LAST_MODIFIED, null != program.getLastModified() ? DateUtils.dateTimeFormatter.print( program.getLastModified() ) : "" );
+		values.put( ProgramConstants.FIELD_LAST_MODIFIED, null != program.getLastModified() ? program.getLastModified().getMillis() : -1 );
 		values.put( ProgramConstants.FIELD_PROGRAM_FLAGS, program.getProgramFlags() );
 		values.put( ProgramConstants.FIELD_HOSTNAME, null != program.getHostname() ? program.getHostname() : "" );
 		values.put( ProgramConstants.FIELD_FILENAME, null != program.getFilename() ? program.getFilename() : "" );
-		values.put( ProgramConstants.FIELD_AIR_DATE, null != program.getAirDate() ? DateUtils.dateTimeFormatter.print( program.getAirDate() ) : "" );
+		values.put( ProgramConstants.FIELD_AIR_DATE, null != program.getAirDate() ? program.getAirDate() : "" );
 		values.put( ProgramConstants.FIELD_DESCRIPTION, null != program.getDescription() ? program.getDescription() : "" );
 		values.put( ProgramConstants.FIELD_INETREF, null != program.getInetref() ? program.getInetref() : "" );
 		values.put( ProgramConstants.FIELD_SEASON, program.getSeason() );

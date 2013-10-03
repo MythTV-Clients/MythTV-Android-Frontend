@@ -33,6 +33,7 @@ import org.mythtv.db.status.model.Miscellaneous;
 import org.mythtv.db.status.model.Scheduled;
 import org.mythtv.service.dvr.v27.ProgramHelperV27;
 import org.mythtv.service.dvr.v27.RecordingHelperV27;
+import org.mythtv.service.util.DateUtils;
 import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.ApiVersion;
 import org.mythtv.services.api.ETagInfo;
@@ -454,7 +455,13 @@ public class BackendStatusHelperV27 extends AbstractBaseHelper {
 	private Program convertProgram( org.mythtv.services.api.v027.status.beans.Program versionProgram ) {
 		
 		Program program = new Program();
-		program.setAirDate( versionProgram.getAirDate() );
+		
+		try {
+			program.setAirDate( null != versionProgram.getAirDate() ? DateUtils.dateFormatter.print( versionProgram.getAirDate() ) : "" );
+		} catch( Exception e ) {
+			program.setAirDate( "" );
+		}
+		
 		program.setAudioProps( versionProgram.getAudioProps() );
 		program.setCategory( versionProgram.getCategory() );
 		program.setDescription( versionProgram.getDescription() );
