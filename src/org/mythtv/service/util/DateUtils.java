@@ -48,14 +48,14 @@ public class DateUtils {
 
 	public static DateTime getToday() {
 		
-		DateTime day = convertUtc( new DateTime( System.currentTimeMillis() ) );
+		DateTime day = convertUtc( new DateTime( DateTimeZone.UTC ) );
 		
 		return getEndOfDay( day );		
 	}
 	
 	public static DateTime getDaysFromToday( int days ) {
 		
-		DateTime day = convertUtc( new DateTime( System.currentTimeMillis() ) );
+		DateTime day = convertUtc( new DateTime( DateTimeZone.UTC ) );
 		day = day.plus( Period.days( days ) );
 		
 		return getEndOfDay( day );		
@@ -63,7 +63,7 @@ public class DateUtils {
 
 	public static DateTime getYesterday() {
 		
-		DateTime day = convertUtc( new DateTime( System.currentTimeMillis() ) );
+		DateTime day = convertUtc( new DateTime( DateTimeZone.UTC ) );
 		
 		return getPreviousDay( day );		
 	}
@@ -84,7 +84,7 @@ public class DateUtils {
 	
 	public static DateTime getNextDayAfterMythfilldatabase() {
 		
-		DateTime day = convertUtc( new DateTime( System.currentTimeMillis() ) );
+		DateTime day = convertUtc( new DateTime( DateTimeZone.UTC ) );
 		day = day.plus( Period.days( 1 ) );
 		
 		return day.withTime( 4, 0, 0, 0 );		

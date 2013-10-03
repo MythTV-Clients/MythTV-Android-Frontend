@@ -55,7 +55,7 @@ public class Program implements Serializable, Comparable<Program> {
 	private String programFlags;
 	private String hostname;
 	private String filename;
-	private DateTime airDate;
+	private String airDate;
 	private String description;
 	private String inetref;
 	private int season;
@@ -335,14 +335,14 @@ public class Program implements Serializable, Comparable<Program> {
 	/**
 	 * @return the airDate
 	 */
-	public DateTime getAirDate() {
+	public String getAirDate() {
 		return airDate;
 	}
 
 	/**
 	 * @param airDate the airDate to set
 	 */
-	public void setAirDate( DateTime airDate ) {
+	public void setAirDate( String airDate ) {
 		this.airDate = airDate;
 	}
 
