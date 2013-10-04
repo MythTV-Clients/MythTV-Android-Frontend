@@ -27,11 +27,18 @@ import org.mythtv.R;
 import org.mythtv.client.ui.AbstractMythFragment;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.client.ui.util.MenuHelper;
+import org.mythtv.client.ui.util.MenuItemRefreshAnimated;
 import org.mythtv.db.channel.ChannelDaoHelper;
 import org.mythtv.db.channel.model.ChannelInfo;
 import org.mythtv.db.dvr.ProgramConstants;
+import org.mythtv.db.http.model.EtagInfoDelegate;
+import org.mythtv.service.guide.ProgramGuideDownloadService;
 import org.mythtv.service.util.DateUtils;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -63,6 +70,8 @@ public class GuideFragment extends AbstractMythFragment
 	private ChannelDaoHelper mChannelDaoHelper = ChannelDaoHelper.getInstance();
 	private MenuHelper mMenuHelper = MenuHelper.getInstance();
 	
+	private ProgramGuideDownloadReceiver programGuideDownloadReceiver = new ProgramGuideDownloadReceiver();
+
 	private TextView mProgramGuideDate;
 	private GuideChannelFragment mGuideChannelFragment;
 	private GuideTimeslotsFragment mGuideTimeslotsFragment;
@@ -78,6 +87,8 @@ public class GuideFragment extends AbstractMythFragment
 	private int downloadDays;
 	private int selectedChannelId;
 	private DateTime selectedDate;
+
+	private MenuItemRefreshAnimated mMenuItemRefresh;
 
 	/* (non-Javadoc)
 	 * @see org.mythtv.client.ui.dvr.GuideDatePickerFragment.OnDialogResultListener#onDateChanged(org.joda.time.DateTime)
@@ -104,6 +115,8 @@ public class GuideFragment extends AbstractMythFragment
 	@Override
 	public View onCreateView( LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState ) {
 		Log.v( TAG, "onCreateView : enter" );
+
+		mMenuItemRefresh = new MenuItemRefreshAnimated( getActivity() );
 
 		//inflate fragment layout
 		View view = inflater.inflate( R.layout.fragment_dvr_guide, container, false );
@@ -206,6 +219,22 @@ public class GuideFragment extends AbstractMythFragment
 	}
 
 	/* (non-Javadoc)
+	 * @see android.support.v4.app.Fragment#onStart()
+	 */
+	@Override
+	public void onStart() {
+		Log.v( TAG, "onStart : enter" );
+		super.onStart();
+
+		IntentFilter programGuideDownloadFilter = new IntentFilter( ProgramGuideDownloadService.ACTION_DOWNLOAD );
+		programGuideDownloadFilter.addAction( ProgramGuideDownloadService.ACTION_PROGRESS );
+		programGuideDownloadFilter.addAction( ProgramGuideDownloadService.ACTION_COMPLETE );
+        getActivity().registerReceiver( programGuideDownloadReceiver, programGuideDownloadFilter );
+
+		Log.v( TAG, "onStart : exit" );
+	}
+
+	/* (non-Javadoc)
 	 * @see android.support.v4.app.Fragment#onResume()
 	 */
 	@Override
@@ -216,6 +245,25 @@ public class GuideFragment extends AbstractMythFragment
 		timeslotSelect( new DateTime().getHourOfDay() + ":00:00" );
 
 		Log.v( TAG, "onResume : exit" );
+	}
+
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.Fragment#onStop()
+	 */
+	@Override
+	public void onStop() {
+		Log.v( TAG, "onStop : enter" );
+		super.onStop();
+		
+		if( null != programGuideDownloadReceiver ) {
+			try {
+				getActivity().unregisterReceiver( programGuideDownloadReceiver );
+			} catch( IllegalArgumentException e ) {
+				Log.e( TAG, "onStop : error", e );
+			}
+		}
+
+		Log.v( TAG, "onStop : exit" );
 	}
 
 	/* (non-Javadoc)
@@ -230,6 +278,11 @@ public class GuideFragment extends AbstractMythFragment
 			mMenuHelper.guideDayMenuItem( getActivity(), menu );
 		}
 		
+		mMenuHelper.refreshMenuItem( getActivity(), menu, mMenuItemRefresh );
+		if( mRunningServiceHelper.isServiceRunning( getActivity(), "org.mythtv.service.guide.ProgramGuideDownloadService" ) ) {
+			mMenuItemRefresh.startRefreshAnimation();
+		}
+
 		Log.v( TAG, "onCreateOptionsMenu : exit" );
 	}
 
@@ -242,12 +295,36 @@ public class GuideFragment extends AbstractMythFragment
 		Log.v( TAG, "onOptionsItemSelected : enter" );
 		
 		switch( item.getItemId() ) {
-		case MenuHelper.GUIDE_ID:
-			Log.d( TAG, "onOptionsItemSelected : guide day selected" );
+			case MenuHelper.GUIDE_ID:
+				Log.d( TAG, "onOptionsItemSelected : guide day selected" );
 
-			showDatePickerFragment();
+				showDatePickerFragment();
 			
-	        return true;
+				return true;
+			
+			case MenuHelper.REFRESH_ID:
+				Log.d( TAG, "onOptionsItemSelected : refresh selected" );
+				
+				if( !mRunningServiceHelper.isServiceRunning( getActivity(), "org.mythtv.service.dvr.ProgramGuideDownloadService" ) ) {
+				
+					SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences( getActivity() );
+					int downloadDays = Integer.parseInt( sp.getString( "preference_program_guide_days", "14" ) );
+
+					for( int i = 0; i < ( ( downloadDays * 24 ) / 3 ); i++ ) {
+						
+						EtagInfoDelegate etag = mEtagDaoHelper.findByEndpointAndDataId( getActivity(), mLocationProfile, "GetProgramGuide", String.valueOf( i ) );
+						if( null != etag ) {
+							mEtagDaoHelper.delete( getActivity(), mLocationProfile, etag );
+						}
+						
+					}
+					
+					getActivity().startService( new Intent( ProgramGuideDownloadService.ACTION_DOWNLOAD ) );
+					
+					mMenuItemRefresh.startRefreshAnimation();
+				}
+				
+				return true;
 		}
 		
 		Log.v( TAG, "onOptionsItemSelected : exit" );
@@ -337,4 +414,31 @@ public class GuideFragment extends AbstractMythFragment
 		Log.v( TAG, "showDatePickerFragment : exit" );
 	}
 	
+	private class ProgramGuideDownloadReceiver extends BroadcastReceiver {
+
+		/* (non-Javadoc)
+		 * @see android.content.BroadcastReceiver#onReceive(android.content.Context, android.content.Intent)
+		 */
+		@Override
+		public void onReceive( Context context, Intent intent ) {
+        	Log.v( TAG, "ProgramGuideDownloadReceiver.onReceive : enter" );
+
+	        if ( intent.getAction().equals( ProgramGuideDownloadService.ACTION_PROGRESS ) ) {
+	        	Log.i( TAG, "ProgramGuideDownloadReceiver.onReceive : " + intent.getStringExtra( ProgramGuideDownloadService.EXTRA_PROGRESS ) );
+	        	
+	        }
+	        
+	        if ( intent.getAction().equals( ProgramGuideDownloadService.ACTION_COMPLETE ) ) {
+	        	Log.i( TAG, "ProgramGuideDownloadReceiver.onReceive : " + intent.getStringExtra( ProgramGuideDownloadService.EXTRA_COMPLETE ) );
+	        	
+	        	mMenuItemRefresh.stopRefreshAnimation();
+	        }
+	        
+	        updateView();
+	        
+        	Log.v( TAG, "ProgramGuideDownloadReceiver.onReceive : exit" );
+		}
+		
+	}
+
 }
