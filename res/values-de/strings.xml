@@ -163,8 +163,8 @@
 	<string name="preference_program_guide_days_default">3</string>
 	<string name="preference_program_guide_channel_icon_download_title">Senderlogos herunterladen?</string>
 	<string name="preference_program_guide_channel_icon_download_summary">Senderlogos herunterladen?</string>
-    <string name="preference_program_guide_allow_fast_channel_scrolling_title">Allow Fast Channel Scrolling?</string>
-    <string name="preference_program_guide_allow_fast_channel_scrolling_summary">Handy for those with a large number of channels</string>
+    <string name="preference_program_guide_allow_fast_channel_scrolling_title">Schnelles scrollen der Senderliste?</string>
+    <string name="preference_program_guide_allow_fast_channel_scrolling_summary">Praktisch für Nutzer mit einer langen Senderliste.</string>
 		
 	<string name="preference_edit_error_dialog_title">Fehler</string>
 	

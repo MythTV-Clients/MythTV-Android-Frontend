@@ -20,7 +20,8 @@ package org.mythtv.service.util;
 
 import java.net.HttpURLConnection;
 import java.net.URL;
-
+import java.io.BufferedInputStream;
+import java.io.InputStream;
 import org.mythtv.client.ui.preferences.LocationProfile;
 
 import android.content.Context;
@@ -116,9 +117,36 @@ public class NetworkHelper {
 		}
 
         try {
-            final URL url = new URL( profile.getUrl() );
+            final URL url = new URL( profile.getUrl() + "Myth/GetHostName" );
             final HttpURLConnection urlcon = (HttpURLConnection) url.openConnection();
+
+            /*
+             * TODO: As of MythTV 0.27, conversations are NOT persistent. So,
+             * close each when done. Watch out if MythTV changes this. The same
+             * is true for isFrontendConnected below.
+             */
+
+            urlcon.setRequestProperty("Connection", "Close");
+
+            /*
+             * No need to gzip the (very short) response
+             */
+
+            urlcon.addRequestProperty("Accept-Encoding", "identity");
+            urlcon.setConnectTimeout(5000); // Is this needed, or even correct?
             isOK = urlcon.getResponseCode() == HttpURLConnection.HTTP_OK;
+
+            /*
+             * If we've got a response, read all the bits so that TCP
+             * can make an orderly close of the conversation. Prevents
+             * RSTs (resets.)
+             */
+
+            if( isOK ) {
+                byte[] junk = new byte[ 128 ];
+                InputStream in = new BufferedInputStream( urlcon.getInputStream() );
+                while( in.read( junk , 0, 128 ) > 0 );
+            }
             urlcon.disconnect();
         } catch( Exception e ) {
 			isOK = false;
@@ -149,9 +177,16 @@ public class NetworkHelper {
 		}
 
         try {
-            final URL url = new URL( frontendUrl );
+            final URL url = new URL( frontendUrl + "Frontend/GetStatus" );
             final HttpURLConnection urlcon = (HttpURLConnection) url.openConnection();
+            urlcon.setRequestProperty("Connection", "Close");
+            urlcon.setConnectTimeout(5000);
             isOK = urlcon.getResponseCode() == HttpURLConnection.HTTP_OK;
+            if( isOK ) {
+                byte[] junk = new byte[ 128 ];
+                InputStream in = new BufferedInputStream( urlcon.getInputStream() );
+                while( in.read( junk , 0, 128 ) > 0 );
+            }
             urlcon.disconnect();
         } catch( Exception e ) {
 			isOK = false;
