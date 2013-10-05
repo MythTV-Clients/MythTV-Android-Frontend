@@ -355,6 +355,13 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 			mHolder.programGroup.setText( programGroup.getTitle() );
 			mHolder.category.setBackgroundColor( mProgramHelper.getCategoryColor( programGroup.getCategory() ) );
 
+			if( null == programGroup.getInetref() || "".equals( programGroup.getInetref() ) )
+			{
+				mHolder.programGroup.setVisibility( View.VISIBLE );
+				mHolder.programGroupBanner.setVisibility( View.GONE );
+				return;
+			}
+
 			String imageUri = mLocationProfileDaoHelper.findConnectedProfile( getActivity() ).getUrl() + "Content/GetRecordingArtwork?Type=Banner&Inetref=" + programGroup.getInetref();
 			imageLoader.displayImage( imageUri, mHolder.programGroupBanner, options, new SimpleImageLoadingListener() {
 
