@@ -317,7 +317,11 @@ public class BackendStatusFragment extends AbstractMythFragment {
 			FragmentTransaction fragTransaction = getFragmentManager().beginTransaction();
 			fragTransaction.detach( currentFragment );
 			fragTransaction.attach( currentFragment );
-			fragTransaction.commit();
+			
+			//TODO: BandAid, not intended as a long term solution. This method needs to be refactored in a way that allows
+			//			for a clean commit of the fragment transaction. Fragment transactions should not be performed in 
+			//			asynchronous framework methods as the activity could be terminated at any time for any reason.
+			fragTransaction.commitAllowingStateLoss();
 		}
 
 		super.onConfigurationChanged( newConfig );
