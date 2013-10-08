@@ -123,7 +123,9 @@ public class NetworkHelper {
             /*
              * TODO: As of MythTV 0.27, conversations are NOT persistent. So,
              * close each when done. Watch out if MythTV changes this. The same
-             * is true for isFrontendConnected below.
+             * is true for isFrontendConnected below. MythTV (incorrectly returns
+             * Keep-Alive even though it shouldn't.) Trac ticket:
+             * http://code.mythtv.org/trac/ticket/11894
              */
 
             urlcon.setRequestProperty("Connection", "Close");
@@ -133,7 +135,7 @@ public class NetworkHelper {
              */
 
             urlcon.addRequestProperty("Accept-Encoding", "identity");
-            urlcon.setConnectTimeout(5000); // Is this needed, or even correct?
+            urlcon.addRequestProperty("User-Agent","MAF");
             isOK = urlcon.getResponseCode() == HttpURLConnection.HTTP_OK;
 
             /*
@@ -142,13 +144,16 @@ public class NetworkHelper {
              * RSTs (resets.)
              */
 
-            if( isOK ) {
-                byte[] junk = new byte[ 128 ];
-                InputStream in = new BufferedInputStream( urlcon.getInputStream() );
-                while( in.read( junk , 0, 128 ) > 0 );
+            if(urlcon.getContentLength() > 0)
+            {
+            	byte[] drainResponse = new byte[ 64 ];
+            	InputStream bis = new BufferedInputStream( urlcon.getInputStream() );
+            	while( bis.read( drainResponse , 0, 64 ) > 0 );
             }
+
             urlcon.disconnect();
         } catch( Exception e ) {
+        	Log.e(TAG, "GetHost failure" );
 			isOK = false;
 		}
 		
@@ -180,13 +185,15 @@ public class NetworkHelper {
             final URL url = new URL( frontendUrl + "Frontend/GetStatus" );
             final HttpURLConnection urlcon = (HttpURLConnection) url.openConnection();
             urlcon.setRequestProperty("Connection", "Close");
-            urlcon.setConnectTimeout(5000);
+            urlcon.addRequestProperty("User-Agent","MAF");
             isOK = urlcon.getResponseCode() == HttpURLConnection.HTTP_OK;
-            if( isOK ) {
-                byte[] junk = new byte[ 128 ];
-                InputStream in = new BufferedInputStream( urlcon.getInputStream() );
-                while( in.read( junk , 0, 128 ) > 0 );
+            if(urlcon.getContentLength() > 0)
+            {
+            	byte[] drainResponse = new byte[ 64 ];
+            	InputStream bis = new BufferedInputStream( urlcon.getInputStream() );
+            	while( bis.read( drainResponse , 0, 64 ) > 0 );
             }
+
             urlcon.disconnect();
         } catch( Exception e ) {
 			isOK = false;
