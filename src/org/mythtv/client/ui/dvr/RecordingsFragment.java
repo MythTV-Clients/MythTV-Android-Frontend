@@ -169,7 +169,7 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 	    
 	    setListAdapter( adapter );
 
-		getListView().setOnScrollListener( new PauseOnScrollListener( imageLoader, false, true ) );
+		getListView().setOnScrollListener( new PauseOnScrollListener( imageLoader, true, true ) );
 		
 		getLoaderManager().initLoader( 0, null, this );
 		
