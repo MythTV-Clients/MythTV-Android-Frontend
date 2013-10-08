@@ -9,4 +9,7 @@ libs
 /temp
 .idea
 /.gradle
+<<<<<<< HEAD
 local.properties
+=======
+>>>>>>> updated gradle build
