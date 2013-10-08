@@ -5,6 +5,7 @@ package org.mythtv.service.status.v26;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.AbstractBaseHelper;
@@ -168,6 +169,7 @@ public class BackendStatusHelperV26 extends AbstractBaseHelper {
 		
 			if( null != status.getScheduled().getPrograms() && !status.getScheduled().getPrograms().isEmpty() ) {
 			
+				String tag = UUID.randomUUID().toString();
 				int processed = -1;
 				int count = 0;
 		
@@ -184,11 +186,11 @@ public class BackendStatusHelperV26 extends AbstractBaseHelper {
 					}
 
 					// load upcoming program
-					ProgramHelperV26.getInstance().processProgram( mContext, mLocationProfile, ProgramConstants.CONTENT_URI_UPCOMING, ProgramConstants.TABLE_NAME_UPCOMING, ops, versionProgram );
+					ProgramHelperV26.getInstance().processProgram( mContext, mLocationProfile, ProgramConstants.CONTENT_URI_UPCOMING, ProgramConstants.TABLE_NAME_UPCOMING, ops, versionProgram, tag );
 					count++;
 
 					// update program guide
-					ProgramHelperV26.getInstance().processProgram( mContext, mLocationProfile, ProgramConstants.CONTENT_URI_GUIDE, ProgramConstants.TABLE_NAME_GUIDE, ops, versionProgram );
+					ProgramHelperV26.getInstance().processProgram( mContext, mLocationProfile, ProgramConstants.CONTENT_URI_GUIDE, ProgramConstants.TABLE_NAME_GUIDE, ops, versionProgram, tag );
 					count++;
 
 					if( !inError && null != versionProgram.getRecording() ) {
@@ -196,11 +198,11 @@ public class BackendStatusHelperV26 extends AbstractBaseHelper {
 						if( versionProgram.getRecording().getRecordId() > 0 ) {
 						
 							// load upcoming recording
-							RecordingHelperV26.getInstance().processRecording( mContext, mLocationProfile, ops, RecordingConstants.ContentDetails.UPCOMING, versionProgram );
+							RecordingHelperV26.getInstance().processRecording( mContext, mLocationProfile, ops, RecordingConstants.ContentDetails.UPCOMING, versionProgram, tag );
 							count++;
 
 							// update program guide recording
-							RecordingHelperV26.getInstance().processRecording( mContext, mLocationProfile, ops, RecordingConstants.ContentDetails.GUIDE, versionProgram );
+							RecordingHelperV26.getInstance().processRecording( mContext, mLocationProfile, ops, RecordingConstants.ContentDetails.GUIDE, versionProgram, tag );
 							count++;
 
 						}

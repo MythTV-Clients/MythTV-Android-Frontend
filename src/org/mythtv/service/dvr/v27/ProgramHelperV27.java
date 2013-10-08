@@ -4,6 +4,7 @@
 package org.mythtv.service.dvr.v27;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -73,10 +74,10 @@ public class ProgramHelperV27 extends AbstractBaseHelper {
 	 */
 	private ProgramHelperV27() { }
 
-	public void processProgram( final Context context, final LocationProfile locationProfile, Uri uri, String table, ArrayList<ContentProviderOperation> ops, Program program ) {
+	public void processProgram( final Context context, final LocationProfile locationProfile, Uri uri, String table, ArrayList<ContentProviderOperation> ops, Program program, String tag ) {
 //		Log.d( TAG, "processProgram : enter" );
 		
-		ContentValues programValues = convertProgramToContentValues( locationProfile, program );
+		ContentValues programValues = convertProgramToContentValues( locationProfile, program, tag );
 		
 		if( table.equals( ProgramConstants.TABLE_NAME_RECORDED ) || table.equals( ProgramConstants.TABLE_NAME_UPCOMING ) || table.equals( ProgramConstants.TABLE_NAME_GUIDE ) ) {
 
@@ -125,6 +126,29 @@ public class ProgramHelperV27 extends AbstractBaseHelper {
 //		Log.d( TAG, "processProgram : exit" );
 	}
 	
+	public List<Program> findAllPrograms( final Context context, final LocationProfile locationProfile, Uri uri, String table ) {
+		Log.d( TAG, "findAllPrograms : enter" );
+		
+		String programSelection = null;
+		String[] programSelectionArgs = null;
+		
+		programSelection = appendLocationHostname( context, locationProfile, programSelection, table );
+		
+		List<Program> programs = new ArrayList<Program>();;
+		
+		Cursor cursor = context.getContentResolver().query( uri, null, programSelection, programSelectionArgs, null );
+		while( cursor.moveToNext() ) {
+			
+			Program program = convertCursorToProgram( cursor, table );
+			programs.add( program );
+
+		}
+		cursor.close();
+
+		Log.d( TAG, "findAllPrograms : exit" );
+		return programs;
+	}
+
 	public Program findProgram( final Context context, final LocationProfile locationProfile, Uri uri, String table, Integer channelId, DateTime startTime ) {
 		Log.d( TAG, "findProgram : enter" );
 		
@@ -185,6 +209,20 @@ public class ProgramHelperV27 extends AbstractBaseHelper {
 				.build()
 		);
 
+		Log.v( TAG, "deletePrograms : exit" );
+	}
+	
+	public void deletePrograms( final Context context, final LocationProfile locationProfile, Uri uri, String table, String tag ) {
+		Log.v( TAG, "deletePrograms : enter" );
+		
+		String selection = "not " + table + "." + ProgramConstants.FIELD_LAST_MODIFIED_TAG + " = ?";
+		String[] selectionArgs = new String[] { tag };
+		
+		selection = appendLocationHostname( context, locationProfile, selection, table );
+		
+		int deleted = context.getContentResolver().delete( uri, selection, selectionArgs );
+		Log.d( TAG, "deletePrograms : deleted=" + deleted );
+		
 		Log.v( TAG, "deletePrograms : exit" );
 	}
 	
@@ -252,7 +290,7 @@ public class ProgramHelperV27 extends AbstractBaseHelper {
 		return false;
 	}
 
-	private ContentValues convertProgramToContentValues( final LocationProfile locationProfile, final Program program ) {
+	private ContentValues convertProgramToContentValues( final LocationProfile locationProfile, final Program program, final String tag ) {
 //		Log.v( TAG, "convertProgramToContentValues : enter" );
 		
 		boolean inError;
@@ -301,6 +339,7 @@ public class ProgramHelperV27 extends AbstractBaseHelper {
 		values.put( ProgramConstants.FIELD_IN_ERROR, inError ? 1 : 0 );
 		values.put( ProgramConstants.FIELD_MASTER_HOSTNAME, locationProfile.getHostname() );
 		values.put( ProgramConstants.FIELD_LAST_MODIFIED_DATE, new DateTime().getMillis() );
+		values.put( ProgramConstants.FIELD_LAST_MODIFIED_TAG, tag );
 		
 //		Log.v( TAG, "convertProgramToContentValues : exit" );
 		return values;

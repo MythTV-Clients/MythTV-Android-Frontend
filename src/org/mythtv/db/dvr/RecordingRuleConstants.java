@@ -176,7 +176,7 @@ public class RecordingRuleConstants extends AbstractBaseConstants {
 		FIELD_PLAY_GROUP, FIELD_AUTO_EXPIRE, FIELD_MAX_EPISODES, FIELD_MAX_NEWEST, FIELD_AUTO_COMMFLAG, FIELD_AUTO_TRANSCODE,
 		FIELD_AUTO_METADATA, FIELD_AUTO_USER_JOB_1, FIELD_AUTO_USER_JOB_2, FIELD_AUTO_USER_JOB_3, FIELD_AUTO_USER_JOB_4, FIELD_TRANSCODER,
 		FIELD_NEXT_RECORDING, FIELD_LAST_RECORDED, FIELD_LAST_DELETED, FIELD_AVERAGE_DELAY,
-		FIELD_MASTER_HOSTNAME, FIELD_LAST_MODIFIED_DATE
+		FIELD_MASTER_HOSTNAME, FIELD_LAST_MODIFIED_DATE, FIELD_LAST_MODIFIED_TAG
 	};
 
 	static {
@@ -233,9 +233,10 @@ public class RecordingRuleConstants extends AbstractBaseConstants {
 		sb.append( FIELD_LAST_DELETED ).append( "," );
 		sb.append( FIELD_AVERAGE_DELAY ).append( "," );
 		sb.append( FIELD_MASTER_HOSTNAME ).append( "," );
-		sb.append( FIELD_LAST_MODIFIED_DATE );
+		sb.append( FIELD_LAST_MODIFIED_DATE ).append( ", " );
+		sb.append( FIELD_LAST_MODIFIED_TAG );
 		sb.append( " ) " );
-		sb.append( "VALUES( ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? )" );
+		sb.append( "VALUES( ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? )" );
 
 		INSERT_ROW = sb.toString();
 	}

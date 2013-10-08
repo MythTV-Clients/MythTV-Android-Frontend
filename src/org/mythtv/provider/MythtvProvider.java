@@ -616,28 +616,28 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 			case RECORDED:
 //				System.out.println( "channelId=" + values.get( ProgramConstants.FIELD_CHANNEL_ID ) + ", startTime=" + DateUtils.dateTimeFormatterPretty.print( new DateTime( (Long) values.get( ProgramConstants.FIELD_START_TIME ) ) ) );
 				
-				newUri = ContentUris.withAppendedId( ProgramConstants.CONTENT_URI_RECORDED, db.insertWithOnConflict( ProgramConstants.TABLE_NAME_RECORDED, null, values, SQLiteDatabase.CONFLICT_IGNORE ) );
+				newUri = ContentUris.withAppendedId( ProgramConstants.CONTENT_URI_RECORDED, db.insertWithOnConflict( ProgramConstants.TABLE_NAME_RECORDED, null, values, SQLiteDatabase.CONFLICT_REPLACE ) );
 				
 				getContext().getContentResolver().notifyChange( newUri, null );
 				
 				return newUri;
 	
 			case UPCOMING:
-				newUri = ContentUris.withAppendedId( ProgramConstants.CONTENT_URI_UPCOMING, db.insertWithOnConflict( ProgramConstants.TABLE_NAME_UPCOMING, null, values, SQLiteDatabase.CONFLICT_IGNORE ) );
+				newUri = ContentUris.withAppendedId( ProgramConstants.CONTENT_URI_UPCOMING, db.insertWithOnConflict( ProgramConstants.TABLE_NAME_UPCOMING, null, values, SQLiteDatabase.CONFLICT_REPLACE ) );
 				
 				getContext().getContentResolver().notifyChange( newUri, null );
 				
 				return newUri;
 	
 			case GUIDE:
-				newUri = ContentUris.withAppendedId( ProgramConstants.CONTENT_URI_GUIDE, db.insertWithOnConflict( ProgramConstants.TABLE_NAME_GUIDE, null, values, SQLiteDatabase.CONFLICT_IGNORE ) );
+				newUri = ContentUris.withAppendedId( ProgramConstants.CONTENT_URI_GUIDE, db.insertWithOnConflict( ProgramConstants.TABLE_NAME_GUIDE, null, values, SQLiteDatabase.CONFLICT_REPLACE ) );
 				
 				getContext().getContentResolver().notifyChange( newUri, null );
 				
 				return newUri;
 	
 			case PROGRAM_GROUP:
-				newUri = ContentUris.withAppendedId( ProgramGroupConstants.CONTENT_URI, db.insertWithOnConflict( ProgramGroupConstants.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_IGNORE ) );
+				newUri = ContentUris.withAppendedId( ProgramGroupConstants.CONTENT_URI, db.insertWithOnConflict( ProgramGroupConstants.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE ) );
 				
 				getContext().getContentResolver().notifyChange( newUri, null );
 				
@@ -646,7 +646,7 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 			case RECORDING_GUIDE:
 //				System.out.println( "recordId=" + values.get( RecordingConstants.FIELD_RECORD_ID ) + ", startTime=" + DateUtils.dateTimeFormatterPretty.print( new DateTime( (Long) values.get( RecordingConstants.FIELD_START_TS ) ) ) );
 
-				newUri = ContentUris.withAppendedId( RecordingConstants.ContentDetails.GUIDE.getContentUri(), db.insertWithOnConflict( RecordingConstants.ContentDetails.GUIDE.getTableName(), null, values, SQLiteDatabase.CONFLICT_IGNORE ) );
+				newUri = ContentUris.withAppendedId( RecordingConstants.ContentDetails.GUIDE.getContentUri(), db.insertWithOnConflict( RecordingConstants.ContentDetails.GUIDE.getTableName(), null, values, SQLiteDatabase.CONFLICT_REPLACE ) );
 				
 				getContext().getContentResolver().notifyChange( newUri, null );
 				
@@ -655,7 +655,7 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 			case RECORDING_RECORDED:
 //				System.out.println( "recordId=" + values.get( RecordingConstants.FIELD_RECORD_ID ) + ", startTime=" + DateUtils.dateTimeFormatterPretty.print( new DateTime( (Long) values.get( RecordingConstants.FIELD_START_TS ) ) ) );
 
-				newUri = ContentUris.withAppendedId( RecordingConstants.ContentDetails.RECORDED.getContentUri(), db.insertWithOnConflict( RecordingConstants.ContentDetails.RECORDED.getTableName(), null, values, SQLiteDatabase.CONFLICT_IGNORE ) );
+				newUri = ContentUris.withAppendedId( RecordingConstants.ContentDetails.RECORDED.getContentUri(), db.insertWithOnConflict( RecordingConstants.ContentDetails.RECORDED.getTableName(), null, values, SQLiteDatabase.CONFLICT_REPLACE ) );
 				
 				getContext().getContentResolver().notifyChange( newUri, null );
 				
@@ -664,7 +664,7 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 			case RECORDING_UPCOMING:
 //				System.out.println( "recordId=" + values.get( RecordingConstants.FIELD_RECORD_ID ) + ", startTime=" + DateUtils.dateTimeFormatterPretty.print( new DateTime( (Long) values.get( RecordingConstants.FIELD_START_TS ) ) ) );
 
-				newUri = ContentUris.withAppendedId( RecordingConstants.ContentDetails.UPCOMING.getContentUri(), db.insertWithOnConflict( RecordingConstants.ContentDetails.UPCOMING.getTableName(), null, values, SQLiteDatabase.CONFLICT_IGNORE ) );
+				newUri = ContentUris.withAppendedId( RecordingConstants.ContentDetails.UPCOMING.getContentUri(), db.insertWithOnConflict( RecordingConstants.ContentDetails.UPCOMING.getTableName(), null, values, SQLiteDatabase.CONFLICT_REPLACE ) );
 				
 				getContext().getContentResolver().notifyChange( newUri, null );
 				
@@ -672,7 +672,7 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 	
 			case RECORDING_RULE:
 
-				newUri = ContentUris.withAppendedId( RecordingRuleConstants.CONTENT_URI, db.insertWithOnConflict( RecordingRuleConstants.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_IGNORE ) );
+				newUri = ContentUris.withAppendedId( RecordingRuleConstants.CONTENT_URI, db.insertWithOnConflict( RecordingRuleConstants.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE ) );
 				
 				getContext().getContentResolver().notifyChange( newUri, null );
 				
@@ -680,49 +680,49 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 	
 			case LIVE_STREAM:
 
-				newUri = ContentUris.withAppendedId( LiveStreamConstants.CONTENT_URI, db.insertWithOnConflict( LiveStreamConstants.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_IGNORE ) );
+				newUri = ContentUris.withAppendedId( LiveStreamConstants.CONTENT_URI, db.insertWithOnConflict( LiveStreamConstants.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE ) );
 				
 				getContext().getContentResolver().notifyChange( newUri, null );
 				
 				return newUri;
 	
 			case CHANNELS:
-				newUri = ContentUris.withAppendedId( ChannelConstants.CONTENT_URI, db.insertWithOnConflict( ChannelConstants.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_IGNORE ) );
+				newUri = ContentUris.withAppendedId( ChannelConstants.CONTENT_URI, db.insertWithOnConflict( ChannelConstants.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE ) );
 				
 				getContext().getContentResolver().notifyChange( newUri, null );
 				
 				return newUri;
 	
 			case FRONTENDS:
-				newUri = ContentUris.withAppendedId( FrontendConstants.CONTENT_URI, db.insertWithOnConflict( FrontendConstants.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_IGNORE ) );
+				newUri = ContentUris.withAppendedId( FrontendConstants.CONTENT_URI, db.insertWithOnConflict( FrontendConstants.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE ) );
 				
 				getContext().getContentResolver().notifyChange( newUri, null );
 				
 				return newUri;
 	
 			case ETAGS:
-				newUri = ContentUris.withAppendedId( EtagConstants.CONTENT_URI, db.insertWithOnConflict( EtagConstants.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_IGNORE ) );
+				newUri = ContentUris.withAppendedId( EtagConstants.CONTENT_URI, db.insertWithOnConflict( EtagConstants.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE ) );
 				
 				getContext().getContentResolver().notifyChange( newUri, null );
 				
 				return newUri;
 	
 			case STATUS:
-				newUri = ContentUris.withAppendedId( StatusConstants.CONTENT_URI, db.insertWithOnConflict( StatusConstants.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_IGNORE ) );
+				newUri = ContentUris.withAppendedId( StatusConstants.CONTENT_URI, db.insertWithOnConflict( StatusConstants.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE ) );
 				
 				getContext().getContentResolver().notifyChange( newUri, null );
 				
 				return newUri;
 	
 			case LOCATION_PROFILE:
-				newUri = ContentUris.withAppendedId( LocationProfileConstants.CONTENT_URI, db.insertWithOnConflict( LocationProfileConstants.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_IGNORE ) );
+				newUri = ContentUris.withAppendedId( LocationProfileConstants.CONTENT_URI, db.insertWithOnConflict( LocationProfileConstants.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE ) );
 				
 				getContext().getContentResolver().notifyChange( newUri, null );
 				
 				return newUri;
 	
 			case PLAYBACK_PROFILE:
-				newUri = ContentUris.withAppendedId( PlaybackProfileConstants.CONTENT_URI, db.insertWithOnConflict( PlaybackProfileConstants.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_IGNORE ) );
+				newUri = ContentUris.withAppendedId( PlaybackProfileConstants.CONTENT_URI, db.insertWithOnConflict( PlaybackProfileConstants.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE ) );
 				
 				getContext().getContentResolver().notifyChange( newUri, null );
 				
@@ -1842,6 +1842,7 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 			insert.bindLong( 26, value.getAsInteger( ProgramConstants.FIELD_IN_ERROR ) );
 			insert.bindString( 27, value.getAsString( ProgramConstants.FIELD_MASTER_HOSTNAME ) );
 			insert.bindLong( 28, value.getAsLong( ProgramConstants.FIELD_LAST_MODIFIED_DATE ) );
+			insert.bindString( 29, value.getAsString( ProgramConstants.FIELD_LAST_MODIFIED_TAG ) );
 			
 			insert.execute();
 		}
@@ -1867,6 +1868,7 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 			insert.bindString( 14, value.getAsString( RecordingConstants.FIELD_START_TIME ) );
 			insert.bindString( 15, value.getAsString( RecordingConstants.FIELD_MASTER_HOSTNAME ) );
 			insert.bindLong( 16, value.getAsInteger( RecordingConstants.FIELD_LAST_MODIFIED_DATE ) );
+			insert.bindString( 17, value.getAsString( RecordingConstants.FIELD_LAST_MODIFIED_TAG ) );
 
 			insert.execute();
 		}

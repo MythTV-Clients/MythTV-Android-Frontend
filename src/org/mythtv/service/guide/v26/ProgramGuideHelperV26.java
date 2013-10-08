@@ -4,6 +4,7 @@
 package org.mythtv.service.guide.v26;
 
 import java.util.ArrayList;
+import java.util.UUID;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -213,6 +214,7 @@ public class ProgramGuideHelperV26 extends AbstractBaseHelper {
 		if( null == context ) 
 			throw new RuntimeException( "ProgramGuideHelperV27 is not initialized" );
 		
+		String tag = UUID.randomUUID().toString();
 		int processed = -1;
 		int count = 0;
 		
@@ -225,7 +227,7 @@ public class ProgramGuideHelperV26 extends AbstractBaseHelper {
 				program.setChannelInfo( channel );
 				program.setHostname( locationProfile.getHostname() );
 
-				ProgramHelperV26.getInstance().processProgram( context, locationProfile, ProgramConstants.CONTENT_URI_GUIDE, ProgramConstants.TABLE_NAME_GUIDE, ops, program );
+				ProgramHelperV26.getInstance().processProgram( context, locationProfile, ProgramConstants.CONTENT_URI_GUIDE, ProgramConstants.TABLE_NAME_GUIDE, ops, program, tag );
 				count++;
 				
 				if( count > BATCH_COUNT_LIMIT ) {

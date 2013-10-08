@@ -58,10 +58,10 @@ public class RecordingHelperV27 extends AbstractBaseHelper {
 	 */
 	private RecordingHelperV27() { }
 
-	public void processRecording( final Context context, final LocationProfile locationProfile, ArrayList<ContentProviderOperation> ops, ContentDetails details, Program program ) {
+	public void processRecording( final Context context, final LocationProfile locationProfile, ArrayList<ContentProviderOperation> ops, ContentDetails details, Program program, String tag ) {
 //		Log.v( TAG, "processRecording : enter" );
 		
-		ContentValues recordingValues = convertRecordingToContentValues( locationProfile, program.getStartTime(), program.getRecording() );
+		ContentValues recordingValues = convertRecordingToContentValues( locationProfile, program.getStartTime(), program.getRecording(), tag );
 
 		if( details.equals( ContentDetails.RECORDED ) || details.equals( ContentDetails.UPCOMING ) || details.equals( ContentDetails.GUIDE ) ) {
 			
@@ -246,7 +246,7 @@ public class RecordingHelperV27 extends AbstractBaseHelper {
 
 	// internal helpers 
 	
-	private ContentValues convertRecordingToContentValues( final LocationProfile locationProfile, final DateTime startTime, final RecordingInfo recording ) {
+	private ContentValues convertRecordingToContentValues( final LocationProfile locationProfile, final DateTime startTime, final RecordingInfo recording, final String tag ) {
 //		Log.v( TAG, "convertRecordingToContentValues : enter" );
 		
 		DateTime startTimestamp = new DateTime( DateTimeZone.UTC );
@@ -277,7 +277,8 @@ public class RecordingHelperV27 extends AbstractBaseHelper {
 		values.put( RecordingConstants.FIELD_START_TIME, startTime.getMillis() );
 		values.put( RecordingConstants.FIELD_MASTER_HOSTNAME, locationProfile.getHostname() );
 		values.put( RecordingConstants.FIELD_LAST_MODIFIED_DATE, new DateTime().getMillis() );
-		
+		values.put( RecordingConstants.FIELD_LAST_MODIFIED_TAG, tag );
+
 //		Log.v( TAG, "convertRecordingToContentValues : exit" );
 		return values;
 	}

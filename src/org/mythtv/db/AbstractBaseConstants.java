@@ -38,4 +38,7 @@ public abstract class AbstractBaseConstants implements BaseColumns {
 	public static final String FIELD_LAST_MODIFIED_DATE = "LAST_MODIFIED_DATE";
 	public static final String FIELD_LAST_MODIFIED_DATE_DATA_TYPE = "INTEGER";
 	
+	public static final String FIELD_LAST_MODIFIED_TAG = "LAST_MODIFIED_TAG";
+	public static final String FIELD_LAST_MODIFIED_TAG_DATA_TYPE = "TEXT";
+	
 }

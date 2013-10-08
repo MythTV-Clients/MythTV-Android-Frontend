@@ -53,17 +53,18 @@ public class ProgramGroupConstants extends AbstractBaseConstants {
 
 	static {
 		StringBuilder insert = new StringBuilder();
-		insert.append( FIELD_PROGRAM_GROUP ).append( "," );
-		insert.append( FIELD_TITLE ).append( "," );
-		insert.append( FIELD_CATEGORY ).append( "," );
-		insert.append( FIELD_INETREF ).append( "," );
-		insert.append( FIELD_SORT ).append( "," );
-		insert.append( FIELD_MASTER_HOSTNAME ).append( ",");
-		insert.append( FIELD_LAST_MODIFIED_DATE );
+		insert.append( FIELD_PROGRAM_GROUP ).append( ", " );
+		insert.append( FIELD_TITLE ).append( ", " );
+		insert.append( FIELD_CATEGORY ).append( ", " );
+		insert.append( FIELD_INETREF ).append( ", " );
+		insert.append( FIELD_SORT ).append( ", " );
+		insert.append( FIELD_MASTER_HOSTNAME ).append( ", " );
+		insert.append( FIELD_LAST_MODIFIED_DATE ).append( ", " );
+		insert.append( FIELD_LAST_MODIFIED_TAG );
 		
 		StringBuilder values = new StringBuilder();
 		values.append( " ) " );
-		values.append( "VALUES( ?,?,?,?,?,?,? )" );
+		values.append( "VALUES( ?,?,?,?,?,?,?,? )" );
 		
 		StringBuilder insertProgramGroup = new StringBuilder();
 		insertProgramGroup.append( "INSERT INTO " ).append( TABLE_NAME ).append( " ( " );
@@ -78,7 +79,8 @@ public class ProgramGroupConstants extends AbstractBaseConstants {
 		update.append( FIELD_INETREF ).append( " = ?, " );
 		update.append( FIELD_SORT ).append( " = ?, " );
 		update.append( FIELD_MASTER_HOSTNAME ).append( " = ?," );
-		update.append( FIELD_LAST_MODIFIED_DATE ).append( " = ?" );
+		update.append( FIELD_LAST_MODIFIED_DATE ).append( " = ?, " );
+		update.append( FIELD_LAST_MODIFIED_TAG ).append( "= ?" );
 		update.append( " WHERE " );
 		update.append( _ID ).append( " = ?" );
 		
