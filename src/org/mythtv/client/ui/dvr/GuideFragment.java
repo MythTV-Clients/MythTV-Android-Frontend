@@ -51,7 +51,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
-import android.widget.TextView;
 
 /**
  * @author Daniel Frey
@@ -72,7 +71,7 @@ public class GuideFragment extends AbstractMythFragment
 	
 	private ProgramGuideDownloadReceiver programGuideDownloadReceiver = new ProgramGuideDownloadReceiver();
 
-	private TextView mProgramGuideDate;
+//	private TextView mProgramGuideDate;
 	private GuideChannelFragment mGuideChannelFragment;
 //	private GuideTimeslotsFragment mGuideTimeslotsFragment;
 	private GuideDataFragment mGuideDataFragment;
@@ -154,8 +153,8 @@ public class GuideFragment extends AbstractMythFragment
 			dateRange.add( today.plusDays( i ) );
 		}
 		
-		mProgramGuideDate = (TextView) getActivity().findViewById( R.id.program_guide_date );
-		mProgramGuideDate.setText( DateUtils.getDateTimeUsingLocaleFormattingPrettyDateOnly( today, getMainApplication().getDateFormat() ) );
+//		mProgramGuideDate = (TextView) getActivity().findViewById( R.id.program_guide_date );
+//		mProgramGuideDate.setText( DateUtils.getDateTimeUsingLocaleFormattingPrettyDateOnly( today, getMainApplication().getDateFormat() ) );
 		
 		// get child fragment manager
 		mFragmentManager = getChildFragmentManager();
@@ -244,6 +243,8 @@ public class GuideFragment extends AbstractMythFragment
 
 //		timeslotSelect( new DateTime().getHourOfDay() + ":00:00" );
 
+		updateView();
+		
 		Log.v( TAG, "onResume : exit" );
 	}
 
@@ -391,9 +392,11 @@ public class GuideFragment extends AbstractMythFragment
 	
 	private void updateView() {
 		Log.v( TAG, "updateView : enter" );
+	
+		getActivity().getActionBar().setTitle( DateUtils.getDateTimeUsingLocaleFormattingPrettyDateOnly( selectedDate, getMainApplication().getDateFormat() ) );
 		
 		mGuideDataFragment.updateView( selectedChannelId, selectedDate );
-		mProgramGuideDate.setText( DateUtils.getDateTimeUsingLocaleFormattingPrettyDateOnly( selectedDate, getMainApplication().getDateFormat() ) );
+//		mProgramGuideDate.setText( DateUtils.getDateTimeUsingLocaleFormattingPrettyDateOnly( selectedDate, getMainApplication().getDateFormat() ) );
 		
 		Log.v( TAG, "updateView : exit" );
 	}

@@ -308,7 +308,11 @@ public class DvrNavigationDrawerActivity extends AbstractMythtvFragmentActivity 
 		if( row instanceof DvrActionRow ) {
 		
 			if( row.isImplemented() ) {
-				wrActivity.get().getActionBar().setTitle( row.getTitle() );
+				if( row instanceof DvrGuideActionRow ) {
+					
+				} else {
+					wrActivity.get().getActionBar().setTitle( row.getTitle() );
+				}
 				
 				if( selection != oldSelection ) {
 				
