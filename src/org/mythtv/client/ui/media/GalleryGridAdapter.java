@@ -29,7 +29,6 @@ import org.mythtv.service.myth.CreateStorageGroupTask;
 import org.mythtv.service.myth.GetHostsTask;
 import org.mythtv.service.myth.GetSettingTask;
 import org.mythtv.service.myth.GetStorageGroupsTask;
-import org.mythtv.services.api.ApiVersion;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -72,7 +71,7 @@ public class GalleryGridAdapter extends BaseAdapter implements
 	
 	public static List<GalleryImageItem> mImageItems = new ArrayList<GalleryImageItem>();
 	
-	private final String galleryStorageGroupName = "Images";
+	private String galleryStorageGroupName = null;
 	private final String gallerySetting = "GalleryDir";
 	private String galleryDir = "";
 
@@ -103,6 +102,8 @@ public class GalleryGridAdapter extends BaseAdapter implements
 		this.mContext = context;
 		this.mLocationProfile = locationProfile;
 		this.listener = listener;
+		
+		galleryStorageGroupName = context.getResources().getString( R.string.gallery_sg_name );
 		
 		imageLoader = ImageLoader.getInstance();
 		imageLoader.init( ImageLoaderConfiguration.createDefault( context ) );
@@ -253,29 +254,7 @@ public class GalleryGridAdapter extends BaseAdapter implements
 		Log.v( TAG, "getImages : enter" );
 		
 		GetFileListTask fileListTask = new GetFileListTask( mContext, mLocationProfile, this );
-
-		ApiVersion apiVersion = ApiVersion.valueOf( mLocationProfile.getVersion() );
-		switch( apiVersion ) {
-			case v026 :
-				Log.v( TAG, "getImages : getting v026 'Gallery' fileList" );
-				
-				fileListTask.execute( "Gallery" );
-			
-				break;
-			case v027 :
-				Log.v( TAG, "getImages : getting v027 'Images' fileList" );
-
-				fileListTask.execute( "Images" );
-			
-				break;
-			
-			default :
-				Log.v( TAG, "getImages : getting Default(v026 'Gallery' fileList" );
-
-				fileListTask.execute( "Gallery" );
-
-				break;
-		}
+		fileListTask.execute( galleryStorageGroupName );
 		
 		Log.v( TAG, "getImages : exit" );
 	}
@@ -507,26 +486,7 @@ public class GalleryGridAdapter extends BaseAdapter implements
 		Log.v( TAG, "setHasBackendGalleryStorageGroup : enter" );
 		
 		GetStorageGroupsTask storageGroupTask = new GetStorageGroupsTask( mContext, mLocationProfile, this );
-		
-		ApiVersion apiVersion = ApiVersion.valueOf( mLocationProfile.getVersion() );
-		switch( apiVersion ) {
-			case v026 :
-			
-				storageGroupTask.execute( "Gallery" );
-			
-				break;
-			case v027 :
-
-				storageGroupTask.execute( "Images" );
-			
-				break;
-			
-			default :
-			
-				storageGroupTask.execute( "Gallery" );
-
-				break;
-		}
+		storageGroupTask.execute( galleryStorageGroupName );
 		
 		Log.v( TAG, "setHasBackendGalleryStorageGroup : exit" );
 	}
@@ -550,43 +510,13 @@ public class GalleryGridAdapter extends BaseAdapter implements
 
 		if( null != result && !result.isEmpty() ) {
 
-			ApiVersion apiVersion = ApiVersion.valueOf( mLocationProfile.getVersion() );
-			
 			for( StorageGroupDirectory sg : result ) {
 				
-				switch( apiVersion ) {
-					case v026 :
+				if( sg.getGroupName().equals( galleryStorageGroupName ) ) {
 						
-						if( sg.getGroupName().equals( "Gallery" ) ) {
-							Log.v( TAG, "onGetStorageGroupsTaskFinished : v026 Gallery Storage Group found" );
-						
-							hasBackendGallerySG = true;
+					hasBackendGallerySG = true;
 
-						}
-
-						break;
-
-					case v027 :
-
-						if( sg.getGroupName().equals( "Images" ) ) {
-							Log.v( TAG, "onGetStorageGroupsTaskFinished : v027 Gallery Storage Group found" );
-						
-							hasBackendGallerySG = true;
-
-						}
-				
-						break;
-				
-					default :
-				
-						if( sg.getGroupName().equals( "Gallery" ) ) {
-							Log.v( TAG, "onGetStorageGroupsTaskFinished : Default(v026) Gallery Storage Group found" );
-
-							hasBackendGallerySG = true;
-
-						}
-
-						break;
+					break;
 				}
 	
 			}
@@ -610,29 +540,7 @@ public class GalleryGridAdapter extends BaseAdapter implements
 		Log.v( TAG, "setGalleryStorageDirectoryPresentInSettings : enter" );
 		
 		GetSettingTask settingTask = new GetSettingTask( mContext, mLocationProfile, this );
-		
-		ApiVersion apiVersion = ApiVersion.valueOf( mLocationProfile.getVersion() );
-		switch( apiVersion ) {
-			case v026 :
-				Log.v( TAG, "setGalleryStorageDirectoryPresentInSettings : getting v026 'Gallery' setting" );
-				
-				settingTask.execute( gallerySetting, "Gallery" );
-			
-				break;
-			case v027 :
-				Log.v( TAG, "setGalleryStorageDirectoryPresentInSettings : getting v027 'Images' setting" );
-
-				settingTask.execute( gallerySetting, "Images" );
-			
-				break;
-			
-			default :
-				Log.v( TAG, "setGalleryStorageDirectoryPresentInSettings : getting Default(v026) 'Gallery' setting" );
-
-				settingTask.execute( gallerySetting, "Gallery" );
-
-				break;
-		}
+		settingTask.execute( gallerySetting, galleryStorageGroupName );
 		
 		Log.v( TAG, "setGalleryStorageDirectoryPresentInSettings : exit" );
 	}
