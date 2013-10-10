@@ -462,41 +462,57 @@ public class DvrNavigationDrawerActivity extends AbstractMythtvFragmentActivity 
 			
 			rows.add( new DvrRecordingsActionRow( mContext, R.string.btn_recordings ) );
 			if( null != selectedRow && selectedRow instanceof DvrRecordingsActionRow ) {
-				EtagInfoDelegate recordingsEtag = mEtagDaoHelper.findByEndpointAndDataId( mContext, mLocationProfile, DvrEndpoint.GET_RECORDED_LIST.name(), "" );
-				if( null != recordingsEtag && recordingsEtag.getId() > 0 ) {
-					DvrRecordingsLastUpdateActionRow recordingsLastUpdateRow = new DvrRecordingsLastUpdateActionRow( mContext, recordingsEtag );
-					recordingsLastUpdateRow.setOnRefreshListener( wrActivity.get() );
-					rows.add( recordingsLastUpdateRow );
+				try {
+					EtagInfoDelegate recordingsEtag = mEtagDaoHelper.findByEndpointAndDataId( mContext, mLocationProfile, DvrEndpoint.GET_RECORDED_LIST.name(), "" );
+					if( null != recordingsEtag && recordingsEtag.getId() > 0 ) {
+						DvrRecordingsLastUpdateActionRow recordingsLastUpdateRow = new DvrRecordingsLastUpdateActionRow( mContext, recordingsEtag );
+						recordingsLastUpdateRow.setOnRefreshListener( wrActivity.get() );
+						rows.add( recordingsLastUpdateRow );
+					}
+				} catch( Exception e ) {
+					
 				}
 			}
 			
 			rows.add( new DvrUpcomingActionRow( mContext, R.string.btn_upcoming ) );
 			if( null != selectedRow && selectedRow instanceof DvrUpcomingActionRow ) {
-				EtagInfoDelegate upcomingEtag = mEtagDaoHelper.findByEndpointAndDataId( mContext, mLocationProfile, DvrEndpoint.GET_UPCOMING_LIST.name(), "" );
-				if( null != upcomingEtag && upcomingEtag.getId() > 0 ) {
-					DvrUpcomingLastUpdateActionRow upcomingLastUpdateRow = new DvrUpcomingLastUpdateActionRow( mContext, upcomingEtag );
-					upcomingLastUpdateRow.setOnRefreshListener( wrActivity.get() );
-					rows.add( upcomingLastUpdateRow );
+				try {
+					EtagInfoDelegate upcomingEtag = mEtagDaoHelper.findByEndpointAndDataId( mContext, mLocationProfile, DvrEndpoint.GET_UPCOMING_LIST.name(), "" );
+					if( null != upcomingEtag && upcomingEtag.getId() > 0 ) {
+						DvrUpcomingLastUpdateActionRow upcomingLastUpdateRow = new DvrUpcomingLastUpdateActionRow( mContext, upcomingEtag );
+						upcomingLastUpdateRow.setOnRefreshListener( wrActivity.get() );
+						rows.add( upcomingLastUpdateRow );
+					}
+				} catch( Exception e ) {
+					
 				}
 			}
 			
 			rows.add( new DvrGuideActionRow( mContext, R.string.btn_guide ) );
 			if( null != selectedRow && selectedRow instanceof DvrGuideActionRow ) {
-				EtagInfoDelegate guideEtag = mEtagDaoHelper.findByEndpointAndDataId( mContext, mLocationProfile, GuideEndpoint.GET_PROGRAM_GUIDE.name(), "" );
-				if( null != guideEtag && guideEtag.getId() > 0 ) {
-					DvrGuideLastUpdateActionRow guideLastUpdateRow = new DvrGuideLastUpdateActionRow( mContext, guideEtag );
-					guideLastUpdateRow.setOnRefreshListener( wrActivity.get() );
-					rows.add( guideLastUpdateRow );
+				try {
+					EtagInfoDelegate guideEtag = mEtagDaoHelper.findByEndpointAndDataId( mContext, mLocationProfile, GuideEndpoint.GET_PROGRAM_GUIDE.name(), "" );
+					if( null != guideEtag && guideEtag.getId() > 0 ) {
+						DvrGuideLastUpdateActionRow guideLastUpdateRow = new DvrGuideLastUpdateActionRow( mContext, guideEtag );
+						guideLastUpdateRow.setOnRefreshListener( wrActivity.get() );
+						rows.add( guideLastUpdateRow );
+					}
+				} catch( Exception e ) {
+					
 				}
 			}
 			
 			rows.add( new DvrRecordingRulesActionRow( mContext, R.string.btn_recording_rules ) );
 			if( null != selectedRow && selectedRow instanceof DvrRecordingRulesActionRow ) {
-				EtagInfoDelegate recordingRulesEtag = mEtagDaoHelper.findByEndpointAndDataId( mContext, mLocationProfile, DvrEndpoint.GET_RECORD_SCHEDULE_LIST.name(), "" );
-				if( null != recordingRulesEtag && recordingRulesEtag.getId() > 0 ) {
-					DvrRecordingRulesLastUpdateActionRow recordingRulesLastUpdateRow = new DvrRecordingRulesLastUpdateActionRow( mContext, recordingRulesEtag );
-					recordingRulesLastUpdateRow.setOnRefreshListener( wrActivity.get() );
-					rows.add( recordingRulesLastUpdateRow );
+				try {
+					EtagInfoDelegate recordingRulesEtag = mEtagDaoHelper.findByEndpointAndDataId( mContext, mLocationProfile, DvrEndpoint.GET_RECORD_SCHEDULE_LIST.name(), "" );
+					if( null != recordingRulesEtag && recordingRulesEtag.getId() > 0 ) {
+						DvrRecordingRulesLastUpdateActionRow recordingRulesLastUpdateRow = new DvrRecordingRulesLastUpdateActionRow( mContext, recordingRulesEtag );
+						recordingRulesLastUpdateRow.setOnRefreshListener( wrActivity.get() );
+						rows.add( recordingRulesLastUpdateRow );
+					}
+				} catch( Exception e ) {
+					
 				}
 			}
 			
