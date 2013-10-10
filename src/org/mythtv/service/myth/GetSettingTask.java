@@ -70,7 +70,7 @@ public class GetSettingTask extends AsyncTask<String, Void, String> {
 			throw new IllegalArgumentException( "TaskFinishedListener is required" );
 		}
 
-		if( null == params || params.length != 1 ) {
+		if( null == params || params.length != 2 ) {
 			throw new IllegalArgumentException( "Param is required" );
 		}
 

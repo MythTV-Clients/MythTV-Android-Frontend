@@ -94,22 +94,26 @@ public class StorageGroupHelperV27 extends AbstractBaseHelper {
 	
 		List<StorageGroupDirectory> storageGroupDirectories = null;
 
-		ResponseEntity<org.mythtv.services.api.v027.beans.StorageGroupDirList> responseEntity = mMythServicesTemplate.mythOperations().getStorageGroupDirs( storageGroupName, locationProfile.getHostname(), ETagInfo.createEmptyETag() );
+		try {
+			ResponseEntity<org.mythtv.services.api.v027.beans.StorageGroupDirList> responseEntity = mMythServicesTemplate.mythOperations().getStorageGroupDirs( storageGroupName, locationProfile.getHostname(), ETagInfo.createEmptyETag() );
 
-		if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
+			if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
 
-			org.mythtv.services.api.v027.beans.StorageGroupDirList storageGroupDirectoryList = responseEntity.getBody();
+				org.mythtv.services.api.v027.beans.StorageGroupDirList storageGroupDirectoryList = responseEntity.getBody();
 
-			if( null != storageGroupDirectoryList.getStorageGroupDirs() ) {
-			
-				if( null != storageGroupDirectoryList.getStorageGroupDirs() && storageGroupDirectoryList.getStorageGroupDirs().length > 0 ) {
-					storageGroupDirectories = load( storageGroupDirectoryList.getStorageGroupDirs() );	
+				if( null != storageGroupDirectoryList.getStorageGroupDirs() ) {
+
+					if( null != storageGroupDirectoryList.getStorageGroupDirs() && storageGroupDirectoryList.getStorageGroupDirs().length > 0 ) {
+						storageGroupDirectories = load( storageGroupDirectoryList.getStorageGroupDirs() );	
+					}
+
 				}
 
 			}
-
+		} catch( Exception e ) {
+			Log.w( TAG, "downloadStorageGroups : error", e );
 		}
-
+		
 		Log.v( TAG, "downloadStorageGroups : exit" );
 		return storageGroupDirectories;
 	}

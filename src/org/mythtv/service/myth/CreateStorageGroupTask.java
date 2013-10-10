@@ -71,7 +71,7 @@ public class CreateStorageGroupTask extends AsyncTask<String, Void, Boolean> {
 			throw new IllegalArgumentException( "TaskFinishedListener is required" );
 		}
 
-		if( null == params ) {
+		if( null == params || params.length != 2 ) {
 			throw new IllegalArgumentException( "String params are required" );
 		}
 

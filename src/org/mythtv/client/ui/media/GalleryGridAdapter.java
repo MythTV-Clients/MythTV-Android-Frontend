@@ -18,6 +18,19 @@
  */
 package org.mythtv.client.ui.media;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.mythtv.R;
+import org.mythtv.client.ui.preferences.LocationProfile;
+import org.mythtv.db.myth.model.StorageGroupDirectory;
+import org.mythtv.service.content.GetFileListTask;
+import org.mythtv.service.myth.CreateStorageGroupTask;
+import org.mythtv.service.myth.GetHostsTask;
+import org.mythtv.service.myth.GetSettingTask;
+import org.mythtv.service.myth.GetStorageGroupsTask;
+import org.mythtv.services.api.ApiVersion;
+
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -41,18 +54,6 @@ import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener;
-
-import org.mythtv.R;
-import org.mythtv.client.ui.preferences.LocationProfile;
-import org.mythtv.db.myth.model.StorageGroupDirectory;
-import org.mythtv.service.content.GetFileListTask;
-import org.mythtv.service.myth.CreateStorageGroupTask;
-import org.mythtv.service.myth.GetHostsTask;
-import org.mythtv.service.myth.GetSettingTask;
-import org.mythtv.service.myth.GetStorageGroupsTask;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author Espen A. Fossen
@@ -252,49 +253,33 @@ public class GalleryGridAdapter extends BaseAdapter implements
 		Log.v( TAG, "getImages : enter" );
 		
 		GetFileListTask fileListTask = new GetFileListTask( mContext, mLocationProfile, this );
-		fileListTask.execute( galleryStorageGroupName );
+
+		ApiVersion apiVersion = ApiVersion.valueOf( mLocationProfile.getVersion() );
+		switch( apiVersion ) {
+			case v026 :
+				Log.v( TAG, "getImages : getting v026 'Gallery' fileList" );
+				
+				fileListTask.execute( "Gallery" );
+			
+				break;
+			case v027 :
+				Log.v( TAG, "getImages : getting v027 'Images' fileList" );
+
+				fileListTask.execute( "Images" );
+			
+				break;
+			
+			default :
+				Log.v( TAG, "getImages : getting Default(v026 'Gallery' fileList" );
+
+				fileListTask.execute( "Gallery" );
+
+				break;
+		}
 		
 		Log.v( TAG, "getImages : exit" );
 	}
 	
-	private void setConnectedProfileInHostsList() {
-		Log.v( TAG, "setConnectedProfileInHostsList : enter" );
-	
-		GetHostsTask hostsTask = new GetHostsTask( mContext, mLocationProfile, this );
-		hostsTask.execute();
-		
-		Log.v( TAG, "setConnectedProfileInHostsList : exit, false" );
-	}
-
-	private void setHasBackendGalleryStorageGroup() {
-		Log.v( TAG, "setHasBackendGalleryStorageGroup : enter" );
-		
-		GetStorageGroupsTask storageGroupTask = new GetStorageGroupsTask( mContext, mLocationProfile, this );
-		storageGroupTask.execute( galleryStorageGroupName );
-		
-		Log.v( TAG, "setHasBackendGalleryStorageGroup : exit" );
-	}
-	
-	private void setGalleryStorageDirectoryPresentInSettings() {
-		Log.v( TAG, "setGalleryStorageDirectoryPresentInSettings : enter" );
-		
-		GetSettingTask settingTask = new GetSettingTask( mContext, mLocationProfile, this );
-		settingTask.execute( gallerySetting, "" );
-		
-		Log.v( TAG, "setGalleryStorageDirectoryPresentInSettings : exit" );
-	}
-	
-	private void clickedPosButton( int result, EditText directoryName ) {
-
-		if( directoryName != null ) {
-			galleryDir = directoryName.getText().toString();
-		}
-		
-		CreateStorageGroupTask createStorageGroupTask = new CreateStorageGroupTask( mContext, mLocationProfile, GalleryGridAdapter.this );
-		createStorageGroupTask.execute( galleryStorageGroupName, galleryDir );
-
-	}
-
 	/* (non-Javadoc)
 	 * @see org.mythtv.service.content.GetFileListTask.TaskFinishedListener#onGetFileListTaskStarted()
 	 */
@@ -321,6 +306,7 @@ public class GalleryGridAdapter extends BaseAdapter implements
 			// mLocationProfileDaoHelper.findConnectedProfile().getUrl() +
 			// "Content/GetImageFile?StorageGroup="+gallerySGName+"&Width="+previewWidth+"&FileName=";
 			
+			Log.v( TAG, "onGetFileListTaskFinished : adding images to adapter" );
 			for( String file : result ) {
 
 				// First look for image suffixes, then skip files with
@@ -337,37 +323,44 @@ public class GalleryGridAdapter extends BaseAdapter implements
 		}
 		
 		if( hasBackendGallerySG ) {
+			Log.v( TAG, "onGetFileListTaskFinished : Storage Group exists" );
 			
 			notifyDataSetChanged();
 			
 		} else {
+			Log.v( TAG, "onGetFileListTaskFinished : Storage Group DOES NOT exist" );
 			
 			AlertDialog.Builder builder = new AlertDialog.Builder( mContext );
 
 			if( backendAndFrontendShareHostname ) {
-
-				EditText input = null;
-
+				Log.v( TAG, "onGetFileListTaskFinished : Backend and Frontend are the same" );
+				
 				if( galleryDirPresentInSettings ) {
+					Log.v( TAG, "onGetFileListTaskFinished : Storage Group present in settings" );
+
 					builder.setMessage( mContext.getResources().getString( R.string.gallery_sg_exist_create )
 							+ mLocationProfile.getHostname()
 							+ mContext.getResources().getString( R.string.gallery_sg_exist_create2 ) );
 				} else {
+					Log.v( TAG, "onGetFileListTaskFinished : Storage Group NOT present in settings" );
+
 					builder.setMessage( R.string.gallery_sg_create );
 
-					input = new EditText( mContext );
+					EditText input = new EditText( mContext );
 					input.setHint( R.string.gallery_sg_create_hint );
 					builder.setView( input );
+				
+					galleryDir = input.getText().toString();
 				}
 				
-				final EditText finalInput = input;
+				
 				builder.setPositiveButton( R.string.btn_ok, new DialogInterface.OnClickListener() {
 			
 					/* (non-Javadoc)
 					 * @see android.content.DialogInterface.OnClickListener#onClick(android.content.DialogInterface, int)
 					 */
 					public void onClick( DialogInterface dialog, int id ) {
-						clickedPosButton( id, finalInput );
+						clickedPosButton( id );
 					}
 				
 				});
@@ -383,6 +376,7 @@ public class GalleryGridAdapter extends BaseAdapter implements
 				});
 			
 			} else {
+				Log.v( TAG, "onGetFileListTaskFinished : Backend and Frontend are NOT the same" );
 			
 				builder.setMessage( R.string.gallery_sg_error );
 			
@@ -392,8 +386,22 @@ public class GalleryGridAdapter extends BaseAdapter implements
 			dialog.show();
 		}
 
-		
+		notifyParentEnd();
+
 		Log.v( TAG, "onGetFileListTaskFinished : exit" );
+	}
+
+	private void clickedPosButton( int result ) {
+		Log.v( TAG, "clickedPosButton : enter" );
+
+		if( galleryDir != null && !"".equals( galleryDir ) ) {
+			Log.v( TAG, "clickedPosButton : galleryDir=" + galleryDir );
+
+			CreateStorageGroupTask createStorageGroupTask = new CreateStorageGroupTask( mContext, mLocationProfile, GalleryGridAdapter.this );
+			createStorageGroupTask.execute( galleryStorageGroupName, galleryDir );
+		}
+
+		Log.v( TAG, "clickedPosButton : exit" );
 	}
 
 	/* (non-Javadoc)
@@ -414,10 +422,12 @@ public class GalleryGridAdapter extends BaseAdapter implements
 		Log.v( TAG, "onCreateStorageGroupTaskFinished : enter" );
 		
 		if( result ) {
-		
+			Log.v( TAG, "onCreateStorageGroupTaskFinished : Storage Group created" );
+			
 			refresh();
 		
 		} else {
+			Log.v( TAG, "onCreateStorageGroupTaskFinished : Storage Group NOT created" );
 			
 			AlertDialog.Builder builder = new AlertDialog.Builder( mContext );
 			builder.setMessage( R.string.gallery_sg_failed );
@@ -438,49 +448,13 @@ public class GalleryGridAdapter extends BaseAdapter implements
 		Log.v( TAG, "onCreateStorageGroupTaskFinished : exit" );
 	}
 
-	/* (non-Javadoc)
-	 * @see org.mythtv.service.myth.GetStorageGroupsTask.TaskFinishedListener#onGetStorageGroupsTaskStarted()
-	 */
-	@Override
-	public void onGetStorageGroupsTaskStarted() {
-		Log.v( TAG, "onGetStorageGroupsTaskStarted : enter" );
+	private void setConnectedProfileInHostsList() {
+		Log.v( TAG, "setConnectedProfileInHostsList : enter" );
+	
+		GetHostsTask hostsTask = new GetHostsTask( mContext, mLocationProfile, this );
+		hostsTask.execute();
 		
-		Log.v( TAG, "onGetStorageGroupsTaskStarted : exit" );
-	}
-
-	/* (non-Javadoc)
-	 * @see org.mythtv.service.myth.GetStorageGroupsTask.TaskFinishedListener#onGetStorageGroupsTaskFinished(java.util.List)
-	 */
-	@Override
-	public void onGetStorageGroupsTaskFinished( List<StorageGroupDirectory> result ) {
-		Log.v( TAG, "onGetStorageGroupsTaskFinished : enter" );
-
-		if( null != result && !result.isEmpty() ) {
-			
-			for( StorageGroupDirectory sg : result ) {
-				
-				if( sg.getGroupName().equals( galleryStorageGroupName ) ) {
-				
-					hasBackendGallerySG = true;
-				
-					break;
-				}
-				
-			}
-
-		}
-
-		if( hasBackendGallerySG ) {
-
-			getImages();
-
-		} else {
-			
-			setConnectedProfileInHostsList();
-
-		}
-		
-		Log.v( TAG, "onGetStorageGroupsTaskFinished : exit" );
+		Log.v( TAG, "setConnectedProfileInHostsList : exit, false" );
 	}
 
 	/* (non-Javadoc)
@@ -501,6 +475,7 @@ public class GalleryGridAdapter extends BaseAdapter implements
 		Log.v( TAG, "onGetHostsTaskFinished : enter" );
 
 		if( null != result && !result.isEmpty() ) {
+			Log.v( TAG, "onGetHostsTaskFinished : hosts found" );
 			
 			for( String host : result ) {
 			
@@ -517,17 +492,151 @@ public class GalleryGridAdapter extends BaseAdapter implements
 		}
 
 		if( backendAndFrontendShareHostname ) {
-			
-			
-		} else {
+			Log.v( TAG, "onGetHostsTaskFinished : Set Storage Directory Present in Settings" );
 			
 			setGalleryStorageDirectoryPresentInSettings();
 			
 		}
 		
+		notifyParentEnd();
+		
 		Log.v( TAG, "onGetHostsTaskFinished : exit" );
 	}
 
+	private void setHasBackendGalleryStorageGroup() {
+		Log.v( TAG, "setHasBackendGalleryStorageGroup : enter" );
+		
+		GetStorageGroupsTask storageGroupTask = new GetStorageGroupsTask( mContext, mLocationProfile, this );
+		
+		ApiVersion apiVersion = ApiVersion.valueOf( mLocationProfile.getVersion() );
+		switch( apiVersion ) {
+			case v026 :
+			
+				storageGroupTask.execute( "Gallery" );
+			
+				break;
+			case v027 :
+
+				storageGroupTask.execute( "Images" );
+			
+				break;
+			
+			default :
+			
+				storageGroupTask.execute( "Gallery" );
+
+				break;
+		}
+		
+		Log.v( TAG, "setHasBackendGalleryStorageGroup : exit" );
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mythtv.service.myth.GetStorageGroupsTask.TaskFinishedListener#onGetStorageGroupsTaskStarted()
+	 */
+	@Override
+	public void onGetStorageGroupsTaskStarted() {
+		Log.v( TAG, "onGetStorageGroupsTaskStarted : enter" );
+		
+		Log.v( TAG, "onGetStorageGroupsTaskStarted : exit" );
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mythtv.service.myth.GetStorageGroupsTask.TaskFinishedListener#onGetStorageGroupsTaskFinished(java.util.List)
+	 */
+	@Override
+	public void onGetStorageGroupsTaskFinished( List<StorageGroupDirectory> result ) {
+		Log.v( TAG, "onGetStorageGroupsTaskFinished : enter" );
+
+		if( null != result && !result.isEmpty() ) {
+
+			ApiVersion apiVersion = ApiVersion.valueOf( mLocationProfile.getVersion() );
+			
+			for( StorageGroupDirectory sg : result ) {
+				
+				switch( apiVersion ) {
+					case v026 :
+						
+						if( sg.getGroupName().equals( "Gallery" ) ) {
+							Log.v( TAG, "onGetStorageGroupsTaskFinished : v026 Gallery Storage Group found" );
+						
+							hasBackendGallerySG = true;
+
+						}
+
+						break;
+
+					case v027 :
+
+						if( sg.getGroupName().equals( "Images" ) ) {
+							Log.v( TAG, "onGetStorageGroupsTaskFinished : v027 Gallery Storage Group found" );
+						
+							hasBackendGallerySG = true;
+
+						}
+				
+						break;
+				
+					default :
+				
+						if( sg.getGroupName().equals( "Gallery" ) ) {
+							Log.v( TAG, "onGetStorageGroupsTaskFinished : Default(v026) Gallery Storage Group found" );
+
+							hasBackendGallerySG = true;
+
+						}
+
+						break;
+				}
+	
+			}
+		
+		}
+
+		if( hasBackendGallerySG ) {
+
+			getImages();
+
+		} else {
+			
+			setConnectedProfileInHostsList();
+
+		}
+		
+		Log.v( TAG, "onGetStorageGroupsTaskFinished : exit" );
+	}
+
+	private void setGalleryStorageDirectoryPresentInSettings() {
+		Log.v( TAG, "setGalleryStorageDirectoryPresentInSettings : enter" );
+		
+		GetSettingTask settingTask = new GetSettingTask( mContext, mLocationProfile, this );
+		
+		ApiVersion apiVersion = ApiVersion.valueOf( mLocationProfile.getVersion() );
+		switch( apiVersion ) {
+			case v026 :
+				Log.v( TAG, "setGalleryStorageDirectoryPresentInSettings : getting v026 'Gallery' setting" );
+				
+				settingTask.execute( gallerySetting, "Gallery" );
+			
+				break;
+			case v027 :
+				Log.v( TAG, "setGalleryStorageDirectoryPresentInSettings : getting v027 'Images' setting" );
+
+				settingTask.execute( gallerySetting, "Images" );
+			
+				break;
+			
+			default :
+				Log.v( TAG, "setGalleryStorageDirectoryPresentInSettings : getting Default(v026) 'Gallery' setting" );
+
+				settingTask.execute( gallerySetting, "Gallery" );
+
+				break;
+		}
+		
+		Log.v( TAG, "setGalleryStorageDirectoryPresentInSettings : exit" );
+	}
+	
 	/* (non-Javadoc)
 	 * @see org.mythtv.service.myth.GetSettingTask.TaskFinishedListener#onGetSettingTaskStarted()
 	 */
@@ -545,8 +654,14 @@ public class GalleryGridAdapter extends BaseAdapter implements
 	public void onGetSettingTaskFinished( String result ) {
 		Log.v( TAG, "onGetSettingTaskFinished : enter" );
 		
-		if( null != result && !"".equals(  result ) ) {
+		if( null != result && !"".equals( result ) ) {
+			Log.v( TAG, "onGetSettingTaskFinished : result=" + result );
+			
+			galleryDir = result;
 			galleryDirPresentInSettings = true;
+		
+			getImages();
+		
 		}
 		
 		Log.v( TAG, "onGetSettingTaskFinished : exit" );

@@ -99,22 +99,26 @@ public class StorageGroupHelperV26 extends AbstractBaseHelper {
 	
 		List<StorageGroupDirectory> storageGroupDirectories = null;
 
-		ResponseEntity<org.mythtv.services.api.v026.beans.StorageGroupDirectoryList> responseEntity = mMythServicesTemplate.mythOperations().getStorageGroupDirectories( storageGroupName, locationProfile.getHostname(), ETagInfo.createEmptyETag() );
+		try {
+			ResponseEntity<org.mythtv.services.api.v026.beans.StorageGroupDirectoryList> responseEntity = mMythServicesTemplate.mythOperations().getStorageGroupDirectories( storageGroupName, locationProfile.getHostname(), ETagInfo.createEmptyETag() );
 
-		if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
+			if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
 
-			org.mythtv.services.api.v026.beans.StorageGroupDirectoryList storageGroupDirectoryList = responseEntity.getBody();
+				org.mythtv.services.api.v026.beans.StorageGroupDirectoryList storageGroupDirectoryList = responseEntity.getBody();
 
-			if( null != storageGroupDirectoryList.getStorageGroupDirectories() ) {
-			
-				if( null != storageGroupDirectoryList.getStorageGroupDirectories().getStorageGroupDirectories() && !storageGroupDirectoryList.getStorageGroupDirectories().getStorageGroupDirectories().isEmpty() ) {
-					storageGroupDirectories = load( storageGroupDirectoryList.getStorageGroupDirectories().getStorageGroupDirectories() );	
+				if( null != storageGroupDirectoryList.getStorageGroupDirectories() ) {
+
+					if( null != storageGroupDirectoryList.getStorageGroupDirectories().getStorageGroupDirectories() && !storageGroupDirectoryList.getStorageGroupDirectories().getStorageGroupDirectories().isEmpty() ) {
+						storageGroupDirectories = load( storageGroupDirectoryList.getStorageGroupDirectories().getStorageGroupDirectories() );	
+					}
+
 				}
 
 			}
-
+		} catch( Exception e ) {
+			Log.w( TAG, "downloadStorageGroups : error", e );
 		}
-
+		
 		Log.v( TAG, "downloadStorageGroups : exit" );
 		return storageGroupDirectories;
 	}
