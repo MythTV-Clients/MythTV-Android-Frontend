@@ -60,7 +60,7 @@ import android.widget.TextView;
 public class GuideFragment extends AbstractMythFragment 
 	implements 
 		GuideChannelFragment.OnChannelScrollListener,
-		GuideTimeslotsFragment.OnTimeslotScrollListener,
+//		GuideTimeslotsFragment.OnTimeslotScrollListener,
 		GuideDatePickerFragment.OnDialogResultListener {
 
 	private static final String TAG = GuideFragment.class.getSimpleName();
@@ -74,7 +74,7 @@ public class GuideFragment extends AbstractMythFragment
 
 	private TextView mProgramGuideDate;
 	private GuideChannelFragment mGuideChannelFragment;
-	private GuideTimeslotsFragment mGuideTimeslotsFragment;
+//	private GuideTimeslotsFragment mGuideTimeslotsFragment;
 	private GuideDataFragment mGuideDataFragment;
 	
 	private List<ChannelInfo> channels = new ArrayList<ChannelInfo>();
@@ -104,7 +104,7 @@ public class GuideFragment extends AbstractMythFragment
 		
 		updateView();
 		
-		timeslotSelect( date.getHourOfDay() + ":00:00" );
+//		timeslotSelect( date.getHourOfDay() + ":00:00" );
 		
 		Log.v( TAG, "onDateChanged : enter" );
 	}
@@ -177,7 +177,7 @@ public class GuideFragment extends AbstractMythFragment
 		
 		}
 
-		FrameLayout timeslotsLayout = (FrameLayout) view.findViewById( R.id.frame_layout_program_guide_timeslots );
+/*		FrameLayout timeslotsLayout = (FrameLayout) view.findViewById( R.id.frame_layout_program_guide_timeslots );
 		if( null != timeslotsLayout ) {
 			Log.v( TAG, "onActivityCreated : loading timeslots fragment" );
 			
@@ -192,7 +192,7 @@ public class GuideFragment extends AbstractMythFragment
 				.commit();
 		
 		}
-
+*/
 		FrameLayout dataLayout = (FrameLayout) view.findViewById( R.id.frame_layout_program_guide_data );
 		if( null != dataLayout ) {
 			Log.v( TAG, "onActivityCreated : loading data fragment" );
@@ -242,7 +242,7 @@ public class GuideFragment extends AbstractMythFragment
 		Log.v( TAG, "onResume : enter" );
 		super.onResume();
 
-		timeslotSelect( new DateTime().getHourOfDay() + ":00:00" );
+//		timeslotSelect( new DateTime().getHourOfDay() + ":00:00" );
 
 		Log.v( TAG, "onResume : exit" );
 	}
@@ -362,7 +362,7 @@ public class GuideFragment extends AbstractMythFragment
 		selectedChannelId = channelId;
 		
 		updateView();
-		timeslotSelect( new DateTime().getHourOfDay() + ":00:00" );
+//		timeslotSelect( new DateTime().getHourOfDay() + ":00:00" );
 
 		Log.v( TAG, "channelSelect : exit" );
 	}
@@ -372,7 +372,7 @@ public class GuideFragment extends AbstractMythFragment
 	/* (non-Javadoc)
 	 * @see org.mythtv.client.ui.dvr.GuideTimeslotsFragment.OnTimeslotScrollListener#timeslotSelect(java.lang.String)
 	 */
-	@Override
+/*	@Override
 	public void timeslotSelect( String time ) {
 		Log.v( TAG, "timeslotSelect : enter" );
 		
@@ -386,7 +386,7 @@ public class GuideFragment extends AbstractMythFragment
 		
 		Log.v( TAG, "timeslotSelect : exit" );
 	}
-
+*/
 	// internal helpers
 	
 	private void updateView() {

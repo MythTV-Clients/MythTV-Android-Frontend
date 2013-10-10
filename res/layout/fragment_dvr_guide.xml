@@ -44,11 +44,11 @@
   			android:layout_width="70dp"
   			android:layout_height="wrap_content" />
   			        
-        <FrameLayout
+        <!-- FrameLayout
             android:id="@+id/frame_layout_program_guide_timeslots"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_toRightOf="@id/program_guide_blank" />
+            android:layout_toRightOf="@id/program_guide_blank" / -->
 		
 	</RelativeLayout>
     
