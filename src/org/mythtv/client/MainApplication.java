@@ -44,7 +44,7 @@ import android.util.Log;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.nostra13.universalimageloader.cache.disc.impl.UnlimitedDiscCache;
-import com.nostra13.universalimageloader.cache.memory.impl.UsingFreqLimitedMemoryCache;
+import com.nostra13.universalimageloader.cache.memory.impl.WeakMemoryCache;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.utils.L;
@@ -148,7 +148,7 @@ public class MainApplication extends Application {
 			.threadPoolSize( 5 )
 			.threadPriority( Thread.MIN_PRIORITY + 3 )
 			.denyCacheImageMultipleSizesInMemory()
-			.memoryCache( new UsingFreqLimitedMemoryCache( 2000000 ) )
+			.memoryCache( new WeakMemoryCache() )
 			.discCache( new UnlimitedDiscCache( cacheDir ) )
 			.build();
 		
