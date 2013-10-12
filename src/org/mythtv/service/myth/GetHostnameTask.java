@@ -1,4 +1,22 @@
 /**
+ * This file is part of MythTV Android Frontend
+ *
+ * MythTV Android Frontend is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * MythTV Android Frontend is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with MythTV Android Frontend.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * This software can be found at <https://github.com/MythTV-Clients/MythTV-Android-Frontend/>
+ */
+/**
  * 
  */
 package org.mythtv.service.myth;
@@ -43,7 +61,7 @@ public class GetHostnameTask extends AsyncTask<Void, Void, String> {
 	
 	/* (non-Javadoc)
 	 * @see android.os.AsyncTask#onPreExecute()
-	 */
+	 */	
 	@Override
     protected void onPreExecute() {
 		Log.d( TAG, "onPreExecute : enter" );
@@ -82,6 +100,24 @@ public class GetHostnameTask extends AsyncTask<Void, Void, String> {
 		
 		ApiVersion apiVersion = ApiVersion.valueOf( mLocationProfile.getVersion() );
 		switch( apiVersion ) {
+			case v025 :
+
+				org.mythtv.services.api.v025.MythServicesTemplate mythServicesTemplateV25 = (org.mythtv.services.api.v025.MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( apiVersion, mLocationProfile.getUrl() );
+
+				if( null != mythServicesTemplateV25 ) {
+					ResponseEntity<String> hostnameV25 = mythServicesTemplateV25.mythOperations().getHostName( ETagInfo.createEmptyETag() );
+					if( hostnameV25.getStatusCode().equals( HttpStatus.OK ) ) {
+						if( null != hostnameV25.getBody() && !"".equals( hostnameV25.getBody() ) ) {
+							hostname = hostnameV25.getBody().split( ":" )[ 1 ];
+							hostname = hostname.replaceAll( "\"", "" );
+							hostname = hostname.substring( 0, hostname.length() -1 );
+							hostname = hostname.trim();
+						}
+					}
+				}
+				
+				break;
+				
 			case v026 :
 				
 				org.mythtv.services.api.v026.MythServicesTemplate mythServicesTemplateV26 = (org.mythtv.services.api.v026.MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( apiVersion, mLocationProfile.getUrl() );
@@ -116,13 +152,16 @@ public class GetHostnameTask extends AsyncTask<Void, Void, String> {
 				
 			default :
 				
-				org.mythtv.services.api.v026.MythServicesTemplate mythServicesTemplateV26Default = (org.mythtv.services.api.v026.MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( apiVersion, mLocationProfile.getUrl() );
+				org.mythtv.services.api.v027.MythServicesTemplate mythServicesTemplateV27Default = (org.mythtv.services.api.v027.MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( apiVersion, mLocationProfile.getUrl() );
 
-				if( null != mythServicesTemplateV26Default ) {
-					ResponseEntity<org.mythtv.services.api.v026.StringWrapper> hostnameV26Default = mythServicesTemplateV26Default.mythOperations().getHostName();
-					if( hostnameV26Default.getStatusCode().equals( HttpStatus.OK ) ) {
-						if( null != hostnameV26Default.getBody().getString() && !"".equals( hostnameV26Default.getBody().getString() ) ) {
-							hostname = hostnameV26Default.getBody().getString();
+				if( null != mythServicesTemplateV27Default ) {
+					ResponseEntity<String> hostnameV27 = mythServicesTemplateV27Default.mythOperations().getHostName( ETagInfo.createEmptyETag() );
+					if( hostnameV27.getStatusCode().equals( HttpStatus.OK ) ) {
+						if( null != hostnameV27.getBody() && !"".equals( hostnameV27.getBody() ) ) {
+							hostname = hostnameV27.getBody().split( ":" )[ 1 ];
+							hostname = hostname.replaceAll( "\"", "" );
+							hostname = hostname.substring( 0, hostname.length() -1 );
+							hostname = hostname.trim();
 						}
 					}
 				}

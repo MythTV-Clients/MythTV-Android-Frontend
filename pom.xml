@@ -37,7 +37,7 @@
         <org.joda.joda-convert-version>1.2</org.joda.joda-convert-version>
         <universal-image-loader-version>1.8.6</universal-image-loader-version>
         <commons-io-version>1.3.2</commons-io-version>
-        <mythtv.service.api-version>1.0.7</mythtv.service.api-version>
+        <mythtv.service.api-version>1.0.8</mythtv.service.api-version>
     </properties>
 
     <url>https://github.com/MythTV-Clients/mythtv-for-android</url>

@@ -140,6 +140,10 @@ public class PreferencesRecordedDownloadService extends MythtvService {
 		Log.v( TAG, "download : enter" );
 
 		ApiVersion apiVersion = MythAccessFactory.getMythVersion( profile.getUrl() );
+		if( apiVersion.equals( ApiVersion.NotSupported ) ) {
+			apiVersion = ApiVersion.v027;
+		}
+		
 		profile.setVersion( apiVersion.name() );
 		mLocationProfileDaoHelper.save( this, profile );
 		Log.v( TAG, "download : profile=" + profile.toString() );

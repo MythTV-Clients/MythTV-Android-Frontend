@@ -1,4 +1,22 @@
 /**
+ * This file is part of MythTV Android Frontend
+ *
+ * MythTV Android Frontend is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * MythTV Android Frontend is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with MythTV Android Frontend.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * This software can be found at <https://github.com/MythTV-Clients/MythTV-Android-Frontend/>
+ */
+/**
  * 
  */
 package org.mythtv.service.status;
@@ -6,6 +24,7 @@ package org.mythtv.service.status;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.status.model.BackendStatus;
 import org.mythtv.service.MythtvService;
+import org.mythtv.service.status.v25.BackendStatusHelperV25;
 import org.mythtv.service.status.v26.BackendStatusHelperV26;
 import org.mythtv.service.status.v27.BackendStatusHelperV27;
 import org.mythtv.services.api.ApiVersion;
@@ -58,6 +77,12 @@ public class BackendStatusService extends MythtvService {
     		
     			ApiVersion apiVersion = ApiVersion.valueOf( mLocationProfile.getVersion() );
     			switch( apiVersion ) {
+    				case v025 :
+    					
+    					mBackendStatus = BackendStatusHelperV25.getInstance().process( this, mLocationProfile );
+
+    					break;
+
     				case v026 :
 
     					mBackendStatus = BackendStatusHelperV26.getInstance().process( this, mLocationProfile );
@@ -72,7 +97,7 @@ public class BackendStatusService extends MythtvService {
 
     				default :
 
-    					mBackendStatus = BackendStatusHelperV26.getInstance().process( this, mLocationProfile );
+    					mBackendStatus = BackendStatusHelperV27.getInstance().process( this, mLocationProfile );
 
     					break;
     				}

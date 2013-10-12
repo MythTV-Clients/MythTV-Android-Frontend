@@ -21,6 +21,7 @@ package org.mythtv.service.dvr;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.MythtvService;
+import org.mythtv.service.dvr.v25.UpcomingHelperV25;
 import org.mythtv.service.dvr.v26.UpcomingHelperV26;
 import org.mythtv.service.dvr.v27.UpcomingHelperV27;
 import org.mythtv.services.api.ApiVersion;
@@ -78,6 +79,11 @@ public class UpcomingDownloadService extends MythtvService {
 
     			ApiVersion apiVersion = ApiVersion.valueOf( locationProfile.getVersion() );
     			switch( apiVersion ) {
+    				case v025 :
+    					
+    					passed = UpcomingHelperV25.getInstance().process( this, locationProfile );
+    					
+    					break;
     				case v026 :
     					
     					passed = UpcomingHelperV26.getInstance().process( this, locationProfile );
@@ -91,7 +97,7 @@ public class UpcomingDownloadService extends MythtvService {
     					
     				default :
     					
-    					passed = UpcomingHelperV26.getInstance().process( this, locationProfile );
+    					passed = UpcomingHelperV27.getInstance().process( this, locationProfile );
 
     					break;
     			}

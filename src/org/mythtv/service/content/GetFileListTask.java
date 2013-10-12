@@ -1,4 +1,22 @@
 /**
+ * This file is part of MythTV Android Frontend
+ *
+ * MythTV Android Frontend is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * MythTV Android Frontend is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with MythTV Android Frontend.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * This software can be found at <https://github.com/MythTV-Clients/MythTV-Android-Frontend/>
+ */
+/**
  * 
  */
 package org.mythtv.service.content;
@@ -6,6 +24,7 @@ package org.mythtv.service.content;
 import java.util.List;
 
 import org.mythtv.client.ui.preferences.LocationProfile;
+import org.mythtv.service.content.v25.FileListHelperV25;
 import org.mythtv.service.content.v26.FileListHelperV26;
 import org.mythtv.service.content.v27.FileListHelperV27;
 import org.mythtv.services.api.ApiVersion;
@@ -77,6 +96,10 @@ public class GetFileListTask extends AsyncTask<String, Void, List<String>> {
 		
 		ApiVersion apiVersion = ApiVersion.valueOf( mLocationProfile.getVersion() );
 		switch( apiVersion ) {
+			case v025 :
+				files = FileListHelperV25.getInstance().process( mContext, mLocationProfile, storageGroupName );
+				
+				break;
 			case v026 :
 				
 				files = FileListHelperV26.getInstance().process( mContext, mLocationProfile, storageGroupName );
@@ -90,7 +113,7 @@ public class GetFileListTask extends AsyncTask<String, Void, List<String>> {
 				
 			default :
 				
-				files = FileListHelperV26.getInstance().process( mContext, mLocationProfile, storageGroupName );
+				files = FileListHelperV27.getInstance().process( mContext, mLocationProfile, storageGroupName );
 
 				break;
 		}

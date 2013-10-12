@@ -1,4 +1,22 @@
 /**
+ * This file is part of MythTV Android Frontend
+ *
+ * MythTV Android Frontend is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * MythTV Android Frontend is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with MythTV Android Frontend.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * This software can be found at <https://github.com/MythTV-Clients/MythTV-Android-Frontend/>
+ */
+/**
  * 
  */
 package org.mythtv.service.myth;
@@ -6,6 +24,7 @@ package org.mythtv.service.myth;
 import java.util.List;
 
 import org.mythtv.client.ui.preferences.LocationProfile;
+import org.mythtv.service.myth.v25.HostHelperV25;
 import org.mythtv.service.myth.v26.HostHelperV26;
 import org.mythtv.service.myth.v27.HostHelperV27;
 import org.mythtv.service.util.NetworkHelper;
@@ -82,6 +101,11 @@ public class GetHostsTask extends AsyncTask<Void, Void, List<String>> {
 
 		ApiVersion apiVersion = ApiVersion.valueOf( mLocationProfile.getVersion() );
 		switch( apiVersion ) {
+			case v025 :
+				
+				hosts = HostHelperV25.getInstance().process( mContext, mLocationProfile );
+				
+				break;
 			case v026 :
 				
 				hosts = HostHelperV26.getInstance().process( mContext, mLocationProfile );
@@ -95,7 +119,7 @@ public class GetHostsTask extends AsyncTask<Void, Void, List<String>> {
 				
 			default :
 				
-				hosts = HostHelperV26.getInstance().process( mContext, mLocationProfile );
+				hosts = HostHelperV27.getInstance().process( mContext, mLocationProfile );
 
 				break;
 		}

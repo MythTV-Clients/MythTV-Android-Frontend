@@ -1,4 +1,22 @@
 /**
+ * This file is part of MythTV Android Frontend
+ *
+ * MythTV Android Frontend is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * MythTV Android Frontend is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with MythTV Android Frontend.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * This software can be found at <https://github.com/MythTV-Clients/MythTV-Android-Frontend/>
+ */
+/**
  * 
  */
 package org.mythtv.service.myth;
@@ -88,6 +106,25 @@ public class CreateStorageGroupTask extends AsyncTask<String, Void, Boolean> {
 		
 		ApiVersion apiVersion = ApiVersion.valueOf( mLocationProfile.getVersion() );
 		switch( apiVersion ) {
+			case v025 :
+
+				org.mythtv.services.api.v025.MythServicesTemplate mythServicesTemplateV25 = (org.mythtv.services.api.v025.MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( apiVersion, mLocationProfile.getUrl() );
+
+				if( null != mythServicesTemplateV25 ) {
+					ResponseEntity<org.mythtv.services.api.Bool> responseV25 = mythServicesTemplateV25.mythOperations().addStorageGroupDir( groupName, directory, mLocationProfile.getHostname() );
+					if( responseV25.getStatusCode().equals( HttpStatus.OK ) ) {
+
+						if( null != responseV25.getBody() ) {
+
+							created = responseV25.getBody().getValue();
+
+						}
+
+					}
+				}
+				
+				break;
+				
 			case v026 :
 				
 				org.mythtv.services.api.v026.MythServicesTemplate mythServicesTemplateV26 = (org.mythtv.services.api.v026.MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( apiVersion, mLocationProfile.getUrl() );
@@ -127,15 +164,15 @@ public class CreateStorageGroupTask extends AsyncTask<String, Void, Boolean> {
 				
 			default :
 				
-				org.mythtv.services.api.v026.MythServicesTemplate mythServicesTemplateV26Default = (org.mythtv.services.api.v026.MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( apiVersion, mLocationProfile.getUrl() );
+				org.mythtv.services.api.v027.MythServicesTemplate mythServicesTemplateV27Default = (org.mythtv.services.api.v027.MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( apiVersion, mLocationProfile.getUrl() );
 
-				if( null != mythServicesTemplateV26Default ) {
-					ResponseEntity<org.mythtv.services.api.v026.Bool> responseV26 = mythServicesTemplateV26Default.mythOperations().addStorageGroupDir( groupName, directory, mLocationProfile.getHostname() );
-					if( responseV26.getStatusCode().equals( HttpStatus.OK ) ) {
+				if( null != mythServicesTemplateV27Default ) {
+					ResponseEntity<org.mythtv.services.api.Bool> responseV27 = mythServicesTemplateV27Default.mythOperations().addStorageGroupDir( groupName, directory, mLocationProfile.getHostname() );
+					if( responseV27.getStatusCode().equals( HttpStatus.OK ) ) {
 
-						if( null != responseV26.getBody() ) {
+						if( null != responseV27.getBody() ) {
 
-							created = responseV26.getBody().getBool().booleanValue();
+							created = responseV27.getBody().getValue();
 
 						}
 

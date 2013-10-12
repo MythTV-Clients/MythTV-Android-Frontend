@@ -1,4 +1,22 @@
 /**
+ * This file is part of MythTV Android Frontend
+ *
+ * MythTV Android Frontend is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * MythTV Android Frontend is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with MythTV Android Frontend.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * This software can be found at <https://github.com/MythTV-Clients/MythTV-Android-Frontend/>
+ */
+/**
  * 
  */
 package org.mythtv.service.content;
@@ -7,6 +25,7 @@ import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.content.LiveStreamDaoHelper;
 import org.mythtv.db.content.model.LiveStreamInfo;
 import org.mythtv.db.dvr.model.Program;
+import org.mythtv.service.content.v25.LiveStreamHelperV25;
 import org.mythtv.service.content.v26.LiveStreamHelperV26;
 import org.mythtv.service.content.v27.LiveStreamHelperV27;
 import org.mythtv.services.api.ApiVersion;
@@ -93,21 +112,27 @@ public class GetLiveStreamTask extends AsyncTask<Integer, Void, Boolean> {
 
 		ApiVersion apiVersion = ApiVersion.valueOf( mLocationProfile.getVersion() );
 		switch( apiVersion ) {
+			case v025:
+
+				updated = LiveStreamHelperV25.getInstance().update( mContext, mLocationProfile, mLiveStreamInfoId, mProgram.getChannelInfo().getChannelId(), mProgram.getStartTime() );
+
+				break;
+
 			case v026 :
 
 				updated = LiveStreamHelperV26.getInstance().update( mContext, mLocationProfile, mLiveStreamInfoId, mProgram.getChannelInfo().getChannelId(), mProgram.getStartTime() );
 
 				break;
 
-		case v027 :
+			case v027 :
 
 				updated = LiveStreamHelperV27.getInstance().update( mContext, mLocationProfile, mLiveStreamInfoId, mProgram.getChannelInfo().getChannelId(), mProgram.getStartTime() );
 
 				break;
 
-		default :
+			default :
 
-				updated = LiveStreamHelperV26.getInstance().update( mContext, mLocationProfile, mLiveStreamInfoId, mProgram.getChannelInfo().getChannelId(), mProgram.getStartTime() );
+				updated = LiveStreamHelperV27.getInstance().update( mContext, mLocationProfile, mLiveStreamInfoId, mProgram.getChannelInfo().getChannelId(), mProgram.getStartTime() );
 
 				break;
 		}
