@@ -79,7 +79,7 @@ public class GuideFragment extends AbstractMythFragment
 	private List<ChannelInfo> channels = new ArrayList<ChannelInfo>();
 	
 	private DateTime today;
-	private List<DateTime> dateRange = new ArrayList<DateTime>();
+//	private List<DateTime> dateRange = new ArrayList<DateTime>();
 	
 	private LocationProfile mLocationProfile;
 	
@@ -148,10 +148,10 @@ public class GuideFragment extends AbstractMythFragment
 		selectedDate = today;
 		Log.v( TAG, "onActivityCreated : selectedDate=" + selectedDate.toString() );
 		
-		dateRange.add( today );
-		for( int i = 1; i < downloadDays; i++ ) {
-			dateRange.add( today.plusDays( i ) );
-		}
+//		dateRange.add( today );
+//		for( int i = 1; i < downloadDays; i++ ) {
+//			dateRange.add( today.plusDays( i ) );
+//		}
 		
 //		mProgramGuideDate = (TextView) getActivity().findViewById( R.id.program_guide_date );
 //		mProgramGuideDate.setText( DateUtils.getDateTimeUsingLocaleFormattingPrettyDateOnly( today, getMainApplication().getDateFormat() ) );
