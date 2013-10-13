@@ -46,6 +46,7 @@ public class MenuHelper {
 	public static final int FAQ_ID = Menu.FIRST + 11;
 	public static final int TROUBLESHOOT_ID = Menu.FIRST + 12;
 	public static final int ISSUES_ID = Menu.FIRST + 13;
+	public static final int RELEASE_NOTES_ID = Menu.FIRST + 14;
 	
 	public static final int MYTHMOTE_ID = Menu.FIRST + 20;
 	
@@ -268,6 +269,39 @@ public class MenuHelper {
 		startWebActivity( context, "https://github.com/MythTV-Clients/MythTV-Android-Frontend/issues" );
 
 		Log.v( TAG, "handleIssuesMenu : exit" );
+	}
+
+	/**
+	 * Build Release Notes MenuItem
+	 * 
+	 * @param menu
+	 * @return
+	 */
+	public MenuItem releaseNotesMenuItem( Context context, Menu menu ) {
+		
+		if( null == context ) 
+			throw new RuntimeException( "MenuHelper is not initialized" );
+		
+		Resources resources = context.getResources();
+
+	    MenuItem menuItem = menu.add( Menu.NONE, RELEASE_NOTES_ID, Menu.NONE, resources.getString( R.string.menu_help_release_notes ) );
+    	menuItem.setShowAsAction( MenuItem.SHOW_AS_ACTION_NEVER );
+
+	    return menuItem;
+	}
+
+	/**
+	 * Handle Release Notes MenuItem
+	 */
+	public void handleReleaseNotesMenu( Context context ) {
+		Log.v( TAG, "handleReleaseNotesMenu : enter" );
+
+		if( null == context ) 
+			throw new RuntimeException( "MenuHelper is not initialized" );
+		
+		startWebActivity( context, "https://github.com/MythTV-Clients/MythTV-Android-Frontend/wiki/Release-Notes" );
+
+		Log.v( TAG, "handleReleaseNotesMenu : exit" );
 	}
 
 	/**

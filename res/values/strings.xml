@@ -92,6 +92,7 @@
 	<string name="menu_help_faq">FAQ</string>
 	<string name="menu_help_troubleshoot">Troubleshoot</string>
 	<string name="menu_help_issues">Issues</string>
+	<string name="menu_help_release_notes">Release Notes</string>
 	<string name="menu_help_not_connected">The internet is not currently available on your device.  Please check your connections and try again.</string>
 	<string name="menu_guide_day">Select Day</string>
 	

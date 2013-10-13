@@ -99,6 +99,7 @@ public abstract class AbstractMythtvFragmentActivity extends FragmentActivity im
 	public boolean onCreateOptionsMenu( Menu menu ) {
 		Log.v( TAG, "onCreateOptionsMenu : enter" );
 
+	    mMenuHelper.releaseNotesMenuItem( this, menu );
 	    mMenuHelper.aboutMenuItem( this, menu );
 	    mMenuHelper.helpSubMenu( this, menu );
 	    
@@ -114,6 +115,13 @@ public abstract class AbstractMythtvFragmentActivity extends FragmentActivity im
 		Log.d( TAG, "onOptionsItemSelected : enter" );
 
 		switch( item.getItemId() ) {			
+		case MenuHelper.RELEASE_NOTES_ID:
+			Log.d( TAG, "onOptionsItemSelected : release selected" );
+
+			mMenuHelper.handleReleaseNotesMenu( this );
+		    
+	        return true;
+	    
 		case MenuHelper.ABOUT_ID:
 			Log.d( TAG, "onOptionsItemSelected : about selected" );
 
