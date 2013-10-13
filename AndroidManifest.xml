@@ -20,8 +20,8 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.mythtv"
-    android:versionCode="8"
-    android:versionName="1.20.1" >
+    android:versionCode="9"
+    android:versionName="1.20.2" >
 
     <uses-permission android:name="android.permission.INTERNET" />
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />

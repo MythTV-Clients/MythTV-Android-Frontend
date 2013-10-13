@@ -380,12 +380,12 @@ public class NavigationDrawerActivity extends AbstractMythtvFragmentActivity {
 			Log.v( TAG, "updateContent : weak reference to activity available" );
 			
 			FragmentManager fragmentManager = wrActivity.get().getSupportFragmentManager();
-			if( null == fragmentManager.findFragmentByTag( fragment ) ) {
+			//if( null == fragmentManager.findFragmentByTag( fragment ) ) {
 				FragmentTransaction tx = fragmentManager.beginTransaction();
 				Fragment f = Fragment.instantiate( wrActivity.get(), fragment );
 				tx.replace( R.id.main, f, fragment );
 				tx.commit();
-			}
+			//}
 			
 		}
 		
