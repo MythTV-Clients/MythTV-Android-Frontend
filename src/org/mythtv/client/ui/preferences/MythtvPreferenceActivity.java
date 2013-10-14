@@ -504,6 +504,25 @@ public class MythtvPreferenceActivity extends PreferenceActivity {
 			Log.v( TAG, "onPause : exit" );
 		}
 
+		/* (non-Javadoc)
+		 * @see android.preference.PreferenceFragment#onDestroy()
+		 */
+		@Override
+		public void onDestroy() {
+			Log.v( TAG, "onDestroy : enter" );
+			super.onDestroy();
+
+			if( null != zeroConf ) {
+				try {
+					stopProbe();
+				} catch( IOException e ) {
+					Log.w( TAG, "onDestroy : error, zeroConf could not be destroyed, " + e.getMessage() );
+				}
+			}
+			
+			Log.v( TAG, "onDestroy : exit" );
+		}
+
 
 		// ***************************************
 		// JMDNS ServiceListener methods
