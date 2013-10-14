@@ -71,6 +71,11 @@ public class RecordingRuleService extends MythtvService {
 		boolean passed = true;
 		
 		LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile( this );
+		if( null == locationProfile ) {
+			Log.w( TAG, "onHandleIntent : locationProfile not set" );
+
+			sendComplete( false );
+		}
 		
 		if ( intent.getAction().equals( ACTION_DOWNLOAD ) ) {
     		Log.i( TAG, "onHandleIntent : DOWNLOAD action selected" );

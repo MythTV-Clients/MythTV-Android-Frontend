@@ -66,14 +66,14 @@ public class ProgramGuideDownloadService extends MythtvService {
 		boolean passed = true;
 		
 		LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile( this );
-		if( !NetworkHelper.getInstance().isMasterBackendConnected( this, locationProfile ) ) {
-			Intent completeIntent = new Intent( ACTION_COMPLETE );
-			completeIntent.putExtra( EXTRA_COMPLETE, "Master Backend unreachable" );
-			completeIntent.putExtra( EXTRA_COMPLETE_OFFLINE, Boolean.TRUE );
-			sendBroadcast( completeIntent );
+		if( null == locationProfile ) {
+			Log.w( TAG, "onHandleIntent : locationProfile not set" );
 
-			Log.d( TAG, "onHandleIntent : exit, Master Backend unreachable" );
-			return;
+			Intent completeIntent = new Intent( ACTION_COMPLETE );
+			completeIntent.putExtra( EXTRA_COMPLETE, "Program Guide Download Service Finished - FAILED!" );
+			completeIntent.putExtra( EXTRA_COMPLETE_UPTODATE, false );
+			
+			sendBroadcast( completeIntent );
 		}
 
 		if ( intent.getAction().equals( ACTION_DOWNLOAD ) ) {

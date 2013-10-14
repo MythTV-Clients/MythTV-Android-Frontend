@@ -65,14 +65,15 @@ public class ChannelDownloadService extends MythtvService {
     		Log.i( TAG, "onHandleIntent : DOWNLOAD action selected" );
 
     		LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile( this );
-//    		if( !NetworkHelper.getInstance().isMasterBackendConnected( this, locationProfile ) ) {
-//    			Intent completeIntent = new Intent( ACTION_COMPLETE );
-//    			completeIntent.putExtra( EXTRA_COMPLETE, "Master Backend unreachable" );
-//    			sendBroadcast( completeIntent );
-    //
-//    			Log.d( TAG, "onHandleIntent : exit, Master Backend unreachable" );
-//    			return;
-//    		}
+    		if( null == locationProfile ) {
+    			Log.w( TAG, "onHandleIntent : locationProfile not set" );
+
+    			Intent completeIntent = new Intent( ACTION_COMPLETE );
+    			completeIntent.putExtra( EXTRA_COMPLETE, "Channel Download Service Finished - FAILED!" );
+    			completeIntent.putExtra( EXTRA_COMPLETE_UPTODATE, false );
+    			
+    			sendBroadcast( completeIntent );
+    		}
     		
     		boolean passed = true;
     		

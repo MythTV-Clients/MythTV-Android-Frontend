@@ -66,6 +66,15 @@ public class UpcomingDownloadService extends MythtvService {
 		super.onHandleIntent( intent );
 		
 		LocationProfile locationProfile = mLocationProfileDaoHelper.findConnectedProfile( this );
+		if( null == locationProfile ) {
+			Log.w( TAG, "onHandleIntent : locationProfile not set" );
+
+			Intent completeIntent = new Intent( ACTION_COMPLETE );
+			completeIntent.putExtra( EXTRA_COMPLETE, "Upcoming Programs Download Service Finished - FAILED!" );
+			completeIntent.putExtra( EXTRA_COMPLETE_UPTODATE, false );
+			
+			sendBroadcast( completeIntent );
+		}
 
 		if ( intent.getAction().equals( ACTION_DOWNLOAD ) ) {
     		Log.i( TAG, "onHandleIntent : DOWNLOAD action selected" );
