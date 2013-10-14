@@ -184,9 +184,11 @@ public class ProgramGroupFragment extends MythtvListFragment implements LoaderMa
 	@Override
     public void onSaveInstanceState( Bundle outState ) {
 		Log.i( TAG, "onSaveInstanceState : enter" );
-		super.onSaveInstanceState(outState);
+		super.onSaveInstanceState( outState );
         
-		outState.putLong( "PROGRAM_GROUP_ID", programGroup.getId() );
+		if( null != programGroup ) {
+			outState.putLong( "PROGRAM_GROUP_ID", programGroup.getId() );
+		}
 		
 		Log.i( TAG, "onSaveInstanceState : exit" );
     }
