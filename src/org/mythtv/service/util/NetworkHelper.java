@@ -109,7 +109,7 @@ public class NetworkHelper {
 		
 		if( null == profile ) {
 //			Log.e(TAG, "NetworkHelper not initialized");
-			throw new IllegalArgumentException( "LocationProfile is required" );
+			return isOK;
 		}
 		
 		if( !isNetworkConnected( context ) ) {
