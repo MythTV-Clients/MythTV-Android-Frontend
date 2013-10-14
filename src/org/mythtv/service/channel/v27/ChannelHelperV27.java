@@ -452,7 +452,7 @@ public class ChannelHelperV27 extends AbstractBaseHelper {
 		}
 
 		if( cursor.getColumnIndex( ChannelConstants.TABLE_NAME + "_" + ChannelConstants.FIELD_MASTER_HOSTNAME ) != -1 ) {
-			Log.v( TAG, "convertCursorToChannelInfo : hostname" + cursor.getString( cursor.getColumnIndex( ChannelConstants.TABLE_NAME + "_" + ChannelConstants.FIELD_MASTER_HOSTNAME ) ) );
+			Log.v( TAG, "convertCursorToChannelInfo : hostname " + cursor.getString( cursor.getColumnIndex( ChannelConstants.TABLE_NAME + "_" + ChannelConstants.FIELD_MASTER_HOSTNAME ) ) );
 		}
 
 		ChannelInfo channelInfo = new ChannelInfo();
