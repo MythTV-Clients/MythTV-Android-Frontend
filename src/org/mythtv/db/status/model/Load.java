@@ -31,51 +31,51 @@ public class Load implements Serializable {
 
 	private static final long serialVersionUID = -6703872551756748411L;
 
-	private float averageOne;
-	private float averageTwo;
-	private float averageThree;
+	private String averageOne;
+	private String averageTwo;
+	private String averageThree;
 	
 	public Load() { }
 
 	/**
 	 * @return the averageOne
 	 */
-	public float getAverageOne() {
+	public String getAverageOne() {
 		return averageOne;
 	}
 
 	/**
 	 * @param averageOne the averageOne to set
 	 */
-	public void setAverageOne( float averageOne ) {
+	public void setAverageOne( String averageOne ) {
 		this.averageOne = averageOne;
 	}
 
 	/**
 	 * @return the averageTwo
 	 */
-	public float getAverageTwo() {
+	public String getAverageTwo() {
 		return averageTwo;
 	}
 
 	/**
 	 * @param averageTwo the averageTwo to set
 	 */
-	public void setAverageTwo( float averageTwo ) {
+	public void setAverageTwo( String averageTwo ) {
 		this.averageTwo = averageTwo;
 	}
 
 	/**
 	 * @return the averageThree
 	 */
-	public float getAverageThree() {
+	public String getAverageThree() {
 		return averageThree;
 	}
 
 	/**
 	 * @param averageThree the averageThree to set
 	 */
-	public void setAverageThree( float averageThree ) {
+	public void setAverageThree( String averageThree ) {
 		this.averageThree = averageThree;
 	}
 
