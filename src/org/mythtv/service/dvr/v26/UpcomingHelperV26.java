@@ -32,7 +32,7 @@ import org.mythtv.db.AbstractBaseHelper;
 import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.db.dvr.RecordingConstants;
 import org.mythtv.db.http.model.EtagInfoDelegate;
-import org.mythtv.service.dvr.v27.ProgramHelperV27;
+import org.mythtv.service.dvr.v26.ProgramHelperV26;
 import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.ApiVersion;
 import org.mythtv.services.api.MythServiceApiRuntimeException;
@@ -112,7 +112,7 @@ public class UpcomingHelperV26 extends AbstractBaseHelper {
 			passed = false;
 		}
 
-		Log.v( TAG, "process : enter" );
+		Log.v( TAG, "process : exit" );
 		return passed;
 	}
 	
@@ -124,7 +124,7 @@ public class UpcomingHelperV26 extends AbstractBaseHelper {
 		EtagInfoDelegate etag = mEtagDaoHelper.findByEndpointAndDataId( context, locationProfile, "GetUpcomingList", "" );
 		Log.d( TAG, "downloadUpcoming : etag=" + etag.getValue() );
 		
-		ResponseEntity<ProgramList> responseEntity = mMythServicesTemplate.dvrOperations().getRecordedList( etag );
+		ResponseEntity<ProgramList> responseEntity = mMythServicesTemplate.dvrOperations().getUpcomingList( -1, -1, Boolean.FALSE, etag );
 
 		DateTime date = new DateTime( DateTimeZone.UTC );
 		if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
@@ -229,7 +229,7 @@ public class UpcomingHelperV26 extends AbstractBaseHelper {
 			processBatch( context, ops, processed, count );
 		}
 
-		ProgramHelperV27.getInstance().deletePrograms( context, locationProfile, ProgramConstants.CONTENT_URI_UPCOMING, ProgramConstants.TABLE_NAME_UPCOMING, tag );
+		ProgramHelperV26.getInstance().deletePrograms( context, locationProfile, ProgramConstants.CONTENT_URI_UPCOMING, ProgramConstants.TABLE_NAME_UPCOMING, tag );
 //		RecordingHelperV27.getInstance().deleteRecordings( context, locationProfile, ops, RecordingConstants.ContentDetails.UPCOMING, lastModified );
 
 		if( !ops.isEmpty() ) {
