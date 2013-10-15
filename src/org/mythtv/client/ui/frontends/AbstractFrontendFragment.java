@@ -33,7 +33,7 @@ import android.os.Bundle;
  */
 public class AbstractFrontendFragment extends AbstractMythFragment implements GetStatusTask.TaskFinishedListener {
 
-	private final static String TAG = AbstractFrontendFragment.class.getSimpleName();
+	//private final static String TAG = AbstractFrontendFragment.class.getSimpleName();
 
 	protected static GetStatusTask sGetStatusTask;
 	protected static Timer sStatusTimer;

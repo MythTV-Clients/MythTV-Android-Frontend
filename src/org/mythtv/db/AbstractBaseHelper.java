@@ -41,7 +41,7 @@ import android.text.TextUtils;
  */
 public abstract class AbstractBaseHelper {
 
-	private static final String TAG = AbstractBaseHelper.class.getSimpleName();
+	//private static final String TAG = AbstractBaseHelper.class.getSimpleName();
 	
 	protected static final int BATCH_COUNT_LIMIT = 99;
 

@@ -83,7 +83,7 @@ public class RecordingHelperV26 extends AbstractBaseHelper {
 
 		if( details.equals( ContentDetails.RECORDED ) || details.equals( ContentDetails.UPCOMING ) || details.equals( ContentDetails.GUIDE ) ) {
 			
-			Log.v( TAG, "processRecording : INSERT RECORDING : " + program.getTitle() + ":" + program.getSubTitle() + ", recording=" + program.getRecording().getRecordId() + ":" + details.getTableName() );
+			//Log.v( TAG, "processRecording : INSERT RECORDING : " + program.getTitle() + ":" + program.getSubTitle() + ", recording=" + program.getRecording().getRecordId() + ":" + details.getTableName() );
 			ops.add(  
 				ContentProviderOperation.newInsert( details.getContentUri() )
 					.withValues( recordingValues )
@@ -109,7 +109,7 @@ public class RecordingHelperV26 extends AbstractBaseHelper {
 						.build()
 				);
 			} else {
-				Log.v( TAG, "processRecording : INSERT RECORDING : " + program.getTitle() + ", recording=" + program.getRecording().getRecordId() + ":" + details.getTableName() );
+				//Log.v( TAG, "processRecording : INSERT RECORDING : " + program.getTitle() + ", recording=" + program.getRecording().getRecordId() + ":" + details.getTableName() );
 				ops.add(  
 					ContentProviderOperation.newInsert( details.getContentUri() )
 						.withValues( recordingValues )

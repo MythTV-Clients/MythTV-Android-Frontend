@@ -32,7 +32,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
-import android.util.Log;
+//import android.util.Log;
 
 
 /**
@@ -41,7 +41,7 @@ import android.util.Log;
  */
 public class ChannelDaoHelper extends AbstractDaoHelper {
 
-	private static final String TAG = ChannelDaoHelper.class.getSimpleName();
+	//private static final String TAG = ChannelDaoHelper.class.getSimpleName();
 	
 	private static ChannelDaoHelper singleton = null;
 
@@ -443,7 +443,7 @@ public class ChannelDaoHelper extends AbstractDaoHelper {
 		}
 
 		if( cursor.getColumnIndex( ChannelConstants.TABLE_NAME + "_" + ChannelConstants.FIELD_MASTER_HOSTNAME ) != -1 ) {
-			Log.v( TAG, "convertCursorToChannelInfo : hostname " + cursor.getString( cursor.getColumnIndex( ChannelConstants.TABLE_NAME + "_" + ChannelConstants.FIELD_MASTER_HOSTNAME ) ) );
+			//Log.v( TAG, "convertCursorToChannelInfo : hostname " + cursor.getString( cursor.getColumnIndex( ChannelConstants.TABLE_NAME + "_" + ChannelConstants.FIELD_MASTER_HOSTNAME ) ) );
 		}
 
 		ChannelInfo channelInfo = new ChannelInfo();
