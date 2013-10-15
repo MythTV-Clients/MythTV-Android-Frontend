@@ -29,6 +29,7 @@ import org.mythtv.db.AbstractBaseHelper;
 import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.ApiVersion;
 import org.mythtv.services.api.ETagInfo;
+import org.mythtv.services.api.MythServiceApiRuntimeException;
 import org.mythtv.services.api.connect.MythAccessFactory;
 import org.mythtv.services.api.v026.MythServicesTemplate;
 import org.springframework.http.HttpStatus;
@@ -113,7 +114,7 @@ public class HostHelperV26 extends AbstractBaseHelper {
 
 	// internal helpers
 	
-	private List<String> downloadHosts( final LocationProfile locationProfile ) throws RemoteException, OperationApplicationException {
+	private List<String> downloadHosts( final LocationProfile locationProfile ) throws MythServiceApiRuntimeException, RemoteException, OperationApplicationException {
 		Log.v( TAG, "downloadHosts : enter" );
 	
 		List<String> hosts = null;

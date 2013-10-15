@@ -33,6 +33,7 @@ import org.mythtv.db.channel.ChannelConstants;
 import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.ApiVersion;
 import org.mythtv.services.api.ETagInfo;
+import org.mythtv.services.api.MythServiceApiRuntimeException;
 import org.mythtv.services.api.connect.MythAccessFactory;
 import org.mythtv.services.api.v025.MythServicesTemplate;
 import org.mythtv.services.api.v025.beans.ChannelInfo;
@@ -188,7 +189,7 @@ public class ChannelHelperV25 extends AbstractBaseHelper {
 	
 	// internal helpers
 	
-	private ChannelInfo[] downloadChannels( final Context context, final LocationProfile locationProfile, final int sourceId ) {
+	private ChannelInfo[] downloadChannels( final Context context, final LocationProfile locationProfile, final int sourceId ) throws MythServiceApiRuntimeException {
 		Log.v( TAG, "downloadChannels : enter" );
 		
 		ResponseEntity<ChannelInfoList> responseEntity = mMythServicesTemplate.channelOperations().getChannelInfoList( sourceId, 0, null, ETagInfo.createEmptyETag() );

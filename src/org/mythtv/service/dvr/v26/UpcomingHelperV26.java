@@ -35,6 +35,7 @@ import org.mythtv.db.http.model.EtagInfoDelegate;
 import org.mythtv.service.dvr.v27.ProgramHelperV27;
 import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.ApiVersion;
+import org.mythtv.services.api.MythServiceApiRuntimeException;
 import org.mythtv.services.api.connect.MythAccessFactory;
 import org.mythtv.services.api.v026.MythServicesTemplate;
 import org.mythtv.services.api.v026.beans.Program;
@@ -117,7 +118,7 @@ public class UpcomingHelperV26 extends AbstractBaseHelper {
 	
 	// internal helpers
 	
-	private void downloadUpcoming( final Context context, final LocationProfile locationProfile ) throws RemoteException, OperationApplicationException {
+	private void downloadUpcoming( final Context context, final LocationProfile locationProfile ) throws MythServiceApiRuntimeException, RemoteException, OperationApplicationException {
 		Log.v( TAG, "downloadUpcoming : enter" );
 	
 		EtagInfoDelegate etag = mEtagDaoHelper.findByEndpointAndDataId( context, locationProfile, "GetUpcomingList", "" );

@@ -42,6 +42,7 @@ import org.mythtv.service.channel.v25.ChannelHelperV25;
 import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.ApiVersion;
 import org.mythtv.services.api.ETagInfo;
+import org.mythtv.services.api.MythServiceApiRuntimeException;
 import org.mythtv.services.api.connect.MythAccessFactory;
 import org.mythtv.services.api.v025.MythServicesTemplate;
 import org.mythtv.services.api.v025.beans.Program;
@@ -194,7 +195,7 @@ public class RecordedHelperV25 extends AbstractBaseHelper {
 
 	// internal helpers
 	
-	private void downloadRecorded( final Context context, final LocationProfile locationProfile ) throws RemoteException, OperationApplicationException {
+	private void downloadRecorded( final Context context, final LocationProfile locationProfile ) throws MythServiceApiRuntimeException, RemoteException, OperationApplicationException {
 		Log.v( TAG, "downloadRecorded : enter" );
 	
 		ResponseEntity<ProgramList> responseEntity = mMythServicesTemplate.dvrOperations().getRecordedList( Boolean.FALSE, null, null, ETagInfo.createEmptyETag() );

@@ -26,6 +26,7 @@ import org.mythtv.db.AbstractBaseHelper;
 import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.ApiVersion;
 import org.mythtv.services.api.ETagInfo;
+import org.mythtv.services.api.MythServiceApiRuntimeException;
 import org.mythtv.services.api.connect.MythAccessFactory;
 import org.mythtv.services.api.v027.MythServicesTemplate;
 import org.springframework.http.HttpStatus;
@@ -108,7 +109,7 @@ public class SettingHelperV27 extends AbstractBaseHelper {
 
 	// internal helpers
 	
-	private String downloadSetting( final LocationProfile locationProfile, final String settingName, String settingDefault ) {
+	private String downloadSetting( final LocationProfile locationProfile, final String settingName, String settingDefault ) throws MythServiceApiRuntimeException {
 		Log.v( TAG, "downloadSetting : enter" );
 	
 		String setting = null;

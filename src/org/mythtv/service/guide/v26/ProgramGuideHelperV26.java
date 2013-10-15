@@ -38,6 +38,7 @@ import org.mythtv.service.dvr.v26.RecordingHelperV26;
 import org.mythtv.service.util.DateUtils;
 import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.ApiVersion;
+import org.mythtv.services.api.MythServiceApiRuntimeException;
 import org.mythtv.services.api.connect.MythAccessFactory;
 import org.mythtv.services.api.v026.MythServicesTemplate;
 import org.mythtv.services.api.v026.beans.ChannelInfo;
@@ -149,7 +150,7 @@ public class ProgramGuideHelperV26 extends AbstractBaseHelper {
 	
 	// internal helpers
 	
-	private void downloadProgramGuide( final Context context, final LocationProfile locationProfile ) throws RemoteException, OperationApplicationException {
+	private void downloadProgramGuide( final Context context, final LocationProfile locationProfile ) throws MythServiceApiRuntimeException, RemoteException, OperationApplicationException {
 		Log.v( TAG, "downloadProgramGuide : enter" );
 	
 		ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();

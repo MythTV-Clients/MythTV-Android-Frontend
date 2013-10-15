@@ -34,6 +34,7 @@ import org.mythtv.db.http.model.EtagInfoDelegate;
 import org.mythtv.service.channel.v27.ChannelHelperV27;
 import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.ApiVersion;
+import org.mythtv.services.api.MythServiceApiRuntimeException;
 import org.mythtv.services.api.connect.MythAccessFactory;
 import org.mythtv.services.api.v027.MythServicesTemplate;
 import org.mythtv.services.api.v027.beans.ChannelInfo;
@@ -201,7 +202,7 @@ public class RecordingRuleHelperV27 extends AbstractBaseHelper {
 
 	// internal helpers
 	
-	private void downloadRecordinRules( final Context context, final LocationProfile locationProfile ) throws RemoteException, OperationApplicationException {
+	private void downloadRecordinRules( final Context context, final LocationProfile locationProfile ) throws MythServiceApiRuntimeException, RemoteException, OperationApplicationException {
 		Log.v( TAG, "downloadRecordinRules : enter" );
 	
 		EtagInfoDelegate etag = mEtagDaoHelper.findByEndpointAndDataId( context, locationProfile, "GetRecordScheduleList", "" );

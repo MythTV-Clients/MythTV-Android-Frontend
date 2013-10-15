@@ -56,6 +56,7 @@ import org.mythtv.service.util.DateUtils;
 import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.ApiVersion;
 import org.mythtv.services.api.ETagInfo;
+import org.mythtv.services.api.MythServiceApiRuntimeException;
 import org.mythtv.services.api.connect.MythAccessFactory;
 import org.mythtv.services.api.v025.MythServicesTemplate;
 import org.springframework.http.HttpStatus;
@@ -143,7 +144,7 @@ public class BackendStatusHelperV25 extends AbstractBaseHelper {
 
 	// internal helpers
 	
-	private BackendStatus downloadBackendStatus() throws RemoteException, OperationApplicationException {
+	private BackendStatus downloadBackendStatus() throws MythServiceApiRuntimeException, RemoteException, OperationApplicationException {
 		Log.v( TAG, "downloadBackendStatus : enter" );
 
 		ResponseEntity<org.mythtv.services.api.v025.status.beans.BackendStatus> status = mMythServicesTemplate.statusOperations().getStatus( ETagInfo.createEmptyETag() );

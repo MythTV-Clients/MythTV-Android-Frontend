@@ -33,6 +33,7 @@ import org.mythtv.db.channel.ChannelConstants;
 import org.mythtv.db.http.model.EtagInfoDelegate;
 import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.ApiVersion;
+import org.mythtv.services.api.MythServiceApiRuntimeException;
 import org.mythtv.services.api.connect.MythAccessFactory;
 import org.mythtv.services.api.v027.MythServicesTemplate;
 import org.mythtv.services.api.v027.beans.ChannelInfo;
@@ -162,7 +163,7 @@ public class ChannelHelperV27 extends AbstractBaseHelper {
 							}
 
 							// wait a second before downloading the next one (if there are more than one video source)
-							if(  count < videoSourceList.getVideoSources().length - 1 ) {
+							if( count < videoSourceList.getVideoSources().length - 1 ) {
 								Log.i( TAG, "process : sleeping " + nap + " ms" );
 								Thread.sleep( nap );
 							}
@@ -218,7 +219,7 @@ public class ChannelHelperV27 extends AbstractBaseHelper {
 	
 	// internal helpers
 	
-	private ChannelInfo[] downloadChannels( final Context context, final LocationProfile locationProfile, final int sourceId ) {
+	private ChannelInfo[] downloadChannels( final Context context, final LocationProfile locationProfile, final int sourceId ) throws MythServiceApiRuntimeException {
 		Log.v( TAG, "downloadChannels : enter" );
 		
 		EtagInfoDelegate etag = mEtagDaoHelper.findByEndpointAndDataId( context, locationProfile, "GetChannelInfoList", String.valueOf( sourceId ) );
