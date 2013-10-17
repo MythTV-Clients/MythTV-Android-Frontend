@@ -635,11 +635,27 @@ public class MythtvPreferenceActivity extends PreferenceActivity {
 				stopProbe();
 			}
 
-    		try {
-    			mProgressDialog = ProgressDialog.show( wrActivity.get(), getString( R.string.please_wait_title_str ), getString( R.string.preference_home_profiles_scan_scanning ), true, false );
-    		} catch( Exception e ) {
-    			Log.w( TAG, "startProbe : error", e );
-    		}
+			try {
+				mProgressDialog = new ProgressDialog( wrActivity.get() );
+				mProgressDialog.setTitle( getString( R.string.please_wait_title_str ) );
+				mProgressDialog.setMessage(getString( R.string.preference_home_profiles_scan_scanning ) );
+				mProgressDialog.setCancelable(false);
+				mProgressDialog.setButton(DialogInterface.BUTTON_NEGATIVE, getString( R.string.btn_cancel ), new DialogInterface.OnClickListener() {
+				    @Override
+				    public void onClick(DialogInterface dialog, int which) {
+				    	try {
+				    		stopProbe();
+				    	} catch( Exception e ) {
+				    		Log.w( TAG, "startProbe/onClick : error", e );
+				    	}
+				        dialog.dismiss();
+				    }
+				});
+				mProgressDialog.show();
+
+			} catch( Exception e ) {
+				Log.w( TAG, "startProbe : error", e );
+			}
 
 			// figure out our wifi address, otherwise bail
 			WifiManager wifi = (WifiManager) wrActivity.get().getSystemService( Context.WIFI_SERVICE );
