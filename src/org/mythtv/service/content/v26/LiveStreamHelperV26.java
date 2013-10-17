@@ -41,8 +41,8 @@ import org.mythtv.services.api.connect.MythAccessFactory;
 import org.mythtv.services.api.v026.Bool;
 import org.mythtv.services.api.v026.MythServicesTemplate;
 import org.mythtv.services.api.v026.beans.LiveStreamInfo;
+import org.mythtv.services.api.v026.beans.LiveStreamInfoList;
 import org.mythtv.services.api.v026.beans.LiveStreamInfoWrapper;
-import org.mythtv.services.api.v026.beans.LiveStreamInfos;
 import org.mythtv.services.api.v026.beans.Program;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -175,18 +175,29 @@ public class LiveStreamHelperV26 extends AbstractBaseHelper {
 		
 		try {
 			
-			ResponseEntity<LiveStreamInfos> wrapper = mMythServicesTemplate.contentOperations().getLiveStreamList( EtagInfoDelegate.createEmptyETag() );
+			ResponseEntity<LiveStreamInfoList> wrapper = mMythServicesTemplate.contentOperations().getLiveStreamList( EtagInfoDelegate.createEmptyETag() );
 			if( wrapper.getStatusCode().equals( HttpStatus.OK ) ) {
-				List<LiveStreamInfo> liveStreams = wrapper.getBody().getLiveStreamInfos();
-
-				if( null != liveStreams && !liveStreams.isEmpty() ) {
-					loaded = load( context, locationProfile, liveStreams );
+				
+				if( null != wrapper.getBody() ) {
+				
+					if( null != wrapper.getBody().getLiveStreamInfos() ) {
+					
+						if( null != wrapper.getBody().getLiveStreamInfos().getLiveStreamInfos() && !wrapper.getBody().getLiveStreamInfos().getLiveStreamInfos().isEmpty() ) {
+						
+							List<LiveStreamInfo> liveStreams = wrapper.getBody().getLiveStreamInfos().getLiveStreamInfos();
+							loaded = load( context, locationProfile, liveStreams );
+						
+						}
+						
+					}
+					
 				}
 				
-				Log.v( TAG, "update : exit" );
-				return loaded;
 			}
 			
+			Log.v( TAG, "update : exit" );
+			return loaded;
+
 		} catch( Exception e ) {
 			Log.e( TAG, "update : error", e );
 		}
