@@ -294,6 +294,12 @@ public class ProfileRow implements Row {
 		    mProgressDialog.setMessage( view.getContext().getResources().getString( R.string.connection_status_attempting_connect )  );
 			mProgressDialog.setCancelable( false );
 			mProgressDialog.setIndeterminate( true );
+			mProgressDialog.setButton(DialogInterface.BUTTON_NEGATIVE, view.getContext().getResources().getString( R.string.btn_cancel ), new DialogInterface.OnClickListener() {
+			    @Override
+			    public void onClick(DialogInterface dialog, int which) {
+			        dialog.dismiss();
+			    }
+			});
 			mProgressDialog.show();
 		}
 
