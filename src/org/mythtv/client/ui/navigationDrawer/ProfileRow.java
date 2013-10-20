@@ -292,13 +292,20 @@ public class ProfileRow implements Row {
 			mProgressDialog = new ProgressDialog( mContext );
 		    mProgressDialog.setTitle( R.string.connection_status_connecting );
 		    mProgressDialog.setMessage( view.getContext().getResources().getString( R.string.connection_status_attempting_connect )  );
-			mProgressDialog.setCancelable( false );
+			mProgressDialog.setCancelable( true );
 			mProgressDialog.setIndeterminate( true );
-			mProgressDialog.setButton(DialogInterface.BUTTON_NEGATIVE, view.getContext().getResources().getString( R.string.btn_cancel ), new DialogInterface.OnClickListener() {
-			    @Override
-			    public void onClick(DialogInterface dialog, int which) {
-			        dialog.dismiss();
+			mProgressDialog.setButton( DialogInterface.BUTTON_NEGATIVE, view.getContext().getResources().getString( R.string.btn_cancel ), new DialogInterface.OnClickListener() {
+
+				/* (non-Javadoc)
+				 * @see android.content.DialogInterface.OnClickListener#onClick(android.content.DialogInterface, int)
+				 */
+				@Override
+			    public void onClick( DialogInterface dialog, int which ) {
+			    	dialog.dismiss();
+			    	
+			    	cancel( true );
 			    }
+				
 			});
 			mProgressDialog.show();
 		}
@@ -340,7 +347,9 @@ public class ProfileRow implements Row {
 				mLocationProfile = null;
 			}
 
-			mProgressDialog.dismiss();
+			if( null != mProgressDialog && mProgressDialog.isShowing() ) {
+				mProgressDialog.dismiss();
+			}
 			
 			mProfileChangedListener.onProfileChanged();
 			
