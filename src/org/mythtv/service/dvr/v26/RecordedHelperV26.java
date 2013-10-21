@@ -126,8 +126,14 @@ public class RecordedHelperV26 extends AbstractBaseHelper {
 			downloadRecorded( context, locationProfile );
 			
 		} catch( Exception e ) {
-			Log.e( TAG, "process : error", e );
 		
+			if( e.toString().contains( "Invalid UTF-8" ) ) {
+				Log.e( TAG, "process : INVALID UTF-8! Start mythbackend with valid LANG & LC_ALL (e.g. en_US.UTF-8" );
+			}
+			else {
+				Log.e( TAG, "process : non UTF-8 exception ", e );
+			}
+
 			passed = false;
 		}
 
