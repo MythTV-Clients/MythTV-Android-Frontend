@@ -1,0 +1,28 @@
+MythTV Android Frontend is the first Android Client fully endorsed by the core MythTV Development Team.
+
+If you plan to use this application, you are required to have a fully functioning MythTV Backend version v0.25 through v0.27.  If you are interested in learning more about MythTV, check their web site at http://mythtv.org.
+
+Note that in MythTV v0.27, using the Recording Rules screen will cause a crash. This is due enhancements in the MythTV Services API. The solution is available to beta testers in 1.20.x (see: Beta Testers Wanted below.)
+
+An External Video Player is also required.  We have done extensive testing with VPlayer and DicePlayer, but feel free to try any video player capable of playing HTTP Live Streams.
+
+This application can connect to your backend while you are at home or on the go.  At home, the app will scan your network for a MythTV backend and auto-configure its connection.  If you want connect to the backend while away from home, check out our instructions on how to set this up at https://github.com/MythTV-Clients/MythTV-Android-Frontend/wiki/Access-MythTV-Master-Backend-via-SSH.
+
+With this application you can access your recordings and stream them to your Android phone or tablet via MythTV HTTP Live Streaming, introduced in MythTV v0.25.  You can see what is upcoming or the whole program guide as well as viewing your recording rules.  You can also manage your Playback Profiles so that you can raise or lower the streaming quality of your recordings depending on the speed of your network.
+
+MythMote is fully integrated into the application.  When you use MythMote, your MythTV Frontends will be automatically discovered for you.  Simply select the Frontend you are sitting in front of, and begin navigating.  As an added bonus, if you receive a call while using MythMote, the Caller ID information will be displayed on the TV for you.
+
+MythTV Android Frontend is 100% Open Source software and it is licensed under GPLv3.  You can follow the progress of the application at https://github.com/MythTV-Clients/MythTV-Android-Frontend.  Here you will also see an explanation of the permissions the application requires.
+
+Want to request a feature or ran into an issue, please submit an issue on the Issues tab of our GitHub repository: https://github.com/MythTV-Clients/MythTV-Android-Frontend/issues
+
+The application is currently in beta software.  Before leaving a negative feedback, please consider opening an issue with us first so that we might address the issue directly.
+
+Do you require assistance with the the app?  The developers can be reached at the GitHub repository, or you can find us in IRC on the Freenode network in #mythtv-users.
+
+<b>Beta Testers Wanted!</b> If you are interested in beta testing pre-release versions, please join the beta testers Google+ Community: https://plus.google.com/u/0/communities/104432707624078706786
+ 
+<b>Translations are welcome!</b> If you're interested in translating MythTV Android Frontend for your language, please see: https://github.com/MythTV-Clients/MythTV-Android-Frontend/wiki/_Translation-Process
+
+The images and icons were developed by Jay Purugganan.  Visit his website to see more of his great work:
+http://c9studio.com
