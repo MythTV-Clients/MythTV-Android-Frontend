@@ -28,6 +28,7 @@ import org.mythtv.db.myth.model.StorageGroupDirectory;
 import org.mythtv.service.myth.v25.StorageGroupHelperV25;
 import org.mythtv.service.myth.v26.StorageGroupHelperV26;
 import org.mythtv.service.myth.v27.StorageGroupHelperV27;
+import org.mythtv.service.myth.v28.StorageGroupHelperV28;
 import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.ApiVersion;
 
@@ -121,6 +122,11 @@ public class GetStorageGroupsTask extends AsyncTask<String, Void, List<StorageGr
 			case v027 :
 
 				storageGroupDirectoryList = StorageGroupHelperV27.getInstance().process( mContext, mLocationProfile, groupName );
+				
+				break;
+			case v028 :
+
+				storageGroupDirectoryList = StorageGroupHelperV28.getInstance().process( mContext, mLocationProfile, groupName );
 				
 				break;
 				

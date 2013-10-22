@@ -519,7 +519,7 @@ public class ChannelHelperV28 extends AbstractBaseHelper {
 		values.put( ChannelConstants.FIELD_CHAN_FILTERS, channelInfo.getChanFilters() );
 		values.put( ChannelConstants.FIELD_SOURCE_ID, channelInfo.getSourceId() );
 		values.put( ChannelConstants.FIELD_INPUT_ID, channelInfo.getInputId() );
-		values.put( ChannelConstants.FIELD_COMM_FREE, channelInfo.getCommFree() );
+		values.put( ChannelConstants.FIELD_COMM_FREE, channelInfo.isCommFree() ? 1 : 0 );
 		values.put( ChannelConstants.FIELD_USE_EIT, ( channelInfo.isUseEIT() ? 1 : 0 ) );
 		values.put( ChannelConstants.FIELD_VISIBLE, ( channelInfo.isVisible() ? 1 : 0 ) );
 		values.put( ChannelConstants.FIELD_XMLTV_ID, channelInfo.getXMLTVID() );

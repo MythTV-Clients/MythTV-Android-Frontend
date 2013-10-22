@@ -25,6 +25,7 @@ import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.service.frontends.v25.StatusHelperV25;
 import org.mythtv.service.frontends.v26.StatusHelperV26;
 import org.mythtv.service.frontends.v27.StatusHelperV27;
+import org.mythtv.service.frontends.v28.StatusHelperV28;
 import org.mythtv.services.api.ApiVersion;
 
 import android.content.Context;
@@ -111,6 +112,11 @@ public class GetStatusTask extends AsyncTask<String, Void, org.mythtv.db.fronten
 			case v027 :
 
 				status = StatusHelperV27.getInstance().process( mContext, mLocationProfile, url );
+				
+				break;
+			case v028 :
+
+				status = StatusHelperV28.getInstance().process( mContext, mLocationProfile, url );
 				
 				break;
 				

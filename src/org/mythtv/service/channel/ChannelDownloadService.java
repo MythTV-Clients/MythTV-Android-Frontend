@@ -23,6 +23,7 @@ import org.mythtv.service.MythtvService;
 import org.mythtv.service.channel.v25.ChannelHelperV25;
 import org.mythtv.service.channel.v26.ChannelHelperV26;
 import org.mythtv.service.channel.v27.ChannelHelperV27;
+import org.mythtv.service.channel.v28.ChannelHelperV28;
 import org.mythtv.services.api.ApiVersion;
 
 import android.content.Context;
@@ -98,6 +99,12 @@ public class ChannelDownloadService extends MythtvService {
     					passed = ChannelHelperV27.getInstance().process( this, locationProfile );
 
     					break;
+    				case v028 :
+
+    					passed = ChannelHelperV28.getInstance().process( this, locationProfile );
+
+    					break;
+    					
     					
     				default :
     					

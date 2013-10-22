@@ -24,6 +24,7 @@ import org.mythtv.service.MythtvService;
 import org.mythtv.service.dvr.v25.RecordedHelperV25;
 import org.mythtv.service.dvr.v26.RecordedHelperV26;
 import org.mythtv.service.dvr.v27.RecordedHelperV27;
+import org.mythtv.service.dvr.v28.RecordedHelperV28;
 import org.mythtv.services.api.ApiVersion;
 import org.mythtv.services.api.MythServiceApiRuntimeException;
 
@@ -106,6 +107,11 @@ public class RecordedService extends MythtvService {
     				case v027 :
 
     					passed = RecordedHelperV27.getInstance().process( this, locationProfile );
+
+    					break;
+    				case v028 :
+
+    					passed = RecordedHelperV28.getInstance().process( this, locationProfile );
 
     					break;
     					

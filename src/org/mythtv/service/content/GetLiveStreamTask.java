@@ -28,6 +28,7 @@ import org.mythtv.db.dvr.model.Program;
 import org.mythtv.service.content.v25.LiveStreamHelperV25;
 import org.mythtv.service.content.v26.LiveStreamHelperV26;
 import org.mythtv.service.content.v27.LiveStreamHelperV27;
+import org.mythtv.service.content.v28.LiveStreamHelperV28;
 import org.mythtv.services.api.ApiVersion;
 
 import android.content.Context;
@@ -127,6 +128,12 @@ public class GetLiveStreamTask extends AsyncTask<Integer, Void, Boolean> {
 			case v027 :
 
 				updated = LiveStreamHelperV27.getInstance().update( mContext, mLocationProfile, mLiveStreamInfoId, mProgram.getChannelInfo().getChannelId(), mProgram.getStartTime() );
+
+				break;
+
+			case v028 :
+
+				updated = LiveStreamHelperV28.getInstance().update( mContext, mLocationProfile, mLiveStreamInfoId, mProgram.getChannelInfo().getChannelId(), mProgram.getStartTime() );
 
 				break;
 

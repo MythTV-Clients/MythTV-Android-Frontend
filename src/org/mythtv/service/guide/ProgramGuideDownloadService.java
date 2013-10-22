@@ -23,6 +23,7 @@ import org.mythtv.service.MythtvService;
 import org.mythtv.service.guide.v25.ProgramGuideHelperV25;
 import org.mythtv.service.guide.v26.ProgramGuideHelperV26;
 import org.mythtv.service.guide.v27.ProgramGuideHelperV27;
+import org.mythtv.service.guide.v28.ProgramGuideHelperV28;
 import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.ApiVersion;
 
@@ -98,6 +99,11 @@ public class ProgramGuideDownloadService extends MythtvService {
     				case v027 :
 
     					passed = ProgramGuideHelperV27.getInstance().process( this, locationProfile );
+
+    					break;
+    				case v028 :
+
+    					passed = ProgramGuideHelperV28.getInstance().process( this, locationProfile );
 
     					break;
     					

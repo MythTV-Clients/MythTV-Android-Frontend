@@ -24,6 +24,7 @@ import org.mythtv.service.MythtvService;
 import org.mythtv.service.dvr.v25.RecordingRuleHelperV25;
 import org.mythtv.service.dvr.v26.RecordingRuleHelperV26;
 import org.mythtv.service.dvr.v27.RecordingRuleHelperV27;
+import org.mythtv.service.dvr.v28.RecordingRuleHelperV28;
 import org.mythtv.services.api.ApiVersion;
 
 import android.content.Context;
@@ -100,6 +101,11 @@ public class RecordingRuleService extends MythtvService {
     				case v027 :
 
     					passed = RecordingRuleHelperV27.getInstance().process( this, locationProfile );
+
+    					break;
+    				case v028 :
+
+    					passed = RecordingRuleHelperV28.getInstance().process( this, locationProfile );
 
     					break;
     					

@@ -103,16 +103,17 @@ public class NetworkHelper {
 
         /* Check if we're not initialized */
 		if( null == context ) {
-//			Log.e(TAG, "NetworkHelper not initialized");
+//			Log.e(TAG, "NetworkHelper null context" );
 			throw new IllegalArgumentException( "NetworkHelper is not initialized" );
 		}
 		
 		if( null == profile ) {
-//			Log.e(TAG, "NetworkHelper not initialized");
+//			Log.e(TAG, "NetworkHelper null profile" );
 			return isOK;
 		}
 		
 		if( !isNetworkConnected( context ) ) {
+//			Log.e(TAG, "NetworkHelper isNetworkConnected failed" );
 			return isOK;
 		}
 
@@ -157,7 +158,7 @@ public class NetworkHelper {
 			isOK = false;
 		}
 		
-//		Log.w( TAG, "isMasterBackendConnected : exit" );
+		Log.w( TAG, "isMasterBackendConnected : exit, isOK = "  + isOK );
 		return isOK;
 	}
 

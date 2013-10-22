@@ -74,6 +74,8 @@ public class PlayRecordingOnFrontEndTask extends AsyncTask<String, Void, Boolean
 		boolean started = false;
 		
 		ApiVersion apiVersion = ApiVersion.valueOf( mLocationProfile.getVersion() );
+		String url = params[ 0 ];
+		
 		switch( apiVersion ) {
 			case v025 :
 				
@@ -87,8 +89,6 @@ public class PlayRecordingOnFrontEndTask extends AsyncTask<String, Void, Boolean
 				break;
 			case v027 :
 
-				String url = params[ 0 ];
-				
 				if( !NetworkHelper.getInstance().isFrontendConnected( mContext, mLocationProfile, url ) ) {
 					Log.w( TAG, "process : Frontend @ '" + url + "' is unreachable" );
 					
@@ -104,6 +104,30 @@ public class PlayRecordingOnFrontEndTask extends AsyncTask<String, Void, Boolean
 						if( null != responseV27.getBody() ) {
 
 							started = responseV27.getBody().getValue();
+
+						}
+
+					}
+				}
+				
+				break;
+			case v028 :
+
+				if( !NetworkHelper.getInstance().isFrontendConnected( mContext, mLocationProfile, url ) ) {
+					Log.w( TAG, "process : Frontend @ '" + url + "' is unreachable" );
+					
+					return false;
+				}
+
+				org.mythtv.services.api.v028.MythServicesTemplate mythServicesTemplateV28 = (org.mythtv.services.api.v028.MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( apiVersion, url );
+
+				if( null != mythServicesTemplateV28 ) {
+					ResponseEntity<org.mythtv.services.api.Bool> responseV28 = mythServicesTemplateV28.frontendOperations().playRecording( mProgram.getChannelInfo().getChannelId(), mProgram.getRecording().getStartTimestamp(), ETagInfo.createEmptyETag() );
+					if( responseV28.getStatusCode().equals( HttpStatus.OK ) ) {
+
+						if( null != responseV28.getBody() ) {
+
+							started = responseV28.getBody().getValue();
 
 						}
 

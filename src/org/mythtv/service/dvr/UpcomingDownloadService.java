@@ -24,6 +24,7 @@ import org.mythtv.service.MythtvService;
 import org.mythtv.service.dvr.v25.UpcomingHelperV25;
 import org.mythtv.service.dvr.v26.UpcomingHelperV26;
 import org.mythtv.service.dvr.v27.UpcomingHelperV27;
+import org.mythtv.service.dvr.v28.UpcomingHelperV28;
 import org.mythtv.services.api.ApiVersion;
 
 import android.content.Context;
@@ -101,6 +102,11 @@ public class UpcomingDownloadService extends MythtvService {
     				case v027 :
 
     					passed = UpcomingHelperV27.getInstance().process( this, locationProfile );
+
+    					break;
+    				case v028 :
+
+    					passed = UpcomingHelperV28.getInstance().process( this, locationProfile );
 
     					break;
     					

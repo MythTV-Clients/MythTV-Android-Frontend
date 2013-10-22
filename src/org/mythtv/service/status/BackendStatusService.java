@@ -27,6 +27,7 @@ import org.mythtv.service.MythtvService;
 import org.mythtv.service.status.v25.BackendStatusHelperV25;
 import org.mythtv.service.status.v26.BackendStatusHelperV26;
 import org.mythtv.service.status.v27.BackendStatusHelperV27;
+import org.mythtv.service.status.v28.BackendStatusHelperV28;
 import org.mythtv.services.api.ApiVersion;
 
 import android.content.Context;
@@ -92,6 +93,11 @@ public class BackendStatusService extends MythtvService {
     				case v027 :
 
     					mBackendStatus = BackendStatusHelperV27.getInstance().process( this, mLocationProfile );
+
+    					break;
+    				case v028 :
+
+    					mBackendStatus = BackendStatusHelperV28.getInstance().process( this, mLocationProfile );
 
     					break;
 

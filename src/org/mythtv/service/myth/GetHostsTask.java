@@ -27,6 +27,7 @@ import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.service.myth.v25.HostHelperV25;
 import org.mythtv.service.myth.v26.HostHelperV26;
 import org.mythtv.service.myth.v27.HostHelperV27;
+import org.mythtv.service.myth.v28.HostHelperV28;
 import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.ApiVersion;
 
@@ -114,6 +115,11 @@ public class GetHostsTask extends AsyncTask<Void, Void, List<String>> {
 			case v027 :
 
 				hosts = HostHelperV27.getInstance().process( mContext, mLocationProfile );
+				
+				break;
+			case v028 :
+
+				hosts = HostHelperV28.getInstance().process( mContext, mLocationProfile );
 				
 				break;
 				

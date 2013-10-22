@@ -27,6 +27,7 @@ import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.service.content.v25.FileListHelperV25;
 import org.mythtv.service.content.v26.FileListHelperV26;
 import org.mythtv.service.content.v27.FileListHelperV27;
+import org.mythtv.service.content.v28.FileListHelperV28;
 import org.mythtv.services.api.ApiVersion;
 
 import android.content.Context;
@@ -110,6 +111,12 @@ public class GetFileListTask extends AsyncTask<String, Void, List<String>> {
 				files = FileListHelperV27.getInstance().process( mContext, mLocationProfile, storageGroupName );
 				
 				break;
+			case v028 :
+
+				files = FileListHelperV28.getInstance().process( mContext, mLocationProfile, storageGroupName );
+				
+				break;
+				
 				
 			default :
 				

@@ -31,6 +31,7 @@ import org.mythtv.service.MythtvService;
 import org.mythtv.service.content.v25.LiveStreamHelperV25;
 import org.mythtv.service.content.v26.LiveStreamHelperV26;
 import org.mythtv.service.content.v27.LiveStreamHelperV27;
+import org.mythtv.service.content.v28.LiveStreamHelperV28;
 import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.ApiVersion;
 
@@ -331,6 +332,11 @@ public class LiveStreamService extends MythtvService {
 			case v027 :
 
 				created = LiveStreamHelperV27.getInstance().create( this, locationProfile, program.getChannelInfo().getChannelId(), program.getStartTime() );
+
+				break;
+			case v028 :
+
+				created = LiveStreamHelperV28.getInstance().create( this, locationProfile, program.getChannelInfo().getChannelId(), program.getStartTime() );
 
 				break;
 				

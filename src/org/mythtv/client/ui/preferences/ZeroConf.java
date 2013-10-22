@@ -31,7 +31,8 @@ import java.util.Map;
 public enum ZeroConf {
 	VERSION_25( "0.25", "_mythbackend-master._tcp.local." ),
 	VERSION_26( "0.26", "_mythbackend-master._tcp.local." ),
-	VERSION_27( "0.27", "_mythbackend._tcp.local." );
+	VERSION_27( "0.27", "_mythbackend._tcp.local." ),
+	VERSION_28( "0.28", "_mythbackend._tcp.local." );
 	
 	private String version;
 	private String type;

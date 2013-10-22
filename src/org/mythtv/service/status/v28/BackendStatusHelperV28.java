@@ -639,7 +639,7 @@ public class BackendStatusHelperV28 extends AbstractBaseHelper {
 		channel.setChannelId( versionChannel.getChannelId() );
 		channel.setChannelName( versionChannel.getChannelName() );
 		channel.setChannelNumber( versionChannel.getChannelNumber() );
-		channel.setCommercialFree( versionChannel.getCommercialFree() ? 1 : 0 );
+		channel.setCommercialFree( versionChannel.isCommercialFree() ? 1 : 0 );
 		//channel.setCommercialFree( versionChannel.getCommercialFree() );
 		channel.setDefaultAuth( versionChannel.getDefaultAuth() );
 		channel.setFineTune( versionChannel.getFineTune() );
@@ -673,7 +673,7 @@ public class BackendStatusHelperV28 extends AbstractBaseHelper {
 		channel.setChanId( versionChannel.getChannelId() );
 		channel.setChannelName( versionChannel.getChannelName() );
 		channel.setChanNum( versionChannel.getChannelNumber() );
-		channel.setCommFree( versionChannel.getCommercialFree() );
+		channel.setCommFree( versionChannel.isCommercialFree() );
 		channel.setDefaultAuth( versionChannel.getDefaultAuth() );
 		channel.setFineTune( versionChannel.getFineTune() );
 		channel.setFormat( versionChannel.getFormat() );

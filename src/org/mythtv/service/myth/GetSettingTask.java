@@ -25,6 +25,7 @@ import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.service.myth.v25.SettingHelperV25;
 import org.mythtv.service.myth.v26.SettingHelperV26;
 import org.mythtv.service.myth.v27.SettingHelperV27;
+import org.mythtv.service.myth.v28.SettingHelperV28;
 import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.ApiVersion;
 
@@ -119,6 +120,11 @@ public class GetSettingTask extends AsyncTask<String, Void, String> {
 			case v027 :
 
 				setting = SettingHelperV27.getInstance().process( mContext, mLocationProfile, settingName, settingDefault );
+				
+				break;
+			case v028 :
+
+				setting = SettingHelperV28.getInstance().process( mContext, mLocationProfile, settingName, settingDefault );
 				
 				break;
 				
