@@ -158,7 +158,7 @@ public class NetworkHelper {
 			isOK = false;
 		}
 		
-		Log.w( TAG, "isMasterBackendConnected : exit, isOK = "  + isOK );
+//		Log.w( TAG, "isMasterBackendConnected : exit, isOK = "  + isOK );
 		return isOK;
 	}
 
