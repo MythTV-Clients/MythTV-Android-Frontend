@@ -478,7 +478,7 @@ public class ChannelHelperV28 extends AbstractBaseHelper {
 		channelInfo.setChanFilters( channelFilters );
 		channelInfo.setSourceId( sourceId );
 		channelInfo.setInputId( inputId );
-		channelInfo.setCommFree( commercialFree );
+		channelInfo.setCommFree( commercialFree == 1 ? true : false);
 		channelInfo.setUseEIT( useEit == 1 ? true : false );
 		channelInfo.setVisible( visible == 1 ? true : false );
 		channelInfo.setXMLTVID( xmltvId );
