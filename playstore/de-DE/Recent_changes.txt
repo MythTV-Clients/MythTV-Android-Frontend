@@ -4,13 +4,5 @@ v1.10.1
 ======
 - Fehlerkorrektur für Android 2.x Geräte.
 
-v1.10.0
-======
-- Neue Funktionen zum Abspielen von Aufnahmen.
-- Möglichkeit ergänzt, um mythtranscode auf dem Backend im Hintergrund zu starten und die Aufnahme später anzusehen.
-- Vollständige Unterstützung von mehreren Backends.
-- Konsistenzprüfung der Master Backend Daten.
-- Fehlerkorrekturen.
-
 Die detaillierte Liste der Änderungen seit 1.0.4 ist im Wiki zu finden (Englisch):
 https://github.com/MythTV-Clients/MythTV-Android-Frontend/wiki/Release-Notes
