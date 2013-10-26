@@ -644,14 +644,18 @@ public class BackendStatusFragment extends AbstractMythFragment {
     
     private void startFrontendDiscoveryService() {
 
-		if( mLocationProfile.getType().equals( LocationType.HOME ) ) {
+    	if( null != mLocationProfile ) {
+		
+    		if( mLocationProfile.getType().equals( LocationType.HOME ) ) {
 			
-			if( !mRunningServiceHelper.isServiceRunning( getActivity(), "org.mythtv.service.frontends.FrontendsDiscoveryService" ) ) {
-				getActivity().startService( new Intent( FrontendsDiscoveryService.ACTION_DISCOVER ) );
-			}
+    			if( !mRunningServiceHelper.isServiceRunning( getActivity(), "org.mythtv.service.frontends.FrontendsDiscoveryService" ) ) {
+    				getActivity().startService( new Intent( FrontendsDiscoveryService.ACTION_DISCOVER ) );
+    			}
 			
-		}
-   	
+    		}
+    	
+    	}
+    	
     }
     
     private void checkChannelDownloadService() {
