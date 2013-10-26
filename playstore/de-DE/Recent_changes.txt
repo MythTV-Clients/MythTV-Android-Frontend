@@ -1,0 +1,8 @@
+Betatester erhalten die aktuelle 1.20.x Version
+
+v1.10.1
+======
+- Fehlerkorrektur für Android 2.x Geräte.
+
+Die detaillierte Liste der Änderungen seit 1.0.4 ist im Wiki zu finden (Englisch):
+https://github.com/MythTV-Clients/MythTV-Android-Frontend/wiki/Release-Notes

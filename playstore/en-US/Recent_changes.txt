@@ -1,0 +1,16 @@
+Beta testers will get a current 1.20.x version
+
+v1.10.1
+======
+- Bug Fix for android 2.x devices
+
+v1.10.0
+======
+- New methods of playing recordings.
+- New ability to start mythtranscode on the backend in the background and return at a later time to watch a recording
+- Full Multi-Host Support
+- Consistency checks of Master Backend data
+- Bug Fixes
+
+A detailed listing of changes since 1.0.4 can be found on the wiki:
+https://github.com/MythTV-Clients/MythTV-Android-Frontend/wiki/Release-Notes
