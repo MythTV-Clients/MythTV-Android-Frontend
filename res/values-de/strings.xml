@@ -90,7 +90,7 @@
     <string name="menu_help_faq">FAQ</string>
 	<string name="menu_help_troubleshoot">Fehlersuche</string>
 	<string name="menu_help_issues">Probleme</string>
-	<string name="menu_help_release_notes">Release Notes</string>
+	<string name="menu_help_release_notes">Versionshinweise</string>
 	<string name="menu_help_not_connected">Auf deinem Gerät ist gerade kein Internet verfügbar. Bitte prüfe die Verbindungen und versuche es erneut.</string>
 	<string name="menu_guide_day">Tag auswählen</string>
 	
