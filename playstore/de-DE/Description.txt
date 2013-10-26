@@ -14,11 +14,11 @@ MythMote ist vollständig in die Anwendung integriert. Wenn Du MythMote benutzt,
 
 MythTV Android Frontend ist 100% Open Source Software und unter der GPLv3 lizensiert. Du kannst den Fortschritt der Entwicklung unter https://github.com/MythTV-Clients/MythTV-Android-Frontend (Englisch) verfolgen. Dort findest Du auch die Erklärung der Berechtigungen, die die App erfordert. 
 
-Featurewünsche oder Fehlerreports kannst Du auf dem Issues-Tab des GitHub Repositories erstellen: https://github.com/MythTV-Clients/MythTV-Android-Frontend/issues (Englisch)
+Featurewünsche oder Fehlerreports kannst Du auf dem Issues-Tab des GitHub Repositories erstellen: https://github.com/MythTV-Clients/MythTV-Android-Frontend/issues (Englisch).
 
 Die Anwendung hat zur Zeit noch Beta-Status. Statt ein negatives Feedback zu hinterlassen, erstelle bitte einen Fehlerreport so dass wir uns direkt um das Problem kümmern können.
 
-Benötigst Du Unterstützung mit der App? Die Entwickler können über das GitHub Repository kontaktiert werden. Du findest uns auch im IRC auf dem Freenode Netzwerk in #mythtv-users.
+Benötigst Du Unterstützung mit der App? Die Entwickler können über das GitHub Repository erreicht werden. Du findest uns auch im IRC auf dem Freenode Netzwerk in #mythtv-users.
 
  <b>Betatester gesucht!</b> Falls Du am Betatesten von neuen Versionen vor der offiziellen Veröffentlichung interessiert bist, kannst Du der Beta Testers Google+ Community beitreten: https://plus.google.com/u/0/communities/104432707624078706786
 
