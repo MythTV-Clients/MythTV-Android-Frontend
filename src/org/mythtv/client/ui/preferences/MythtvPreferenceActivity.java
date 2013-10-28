@@ -673,9 +673,9 @@ public class MythtvPreferenceActivity extends PreferenceActivity {
 			mLock.acquire();
 
 			zeroConf = JmDNS.create( addr, HOSTNAME );
-			zeroConf.addServiceListener( ZeroConf.VERSION_26.getType(), this );
+			// Only add versions when a Bonjour name is changed
+			zeroConf.addServiceListener( ZeroConf.VERSION_25.getType(), this );
 			zeroConf.addServiceListener( ZeroConf.VERSION_27.getType(), this );
-			zeroConf.addServiceListener( ZeroConf.VERSION_28.getType(), this );
 
 			Log.v( TAG, "startProbe : exit" );
 		}
@@ -691,9 +691,8 @@ public class MythtvPreferenceActivity extends PreferenceActivity {
 				mProgressDialog = null;
 			}
 
-			zeroConf.removeServiceListener( ZeroConf.VERSION_26.getType(), this );
+			zeroConf.removeServiceListener( ZeroConf.VERSION_25.getType(), this );
 			zeroConf.removeServiceListener( ZeroConf.VERSION_27.getType(), this );
-			zeroConf.removeServiceListener( ZeroConf.VERSION_28.getType(), this );
 			zeroConf.close();
 			zeroConf = null;
 
