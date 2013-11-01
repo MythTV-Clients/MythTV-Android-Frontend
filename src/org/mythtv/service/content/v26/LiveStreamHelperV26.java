@@ -352,7 +352,7 @@ public class LiveStreamHelperV26 extends AbstractBaseHelper {
 		Log.d( TAG, "deleteLiveStream : enter" );
 		
 		if( null == context ) 
-			throw new RuntimeException( "LiveStreamHelperV27 is not initialized" );
+			throw new RuntimeException( "LiveStreamHelperV26 is not initialized" );
 		
 		int deleted = context.getContentResolver().delete( ContentUris.withAppendedId( LiveStreamConstants.CONTENT_URI, id ), null, null );
 		if( deleted == 1 ) {

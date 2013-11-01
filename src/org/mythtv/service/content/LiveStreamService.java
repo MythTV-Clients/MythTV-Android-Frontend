@@ -384,7 +384,12 @@ public class LiveStreamService extends MythtvService {
 				loaded = LiveStreamHelperV27.getInstance().load( this, locationProfile );
 
 				break;
-				
+			case v028 :
+
+				loaded = LiveStreamHelperV28.getInstance().load( this, locationProfile );
+
+				break;
+
 			default :
 				
 				loaded = LiveStreamHelperV26.getInstance().load( this, locationProfile );
@@ -421,6 +426,11 @@ public class LiveStreamService extends MythtvService {
 			case v027 :
 
 				removed = LiveStreamHelperV27.getInstance().remove( this, locationProfile, program.getChannelInfo().getChannelId(), program.getStartTime() );
+
+				break;
+			case v028 :
+
+				removed = LiveStreamHelperV28.getInstance().remove( this, locationProfile, program.getChannelInfo().getChannelId(), program.getStartTime() );
 
 				break;
 				
