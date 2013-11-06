@@ -19,6 +19,7 @@
 package org.mythtv.client.ui.preferences;
 
 import java.io.IOException;
+import java.lang.annotation.Target;
 import java.lang.ref.WeakReference;
 import java.net.InetAddress;
 import java.util.EventListener;
@@ -46,6 +47,7 @@ import android.content.Intent;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.net.wifi.WifiManager.MulticastLock;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.preference.ListPreference;
@@ -121,6 +123,50 @@ public class MythtvPreferenceActivity extends PreferenceActivity {
 
 		Log.v( TAG, "onOptionsItemSelected : exit" );
 		return super.onOptionsItemSelected( item );
+	}
+
+	/* (non-Javadoc)
+	 * @see android.preference.PreferenceActivity#isValidFragment(java.lang.String)
+	 */
+	@TargetApi( Build.VERSION_CODES.KITKAT )
+	@Override
+	protected boolean isValidFragment( String fragmentName ) {
+		Log.v( TAG, "isValidFragment : enter" );
+
+		Log.v( TAG, "isValidFragment : fragmentName=" + fragmentName );
+		
+		if( fragmentName.contains( "HomeProfilesPreferenceFragment" ) ) {
+			Log.v( TAG, "isValidFragment : exit, HomeProfilesPreferenceFragment" );
+
+			return true;
+		}
+		
+		if( fragmentName.contains( "HomePlaybackProfilesPreferenceFragment" ) ) {
+			Log.v( TAG, "isValidFragment : exit, HomePlaybackProfilesPreferenceFragment" );
+
+			return true;
+		}
+		
+		if( fragmentName.contains( "AwayProfilesPreferenceFragment" ) ) {
+			Log.v( TAG, "isValidFragment : exit, AwayProfilesPreferenceFragment" );
+
+			return true;
+		}
+		
+		if( fragmentName.contains( "AwayPlaybackProfilesPreferenceFragment" ) ) {
+			Log.v( TAG, "isValidFragment : exit, AwayPlaybackProfilesPreferenceFragment" );
+
+			return true;
+		}
+		
+		if( fragmentName.contains( "ProgramGuidePreferenceFragment" ) ) {
+			Log.v( TAG, "isValidFragment : exit, ProgramGuidePreferenceFragment" );
+
+			return true;
+		}
+		
+		Log.v( TAG, "isValidFragment : exit, default" );
+		return super.isValidFragment( fragmentName );
 	}
 
 	private abstract static class BasePreferenceFragment extends PreferenceFragment {
