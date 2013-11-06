@@ -22,7 +22,7 @@
 
 <resources>
     
-    <string name="app_version" translatable="false">1.20.5</string>
+    <string name="app_version" translatable="false">1.20.6</string>
 
     <string name="app_name">MythTV Android Frontend</string>
     <string name="app_short_name">MAF</string>
