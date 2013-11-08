@@ -380,6 +380,23 @@
 	<string name="encoders">Encoders</string>
 	<string name="job_queue">Job Queue</string>
 	<string name="upcoming_recordings">Upcoming Recordings</string>
+	<string name="machineinfo">Machine Info</string>
+	<string name="machineinfo_guide">Guide</string>
+	<string name="machineinfo_guide_days">Days:</string>
+	<string name="machineinfo_guide_datathru">Data Through:</string>
+	<string name="machineinfo_guide_filldbstart">Fill DB Start:</string>
+	<string name="machineinfo_guide_filldbend">Fill DB End:</string>
+	<string name="machineinfo_guide_filldbstatus">Fill DB Status:</string>
+	<string name="machineinfo_guide_comment">Comment:</string>
+	<string name="machineinfo_load">Load Averages</string>
+	<string name="machineinfo_load_avg1">1min:</string>
+	<string name="machineinfo_load_avg10">10min:</string>
+	<string name="machineinfo_load_avg15">15min:</string>
+	<string name="machineinfo_storage">Storage</string>
+	<string name="machineinfo_storage_directory">Directory:</string>
+	<string name="machineinfo_storage_total">Total:</string>
+	<string name="machineinfo_storage_free">Free:</string>
+	<string name="machineinfo_storage_expirable">Expirable:</string>
 	
 	<!-- Backend Status - Job Queue  -->
 	<string name="job_queue_status">Status:</string>
