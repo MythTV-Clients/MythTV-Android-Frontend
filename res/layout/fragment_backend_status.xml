@@ -37,7 +37,6 @@
 		    android:orientation="vertical"
 		    android:background="@color/background_1"
 		    style="@style/BackendStatusCardLinearLayout" >
-	    
 		    <TextView
 			    android:id="@+id/textview_status_header"
 			    android:layout_width="match_parent"
@@ -45,7 +44,6 @@
 			    style="@style/BackendStatusHeader"
 			    android:text="@string/connection_status"/>
 		    <View style="@style/BackendStatusHorizontalLine"/>
-
 			<TextView
 			    android:id="@+id/textview_status"
 			    android:layout_width="match_parent"
@@ -111,6 +109,215 @@
 			    android:text="@string/backend_status_job_queue_is_empty"/>
 			<LinearLayout
 			    android:id="@+id/linearlayout_job_queue"
+			    android:layout_width="match_parent"
+			    android:layout_height="wrap_content"
+			    android:layout_margin="5dp"
+			    android:orientation="vertical"/>
+		</LinearLayout>
+		
+	    <LinearLayout
+	        android:id="@+id/linearlayout_backendstatus_machineinfo_card"
+		    android:layout_width="match_parent"
+		    android:layout_height="wrap_content"
+		    android:orientation="vertical"
+		    android:background="@color/background_1"
+		    style="@style/BackendStatusCardLinearLayout" >
+			
+			<TextView
+			    android:id="@+id/textview_machineinfo_header"
+			    android:layout_width="match_parent"
+			    android:layout_height="wrap_content"
+			    style="@style/BackendStatusHeader"
+			    android:text="@string/machineinfo"/>
+			<View style="@style/BackendStatusHorizontalLine"/>
+			<TextView
+		            android:id="@+id/textView_machineinfo_guide_header"
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content"
+		            android:layout_marginTop="5dp"
+		            style="@style/MachineInfoSubHeader"
+		            android:text="@string/machineinfo_guide" />
+			<LinearLayout 
+		        android:layout_width="match_parent"
+			    android:layout_height="wrap_content"
+			    android:orientation="horizontal"
+			    android:layout_marginLeft="5dp">
+		        <TextView
+		            android:id="@+id/textView_machineinfo_guide_datathru_header"
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content"
+		            android:paddingRight="2dp"
+		            android:textStyle="bold"
+		            android:text="@string/machineinfo_guide_datathru" />
+				<TextView
+					android:id="@+id/textView_machineinfo_guide_datatru"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:textColor="@color/body_text_2"/>
+			</LinearLayout>
+			<LinearLayout 
+		        android:layout_width="match_parent"
+			    android:layout_height="wrap_content"
+			    android:orientation="horizontal"
+			    android:layout_marginLeft="5dp">
+		        <TextView
+		            android:id="@+id/textView_machineinfo_guide_days_header"
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content"
+		            android:paddingRight="2dp"
+		            android:textStyle="bold"
+		            android:text="@string/machineinfo_guide_days" />
+				<TextView
+					android:id="@+id/textView_machineinfo_guide_days"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:textColor="@color/body_text_2"/>
+			</LinearLayout>
+			<LinearLayout 
+		        android:layout_width="match_parent"
+			    android:layout_height="wrap_content"
+			    android:orientation="horizontal"
+			    android:layout_marginLeft="5dp">
+		        <TextView
+		            android:id="@+id/textView_machineinfo_guide_filldbstart_header"
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content"
+		            android:paddingRight="2dp"
+		            android:textStyle="bold"
+		            android:text="@string/machineinfo_guide_filldbstart" />
+				<TextView
+					android:id="@+id/textView_machineinfo_guide_filldbstart"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:textColor="@color/body_text_2"/>
+			</LinearLayout>
+			<LinearLayout 
+		        android:layout_width="match_parent"
+			    android:layout_height="wrap_content"
+			    android:orientation="horizontal"
+			    android:layout_marginLeft="5dp">
+		        <TextView
+		            android:id="@+id/textView_machineinfo_guide_filldbend_header"
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content"
+		            android:paddingRight="2dp"
+		            android:textStyle="bold"
+		            android:text="@string/machineinfo_guide_filldbend" />
+				<TextView
+					android:id="@+id/textView_machineinfo_guide_filldbend"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:textColor="@color/body_text_2"/>
+			</LinearLayout>
+			<LinearLayout 
+		        android:layout_width="match_parent"
+			    android:layout_height="wrap_content"
+			    android:orientation="horizontal"
+			    android:layout_marginLeft="5dp">
+		        <TextView
+		            android:id="@+id/textView_machineinfo_guide_filldbstatus_header"
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content"
+		            android:paddingRight="2dp"
+		            android:textStyle="bold"
+		            android:text="@string/machineinfo_guide_filldbstatus" />
+				<TextView
+					android:id="@+id/textView_machineinfo_guide_filldbstatus"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:textColor="@color/body_text_2"/>
+			</LinearLayout>
+			<LinearLayout 
+		        android:layout_width="match_parent"
+			    android:layout_height="wrap_content"
+			    android:orientation="horizontal"
+			    android:layout_marginLeft="5dp">
+		        <TextView
+		            android:id="@+id/textView_machineinfo_guide_comment_header"
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content"
+		            android:paddingRight="2dp"
+		            android:textStyle="bold"
+		            android:text="@string/machineinfo_guide_comment" />
+				<TextView
+					android:id="@+id/textView_machineinfo_guide_comment"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:textColor="@color/body_text_2"/>
+			</LinearLayout>
+			
+			<TextView
+		            android:id="@+id/textView_machineinfo_load_header"
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content"
+		            android:layout_marginTop="5dp"
+		            style="@style/MachineInfoSubHeader"
+		            android:text="@string/machineinfo_load" />
+			<LinearLayout 
+		        android:layout_width="match_parent"
+			    android:layout_height="wrap_content"
+			    android:orientation="horizontal"
+			    android:layout_marginLeft="5dp">
+		        <TextView
+		            android:id="@+id/textView_machineinfo_load_avg1_header"
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content"
+		            android:paddingRight="2dp"
+		            android:textStyle="bold"
+		            android:text="@string/machineinfo_load_avg1" />
+				<TextView
+					android:id="@+id/textView_machineinfo_load_avg1"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:textColor="@color/body_text_2"/>
+			</LinearLayout>
+			<LinearLayout 
+		        android:layout_width="match_parent"
+			    android:layout_height="wrap_content"
+			    android:orientation="horizontal"
+			    android:layout_marginLeft="5dp">
+		        <TextView
+		            android:id="@+id/textView_machineinfo_load_avg10_header"
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content"
+		            android:paddingRight="2dp"
+		            android:textStyle="bold"
+		            android:text="@string/machineinfo_load_avg10" />
+				<TextView
+					android:id="@+id/textView_machineinfo_load_avg10"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:textColor="@color/body_text_2"/>
+			</LinearLayout>
+			<LinearLayout 
+		        android:layout_width="match_parent"
+			    android:layout_height="wrap_content"
+			    android:orientation="horizontal"
+			    android:layout_marginLeft="5dp">
+		        <TextView
+		            android:id="@+id/textView_machineinfo_load_avg15_header"
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content"
+		            android:paddingRight="2dp"
+		            android:textStyle="bold"
+		            android:text="@string/machineinfo_load_avg15" />
+				<TextView
+					android:id="@+id/textView_machineinfo_load_avg15"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:textColor="@color/body_text_2"/>
+			</LinearLayout>
+			
+			<TextView
+		            android:id="@+id/textView_machineinfo_storage_header"
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content"
+		            android:layout_marginTop="5dp"
+		            style="@style/MachineInfoSubHeader"
+		            android:text="@string/machineinfo_storage" />
+				
+			<LinearLayout
+			    android:id="@+id/linearlayout_machineinfo_storage_list"
 			    android:layout_width="match_parent"
 			    android:layout_height="wrap_content"
 			    android:layout_margin="5dp"

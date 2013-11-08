@@ -28,9 +28,13 @@ import org.mythtv.client.ui.util.MenuHelper;
 import org.mythtv.client.ui.util.MenuItemRefreshAnimated;
 import org.mythtv.client.ui.util.ProgramHelper;
 import org.mythtv.db.dvr.model.Program;
+import org.mythtv.db.myth.model.Group;
 import org.mythtv.db.status.model.BackendStatus;
 import org.mythtv.db.status.model.Encoder;
+import org.mythtv.db.status.model.Guide;
 import org.mythtv.db.status.model.Job;
+import org.mythtv.db.status.model.Load;
+import org.mythtv.db.status.model.MachineInfo;
 import org.mythtv.service.channel.ChannelDownloadService;
 import org.mythtv.service.dvr.RecordedService;
 import org.mythtv.service.dvr.RecordingRuleService;
@@ -39,6 +43,7 @@ import org.mythtv.service.frontends.FrontendsDiscoveryService;
 import org.mythtv.service.guide.ProgramGuideDownloadService;
 import org.mythtv.service.status.BackendStatusService;
 import org.mythtv.service.util.DateUtils;
+import org.mythtv.services.api.v025.status.beans.Information;
 
 import android.animation.ValueAnimator;
 import android.animation.ValueAnimator.AnimatorUpdateListener;
@@ -68,6 +73,7 @@ import android.widget.TextView;
 public class BackendStatusFragment extends AbstractMythFragment {
 
 	private static final String TAG = BackendStatusFragment.class.getSimpleName();
+	private static final int INTER_CARD_ANIMATION_DELAY = 250;
 	public static final String BACKEND_STATUS_FRAGMENT_NAME = "org.mythtv.client.ui.BackendStatusFragment";
 
 	private ProgramHelper mProgramHelper = ProgramHelper.getInstance();
@@ -84,11 +90,13 @@ public class BackendStatusFragment extends AbstractMythFragment {
 	private View mView;
 	private MenuItemRefreshAnimated mMenuItemRefresh;
 	private LocationProfile mLocationProfile;
+	private LinearLayout mLinearLayoutMachineInfoStorageList;
 	private LinearLayout mLinearLayoutEncodersList;
 	private LinearLayout mLinearLayoutUpcomingRecsList;
 	private LinearLayout mLinearLayoutJobQueueList;
 	private LinearLayout mLinearLayoutStatusCard;
 	private LinearLayout mLinearLayoutEncodersCard;
+	private LinearLayout mLinearLayoutMachineInfoCard;
 	private LinearLayout mLinearLayoutUpcomingRecsCard;
 	private LinearLayout mLinearLayoutJobQueueCard;
 	private TextView mTextViewEncodersEmpty;
@@ -159,6 +167,7 @@ public class BackendStatusFragment extends AbstractMythFragment {
 		
 		mView = inflater.inflate( R.layout.fragment_backend_status, null, false );
 		
+		mLinearLayoutMachineInfoStorageList = (LinearLayout) mView.findViewById(R.id.linearlayout_machineinfo_storage_list);
 		mLinearLayoutEncodersList = (LinearLayout) mView.findViewById( R.id.linearlayout_encoders_list );
 		mLinearLayoutUpcomingRecsList = (LinearLayout) mView.findViewById( R.id.linearlayout_upcoming_recordings_list );
 		mLinearLayoutJobQueueList = (LinearLayout) mView.findViewById( R.id.linearlayout_job_queue );
@@ -169,6 +178,9 @@ public class BackendStatusFragment extends AbstractMythFragment {
 		mLinearLayoutEncodersCard = (LinearLayout) mView.findViewById( R.id.linearlayout_backendstatus_encoders_card );
 		mLinearLayoutEncodersCard.setAlpha( 0 );
 		mLinearLayoutEncodersCard.setTranslationY( mPanelStartY );
+		mLinearLayoutMachineInfoCard = (LinearLayout) mView.findViewById( R.id.linearlayout_backendstatus_machineinfo_card );
+		mLinearLayoutMachineInfoCard.setAlpha( 0 );
+		mLinearLayoutMachineInfoCard.setTranslationY( mPanelStartY );
 		mLinearLayoutUpcomingRecsCard = (LinearLayout) mView.findViewById( R.id.linearlayout_backendstatus_upcoming_recordings_card );
 		mLinearLayoutUpcomingRecsCard.setAlpha( 0 );
 		mLinearLayoutUpcomingRecsCard.setTranslationY( mPanelStartY );
@@ -421,11 +433,15 @@ public class BackendStatusFragment extends AbstractMythFragment {
 	 */
 	private void onBackendStatusUpdated( BackendStatus result ) {
 
+		int interCardAnimationDelay = 0;
+		
+		
 		this.mMenuItemRefresh.stopRefreshAnimation();
 
 		LayoutInflater inflater = LayoutInflater.from( this.getActivity() );
 
 		// clear lists
+		mLinearLayoutMachineInfoStorageList.removeAllViews();
 		mLinearLayoutEncodersList.removeAllViews();
 		mLinearLayoutUpcomingRecsList.removeAllViews();
 		mLinearLayoutJobQueueList.removeAllViews();
@@ -445,7 +461,8 @@ public class BackendStatusFragment extends AbstractMythFragment {
 		}
 
 		if( null != mLinearLayoutEncodersCard ) {
-			animateCardLinearLayout( mLinearLayoutEncodersCard, 0 );
+			animateCardLinearLayout( mLinearLayoutEncodersCard, interCardAnimationDelay );
+			interCardAnimationDelay+=INTER_CARD_ANIMATION_DELAY;
 		}
 
 		List<Job> jobs = result.getJobQueue().getJobs();
@@ -462,7 +479,53 @@ public class BackendStatusFragment extends AbstractMythFragment {
 		}
 
 		if( null != mLinearLayoutJobQueueCard ) {
-			animateCardLinearLayout( mLinearLayoutJobQueueCard, 250 );
+			animateCardLinearLayout( mLinearLayoutJobQueueCard, interCardAnimationDelay );
+			interCardAnimationDelay+=INTER_CARD_ANIMATION_DELAY;
+		}
+		
+		// Setup machine info card
+		MachineInfo info = result.getMachineInfo();
+		if(null != info){
+			TextView tView;
+			
+			Guide guide = info.getGuide();
+			if(null != guide){
+				tView = (TextView)mView.findViewById(R.id.textView_machineinfo_guide_datatru);
+				if(null != tView) tView.setText(guide.getGuideThru().toDate().toString());
+				tView = (TextView)mView.findViewById(R.id.textView_machineinfo_guide_days);
+				if(null != tView) tView.setText(Integer.toString(guide.getGuideDays()));
+				tView = (TextView)mView.findViewById(R.id.textView_machineinfo_guide_filldbstart);
+				if(null != tView) tView.setText(guide.getStart());
+				tView = (TextView)mView.findViewById(R.id.textView_machineinfo_guide_filldbend);
+				if(null != tView) tView.setText(guide.getEnd());
+				tView = (TextView)mView.findViewById(R.id.textView_machineinfo_guide_filldbstatus);
+				if(null != tView) tView.setText(guide.getStatus());
+				tView = (TextView)mView.findViewById(R.id.textView_machineinfo_guide_comment);
+				if(null != tView) tView.setText(guide.getComment());
+			}
+			
+			Load load = info.getLoad();
+			if(null != load){
+				tView = (TextView)mView.findViewById(R.id.textView_machineinfo_load_avg1);
+				if(null != tView) tView.setText(load.getAverageOne());
+				tView = (TextView)mView.findViewById(R.id.textView_machineinfo_load_avg10);
+				if(null != tView) tView.setText(load.getAverageTwo());
+				tView = (TextView)mView.findViewById(R.id.textView_machineinfo_load_avg15);
+				if(null != tView) tView.setText(load.getAverageThree());
+			}
+			
+			if(null != info.getStorage()){
+				List<Group> groups = info.getStorage().getGroups();
+				for(int i=0; i<groups.size(); i++){
+					mLinearLayoutMachineInfoStorageList.addView(this.getStorageView(inflater, groups.get(i)));
+				}
+			}
+			
+			if( null != mLinearLayoutMachineInfoCard ) {
+				animateCardLinearLayout( mLinearLayoutMachineInfoCard, interCardAnimationDelay );
+				interCardAnimationDelay+=INTER_CARD_ANIMATION_DELAY;
+			}
+			
 		}
 
 		// Set Upcoming recordings list
@@ -480,8 +543,29 @@ public class BackendStatusFragment extends AbstractMythFragment {
 		}
 
 		if( null != mLinearLayoutUpcomingRecsCard ) {
-			animateCardLinearLayout( mLinearLayoutUpcomingRecsCard, 500 );
+			animateCardLinearLayout( mLinearLayoutUpcomingRecsCard, interCardAnimationDelay );
+			interCardAnimationDelay+=INTER_CARD_ANIMATION_DELAY;
 		}
+		
+		
+	}
+	
+	private View getStorageView( LayoutInflater inflater, Group group ) {
+		
+		View view = (View) inflater.inflate( R.layout.backend_status_storage_group_list_item, null, false );
+	
+		TextView tView;
+		
+		tView = (TextView)view.findViewById(R.id.textView_storagegroup_directory);
+		tView.setText(group.getDirectory());
+		tView = (TextView)view.findViewById(R.id.textView_storagegroup_total);
+		tView.setText(group.getTotal() + " MB");
+		tView = (TextView)view.findViewById(R.id.textView_storagegroup_free);
+		tView.setText(group.getFree() + " MB");
+		tView = (TextView)view.findViewById(R.id.textView_storagegroup_expirable);
+		tView.setText(group.getExpirable() + " MB");
+
+		return view;
 	}
 
 	private View getEncoderView( LayoutInflater inflater, Encoder encoder ) {
