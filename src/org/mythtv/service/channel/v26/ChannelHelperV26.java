@@ -22,6 +22,7 @@
 package org.mythtv.service.channel.v26;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.joda.time.DateTime;
@@ -29,15 +30,14 @@ import org.joda.time.DateTimeZone;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.AbstractBaseHelper;
 import org.mythtv.db.channel.ChannelConstants;
-import org.mythtv.db.http.model.EtagInfoDelegate;
 import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.ApiVersion;
+import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.MythServiceApiRuntimeException;
 import org.mythtv.services.api.connect.MythAccessFactory;
 import org.mythtv.services.api.v026.MythServicesTemplate;
 import org.mythtv.services.api.v026.beans.ChannelInfo;
 import org.mythtv.services.api.v026.beans.ChannelInfoList;
-import org.mythtv.services.api.v026.beans.ChannelInfos;
 import org.mythtv.services.api.v026.beans.VideoSource;
 import org.mythtv.services.api.v026.beans.VideoSourceList;
 import org.springframework.http.HttpStatus;
@@ -110,9 +110,7 @@ public class ChannelHelperV26 extends AbstractBaseHelper {
 		boolean passed = true;
 		
 		try {
-			EtagInfoDelegate etag = mEtagDaoHelper.findByEndpointAndDataId( context, locationProfile, "GetVideoSourceList", null );
-			
-			ResponseEntity<VideoSourceList> responseEntity = mMythServicesTemplate.channelOperations().getVideoSourceList( etag );
+			ResponseEntity<VideoSourceList> responseEntity = mMythServicesTemplate.channelOperations().getVideoSourceList( ETagInfo.createEmptyETag() );
 			if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
 				Log.i( TAG, "process : response returned HTTP 200" );
 				
@@ -120,57 +118,29 @@ public class ChannelHelperV26 extends AbstractBaseHelper {
 				if( null != videoSourceList ) {
 
 					// holder for all downloaded channel lists
-					List<ChannelInfos> allChannelLists = new ArrayList<ChannelInfos>();
+					List<ChannelInfo> allChannelLists = new ArrayList<ChannelInfo>();
 					
 					int nap = 1000; // 500ms & 1ms fail
 					int count = 0;
-					for( VideoSource videoSource : videoSourceList.getVideoSources().getVideoSources() ) {
+					for( VideoSource videoSource : videoSourceList.getVideoSources() ) {
 						Log.i( TAG, "process : videoSourceId = '" + videoSource.getId() + "'" );
 						
-						DateTime date = mEtagDaoHelper.findDateByEndpointAndDataId( context, locationProfile, "GetChannelInfoList", String.valueOf( videoSource.getId() ) );
-						if( null != date ) {
-							
-							DateTime now = new DateTime( DateTimeZone.UTC );
-							if( now.getMillis() - date.getMillis() > 86400000 ) {
+						// Download the channel listing, return list
+						Log.v( TAG, "process : downloading channels" );
+						ChannelInfo[] channelInfos = downloadChannels( context, locationProfile, videoSource.getId() );
+						if( null != channelInfos ) {
 
-								// Download the channel listing, return list
-								Log.i( TAG, "process : downloading channels" );
-								ChannelInfos channelInfos = downloadChannels( context, locationProfile, videoSource.getId() );
-								if( null != channelInfos ) {
+							allChannelLists.addAll( Arrays.asList( channelInfos ) );
 
-									allChannelLists.add( channelInfos );
-
-								}
-
-								// wait a second before downloading the next one (if there are more than one video source)
-								if( count < videoSourceList.getVideoSources().getVideoSources().size() - 1 ) {
-									Log.i( TAG, "process : sleeping " + nap + " ms" );
-									Thread.sleep( nap );
-								}
-
-								count++;
-							}
-							
-						} else {
-							
-							// Download the channel listing, return list
-							Log.i( TAG, "process : downloading channels" );
-							ChannelInfos channelInfos = downloadChannels( context, locationProfile, videoSource.getId() );
-							if( null != channelInfos ) {
-
-								allChannelLists.add( channelInfos );
-
-							}
-
-							// wait a second before downloading the next one (if there are more than one video source)
-							if(  count < videoSourceList.getVideoSources().getVideoSources().size() - 1 ) {
-								Log.i( TAG, "process : sleeping " + nap + " ms" );
-								Thread.sleep( nap );
-							}
-
-							count++;
 						}
-						
+
+						// wait a second before downloading the next one (if there are more than one video source)
+						if( count < videoSourceList.getVideoSources().length - 1 ) {
+							Log.i( TAG, "process : sleeping " + nap + " ms" );
+							Thread.sleep( nap );
+						}
+
+						count++;
 					}
 
 					// Process the combined lists of downloaded channels
@@ -188,7 +158,7 @@ public class ChannelHelperV26 extends AbstractBaseHelper {
 		
 		} catch( Exception e ) {
 			Log.e( TAG, "process : error", e );
-		
+
 			passed = false;
 		}
 		
@@ -197,7 +167,7 @@ public class ChannelHelperV26 extends AbstractBaseHelper {
 	}
 	
 	public ChannelInfo findChannel( final Context context, final LocationProfile locationProfile, Integer channelId ) {
-		Log.d( TAG, "findChannel : enter" );
+//		Log.d( TAG, "findChannel : enter" );
 		
 		String selection = ChannelConstants.FIELD_CHAN_ID + " = ?";
 		String[] selectionArgs = new String[] { String.valueOf( channelId ) };
@@ -213,32 +183,22 @@ public class ChannelHelperV26 extends AbstractBaseHelper {
 		}
 		cursor.close();
 
-		Log.d( TAG, "findChannel : exit" );
+//		Log.d( TAG, "findChannel : exit" );
 		return channel;
 	}
 	
 	// internal helpers
 	
-	private ChannelInfos downloadChannels( final Context context, final LocationProfile locationProfile, final int sourceId ) throws MythServiceApiRuntimeException {
+	private ChannelInfo[] downloadChannels( final Context context, final LocationProfile locationProfile, final int sourceId ) throws MythServiceApiRuntimeException {
 		Log.v( TAG, "downloadChannels : enter" );
 		
-		EtagInfoDelegate etag = mEtagDaoHelper.findByEndpointAndDataId( context, locationProfile, "GetChannelInfoList", String.valueOf( sourceId ) );
-		
-		ResponseEntity<ChannelInfoList> responseEntity = mMythServicesTemplate.channelOperations().getChannelInfoList( sourceId, 0, -1, etag );
+		ResponseEntity<ChannelInfoList> responseEntity = mMythServicesTemplate.channelOperations().getChannelInfoList( sourceId, 0, null, ETagInfo.createEmptyETag() );
 
-		DateTime date = new DateTime( DateTimeZone.UTC );
 		if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
 			Log.i( TAG, "downloadChannels : GetChannelInfoList returned 200 OK" );
 
 			ChannelInfoList channelInfoList = responseEntity.getBody();
 			if( null != channelInfoList ) {
-
-				etag.setEndpoint( "GetChannelInfoList" );
-				etag.setDataId( sourceId );
-				etag.setDate( date );
-				etag.setMasterHostname( locationProfile.getHostname() );
-				etag.setLastModified( date );
-				mEtagDaoHelper.save( context, locationProfile, etag );
 
 				if( null != channelInfoList.getChannelInfos() ) {
 					Log.v( TAG, "downloadChannels : exit, returning channelInfos" );
@@ -250,18 +210,11 @@ public class ChannelHelperV26 extends AbstractBaseHelper {
 
 		}
 
-		if( responseEntity.getStatusCode().equals( HttpStatus.NOT_MODIFIED ) ) {
-			Log.i( TAG, "downloadChannels : GetChannelInfoList returned 304 Not Modified" );
-
-			etag.setLastModified( date );
-			mEtagDaoHelper.save( context, locationProfile, etag );
-		}
-
 		Log.d( TAG, "downloadChannels : exit" );
 		return null;
 	}
 
-	private int load( final Context context, final LocationProfile locationProfile, final List<ChannelInfos> allChannelsList ) throws RemoteException, OperationApplicationException {
+	private int load( final Context context, final LocationProfile locationProfile, final List<ChannelInfo> allChannelsList ) throws RemoteException, OperationApplicationException {
 		Log.d( TAG, "load : enter" );
 		
 		if( null == context ) 
@@ -274,24 +227,19 @@ public class ChannelHelperV26 extends AbstractBaseHelper {
 		
 		ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
 		
-		for( ChannelInfos channelInfos : allChannelsList ) {
-//			Log.v( TAG, "load : channelInfos iteration, channels in this source: " + channelInfos.getTotalAvailable() );
-			
-			for( ChannelInfo channel : channelInfos.getChannelInfos() ) {
-				
-				if( channel.isVisable() ) {
-				
-					processChannel( context, locationProfile, ops, channel );
-					count++;
-					
-					if( count > BATCH_COUNT_LIMIT ) {
-//						Log.v( TAG, "process : batch update/insert" );
+		for( ChannelInfo channel : allChannelsList ) {
 
-						processBatch( context, ops, processed, count );
-						
-						count = 0;
-					}
+			if( channel.isVisible() ) {
+
+				processChannel( context, locationProfile, ops, channel );
+				count++;
 				
+				if( count > BATCH_COUNT_LIMIT ) {
+//					Log.v( TAG, "process : batch update/insert" );
+
+					processBatch( context, ops, processed, count );
+					
+					count = 0;
 				}
 
 			}
@@ -311,7 +259,11 @@ public class ChannelHelperV26 extends AbstractBaseHelper {
 	}
 
 	public void processChannel( final Context context, final LocationProfile locationProfile, ArrayList<ContentProviderOperation> ops, ChannelInfo channel ) {
-		Log.d( TAG, "processProgram : enter" );
+//		Log.d( TAG, "processChannel : enter" );
+
+		if( channel.getSourceId() < 1 || ( null == channel.getXMLTVID() || "".equals( channel.getXMLTVID() ) ) ) {
+			Log.d( TAG, "processChannel : channelId=" + channel.getChanId() + ", channelNumber=" + channel.getChanNum() + ", callSign=" + channel.getCallSign() + ", sourceId=" + channel.getSourceId() + ", xmltvid=" + channel.getXMLTVID() );
+		}
 		
 		ContentValues channelValues = convertChannelInfoToContentValues( locationProfile, channel );
 		ops.add(  
@@ -321,7 +273,7 @@ public class ChannelHelperV26 extends AbstractBaseHelper {
 				.build()
 		);
 
-		Log.d( TAG, "processProgram : exit" );
+//		Log.d( TAG, "processChannel : exit" );
 	}
 
 	private void deleteChannels( final Context context, final LocationProfile locationProfile, ArrayList<ContentProviderOperation> ops, DateTime today ) {
@@ -345,7 +297,8 @@ public class ChannelHelperV26 extends AbstractBaseHelper {
 	public ChannelInfo convertCursorToChannelInfo( Cursor cursor ) {
 //		Log.v( TAG, "convertCursorToChannelInfo : enter" );
 
-		int  channelId = -1, multiplexId = -1, transportId = -1, serviceId = -1, networkId = -1, atscMajorChannel = -1, atscMinorChannel = -1, frequency = -1, fineTune = -1, sourceId = -1, inputId = -1, commercialFree = -1, useEit = -1, visible = -1;
+		int  channelId = -1, multiplexId = -1, transportId = -1, serviceId = -1, networkId = -1, atscMajorChannel = -1, atscMinorChannel = -1, fineTune = -1, sourceId = -1, inputId = -1, commercialFree = -1, useEit = -1, visible = -1;
+		long frequency = -1;
 		String channelNumber = "", callsign = "", iconUrl = "", channelName = "", format = "", modulation = "", frequencyId = "", frequencyTable = "", sisStandard = "", channelFilters = "", xmltvId = "", defaultAuth = "";
 		
 		if( cursor.getColumnIndex( ChannelConstants.TABLE_NAME + "_" + ChannelConstants.FIELD_CHAN_ID ) != -1 ) {
@@ -401,7 +354,7 @@ public class ChannelHelperV26 extends AbstractBaseHelper {
 		}
 		
 		if( cursor.getColumnIndex( ChannelConstants.TABLE_NAME + "_" + ChannelConstants.FIELD_FREQUENCY ) != -1 ) {
-			frequency = cursor.getInt( cursor.getColumnIndex( ChannelConstants.TABLE_NAME + "_" + ChannelConstants.FIELD_FREQUENCY ) );
+			frequency = cursor.getLong( cursor.getColumnIndex( ChannelConstants.TABLE_NAME + "_" + ChannelConstants.FIELD_FREQUENCY ) );
 		}
 		
 		if( cursor.getColumnIndex( ChannelConstants.TABLE_NAME + "_" + ChannelConstants.FIELD_FREQUENCY_ID ) != -1 ) {
@@ -457,31 +410,31 @@ public class ChannelHelperV26 extends AbstractBaseHelper {
 		}
 
 		ChannelInfo channelInfo = new ChannelInfo();
-		channelInfo.setChannelId( channelId );
-		channelInfo.setChannelNumber( channelNumber );
+		channelInfo.setChanId( channelId );
+		channelInfo.setChanNum( channelNumber );
 		channelInfo.setCallSign( callsign );
-		channelInfo.setIconUrl( iconUrl );
+		channelInfo.setIconURL( iconUrl );
 		channelInfo.setChannelName( channelName );
-		channelInfo.setMultiplexId( multiplexId );
+		channelInfo.setMplexId( multiplexId );
 		channelInfo.setTransportId( transportId );
 		channelInfo.setServiceId( serviceId );
 		channelInfo.setNetworkId( networkId );
-		channelInfo.setAtscMajorChannel( atscMajorChannel );
-		channelInfo.setAtscMinorChannel( atscMinorChannel );
+		channelInfo.setATSCMajorChan( atscMajorChannel );
+		channelInfo.setATSCMinorChan( atscMinorChannel );
 		channelInfo.setFormat( format );
 		channelInfo.setModulation( modulation );
 		channelInfo.setFrequency( frequency );
 		channelInfo.setFrequencyId( frequencyId );
-		channelInfo.setFrequenceTable( frequencyTable );
+		channelInfo.setFrequencyTable( frequencyTable );
 		channelInfo.setFineTune( fineTune );
-		channelInfo.setSiStandard( sisStandard );
-		channelInfo.setChannelFilters( channelFilters );
+		channelInfo.setSIStandard( sisStandard );
+		channelInfo.setChanFilters( channelFilters );
 		channelInfo.setSourceId( sourceId );
 		channelInfo.setInputId( inputId );
-		channelInfo.setCommercialFree( commercialFree );
-		channelInfo.setUseEit( useEit == 1 ? true : false );
-		channelInfo.setVisable( visible == 1 ? true : false );
-		channelInfo.setXmltvId( xmltvId );
+		channelInfo.setCommFree( commercialFree );
+		channelInfo.setUseEIT( useEit == 1 ? true : false );
+		channelInfo.setVisible( visible == 1 ? true : false );
+		channelInfo.setXMLTVID( xmltvId );
 		channelInfo.setDefaultAuth( defaultAuth );
 		
 //		Log.v( TAG, "convertCursorToChannelInfo : exit" );
@@ -491,38 +444,38 @@ public class ChannelHelperV26 extends AbstractBaseHelper {
 	public ContentValues convertChannelInfoToContentValues( final LocationProfile locationProfile, final ChannelInfo channelInfo ) {
 //		Log.v( TAG, "convertChannelToContentValues : enter" );
 		
-		String formattedChannelNumber = formatChannelNumber( channelInfo.getChannelNumber() );
+		String formattedChannelNumber = formatChannelNumber( channelInfo.getChanNum() );
 		if( formattedChannelNumber.startsWith( "." ) ) {
 			formattedChannelNumber = formattedChannelNumber.substring( 1 );
 		}
 
 		ContentValues values = new ContentValues();
-		values.put( ChannelConstants.FIELD_CHAN_ID, channelInfo.getChannelId() );
-		values.put( ChannelConstants.FIELD_CHAN_NUM, channelInfo.getChannelNumber() );
+		values.put( ChannelConstants.FIELD_CHAN_ID, channelInfo.getChanId() );
+		values.put( ChannelConstants.FIELD_CHAN_NUM, channelInfo.getChanNum() );
 		values.put( ChannelConstants.FIELD_CHAN_NUM_FORMATTED, ( null == formattedChannelNumber || formattedChannelNumber.length() == 0 ) ? 0.0 : Float.parseFloat( formattedChannelNumber ) );
 		values.put( ChannelConstants.FIELD_CALLSIGN, channelInfo.getCallSign() );
-		values.put( ChannelConstants.FIELD_ICON_URL, channelInfo.getIconUrl() );
+		values.put( ChannelConstants.FIELD_ICON_URL, channelInfo.getIconURL() );
 		values.put( ChannelConstants.FIELD_CHANNEL_NAME, channelInfo.getChannelName() );
-		values.put( ChannelConstants.FIELD_MPLEX_ID, channelInfo.getMultiplexId() );
+		values.put( ChannelConstants.FIELD_MPLEX_ID, channelInfo.getMplexId() );
 		values.put( ChannelConstants.FIELD_TRANSPORT_ID, channelInfo.getTransportId() );
 		values.put( ChannelConstants.FIELD_SERVICE_ID, channelInfo.getServiceId() );
 		values.put( ChannelConstants.FIELD_NETWORK_ID, channelInfo.getNetworkId() );
-		values.put( ChannelConstants.FIELD_ATSC_MAJOR_CHAN, channelInfo.getAtscMajorChannel() );
-		values.put( ChannelConstants.FIELD_ATSC_MINOR_CHAN, channelInfo.getAtscMinorChannel() );
+		values.put( ChannelConstants.FIELD_ATSC_MAJOR_CHAN, channelInfo.getATSCMajorChan() );
+		values.put( ChannelConstants.FIELD_ATSC_MINOR_CHAN, channelInfo.getATSCMinorChan() );
 		values.put( ChannelConstants.FIELD_FORMAT, channelInfo.getFormat() );
 		values.put( ChannelConstants.FIELD_MODULATION, channelInfo.getModulation() );
 		values.put( ChannelConstants.FIELD_FREQUENCY, channelInfo.getFrequency() );
 		values.put( ChannelConstants.FIELD_FREQUENCY_ID, channelInfo.getFrequencyId() );
-		values.put( ChannelConstants.FIELD_FREQUENCY_TABLE, channelInfo.getFrequenceTable() );
+		values.put( ChannelConstants.FIELD_FREQUENCY_TABLE, channelInfo.getFrequencyTable() );
 		values.put( ChannelConstants.FIELD_FINE_TUNE, channelInfo.getFineTune() );
-		values.put( ChannelConstants.FIELD_SIS_STANDARD, channelInfo.getSiStandard() );
-		values.put( ChannelConstants.FIELD_CHAN_FILTERS, channelInfo.getChannelFilters() );
+		values.put( ChannelConstants.FIELD_SIS_STANDARD, channelInfo.getSIStandard() );
+		values.put( ChannelConstants.FIELD_CHAN_FILTERS, channelInfo.getChanFilters() );
 		values.put( ChannelConstants.FIELD_SOURCE_ID, channelInfo.getSourceId() );
 		values.put( ChannelConstants.FIELD_INPUT_ID, channelInfo.getInputId() );
-		values.put( ChannelConstants.FIELD_COMM_FREE, channelInfo.getCommercialFree() );
-		values.put( ChannelConstants.FIELD_USE_EIT, ( channelInfo.isUseEit() ? 1 : 0 ) );
-		values.put( ChannelConstants.FIELD_VISIBLE, ( channelInfo.isVisable() ? 1 : 0 ) );
-		values.put( ChannelConstants.FIELD_XMLTV_ID, channelInfo.getXmltvId() );
+		values.put( ChannelConstants.FIELD_COMM_FREE, channelInfo.getCommFree() );
+		values.put( ChannelConstants.FIELD_USE_EIT, ( channelInfo.isUseEIT() ? 1 : 0 ) );
+		values.put( ChannelConstants.FIELD_VISIBLE, ( channelInfo.isVisible() ? 1 : 0 ) );
+		values.put( ChannelConstants.FIELD_XMLTV_ID, channelInfo.getXMLTVID() );
 		values.put( ChannelConstants.FIELD_DEFAULT_AUTH, channelInfo.getDefaultAuth() );
 		values.put( ChannelConstants.FIELD_MASTER_HOSTNAME, locationProfile.getHostname() );
 		values.put( ChannelConstants.FIELD_LAST_MODIFIED_DATE, new DateTime().getMillis() );

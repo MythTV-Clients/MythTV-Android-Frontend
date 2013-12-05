@@ -119,13 +119,13 @@ public class HostHelperV26 extends AbstractBaseHelper {
 	
 		List<String> hosts = null;
 
-		ResponseEntity<org.mythtv.services.api.v026.StringList> responseEntity = mMythServicesTemplate.mythOperations().getHosts( ETagInfo.createEmptyETag() );
+		ResponseEntity<org.mythtv.services.api.ArrayOfString> responseEntity = mMythServicesTemplate.mythOperations().getHosts( ETagInfo.createEmptyETag() );
 
 		if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
 
-			org.mythtv.services.api.v026.StringList hostList = responseEntity.getBody();
+			org.mythtv.services.api.ArrayOfString hostList = responseEntity.getBody();
 
-			if( null != hostList.getStringList() && hostList.getStringList().length > 0 ) {
+			if( null != hostList.getValue() && hostList.getValue().length > 0 ) {
 				hosts = load( hostList );	
 			}
 
@@ -135,14 +135,14 @@ public class HostHelperV26 extends AbstractBaseHelper {
 		return hosts;
 	}
 	
-	private List<String> load( org.mythtv.services.api.v026.StringList versionHosts ) {
+	private List<String> load( org.mythtv.services.api.ArrayOfString versionHosts ) {
 		Log.v( TAG, "load : enter" );
 		
 		List<String> hosts = new ArrayList<String>();
 		
 		if( null != versionHosts ) {
 			
-			for( String versionHost : versionHosts.getStringList() ) {
+			for( String versionHost : versionHosts.getValue() ) {
 				
 				hosts.add( versionHost );
 

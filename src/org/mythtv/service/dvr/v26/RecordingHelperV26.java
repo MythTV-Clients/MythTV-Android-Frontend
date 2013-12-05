@@ -30,7 +30,7 @@ import org.mythtv.db.AbstractBaseHelper;
 import org.mythtv.db.dvr.RecordingConstants;
 import org.mythtv.db.dvr.RecordingConstants.ContentDetails;
 import org.mythtv.services.api.v026.beans.Program;
-import org.mythtv.services.api.v026.beans.Recording;
+import org.mythtv.services.api.v026.beans.RecordingInfo;
 
 import android.content.ContentProviderOperation;
 import android.content.ContentUris;
@@ -97,19 +97,21 @@ public class RecordingHelperV26 extends AbstractBaseHelper {
 			String recordingSelection = RecordingConstants.FIELD_RECORD_ID + " = ? AND " + RecordingConstants.FIELD_START_TIME + " = ? AND " + RecordingConstants.FIELD_MASTER_HOSTNAME + " = ?";
 			String[] recordingSelectionArgs = new String[] { String.valueOf( program.getRecording().getRecordId() ), String.valueOf( program.getStartTime().getMillis() ), locationProfile.getHostname() };
 
+			//Log.v( TAG, "processRecording : recording=" + program.getRecording().toString() );
+
 			Cursor recordingCursor = context.getContentResolver().query( details.getContentUri(), recordingProjection, recordingSelection, recordingSelectionArgs, null );
 			if( recordingCursor.moveToFirst() ) {
-				Log.v( TAG, "processRecording : UPDATE RECORDING : " + program.getTitle() + ", recording=" + program.getRecording().getRecordId() + ":" + details.getTableName() );
+				Log.v( TAG, "processRecording : UPDATE RECORDING : " + program.getTitle() + ":" + program.getSubTitle() + ", recording=" + program.getRecording().getRecordId() + ":" + details.getTableName() );
 
 				Long id = recordingCursor.getLong( recordingCursor.getColumnIndexOrThrow( details.getTableName() + "_" + RecordingConstants._ID ) );					
 				ops.add( 
-					ContentProviderOperation.newUpdate( ContentUris.withAppendedId( details.getContentUri(), id ) )
+						ContentProviderOperation.newUpdate( ContentUris.withAppendedId( details.getContentUri(), id ) )
 						.withValues( recordingValues )
 						.withYieldAllowed( true )
 						.build()
-				);
+						);
 			} else {
-				//Log.v( TAG, "processRecording : INSERT RECORDING : " + program.getTitle() + ", recording=" + program.getRecording().getRecordId() + ":" + details.getTableName() );
+				//Log.v( TAG, "processRecording : INSERT RECORDING : " + program.getTitle() + ":" + program.getSubTitle() + ", recording=" + program.getRecording().getRecordId() + ":" + details.getTableName() );
 				ops.add(  
 					ContentProviderOperation.newInsert( details.getContentUri() )
 						.withValues( recordingValues )
@@ -123,7 +125,7 @@ public class RecordingHelperV26 extends AbstractBaseHelper {
 		
 //		Log.v( TAG, "processRecording : exit" );
 	}
-	
+
 	public void deleteRecordings( final Context context, final LocationProfile locationProfile, ArrayList<ContentProviderOperation> ops, ContentDetails details ) {
 		Log.v( TAG, "deleteRecordings : enter" );
 		
@@ -179,7 +181,7 @@ public class RecordingHelperV26 extends AbstractBaseHelper {
 		return false;
 	}
 
-	public Recording convertCursorToRecording( final Cursor cursor, final String table ) {
+	public RecordingInfo convertCursorToRecording( final Cursor cursor, final String table ) {
 //		Log.v( TAG, "convertCursorToRecording : enter" );
 
 		RecordingConstants.ContentDetails details = RecordingConstants.ContentDetails.getValueFromParent( table );
@@ -241,18 +243,18 @@ public class RecordingHelperV26 extends AbstractBaseHelper {
 		}
 		
 
-		Recording recording = new Recording();
+		RecordingInfo recording = new RecordingInfo();
 		recording.setStatus( status );
 		recording.setPriority( priority );
-		recording.setStartTimestamp( startTimestamp );
-		recording.setEndTimestamp( endTimestamp );
+		recording.setStartTs( startTimestamp );
+		recording.setEndTs( endTimestamp );
 		recording.setRecordId( recordId );
-		recording.setRecordingGroup( recordingGroup );
+		recording.setRecGroup( recordingGroup );
 		recording.setPlayGroup( playGroup );
 		recording.setStorageGroup( storageGroup );
-		recording.setRecordingType( recordingType );
-		recording.setDuplicateInType( duplicateInType );
-		recording.setDuplicateMethod( duplicateMethod );
+		recording.setRecType( recordingType );
+		recording.setDupInType( duplicateInType );
+		recording.setDupMethod( duplicateMethod );
 		recording.setEncoderId( encoderId );
 		recording.setProfile( profile );
 		
@@ -260,20 +262,20 @@ public class RecordingHelperV26 extends AbstractBaseHelper {
 		return recording;
 	}
 
-	// internal helers
+	// internal helpers
 	
-	private ContentValues convertRecordingToContentValues( final LocationProfile locationProfile, final DateTime startTime, final Recording recording, final String tag ) {
+	private ContentValues convertRecordingToContentValues( final LocationProfile locationProfile, final DateTime startTime, final RecordingInfo recording, final String tag ) {
 //		Log.v( TAG, "convertRecordingToContentValues : enter" );
 		
 		DateTime startTimestamp = new DateTime( DateTimeZone.UTC );
-		if( null != recording.getStartTimestamp() ) {
-			startTimestamp = recording.getStartTimestamp();
+		if( null != recording.getStartTs() ) {
+			startTimestamp = recording.getStartTs();
 		}
 //		Log.v( TAG, "convertRecordingToContentValues : startTimestamp = " + startTimestamp.toString() );
 		
 		DateTime endTimestamp = new DateTime( DateTimeZone.UTC );
-		if( null != recording.getStartTimestamp() ) {
-			endTimestamp = recording.getEndTimestamp();
+		if( null != recording.getEndTs() ) {
+			endTimestamp = recording.getEndTs();
 		}
 		
 		ContentValues values = new ContentValues();
@@ -282,19 +284,19 @@ public class RecordingHelperV26 extends AbstractBaseHelper {
 		values.put( RecordingConstants.FIELD_START_TS, startTimestamp.getMillis() );
 		values.put( RecordingConstants.FIELD_END_TS, endTimestamp.getMillis() );
 		values.put( RecordingConstants.FIELD_RECORD_ID, recording.getRecordId() );
-		values.put( RecordingConstants.FIELD_REC_GROUP, null != recording.getRecordingGroup() ? recording.getRecordingGroup() : "" );
+		values.put( RecordingConstants.FIELD_REC_GROUP, null != recording.getRecGroup() ? recording.getRecGroup() : "" );
 		values.put( RecordingConstants.FIELD_PLAY_GROUP, null != recording.getPlayGroup() ? recording.getPlayGroup() : "" );
 		values.put( RecordingConstants.FIELD_STORAGE_GROUP, null != recording.getStorageGroup() ? recording.getStorageGroup() : "" );
-		values.put( RecordingConstants.FIELD_REC_TYPE, recording.getRecordingType() );
-		values.put( RecordingConstants.FIELD_DUP_IN_TYPE, recording.getDuplicateInType() );
-		values.put( RecordingConstants.FIELD_DUP_METHOD, recording.getDuplicateMethod() );
+		values.put( RecordingConstants.FIELD_REC_TYPE, recording.getRecType() );
+		values.put( RecordingConstants.FIELD_DUP_IN_TYPE, recording.getDupInType() );
+		values.put( RecordingConstants.FIELD_DUP_METHOD, recording.getDupMethod() );
 		values.put( RecordingConstants.FIELD_ENCODER_ID, recording.getEncoderId() );
 		values.put( RecordingConstants.FIELD_PROFILE, null != recording.getProfile() ? recording.getProfile() : "" );
 		values.put( RecordingConstants.FIELD_START_TIME, startTime.getMillis() );
 		values.put( RecordingConstants.FIELD_MASTER_HOSTNAME, locationProfile.getHostname() );
-		values.put( RecordingConstants.FIELD_LAST_MODIFIED_DATE, new DateTime( DateTimeZone.UTC ).getMillis() );
+		values.put( RecordingConstants.FIELD_LAST_MODIFIED_DATE, new DateTime().getMillis() );
 		values.put( RecordingConstants.FIELD_LAST_MODIFIED_TAG, tag );
-		
+
 //		Log.v( TAG, "convertRecordingToContentValues : exit" );
 		return values;
 	}

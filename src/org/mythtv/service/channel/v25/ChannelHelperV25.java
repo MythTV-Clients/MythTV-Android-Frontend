@@ -135,7 +135,7 @@ public class ChannelHelperV25 extends AbstractBaseHelper {
 						}
 
 						// wait a second before downloading the next one (if there are more than one video source)
-						if(  count < videoSourceList.getVideoSources().length - 1 ) {
+						if( count < videoSourceList.getVideoSources().length - 1 ) {
 							Log.i( TAG, "process : sleeping " + nap + " ms" );
 							Thread.sleep( nap );
 						}
@@ -158,11 +158,11 @@ public class ChannelHelperV25 extends AbstractBaseHelper {
 		
 		} catch( Exception e ) {
 			Log.e( TAG, "process : error", e );
-			
+
 			passed = false;
 		}
 		
-		Log.v( TAG, "downloadVideoSources : exit" );
+		Log.v( TAG, "process : exit" );
 		return passed;
 	}
 	

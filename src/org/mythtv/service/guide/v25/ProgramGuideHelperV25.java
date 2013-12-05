@@ -263,7 +263,7 @@ public class ProgramGuideHelperV25 extends AbstractBaseHelper {
 
 		if( !ops.isEmpty() ) {
 //			Log.i( TAG, "load : applying final batch for '" + count + "' transactions, processing programs" );
-			
+
 			processBatch( context, ops, processed, count );
 		}
 		

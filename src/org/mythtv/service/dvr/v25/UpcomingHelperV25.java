@@ -173,7 +173,7 @@ public class UpcomingHelperV25 extends AbstractBaseHelper {
 		int count = 0;
 		
 		ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
-		
+
 		boolean inError;
 
 		for( Program program : programs ) {

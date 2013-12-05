@@ -438,7 +438,7 @@ public class LiveStreamHelperV25 extends AbstractBaseHelper {
 			
 			Cursor cursor = context.getContentResolver().query( LiveStreamConstants.CONTENT_URI, projection, selection, selectionArgs, null );
 			if( cursor.moveToFirst() ) {
-				Log.v( TAG, "save : updating existing liveStream info" );
+				Log.v( TAG, "load : updating existing liveStream info" );
 				long id = cursor.getLong( cursor.getColumnIndexOrThrow( LiveStreamConstants.TABLE_NAME + "_" + LiveStreamConstants._ID ) );
 				
 				context.getContentResolver().update( ContentUris.withAppendedId( LiveStreamConstants.CONTENT_URI, id ), values, null, null );

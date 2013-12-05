@@ -262,7 +262,7 @@ public class RecordingHelperV25 extends AbstractBaseHelper {
 		return recording;
 	}
 
-	// internal helpers 
+	// internal helpers
 	
 	private ContentValues convertRecordingToContentValues( final LocationProfile locationProfile, final DateTime startTime, final RecordingInfo recording, final String tag ) {
 //		Log.v( TAG, "convertRecordingToContentValues : enter" );

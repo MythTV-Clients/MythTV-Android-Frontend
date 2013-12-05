@@ -22,7 +22,6 @@
 package org.mythtv.service.dvr.v26;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -31,6 +30,7 @@ import org.mythtv.db.AbstractBaseHelper;
 import org.mythtv.db.dvr.RecordingRuleConstants;
 import org.mythtv.db.dvr.model.RecRule;
 import org.mythtv.db.http.model.EtagInfoDelegate;
+import org.mythtv.service.util.DateUtils;
 import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.ApiVersion;
 import org.mythtv.services.api.MythServiceApiRuntimeException;
@@ -94,7 +94,7 @@ public class RecordingRuleHelperV26 extends AbstractBaseHelper {
 		Log.v( TAG, "process : enter" );
 		
 		if( !NetworkHelper.getInstance().isMasterBackendConnected( context, locationProfile ) ) {
-			Log.w( TAG, "deleteProgram : Master Backend '" + locationProfile.getHostname() + "' is unreachable" );
+			Log.w( TAG, "process : Master Backend '" + locationProfile.getHostname() + "' is unreachable" );
 			
 			return false;
 		}
@@ -205,8 +205,8 @@ public class RecordingRuleHelperV26 extends AbstractBaseHelper {
 	
 		EtagInfoDelegate etag = mEtagDaoHelper.findByEndpointAndDataId( context, locationProfile, "GetRecordScheduleList", "" );
 		Log.d( TAG, "downloadRecordinRules : etag=" + etag.getValue() );
-
-		ResponseEntity<org.mythtv.services.api.v026.beans.RecRuleList> responseEntity = mMythServicesTemplate.dvrOperations().getRecordScheduleList( -1, -1, etag );
+		
+		ResponseEntity<org.mythtv.services.api.v026.beans.RecRuleList> responseEntity = mMythServicesTemplate.dvrOperations().getRecordScheduleList( null, null, etag );
 
 		DateTime date = new DateTime( DateTimeZone.UTC );
 		if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
@@ -215,7 +215,7 @@ public class RecordingRuleHelperV26 extends AbstractBaseHelper {
 
 			if( null != recRuleList.getRecRules() ) {
 
-				load( context, locationProfile, recRuleList.getRecRules().getRecRules() );	
+				load( context, locationProfile, recRuleList.getRecRules() );	
 
 				if( null != etag.getValue() ) {
 					Log.i( TAG, "downloadRecordinRules : saving etag: " + etag.getValue() );
@@ -246,11 +246,11 @@ public class RecordingRuleHelperV26 extends AbstractBaseHelper {
 		Log.v( TAG, "downloadRecordinRules : exit" );
 	}
 
-	private int load( final Context context, final LocationProfile locationProfile, final List<org.mythtv.services.api.v026.beans.RecRule> recordingRules ) throws RemoteException, OperationApplicationException {
+	private int load( final Context context, final LocationProfile locationProfile, final org.mythtv.services.api.v026.beans.RecRule[] recordingRules ) throws RemoteException, OperationApplicationException {
 		Log.d( TAG, "load : enter" );
 		
 		if( null == context ) 
-			throw new RuntimeException( "RecordingRuleHelperV27 is not initialized" );
+			throw new RuntimeException( "RecordingRuleHelperV26 is not initialized" );
 		
 		int processed = -1;
 		int count = 0;
@@ -268,7 +268,6 @@ public class RecordingRuleHelperV26 extends AbstractBaseHelper {
 				processBatch( context, ops, processed, count );
 				
 				count = 0;
-				
 			}
 			
 		}
@@ -358,20 +357,20 @@ public class RecordingRuleHelperV26 extends AbstractBaseHelper {
 		if( null != versionRecRule ) {
 		
 			// update existing rule
-			ResponseEntity<org.mythtv.services.api.v026.Int> add = mMythServicesTemplate.dvrOperations().addRecordingSchedule( 
-				versionRecRule.getChanId(), versionRecRule.getStartTime(), versionRecRule.getParentId(), versionRecRule.isInactive(), versionRecRule.getSeason(), 
-				versionRecRule.getEpisode(), versionRecRule.getInetref(), versionRecRule.getFindId(), versionRecRule.getType(), versionRecRule.getSearchType(), 
-				versionRecRule.getRecPriority(), versionRecRule.getPreferredInput(), versionRecRule.getStartOffset(), versionRecRule.getEndOffset(), 
-				versionRecRule.getDupMethod(), versionRecRule.getDupIn(), versionRecRule.getFilter(), versionRecRule.getRecProfile(), 
-				versionRecRule.getRecGroup(), versionRecRule.getStorageGroup(), versionRecRule.getPlayGroup(), versionRecRule.isAutoExpire(), 
-				versionRecRule.getMaxEpisodes(), versionRecRule.isMaxNewest(), versionRecRule.isAutoCommflag(), versionRecRule.isAutoTranscode(), 
-				versionRecRule.isAutoMetaLookup(), versionRecRule.isAutoUserJob1(), versionRecRule.isAutoUserJob2(), versionRecRule.isAutoUserJob3(), 
-				versionRecRule.isAutoUserJob4(), versionRecRule.getTranscoder() 
-			);
+			ResponseEntity<org.mythtv.services.api.Int> add = mMythServicesTemplate.dvrOperations().addRecordSchedule( 
+					versionRecRule.getChanId(), versionRecRule.getStartTime(), versionRecRule.getParentId(), versionRecRule.isInactive(), versionRecRule.getSeason(), 
+					versionRecRule.getEpisode(), versionRecRule.getInetref(), versionRecRule.getFindId(), versionRecRule.getType(), versionRecRule.getSearchType(), 
+					versionRecRule.getRecPriority(), versionRecRule.getPreferredInput(), versionRecRule.getStartOffset(), versionRecRule.getEndOffset(), 
+					versionRecRule.getDupMethod(), versionRecRule.getDupIn(), versionRecRule.getFilter(), versionRecRule.getRecProfile(), 
+					versionRecRule.getRecGroup(), versionRecRule.getStorageGroup(), versionRecRule.getPlayGroup(), versionRecRule.isAutoExpire(), 
+					versionRecRule.getMaxEpisodes(), versionRecRule.isMaxNewest(), versionRecRule.isAutoCommflag(), versionRecRule.isAutoTranscode(), 
+					versionRecRule.isAutoMetaLookup(), versionRecRule.isAutoUserJob1(), versionRecRule.isAutoUserJob2(), versionRecRule.isAutoUserJob3(),
+					versionRecRule.isAutoUserJob4(), versionRecRule.getTranscoder() );
+
 			if( add.getStatusCode().equals( HttpStatus.OK ) ) {
 				
-				if( add.getBody().getInteger().intValue() > 0 ) {
-					ret = add.getBody().getInteger().intValue();
+				if( add.getBody().getValue() > 0 ) {
+					ret = add.getBody().getValue();
 					
 					downloadRecordinRules( context, locationProfile );
 				}
@@ -400,13 +399,13 @@ public class RecordingRuleHelperV26 extends AbstractBaseHelper {
 				if( added > 0 ) {
 
 					ret = true;
-							
+
 					downloadRecordinRules( context, locationProfile );
-					
+
 				}
-				
+
 			}
-			
+
 		}
 		
 		Log.d( TAG, "updateRecordingRule : exit" );
@@ -422,9 +421,9 @@ public class RecordingRuleHelperV26 extends AbstractBaseHelper {
 		if( null != versionRecRule ) {
 		
 			// update existing rule
-			ResponseEntity<org.mythtv.services.api.v026.Bool> remove = mMythServicesTemplate.dvrOperations().removeRecordingSchedule( versionRecRule.getId() );
+			ResponseEntity<org.mythtv.services.api.Bool> remove = mMythServicesTemplate.dvrOperations().removeRecordSchedule( versionRecRule.getId() );
 			if( remove.getStatusCode().equals( HttpStatus.OK ) ) {
-				ret = remove.getBody().getBool();
+				ret = remove.getBody().getValue();
 				
 				if( ret ) {
 					downloadRecordinRules( context, locationProfile );
@@ -437,7 +436,7 @@ public class RecordingRuleHelperV26 extends AbstractBaseHelper {
 		Log.d( TAG, "removeRecordingRule : exit" );
 		return ret;
 	}
-	
+
 	private ContentValues convertRecRuleToContentValues( final LocationProfile locationProfile, final org.mythtv.services.api.v026.beans.RecRule recRule ) {
 //		Log.v( TAG, "convertRecRuleToContentValues : enter" );
 		
@@ -470,7 +469,7 @@ public class RecordingRuleHelperV26 extends AbstractBaseHelper {
 		values.put( RecordingRuleConstants.FIELD_CHAN_ID, recRule.getChanId() );
 		values.put( RecordingRuleConstants.FIELD_CALLSIGN, recRule.getCallSign() );
 		values.put( RecordingRuleConstants.FIELD_DAY, recRule.getDay() );
-		values.put( RecordingRuleConstants.FIELD_TIME, recRule.getTime() );
+		values.put( RecordingRuleConstants.FIELD_TIME, null != recRule.getTime() ? recRule.getTime().toString() : "" );
 		values.put( RecordingRuleConstants.FIELD_FIND_ID, recRule.getFindId() );
 		values.put( RecordingRuleConstants.FIELD_TYPE, recRule.getType() );
 		values.put( RecordingRuleConstants.FIELD_SEARCH_TYPE, recRule.getSearchType() );
@@ -502,13 +501,14 @@ public class RecordingRuleHelperV26 extends AbstractBaseHelper {
 		values.put( RecordingRuleConstants.FIELD_AVERAGE_DELAY, recRule.getAverageDelay() );
 		values.put( RecordingRuleConstants.FIELD_MASTER_HOSTNAME, locationProfile.getHostname() );
 		values.put( RecordingRuleConstants.FIELD_LAST_MODIFIED_DATE, new DateTime().getMillis() );
-		
+//		Log.v( TAG, "convertRecRuleToContentValues : values=" + values.toString() );
+
 //		Log.v( TAG, "convertRecRuleToContentValues : exit" );
 		return values;
 	}
 
 	private org.mythtv.services.api.v026.beans.RecRule convertRecRuleToRecRuleV26( final RecRule recordingRule ) {
-	
+
 		org.mythtv.services.api.v026.beans.RecRule versionRecRule = new org.mythtv.services.api.v026.beans.RecRule();
 		versionRecRule.setId( recordingRule.getId() );
 		versionRecRule.setParentId( recordingRule.getParentId() );
@@ -527,7 +527,7 @@ public class RecordingRuleHelperV26 extends AbstractBaseHelper {
 		versionRecRule.setChanId( recordingRule.getChanId() );
 		versionRecRule.setCallSign( recordingRule.getCallSign() );
 		versionRecRule.setDay( recordingRule.getDay() );
-		versionRecRule.setTime( recordingRule.getTime() );
+		versionRecRule.setTime( null != recordingRule.getTime() && !"".equals( recordingRule.getTime() ) ? DateUtils.dateTimeFormatter.parseLocalTime( recordingRule.getTime() ) : null );
 		versionRecRule.setFindId( recordingRule.getFindId() );
 		versionRecRule.setType( recordingRule.getType() );
 		versionRecRule.setSearchType( recordingRule.getSearchType() );

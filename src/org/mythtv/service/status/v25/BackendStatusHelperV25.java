@@ -196,7 +196,7 @@ public class BackendStatusHelperV25 extends AbstractBaseHelper {
 
 				for( org.mythtv.services.api.v025.status.beans.Program versionProgram : status.getScheduled().getPrograms() ) {
 //					Log.v( TAG, "updateProgramGuide : versionProgram=" + versionProgram.toString() );
-					
+
 					boolean inError = false;
 					
 					if( null == versionProgram.getStartTime() || null == versionProgram.getEndTime() ) {
@@ -269,7 +269,7 @@ public class BackendStatusHelperV25 extends AbstractBaseHelper {
 					Encoder encoder = new Encoder();
 					encoder.setId( versionEncoder.getId() );
 					encoder.setConnected( versionEncoder.isConnected() );
-					encoder.setDeviceLabel( "" );
+					encoder.setDeviceLabel( versionEncoder.getDeviceLabel() );
 					encoder.setHostname( versionEncoder.getHostname() );
 					encoder.setLocal( versionEncoder.isLocal() );
 					encoder.setLowOnFreeSpace( versionEncoder.isLowOnFreeSpace() );
@@ -284,7 +284,6 @@ public class BackendStatusHelperV25 extends AbstractBaseHelper {
 				}
 				
 				encoders.setEncoders( encoderList );
-				
 			}
 			
 			bs.setEncoders( encoders );
@@ -517,7 +516,7 @@ public class BackendStatusHelperV25 extends AbstractBaseHelper {
 			
 			ArtworkInfos artworkInfos = new ArtworkInfos();
 			
-			if( null != versionProgram.getArtwork().getArtworkInfos() && versionProgram.getArtwork().getArtworkInfos().isEmpty() ) {
+			if( null != versionProgram.getArtwork().getArtworkInfos() && !versionProgram.getArtwork().getArtworkInfos().isEmpty() ) {
 			
 				List<ArtworkInfo> artworkInfoList = new ArrayList<ArtworkInfo>();
 				

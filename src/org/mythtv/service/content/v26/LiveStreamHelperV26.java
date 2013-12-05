@@ -31,18 +31,19 @@ import org.mythtv.client.ui.preferences.LocationProfile.LocationType;
 import org.mythtv.client.ui.preferences.PlaybackProfile;
 import org.mythtv.db.AbstractBaseHelper;
 import org.mythtv.db.content.LiveStreamConstants;
+import org.mythtv.db.content.model.LiveStreamInfoWrapper;
 import org.mythtv.db.http.model.EtagInfoDelegate;
 import org.mythtv.db.preferences.PlaybackProfileDaoHelper;
 import org.mythtv.service.content.LiveStreamService;
 import org.mythtv.service.dvr.v26.RecordedHelperV26;
 import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.ApiVersion;
+import org.mythtv.services.api.Bool;
+import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.connect.MythAccessFactory;
-import org.mythtv.services.api.v026.Bool;
 import org.mythtv.services.api.v026.MythServicesTemplate;
 import org.mythtv.services.api.v026.beans.LiveStreamInfo;
 import org.mythtv.services.api.v026.beans.LiveStreamInfoList;
-import org.mythtv.services.api.v026.beans.LiveStreamInfoWrapper;
 import org.mythtv.services.api.v026.beans.Program;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -129,13 +130,14 @@ public class LiveStreamHelperV26 extends AbstractBaseHelper {
 				Program program = RecordedHelperV26.getInstance().findRecorded( context, locationProfile, channelId, startTime );
 				
 				if( null != program ) {
-					ResponseEntity<LiveStreamInfoWrapper> wrapper = mMythServicesTemplate.contentOperations().
-							addLiveStream( program.getRecording().getStorageGroup(), program.getFilename(), program.getHostname(), -1, -1,
+					ResponseEntity<LiveStreamInfo> wrapper = mMythServicesTemplate.contentOperations().
+							addLiveStream( program.getRecording().getStorageGroup(), program.getFileName(), program.getHostName(), null, null,
 								selectedPlaybackProfile.getHeight(), selectedPlaybackProfile.getVideoBitrate(), 
-								selectedPlaybackProfile.getAudioBitrate(), selectedPlaybackProfile.getAudioSampleRate() );
+								selectedPlaybackProfile.getAudioBitrate(), selectedPlaybackProfile.getAudioSampleRate(),
+								ETagInfo.createEmptyETag() );
 
 					if( wrapper.getStatusCode().equals( HttpStatus.OK ) ) {
-						LiveStreamInfo liveStreamInfo = wrapper.getBody().getLiveStreamInfo();
+						LiveStreamInfo liveStreamInfo = wrapper.getBody();
 
 						save( context, locationProfile, liveStreamInfo, channelId, startTime );
 
@@ -177,27 +179,16 @@ public class LiveStreamHelperV26 extends AbstractBaseHelper {
 			
 			ResponseEntity<LiveStreamInfoList> wrapper = mMythServicesTemplate.contentOperations().getLiveStreamList( EtagInfoDelegate.createEmptyETag() );
 			if( wrapper.getStatusCode().equals( HttpStatus.OK ) ) {
-				
-				if( null != wrapper.getBody() ) {
-				
-					if( null != wrapper.getBody().getLiveStreamInfos() ) {
-					
-						if( null != wrapper.getBody().getLiveStreamInfos().getLiveStreamInfos() && !wrapper.getBody().getLiveStreamInfos().getLiveStreamInfos().isEmpty() ) {
-						
-							List<LiveStreamInfo> liveStreams = wrapper.getBody().getLiveStreamInfos().getLiveStreamInfos();
-							loaded = load( context, locationProfile, liveStreams );
-						
-						}
-						
-					}
-					
+				LiveStreamInfo[] liveStreams = wrapper.getBody().getLiveStreamInfos();
+
+				if( null != liveStreams && liveStreams.length > 0 ) {
+					loaded = load( context, locationProfile, liveStreams );
 				}
 				
+				Log.v( TAG, "update : exit" );
+				return loaded;
 			}
 			
-			Log.v( TAG, "update : exit" );
-			return loaded;
-
 		} catch( Exception e ) {
 			Log.e( TAG, "update : error", e );
 		}
@@ -206,7 +197,7 @@ public class LiveStreamHelperV26 extends AbstractBaseHelper {
 		return loaded;
 	}
 
-	public boolean update( final Context context, final LocationProfile locationProfile, final long liveStreamId, final int channelId, DateTime startTime ) {
+	public boolean update( final Context context, final LocationProfile locationProfile, final long liveStreamId, final Integer channelId, final DateTime startTime ) {
 		Log.v( TAG, "update : enter" );
 		
 		if( !NetworkHelper.getInstance().isMasterBackendConnected( context, locationProfile ) ) {
@@ -221,16 +212,16 @@ public class LiveStreamHelperV26 extends AbstractBaseHelper {
 			
 			return false;
 		}
-		
+
 		try {
 			
 			LiveStreamInfo liveStream = findLiveStream( context, locationProfile, liveStreamId );
 			if( null != liveStream ) {
 				Log.v( TAG, "update : liveStream=" + liveStream.toString() );
 
-				ResponseEntity<LiveStreamInfoWrapper> wrapper = mMythServicesTemplate.contentOperations().getLiveStream( liveStream.getId(), EtagInfoDelegate.createEmptyETag() );
+				ResponseEntity<LiveStreamInfo> wrapper = mMythServicesTemplate.contentOperations().getLiveStream( liveStream.getId(), EtagInfoDelegate.createEmptyETag() );
 				if( wrapper.getStatusCode().equals( HttpStatus.OK ) ) {
-					LiveStreamInfo updated = wrapper.getBody().getLiveStreamInfo();
+					LiveStreamInfo updated = wrapper.getBody();
 
 					if( !"Unknown status value".equalsIgnoreCase( updated.getStatusStr() ) ) {
 						save( context, locationProfile, updated, channelId, startTime );
@@ -263,7 +254,7 @@ public class LiveStreamHelperV26 extends AbstractBaseHelper {
 		
 		MythServicesTemplate mMythServicesTemplate = (MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( mApiVersion, locationProfile.getUrl() );
 		if( null == mMythServicesTemplate ) {
-			Log.w( TAG, "rempve : Master Backend '" + locationProfile.getHostname() + "' is unreachable" );
+			Log.w( TAG, "remove : Master Backend '" + locationProfile.getHostname() + "' is unreachable" );
 			
 			return false;
 		}
@@ -272,25 +263,32 @@ public class LiveStreamHelperV26 extends AbstractBaseHelper {
 			Program program = RecordedHelperV26.getInstance().findRecorded( context, locationProfile, channelId, startTime );
 			
 			if( null != program ) {
+				Log.v( TAG, "remove : program found" );
+				
 				LiveStreamInfo liveStream = findLiveStream( context, locationProfile, channelId, startTime );
+				if( null != liveStream ) {
+					Log.v( TAG, "remove : program has live stream" );
 				
-				ResponseEntity<Bool> wrapper = mMythServicesTemplate.contentOperations().removeLiveStream( liveStream.getId() );
-				if( wrapper.getStatusCode().equals( HttpStatus.OK ) ) {
+					ResponseEntity<Bool> wrapper = mMythServicesTemplate.contentOperations().removeLiveStream( liveStream.getId(), ETagInfo.createEmptyETag() );
+					if( wrapper.getStatusCode().equals( HttpStatus.OK ) ) {
+												
+						Bool bool = wrapper.getBody();
+						if( bool.getValue() ) {
+							Log.v( TAG, "remove : live stream removed on backend" );
+							
+							boolean removed = deleteLiveStreamByLiveStreamId( context, locationProfile, liveStream.getId() );
+							if( removed ) {
+								Log.v( TAG, "remove : exit" );
+							
+								return true;
+							}
 					
-					Bool bool = wrapper.getBody();
-					if( bool.getBool() == Boolean.TRUE ) {
-						
-						boolean removed = deleteLiveStreamByLiveStreamId( context, locationProfile, liveStream.getId() );
-						if( removed ) {
-							Log.v( TAG, "remove : exit" );
-					
-							return true;
 						}
-				
+			
 					}
-				
+					
 				}
-				
+
 			}
 				
 		} catch( Exception e ) {
@@ -352,7 +350,7 @@ public class LiveStreamHelperV26 extends AbstractBaseHelper {
 		Log.d( TAG, "deleteLiveStream : enter" );
 		
 		if( null == context ) 
-			throw new RuntimeException( "LiveStreamHelperV27 is not initialized" );
+			throw new RuntimeException( "LiveStreamHelperV26 is not initialized" );
 		
 		int deleted = context.getContentResolver().delete( ContentUris.withAppendedId( LiveStreamConstants.CONTENT_URI, id ), null, null );
 		if( deleted == 1 ) {
@@ -416,7 +414,7 @@ public class LiveStreamHelperV26 extends AbstractBaseHelper {
 		return null != count ? count : 0;
 	}
 
-	private int load( final Context context, final LocationProfile locationProfile, List<LiveStreamInfo> liveStreams ) throws RemoteException, OperationApplicationException {
+	private int load( final Context context, final LocationProfile locationProfile, LiveStreamInfo[] liveStreams ) throws RemoteException, OperationApplicationException {
 		Log.d( TAG, "load : enter" );
 		
 		if( null == context ) {
@@ -662,8 +660,8 @@ public class LiveStreamHelperV26 extends AbstractBaseHelper {
 		liveStreamInfo.setPercentComplete( percentComplete );
 		liveStreamInfo.setCreated( created );
 		liveStreamInfo.setLastModified( lastModified );
-		liveStreamInfo.setRelativeUrl( relativeUrl );
-		liveStreamInfo.setFullUrl( fullUrl );
+		liveStreamInfo.setRelativeURL( relativeUrl );
+		liveStreamInfo.setFullURL( fullUrl );
 		liveStreamInfo.setStatusStr( statusStr );
 		liveStreamInfo.setStatusInt( statusInt );
 		liveStreamInfo.setStatusMessage( statusMessage );
@@ -694,8 +692,8 @@ public class LiveStreamHelperV26 extends AbstractBaseHelper {
 		values.put( LiveStreamConstants.FIELD_PERCENT_COMPLETE, liveStreamInfo.getPercentComplete() );
 		values.put( LiveStreamConstants.FIELD_CREATED, null != liveStreamInfo.getCreated() ? liveStreamInfo.getCreated().getMillis() : -1 );
 		values.put( LiveStreamConstants.FIELD_LAST_MODIFIED, null != liveStreamInfo.getLastModified() ? liveStreamInfo.getLastModified().getMillis() : -1 );
-		values.put( LiveStreamConstants.FIELD_RELATIVE_URL, liveStreamInfo.getRelativeUrl() );
-		values.put( LiveStreamConstants.FIELD_FULL_URL, liveStreamInfo.getFullUrl() );
+		values.put( LiveStreamConstants.FIELD_RELATIVE_URL, liveStreamInfo.getRelativeURL() );
+		values.put( LiveStreamConstants.FIELD_FULL_URL, liveStreamInfo.getFullURL() );
 		values.put( LiveStreamConstants.FIELD_STATUS_STR, liveStreamInfo.getStatusStr() );
 		values.put( LiveStreamConstants.FIELD_STATUS_INT, liveStreamInfo.getStatusInt() );
 		values.put( LiveStreamConstants.FIELD_STATUS_MESSAGE, liveStreamInfo.getStatusMessage() );

@@ -29,7 +29,6 @@ import org.mythtv.db.AbstractBaseHelper;
 import org.mythtv.db.frontends.model.State;
 import org.mythtv.db.frontends.model.StateStringItem;
 import org.mythtv.db.frontends.model.Status;
-import org.mythtv.service.myth.v26.HostHelperV26;
 import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.ApiVersion;
 import org.mythtv.services.api.ETagInfo;
@@ -49,7 +48,7 @@ import android.util.Log;
  */
 public class StatusHelperV26 extends AbstractBaseHelper {
 
-	private static final String TAG = HostHelperV26.class.getSimpleName();
+	private static final String TAG = StatusHelperV26.class.getSimpleName();
 	
 	private static final ApiVersion mApiVersion = ApiVersion.v026;
 	
@@ -122,14 +121,14 @@ public class StatusHelperV26 extends AbstractBaseHelper {
 	
 		Status status = null;
 
-		ResponseEntity<org.mythtv.services.api.v026.beans.FrontendStatus> responseEntity = mMythServicesTemplate.frontendOperations().getStatus( url, ETagInfo.createEmptyETag() );
+		ResponseEntity<org.mythtv.services.api.v026.beans.FrontendStatus> responseEntity = mMythServicesTemplate.frontendOperations().getStatus( ETagInfo.createEmptyETag() );
 
 		if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
 
 			org.mythtv.services.api.v026.beans.FrontendStatus versionStatus = responseEntity.getBody();
 
-			if( null != versionStatus.getStatus() ) {
-				status = load( versionStatus.getStatus() );	
+			if( null != versionStatus ) {
+				status = load( versionStatus );	
 			}
 
 		}
@@ -138,7 +137,7 @@ public class StatusHelperV26 extends AbstractBaseHelper {
 		return status;
 	}
 	
-	private Status load( org.mythtv.services.api.v026.beans.Status versionStatus ) {
+	private Status load( org.mythtv.services.api.v026.beans.FrontendStatus versionStatus ) {
 		Log.v( TAG, "load : enter" );
 		
 		Status status = new Status();
@@ -146,15 +145,14 @@ public class StatusHelperV26 extends AbstractBaseHelper {
 		if( null != versionStatus.getState() ) {
 			
 			State state = new State();
-			state.setCurrentLocation( versionStatus.getState().getCurrentLocation() );
 			
-			if( null != versionStatus.getState().getStates() && !versionStatus.getState().getStates().isEmpty() ) {
+			if( null != versionStatus.getState() && !versionStatus.getState().isEmpty() ) {
 				
 				List<StateStringItem> items = new ArrayList<StateStringItem>();
-				for( org.mythtv.services.api.v026.beans.StateStringItem versionItem : versionStatus.getState().getStates() ) {
+				for( String versionItem : versionStatus.getState().keySet() ) {
 					StateStringItem item = new StateStringItem();
-					item.setKey( versionItem.getKey() );
-					item.setValue( versionItem.getValue() );
+					item.setKey( versionItem );
+					item.setValue( versionStatus.getState().get( versionItem ) );
 					
 					items.add( item );
 				}
