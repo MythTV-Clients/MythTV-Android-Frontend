@@ -123,10 +123,13 @@ public class GetHostnameTask extends AsyncTask<Void, Void, String> {
 				org.mythtv.services.api.v026.MythServicesTemplate mythServicesTemplateV26 = (org.mythtv.services.api.v026.MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( apiVersion, mLocationProfile.getUrl() );
 
 				if( null != mythServicesTemplateV26 ) {
-					ResponseEntity<org.mythtv.services.api.v026.StringWrapper> hostnameV26 = mythServicesTemplateV26.mythOperations().getHostName();
+					ResponseEntity<String> hostnameV26 = mythServicesTemplateV26.mythOperations().getHostName( ETagInfo.createEmptyETag() );
 					if( hostnameV26.getStatusCode().equals( HttpStatus.OK ) ) {
-						if( null != hostnameV26.getBody().getString() && !"".equals( hostnameV26.getBody().getString() ) ) {
-							hostname = hostnameV26.getBody().getString();
+						if( null != hostnameV26.getBody() && !"".equals( hostnameV26.getBody() ) ) {
+							hostname = hostnameV26.getBody().split( ":" )[ 1 ];
+							hostname = hostname.replaceAll( "\"", "" );
+							hostname = hostname.substring( 0, hostname.length() -1 );
+							hostname = hostname.trim();
 						}
 					}
 				}

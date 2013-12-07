@@ -365,7 +365,7 @@ public class RecordingRuleHelperV25 extends AbstractBaseHelper {
 					versionRecRule.getRecGroup(), versionRecRule.getStorageGroup(), versionRecRule.getPlayGroup(), versionRecRule.isAutoExpire(), 
 					versionRecRule.getMaxEpisodes(), versionRecRule.isMaxNewest(), versionRecRule.isAutoCommflag(), versionRecRule.isAutoTranscode(), 
 					versionRecRule.isAutoMetaLookup(), versionRecRule.isAutoUserJob1(), versionRecRule.isAutoUserJob2(), versionRecRule.isAutoUserJob3(),
-					versionRecRule.isAutoUserJob4(), versionRecRule.getTranscoder() );		 
+					versionRecRule.isAutoUserJob4(), versionRecRule.getTranscoder() );
 
 			if( add.getStatusCode().equals( HttpStatus.OK ) ) {
 				
@@ -399,13 +399,13 @@ public class RecordingRuleHelperV25 extends AbstractBaseHelper {
 				if( added > 0 ) {
 
 					ret = true;
-								
+
 					downloadRecordinRules( context, locationProfile );
-						
+
 				}
-					
+
 			}
-				
+
 		}
 		
 		Log.d( TAG, "updateRecordingRule : exit" );
@@ -502,13 +502,13 @@ public class RecordingRuleHelperV25 extends AbstractBaseHelper {
 		values.put( RecordingRuleConstants.FIELD_MASTER_HOSTNAME, locationProfile.getHostname() );
 		values.put( RecordingRuleConstants.FIELD_LAST_MODIFIED_DATE, new DateTime().getMillis() );
 //		Log.v( TAG, "convertRecRuleToContentValues : values=" + values.toString() );
-		
+
 //		Log.v( TAG, "convertRecRuleToContentValues : exit" );
 		return values;
 	}
 
 	private org.mythtv.services.api.v025.beans.RecRule convertRecRuleToRecRuleV25( final RecRule recordingRule ) {
-		
+
 		org.mythtv.services.api.v025.beans.RecRule versionRecRule = new org.mythtv.services.api.v025.beans.RecRule();
 		versionRecRule.setId( recordingRule.getId() );
 		versionRecRule.setParentId( recordingRule.getParentId() );

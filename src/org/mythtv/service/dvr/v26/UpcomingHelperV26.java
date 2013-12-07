@@ -22,7 +22,6 @@
 package org.mythtv.service.dvr.v26;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 import org.joda.time.DateTime;
@@ -32,7 +31,6 @@ import org.mythtv.db.AbstractBaseHelper;
 import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.db.dvr.RecordingConstants;
 import org.mythtv.db.http.model.EtagInfoDelegate;
-import org.mythtv.service.dvr.v26.ProgramHelperV26;
 import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.ApiVersion;
 import org.mythtv.services.api.MythServiceApiRuntimeException;
@@ -124,7 +122,7 @@ public class UpcomingHelperV26 extends AbstractBaseHelper {
 		EtagInfoDelegate etag = mEtagDaoHelper.findByEndpointAndDataId( context, locationProfile, "GetUpcomingList", "" );
 		Log.d( TAG, "downloadUpcoming : etag=" + etag.getValue() );
 		
-		ResponseEntity<ProgramList> responseEntity = mMythServicesTemplate.dvrOperations().getUpcomingList( -1, -1, Boolean.FALSE, etag );
+		ResponseEntity<ProgramList> responseEntity = mMythServicesTemplate.dvrOperations().getUpcomingList( null, null, Boolean.FALSE, etag );
 
 		DateTime date = new DateTime( DateTimeZone.UTC );
 		if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
@@ -133,7 +131,7 @@ public class UpcomingHelperV26 extends AbstractBaseHelper {
 
 			if( null != programList.getPrograms() ) {
 
-				load( context, locationProfile, programList.getPrograms().getPrograms() );	
+				load( context, locationProfile, programList.getPrograms() );	
 
 				if( null != etag.getValue() ) {
 					Log.i( TAG, "downloadUpcoming : saving etag: " + etag.getValue() );
@@ -164,11 +162,11 @@ public class UpcomingHelperV26 extends AbstractBaseHelper {
 		Log.v( TAG, "downloadUpcoming : exit" );
 	}
 	
-	private int load( final Context context, final LocationProfile locationProfile, final List<Program> programs ) throws RemoteException, OperationApplicationException {
+	private int load( final Context context, final LocationProfile locationProfile, final Program[] programs ) throws RemoteException, OperationApplicationException {
 		Log.d( TAG, "load : enter" );
 		
 		if( null == context ) 
-			throw new RuntimeException( "UpcomingHelperV27 is not initialized" );
+			throw new RuntimeException( "UpcomingHelperV26 is not initialized" );
 		
 		String tag = UUID.randomUUID().toString();
 		int processed = -1;
@@ -196,7 +194,7 @@ public class UpcomingHelperV26 extends AbstractBaseHelper {
 			// update program guide
 			ProgramHelperV26.getInstance().processProgram( context, locationProfile, ProgramConstants.CONTENT_URI_GUIDE, ProgramConstants.TABLE_NAME_GUIDE, ops, program, tag );
 			count++;
-			
+
 			if( !inError && null != program.getRecording() ) {
 				
 				if( program.getRecording().getRecordId() > 0 ) {
@@ -204,11 +202,11 @@ public class UpcomingHelperV26 extends AbstractBaseHelper {
 					// load upcoming recording
 					RecordingHelperV26.getInstance().processRecording( context, locationProfile, ops, RecordingConstants.ContentDetails.UPCOMING, program, tag );
 					count++;
-					
+
 					// update program guide recording
 					RecordingHelperV26.getInstance().processRecording( context, locationProfile, ops, RecordingConstants.ContentDetails.GUIDE, program, tag );
 					count++;
-					
+
 				}
 				
 			}
@@ -230,7 +228,7 @@ public class UpcomingHelperV26 extends AbstractBaseHelper {
 		}
 
 		ProgramHelperV26.getInstance().deletePrograms( context, locationProfile, ProgramConstants.CONTENT_URI_UPCOMING, ProgramConstants.TABLE_NAME_UPCOMING, tag );
-//		RecordingHelperV27.getInstance().deleteRecordings( context, locationProfile, ops, RecordingConstants.ContentDetails.UPCOMING, lastModified );
+//		RecordingHelperV26.getInstance().deleteRecordings( context, locationProfile, ops, RecordingConstants.ContentDetails.UPCOMING, lastModified );
 
 		if( !ops.isEmpty() ) {
 			Log.v( TAG, "load : applying delete batch for transactions" );

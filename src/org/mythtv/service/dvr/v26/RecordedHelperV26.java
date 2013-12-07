@@ -28,7 +28,6 @@ import java.util.TreeMap;
 import java.util.UUID;
 
 import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.AbstractBaseHelper;
 import org.mythtv.db.channel.ChannelDaoHelper;
@@ -39,10 +38,10 @@ import org.mythtv.db.dvr.RemoveStreamTask;
 import org.mythtv.db.dvr.programGroup.ProgramGroup;
 import org.mythtv.db.dvr.programGroup.ProgramGroupConstants;
 import org.mythtv.db.dvr.programGroup.ProgramGroupDaoHelper;
-import org.mythtv.db.http.model.EtagInfoDelegate;
 import org.mythtv.service.channel.v26.ChannelHelperV26;
 import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.ApiVersion;
+import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.MythServiceApiRuntimeException;
 import org.mythtv.services.api.connect.MythAccessFactory;
 import org.mythtv.services.api.v026.MythServicesTemplate;
@@ -126,7 +125,7 @@ public class RecordedHelperV26 extends AbstractBaseHelper {
 			downloadRecorded( context, locationProfile );
 			
 		} catch( Exception e ) {
-		
+
 			if( e.toString().contains( "Invalid UTF-8" ) ) {
 				Log.e( TAG, "process : INVALID UTF-8! Start mythbackend with valid LANG & LC_ALL (e.g. en_US.UTF-8" );
 			}
@@ -172,7 +171,7 @@ public class RecordedHelperV26 extends AbstractBaseHelper {
 			
 			String title = program.getTitle();
 			
-			removed = programHelper.deleteProgram( context, locationProfile, ProgramConstants.CONTENT_URI_RECORDED, ProgramConstants.TABLE_NAME_RECORDED, program.getChannelInfo().getChannelId(), program.getStartTime(), program.getRecording().getStartTimestamp(), recordId );
+			removed = programHelper.deleteProgram( context, locationProfile, ProgramConstants.CONTENT_URI_RECORDED, ProgramConstants.TABLE_NAME_RECORDED, program.getChannel().getChanId(), program.getStartTime(), program.getRecording().getStartTs(), recordId );
 			if( removed ) {
 //				Log.v( TAG, "deleteRecorded : program removed from backend" );
 
@@ -198,48 +197,22 @@ public class RecordedHelperV26 extends AbstractBaseHelper {
 		Log.v( TAG, "deleteRecorded : exit" );
 		return removed;
 	}
-	
+
 	// internal helpers
 	
 	private void downloadRecorded( final Context context, final LocationProfile locationProfile ) throws MythServiceApiRuntimeException, RemoteException, OperationApplicationException {
 		Log.v( TAG, "downloadRecorded : enter" );
 	
-		EtagInfoDelegate etag = mEtagDaoHelper.findByEndpointAndDataId( context, locationProfile, "GetRecordedList", "" );
-		Log.d( TAG, "downloadRecorded : etag=" + etag.getValue() );
+		ResponseEntity<ProgramList> responseEntity = mMythServicesTemplate.dvrOperations().getRecordedList( Boolean.FALSE, null, null, ETagInfo.createEmptyETag() );
 
-		ResponseEntity<ProgramList> responseEntity = mMythServicesTemplate.dvrOperations().getRecordedList( etag );
-
-		DateTime date = new DateTime( DateTimeZone.UTC );
 		if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
 			Log.i( TAG, "download : GetRecordedList returned 200 OK" );
 			ProgramList programList = responseEntity.getBody();
 
 			if( null != programList.getPrograms() ) {
 
-				load( context, locationProfile, programList.getPrograms().getPrograms() );	
+				load( context, locationProfile, programList.getPrograms() );	
 
-				if( null != etag.getValue() ) {
-					Log.i( TAG, "download : saving etag: " + etag.getValue() );
-					
-					etag.setEndpoint( "GetRecordedList" );
-					etag.setDate( date );
-					etag.setMasterHostname( locationProfile.getHostname() );
-					etag.setLastModified( date );
-					mEtagDaoHelper.save( context, locationProfile, etag );
-				}
-
-			}
-
-		}
-
-		if( responseEntity.getStatusCode().equals( HttpStatus.NOT_MODIFIED ) ) {
-			Log.i( TAG, "download : GetRecordedList returned 304 Not Modified" );
-
-			if( null != etag.getValue() ) {
-				Log.i( TAG, "download : saving etag: " + etag.getValue() );
-
-				etag.setLastModified( date );
-				mEtagDaoHelper.save( context, locationProfile, etag );
 			}
 
 		}
@@ -247,14 +220,14 @@ public class RecordedHelperV26 extends AbstractBaseHelper {
 		Log.v( TAG, "downloadRecorded : exit" );
 	}
 	
-	private int load( final Context context, final LocationProfile locationProfile, final List<Program> programs ) throws RemoteException, OperationApplicationException {
+	private int load( final Context context, final LocationProfile locationProfile, final Program[] programs ) throws RemoteException, OperationApplicationException {
 		Log.d( TAG, "load : enter" );
 		
 		if( null == context ) 
 			throw new RuntimeException( "ProgramGuideHelperV26 is not initialized" );
 		
 		processProgramGroups( context, locationProfile, programs );
-		
+
 		String tag = UUID.randomUUID().toString();
 		int processed = -1;
 		int count = 0;
@@ -267,12 +240,14 @@ public class RecordedHelperV26 extends AbstractBaseHelper {
 		
 		for( Program program : programs ) {
 
-			if( null != program.getRecording() && "livetv".equalsIgnoreCase( program.getRecording().getRecordingGroup() )  && !"deleted".equalsIgnoreCase( program.getRecording().getRecordingGroup() ) ) {
+			if( null != program.getRecording() && "livetv".equalsIgnoreCase( program.getRecording().getRecGroup() )  && !"deleted".equalsIgnoreCase( program.getRecording().getRecGroup() ) ) {
+				Log.w( TAG, "load : program has no recording or program is in livetv or deleted recording groups:" + program.getTitle() + ":" + program.getSubTitle() + ":" + program.getChannel().getChanId() + ":" + program.getStartTime() + ":" + program.getHostName() + " (" + ( null == program.getRecording() ? "No Recording" : ( "livetv".equalsIgnoreCase( program.getRecording().getRecGroup() ) ? "LiveTv" : "Deleted" ) ) + ")" );
+
 				continue;
 			}
 			
 			if( null == program.getStartTime() || null == program.getEndTime() ) {
-//				Log.w(TAG, "load : null starttime and or endtime" );
+				Log.w( TAG, "load : null starttime and or endtime" );
 			
 				inError = true;
 			} else {
@@ -282,18 +257,18 @@ public class RecordedHelperV26 extends AbstractBaseHelper {
 			ProgramHelperV26.getInstance().processProgram( context, locationProfile, ProgramConstants.CONTENT_URI_RECORDED, ProgramConstants.TABLE_NAME_RECORDED, ops, program, tag );
 			count++;
 			
-			if( null != program.getChannelInfo() ) {
+			if( null != program.getChannel() ) {
 
-				if( !channelsChecked.contains( program.getChannelInfo().getChannelId() ) ) {
-				
-					if( null == mChannelDaoHelper.findByChannelId( context, locationProfile, Long.parseLong( String.valueOf( program.getChannelInfo().getChannelId() ) ) ) ) {
-					
-						ChannelHelperV26.getInstance().processChannel( context, locationProfile, ops, program.getChannelInfo() );
+				if( !channelsChecked.contains( program.getChannel().getChanId() ) ) {
+
+					if( null == mChannelDaoHelper.findByChannelId( context, locationProfile, Long.parseLong( String.valueOf( program.getChannel().getChanId() ) ) ) ) {
+
+						ChannelHelperV26.getInstance().processChannel( context, locationProfile, ops, program.getChannel() );
 						count++;
 					
 					}
 				
-					channelsChecked.add( program.getChannelInfo().getChannelId() );
+					channelsChecked.add( program.getChannel().getChanId() );
 					
 				}
 
@@ -322,10 +297,12 @@ public class RecordedHelperV26 extends AbstractBaseHelper {
 		}
 
 		if( !ops.isEmpty() ) {
-			Log.v( TAG, "load : applying batch for '" + count + "' transactions" );
+			Log.i( TAG, "load : applying batch for '" + count + "' transactions" );
 			
 			processBatch( context, ops, processed, count );
 		}
+
+		ProgramHelperV26.getInstance().findAllPrograms( context, locationProfile, ProgramConstants.CONTENT_URI_RECORDED, ProgramConstants.TABLE_NAME_RECORDED );
 
 		Log.v( TAG, "load : remove deleted recording live streams" );
 		String[] deletedProjection = new String[] { ProgramConstants.FIELD_CHANNEL_ID, ProgramConstants.FIELD_START_TIME, ProgramConstants.FIELD_TITLE, ProgramConstants.FIELD_SUB_TITLE, ProgramConstants.FIELD_LAST_MODIFIED_DATE };
@@ -340,7 +317,7 @@ public class RecordedHelperV26 extends AbstractBaseHelper {
 
 			long channelId = deletedCursor.getLong( deletedCursor.getColumnIndex( ProgramConstants.FIELD_CHANNEL_ID ) );
 			long startTime = deletedCursor.getLong( deletedCursor.getColumnIndex( ProgramConstants.FIELD_START_TIME ) );
-				
+
 			// Delete any live stream details
 			String liveStreamSelection = LiveStreamConstants.FIELD_CHAN_ID + " = ? AND " + LiveStreamConstants.FIELD_START_TIME + " = ?";
 			String[] liveStreamSelectionArgs = new String[] { String.valueOf( channelId ), String.valueOf( startTime ) };
@@ -376,7 +353,7 @@ public class RecordedHelperV26 extends AbstractBaseHelper {
 		return processed;
 	}
 
-	private void processProgramGroups( final Context context, final LocationProfile locationProfile, List<Program> programs ) throws RemoteException, OperationApplicationException {
+	private void processProgramGroups( final Context context, final LocationProfile locationProfile, Program[] programs ) throws RemoteException, OperationApplicationException {
 		Log.v( TAG, "processProgramGroups : enter" );
 		
 		if( null == context ) 
@@ -387,7 +364,7 @@ public class RecordedHelperV26 extends AbstractBaseHelper {
 			
 			if( null != program.getRecording() ) {
 				
-				if( null != program.getRecording().getRecordingGroup() && !"livetv".equalsIgnoreCase( program.getRecording().getRecordingGroup() ) && !"deleted".equalsIgnoreCase( program.getRecording().getRecordingGroup() ) ) {
+				if( null != program.getRecording().getRecGroup() && !"livetv".equalsIgnoreCase( program.getRecording().getRecGroup() ) && !"deleted".equalsIgnoreCase( program.getRecording().getRecGroup() ) ) {
 					String cleaned = ArticleCleaner.clean( program.getTitle() );
 					if( !programGroups.containsKey( cleaned ) ) {
 						

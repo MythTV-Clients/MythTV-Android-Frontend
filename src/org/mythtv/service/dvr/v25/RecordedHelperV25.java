@@ -175,7 +175,7 @@ public class RecordedHelperV25 extends AbstractBaseHelper {
 			removed = programHelper.deleteProgram( context, locationProfile, ProgramConstants.CONTENT_URI_RECORDED, ProgramConstants.TABLE_NAME_RECORDED, program.getChannel().getChanId(), program.getStartTime(), program.getRecording().getStartTs(), recordId );
 			if( removed ) {
 //				Log.v( TAG, "deleteRecorded : program removed from backend" );
-				
+
 				Integer programCount = countRecordedByTitle( context, locationProfile, title );
 				if( null == programCount ) {
 //					Log.v( TAG, "deleteRecorded : programCount=" + programCount );
@@ -261,9 +261,9 @@ public class RecordedHelperV25 extends AbstractBaseHelper {
 			if( null != program.getChannel() ) {
 
 				if( !channelsChecked.contains( program.getChannel().getChanId() ) ) {
-					
+
 					if( null == mChannelDaoHelper.findByChannelId( context, locationProfile, Long.parseLong( String.valueOf( program.getChannel().getChanId() ) ) ) ) {
-						
+
 						ChannelHelperV25.getInstance().processChannel( context, locationProfile, ops, program.getChannel() );
 						count++;
 					
@@ -318,7 +318,7 @@ public class RecordedHelperV25 extends AbstractBaseHelper {
 
 			long channelId = deletedCursor.getLong( deletedCursor.getColumnIndex( ProgramConstants.FIELD_CHANNEL_ID ) );
 			long startTime = deletedCursor.getLong( deletedCursor.getColumnIndex( ProgramConstants.FIELD_START_TIME ) );
-			
+
 			// Delete any live stream details
 			String liveStreamSelection = LiveStreamConstants.FIELD_CHAN_ID + " = ? AND " + LiveStreamConstants.FIELD_START_TIME + " = ?";
 			String[] liveStreamSelectionArgs = new String[] { String.valueOf( channelId ), String.valueOf( startTime ) };
@@ -386,7 +386,7 @@ public class RecordedHelperV25 extends AbstractBaseHelper {
 		
 		int processed = -1;
 		int count = 0;
-		
+
 		ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
 
 		Log.v( TAG, "processProgramGroups : adding 'All' program group in programGroups" );

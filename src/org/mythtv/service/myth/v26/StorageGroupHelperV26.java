@@ -88,11 +88,6 @@ public class StorageGroupHelperV26 extends AbstractBaseHelper {
 		}
 		
 		mMythServicesTemplate = (MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( mApiVersion, locationProfile.getUrl() );
-		if( null == mMythServicesTemplate ) {
-			Log.w( TAG, "process : Master Backend '" + locationProfile.getHostname() + "' is unreachable" );
-			
-			return null;
-		}
 		
 		List<StorageGroupDirectory> storageGroupDirectories = null;
 
@@ -118,16 +113,16 @@ public class StorageGroupHelperV26 extends AbstractBaseHelper {
 		List<StorageGroupDirectory> storageGroupDirectories = null;
 
 		try {
-			ResponseEntity<org.mythtv.services.api.v026.beans.StorageGroupDirectoryList> responseEntity = mMythServicesTemplate.mythOperations().getStorageGroupDirectories( storageGroupName, locationProfile.getHostname(), ETagInfo.createEmptyETag() );
+			ResponseEntity<org.mythtv.services.api.v026.beans.StorageGroupDirList> responseEntity = mMythServicesTemplate.mythOperations().getStorageGroupDirs( storageGroupName, locationProfile.getHostname(), ETagInfo.createEmptyETag() );
 
 			if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
 
-				org.mythtv.services.api.v026.beans.StorageGroupDirectoryList storageGroupDirectoryList = responseEntity.getBody();
+				org.mythtv.services.api.v026.beans.StorageGroupDirList storageGroupDirectoryList = responseEntity.getBody();
 
-				if( null != storageGroupDirectoryList.getStorageGroupDirectories() ) {
+				if( null != storageGroupDirectoryList.getStorageGroupDirs() ) {
 
-					if( null != storageGroupDirectoryList.getStorageGroupDirectories().getStorageGroupDirectories() && !storageGroupDirectoryList.getStorageGroupDirectories().getStorageGroupDirectories().isEmpty() ) {
-						storageGroupDirectories = load( storageGroupDirectoryList.getStorageGroupDirectories().getStorageGroupDirectories() );	
+					if( null != storageGroupDirectoryList.getStorageGroupDirs() && storageGroupDirectoryList.getStorageGroupDirs().length > 0 ) {
+						storageGroupDirectories = load( storageGroupDirectoryList.getStorageGroupDirs() );	
 					}
 
 				}
@@ -141,20 +136,20 @@ public class StorageGroupHelperV26 extends AbstractBaseHelper {
 		return storageGroupDirectories;
 	}
 	
-	private List<StorageGroupDirectory> load( List<org.mythtv.services.api.v026.beans.StorageGroupDirectory> versionStorageGroupDirectories ) {
+	private List<StorageGroupDirectory> load( org.mythtv.services.api.v026.beans.StorageGroupDir[] versionStorageGroupDirectories ) {
 		Log.v( TAG, "load : enter" );
 		
 		List<StorageGroupDirectory> storageGroupDirectories = new ArrayList<StorageGroupDirectory>();
 		
-		if( null != versionStorageGroupDirectories && !versionStorageGroupDirectories.isEmpty() ) {
+		if( null != versionStorageGroupDirectories && versionStorageGroupDirectories.length > 0 ) {
 			
-			for( org.mythtv.services.api.v026.beans.StorageGroupDirectory versionStorageGroupDirectory : versionStorageGroupDirectories ) {
+			for( org.mythtv.services.api.v026.beans.StorageGroupDir versionStorageGroupDirectory : versionStorageGroupDirectories ) {
 				
 				StorageGroupDirectory storageGroupDirectory = new StorageGroupDirectory();
 				storageGroupDirectory.setId( versionStorageGroupDirectory.getId() );
 				storageGroupDirectory.setGroupName( versionStorageGroupDirectory.getGroupName() );
-				storageGroupDirectory.setDirectoryName( versionStorageGroupDirectory.getDirectoryName() );
-				storageGroupDirectory.setHostname( versionStorageGroupDirectory.getHostname() );
+				storageGroupDirectory.setDirectoryName( versionStorageGroupDirectory.getDirName() );
+				storageGroupDirectory.setHostname( versionStorageGroupDirectory.getHostName() );
 
 				storageGroupDirectories.add( storageGroupDirectory );
 			}

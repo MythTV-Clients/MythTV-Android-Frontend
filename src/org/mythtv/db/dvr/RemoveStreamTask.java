@@ -106,7 +106,7 @@ public class RemoveStreamTask extends AsyncTask<Integer, Void, Boolean> {
 		}
 		
 		org.mythtv.services.api.v026.MythServicesTemplate template = (org.mythtv.services.api.v026.MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( ApiVersion.v025, mLocationProfile.getUrl() );
-		template.contentOperations().removeLiveStream( id );
+		template.contentOperations().removeLiveStream( id, ETagInfo.createEmptyETag() );
 	}
 
 	private void removeLiveStreamV26( Integer id ) {
@@ -116,7 +116,7 @@ public class RemoveStreamTask extends AsyncTask<Integer, Void, Boolean> {
 		}
 		
 		org.mythtv.services.api.v026.MythServicesTemplate template = (org.mythtv.services.api.v026.MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( ApiVersion.v026, mLocationProfile.getUrl() );
-		template.contentOperations().removeLiveStream( id );
+		template.contentOperations().removeLiveStream( id, ETagInfo.createEmptyETag() );
 	}
 
 	private void removeLiveStreamV27( Integer id ) {

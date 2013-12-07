@@ -30,16 +30,17 @@ import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.AbstractBaseHelper;
 import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.db.dvr.RecordingConstants;
+import org.mythtv.db.http.model.EtagInfoDelegate;
 import org.mythtv.service.channel.v26.ChannelHelperV26;
 import org.mythtv.service.util.DateUtils;
 import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.ApiVersion;
+import org.mythtv.services.api.Bool;
 import org.mythtv.services.api.connect.MythAccessFactory;
-import org.mythtv.services.api.v026.Bool;
 import org.mythtv.services.api.v026.MythServicesTemplate;
 import org.mythtv.services.api.v026.beans.ChannelInfo;
 import org.mythtv.services.api.v026.beans.Program;
-import org.mythtv.services.api.v026.beans.Recording;
+import org.mythtv.services.api.v026.beans.RecordingInfo;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -109,13 +110,13 @@ public class ProgramHelperV26 extends AbstractBaseHelper {
 		} else {
 		
 			String programSelection = table + "." + ProgramConstants.FIELD_CHANNEL_ID + " = ? AND " + table + "." + ProgramConstants.FIELD_START_TIME + " = ?";
-			String[] programSelectionArgs = new String[] { String.valueOf( program.getChannelInfo().getChannelId() ), String.valueOf( program.getStartTime().getMillis() ) };
+			String[] programSelectionArgs = new String[] { String.valueOf( program.getChannel().getChanId() ), String.valueOf( program.getStartTime().getMillis() ) };
 
 			programSelection = appendLocationHostname( context, locationProfile, programSelection, table );
 
 			Cursor programCursor = context.getContentResolver().query( uri, programProjection, programSelection, programSelectionArgs, null );
 			if( programCursor.moveToFirst() ) {
-				Log.v( TAG, "processProgram : UPDATE PROGRAM : " + program.getTitle() + ":" + program.getSubTitle() + ":" + program.getChannelInfo().getChannelId() + ":" + program.getStartTime() + ":" + program.getHostname() + ":" + table );
+				Log.v( TAG, "processProgram : UPDATE PROGRAM : " + program.getTitle() + ":" + program.getSubTitle() + ":" + program.getChannel().getChanId() + ":" + program.getStartTime() + ":" + program.getEndTime() + ":" + program.getHostName() + ":" + table );
 
 				Long id = programCursor.getLong( programCursor.getColumnIndexOrThrow( ProgramConstants._ID ) );
 				ops.add( 
@@ -126,7 +127,7 @@ public class ProgramHelperV26 extends AbstractBaseHelper {
 				);
 
 			} else {
-				//Log.v( TAG, "processProgram : INSERT PROGRAM : " + program.getTitle() + ":" + program.getSubTitle() + ":" + program.getChannelInfo().getChannelId() + ":" + program.getStartTime() + ":" + program.getHostname() + ":" + table );
+				//Log.v( TAG, "processProgram : INSERT PROGRAM : " + program.getTitle() + ":" + program.getSubTitle() + ":" + program.getChannel().getChanId() + ":" + program.getStartTime() + ":" + program.getEndTime() + ":" + program.getHostName() + ":" + table );
 
 				ops.add(
 					ContentProviderOperation.newInsert( uri )
@@ -211,6 +212,24 @@ public class ProgramHelperV26 extends AbstractBaseHelper {
 		return count;
 	}
 
+	public void deletePrograms( final Context context, final LocationProfile locationProfile, ArrayList<ContentProviderOperation> ops, Uri uri, String table ) {
+		Log.v( TAG, "deletePrograms : enter" );
+		
+		String selection = null;
+		String[] selectionArgs = null;
+		
+		selection = appendLocationHostname( context, locationProfile, selection, table );
+		
+		ops.add(  
+			ContentProviderOperation.newDelete( uri )
+				.withSelection( selection, selectionArgs )
+				.withYieldAllowed( true )
+				.build()
+		);
+
+		Log.v( TAG, "deletePrograms : exit" );
+	}
+	
 	public void deletePrograms( final Context context, final LocationProfile locationProfile, Uri uri, String table, String tag ) {
 		Log.v( TAG, "deletePrograms : enter" );
 		
@@ -225,27 +244,10 @@ public class ProgramHelperV26 extends AbstractBaseHelper {
 		Log.v( TAG, "deletePrograms : exit" );
 	}
 	
-	public void deletePrograms( final Context context, final LocationProfile locationProfile, ArrayList<ContentProviderOperation> ops, Uri uri, String table ) {
-		Log.d( TAG, "deletePrograms : enter" );
-		
-		String selection = null;
-		String[] selectionArgs = null;
-		
-		selection = appendLocationHostname( context, locationProfile, selection, table );
-		
-		ops.add(  
-			ContentProviderOperation.newDelete( uri )
-				.withSelection( selection, selectionArgs )
-				.withYieldAllowed( true )
-				.build()
-		);
-
-		Log.d( TAG, "deletePrograms : exit" );
-	}
-	
 	public void deletePrograms( final Context context, final LocationProfile locationProfile, ArrayList<ContentProviderOperation> ops, Uri uri, String table, DateTime lastModified ) {
-		Log.d( TAG, "deletePrograms : enter" );
+		Log.v( TAG, "deletePrograms : enter" );
 		
+//		Log.v( TAG, "deletePrograms : lastModified=" + lastModified.toString() );
 		String selection = table + "." + ProgramConstants.FIELD_LAST_MODIFIED_DATE + " < ?";
 		String[] selectionArgs = new String[] { String.valueOf( lastModified.getMillis() ) };
 		
@@ -258,7 +260,7 @@ public class ProgramHelperV26 extends AbstractBaseHelper {
 				.build()
 		);
 
-		Log.d( TAG, "deletePrograms : exit" );
+		Log.v( TAG, "deletePrograms : exit" );
 	}
 	
 	public boolean deleteProgram( final Context context, final LocationProfile locationProfile, Uri uri, String table, Integer channelId, DateTime programStartTime, DateTime recordingStartTime, Integer recordId ) {
@@ -272,14 +274,17 @@ public class ProgramHelperV26 extends AbstractBaseHelper {
 		
 		MythServicesTemplate mMythServicesTemplate = (MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( mApiVersion, locationProfile.getUrl() );
 
-		ResponseEntity<Bool> response = mMythServicesTemplate.dvrOperations().removeRecorded( channelId, recordingStartTime );
+		ResponseEntity<Bool> response = mMythServicesTemplate.dvrOperations().removeRecorded( channelId, recordingStartTime, EtagInfoDelegate.createEmptyETag() );
 		if( null != response ) {
+			Log.d( TAG, "deleteProgram : response returned" );
 			
 			if( response.getStatusCode().equals( HttpStatus.OK ) ) {
-				
-				boolean removed = response.getBody().getBool();
+				Log.d( TAG, "deleteProgram : HttpStatus is OK" );
+
+				boolean removed = response.getBody().getValue();
 				if( removed ) {
-					
+					Log.d( TAG, "deleteProgram : program removed on backend" );
+
 					String programSelection = table + "." + ProgramConstants.FIELD_CHANNEL_ID + " = ? AND " + table + "." + ProgramConstants.FIELD_START_TIME + " = ?";
 					String[] programSelectionArgs = new String[] { String.valueOf( channelId ), String.valueOf( programStartTime.getMillis() ) };
 
@@ -329,7 +334,7 @@ public class ProgramHelperV26 extends AbstractBaseHelper {
 		values.put( ProgramConstants.FIELD_TITLE, null != program.getTitle() ? program.getTitle() : "" );
 		values.put( ProgramConstants.FIELD_SUB_TITLE, null != program.getSubTitle() ? program.getSubTitle() : "" );
 		values.put( ProgramConstants.FIELD_CATEGORY, null != program.getCategory() ? program.getCategory() : "" );
-		values.put( ProgramConstants.FIELD_CATEGORY_TYPE, null != program.getCategoryType() ? program.getCategoryType() : "" );
+		values.put( ProgramConstants.FIELD_CATEGORY_TYPE, null != program.getCatType() ? program.getCatType() : "" );
 		values.put( ProgramConstants.FIELD_REPEAT, program.isRepeat() ? 1 : 0 );
 		values.put( ProgramConstants.FIELD_VIDEO_PROPS, program.getVideoProps() );
 		values.put( ProgramConstants.FIELD_AUDIO_PROPS, program.getAudioProps() );
@@ -337,18 +342,18 @@ public class ProgramHelperV26 extends AbstractBaseHelper {
 		values.put( ProgramConstants.FIELD_SERIES_ID, null != program.getSeriesId() ? program.getSeriesId() : "" );
 		values.put( ProgramConstants.FIELD_PROGRAM_ID, null != program.getProgramId() ? program.getProgramId() : "" );
 		values.put( ProgramConstants.FIELD_STARS, program.getStars() );
-		values.put( ProgramConstants.FIELD_FILE_SIZE, null != program.getFileSize() ? program.getFileSize() : "" );
+		values.put( ProgramConstants.FIELD_FILE_SIZE, null != program.getFileSize() ? program.getFileSize() : -1 );
 		values.put( ProgramConstants.FIELD_LAST_MODIFIED, null != program.getLastModified() ? program.getLastModified().getMillis() : -1 );
-		values.put( ProgramConstants.FIELD_PROGRAM_FLAGS, null != program.getProgramFlags() ? program.getProgramFlags() : "" );
-		values.put( ProgramConstants.FIELD_HOSTNAME, null != program.getHostname() ? program.getHostname() : "" );
-		values.put( ProgramConstants.FIELD_FILENAME, null != program.getFilename() ? program.getFilename() : "" );
-		values.put( ProgramConstants.FIELD_AIR_DATE, null != program.getAirDate() ? DateUtils.dateFormatter.print( program.getAirDate() ) : "" );
+		values.put( ProgramConstants.FIELD_PROGRAM_FLAGS, null != program.getProgramFlags() ? program.getProgramFlags() : -1 );
+		values.put( ProgramConstants.FIELD_HOSTNAME, null != program.getHostName() ? program.getHostName() : "" );
+		values.put( ProgramConstants.FIELD_FILENAME, null != program.getFileName() ? program.getFileName() : "" );
+		values.put( ProgramConstants.FIELD_AIR_DATE, null != program.getAirdate() ? DateUtils.dateFormatter.print( program.getAirdate() ) : "" );
 		values.put( ProgramConstants.FIELD_DESCRIPTION, null != program.getDescription() ? program.getDescription() : "" );
 		values.put( ProgramConstants.FIELD_INETREF, null != program.getInetref() ? program.getInetref() : "" );
-		values.put( ProgramConstants.FIELD_SEASON, null != program.getSeason() ? program.getSeason() : "" );
-		values.put( ProgramConstants.FIELD_EPISODE, null != program.getEpisode() ? program.getEpisode() : "" );
-		values.put( ProgramConstants.FIELD_CHANNEL_ID, null != program.getChannelInfo() ? program.getChannelInfo().getChannelId() : -1 );
-		values.put( ProgramConstants.FIELD_RECORD_ID, null != program.getRecording() ? program.getRecording().getRecordId() : -1 );
+		values.put( ProgramConstants.FIELD_SEASON, null != program.getSeason() ? program.getSeason() : -1 );
+		values.put( ProgramConstants.FIELD_EPISODE, null != program.getEpisode() ? program.getEpisode() : -1 );
+		values.put( ProgramConstants.FIELD_CHANNEL_ID, null != program.getChannel() ? program.getChannel().getChanId() : -1 );
+		values.put( ProgramConstants.FIELD_RECORD_ID, null != program.getRecording() && null != program.getRecording().getRecordId() ? program.getRecording().getRecordId() : -1 );
 		values.put( ProgramConstants.FIELD_IN_ERROR, inError ? 1 : 0 );
 		values.put( ProgramConstants.FIELD_MASTER_HOSTNAME, locationProfile.getHostname() );
 		values.put( ProgramConstants.FIELD_LAST_MODIFIED_DATE, new DateTime().getMillis() );
@@ -362,12 +367,13 @@ public class ProgramHelperV26 extends AbstractBaseHelper {
 //		Log.v( TAG, "convertCursorToProgram : enter" );
 
 		DateTime startTime = null, endTime = null, lastModified = null, airDate = null;
-		String title = "", subTitle = "", category = "", categoryType = "", seriesId = "", programId = "", fileSize = "", programFlags = "", hostname = "", filename = "", description = "", inetref = "", season = "", episode = "";
-		int repeat = -1, videoProps = -1, audioProps = -1, subProps = -1;
-		float stars = 0.0f;
+		String title = "", subTitle = "", category = "", categoryType = "", seriesId = "", programId = "", hostname = "", filename = "", description = "", inetref = "";
+		int repeat = -1, videoProps = -1, audioProps = -1, subProps = -1, programFlags = -1, season = -1, episode = -1;
+		long fileSize = -1;
+		double stars = 0.0f;
 		
 		ChannelInfo channelInfo = null;
-		Recording recording = null;
+		RecordingInfo recording = null;
 		
 		if( cursor.getColumnIndex( ProgramConstants.FIELD_START_TIME ) != -1 ) {
 			startTime = new DateTime( cursor.getLong( cursor.getColumnIndex( ProgramConstants.FIELD_START_TIME ) ) );
@@ -418,11 +424,11 @@ public class ProgramHelperV26 extends AbstractBaseHelper {
 		}
 		
 		if( cursor.getColumnIndex( ProgramConstants.FIELD_STARS ) != -1 ) {
-			stars = cursor.getFloat( cursor.getColumnIndex( ProgramConstants.FIELD_STARS ) );
+			stars = cursor.getDouble( cursor.getColumnIndex( ProgramConstants.FIELD_STARS ) );
 		}
 		
 		if( cursor.getColumnIndex( ProgramConstants.FIELD_FILE_SIZE ) != -1 ) {
-			fileSize = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_FILE_SIZE ) );
+			fileSize = cursor.getLong( cursor.getColumnIndex( ProgramConstants.FIELD_FILE_SIZE ) );
 		}
 		
 		if( cursor.getColumnIndex( ProgramConstants.FIELD_LAST_MODIFIED ) != -1 ) {
@@ -430,7 +436,7 @@ public class ProgramHelperV26 extends AbstractBaseHelper {
 		}
 		
 		if( cursor.getColumnIndex( ProgramConstants.FIELD_PROGRAM_FLAGS ) != -1 ) {
-			programFlags = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_PROGRAM_FLAGS ) );
+			programFlags = cursor.getInt( cursor.getColumnIndex( ProgramConstants.FIELD_PROGRAM_FLAGS ) );
 		}
 		
 		if( cursor.getColumnIndex( ProgramConstants.FIELD_HOSTNAME ) != -1 ) {
@@ -458,11 +464,11 @@ public class ProgramHelperV26 extends AbstractBaseHelper {
 		}
 		
 		if( cursor.getColumnIndex( ProgramConstants.FIELD_SEASON ) != -1 ) {
-			season = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_SEASON ) );
+			season = cursor.getInt( cursor.getColumnIndex( ProgramConstants.FIELD_SEASON ) );
 		}
 		
 		if( cursor.getColumnIndex( ProgramConstants.FIELD_EPISODE ) != -1 ) {
-			episode = cursor.getString( cursor.getColumnIndex( ProgramConstants.FIELD_EPISODE ) );
+			episode = cursor.getInt( cursor.getColumnIndex( ProgramConstants.FIELD_EPISODE ) );
 		}
 		
 		if( cursor.getColumnIndex( ProgramConstants.FIELD_CHANNEL_ID ) != -1 ) {
@@ -479,7 +485,7 @@ public class ProgramHelperV26 extends AbstractBaseHelper {
 		program.setTitle( title );
 		program.setSubTitle( subTitle );
 		program.setCategory( category );
-		program.setCategoryType( categoryType );
+		program.setCatType( categoryType );
 		program.setRepeat( repeat == 1 ? true : false );
 		program.setVideoProps( videoProps );
 		program.setAudioProps( audioProps );
@@ -490,14 +496,14 @@ public class ProgramHelperV26 extends AbstractBaseHelper {
 		program.setFileSize( fileSize );
 		program.setLastModified( lastModified );
 		program.setProgramFlags( programFlags );
-		program.setHostname( hostname );
-		program.setFilename( filename );
-		program.setAirDate( airDate );
+		program.setHostName( hostname );
+		program.setFileName( filename );
+		program.setAirdate( null != airDate ? airDate.toLocalDate() : null );
 		program.setDescription( description );
 		program.setInetref( inetref );
 		program.setSeason( season );
 		program.setEpisode( episode );
-		program.setChannelInfo( channelInfo );
+		program.setChannel( channelInfo );
 		program.setRecording( recording );
 		
 //		Log.v( TAG, "convertCursorToProgram : exit" );

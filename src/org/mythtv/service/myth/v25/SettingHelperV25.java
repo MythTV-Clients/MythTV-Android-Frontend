@@ -127,7 +127,7 @@ public class SettingHelperV25 extends AbstractBaseHelper {
 					if( settingList.getSettings().containsKey( settingName ) ) {
 						setting = settingList.getSettings().get( settingName );
 					}
-						
+
 				}
 				
 			}

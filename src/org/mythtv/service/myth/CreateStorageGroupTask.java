@@ -130,12 +130,12 @@ public class CreateStorageGroupTask extends AsyncTask<String, Void, Boolean> {
 				org.mythtv.services.api.v026.MythServicesTemplate mythServicesTemplateV26 = (org.mythtv.services.api.v026.MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( apiVersion, mLocationProfile.getUrl() );
 
 				if( null != mythServicesTemplateV26 ) {
-					ResponseEntity<org.mythtv.services.api.v026.Bool> responseV26 = mythServicesTemplateV26.mythOperations().addStorageGroupDir( groupName, directory, mLocationProfile.getHostname() );
+					ResponseEntity<org.mythtv.services.api.Bool> responseV26 = mythServicesTemplateV26.mythOperations().addStorageGroupDir( groupName, directory, mLocationProfile.getHostname() );
 					if( responseV26.getStatusCode().equals( HttpStatus.OK ) ) {
 
 						if( null != responseV26.getBody() ) {
 
-							created = responseV26.getBody().getBool().booleanValue();
+							created = responseV26.getBody().getValue();
 
 						}
 

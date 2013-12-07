@@ -92,7 +92,7 @@ public class SendMessageTask extends AsyncTask<String, Void, Void> {
 				org.mythtv.services.api.v026.MythServicesTemplate mythServicesTemplateV26 = (org.mythtv.services.api.v026.MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( apiVersion, url );
 
 				if( null != mythServicesTemplateV26 ) {
-					mythServicesTemplateV26.frontendOperations().sendMessage( url, message );
+					mythServicesTemplateV26.frontendOperations().sendMessage( message, 1000, ETagInfo.createEmptyETag() );
 				}
 				
 				break;

@@ -122,16 +122,12 @@ public class SettingHelperV26 extends AbstractBaseHelper {
 
 			if( null != settingList ) {
 				
-				if( null != settingList.getSetting() ) {
+				if( null != settingList.getSettings() && !settingList.getSettings().isEmpty() ) {
 					
-					if( null != settingList.getSetting().getSettings() && !settingList.getSetting().getSettings().isEmpty() ) {
-						
-						if( settingList.getSetting().getSettings().containsKey( settingName ) ) {
-							setting = settingList.getSetting().getSettings().get( settingName );
-						}
-						
+					if( settingList.getSettings().containsKey( settingName ) ) {
+						setting = settingList.getSettings().get( settingName );
 					}
-					
+
 				}
 				
 			}

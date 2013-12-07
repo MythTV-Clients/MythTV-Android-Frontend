@@ -85,7 +85,7 @@ public class SendActionTask extends AsyncTask<String, Void, Void> {
 				org.mythtv.services.api.v026.MythServicesTemplate mythServicesTemplateV26 = (org.mythtv.services.api.v026.MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( apiVersion, url );
 
 				if( null != mythServicesTemplateV26 ) {
-					mythServicesTemplateV26.frontendOperations().sendAction( url, action, null, 0, 0 );
+					mythServicesTemplateV26.frontendOperations().sendAction( action, null, 0, 0, ETagInfo.createEmptyETag() );
 				}
 				
 				break;

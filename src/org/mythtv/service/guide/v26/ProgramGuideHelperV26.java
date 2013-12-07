@@ -44,7 +44,6 @@ import org.mythtv.services.api.v026.MythServicesTemplate;
 import org.mythtv.services.api.v026.beans.ChannelInfo;
 import org.mythtv.services.api.v026.beans.Program;
 import org.mythtv.services.api.v026.beans.ProgramGuide;
-import org.mythtv.services.api.v026.beans.ProgramGuideWrapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -130,7 +129,7 @@ public class ProgramGuideHelperV26 extends AbstractBaseHelper {
 		return passed;
 	}
 	
-	public Program findProgram( final Context context, final LocationProfile locationProfile, Integer channelId, DateTime startTime ) {
+	public static Program findProgram( final Context context, final LocationProfile locationProfile, Integer channelId, DateTime startTime ) {
 		Log.v( TAG, "findProgram : enter" );
 		
 		Program program = ProgramHelperV26.getInstance().findProgram( context, locationProfile, ProgramConstants.CONTENT_URI_GUIDE, ProgramConstants.TABLE_NAME_GUIDE, channelId, startTime );
@@ -139,7 +138,7 @@ public class ProgramGuideHelperV26 extends AbstractBaseHelper {
 		return program;
 	}
 	
-	public boolean deleteProgram( final Context context, final LocationProfile locationProfile, Integer channelId, DateTime programStartTime, DateTime recordingStartTime, Integer recordId ) {
+	public static boolean deleteProgram( final Context context, final LocationProfile locationProfile, Integer channelId, DateTime programStartTime, DateTime recordingStartTime, Integer recordId ) {
 		Log.v( TAG, "deleteProgram : enter" );
 		
 		boolean removed = ProgramHelperV26.getInstance().deleteProgram( context, locationProfile, ProgramConstants.CONTENT_URI_GUIDE, ProgramConstants.TABLE_NAME_GUIDE, channelId, programStartTime, recordingStartTime, recordId );
@@ -150,9 +149,9 @@ public class ProgramGuideHelperV26 extends AbstractBaseHelper {
 	
 	// internal helpers
 	
-	private void downloadProgramGuide( final Context context, final LocationProfile locationProfile ) throws MythServiceApiRuntimeException, RemoteException, OperationApplicationException {
+	private static void downloadProgramGuide( final Context context, final LocationProfile locationProfile ) throws MythServiceApiRuntimeException, RemoteException, OperationApplicationException {
 		Log.v( TAG, "downloadProgramGuide : enter" );
-	
+
 		ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
 		ProgramHelperV26.getInstance().deletePrograms( context, locationProfile, ops, ProgramConstants.CONTENT_URI_GUIDE, ProgramConstants.TABLE_NAME_GUIDE );
 		RecordingHelperV26.getInstance().deleteRecordings( context, locationProfile, ops, ContentDetails.GUIDE );
@@ -166,7 +165,7 @@ public class ProgramGuideHelperV26 extends AbstractBaseHelper {
 		DateTime start = new DateTime( DateTimeZone.getDefault() ).withTimeAtStartOfDay();
 		DateTime end = start.plusHours( 3 );
 		for( int i = 0; i < ( ( downloadDays * 24 ) / 3 ); i++ ) {
-			Log.i( TAG, "downloadProgramGuide : starting download for [" + i + " of " + ( ( downloadDays * 24 ) / 3 ) + "] " + DateUtils.getDateTimeUsingLocaleFormattingPretty( start, mMainApplication.getDateFormat(), mMainApplication.getClockType() ) + ", end time=" + DateUtils.getDateTimeUsingLocaleFormattingPretty( end, mMainApplication.getDateFormat(), mMainApplication.getClockType() ) );
+			Log.i( TAG, "downloadProgramGuide : starting download for [" + ( i + 1 ) + " of " + ( ( downloadDays * 24 ) / 3 ) + "] " + DateUtils.getDateTimeUsingLocaleFormattingPretty( start, mMainApplication.getDateFormat(), mMainApplication.getClockType() ) + ", end time=" + DateUtils.getDateTimeUsingLocaleFormattingPretty( end, mMainApplication.getDateFormat(), mMainApplication.getClockType() ) );
 
 			EtagInfoDelegate etag = mEtagDaoHelper.findByEndpointAndDataId( context, locationProfile, "GetProgramGuide", String.valueOf( i ) );
 			Log.d( TAG, "downloadProgramGuide : etag=" + etag.getValue() );
@@ -174,16 +173,16 @@ public class ProgramGuideHelperV26 extends AbstractBaseHelper {
 			if( null == etag.getDate() || start.isAfter( etag.getDate() ) ) {
 				Log.v( TAG, "downloadProgramGuide : next mythfilldatabase has passed" );
 				
-				ResponseEntity<ProgramGuideWrapper> responseEntity = mMythServicesTemplate.guideOperations().getProgramGuide( start, end, 1, -1, false, etag );
+				ResponseEntity<ProgramGuide> responseEntity = mMythServicesTemplate.guideOperations().getProgramGuide( start, end, 1, null, false, etag );
 
 				if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
 					Log.i( TAG, "downloadProgramGuide : GetProgramGuide returned 200 OK" );
-					ProgramGuideWrapper programGuide = responseEntity.getBody();
+					ProgramGuide programGuide = responseEntity.getBody();
 
 					if( null != programGuide ) {
 
-						if( null != programGuide.getProgramGuide() ) {
-							load( context, locationProfile, programGuide.getProgramGuide() );
+						if( null != programGuide ) {
+							load( context, locationProfile, programGuide );
 						}
 
 					}
@@ -227,11 +226,11 @@ public class ProgramGuideHelperV26 extends AbstractBaseHelper {
 		Log.v( TAG, "downloadProgramGuide : exit" );
 	}
 	
-	private int load( final Context context, final LocationProfile locationProfile, final ProgramGuide programGuide ) throws RemoteException, OperationApplicationException {
+	private static int load( final Context context, final LocationProfile locationProfile, final ProgramGuide programGuide ) throws RemoteException, OperationApplicationException {
 		Log.d( TAG, "load : enter" );
 		
 		if( null == context ) 
-			throw new RuntimeException( "ProgramGuideHelperV27 is not initialized" );
+			throw new RuntimeException( "ProgramGuideHelperV26 is not initialized" );
 		
 		String tag = UUID.randomUUID().toString();
 		int processed = -1;
@@ -242,13 +241,14 @@ public class ProgramGuideHelperV26 extends AbstractBaseHelper {
 		for( ChannelInfo channel : programGuide.getChannels() ) {
 		
 			for( Program program : channel.getPrograms() ) {
+				//Log.i( TAG, "load : count=" + count );
 
-				program.setChannelInfo( channel );
-				program.setHostname( locationProfile.getHostname() );
+				program.setChannel( channel );
+				program.setHostName( locationProfile.getHostname() );
 
 				ProgramHelperV26.getInstance().processProgram( context, locationProfile, ProgramConstants.CONTENT_URI_GUIDE, ProgramConstants.TABLE_NAME_GUIDE, ops, program, tag );
 				count++;
-				
+
 				if( count > BATCH_COUNT_LIMIT ) {
 //					Log.i( TAG, "load : applying batch for '" + count + "' transactions, processing programs" );
 
@@ -260,9 +260,9 @@ public class ProgramGuideHelperV26 extends AbstractBaseHelper {
 			}
 
 		}
-		
+
 		if( !ops.isEmpty() ) {
-//			Log.i( TAG, "load : applying batch for '" + count + "' transactions, processing programs" );
+//			Log.i( TAG, "load : applying final batch for '" + count + "' transactions, processing programs" );
 
 			processBatch( context, ops, processed, count );
 		}

@@ -24,7 +24,7 @@
     <groupId>org.mythtv.android</groupId>
     <artifactId>mythtv-android-frontend</artifactId>
     <!-- Make the version in strings.xml match the following. Alpah=α, Beta=β -->
-    <version>1.30.α0-SNAPSHOT</version>
+    <version>1.30.α-SNAPSHOT</version>
     <packaging>apk</packaging>
     <name>MythTV Android Frontend</name>
 

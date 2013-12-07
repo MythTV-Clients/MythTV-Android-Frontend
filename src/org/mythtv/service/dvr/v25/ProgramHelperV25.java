@@ -111,7 +111,7 @@ public class ProgramHelperV25 extends AbstractBaseHelper {
 		
 			String programSelection = table + "." + ProgramConstants.FIELD_CHANNEL_ID + " = ? AND " + table + "." + ProgramConstants.FIELD_START_TIME + " = ?";
 			String[] programSelectionArgs = new String[] { String.valueOf( program.getChannel().getChanId() ), String.valueOf( program.getStartTime().getMillis() ) };
-			
+
 			programSelection = appendLocationHostname( context, locationProfile, programSelection, table );
 
 			Cursor programCursor = context.getContentResolver().query( uri, programProjection, programSelection, programSelectionArgs, null );

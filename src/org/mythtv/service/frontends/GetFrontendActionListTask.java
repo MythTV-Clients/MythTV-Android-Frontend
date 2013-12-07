@@ -142,12 +142,12 @@ public class GetFrontendActionListTask extends AsyncTask<String, Void, List<Acti
 					ResponseEntity<org.mythtv.services.api.v026.beans.FrontendActionList> actionsV26 = mythServicesTemplateV26.frontendOperations().getActionList( url, ETagInfo.createEmptyETag() );
 					if( actionsV26.getStatusCode().equals( HttpStatus.OK ) ) {
 
-						if( null != actionsV26.getBody().getActions() && !actionsV26.getBody().getActions().isEmpty() ) {
+						if( null != actionsV26.getBody().getActionList() && !actionsV26.getBody().getActionList().isEmpty() ) {
 
-							for( org.mythtv.services.api.v026.beans.Action versionAction: actionsV26.getBody().getActions() ) {
+							for(  String versionAction: actionsV26.getBody().getActionList().keySet() ) {
 								Action action = new Action();
-								action.setKey( versionAction.getKey() );
-								action.setValue( versionAction.getValue() );
+								action.setKey( versionAction );
+								action.setValue( actionsV26.getBody().getActionList().get( versionAction ) );
 
 								actions.add( action );
 							}

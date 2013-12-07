@@ -116,14 +116,19 @@ public class FileListHelperV26 extends AbstractBaseHelper {
 	
 		List<String> files = null;
 
-		ResponseEntity<org.mythtv.services.api.v026.StringList> responseEntity = mMythServicesTemplate.contentOperations().getFileList( storageGroupName, ETagInfo.createEmptyETag() );
+		ResponseEntity<org.mythtv.services.api.ArrayOfString> responseEntity = mMythServicesTemplate.contentOperations().getFileList( storageGroupName, ETagInfo.createEmptyETag() );
 
 		if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
 
-			org.mythtv.services.api.v026.StringList fileList = responseEntity.getBody();
+			org.mythtv.services.api.ArrayOfString fileList = responseEntity.getBody();
 
-			if( null != fileList.getStringList() && fileList.getStringList().length > 0 ) {
-				files = load( fileList );	
+			if( null != fileList ) {
+				
+				if( null != fileList.getValue() && fileList.getValue().length > 0 ) {
+					
+					files = load( fileList.getValue() );
+				}
+				
 			}
 
 		}
@@ -132,14 +137,14 @@ public class FileListHelperV26 extends AbstractBaseHelper {
 		return files;
 	}
 	
-	private List<String> load( org.mythtv.services.api.v026.StringList versionFiles ) {
+	private List<String> load( String[] versionFiles ) {
 		Log.v( TAG, "load : enter" );
 		
 		List<String> files = new ArrayList<String>();
 		
-		if( null != versionFiles ) {
+		if( null != versionFiles && versionFiles.length > 0 ) {
 			
-			for( String versionFile : versionFiles.getStringList() ) {
+			for( String versionFile : versionFiles ) {
 				
 				files.add( versionFile );
 
