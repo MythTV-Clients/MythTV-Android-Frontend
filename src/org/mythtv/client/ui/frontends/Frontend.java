@@ -172,4 +172,13 @@ public class Frontend {
 		return this.name.replace(EXCESSIVE_NAME, "");
 	}
 	
+	/**
+	 * Returns the URL address minus protocol and paths.
+	 * @return
+	 */
+	public String getUrlAddress(){
+		//strip protocol from begining and :port/path from end. Should result in the ipaddress
+		return this.url.substring(this.url.indexOf("http://")+7 , this.url.lastIndexOf(":"));
+	}
+	
 }

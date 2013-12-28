@@ -33,6 +33,7 @@ import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.util.NetworkHelper;
 
 import android.app.AlertDialog;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
@@ -54,6 +55,12 @@ import android.widget.TextView;
 public class FrontendsRow implements Row, OnItemSelectedListener {
 
 	private final static String TAG = FrontendsRow.class.getSimpleName();
+	
+	public static final String EXTRA_LOCATION_NAME = "EXTRA_LOCATION_NAME";
+	public static final String EXTRA_LOCATION_ADDRESS = "EXTRA_LOCATION_ADDRESS";
+	public static final String EXTRA_LOCATION_PORT = "EXTRA_LOCATION_PORT";
+	public static final String EXTRA_LOCATION_MAC = "EXTRA_LOCATION_MAC";
+	public static final int DEFAULT_MYTHMOTE_PORT = 6546;
 	
 	private static Frontend selectedFrontend;
 	
@@ -87,9 +94,19 @@ public class FrontendsRow implements Row, OnItemSelectedListener {
 				return;
 			}
 			
-			if( NetworkHelper.getInstance().isNetworkConnected( mContext ) && !mContext.getClass().equals(MythmoteActivity.class) ) {
-				mContext.startActivity( new Intent( mContext, MythmoteActivity.class ) );
-			}
+ 			// Use internal mythmote UI that utilizes the frontend services API			
+//			if( NetworkHelper.getInstance().isNetworkConnected( mContext ) && !mContext.getClass().equals(MythmoteActivity.class) ) {
+//				mContext.startActivity( new Intent( mContext, MythmoteActivity.class ) );
+//			}
+			
+			//fire external mythmote
+			mContext.startActivity(new Intent("tkj.android.homecontrol.mythmote.CONNECT_TO_FRONTEND")
+			    .setComponent(ComponentName.unflattenFromString("tkj.android.homecontrol.mythmote/tkj.android.homecontrol.mythmote.MythMote"))
+				.putExtra(EXTRA_LOCATION_NAME, selectedFrontend.getName())
+				.putExtra(EXTRA_LOCATION_ADDRESS, selectedFrontend.getUrlAddress())
+				.putExtra(EXTRA_LOCATION_PORT, DEFAULT_MYTHMOTE_PORT)
+				//.putExtra(EXTRA_LOCATION_MAC, "")
+			);
 		}
 	};
 	
