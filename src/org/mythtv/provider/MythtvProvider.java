@@ -1761,8 +1761,9 @@ public class MythtvProvider extends AbstractMythtvContentProvider {
 				
 					for( ContentValues value : values ) {
 						insert.bindString( 1, value.getAsString( FrontendConstants.FIELD_NAME ) );
-						insert.bindString( 2, value.getAsString( FrontendConstants.FIELD_URL ) );
-						insert.bindLong( 3, value.getAsInteger( FrontendConstants.FIELD_AVAILABLE ) );
+						insert.bindString( 2, value.getAsString( FrontendConstants.FIELD_HOSTNAME ) );
+						insert.bindLong( 3, value.getAsInteger( FrontendConstants.FIELD_PORT ) );
+						insert.bindLong( 4, value.getAsInteger( FrontendConstants.FIELD_AVAILABLE ) );
 						insert.bindString( 27, value.getAsString( FrontendConstants.FIELD_MASTER_HOSTNAME ) );
 						insert.bindLong( 28, value.getAsInteger( FrontendConstants.FIELD_LAST_MODIFIED_DATE ) );
 						insert.execute();

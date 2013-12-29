@@ -31,17 +31,19 @@ public class Frontend {
 	
 	private long id;
 	private String name;
-	private String url;
+	private String hostname;
+	private int port;
 	private boolean available;
 	private String masterHostname;
 	private DateTime lastModifiedDate;
 	
 	public Frontend() { }
 
-	public Frontend( String name, String url ) {
+	public Frontend( String name, String hostname, int port ) {
 		super();
 		this.name = name;
-		this.url = url;
+		this.hostname = hostname;
+		this.port = port;
 	}
 
 	/**
@@ -76,14 +78,35 @@ public class Frontend {
 	 * @return the url
 	 */
 	public String getUrl() {
-		return url;
+		return "http://" + hostname + ":" + port + "/" ;
+	}
+	
+	/**
+	 * @return the hostname
+	 */
+	public String getHostname() {
+		return hostname;
 	}
 
 	/**
-	 * @param url the url to set
+	 * @param url the hostname to set
 	 */
-	public void setUrl( String url ) {
-		this.url = url;
+	public void setHostname( String hostname ) {
+		this.hostname = hostname;
+	}
+	
+	/**
+	 * @return the port
+	 */
+	public int getPort() {
+		return port;
+	}
+
+	/**
+	 * @param url the port to set
+	 */
+	public void setPort( int port ) {
+		this.port = port;
 	}
 
 	/**
@@ -142,14 +165,20 @@ public class Frontend {
 			builder.append(name);
 			builder.append(", ");
 		}
-		if (url != null) {
+		if (hostname != null) {
 			builder.append("url=");
-			builder.append(url);
+			builder.append(hostname);
 			builder.append(", ");
 		}
+		
+		builder.append("port=");
+		builder.append(port);
+		builder.append(", ");
+
 		builder.append("available=");
 		builder.append(available);
 		builder.append(", ");
+		
 		if (masterHostname != null) {
 			builder.append("masterHostname=");
 			builder.append(masterHostname);
@@ -170,15 +199,6 @@ public class Frontend {
 	public String getNameStripped(){
 		if(null == this.name) return this.name;
 		return this.name.replace(EXCESSIVE_NAME, "");
-	}
-	
-	/**
-	 * Returns the URL address minus protocol and paths.
-	 * @return
-	 */
-	public String getUrlAddress(){
-		//strip protocol from begining and :port/path from end. Should result in the ipaddress
-		return this.url.substring(this.url.indexOf("http://")+7 , this.url.lastIndexOf(":"));
 	}
 	
 }
