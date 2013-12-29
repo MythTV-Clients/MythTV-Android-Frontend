@@ -35,7 +35,11 @@ import org.mythtv.service.util.NetworkHelper;
 import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
+import android.net.Uri;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -99,14 +103,34 @@ public class FrontendsRow implements Row, OnItemSelectedListener {
 //				mContext.startActivity( new Intent( mContext, MythmoteActivity.class ) );
 //			}
 			
-			// Fire external mythmote
-			mContext.startActivity(new Intent("tkj.android.homecontrol.mythmote.CONNECT_TO_FRONTEND")
+			Intent intentMythMote = new Intent("tkj.android.homecontrol.mythmote.CONNECT_TO_FRONTEND")
 			    .setComponent(ComponentName.unflattenFromString("tkj.android.homecontrol.mythmote/tkj.android.homecontrol.mythmote.MythMote"))
 				.putExtra(EXTRA_LOCATION_NAME, selectedFrontend.getNameStripped())
 				.putExtra(EXTRA_LOCATION_ADDRESS, selectedFrontend.getHostname())
 				.putExtra(EXTRA_LOCATION_PORT, DEFAULT_MYTHMOTE_PORT) // Mythmote port is not the same as services API frontend port
 				//.putExtra(EXTRA_LOCATION_MAC, "")
-			);
+				;
+			
+			if(isIntentSafe(intentMythMote)){
+				mContext.startActivity(intentMythMote);
+			} else {
+				new AlertDialog.Builder(mContext)
+					.setMessage(R.string.error_question_mythmote_not_installed)
+					.setPositiveButton(R.string.mythmote_install, new DialogInterface.OnClickListener(){
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							mContext.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=tkj.android.homecontrol.mythmote")));
+							
+						}})
+					.setNegativeButton(R.string.mythmote_do_not_install, new DialogInterface.OnClickListener(){
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							//nothing to do
+						}})
+					.setCancelable(true)
+					.show();
+					
+			}
 		}
 	};
 	
@@ -206,6 +230,13 @@ public class FrontendsRow implements Row, OnItemSelectedListener {
 		return selectedFrontend;
 	}
 	
+	
+	private boolean isIntentSafe(Intent intent){
+		if(null == this.mContext) return false;
+		PackageManager packageManager = this.mContext.getPackageManager();
+		List<ResolveInfo> activities = packageManager.queryIntentActivities(intent, 0);
+		return activities.size() > 0;
+	}
 	
 	
 	private class FrontendAdapter extends ArrayAdapter<Frontend> {

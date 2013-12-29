@@ -341,6 +341,9 @@
     <string name="mythmote_page_actionlist">Action List</string>
    	<string name="frontend_not_selected">Frontend not selected</string>
    	<string name="frontend_not_selected_OK">OK</string>
+   	<string name="error_question_mythmote_not_installed">This action requires the Mythmote application to be installed. Would you like to install this app now?</string>
+   	<string name="mythmote_install">Install Mythmote</string>
+   	<string name="mythmote_do_not_install">Do Not install mythmote</string>
     
     <!-- Setup Dashboard Buttons -->
 	<string name="setup_title">Setup</string>
