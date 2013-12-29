@@ -102,7 +102,7 @@ public class FrontendsRow implements Row, OnItemSelectedListener {
 			// Fire external mythmote
 			mContext.startActivity(new Intent("tkj.android.homecontrol.mythmote.CONNECT_TO_FRONTEND")
 			    .setComponent(ComponentName.unflattenFromString("tkj.android.homecontrol.mythmote/tkj.android.homecontrol.mythmote.MythMote"))
-				.putExtra(EXTRA_LOCATION_NAME, selectedFrontend.getName())
+				.putExtra(EXTRA_LOCATION_NAME, selectedFrontend.getNameStripped())
 				.putExtra(EXTRA_LOCATION_ADDRESS, selectedFrontend.getHostname())
 				.putExtra(EXTRA_LOCATION_PORT, DEFAULT_MYTHMOTE_PORT) // Mythmote port is not the same as services API frontend port
 				//.putExtra(EXTRA_LOCATION_MAC, "")
