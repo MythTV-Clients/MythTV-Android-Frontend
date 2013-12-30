@@ -33,8 +33,13 @@ import org.mythtv.db.preferences.LocationProfileDaoHelper;
 import org.mythtv.service.util.NetworkHelper;
 
 import android.app.AlertDialog;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
+import android.net.Uri;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -54,6 +59,12 @@ import android.widget.TextView;
 public class FrontendsRow implements Row, OnItemSelectedListener {
 
 	private final static String TAG = FrontendsRow.class.getSimpleName();
+	
+	public static final String EXTRA_LOCATION_NAME = "EXTRA_LOCATION_NAME";
+	public static final String EXTRA_LOCATION_ADDRESS = "EXTRA_LOCATION_ADDRESS";
+	public static final String EXTRA_LOCATION_PORT = "EXTRA_LOCATION_PORT";
+	public static final String EXTRA_LOCATION_MAC = "EXTRA_LOCATION_MAC";
+	public static final int DEFAULT_MYTHMOTE_PORT = 6546;
 	
 	private static Frontend selectedFrontend;
 	
@@ -87,8 +98,38 @@ public class FrontendsRow implements Row, OnItemSelectedListener {
 				return;
 			}
 			
-			if( NetworkHelper.getInstance().isNetworkConnected( mContext ) && !mContext.getClass().equals(MythmoteActivity.class) ) {
-				mContext.startActivity( new Intent( mContext, MythmoteActivity.class ) );
+ 			// Use internal mythmote UI that utilizes the frontend services API			
+//			if( NetworkHelper.getInstance().isNetworkConnected( mContext ) && !mContext.getClass().equals(MythmoteActivity.class) ) {
+//				mContext.startActivity( new Intent( mContext, MythmoteActivity.class ) );
+//			}
+			
+			Intent intentMythMote = new Intent("tkj.android.homecontrol.mythmote.CONNECT_TO_FRONTEND")
+			    .setComponent(ComponentName.unflattenFromString("tkj.android.homecontrol.mythmote/tkj.android.homecontrol.mythmote.MythMote"))
+				.putExtra(EXTRA_LOCATION_NAME, selectedFrontend.getNameStripped())
+				.putExtra(EXTRA_LOCATION_ADDRESS, selectedFrontend.getHostname())
+				.putExtra(EXTRA_LOCATION_PORT, DEFAULT_MYTHMOTE_PORT) // Mythmote port is not the same as services API frontend port
+				//.putExtra(EXTRA_LOCATION_MAC, "")
+				;
+			
+			if(isIntentSafe(intentMythMote)){
+				mContext.startActivity(intentMythMote);
+			} else {
+				new AlertDialog.Builder(mContext)
+					.setMessage(R.string.error_question_mythmote_not_installed)
+					.setPositiveButton(R.string.mythmote_install, new DialogInterface.OnClickListener(){
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							mContext.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=tkj.android.homecontrol.mythmote")));
+							
+						}})
+					.setNegativeButton(R.string.mythmote_do_not_install, new DialogInterface.OnClickListener(){
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							//nothing to do
+						}})
+					.setCancelable(true)
+					.show();
+					
 			}
 		}
 	};
@@ -190,6 +231,13 @@ public class FrontendsRow implements Row, OnItemSelectedListener {
 	}
 	
 	
+	private boolean isIntentSafe(Intent intent){
+		if(null == this.mContext) return false;
+		PackageManager packageManager = this.mContext.getPackageManager();
+		List<ResolveInfo> activities = packageManager.queryIntentActivities(intent, 0);
+		return activities.size() > 0;
+	}
+	
 	
 	private class FrontendAdapter extends ArrayAdapter<Frontend> {
 
@@ -244,7 +292,7 @@ public class FrontendsRow implements Row, OnItemSelectedListener {
 			Frontend frontend = frontends.get(position);
 
 			holder.name.setText(frontend.getNameStripped());
-			holder.url.setText(frontend.getUrl().replace("http://", "").replace(":6547/", ""));
+			holder.url.setText(frontend.getHostname());
 
 			Log.v(TAG, "getFrontendView : exit");
 			return row;

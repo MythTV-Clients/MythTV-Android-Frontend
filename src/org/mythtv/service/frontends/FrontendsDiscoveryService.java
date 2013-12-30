@@ -140,7 +140,7 @@ public class FrontendsDiscoveryService extends MythtvService implements ServiceL
 		Log.v( TAG, "serviceAdded : masterbackend=" + ( "http://" + hostname + ":" + port + "/" ) );
 
 		// Dont' do both adds
-		Frontend fe = new Frontend( event.getName(), "http://" + hostname + ":" + port + "/" );
+		Frontend fe = new Frontend( event.getName(), hostname, port );
 		fe.setAvailable( true );
 
 		// save frontend to the database

@@ -633,7 +633,7 @@ public class MainMenuFragment extends AbstractMythFragment implements ServiceLis
 		Log.v( TAG, "serviceAdded : masterbackend=" + ( "http://" + hostname + ":" + port + "/" ) );
 
 		// Dont' do both adds
-		final Frontend fe = new Frontend( event.getName(), "http://" + hostname + ":" + port + "/" );
+		final Frontend fe = new Frontend( event.getName(), hostname, port );
 
 		this.getActivity().runOnUiThread( new Runnable() {
 

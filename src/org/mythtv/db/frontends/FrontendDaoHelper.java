@@ -253,11 +253,11 @@ public class FrontendDaoHelper extends AbstractDaoHelper {
 	}
 
 	/**
-	 * @param url
+	 * @param hostname
 	 * @return
 	 */
-	public Frontend findByUrl( final Context context, final LocationProfile locationProfile, final String url ) {
-		Log.d( TAG, "findByUrl : enter" );
+	public Frontend findByHostname( final Context context, final LocationProfile locationProfile, final String hostname ) {
+		Log.d( TAG, "findByHostname : enter" );
 		
 		if( null == context ) {
 			throw new IllegalArgumentException( "Context is required" );
@@ -267,17 +267,17 @@ public class FrontendDaoHelper extends AbstractDaoHelper {
 			throw new IllegalArgumentException( "LocationProfile is required" );
 		}
 		
-		Log.d( TAG, "findByUrl : url=" + url );
+		Log.d( TAG, "findByHostname : hostname=" + hostname );
 
-		String selection = FrontendConstants.FIELD_URL + " = ?";
-		String[] selectionArgs = new String[] { url };
+		String selection = FrontendConstants.FIELD_HOSTNAME + " = ?";
+		String[] selectionArgs = new String[] { hostname };
 		
 		Frontend frontend = findOne( context, locationProfile, null, null, selection, selectionArgs, null );
 		if( null != frontend ) {
-			Log.v( TAG, "findByUrl : frontend=" + frontend.toString() );
+			Log.v( TAG, "findByHostname : frontend=" + frontend.toString() );
 		}
 				
-		Log.d( TAG, "findByUrl : exit" );
+		Log.d( TAG, "findByHostname : exit" );
 		return frontend;
 	}
 
@@ -299,8 +299,8 @@ public class FrontendDaoHelper extends AbstractDaoHelper {
 		ContentValues values = convertFrontendToContentValues( locationProfile, DateUtils.convertUtc( new DateTime( System.currentTimeMillis() ) ), frontend );
 
 		String[] projection = new String[] { FrontendConstants._ID };
-		String selection = FrontendConstants.FIELD_NAME + " = ? AND " + FrontendConstants.FIELD_URL + " = ?";
-		String[] selectionArgs = new String[] { frontend.getName(), frontend.getUrl() };
+		String selection = FrontendConstants.FIELD_NAME + " = ? AND " + FrontendConstants.FIELD_HOSTNAME + " = ?";
+		String[] selectionArgs = new String[] { frontend.getName(), frontend.getHostname() };
 		
 		selection = appendLocationHostname( context, locationProfile, selection, FrontendConstants.TABLE_NAME );
 		
@@ -400,8 +400,8 @@ public class FrontendDaoHelper extends AbstractDaoHelper {
 			throw new IllegalArgumentException( "LocationProfile is required" );
 		}
 		
-		String selection = FrontendConstants.FIELD_NAME + " = ? AND " + FrontendConstants.FIELD_URL + " = ?";
-		String[] selectionArgs = new String[] { frontend.getName(), frontend.getUrl() };
+		String selection = FrontendConstants.FIELD_NAME + " = ? AND " + FrontendConstants.FIELD_HOSTNAME + " = ?";
+		String[] selectionArgs = new String[] { frontend.getName(), frontend.getHostname() };
 		
 		selection = appendLocationHostname( context, locationProfile, selection, FrontendConstants.TABLE_NAME );
 		
@@ -420,8 +420,8 @@ public class FrontendDaoHelper extends AbstractDaoHelper {
 //		Log.v( TAG, "convertCursorToChannelInfo : enter" );
 
 		long id = -1;
-		int available = -1;
-		String name = "", url = "", masterHostname = "";
+		int available = -1, port=0;
+		String name = "", hostname = "", masterHostname = "";
 		DateTime lastModifiedDate = null;
 		
 		if( cursor.getColumnIndex( FrontendConstants.TABLE_NAME + "_" + FrontendConstants._ID ) != -1 ) {
@@ -432,8 +432,12 @@ public class FrontendDaoHelper extends AbstractDaoHelper {
 			name = cursor.getString( cursor.getColumnIndex( FrontendConstants.TABLE_NAME + "_" + FrontendConstants.FIELD_NAME ) );
 		}
 		
-		if( cursor.getColumnIndex( FrontendConstants.TABLE_NAME + "_" + FrontendConstants.FIELD_URL ) != -1 ) {
-			url = cursor.getString( cursor.getColumnIndex( FrontendConstants.TABLE_NAME + "_" + FrontendConstants.FIELD_URL ) );
+		if( cursor.getColumnIndex( FrontendConstants.TABLE_NAME + "_" + FrontendConstants.FIELD_HOSTNAME ) != -1 ) {
+			hostname = cursor.getString( cursor.getColumnIndex( FrontendConstants.TABLE_NAME + "_" + FrontendConstants.FIELD_HOSTNAME ) );
+		}
+		
+		if( cursor.getColumnIndex( FrontendConstants.TABLE_NAME + "_" + FrontendConstants.FIELD_PORT ) != -1 ) {
+			port = cursor.getInt( cursor.getColumnIndex( FrontendConstants.TABLE_NAME + "_" + FrontendConstants.FIELD_PORT ) );
 		}
 		
 		if( cursor.getColumnIndex( FrontendConstants.TABLE_NAME + "_" + FrontendConstants.FIELD_AVAILABLE ) != -1 ) {
@@ -451,7 +455,8 @@ public class FrontendDaoHelper extends AbstractDaoHelper {
 		Frontend frontend = new Frontend();
 		frontend.setId( id );
 		frontend.setName( name );
-		frontend.setUrl( url );
+		frontend.setHostname( hostname );
+		frontend.setPort( port );
 		frontend.setAvailable( available == 1 ? true : false );
 		frontend.setMasterHostname( masterHostname );
 		frontend.setLastModifiedDate( lastModifiedDate );
@@ -494,7 +499,8 @@ public class FrontendDaoHelper extends AbstractDaoHelper {
 		
 		ContentValues values = new ContentValues();
 		values.put( FrontendConstants.FIELD_NAME, frontend.getName() );
-		values.put( FrontendConstants.FIELD_URL, frontend.getUrl() );
+		values.put( FrontendConstants.FIELD_HOSTNAME, frontend.getHostname() );
+		values.put( FrontendConstants.FIELD_PORT,  frontend.getPort() );
 		values.put( FrontendConstants.FIELD_AVAILABLE, frontend.isAvailable() ? 1 : 0 );
 		values.put( FrontendConstants.FIELD_MASTER_HOSTNAME, locationProfile.getHostname() );
 		values.put( FrontendConstants.FIELD_LAST_MODIFIED_DATE, lastModified.getMillis() );
