@@ -22,7 +22,6 @@
 package org.mythtv.service.content.v26;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -31,7 +30,6 @@ import org.mythtv.client.ui.preferences.LocationProfile.LocationType;
 import org.mythtv.client.ui.preferences.PlaybackProfile;
 import org.mythtv.db.AbstractBaseHelper;
 import org.mythtv.db.content.LiveStreamConstants;
-import org.mythtv.db.content.model.LiveStreamInfoWrapper;
 import org.mythtv.db.http.model.EtagInfoDelegate;
 import org.mythtv.db.preferences.PlaybackProfileDaoHelper;
 import org.mythtv.service.content.LiveStreamService;
