@@ -372,6 +372,8 @@ public class BackendStatusFragment extends AbstractMythFragment {
 		mLinearLayoutStatusCard.setTranslationY( mPanelStartY );
 		mLinearLayoutEncodersCard.setAlpha( 0 );
 		mLinearLayoutEncodersCard.setTranslationY( mPanelStartY );
+		mLinearLayoutMachineInfoCard.setAlpha( 0 );
+		mLinearLayoutMachineInfoCard.setTranslationY( mPanelStartY );
 		mLinearLayoutUpcomingRecsCard.setAlpha( 0 );
 		mLinearLayoutUpcomingRecsCard.setTranslationY( mPanelStartY );
 		mLinearLayoutJobQueueCard.setAlpha( 0 );

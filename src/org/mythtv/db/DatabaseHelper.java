@@ -49,7 +49,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	private static final String TAG = DatabaseHelper.class.getSimpleName();
 	
 	private static final String DATABASE_NAME = "mythtvdb";
-	private static final int DATABASE_VERSION = 134;
+	private static final int DATABASE_VERSION = 136;
 
 	public DatabaseHelper( Context context ) {
 		super( context, DATABASE_NAME, null, DATABASE_VERSION );
@@ -137,8 +137,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	public void onUpgrade( SQLiteDatabase db, int oldVersion, int newVersion ) {
 		Log.v( TAG, "onUpgrade : enter" );
 
-		if( oldVersion < 134 ) {
-			Log.v( TAG, "onUpgrade : upgrading to db version 134" );
+		if( oldVersion < DATABASE_VERSION ) {
+			Log.v( TAG, "onUpgrade : upgrading to db version " + DATABASE_VERSION );
 
 			onCreate( db );
 
@@ -571,11 +571,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		sqlBuilder.append( "CREATE TABLE " + FrontendConstants.TABLE_NAME + " (" );
 		sqlBuilder.append( FrontendConstants._ID ).append( " " ).append( FrontendConstants.FIELD_ID_DATA_TYPE ).append( " " ).append( FrontendConstants.FIELD_ID_PRIMARY_KEY ).append( ", " );
 		sqlBuilder.append( FrontendConstants.FIELD_NAME ).append( " " ).append( FrontendConstants.FIELD_NAME_DATA_TYPE ).append( ", " );
-		sqlBuilder.append( FrontendConstants.FIELD_URL ).append( " " ).append( FrontendConstants.FIELD_URL_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( FrontendConstants.FIELD_HOSTNAME ).append( " " ).append( FrontendConstants.FIELD_HOSTNAME_DATA_TYPE ).append( ", " );
+		sqlBuilder.append( FrontendConstants.FIELD_PORT ).append( " " ).append( FrontendConstants.FIELD_PORT_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( FrontendConstants.FIELD_AVAILABLE ).append( " " ).append( FrontendConstants.FIELD_AVAILABLE_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( FrontendConstants.FIELD_MASTER_HOSTNAME ).append( " " ).append( FrontendConstants.FIELD_MASTER_HOSTNAME_DATA_TYPE ).append( ", " );
 		sqlBuilder.append( FrontendConstants.FIELD_LAST_MODIFIED_DATE ).append( " " ).append( FrontendConstants.FIELD_LAST_MODIFIED_DATE_DATA_TYPE ).append( ", " );
-		sqlBuilder.append( "UNIQUE(" ).append( FrontendConstants.FIELD_NAME ).append( ", " ).append( FrontendConstants.FIELD_URL ).append( ", " ).append( FrontendConstants.FIELD_MASTER_HOSTNAME ).append( ") ON CONFLICT REPLACE " );
+		sqlBuilder.append( "UNIQUE(" ).append( FrontendConstants.FIELD_NAME ).append( ", " ).append( FrontendConstants.FIELD_HOSTNAME ).append( ", " ).append( FrontendConstants.FIELD_MASTER_HOSTNAME ).append( ") ON CONFLICT REPLACE " );
 		sqlBuilder.append( ");" );
 		String sql = sqlBuilder.toString();
 		if( Log.isLoggable( TAG, Log.VERBOSE ) ) {
