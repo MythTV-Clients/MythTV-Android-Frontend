@@ -156,6 +156,8 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 		Log.v( TAG, "onActivityCreated : enter" );
 		super.onActivityCreated( savedInstanceState );
 
+//		Ion.getInstance( getActivity(), "maf-program-groups" );
+		
 		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );
 		
 		options = new DisplayImageOptions.Builder()
@@ -347,44 +349,50 @@ public class RecordingsFragment extends MythtvListFragment implements LoaderMana
 		 */
 		@Override
 		public void bindView( View view, Context context, Cursor cursor ) {
-
+//			Log.d( TAG, "bindView : enter" );
+			
 			ProgramGroup programGroup = mProgramGroupDaoHelper.convertCursorToProgramGroup( cursor );
 
 	        final ViewHolder mHolder = (ViewHolder) view.getTag();
-			
+	        
 			mHolder.programGroup.setText( programGroup.getTitle() );
 			mHolder.category.setBackgroundColor( mProgramHelper.getCategoryColor( programGroup.getCategory() ) );
 
-			if( null == programGroup.getInetref() || "".equals( programGroup.getInetref() ) )
-			{
-				mHolder.programGroup.setVisibility( View.VISIBLE );
+			mHolder.programGroup.setVisibility( View.VISIBLE );
+			if( null == programGroup.getInetref() || "".equals( programGroup.getInetref() ) ) {
+//				Log.d( TAG, "bindView : exit, no inetref found" );
+
 				mHolder.programGroupBanner.setVisibility( View.GONE );
-				return;
-			}
+			} else {
 
-			String imageUri = mLocationProfileDaoHelper.findConnectedProfile( getActivity() ).getUrl() + "Content/GetRecordingArtwork?Type=Banner&Inetref=" + programGroup.getInetref();
-			imageLoader.displayImage( imageUri, mHolder.programGroupBanner, options, new SimpleImageLoadingListener() {
-
-				/* (non-Javadoc)
-				 * @see com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener#onLoadingComplete(android.graphics.Bitmap)
-				 */
-				@Override
-				public void onLoadingComplete( String imageUri, View view, Bitmap loadedImage ) {
-			        mHolder.programGroup.setVisibility( View.GONE );
-			        mHolder.programGroupBanner.setVisibility( View.VISIBLE );
-				}
-
-				/* (non-Javadoc)
-				 * @see com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener#onLoadingFailed(com.nostra13.universalimageloader.core.assist.FailReason)
-				 */
-				@Override
-				public void onLoadingFailed( String imageUri, View view, FailReason failReason ) {
-			        mHolder.programGroup.setVisibility( View.VISIBLE );
-			        mHolder.programGroupBanner.setVisibility( View.GONE );
-				}
-				
-			});
+				String imageUri = mLocationProfileDaoHelper.findConnectedProfile( getActivity() ).getUrl() + "Content/GetRecordingArtwork?Type=Banner&Inetref=" + programGroup.getInetref();
+//				Log.i( TAG, "bindView : imageUri=" + imageUri + ", programGroup=" + programGroup.getTitle() );
 			
+				imageLoader.displayImage( imageUri, mHolder.programGroupBanner, options, new SimpleImageLoadingListener() {
+
+					/* (non-Javadoc)
+					 * @see com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener#onLoadingComplete(android.graphics.Bitmap)
+					 */
+					@Override
+					public void onLoadingComplete( String imageUri, View view, Bitmap loadedImage ) {
+						mHolder.programGroup.setVisibility( View.GONE );
+						mHolder.programGroupBanner.setVisibility( View.VISIBLE );
+					}
+
+					/* (non-Javadoc)
+					 * @see com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener#onLoadingFailed(com.nostra13.universalimageloader.core.assist.FailReason)
+					 */
+					@Override
+					public void onLoadingFailed( String imageUri, View view, FailReason failReason ) {
+						mHolder.programGroup.setVisibility( View.VISIBLE );
+						mHolder.programGroupBanner.setVisibility( View.GONE );
+					}
+
+				});
+
+			}
+			
+//			Log.d( TAG, "bindView : exit" );
 		}
 
 	}

@@ -128,12 +128,7 @@ public class MainApplication extends Application {
     // Private methods
     //***************************************
 
-	
-	//***************************************
-    // Public methods
-    //***************************************
-
-	public static void initImageLoader( Context context ) {
+	private static void initImageLoader( Context context ) {
 
 		File cacheDir = new File( context.getCacheDir(), "images" );
 		if( !cacheDir.exists() ) {
@@ -158,6 +153,10 @@ public class MainApplication extends Application {
 		L.disableLogging();
 	}
 	
+	//***************************************
+    // Public methods
+    //***************************************
+
 	/**
 	 * @return the mObjectMapper
 	 */
