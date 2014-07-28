@@ -446,7 +446,7 @@ public class ChannelHelperV26 extends AbstractBaseHelper {
 //		Log.v( TAG, "convertChannelToContentValues : enter" );
 		
 		String formattedChannelNumber = formatChannelNumber( channelInfo.getChanNum() );
-		if( formattedChannelNumber.startsWith( "." ) ) {
+		if( formattedChannelNumber.startsWith( "." ) || formattedChannelNumber.startsWith( "_" ) ) {
 			//formattedChannelNumber = formattedChannelNumber.substring( 1 );
 			formattedChannelNumber = formattedChannelNumber.replaceFirst( "[\\._]", "9999" );
 		}
