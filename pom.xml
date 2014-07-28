@@ -36,7 +36,7 @@
         <jdmns-version>3.4.1</jdmns-version>
         <joda-time-version>2.1</joda-time-version>
         <org.joda.joda-convert-version>1.2</org.joda.joda-convert-version>
-        <universal-image-loader-version>1.8.6</universal-image-loader-version>
+        <universal-image-loader-version>1.9.2</universal-image-loader-version>
         <commons-io-version>1.3.2</commons-io-version>
         <mythtv.service.api-version>v028-SNAPSHOT</mythtv.service.api-version>
     </properties>
@@ -156,8 +156,10 @@
                 <configuration>
                     <sdk>
                         <!-- platform or api level (api level 4 = platform 1.6)-->
+                        <!-- Fixed with: Maven Integration for Android Development Tools Dependency Sites - http://rgladwell.github.com/m2e-android/updates/ -->
+                        <!-- From: http://stackoverflow.com/questions/13554694/com-jayway-maven-plugins-android-generation2-plugin-execution-not-covered-by-li/16426897#16426897 -->
                         <path>${env.ANDROID_HOME}</path>
-                        <platform>17</platform>
+                        <platform>20</platform>
                     </sdk>
                 </configuration>
                 <extensions>true</extensions>
