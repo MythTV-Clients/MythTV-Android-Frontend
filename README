@@ -1,6 +1,6 @@
 MythTV Android Frontend
 
-Implementation of MythTV .25+ Services API for Android.
+Implementation of MythTV 0.25-0.27 Services API for Android.
 http://www.mythtv.org/wiki/Services_API
 
 What is the Services API (from the above wiki link)
