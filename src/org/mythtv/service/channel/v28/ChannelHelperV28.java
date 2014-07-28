@@ -276,7 +276,8 @@ public class ChannelHelperV28 extends AbstractBaseHelper {
 		
 		for( ChannelInfo channel : allChannelsList ) {
 
-			if( channel.isVisible() ) {
+			// channel.isVisible() == null was the cause of some NPEs.
+			if( null != channel && null != channel.isVisible() && channel.isVisible() ) {
 
 				processChannel( context, locationProfile, ops, channel );
 				count++;
@@ -492,8 +493,9 @@ public class ChannelHelperV28 extends AbstractBaseHelper {
 //		Log.v( TAG, "convertChannelToContentValues : enter" );
 		
 		String formattedChannelNumber = formatChannelNumber( channelInfo.getChanNum() );
-		if( formattedChannelNumber.startsWith( "." ) ) {
-			formattedChannelNumber = formattedChannelNumber.substring( 1 );
+		if( formattedChannelNumber.startsWith( "." ) || formattedChannelNumber.startsWith( "_" ) ) {
+			//formattedChannelNumber = formattedChannelNumber.substring( 1 );
+			formattedChannelNumber = formattedChannelNumber.replaceFirst( "[\\._]", "9999" );
 		}
 
 		ContentValues values = new ContentValues();
