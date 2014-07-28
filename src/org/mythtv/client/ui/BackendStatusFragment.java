@@ -43,7 +43,7 @@ import org.mythtv.service.frontends.FrontendsDiscoveryService;
 import org.mythtv.service.guide.ProgramGuideDownloadService;
 import org.mythtv.service.status.BackendStatusService;
 import org.mythtv.service.util.DateUtils;
-import org.mythtv.services.api.v025.status.beans.Information;
+//import org.mythtv.services.api.v025.status.beans.Information;
 
 import android.animation.ValueAnimator;
 import android.animation.ValueAnimator.AnimatorUpdateListener;

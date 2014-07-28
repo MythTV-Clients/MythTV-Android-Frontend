@@ -52,7 +52,7 @@ import android.widget.TextView;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
-import com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener;
+import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 
 /**
  * @author Espen A. Fossen
@@ -84,7 +84,7 @@ public class GalleryGridAdapter extends BaseAdapter implements
 	
 	final DisplayImageOptions options = new DisplayImageOptions.Builder()
 			.cacheInMemory( true )
-			.cacheOnDisc( true )
+			.cacheOnDisk( true )
 			.build();
 
 	private OnLoadingImagesListener listener;

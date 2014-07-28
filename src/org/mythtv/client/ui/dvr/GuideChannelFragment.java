@@ -56,8 +56,8 @@ import android.widget.TextView;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.FailReason;
-import com.nostra13.universalimageloader.core.assist.PauseOnScrollListener;
-import com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener;
+import com.nostra13.universalimageloader.core.listener.PauseOnScrollListener;
+import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 
 /**
  * @author dmfrey
@@ -178,7 +178,7 @@ public class GuideChannelFragment extends MythtvListFragment implements LoaderMa
 
 		options = new DisplayImageOptions.Builder()
 			.cacheInMemory( true )
-			.cacheOnDisc( true )
+			.cacheOnDisk( true )
 			.build();
 
 		mLocationProfile = mLocationProfileDaoHelper.findConnectedProfile( getActivity() );

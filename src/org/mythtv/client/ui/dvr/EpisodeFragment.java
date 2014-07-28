@@ -62,7 +62,7 @@ import android.widget.Toast;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.FailReason;
-import com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener;
+import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 
 public class EpisodeFragment extends AbstractMythFragment implements GetLiveStreamTask.TaskFinishedListener {
 
@@ -107,7 +107,7 @@ public class EpisodeFragment extends AbstractMythFragment implements GetLiveStre
 		
 		options = new DisplayImageOptions.Builder()
 			.cacheInMemory( true )
-			.cacheOnDisc( true 	)
+			.cacheOnDisk( true 	)
 			.build();
 
 		Log.v( TAG, "onCreateView : exit" );
@@ -452,7 +452,8 @@ public class EpisodeFragment extends AbstractMythFragment implements GetLiveStre
 					@Override
 					public void onLoadingFailed( String imageUri, View view, FailReason failReason ) {
 						if ( options.shouldShowImageOnFail() ) {
-							iView.setImageResource( options.getImageOnFail() );
+							// TODO Fix this with 1.9.2 UniversalImageLoader
+							//iView.setImageResource( options.getImageOnFail() );
 							iView.setVisibility( View.VISIBLE );
 						}
 						else {
@@ -466,7 +467,8 @@ public class EpisodeFragment extends AbstractMythFragment implements GetLiveStre
 			else {
 
 				if ( options.shouldShowImageOnFail() ) {
-					iView.setImageResource( options.getImageOnFail() );
+					// TODO see above
+					//iView.setImageResource( options.getImageOnFail() );
 					iView.setVisibility( View.VISIBLE );
 				}
 				else {
