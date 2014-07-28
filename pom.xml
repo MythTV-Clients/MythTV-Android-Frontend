@@ -159,7 +159,7 @@
                         <!-- Fixed with: Maven Integration for Android Development Tools Dependency Sites - http://rgladwell.github.com/m2e-android/updates/ -->
                         <!-- From: http://stackoverflow.com/questions/13554694/com-jayway-maven-plugins-android-generation2-plugin-execution-not-covered-by-li/16426897#16426897 -->
                         <path>${env.ANDROID_HOME}</path>
-                        <platform>20</platform>
+                        <platform>17</platform>
                     </sdk>
                 </configuration>
                 <extensions>true</extensions>
