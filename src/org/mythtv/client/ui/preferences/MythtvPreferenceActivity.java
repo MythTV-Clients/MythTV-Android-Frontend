@@ -65,7 +65,7 @@ import android.view.MenuItem;
  * @author John Baab
  *
  */
-@TargetApi( 11 )
+@TargetApi( Build.VERSION_CODES.HONEYCOMB /* 11 */ )
 public class MythtvPreferenceActivity extends PreferenceActivity {
 
 	private static final String TAG = MythtvPreferenceActivity.class.getSimpleName();
@@ -128,8 +128,8 @@ public class MythtvPreferenceActivity extends PreferenceActivity {
 	/* (non-Javadoc)
 	 * @see android.preference.PreferenceActivity#isValidFragment(java.lang.String)
 	 */
-	@TargetApi( Build.VERSION_CODES.KITKAT )
-	@Override
+	@TargetApi( 19 /* Android Studio doesn't know this: Build.VERSION_CODES.KITKAT */ )
+	//@Override
 	protected boolean isValidFragment( String fragmentName ) {
 		Log.v( TAG, "isValidFragment : enter" );
 
@@ -166,7 +166,7 @@ public class MythtvPreferenceActivity extends PreferenceActivity {
 		}
 		
 		Log.v( TAG, "isValidFragment : exit, default" );
-		return super.isValidFragment( fragmentName );
+		return isValidFragment( fragmentName );
 	}
 
 	private abstract static class BasePreferenceFragment extends PreferenceFragment {
