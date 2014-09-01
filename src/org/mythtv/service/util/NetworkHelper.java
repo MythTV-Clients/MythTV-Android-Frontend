@@ -127,9 +127,13 @@ public class NetworkHelper {
              * is true for isFrontendConnected below. MythTV (incorrectly returns
              * Keep-Alive even though it shouldn't.) Trac ticket:
              * http://code.mythtv.org/trac/ticket/11894
+             *
+             * This needs more invistication, as of 0.28-pre-2119, this is no
+             * longer true, but the window is may be only 1 second before a
+             * a new conversation is started, reverting the Close for now.
              */
 
-            urlcon.setRequestProperty("Connection", "Close");
+            //urlcon.setRequestProperty("Connection", "Close");
 
             /*
              * No need to gzip the (very short) response
