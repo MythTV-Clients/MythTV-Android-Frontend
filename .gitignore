@@ -8,9 +8,3 @@ libs
 *.iml
 /temp
 .idea
-build
-/.gradle
-out
-gradle-app.setting
-gradlew
-local.properties
