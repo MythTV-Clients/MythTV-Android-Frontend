@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- From: file:/home/bill/AndroidstudioProjects/MythTV-Android-Frontend/app/src/main/res/values-v11/styles.xml -->
+    <eat-comment/>
+    <style name="Theme.Mythtv" parent="android:style/Theme.Holo.Light">
+	    <item name="android:actionBarStyle">@style/Theme.Mythtv.ActionBar</item>
+    </style>
+    <style name="Theme.Mythtv.ActionBar" parent="@android:style/Widget.Holo.Light.ActionBar">
+        <item name="android:background">@drawable/gradient_action_bar</item>
+        <item name="android:titleTextStyle">@style/Theme.Mythtv.ActionBar.Text</item>
+    </style>
+    <style name="Theme.Mythtv.ActionBar.Text" parent="@android:style/TextAppearance">
+        <item name="android:textColor">@color/actionbar_text</item>
+    </style>
+</resources>

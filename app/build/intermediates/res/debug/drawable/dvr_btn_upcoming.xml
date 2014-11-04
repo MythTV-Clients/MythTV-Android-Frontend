@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+
+    This file is part of MythTV Android Frontend
+
+    MythTV Android Frontend is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MythTV Android Frontend is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MythTV Android Frontend.  If not, see <http://www.gnu.org/licenses/>.
+
+    This software can be found at <https://github.com/MythTV-Clients/MythTV-Android-Frontend/>
+
+-->
+
+
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@drawable/ic_upcoming_selected"
+        android:state_focused="true"
+        android:state_pressed="false" />
+    <item android:drawable="@drawable/ic_upcoming_pressed"
+        android:state_focused="false"
+        android:state_pressed="true" />
+    <item android:drawable="@drawable/ic_upcoming_default"
+        android:state_focused="false"
+        android:state_pressed="false" />
+</selector>
+<!-- From: file:/home/bill/AndroidstudioProjects/MythTV-Android-Frontend/app/src/main/res/drawable/dvr_btn_upcoming.xml -->

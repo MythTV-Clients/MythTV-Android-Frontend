@@ -2,9 +2,11 @@ target
 bin
 gen
 libs
+.gradle
 .settings
 .classpath
 .project
 *.iml
 /temp
 .idea
+local.properties

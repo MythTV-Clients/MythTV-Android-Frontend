@@ -1,0 +1,113 @@
+description 'MAF, the MythTV Android Frontend project'
+
+buildscript {
+    repositories { mavenCentral() }
+    dependencies {
+        classpath group: 'com.android.tools.build', name: 'gradle', version: '0.12.2'
+    }
+}
+
+apply plugin: 'com.android.application'
+apply plugin: 'signing'
+
+android {
+
+    // get the commit SHA1...
+    new ByteArrayOutputStream().withStream { os ->
+        def result = exec {
+            executable = 'git'
+            args = ['rev-parse', '--short', 'HEAD']
+            standardOutput = os
+        }
+        project.ext.getHash = os.toString().trim()
+    }
+
+    //group = 'org.mythtv'
+    //version =  + project.ext.getHash
+    //println 'Current version: ' + version
+
+    compileSdkVersion 19
+    buildToolsVersion "19.1.0"
+
+    defaultConfig {
+        versionName '1.30.1'
+        minSdkVersion 15
+        targetSdkVersion 19
+    }
+
+    // fails without all of these!
+    packagingOptions {
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/license.txt'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/notice.txt'
+        exclude 'plugin.properties'
+    }
+
+    // fails without this!
+    lintOptions {
+        abortOnError false
+    }
+
+    buildTypes {
+        println 'In buildTypes, project.name = ' + project.name
+        android.buildTypes.each { type ->
+            type.applicationIdSuffix= ".$type.name"
+            println 'Package type is: ' + type.applicationIdSuffix
+        }
+
+        debug {
+            println 'In buildType debug, suffix= ' + applicationIdSuffix
+        }
+
+        release {
+            println 'In buildType release, suffix= ' + applicationIdSuffix
+            signingConfigs {
+                release {
+                    storeFile file('keystore')
+                    storePassword 'helloworld'
+                    keyAlias 'Android Release Key'
+                    keyPassword 'helloworld'
+                }
+            }
+        }
+    }
+}
+
+repositories { mavenCentral() }
+
+// stolen from the Services API build.gradle
+configurations {
+    // StAX is not available on Android
+    compile.exclude group: 'stax', module: 'stax'
+    compile.exclude group: 'stax', module: 'stax-api'
+    // Exclude in favor of Spring Android RestTemplate
+    compile.exclude group: 'org.springframework', module: 'spring-web'
+    // provided by Android
+    compile.exclude group: 'xpp3', module: 'xpp3'
+    compile.exclude group: 'commons-logging', module: 'commons-logging'
+}
+
+dependencies {
+    compile (
+            'org.ajoberstar:gradle-git:0.11.2',
+            'commons-io:commons-io:2.4',
+            'org.joda:joda-convert:1.2',
+            'joda-time:joda-time:2.1',
+            'javax.jmdns:jmdns:3.4.1',
+            'com.fasterxml.jackson.core:jackson-core:2.3.0',
+            'com.fasterxml.jackson.core:jackson-annotations:2.3.0',
+            'com.fasterxml.jackson.core:jackson-databind:2.3.0',
+            'com.fasterxml.jackson.datatype:jackson-datatype-joda:2.3.0',
+            'org.springframework.android:spring-android-rest-template:1.0.1.RELEASE',
+            'com.nostra13.universalimageloader:universal-image-loader:1.9.3',
+            'org.springframework.social:spring-social-core:1.0.2.RELEASE',
+            'org.simpleframework:simple-xml:2.7',
+            'com.android.support:support-v4:20.0.0',/* not happy with this */
+            'com.google.android:android:4.1.1.4'    /* or this, part of SDK??? */
+    )
+    // the following gets the Services API SNAPSHOT, needs fixing...
+    compile fileTree(dir: '/home/bill/workspace/MythTV-Service-API/build/libs', include: 'mythtv-service-api-v028-SNAPSHOT.jar')
+}

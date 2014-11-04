@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+
+    This file is part of MythTV Android Frontend
+
+    MythTV Android Frontend is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MythTV Android Frontend is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MythTV Android Frontend.  If not, see <http://www.gnu.org/licenses/>.
+
+    This software can be found at <https://github.com/MythTV-Clients/MythTV-Android-Frontend/>
+
+-->
+
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android" >
+    
+    <item>
+        <shape android:shape="rectangle" >
+            <stroke android:width="2dip" android:color="#757575" />
+            <corners android:radius="10dip" />
+        </shape>
+    </item>
+    
+    <item >
+		<inset android:drawable="@drawable/transparent_rectangle"
+		    android:insetTop="1dip"
+		    android:insetBottom="1dip"
+		    android:insetLeft="1dip"
+		    android:insetRight="1dip" />
+	</item>
+    
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+		        android:angle="270"
+		        android:startColor="#6d7e84"
+		        android:centerColor="#526367"
+		        android:endColor="#353535"
+		         />
+            <stroke android:width="1dip" android:color="#535353" />
+            <corners android:radius="10dip" />
+        </shape>
+    </item>
+
+</layer-list><!-- From: file:/home/bill/AndroidstudioProjects/MythTV-Android-Frontend/app/src/main/res/drawable/toggle_button_selector.xml -->

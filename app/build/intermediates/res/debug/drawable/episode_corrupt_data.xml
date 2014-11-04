@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+
+    This file is part of MythTV Android Frontend
+
+    MythTV Android Frontend is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MythTV Android Frontend is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MythTV Android Frontend.  If not, see <http://www.gnu.org/licenses/>.
+
+    This software can be found at <https://github.com/MythTV-Clients/MythTV-Android-Frontend/>
+
+-->
+<!--
+
+    This file is part of MythTV Android Frontend
+
+    MythTV Android Frontend is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MythTV Android Frontend is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MythTV Android Frontend.  If not, see <http://www.gnu.org/licenses/>.
+
+    This software can be found at <https://github.com/MythTV-Clients/MythTV-Android-Frontend/>
+
+    See: http://commons.wikimedia.org/wiki/File:Skull_and_crossbones.svg
+         for release into the public domain.
+
+    See: https://github.com/nostra13/Android-Universal-Image-Loader#quick-setup
+         for usage.
+
+    And: http://grepcode.com/search/usages?type=method&id=repo1.maven.org%24maven2@com.nostra13.universalimageloader%24universal-image-loader@1.8.0@com%24nostra13%24universalimageloader%24core@DisplayImageOptions@shouldShowImageOnFail%28%29&k=u
+
+    for java.
+-->
+
+
+<bitmap
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:src="@drawable/corrupt_data"/>
+<!-- From: file:/home/bill/AndroidstudioProjects/MythTV-Android-Frontend/app/src/main/res/drawable/episode_corrupt_data.xml -->
