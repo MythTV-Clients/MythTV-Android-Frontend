@@ -19,7 +19,7 @@
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.mythtv.debug"
-    android:versionCode="13"
+    android:versionCode="99"
     android:versionName="1.30.1" >
 
     <uses-sdk
