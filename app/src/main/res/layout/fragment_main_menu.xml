@@ -1,0 +1,310 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+
+    This file is part of MythTV Android Frontend
+
+    MythTV Android Frontend is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MythTV Android Frontend is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MythTV Android Frontend.  If not, see <http://www.gnu.org/licenses/>.
+
+    This software can be found at <https://github.com/MythTV-Clients/MythTV-Android-Frontend/>
+
+-->
+
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background_main_menu">
+    
+	<LinearLayout
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+	    android:orientation="vertical">
+
+	    <!-- Home/AWay - connetion status -->
+
+	    <LinearLayout
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:orientation="vertical" >
+	
+	        <ToggleButton
+	            android:id="@+id/toggleButtonIsAway"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:layout_gravity="center"
+	            android:layout_margin="16dp"
+	            android:background="@drawable/main_menu_home_away_button"
+	            android:checked="false"
+	            android:textColor="@color/text_main_menu"
+	            android:textOff="@string/btn_home"
+	            android:textOn="@string/btn_away" />
+		    
+		    <View 
+			    android:layout_gravity="center"
+			    android:layout_width="match_parent"
+			    android:layout_height="2dp"
+			    android:background="@color/horizontal_line_main_menu"/>
+		    
+		</LinearLayout>
+	    
+	    
+	    
+	    
+	    <!-- Version and preferences -->
+
+	    <LinearLayout
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:orientation="vertical" >
+
+	        <LinearLayout
+	            android:layout_width="match_parent"
+	            android:layout_height="wrap_content"
+	            android:layout_margin="16dp"
+	            android:orientation="horizontal" >
+
+
+	            <TextView
+	                android:id="@+id/textview_mainmenu_version"
+	                android:layout_width="0dp"
+	                android:layout_height="wrap_content"
+	                android:layout_weight="1"
+	                android:gravity="bottom"
+	                android:layout_gravity="bottom"
+	                android:text="@string/app_version"
+	                android:textAppearance="?android:attr/textAppearanceLarge"
+	                android:textColor="@color/text_main_menu" />
+	            
+	            <ImageButton
+	                android:id="@+id/imagebutton_main_menu_preferences"
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+	                android:layout_gravity="bottom"
+	                android:background="@drawable/main_menu_image_button"
+	                android:contentDescription="@string/main_menu_preference"
+	                android:src="@drawable/ic_menu_preferences" />
+	            
+	        </LinearLayout>
+
+	        
+	        
+	        <View 
+			    android:layout_gravity="center"
+			    android:layout_width="match_parent"
+			    android:layout_height="2dp"
+			    android:background="@color/horizontal_line_main_menu"/>
+	        
+	    </LinearLayout>
+	    
+	    
+	    
+
+	    
+
+	    
+	    
+	   	<!-- Frontend spinner line -->
+
+	   	<LinearLayout
+	   	    android:id="@+id/linear_layout_frontend_spinner"
+	   	    android:layout_width="match_parent"
+	   	    android:layout_height="wrap_content"
+	   	    android:orientation="vertical" >
+		    
+		    <LinearLayout
+		        android:layout_width="match_parent"
+		        android:layout_height="wrap_content"
+		        android:orientation="horizontal"
+		        android:layout_marginTop="16dp"
+	            android:layout_marginBottom="16dp"
+	            android:layout_marginRight="16dp"
+	            android:layout_marginLeft="10dp">
+		        
+		        <Spinner
+		            android:id="@+id/spinner_frontends"
+		            android:layout_width="0dp"
+		            android:layout_height="wrap_content"
+		            android:layout_weight="1"
+		            android:prompt="@string/frontends_prompt"
+		            android:popupBackground="@color/popup_background_main_menu"  />
+		        
+		        <ImageButton
+		            android:id="@+id/imagebutton_main_menu_mythmote"
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content"
+		            android:layout_gravity="center"
+		            android:padding="4dp"
+		            android:background="@drawable/main_menu_image_button"
+		            android:contentDescription="@string/generic_mythmote"
+		            android:src="@drawable/ic_menu_mythmote_default" />
+	
+		    </LinearLayout>
+		    
+		     <View 
+			    android:layout_gravity="center"
+			    android:layout_width="match_parent"
+			    android:layout_height="2dp"
+			    android:background="@color/horizontal_line_main_menu"/>
+		    
+	    </LinearLayout>
+	    
+	   	
+	   	<!-- Guid Button -->
+	   	
+	    <Button
+	        android:id="@+id/button_main_menu_guide"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableLeft="@drawable/dvr_btn_guide"
+            android:drawablePadding="16dp"
+            android:gravity="left|center"
+            android:padding="16dp"
+            android:text="@string/btn_guide"
+            android:textColor="@color/text_main_menu"
+            android:background="@drawable/main_menu_image_button" />
+
+         <View 
+			    android:layout_gravity="center"
+			    android:layout_width="match_parent"
+			    android:layout_height="2dp"
+			    android:background="@color/horizontal_line_main_menu"/>
+
+        
+        <!-- recordings Button -->
+	   	
+        <Button
+            android:id="@+id/button_main_menu_recordings"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableLeft="@drawable/dvr_btn_recordings"
+            android:drawablePadding="16dp"
+            android:gravity="left|center"
+            android:padding="16dp"
+            android:text="@string/btn_recordings"
+            android:textColor="@color/text_main_menu"
+            android:background="@drawable/main_menu_image_button" />
+
+        <View 
+			    android:layout_gravity="center"
+			    android:layout_width="match_parent"
+			    android:layout_height="2dp"
+			    android:background="@color/horizontal_line_main_menu"/>
+
+        
+        <!-- rules Button -->
+	   	
+        <Button
+            android:id="@+id/button_main_menu_recording_rules"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableLeft="@drawable/dvr_btn_recording_rules"
+            android:drawablePadding="16dp"
+            android:gravity="left|center"
+            android:padding="16dp"
+            android:text="@string/btn_recording_rules"
+            android:textColor="@color/text_main_menu"
+            android:background="@drawable/main_menu_image_button" />
+
+         <View 
+			    android:layout_gravity="center"
+			    android:layout_width="match_parent"
+			    android:layout_height="2dp"
+			    android:background="@color/horizontal_line_main_menu"/>
+
+        
+        <!-- upcoming Button -->
+	   	
+        <Button
+            android:id="@+id/button_main_menu_upcoming"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableLeft="@drawable/dvr_btn_upcoming"
+            android:drawablePadding="16dp"
+            android:gravity="left|center"
+            android:padding="16dp"
+            android:text="@string/btn_upcoming"
+            android:textColor="@color/text_main_menu"
+            android:background="@drawable/main_menu_image_button" />
+
+         <View 
+			    android:layout_gravity="center"
+			    android:layout_width="match_parent"
+			    android:layout_height="2dp"
+			    android:background="@color/horizontal_line_main_menu"/>
+
+        
+        <!-- music Button -->
+	   	
+        <Button
+            android:id="@+id/button_main_menu_music"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableLeft="@drawable/media_btn_music"
+            android:drawablePadding="16dp"
+            android:gravity="left|center"
+            android:padding="16dp"
+            android:text="@string/btn_music"
+            android:textColor="@color/text_main_menu"
+            android:background="@drawable/main_menu_image_button" />
+
+         <View 
+			    android:layout_gravity="center"
+			    android:layout_width="match_parent"
+			    android:layout_height="2dp"
+			    android:background="@color/horizontal_line_main_menu"/>
+
+        
+        <!-- pictures Button -->
+	   	
+        <Button
+            android:id="@+id/button_main_menu_pictures"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableLeft="@drawable/media_btn_pictures"
+            android:drawablePadding="16dp"
+            android:gravity="left|center"
+            android:padding="16dp"
+            android:text="@string/btn_pictures"
+            android:textColor="@color/text_main_menu"
+            android:background="@drawable/main_menu_image_button" />
+
+         <View 
+			    android:layout_gravity="center"
+			    android:layout_width="match_parent"
+			    android:layout_height="2dp"
+			    android:background="@color/horizontal_line_main_menu"/>
+
+        
+        <!-- videos Button -->
+	   	
+        <Button
+            android:id="@+id/button_main_menu_videos"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableLeft="@drawable/media_btn_videos"
+            android:drawablePadding="16dp"
+            android:gravity="left|center"
+            android:padding="16dp"
+            android:text="@string/btn_videos"
+            android:textColor="@color/text_main_menu"
+            android:background="@drawable/main_menu_image_button" />
+
+         <View 
+			    android:layout_gravity="center"
+			    android:layout_width="match_parent"
+			    android:layout_height="2dp"
+			    android:background="@color/horizontal_line_main_menu"/>
+</LinearLayout>
+
+</ScrollView>

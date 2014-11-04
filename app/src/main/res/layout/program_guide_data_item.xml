@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+
+    This file is part of MythTV Android Frontend
+
+    MythTV Android Frontend is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MythTV Android Frontend is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MythTV Android Frontend.  If not, see <http://www.gnu.org/licenses/>.
+
+    This software can be found at <https://github.com/MythTV-Clients/MythTV-Android-Frontend/>
+
+-->
+
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+   	android:id="@+id/program_guide_data_item"
+   	style="@style/ProgramGuideDataItem"
+   	android:orientation="horizontal">
+
+   	<View
+       	android:id="@+id/program_guide_data_item_category"
+       	android:layout_width="10dp"
+       	android:layout_height="fill_parent"
+       	android:background="#ff0000" />
+    
+	<LinearLayout
+    	android:layout_width="fill_parent"
+    	android:layout_height="wrap_content"
+    	android:orientation="vertical"
+    	android:paddingLeft="4dp"
+    	android:paddingRight="4dp" >
+
+	    <LinearLayout
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:orientation="horizontal" >
+	        
+			<TextView
+  				android:id="@+id/program_guide_data_item_title"
+  				android:layout_width="0dp"
+  				android:layout_height="wrap_content"
+  				android:layout_weight=".80"
+	  		/>
+	    
+	    	<TextView
+  				android:id="@+id/program_guide_data_item_duration"
+  				android:layout_width="0dp"
+  				android:layout_height="wrap_content"
+  				android:layout_weight=".20"
+  			/>
+
+		</LinearLayout>
+	    
+	    <LinearLayout
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:orientation="horizontal" >
+	    	
+	    <LinearLayout
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:orientation="vertical"
+	        android:layout_weight=".80" >
+	    	
+		    <TextView
+	  			android:id="@+id/program_guide_data_item_sub_title"
+	  			android:layout_width="match_parent"
+	  			android:layout_height="wrap_content"
+	  		/>
+	
+		    <TextView
+	  			android:id="@+id/program_guide_data_item_start_time"
+	  			android:layout_width="match_parent"
+	  			android:layout_height="wrap_content"
+	  		/>
+	    
+	    </LinearLayout>
+	    
+	    <ImageView 
+	    	    android:id="@+id/program_guide_data_item_record_status_img"
+	    	    android:layout_width="wrap_content"
+	    	    android:layout_height="wrap_content"
+	    	    android:layout_weight=".20"
+				android:alpha="0.5"
+				android:src="@drawable/mythmote_btn_media_rec"
+				android:contentDescription="@null"/>
+	    
+	    </LinearLayout>
+	    
+
+	</LinearLayout>
+
+</LinearLayout>
