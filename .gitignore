@@ -1,13 +1,6 @@
 bin
 build
-gen
-libs
-local.properties
-target
-/temp
-.classpath
-.gradle
-.project
-.settings
 .idea
 *.iml
+/.gradle
+/local.properties
