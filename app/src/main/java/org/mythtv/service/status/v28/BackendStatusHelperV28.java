@@ -58,7 +58,7 @@ import org.mythtv.services.api.ApiVersion;
 import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.MythServiceApiRuntimeException;
 import org.mythtv.services.api.connect.MythAccessFactory;
-import org.mythtv.services.api.v028.MythServicesTemplate;
+import org.mythtv.services.api.v027.MythServicesTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -76,7 +76,7 @@ public class BackendStatusHelperV28 extends AbstractBaseHelper {
 
 	private static final String TAG = BackendStatusHelperV28.class.getSimpleName();
 	
-	private static final ApiVersion mApiVersion = ApiVersion.v028;
+	private static final ApiVersion mApiVersion = ApiVersion.v027;
 	
 	private static MythServicesTemplate mMythServicesTemplate;
 	private static LocationProfileDaoHelper mLocationProfileDaoHelper = LocationProfileDaoHelper.getInstance();
@@ -147,7 +147,7 @@ public class BackendStatusHelperV28 extends AbstractBaseHelper {
 	private BackendStatus downloadBackendStatus() throws MythServiceApiRuntimeException, RemoteException, OperationApplicationException {
 		Log.v( TAG, "downloadBackendStatus : enter" );
 
-		ResponseEntity<org.mythtv.services.api.v028.status.beans.BackendStatus> status = mMythServicesTemplate.statusOperations().getStatus( ETagInfo.createEmptyETag() );
+		ResponseEntity<org.mythtv.services.api.v027.status.beans.BackendStatus> status = mMythServicesTemplate.statusOperations().getStatus( ETagInfo.createEmptyETag() );
 
 		if( status.getStatusCode() == HttpStatus.OK ) {
 
@@ -181,7 +181,7 @@ public class BackendStatusHelperV28 extends AbstractBaseHelper {
 		return null;
 	}
 
-	private void updateProgramGuide( final Context mContext, org.mythtv.services.api.v028.status.beans.BackendStatus status ) throws RemoteException, OperationApplicationException {
+	private void updateProgramGuide( final Context mContext, org.mythtv.services.api.v027.status.beans.BackendStatus status ) throws RemoteException, OperationApplicationException {
 		Log.v( TAG, "updateProgramGuide : enter" );
 		
 		if( null != status.getScheduled() ) {
@@ -194,7 +194,7 @@ public class BackendStatusHelperV28 extends AbstractBaseHelper {
 		
 				ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
 
-				for( org.mythtv.services.api.v028.status.beans.Program versionProgram : status.getScheduled().getPrograms() ) {
+				for( org.mythtv.services.api.v027.status.beans.Program versionProgram : status.getScheduled().getPrograms() ) {
 //					Log.v( TAG, "updateProgramGuide : versionProgram=" + versionProgram.toString() );
 					
 					boolean inError = false;
@@ -246,7 +246,7 @@ public class BackendStatusHelperV28 extends AbstractBaseHelper {
 		Log.v( TAG, "updateProgramGuide : exit" );
 	}
 	
-	private BackendStatus convertBackendStatus( org.mythtv.services.api.v028.status.beans.BackendStatus status ) {
+	private BackendStatus convertBackendStatus( org.mythtv.services.api.v027.status.beans.BackendStatus status ) {
 		Log.v( TAG, "convertBackendStatus : enter" );
 		
 		BackendStatus bs = new BackendStatus();
@@ -265,7 +265,7 @@ public class BackendStatusHelperV28 extends AbstractBaseHelper {
 				
 				List<Encoder> encoderList = new ArrayList<Encoder>();
 				
-				for( org.mythtv.services.api.v028.status.beans.Encoder versionEncoder : status.getEncoders().getEncoders() ) {
+				for( org.mythtv.services.api.v027.status.beans.Encoder versionEncoder : status.getEncoders().getEncoders() ) {
 					Encoder encoder = new Encoder();
 					encoder.setId( versionEncoder.getId() );
 					encoder.setConnected( versionEncoder.isConnected() );
@@ -300,7 +300,7 @@ public class BackendStatusHelperV28 extends AbstractBaseHelper {
 				
 				List<Program> programs = new ArrayList<Program>();
 				
-				for( org.mythtv.services.api.v028.status.beans.Program versionProgram : status.getScheduled().getPrograms() ) {
+				for( org.mythtv.services.api.v027.status.beans.Program versionProgram : status.getScheduled().getPrograms() ) {
 					programs.add( convertProgram( versionProgram ) );
 				}
 				
@@ -338,20 +338,20 @@ public class BackendStatusHelperV28 extends AbstractBaseHelper {
 				
 				List<Job> jobs = new ArrayList<Job>();
 				
-				for( org.mythtv.services.api.v028.status.beans.Job versionJob : status.getJobQueue().getJobs() ) {
+				for( org.mythtv.services.api.v027.status.beans.Job versionJob : status.getJobQueue().getJobs() ) {
 					Job job = new Job();
 					job.setArgs( versionJob.getArgs() );
 					job.setChannelId( versionJob.getChannelId() );
 					
 					if( null != versionJob.getCommand() ) {
-						org.mythtv.services.api.v028.status.beans.Job.Command versionCommand = versionJob.getCommand();
+						org.mythtv.services.api.v027.status.beans.Job.Command versionCommand = versionJob.getCommand();
 						job.setCommand( Job.Command.valueOf( versionCommand.name() ) );
 					}
 				
 					job.setComment( versionJob.getComment() );
 					
 					if( null != versionJob.getArgs() ) {
-						org.mythtv.services.api.v028.status.beans.Job.Flag versionFlag = versionJob.getFlag();
+						org.mythtv.services.api.v027.status.beans.Job.Flag versionFlag = versionJob.getFlag();
 						job.setFlag( Job.Flag.valueOf( versionFlag.name() ) );
 					}
 					
@@ -368,12 +368,12 @@ public class BackendStatusHelperV28 extends AbstractBaseHelper {
 					job.setStartTs( versionJob.getStartTs() );
 					
 					if( null != versionJob.getStatus() ) {
-						org.mythtv.services.api.v028.status.beans.Job.Status versionStatus = versionJob.getStatus();
+						org.mythtv.services.api.v027.status.beans.Job.Status versionStatus = versionJob.getStatus();
 						job.setStatus( Job.Status.valueOf( versionStatus.name() ) );
 					}
 					
 					if( null != versionJob.getType() ) {
-						org.mythtv.services.api.v028.status.beans.Job.Type versionType = versionJob.getType();
+						org.mythtv.services.api.v027.status.beans.Job.Type versionType = versionJob.getType();
 						job.setType( Job.Type.valueOf( versionType.name() ) );
 					}
 				
@@ -422,7 +422,7 @@ public class BackendStatusHelperV28 extends AbstractBaseHelper {
 				if( null != status.getMachineInfo().getStorage().getGroups() && !status.getMachineInfo().getStorage().getGroups().isEmpty() ) {
 					List<Group> groups = new ArrayList<Group>();
 					
-					for( org.mythtv.services.api.v028.status.beans.Group versionGroup : status.getMachineInfo().getStorage().getGroups() ) {
+					for( org.mythtv.services.api.v027.status.beans.Group versionGroup : status.getMachineInfo().getStorage().getGroups() ) {
 						Group group = new Group();
 						group.setDeleted( versionGroup.isDeleted() );
 						group.setDirectory( versionGroup.getDirectory() );
@@ -454,7 +454,7 @@ public class BackendStatusHelperV28 extends AbstractBaseHelper {
 				
 				List<Information> infos = new ArrayList<Information>();
 				
-				for( org.mythtv.services.api.v028.status.beans.Information versionInfo : status.getMiscellaneous().getInformations() ) {
+				for( org.mythtv.services.api.v027.status.beans.Information versionInfo : status.getMiscellaneous().getInformations() ) {
 					Information info = new Information();
 					info.setName( versionInfo.getName() );
 					info.setValue( versionInfo.getValue() );
@@ -473,7 +473,7 @@ public class BackendStatusHelperV28 extends AbstractBaseHelper {
 		return bs;
 	}
 	
-	private Program convertProgram( org.mythtv.services.api.v028.status.beans.Program versionProgram ) {
+	private Program convertProgram( org.mythtv.services.api.v027.status.beans.Program versionProgram ) {
 		
 		Program program = new Program();
 		
@@ -521,7 +521,7 @@ public class BackendStatusHelperV28 extends AbstractBaseHelper {
 			
 				List<ArtworkInfo> artworkInfoList = new ArrayList<ArtworkInfo>();
 				
-				for( org.mythtv.services.api.v028.status.beans.ArtworkInfo versionArtwork : versionProgram.getArtwork().getArtworkInfos() ) {
+				for( org.mythtv.services.api.v027.status.beans.ArtworkInfo versionArtwork : versionProgram.getArtwork().getArtworkInfos() ) {
 					artworkInfoList.add( convertArtwork( versionArtwork ) );
 				}
 				
@@ -534,9 +534,9 @@ public class BackendStatusHelperV28 extends AbstractBaseHelper {
 		return program;
 	}
 
-	private org.mythtv.services.api.v028.beans.Program convertV28Program( org.mythtv.services.api.v028.status.beans.Program versionProgram ) {
+	private org.mythtv.services.api.v027.beans.Program convertV28Program( org.mythtv.services.api.v027.status.beans.Program versionProgram ) {
 		
-		org.mythtv.services.api.v028.beans.Program program = new org.mythtv.services.api.v028.beans.Program();
+		org.mythtv.services.api.v027.beans.Program program = new org.mythtv.services.api.v027.beans.Program();
 		//program.setAirdate( null != versionProgram ? versionProgram.getAirDate().toLocalDate() : new LocalDate() );
 		program.setAudioProps( versionProgram.getAudioProps() );
 		program.setCategory( versionProgram.getCategory() );
@@ -570,17 +570,17 @@ public class BackendStatusHelperV28 extends AbstractBaseHelper {
 		
 		if( null != versionProgram.getArtwork() ) {
 			
-			org.mythtv.services.api.v028.beans.ArtworkInfoList artworkInfos = new org.mythtv.services.api.v028.beans.ArtworkInfoList();
+			org.mythtv.services.api.v027.beans.ArtworkInfoList artworkInfos = new org.mythtv.services.api.v027.beans.ArtworkInfoList();
 			
 			if( null != versionProgram.getArtwork().getArtworkInfos() && versionProgram.getArtwork().getArtworkInfos().isEmpty() ) {
 			
-				List<org.mythtv.services.api.v028.beans.ArtworkInfo> artworkInfoList = new ArrayList<org.mythtv.services.api.v028.beans.ArtworkInfo>();
+				List<org.mythtv.services.api.v027.beans.ArtworkInfo> artworkInfoList = new ArrayList<org.mythtv.services.api.v027.beans.ArtworkInfo>();
 				
-				for( org.mythtv.services.api.v028.status.beans.ArtworkInfo versionArtwork : versionProgram.getArtwork().getArtworkInfos() ) {
+				for( org.mythtv.services.api.v027.status.beans.ArtworkInfo versionArtwork : versionProgram.getArtwork().getArtworkInfos() ) {
 					artworkInfoList.add( convertV28Artwork( versionArtwork ) );
 				}
 				
-				artworkInfos.setArtworkInfos( artworkInfoList.toArray( new org.mythtv.services.api.v028.beans.ArtworkInfo[ artworkInfoList.size() ] ) );
+				artworkInfos.setArtworkInfos( artworkInfoList.toArray( new org.mythtv.services.api.v027.beans.ArtworkInfo[ artworkInfoList.size() ] ) );
 			}
 			
 			program.setArtwork( artworkInfos );
@@ -589,7 +589,7 @@ public class BackendStatusHelperV28 extends AbstractBaseHelper {
 		return program;
 	}
 
-	private Recording convertRecording( org.mythtv.services.api.v028.status.beans.Recording versionRecording ) {
+	private Recording convertRecording( org.mythtv.services.api.v027.status.beans.Recording versionRecording ) {
 		
 		Recording recording = new Recording();
 		recording.setDuplicateInType( versionRecording.getDuplicateInType() );
@@ -609,9 +609,9 @@ public class BackendStatusHelperV28 extends AbstractBaseHelper {
 		return recording;
 	}
 
-	private org.mythtv.services.api.v028.beans.RecordingInfo convertV28Recording( org.mythtv.services.api.v028.status.beans.Recording versionRecording ) {
+	private org.mythtv.services.api.v027.beans.RecordingInfo convertV28Recording( org.mythtv.services.api.v027.status.beans.Recording versionRecording ) {
 		
-		org.mythtv.services.api.v028.beans.RecordingInfo recording = new org.mythtv.services.api.v028.beans.RecordingInfo();
+		org.mythtv.services.api.v027.beans.RecordingInfo recording = new org.mythtv.services.api.v027.beans.RecordingInfo();
 		recording.setDupInType( versionRecording.getDuplicateInType() );
 		recording.setDupMethod( versionRecording.getDuplicateMethod() );
 		recording.setEncoderId( versionRecording.getEncoderId() );
@@ -629,7 +629,7 @@ public class BackendStatusHelperV28 extends AbstractBaseHelper {
 		return recording;
 	}
 
-	private ChannelInfo convertChannel( org.mythtv.services.api.v028.status.beans.ChannelInfo versionChannel ) {
+	private ChannelInfo convertChannel( org.mythtv.services.api.v027.status.beans.ChannelInfo versionChannel ) {
 		
 		ChannelInfo channel = new ChannelInfo();
 		channel.setAtscMajorChannel( versionChannel.getAtscMajorChannel() );
@@ -639,7 +639,7 @@ public class BackendStatusHelperV28 extends AbstractBaseHelper {
 		channel.setChannelId( versionChannel.getChannelId() );
 		channel.setChannelName( versionChannel.getChannelName() );
 		channel.setChannelNumber( versionChannel.getChannelNumber() );
-		channel.setCommercialFree( versionChannel.isCommercialFree() ? 1 : 0 );
+		channel.setCommercialFree( versionChannel.getCommercialFree() );
 		//channel.setCommercialFree( versionChannel.getCommercialFree() );
 		channel.setDefaultAuth( versionChannel.getDefaultAuth() );
 		channel.setFineTune( versionChannel.getFineTune() );
@@ -663,9 +663,9 @@ public class BackendStatusHelperV28 extends AbstractBaseHelper {
 		return channel;
 	}
 
-	private org.mythtv.services.api.v028.beans.ChannelInfo convertV28Channel( org.mythtv.services.api.v028.status.beans.ChannelInfo versionChannel ) {
+	private org.mythtv.services.api.v027.beans.ChannelInfo convertV28Channel( org.mythtv.services.api.v027.status.beans.ChannelInfo versionChannel ) {
 		
-		org.mythtv.services.api.v028.beans.ChannelInfo channel = new org.mythtv.services.api.v028.beans.ChannelInfo();
+		org.mythtv.services.api.v027.beans.ChannelInfo channel = new org.mythtv.services.api.v027.beans.ChannelInfo();
 		channel.setATSCMajorChan( versionChannel.getAtscMajorChannel() );
 		channel.setATSCMinorChan( versionChannel.getAtscMinorChannel() );
 		channel.setCallSign( versionChannel.getCallSign() );
@@ -673,7 +673,7 @@ public class BackendStatusHelperV28 extends AbstractBaseHelper {
 		channel.setChanId( versionChannel.getChannelId() );
 		channel.setChannelName( versionChannel.getChannelName() );
 		channel.setChanNum( versionChannel.getChannelNumber() );
-		channel.setCommFree( versionChannel.isCommercialFree() );
+		channel.setCommFree( versionChannel.getCommercialFree() );
 		channel.setDefaultAuth( versionChannel.getDefaultAuth() );
 		channel.setFineTune( versionChannel.getFineTune() );
 		channel.setFormat( versionChannel.getFormat() );
@@ -696,7 +696,7 @@ public class BackendStatusHelperV28 extends AbstractBaseHelper {
 		return channel;
 	}
 
-	private ArtworkInfo convertArtwork( org.mythtv.services.api.v028.status.beans.ArtworkInfo versionArtwork ) {
+	private ArtworkInfo convertArtwork( org.mythtv.services.api.v027.status.beans.ArtworkInfo versionArtwork ) {
 		
 		ArtworkInfo artworkInfo = new ArtworkInfo();
 		artworkInfo.setFilename( versionArtwork.getFilename() );
@@ -707,9 +707,9 @@ public class BackendStatusHelperV28 extends AbstractBaseHelper {
 		return artworkInfo;
 	}
 
-	private org.mythtv.services.api.v028.beans.ArtworkInfo convertV28Artwork( org.mythtv.services.api.v028.status.beans.ArtworkInfo versionArtwork ) {
+	private org.mythtv.services.api.v027.beans.ArtworkInfo convertV28Artwork( org.mythtv.services.api.v027.status.beans.ArtworkInfo versionArtwork ) {
 		
-		org.mythtv.services.api.v028.beans.ArtworkInfo artworkInfo = new org.mythtv.services.api.v028.beans.ArtworkInfo();
+		org.mythtv.services.api.v027.beans.ArtworkInfo artworkInfo = new org.mythtv.services.api.v027.beans.ArtworkInfo();
 		artworkInfo.setFileName( versionArtwork.getFilename() );
 		artworkInfo.setStorageGroup( versionArtwork.getStorageGroup() );
 		artworkInfo.setType( versionArtwork.getType() );

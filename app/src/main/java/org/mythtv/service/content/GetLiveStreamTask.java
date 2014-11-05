@@ -131,11 +131,11 @@ public class GetLiveStreamTask extends AsyncTask<Integer, Void, Boolean> {
 
 				break;
 
-			case v028 :
+//			case v028 :
 
-				updated = LiveStreamHelperV28.getInstance().update( mContext, mLocationProfile, mLiveStreamInfoId, mProgram.getChannelInfo().getChannelId(), mProgram.getStartTime() );
+//				updated = LiveStreamHelperV28.getInstance().update( mContext, mLocationProfile, mLiveStreamInfoId, mProgram.getChannelInfo().getChannelId(), mProgram.getStartTime() );
 
-				break;
+//				break;
 
 			default :
 

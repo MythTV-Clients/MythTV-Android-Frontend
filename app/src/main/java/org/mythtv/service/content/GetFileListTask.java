@@ -111,11 +111,11 @@ public class GetFileListTask extends AsyncTask<String, Void, List<String>> {
 				files = FileListHelperV27.getInstance().process( mContext, mLocationProfile, storageGroupName );
 				
 				break;
-			case v028 :
+//			case v028 :
 
-				files = FileListHelperV28.getInstance().process( mContext, mLocationProfile, storageGroupName );
+//				files = FileListHelperV28.getInstance().process( mContext, mLocationProfile, storageGroupName );
 				
-				break;
+//				break;
 				
 				
 			default :

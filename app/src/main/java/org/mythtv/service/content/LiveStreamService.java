@@ -334,11 +334,11 @@ public class LiveStreamService extends MythtvService {
 				created = LiveStreamHelperV27.getInstance().create( this, locationProfile, program.getChannelInfo().getChannelId(), program.getStartTime() );
 
 				break;
-			case v028 :
+//			case v028 :
 
-				created = LiveStreamHelperV28.getInstance().create( this, locationProfile, program.getChannelInfo().getChannelId(), program.getStartTime() );
+//				created = LiveStreamHelperV28.getInstance().create( this, locationProfile, program.getChannelInfo().getChannelId(), program.getStartTime() );
 
-				break;
+//				break;
 				
 			default :
 				
@@ -384,11 +384,11 @@ public class LiveStreamService extends MythtvService {
 				loaded = LiveStreamHelperV27.getInstance().load( this, locationProfile );
 
 				break;
-			case v028 :
+//			case v028 :
 
-				loaded = LiveStreamHelperV28.getInstance().load( this, locationProfile );
+//				loaded = LiveStreamHelperV28.getInstance().load( this, locationProfile );
 
-				break;
+//				break;
 
 			default :
 				
@@ -428,11 +428,11 @@ public class LiveStreamService extends MythtvService {
 				removed = LiveStreamHelperV27.getInstance().remove( this, locationProfile, program.getChannelInfo().getChannelId(), program.getStartTime() );
 
 				break;
-			case v028 :
+//			case v028 :
 
-				removed = LiveStreamHelperV28.getInstance().remove( this, locationProfile, program.getChannelInfo().getChannelId(), program.getStartTime() );
+//				removed = LiveStreamHelperV28.getInstance().remove( this, locationProfile, program.getChannelInfo().getChannelId(), program.getStartTime() );
 
-				break;
+//				break;
 				
 			default :
 				

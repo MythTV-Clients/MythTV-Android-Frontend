@@ -111,30 +111,30 @@ public class PlayRecordingOnFrontEndTask extends AsyncTask<String, Void, Boolean
 				}
 				
 				break;
-			case v028 :
-
-				if( !NetworkHelper.getInstance().isFrontendConnected( mContext, mLocationProfile, url ) ) {
-					Log.w( TAG, "process : Frontend @ '" + url + "' is unreachable" );
-					
-					return false;
-				}
-
-				org.mythtv.services.api.v028.MythServicesTemplate mythServicesTemplateV28 = (org.mythtv.services.api.v028.MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( apiVersion, url );
-
-				if( null != mythServicesTemplateV28 ) {
-					ResponseEntity<org.mythtv.services.api.Bool> responseV28 = mythServicesTemplateV28.frontendOperations().playRecording( mProgram.getChannelInfo().getChannelId(), mProgram.getRecording().getStartTimestamp(), ETagInfo.createEmptyETag() );
-					if( responseV28.getStatusCode().equals( HttpStatus.OK ) ) {
-
-						if( null != responseV28.getBody() ) {
-
-							started = responseV28.getBody().getValue();
-
-						}
-
-					}
-				}
-				
-				break;
+//			case v028 :
+//
+//				if( !NetworkHelper.getInstance().isFrontendConnected( mContext, mLocationProfile, url ) ) {
+//					Log.w( TAG, "process : Frontend @ '" + url + "' is unreachable" );
+//
+//					return false;
+//				}
+//
+//				org.mythtv.services.api.v028.MythServicesTemplate mythServicesTemplateV28 = (org.mythtv.services.api.v028.MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( apiVersion, url );
+//
+//				if( null != mythServicesTemplateV28 ) {
+//					ResponseEntity<org.mythtv.services.api.Bool> responseV28 = mythServicesTemplateV28.frontendOperations().playRecording( mProgram.getChannelInfo().getChannelId(), mProgram.getRecording().getStartTimestamp(), ETagInfo.createEmptyETag() );
+//					if( responseV28.getStatusCode().equals( HttpStatus.OK ) ) {
+//
+//						if( null != responseV28.getBody() ) {
+//
+//							started = responseV28.getBody().getValue();
+//
+//						}
+//
+//					}
+//				}
+//
+//				break;
 				
 			default :
 				

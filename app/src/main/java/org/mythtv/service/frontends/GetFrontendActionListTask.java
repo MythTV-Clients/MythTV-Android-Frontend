@@ -182,30 +182,30 @@ public class GetFrontendActionListTask extends AsyncTask<String, Void, List<Acti
 				}
 				
 				break;
-			case v028 :
-
-				org.mythtv.services.api.v028.MythServicesTemplate mythServicesTemplateV28 = (org.mythtv.services.api.v028.MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( apiVersion, url );
-
-				if( null != mythServicesTemplateV28 ) {
-					ResponseEntity<org.mythtv.services.api.v028.beans.FrontendActionList> actionsV28 = mythServicesTemplateV28.frontendOperations().getActionList( url, ETagInfo.createEmptyETag() );
-					if( actionsV28.getStatusCode().equals( HttpStatus.OK ) ) {
-
-						if( null != actionsV28.getBody().getActionList() && !actionsV28.getBody().getActionList().isEmpty() ) {
-
-							for( String versionAction: actionsV28.getBody().getActionList().keySet() ) {
-								Action action = new Action();
-								action.setKey( versionAction );
-								action.setValue( actionsV28.getBody().getActionList().get( versionAction ) );
-
-								actions.add( action );
-							}
-
-						}
-
-					}
-				}
-				
-				break;
+//			case v028 :
+//
+//				org.mythtv.services.api.v028.MythServicesTemplate mythServicesTemplateV28 = (org.mythtv.services.api.v028.MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( apiVersion, url );
+//
+//				if( null != mythServicesTemplateV28 ) {
+//					ResponseEntity<org.mythtv.services.api.v028.beans.FrontendActionList> actionsV28 = mythServicesTemplateV28.frontendOperations().getActionList( url, ETagInfo.createEmptyETag() );
+//					if( actionsV28.getStatusCode().equals( HttpStatus.OK ) ) {
+//
+//						if( null != actionsV28.getBody().getActionList() && !actionsV28.getBody().getActionList().isEmpty() ) {
+//
+//							for( String versionAction: actionsV28.getBody().getActionList().keySet() ) {
+//								Action action = new Action();
+//								action.setKey( versionAction );
+//								action.setValue( actionsV28.getBody().getActionList().get( versionAction ) );
+//
+//								actions.add( action );
+//							}
+//
+//						}
+//
+//					}
+//				}
+//
+//				break;
 				
 			default :
 				

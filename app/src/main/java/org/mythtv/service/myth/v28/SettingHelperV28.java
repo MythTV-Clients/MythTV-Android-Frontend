@@ -28,7 +28,7 @@ import org.mythtv.services.api.ApiVersion;
 import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.MythServiceApiRuntimeException;
 import org.mythtv.services.api.connect.MythAccessFactory;
-import org.mythtv.services.api.v028.MythServicesTemplate;
+import org.mythtv.services.api.v027.MythServicesTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -43,7 +43,7 @@ public class SettingHelperV28 extends AbstractBaseHelper {
 
 	private static final String TAG = SettingHelperV28.class.getSimpleName();
 	
-	private static final ApiVersion mApiVersion = ApiVersion.v028;
+	private static final ApiVersion mApiVersion = ApiVersion.v027;
 	
 	private static MythServicesTemplate mMythServicesTemplate;
 
@@ -114,11 +114,11 @@ public class SettingHelperV28 extends AbstractBaseHelper {
 	
 		String setting = null;
 
-		ResponseEntity<org.mythtv.services.api.v028.beans.SettingList> responseEntity = mMythServicesTemplate.mythOperations().getSetting( locationProfile.getHostname(), settingName, settingDefault,  ETagInfo.createEmptyETag() );
+		ResponseEntity<org.mythtv.services.api.v027.beans.SettingList> responseEntity = mMythServicesTemplate.mythOperations().getSetting( locationProfile.getHostname(), settingName, settingDefault,  ETagInfo.createEmptyETag() );
 
 		if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
 
-			org.mythtv.services.api.v028.beans.SettingList settingList = responseEntity.getBody();
+			org.mythtv.services.api.v027.beans.SettingList settingList = responseEntity.getBody();
 
 			if( null != settingList ) {
 				
