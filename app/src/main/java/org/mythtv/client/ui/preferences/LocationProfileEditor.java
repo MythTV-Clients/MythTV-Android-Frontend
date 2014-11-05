@@ -245,7 +245,8 @@ public class LocationProfileEditor extends AbstractMythtvFragmentActivity implem
 				
 				mProgressDialog = ProgressDialog.show( LocationProfileEditor.this, getResources().getString( R.string.please_wait ), getResources().getString( R.string.preferences_profile_loading ), true, false );
 				
-				Intent intent = new Intent( PreferencesRecordedDownloadService.ACTION_DOWNLOAD );
+				Intent intent = new Intent( this, PreferencesRecordedDownloadService.class );
+                intent.setAction( PreferencesRecordedDownloadService.ACTION_DOWNLOAD );
 				intent.putExtra( LocationProfileConstants._ID, profile.getId() );
 				startService( intent );
 			}

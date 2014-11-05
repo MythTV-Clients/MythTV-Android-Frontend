@@ -561,7 +561,8 @@ public class EpisodeFragment extends AbstractMythFragment implements GetLiveStre
 			Log.v( TAG, "startCreateStreamService : channelId=" + program.getChannelInfo().getChannelId() + ", startTime=" + program.getStartTime().getMillis() );
 		}
 		
-		Intent intent = new Intent( LiveStreamService.ACTION_CREATE );
+		Intent intent = new Intent( getActivity(), LiveStreamService.class );
+        intent.setAction( LiveStreamService.ACTION_CREATE );
 		intent.putExtra( LiveStreamService.KEY_CHANNEL_ID, program.getChannelInfo().getChannelId() );
 		intent.putExtra( LiveStreamService.KEY_START_TIMESTAMP, program.getStartTime().getMillis() );
 		getActivity().startService( intent );
@@ -580,7 +581,8 @@ public class EpisodeFragment extends AbstractMythFragment implements GetLiveStre
 			
 				if( liveStreamInfo.getPercentComplete() < 100 ) {
 
-					Intent intent = new Intent( LiveStreamService.ACTION_LOAD );
+                    Intent intent = new Intent( getActivity(), LiveStreamService.class );
+                    intent.setAction( LiveStreamService.ACTION_LOAD );
 					intent.putExtra( LiveStreamService.KEY_CHANNEL_ID, program.getChannelInfo().getChannelId() );
 					intent.putExtra( LiveStreamService.KEY_START_TIMESTAMP, program.getStartTime().getMillis() );
 					getActivity().startService( intent );
@@ -602,8 +604,9 @@ public class EpisodeFragment extends AbstractMythFragment implements GetLiveStre
 		}
 
 		getActivity().stopService( new Intent( getActivity(), LiveStreamService.class ) );
-		
-		Intent intent = new Intent( LiveStreamService.ACTION_REMOVE );
+
+        Intent intent = new Intent( getActivity(), LiveStreamService.class );
+        intent.setAction( LiveStreamService.ACTION_REMOVE );
 		intent.putExtra( LiveStreamService.KEY_CHANNEL_ID, program.getChannelInfo().getChannelId() );
 		intent.putExtra( LiveStreamService.KEY_START_TIMESTAMP, program.getStartTime().getMillis() );
 		getActivity().startService( intent );
@@ -619,8 +622,9 @@ public class EpisodeFragment extends AbstractMythFragment implements GetLiveStre
 		}
 
 		startRemoveStreamService();
-		
-		Intent intent = new Intent( RecordedService.ACTION_REMOVE );
+
+        Intent intent = new Intent( getActivity(), LiveStreamService.class );
+        intent.setAction( RecordedService.ACTION_REMOVE );
 		intent.putExtra( RecordedService.KEY_CHANNEL_ID, program.getChannelInfo().getChannelId() );
 		intent.putExtra( RecordedService.KEY_START_TIMESTAMP, program.getStartTime().getMillis() );
 		intent.putExtra( RecordedService.KEY_RECORD_ID, program.getRecording().getRecordId() );

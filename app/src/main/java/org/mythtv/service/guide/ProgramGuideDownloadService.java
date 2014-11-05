@@ -101,11 +101,11 @@ public class ProgramGuideDownloadService extends MythtvService {
     					passed = ProgramGuideHelperV27.getInstance().process( this, locationProfile );
 
     					break;
-    				case v028 :
-
-    					passed = ProgramGuideHelperV28.getInstance().process( this, locationProfile );
-
-    					break;
+//    				case v028 :
+//
+//    					passed = ProgramGuideHelperV28.getInstance().process( this, locationProfile );
+//
+//    					break;
     					
     				default :
     					

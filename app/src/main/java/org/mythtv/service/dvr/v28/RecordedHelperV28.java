@@ -40,14 +40,17 @@ import org.mythtv.db.dvr.programGroup.ProgramGroup;
 import org.mythtv.db.dvr.programGroup.ProgramGroupConstants;
 import org.mythtv.db.dvr.programGroup.ProgramGroupDaoHelper;
 import org.mythtv.db.http.model.EtagInfoDelegate;
+import org.mythtv.service.channel.v27.ChannelHelperV27;
 import org.mythtv.service.channel.v28.ChannelHelperV28;
+import org.mythtv.service.dvr.v27.ProgramHelperV27;
+import org.mythtv.service.dvr.v27.RecordingHelperV27;
 import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.ApiVersion;
 import org.mythtv.services.api.MythServiceApiRuntimeException;
 import org.mythtv.services.api.connect.MythAccessFactory;
-import org.mythtv.services.api.v028.MythServicesTemplate;
-import org.mythtv.services.api.v028.beans.Program;
-import org.mythtv.services.api.v028.beans.ProgramList;
+import org.mythtv.services.api.v027.MythServicesTemplate;
+import org.mythtv.services.api.v027.beans.Program;
+import org.mythtv.services.api.v027.beans.ProgramList;
 import org.mythtv.services.utils.ArticleCleaner;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -69,7 +72,7 @@ public class RecordedHelperV28 extends AbstractBaseHelper {
 
 	private static final String TAG = RecordedHelperV28.class.getSimpleName();
 	
-	private static final ApiVersion mApiVersion = ApiVersion.v028;
+	private static final ApiVersion mApiVersion = ApiVersion.v027;
 	
 	private static MythServicesTemplate mMythServicesTemplate;
 
@@ -154,7 +157,7 @@ public class RecordedHelperV28 extends AbstractBaseHelper {
 	public Program findRecorded( final Context context, final LocationProfile locationProfile, Integer channelId, DateTime startTime ) {
 		Log.v( TAG, "findRecorded : enter" );
 		
-		Program program = ProgramHelperV28.getInstance().findProgram( context, locationProfile, ProgramConstants.CONTENT_URI_RECORDED, ProgramConstants.TABLE_NAME_RECORDED, channelId, startTime );
+		Program program = ProgramHelperV27.getInstance().findProgram( context, locationProfile, ProgramConstants.CONTENT_URI_RECORDED, ProgramConstants.TABLE_NAME_RECORDED, channelId, startTime );
 		
 		Log.v( TAG, "findRecorded : enter" );
 		return program;
@@ -165,7 +168,7 @@ public class RecordedHelperV28 extends AbstractBaseHelper {
 		
 		boolean removed = false;
 		
-		ProgramHelperV28 programHelper = ProgramHelperV28.getInstance();
+		ProgramHelperV27 programHelper = ProgramHelperV27.getInstance();
 		
 		Program program = programHelper.findProgram( context, locationProfile, ProgramConstants.CONTENT_URI_RECORDED, ProgramConstants.TABLE_NAME_RECORDED, channelId, startTime );
 		if( null != program ) {
@@ -282,7 +285,7 @@ public class RecordedHelperV28 extends AbstractBaseHelper {
 				inError = false;
 			}
 
-			ProgramHelperV28.getInstance().processProgram( context, locationProfile, ProgramConstants.CONTENT_URI_RECORDED, ProgramConstants.TABLE_NAME_RECORDED, ops, program, tag );
+			ProgramHelperV27.getInstance().processProgram( context, locationProfile, ProgramConstants.CONTENT_URI_RECORDED, ProgramConstants.TABLE_NAME_RECORDED, ops, program, tag );
 			count++;
 			
 			if( null != program.getChannel() ) {
@@ -291,7 +294,7 @@ public class RecordedHelperV28 extends AbstractBaseHelper {
 					
 					if( null == mChannelDaoHelper.findByChannelId( context, locationProfile, Long.parseLong( String.valueOf( program.getChannel().getChanId() ) ) ) ) {
 						
-						ChannelHelperV28.getInstance().processChannel( context, locationProfile, ops, program.getChannel() );
+						ChannelHelperV27.getInstance().processChannel( context, locationProfile, ops, program.getChannel() );
 						count++;
 					
 					}
@@ -306,7 +309,7 @@ public class RecordedHelperV28 extends AbstractBaseHelper {
 				
 				if( program.getRecording().getRecordId() > 0 ) {
 				
-					RecordingHelperV28.getInstance().processRecording( context, locationProfile, ops, RecordingConstants.ContentDetails.RECORDED, program, tag );
+					RecordingHelperV27.getInstance().processRecording( context, locationProfile, ops, RecordingConstants.ContentDetails.RECORDED, program, tag );
 					count++;
 					
 				}

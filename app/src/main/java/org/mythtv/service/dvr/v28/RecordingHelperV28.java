@@ -29,8 +29,8 @@ import org.mythtv.client.ui.preferences.LocationProfile;
 import org.mythtv.db.AbstractBaseHelper;
 import org.mythtv.db.dvr.RecordingConstants;
 import org.mythtv.db.dvr.RecordingConstants.ContentDetails;
-import org.mythtv.services.api.v028.beans.Program;
-import org.mythtv.services.api.v028.beans.RecordingInfo;
+import org.mythtv.services.api.v027.beans.Program;
+import org.mythtv.services.api.v027.beans.RecordingInfo;
 
 import android.content.ContentProviderOperation;
 import android.content.ContentUris;

@@ -358,7 +358,8 @@ public class RecordingRuleEditFragment extends AbstractMythFragment implements O
 		rule.setAutoUserJob4( cBox.isChecked() );
 
 		if( !mRunningServiceHelper.isServiceRunning( getActivity(), "org.mythtv.service.dvr.RecordingRuleService" ) ) {
-			Intent updateIntent = new Intent( RecordingRuleService.ACTION_UPDATE );
+			Intent updateIntent = new Intent( getActivity(), RecordingRuleService.class );
+            updateIntent.setAction( RecordingRuleService.ACTION_UPDATE );
 			updateIntent.putExtra( RecordingRuleService.ACTION_DATA, rule );
 			getActivity().startService( updateIntent );
 		}

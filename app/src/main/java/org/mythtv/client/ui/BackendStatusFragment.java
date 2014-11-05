@@ -717,7 +717,12 @@ public class BackendStatusFragment extends AbstractMythFragment {
     private void startBackendStatusService() {
     	
 		if( !mRunningServiceHelper.isServiceRunning( getActivity(), "org.mythtv.service.status.BackendStatusService" ) ) {
-			getActivity().startService( new Intent( BackendStatusService.ACTION_DOWNLOAD ) );
+
+            Intent intent = new Intent( getActivity(), BackendStatusService.class );
+            intent.setAction( BackendStatusService.ACTION_DOWNLOAD );
+
+			getActivity().startService( intent );
+
 		}
 
     }
@@ -735,7 +740,12 @@ public class BackendStatusFragment extends AbstractMythFragment {
     		if( mLocationProfile.getType().equals( LocationType.HOME ) ) {
 			
     			if( !mRunningServiceHelper.isServiceRunning( getActivity(), "org.mythtv.service.frontends.FrontendsDiscoveryService" ) ) {
-    				getActivity().startService( new Intent( FrontendsDiscoveryService.ACTION_DISCOVER ) );
+
+                    Intent intent = new Intent( getActivity(), FrontendsDiscoveryService.class );
+                    intent.setAction( FrontendsDiscoveryService.ACTION_DISCOVER );
+
+                    getActivity().startService( intent );
+
     			}
 			
     		}
@@ -753,7 +763,12 @@ public class BackendStatusFragment extends AbstractMythFragment {
     private void startChannelDownloadService() {
 
     	if( !mRunningServiceHelper.isServiceRunning( getActivity(), "org.mythtv.service.channel.ChannelDownloadService" ) ) {
-    		getActivity().startService( new Intent( ChannelDownloadService.ACTION_DOWNLOAD ) );
+
+            Intent intent = new Intent( getActivity(), ChannelDownloadService.class );
+            intent.setAction( ChannelDownloadService.ACTION_DOWNLOAD );
+
+            getActivity().startService( intent );
+
 		}
    	
     }
@@ -767,7 +782,12 @@ public class BackendStatusFragment extends AbstractMythFragment {
     private void startProgramGuideDownloadService() {
     	
 		if( !mRunningServiceHelper.isServiceRunning( getActivity(), "org.mythtv.service.guide.ProgramGuideDownloadService" ) ) {
-			getActivity().startService( new Intent( ProgramGuideDownloadService.ACTION_DOWNLOAD ) );
+
+            Intent intent = new Intent( getActivity(), ProgramGuideDownloadService.class );
+            intent.setAction( ProgramGuideDownloadService.ACTION_DOWNLOAD );
+
+            getActivity().startService( intent );
+
 		}
 
     }
@@ -781,7 +801,12 @@ public class BackendStatusFragment extends AbstractMythFragment {
     private void startRecordedDownloadService() {
     	
 		if( !mRunningServiceHelper.isServiceRunning( getActivity(), "org.mythtv.service.dvr.RecordedDownloadService" ) ) {
-			getActivity().startService( new Intent( RecordedService.ACTION_DOWNLOAD ) );
+
+            Intent intent = new Intent( getActivity(), RecordedService.class );
+            intent.setAction( RecordedService.ACTION_DOWNLOAD );
+
+            getActivity().startService( intent );
+
 		}
 
     }
@@ -795,7 +820,12 @@ public class BackendStatusFragment extends AbstractMythFragment {
     private void startRecordingRulesDownloadService() {
     	
 		if( !mRunningServiceHelper.isServiceRunning( getActivity(), "org.mythtv.service.dvr.RecordingRuleService" ) ) {
-			getActivity().startService( new Intent( RecordingRuleService.ACTION_DOWNLOAD ) );
+
+            Intent intent = new Intent( getActivity(), RecordingRuleService.class );
+            intent.setAction( RecordingRuleService.ACTION_DOWNLOAD );
+
+            getActivity().startService( intent );
+
 		}
 
     }
@@ -809,7 +839,12 @@ public class BackendStatusFragment extends AbstractMythFragment {
     private void startUpcomingDownloadService() {
     	
 		if( !mRunningServiceHelper.isServiceRunning( getActivity(), "org.mythtv.service.dvr.UpcomingDownloadService" ) ) {
-			getActivity().startService( new Intent( UpcomingDownloadService.ACTION_DOWNLOAD ) );
+
+            Intent intent = new Intent( getActivity(), UpcomingDownloadService.class );
+            intent.setAction( UpcomingDownloadService.ACTION_DOWNLOAD );
+
+            getActivity().startService( intent );
+
 		}
 
     }

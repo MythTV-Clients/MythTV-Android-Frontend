@@ -103,11 +103,11 @@ public class RecordingRuleService extends MythtvService {
     					passed = RecordingRuleHelperV27.getInstance().process( this, locationProfile );
 
     					break;
-    				case v028 :
+//    				case v028 :
 
-    					passed = RecordingRuleHelperV28.getInstance().process( this, locationProfile );
+//    					passed = RecordingRuleHelperV28.getInstance().process( this, locationProfile );
 
-    					break;
+//    					break;
     					
     				default :
     					

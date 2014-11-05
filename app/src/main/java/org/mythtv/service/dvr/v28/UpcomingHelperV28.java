@@ -31,13 +31,15 @@ import org.mythtv.db.AbstractBaseHelper;
 import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.db.dvr.RecordingConstants;
 import org.mythtv.db.http.model.EtagInfoDelegate;
+import org.mythtv.service.dvr.v27.ProgramHelperV27;
+import org.mythtv.service.dvr.v27.RecordingHelperV27;
 import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.ApiVersion;
 import org.mythtv.services.api.MythServiceApiRuntimeException;
 import org.mythtv.services.api.connect.MythAccessFactory;
-import org.mythtv.services.api.v028.MythServicesTemplate;
-import org.mythtv.services.api.v028.beans.Program;
-import org.mythtv.services.api.v028.beans.ProgramList;
+import org.mythtv.services.api.v027.MythServicesTemplate;
+import org.mythtv.services.api.v027.beans.Program;
+import org.mythtv.services.api.v027.beans.ProgramList;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -55,7 +57,7 @@ public class UpcomingHelperV28 extends AbstractBaseHelper {
 
 	private static final String TAG = UpcomingHelperV28.class.getSimpleName();
 	
-	private static final ApiVersion mApiVersion = ApiVersion.v028;
+	private static final ApiVersion mApiVersion = ApiVersion.v027;
 	
 	private static MythServicesTemplate mMythServicesTemplate;
 
@@ -188,11 +190,11 @@ public class UpcomingHelperV28 extends AbstractBaseHelper {
 			}
 
 			// load upcoming program
-			ProgramHelperV28.getInstance().processProgram( context, locationProfile, ProgramConstants.CONTENT_URI_UPCOMING, ProgramConstants.TABLE_NAME_UPCOMING, ops, program, tag );
+			ProgramHelperV27.getInstance().processProgram( context, locationProfile, ProgramConstants.CONTENT_URI_UPCOMING, ProgramConstants.TABLE_NAME_UPCOMING, ops, program, tag );
 			count++;
 			
 			// update program guide
-			ProgramHelperV28.getInstance().processProgram( context, locationProfile, ProgramConstants.CONTENT_URI_GUIDE, ProgramConstants.TABLE_NAME_GUIDE, ops, program, tag );
+			ProgramHelperV27.getInstance().processProgram( context, locationProfile, ProgramConstants.CONTENT_URI_GUIDE, ProgramConstants.TABLE_NAME_GUIDE, ops, program, tag );
 			count++;
 
 			if( !inError && null != program.getRecording() ) {
@@ -200,11 +202,11 @@ public class UpcomingHelperV28 extends AbstractBaseHelper {
 				if( program.getRecording().getRecordId() > 0 ) {
 				
 					// load upcoming recording
-					RecordingHelperV28.getInstance().processRecording( context, locationProfile, ops, RecordingConstants.ContentDetails.UPCOMING, program, tag );
+					RecordingHelperV27.getInstance().processRecording( context, locationProfile, ops, RecordingConstants.ContentDetails.UPCOMING, program, tag );
 					count++;
 
 					// update program guide recording
-					RecordingHelperV28.getInstance().processRecording( context, locationProfile, ops, RecordingConstants.ContentDetails.GUIDE, program, tag );
+					RecordingHelperV27.getInstance().processRecording( context, locationProfile, ops, RecordingConstants.ContentDetails.GUIDE, program, tag );
 					count++;
 
 				}

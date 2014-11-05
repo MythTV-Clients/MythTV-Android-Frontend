@@ -161,24 +161,24 @@ public class CreateStorageGroupTask extends AsyncTask<String, Void, Boolean> {
 				}
 				
 				break;
-			case v028 :
-
-				org.mythtv.services.api.v028.MythServicesTemplate mythServicesTemplateV28 = (org.mythtv.services.api.v028.MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( apiVersion, mLocationProfile.getUrl() );
-
-				if( null != mythServicesTemplateV28 ) {
-					ResponseEntity<org.mythtv.services.api.Bool> responseV28 = mythServicesTemplateV28.mythOperations().addStorageGroupDir( groupName, directory, mLocationProfile.getHostname() );
-					if( responseV28.getStatusCode().equals( HttpStatus.OK ) ) {
-
-						if( null != responseV28.getBody() ) {
-
-							created = responseV28.getBody().getValue();
-
-						}
-
-					}
-				}
-				
-				break;
+//			case v028 :
+//
+//				org.mythtv.services.api.v028.MythServicesTemplate mythServicesTemplateV28 = (org.mythtv.services.api.v028.MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( apiVersion, mLocationProfile.getUrl() );
+//
+//				if( null != mythServicesTemplateV28 ) {
+//					ResponseEntity<org.mythtv.services.api.Bool> responseV28 = mythServicesTemplateV28.mythOperations().addStorageGroupDir( groupName, directory, mLocationProfile.getHostname() );
+//					if( responseV28.getStatusCode().equals( HttpStatus.OK ) ) {
+//
+//						if( null != responseV28.getBody() ) {
+//
+//							created = responseV28.getBody().getValue();
+//
+//						}
+//
+//					}
+//				}
+//
+//				break;
 				
 			default :
 				

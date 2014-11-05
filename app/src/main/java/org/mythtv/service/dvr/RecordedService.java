@@ -109,11 +109,11 @@ public class RecordedService extends MythtvService {
     					passed = RecordedHelperV27.getInstance().process( this, locationProfile );
 
     					break;
-    				case v028 :
+//    				case v028 :
 
-    					passed = RecordedHelperV28.getInstance().process( this, locationProfile );
+//    					passed = RecordedHelperV28.getInstance().process( this, locationProfile );
 
-    					break;
+//    					break;
     					
     				default :
     					

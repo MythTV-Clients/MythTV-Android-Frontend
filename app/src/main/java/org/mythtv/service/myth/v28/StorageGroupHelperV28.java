@@ -31,7 +31,7 @@ import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.ApiVersion;
 import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.connect.MythAccessFactory;
-import org.mythtv.services.api.v028.MythServicesTemplate;
+import org.mythtv.services.api.v027.MythServicesTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -46,7 +46,7 @@ public class StorageGroupHelperV28 extends AbstractBaseHelper {
 
 	private static final String TAG = StorageGroupHelperV28.class.getSimpleName();
 	
-	private static final ApiVersion mApiVersion = ApiVersion.v028;
+	private static final ApiVersion mApiVersion = ApiVersion.v027;
 	
 	private static MythServicesTemplate mMythServicesTemplate;
 
@@ -113,11 +113,11 @@ public class StorageGroupHelperV28 extends AbstractBaseHelper {
 		List<StorageGroupDirectory> storageGroupDirectories = null;
 
 		try {
-			ResponseEntity<org.mythtv.services.api.v028.beans.StorageGroupDirList> responseEntity = mMythServicesTemplate.mythOperations().getStorageGroupDirs( storageGroupName, locationProfile.getHostname(), ETagInfo.createEmptyETag() );
+			ResponseEntity<org.mythtv.services.api.v027.beans.StorageGroupDirList> responseEntity = mMythServicesTemplate.mythOperations().getStorageGroupDirs( storageGroupName, locationProfile.getHostname(), ETagInfo.createEmptyETag() );
 
 			if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
 
-				org.mythtv.services.api.v028.beans.StorageGroupDirList storageGroupDirectoryList = responseEntity.getBody();
+				org.mythtv.services.api.v027.beans.StorageGroupDirList storageGroupDirectoryList = responseEntity.getBody();
 
 				if( null != storageGroupDirectoryList.getStorageGroupDirs() ) {
 
@@ -136,14 +136,14 @@ public class StorageGroupHelperV28 extends AbstractBaseHelper {
 		return storageGroupDirectories;
 	}
 	
-	private List<StorageGroupDirectory> load( org.mythtv.services.api.v028.beans.StorageGroupDir[] versionStorageGroupDirectories ) {
+	private List<StorageGroupDirectory> load( org.mythtv.services.api.v027.beans.StorageGroupDir[] versionStorageGroupDirectories ) {
 		Log.v( TAG, "load : enter" );
 		
 		List<StorageGroupDirectory> storageGroupDirectories = new ArrayList<StorageGroupDirectory>();
 		
 		if( null != versionStorageGroupDirectories && versionStorageGroupDirectories.length > 0 ) {
 			
-			for( org.mythtv.services.api.v028.beans.StorageGroupDir versionStorageGroupDirectory : versionStorageGroupDirectories ) {
+			for( org.mythtv.services.api.v027.beans.StorageGroupDir versionStorageGroupDirectory : versionStorageGroupDirectories ) {
 				
 				StorageGroupDirectory storageGroupDirectory = new StorageGroupDirectory();
 				storageGroupDirectory.setId( versionStorageGroupDirectory.getId() );
