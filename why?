@@ -1,0 +1,6 @@
+Why are these here, and shouldn't they be removed?
+==================================================
+drwxrwxr-x  2 bill bill  4096 Nov  4 20:43 header
+drwxrwxr-x  3 bill bill  4096 Nov  4 20:43 lib
+drwxrwxr-x 15 bill bill  4096 Nov  4 22:50 res
+drwxrwxr-x  3 bill bill  4096 Nov  4 20:43 src
