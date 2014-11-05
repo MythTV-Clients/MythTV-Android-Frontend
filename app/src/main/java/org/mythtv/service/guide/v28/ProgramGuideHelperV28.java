@@ -40,10 +40,10 @@ import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.ApiVersion;
 import org.mythtv.services.api.MythServiceApiRuntimeException;
 import org.mythtv.services.api.connect.MythAccessFactory;
-import org.mythtv.services.api.v027.MythServicesTemplate;
-import org.mythtv.services.api.v027.beans.ChannelInfo;
-import org.mythtv.services.api.v027.beans.Program;
-import org.mythtv.services.api.v027.beans.ProgramGuide;
+import org.mythtv.services.api.v028.MythServicesTemplate;
+import org.mythtv.services.api.v028.beans.ChannelInfo;
+import org.mythtv.services.api.v028.beans.Program;
+import org.mythtv.services.api.v028.beans.ProgramGuide;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -63,7 +63,7 @@ public class ProgramGuideHelperV28 extends AbstractBaseHelper {
 
 	private static final String TAG = ProgramGuideHelperV28.class.getSimpleName();
 	
-	private static final ApiVersion mApiVersion = ApiVersion.v027;
+	private static final ApiVersion mApiVersion = ApiVersion.v028;
 	
 	private static MainApplication mMainApplication;
 	private static MythServicesTemplate mMythServicesTemplate;

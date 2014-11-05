@@ -99,11 +99,11 @@ public class ChannelDownloadService extends MythtvService {
     					passed = ChannelHelperV27.getInstance().process( this, locationProfile );
 
     					break;
-//    				case v028 :
-//
-//    					passed = ChannelHelperV28.getInstance().process( this, locationProfile );
-//
-//    					break;
+    				case v028 :
+
+    					passed = ChannelHelperV28.getInstance().process( this, locationProfile );
+
+    					break;
     					
     					
     				default :

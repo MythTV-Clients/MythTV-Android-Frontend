@@ -35,11 +35,11 @@ import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.ApiVersion;
 import org.mythtv.services.api.MythServiceApiRuntimeException;
 import org.mythtv.services.api.connect.MythAccessFactory;
-import org.mythtv.services.api.v027.MythServicesTemplate;
-import org.mythtv.services.api.v027.beans.ChannelInfo;
-import org.mythtv.services.api.v027.beans.ChannelInfoList;
-import org.mythtv.services.api.v027.beans.VideoSource;
-import org.mythtv.services.api.v027.beans.VideoSourceList;
+import org.mythtv.services.api.v028.MythServicesTemplate;
+import org.mythtv.services.api.v028.beans.ChannelInfo;
+import org.mythtv.services.api.v028.beans.ChannelInfoList;
+import org.mythtv.services.api.v028.beans.VideoSource;
+import org.mythtv.services.api.v028.beans.VideoSourceList;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -59,7 +59,7 @@ public class ChannelHelperV28 extends AbstractBaseHelper {
 
 	private static final String TAG = ChannelHelperV28.class.getSimpleName();
 	
-	private static final ApiVersion mApiVersion = ApiVersion.v027;
+	private static final ApiVersion mApiVersion = ApiVersion.v028;
 	
 	private static MythServicesTemplate mMythServicesTemplate;
 	
@@ -479,7 +479,7 @@ public class ChannelHelperV28 extends AbstractBaseHelper {
 		channelInfo.setChanFilters( channelFilters );
 		channelInfo.setSourceId( sourceId );
 		channelInfo.setInputId( inputId );
-		channelInfo.setCommFree( commercialFree );
+		channelInfo.setCommFree( commercialFree == 1 ? true : false);
 		channelInfo.setUseEIT( useEit == 1 ? true : false );
 		channelInfo.setVisible( visible == 1 ? true : false );
 		channelInfo.setXMLTVID( xmltvId );
@@ -521,7 +521,7 @@ public class ChannelHelperV28 extends AbstractBaseHelper {
 		values.put( ChannelConstants.FIELD_CHAN_FILTERS, channelInfo.getChanFilters() );
 		values.put( ChannelConstants.FIELD_SOURCE_ID, channelInfo.getSourceId() );
 		values.put( ChannelConstants.FIELD_INPUT_ID, channelInfo.getInputId() );
-		values.put( ChannelConstants.FIELD_COMM_FREE, channelInfo.getCommFree() );
+		values.put( ChannelConstants.FIELD_COMM_FREE, channelInfo.isCommFree() ? 1 : 0 );
 		values.put( ChannelConstants.FIELD_USE_EIT, ( channelInfo.isUseEIT() ? 1 : 0 ) );
 		values.put( ChannelConstants.FIELD_VISIBLE, ( channelInfo.isVisible() ? 1 : 0 ) );
 		values.put( ChannelConstants.FIELD_XMLTV_ID, channelInfo.getXMLTVID() );

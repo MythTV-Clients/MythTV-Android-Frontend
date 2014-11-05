@@ -39,10 +39,10 @@ import org.mythtv.services.api.ApiVersion;
 import org.mythtv.services.api.Bool;
 import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.connect.MythAccessFactory;
-import org.mythtv.services.api.v027.MythServicesTemplate;
-import org.mythtv.services.api.v027.beans.LiveStreamInfo;
-import org.mythtv.services.api.v027.beans.LiveStreamInfoList;
-import org.mythtv.services.api.v027.beans.Program;
+import org.mythtv.services.api.v028.MythServicesTemplate;
+import org.mythtv.services.api.v028.beans.LiveStreamInfo;
+import org.mythtv.services.api.v028.beans.LiveStreamInfoList;
+import org.mythtv.services.api.v028.beans.Program;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -65,7 +65,7 @@ public class LiveStreamHelperV28 extends AbstractBaseHelper {
 
 	private static final String TAG = LiveStreamHelperV28.class.getSimpleName();
 	
-	private static final ApiVersion mApiVersion = ApiVersion.v027;
+	private static final ApiVersion mApiVersion = ApiVersion.v028;
 	
 	private static PlaybackProfileDaoHelper mPlaybackProfileDaoHelper = PlaybackProfileDaoHelper.getInstance();
 

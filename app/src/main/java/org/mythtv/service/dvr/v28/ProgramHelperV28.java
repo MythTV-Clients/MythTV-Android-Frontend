@@ -31,18 +31,16 @@ import org.mythtv.db.AbstractBaseHelper;
 import org.mythtv.db.dvr.ProgramConstants;
 import org.mythtv.db.dvr.RecordingConstants;
 import org.mythtv.db.http.model.EtagInfoDelegate;
-import org.mythtv.service.channel.v27.ChannelHelperV27;
 import org.mythtv.service.channel.v28.ChannelHelperV28;
-import org.mythtv.service.dvr.v27.RecordingHelperV27;
 import org.mythtv.service.util.DateUtils;
 import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.ApiVersion;
 import org.mythtv.services.api.Bool;
 import org.mythtv.services.api.connect.MythAccessFactory;
-import org.mythtv.services.api.v027.MythServicesTemplate;
-import org.mythtv.services.api.v027.beans.ChannelInfo;
-import org.mythtv.services.api.v027.beans.Program;
-import org.mythtv.services.api.v027.beans.RecordingInfo;
+import org.mythtv.services.api.v028.MythServicesTemplate;
+import org.mythtv.services.api.v028.beans.ChannelInfo;
+import org.mythtv.services.api.v028.beans.Program;
+import org.mythtv.services.api.v028.beans.RecordingInfo;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -62,7 +60,7 @@ public class ProgramHelperV28 extends AbstractBaseHelper {
 
 	private static final String TAG = ProgramHelperV28.class.getSimpleName();
 
-	private static final ApiVersion mApiVersion = ApiVersion.v027;
+	private static final ApiVersion mApiVersion = ApiVersion.v028;
 
 	private static final String[] programProjection = new String[] { ProgramConstants._ID };
 
@@ -474,11 +472,11 @@ public class ProgramHelperV28 extends AbstractBaseHelper {
 		}
 		
 		if( cursor.getColumnIndex( ProgramConstants.FIELD_CHANNEL_ID ) != -1 ) {
-			channelInfo = ChannelHelperV27.getInstance().convertCursorToChannelInfo( cursor );
+			channelInfo = ChannelHelperV28.getInstance().convertCursorToChannelInfo( cursor );
 		}
 
 		if( cursor.getColumnIndex( RecordingConstants.ContentDetails.getValueFromParent( table ).getTableName() + "_" + RecordingConstants.FIELD_RECORD_ID ) != -1 ) {
-			recording = RecordingHelperV27.getInstance().convertCursorToRecording( cursor, table );
+			recording = RecordingHelperV28.getInstance().convertCursorToRecording( cursor, table );
 		}
 		
 		Program program = new Program();

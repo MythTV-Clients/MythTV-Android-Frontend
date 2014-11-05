@@ -81,10 +81,10 @@ public class RemoveStreamTask extends AsyncTask<Integer, Void, Boolean> {
 
 				break;
 
-//			case v028 :
-//				removeLiveStreamV28( id );
-//
-//				break;
+			case v028 :
+				removeLiveStreamV28( id );
+
+				break;
 	
 			default :
 				removeLiveStreamV27( id );
@@ -129,13 +129,13 @@ public class RemoveStreamTask extends AsyncTask<Integer, Void, Boolean> {
 		template.contentOperations().removeLiveStream( id, ETagInfo.createEmptyETag() );
 	}
 
-//	private void removeLiveStreamV28( Integer id ) {
-//
-//		if( !NetworkHelper.getInstance().isMasterBackendConnected( mContext, mLocationProfile ) ) {
-//			return;
-//		}
-//
-//		org.mythtv.services.api.v028.MythServicesTemplate template = (org.mythtv.services.api.v028.MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( ApiVersion.v028, mLocationProfile.getUrl() );
-//		template.contentOperations().removeLiveStream( id, ETagInfo.createEmptyETag() );
-//	}
+	private void removeLiveStreamV28( Integer id ) {
+		
+		if( !NetworkHelper.getInstance().isMasterBackendConnected( mContext, mLocationProfile ) ) {
+			return;
+		}
+		
+		org.mythtv.services.api.v028.MythServicesTemplate template = (org.mythtv.services.api.v028.MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( ApiVersion.v028, mLocationProfile.getUrl() );
+		template.contentOperations().removeLiveStream( id, ETagInfo.createEmptyETag() );
+	}
 }

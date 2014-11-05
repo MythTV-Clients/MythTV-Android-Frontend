@@ -117,11 +117,11 @@ public class GetHostsTask extends AsyncTask<Void, Void, List<String>> {
 				hosts = HostHelperV27.getInstance().process( mContext, mLocationProfile );
 				
 				break;
-//			case v028 :
-//
-//				hosts = HostHelperV28.getInstance().process( mContext, mLocationProfile );
-//
-//				break;
+			case v028 :
+
+				hosts = HostHelperV28.getInstance().process( mContext, mLocationProfile );
+				
+				break;
 				
 			default :
 				

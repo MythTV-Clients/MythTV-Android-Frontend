@@ -95,11 +95,11 @@ public class BackendStatusService extends MythtvService {
     					mBackendStatus = BackendStatusHelperV27.getInstance().process( this, mLocationProfile );
 
     					break;
-//    				case v028 :
+    				case v028 :
 
-//    					mBackendStatus = BackendStatusHelperV28.getInstance().process( this, mLocationProfile );
+    					mBackendStatus = BackendStatusHelperV28.getInstance().process( this, mLocationProfile );
 
-//    					break;
+    					break;
 
     				default :
 

@@ -33,7 +33,7 @@ import org.mythtv.service.util.NetworkHelper;
 import org.mythtv.services.api.ApiVersion;
 import org.mythtv.services.api.ETagInfo;
 import org.mythtv.services.api.connect.MythAccessFactory;
-import org.mythtv.services.api.v027.MythServicesTemplate;
+import org.mythtv.services.api.v028.MythServicesTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -50,7 +50,7 @@ public class StatusHelperV28 extends AbstractBaseHelper {
 
 	private static final String TAG = StatusHelperV28.class.getSimpleName();
 	
-	private static final ApiVersion mApiVersion = ApiVersion.v027;
+	private static final ApiVersion mApiVersion = ApiVersion.v028;
 	
 	private static MythServicesTemplate mMythServicesTemplate;
 
@@ -121,11 +121,11 @@ public class StatusHelperV28 extends AbstractBaseHelper {
 	
 		Status status = null;
 
-		ResponseEntity<org.mythtv.services.api.v027.beans.FrontendStatus> responseEntity = mMythServicesTemplate.frontendOperations().getStatus( ETagInfo.createEmptyETag() );
+		ResponseEntity<org.mythtv.services.api.v028.beans.FrontendStatus> responseEntity = mMythServicesTemplate.frontendOperations().getStatus( ETagInfo.createEmptyETag() );
 
 		if( responseEntity.getStatusCode().equals( HttpStatus.OK ) ) {
 
-			org.mythtv.services.api.v027.beans.FrontendStatus versionStatus = responseEntity.getBody();
+			org.mythtv.services.api.v028.beans.FrontendStatus versionStatus = responseEntity.getBody();
 
 			if( null != versionStatus ) {
 				status = load( versionStatus );	
@@ -137,7 +137,7 @@ public class StatusHelperV28 extends AbstractBaseHelper {
 		return status;
 	}
 	
-	private Status load( org.mythtv.services.api.v027.beans.FrontendStatus versionStatus ) {
+	private Status load( org.mythtv.services.api.v028.beans.FrontendStatus versionStatus ) {
 		Log.v( TAG, "load : enter" );
 		
 		Status status = new Status();

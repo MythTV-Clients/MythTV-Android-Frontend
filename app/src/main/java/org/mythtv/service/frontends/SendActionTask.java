@@ -98,15 +98,15 @@ public class SendActionTask extends AsyncTask<String, Void, Void> {
 				}
 				
 				break;
-//			case v028 :
+			case v028 :
 
-//				org.mythtv.services.api.v028.MythServicesTemplate mythServicesTemplateV28 = (org.mythtv.services.api.v028.MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( apiVersion, url );
+				org.mythtv.services.api.v028.MythServicesTemplate mythServicesTemplateV28 = (org.mythtv.services.api.v028.MythServicesTemplate) MythAccessFactory.getServiceTemplateApiByVersion( apiVersion, url );
 
-//				if( null != mythServicesTemplateV28 ) {
-//					mythServicesTemplateV28.frontendOperations().sendAction( action, null, 0, 0, ETagInfo.createEmptyETag() );
-//				}
+				if( null != mythServicesTemplateV28 ) {
+					mythServicesTemplateV28.frontendOperations().sendAction( action, null, 0, 0, ETagInfo.createEmptyETag() );
+				}
 				
-//				break;
+				break;
 				
 			default :
 				
