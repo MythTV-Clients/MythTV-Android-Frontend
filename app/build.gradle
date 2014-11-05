@@ -11,7 +11,15 @@ apply plugin: 'com.android.application'
 apply plugin: 'signing'
 
 android {
-
+    packagingOptions {
+        exclude 'plugin.properties'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/license.txt'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/notice.txt'
+    }
     // get the commit SHA1...
     new ByteArrayOutputStream().withStream { os ->
         def result = exec {
@@ -24,29 +32,18 @@ android {
 
     //group = 'org.mythtv'
     //version =  + project.ext.getHash
-    //println 'Current version: ' + version
+    println 'Current commit: ' + project.ext.getHash
 
     compileSdkVersion 19
     buildToolsVersion "19.1.0"
 
     defaultConfig {
-        versionName '1.30.1'
+        versionName '1.20.7'
         minSdkVersion 15
         targetSdkVersion 19
     }
 
-    // fails without all of these, RETEST THIS with 0.9.1
-    packagingOptions {
-        exclude 'META-INF/LICENSE'
-        exclude 'META-INF/LICENSE.txt'
-        exclude 'META-INF/license.txt'
-        exclude 'META-INF/NOTICE'
-        exclude 'META-INF/NOTICE.txt'
-        exclude 'META-INF/notice.txt'
-        exclude 'plugin.properties'
-    }
-
-    // fails without this!
+    // Fails without this! Probably should fix errors then delete this.
     lintOptions {
         abortOnError false
     }
@@ -102,12 +99,11 @@ dependencies {
             'com.fasterxml.jackson.core:jackson-databind:2.3.0',
             'com.fasterxml.jackson.datatype:jackson-datatype-joda:2.3.0',
             'org.springframework.android:spring-android-rest-template:1.0.1.RELEASE',
-            'com.nostra13.universalimageloader:universal-image-loader:1.8.0',
+            'com.nostra13.universalimageloader:universal-image-loader:1.8.6',
             'org.springframework.social:spring-social-core:1.0.2.RELEASE',
             'org.simpleframework:simple-xml:2.7',
             'com.android.support:support-v4:20.0.0',/* not happy with this */
-            'com.google.android:android:4.1.1.4'    /* or this, part of SDK??? */
+            'com.google.android:android:4.1.1.4',   /* or this, part of SDK??? */
+            'org.mythtv.android:mythtv-service-api:1.0.13'
     )
-    // the following gets the Services API SNAPSHOT, needs fixing...
-    compile fileTree(dir: '/home/bill/workspace/MythTV-Service-API/build/libs', include: 'mythtv-service-api-v028-SNAPSHOT.jar')
 }
