@@ -45,10 +45,6 @@
 		android:smallScreens="true"
 		android:largeHeap="true" />
     
-    <uses-sdk
-        android:minSdkVersion="14"
-        android:targetSdkVersion="19" />
-
     <application
         android:hardwareAccelerated="true"
         android:name=".client.MainApplication"
